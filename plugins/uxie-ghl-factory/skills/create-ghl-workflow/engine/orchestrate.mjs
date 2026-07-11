@@ -102,7 +102,8 @@ export async function orchestrate(ir, gw, opts = {}) {
   const required = collectRequiredTags(ir);
   if (required.length) {
     const tl = await call('GET', `/locations/${loc}/tags`);
-    const existing = (tl.json?.tags || tl.json || []).map((t) => t.name);
+    const tagList = Array.isArray(tl.json) ? tl.json : (tl.json?.tags ?? []);
+    const existing = tagList.map((t) => t.name);
     for (const name of missingTags(required, existing)) {
       const r = await call('POST', `/locations/${loc}/tags`, { name });
       if (r.ok) report.createdTags.push(name);
