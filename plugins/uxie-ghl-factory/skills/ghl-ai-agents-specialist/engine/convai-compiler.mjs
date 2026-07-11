@@ -71,7 +71,18 @@ function buildCreateBody(ir, { locationId }) {
 // though convai-action.json's request_body carries them. Defaults below match the
 // capture's values for the two boolean flags; `triggerCondition` has no sane default (it's
 // the bot's own decision trigger text) so it's required and length-validated instead.
-const HUMAN_HANDOVER_DETAIL_DEFAULTS = { enabled: true, reactivateEnabled: false };
+//
+// Second live-verified 422 gap (found re-testing the fix above, 2026-07-11): the API also
+// requires `details.sleepTime` / `details.sleepTimeUnit` (number 1-30 / enum
+// days|hours|minutes) for humanHandOver, even though it's unrelated to the handover
+// semantics — it was present in convai-action.json's request_body all along
+// (sleepTime: 8, sleepTimeUnit: "hours") but had been dropped from the defaults here.
+const HUMAN_HANDOVER_DETAIL_DEFAULTS = {
+  enabled: true,
+  reactivateEnabled: false,
+  sleepTime: 8,
+  sleepTimeUnit: 'hours',
+};
 const TRIGGER_CONDITION_MIN = 10;
 const TRIGGER_CONDITION_MAX = 500;
 

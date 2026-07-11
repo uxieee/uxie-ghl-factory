@@ -103,6 +103,8 @@ test('compileConvaiAgent: action list compiled into separate actions[] descripto
     triggerCondition: 'Direct request to speak with human',
     enabled: true,
     reactivateEnabled: false,
+    sleepTime: 8,
+    sleepTimeUnit: 'hours',
   });
 });
 
@@ -151,6 +153,8 @@ test('compileConvaiAction: humanHandOver merges API-required detail defaults ove
   );
   assert.equal(body.details.enabled, true);
   assert.equal(body.details.reactivateEnabled, false);
+  assert.equal(body.details.sleepTime, 8);
+  assert.equal(body.details.sleepTimeUnit, 'hours');
   assert.equal(body.details.triggerCondition, 'Direct request to speak with human');
   assert.equal(body.details.handoverType, 'contactRequest');
 });
