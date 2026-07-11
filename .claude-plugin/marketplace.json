@@ -4,8 +4,8 @@
   "owner": { "name": "Xander Roque", "url": "https://github.com/uxieee" },
   "plugins": [
     {
-      "name": "ghl",
-      "source": "./plugins/ghl",
+      "name": "uxie-ghl-factory",
+      "source": "./plugins/uxie-ghl-factory",
       "description": "GoHighLevel toolkit for Claude Code: build and operate GHL sub-accounts."
     }
   ]

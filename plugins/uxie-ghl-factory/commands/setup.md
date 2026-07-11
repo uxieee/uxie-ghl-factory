@@ -2,7 +2,7 @@
 description: First-run setup for the ghl plugin — prerequisites, GHL API token, MCP connection test, version check
 ---
 
-# /ghl:setup
+# /uxie-ghl-factory:setup
 
 Run these in order; report a pass/fail table at the end.
 
@@ -36,5 +36,5 @@ Run these in order; report a pass/fail table at the end.
 6. OPTIONAL — internal API: ask whether they want internal-API features now;
    if yes, walk ${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md §2 once,
    including the ToS disclosure from ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md.
-7. POINT FORWARD: suggest /ghl:brief for their first client, and the
+7. POINT FORWARD: suggest /uxie-ghl-factory:brief for their first client, and the
    ghl-orientation skill for agents new to GHL.

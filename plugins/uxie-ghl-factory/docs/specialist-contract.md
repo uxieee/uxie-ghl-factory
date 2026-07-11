@@ -8,7 +8,7 @@
    pipelines, tags, custom fields, calendars, etc.). Never ask what recon answers.
 2. **Read the brief.** Load `.ghl/<locationId>/brief.md` (format:
    ${CLAUDE_PLUGIN_ROOT}/docs/brief-format.md). It holds business, ICA, offer,
-   goals — the human-only context. If it's missing, run `/ghl:brief` first (or
+   goals — the human-only context. If it's missing, run `/uxie-ghl-factory:brief` first (or
    conduct the same intake and offer to save it).
 3. **Intake.** Ask ONLY what neither recon nor brief answers — one question at a
    time, in priority order. Confirm (don't re-ask) anything recon/brief already

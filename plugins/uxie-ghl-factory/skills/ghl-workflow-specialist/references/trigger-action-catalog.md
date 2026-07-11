@@ -193,7 +193,7 @@ Two things worth flagging because older research (this repo, and `ghl-specialist
 - `ghl-workflow-api-docs/docs/09-gotchas.md`
 - `ghl-workflow-api-docs/docs/10-caveats.md`
 - `ghl-workflow-api-docs/recipes/cross-workflow-handoff.md`
-- `plugins/ghl/skills/create-ghl-workflow/references/step-shapes.md`
+- `plugins/uxie-ghl-factory/skills/create-ghl-workflow/references/step-shapes.md`
 - `~/.claude/skills/ghl-specialist/references/trigger-gotchas.md`
 - `~/.claude/skills/ghl-specialist/references/action-gotchas.md`
 - `~/.claude/skills/ghl-specialist/references/api-gap-matrix.md` (cited only for what's
