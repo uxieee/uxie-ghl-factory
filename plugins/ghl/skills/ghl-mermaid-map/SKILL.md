@@ -1,6 +1,6 @@
 ---
 name: ghl-mermaid-map
-description: Renders the account's system flow as a Mermaid map — entry points, tags, pipeline stages, workflows, messaging sinks, and exits, connected by inferred edges (tag handoffs, stage changes, form submissions, goal events). Descriptive only: the map shows structure, never findings or verdicts. Use whenever an audit needs a system-flow diagram, when recon data is partial and a map still has to ship, or when asked to visualize how contacts move through a GHL sub-account.
+description: "Renders the account's system flow as a Mermaid map — entry points, tags, pipeline stages, workflows, messaging sinks, and exits, connected by inferred edges (tag handoffs, stage changes, form submissions, goal events). Descriptive only — the map shows structure, never findings or verdicts. Use whenever an audit needs a system-flow diagram, when recon data is partial and a map still has to ship, or when asked to visualize how contacts move through a GHL sub-account."
 ---
 
 # GHL Mermaid Map
