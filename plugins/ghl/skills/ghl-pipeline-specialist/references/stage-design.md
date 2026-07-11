@@ -117,7 +117,8 @@ array is a **full replacement**, not a diff:
 - Every stage you want to **keep** must be included in the request with its existing
   `id`.
 - Any existing stage **omitted** from the array is **deleted**, and every opportunity
-  that was sitting in it is silently moved to the lowest-position remaining stage.
+  that was sitting in it is reassigned to a remaining stage (confirm the exact destination
+  by re-running get-pipeline after the update).
 - A stage included **without** an `id` is created as new.
 
 This is the single most consequential gotcha in the pipeline surface: a well-meaning

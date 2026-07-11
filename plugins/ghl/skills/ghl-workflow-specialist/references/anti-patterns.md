@@ -43,8 +43,8 @@ from the builder UI.
 shape. A `false` value on either side is either the intended stop (if that's the goal)
 or a silent trap (if it isn't).
 
-**Avoid:** Prefer one-directional handoffs (§4.7 in `patterns.md`: "Cross-workflow
-hand-off"). If a return leg is genuinely required, pair it with an explicit
+**Avoid:** Prefer one-directional handoffs (§4 ("Cross-workflow hand-off") in
+`patterns.md`). If a return leg is genuinely required, pair it with an explicit
 `remove_from_workflow(includeCurrent: true)` on the outbound leg so the contact isn't
 live in both workflows simultaneously, and document the loop's intended exit condition.
 
@@ -229,7 +229,9 @@ unauthenticated-surface trigger (public form, webhook) with no upstream filterin
 counter custom value (rate-limit pattern) or upstream filtering on the trigger itself.
 Say this explicitly in the blueprint when an AI action is part of the design.
 
-**Source:** `ghl-specialist references/action-gotchas.md` (AI Prompt).
+**Source:** `ghl-specialist references/action-gotchas.md` (AI Prompt) — the source
+names the AI-Prompt step; applied to both `ai_agent` and `chatgpt` steps here by
+analogy, since both bill tokens to the same uncapped wallet.
 
 ---
 
