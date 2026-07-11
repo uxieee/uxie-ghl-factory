@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch } from './edit.mjs';
+import { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch } from './edit.mjs';
+
+let _n = 0;
+const seqId = () => `gen${++_n}`;
 
 const chain = () => [
   { id: 's1', type: 'add_contact_tag', name: 'A', next: 's2', parentKey: null, order: 0, attributes: {} },
@@ -57,7 +60,8 @@ test('modifyStep patches attributes in place', () => {
 // a branched graph: container B with a Yes branch-entry (has 1 child) and an empty No branch-entry
 const branched = () => [
   { id: 'root1', type: 'add_contact_tag', name: 'Start', next: 'cont', parentKey: null, order: 0, attributes: {} },
-  { id: 'cont', type: 'if_else', name: 'Check', nodeType: 'condition-node', next: ['yes', 'no'], parentKey: 'root1', order: 1, attributes: {} },
+  { id: 'cont', type: 'if_else', name: 'Check', nodeType: 'condition-node', next: ['yes', 'no'], parentKey: 'root1', order: 1,
+    attributes: { branches: [{ id: 'yes', name: 'Yes', operator: 'and', segments: [] }, { id: 'no', name: 'No', operator: 'and', segments: [] }], conditionName: 'Check', if: true, operator: 'and', noneBranchName: 'No' } },
   { id: 'yes', type: 'if_else', name: 'Yes', nodeType: 'branch-yes', parent: 'cont', parentKey: 'cont', next: 'y1', order: 0, attributes: {} },
   { id: 'y1', type: 'sms', name: 'Yes step 1', parent: 'yes', parentKey: 'yes', next: null, order: 0, attributes: {} },
   { id: 'no', type: 'if_else', name: 'No', nodeType: 'branch-no', parent: 'cont', parentKey: 'cont', next: null, order: 1, attributes: {} },
@@ -80,4 +84,40 @@ test('appendToBranch wires the entry for an empty branch', () => {
   assert.equal(n1.parent, 'no');
   assert.equal(n1.parentKey, 'no');
   assert.deepEqual(diff, { createdSteps: ['n1'], modifiedSteps: ['no'], deletedSteps: [] });
+});
+
+test('deleteStep works inside a branch (deletes the branch first child → empties it)', () => {
+  const { templates } = deleteStep(branched(), 'y1');
+  assert.equal(templates.find((t) => t.id === 'y1'), undefined);
+  assert.equal(templates.find((t) => t.id === 'yes').next, null);   // yes branch is now empty
+});
+
+test('moveStep reorders within the root trunk', () => {
+  // chain s1->s2->s3; move s3 to after s1 → s1->s3->s2
+  const { templates, diff } = moveStep(chain(), 's3', 's1');
+  const s1 = templates.find((t) => t.id === 's1'), s3 = templates.find((t) => t.id === 's3'), s2 = templates.find((t) => t.id === 's2');
+  assert.equal(s1.next, 's3');
+  assert.equal(s3.next, 's2');
+  assert.equal(s2.next, null);            // s2 is now the tail (its old next s3 moved away)
+  assert.equal(diff.createdSteps.length, 0);
+  assert.equal(diff.deletedSteps.length, 0);
+  assert.ok(diff.modifiedSteps.includes('s3'));
+});
+
+test('addBranch inserts a new conditional branch before the else', () => {
+  _n = 0;
+  const { templates, diff } = addBranch(branched(), 'cont', { name: 'Maybe', conditions: [{ conditionType: 'contact_detail' }] }, seqId);
+  const cont = templates.find((t) => t.id === 'cont');
+  // next was [yes, no] → now [yes, gen1, no] (new branch before the else)
+  assert.deepEqual(cont.next, ['yes', 'gen1', 'no']);
+  assert.equal(cont.attributes.branches[1].id, 'gen1');
+  assert.equal(cont.attributes.branches[1].name, 'Maybe');
+  assert.equal(cont.attributes.branches[1].segments.length, 1);
+  const newEntry = templates.find((t) => t.id === 'gen1');
+  assert.equal(newEntry.nodeType, 'branch-yes');
+  assert.equal(newEntry.parent, 'cont');
+  assert.deepEqual(newEntry.sibling.sort(), ['no', 'yes']);
+  // existing branch-entries got the new sibling
+  assert.ok(templates.find((t) => t.id === 'yes').sibling.includes('gen1'));
+  assert.deepEqual(diff.createdSteps, ['gen1']);
 });

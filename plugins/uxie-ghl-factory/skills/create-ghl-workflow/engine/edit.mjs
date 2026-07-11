@@ -94,6 +94,67 @@ export function appendToBranch(templates, branchEntryId, newStep) {
   return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [cur.id], deletedSteps: [] } };
 }
 
+// Move an existing step to sit immediately AFTER `afterId` (reorder). Detaches it from
+// its current position (rewiring its predecessor to its old next), then splices it in
+// after the anchor, inheriting the anchor's scope. Everything is a modifiedStep (no
+// create/delete — the step keeps its id).
+export function moveStep(templates, stepId, afterId) {
+  const step = templates.find((t) => t.id === stepId);
+  const anchor = templates.find((t) => t.id === afterId);
+  if (!step || !anchor || stepId === afterId || anchor.next === stepId) return { templates, diff: emptyDiff() };
+  const oldPred = templates.find((t) => t.next === stepId);
+  const stepOldNext = typeof step.next === 'string' ? step.next : null;
+  const anchorOldNext = typeof anchor.next === 'string' ? anchor.next : null;
+  const modified = new Set();
+  const out = templates.map((t) => {
+    if (oldPred && t.id === oldPred.id) { modified.add(t.id); t = { ...t, next: stepOldNext }; }
+    if (t.id === afterId) { modified.add(t.id); t = { ...t, next: stepId }; }
+    if (t.id === stepId) {
+      modified.add(t.id);
+      t = { ...t, next: anchorOldNext, parentKey: afterId };
+      if (anchor.parent != null) t.parent = anchor.parent; else delete t.parent;
+    }
+    return t;
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [] } };
+}
+
+// Add a new conditional branch to an existing if_else container. Mirrors the compiler's
+// branch shape: a new branch-entry step (nodeType branch-yes), inserted into the
+// container's next[] and attributes.branches[] BEFORE the else (which stays last), with
+// every branch-entry's sibling[]/order kept in sync. `idGen` mints the new step id.
+export function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
+  const container = templates.find((t) => t.id === containerId && t.nodeType === 'condition-node');
+  if (!container || !Array.isArray(container.next)) return { templates, diff: emptyDiff() };
+  const newId = idGen();
+  const next = [...container.next];
+  const branches = [...(container.attributes?.branches || [])];
+  const elseIdx = next.length - 1;                 // the else/branch-no is always last
+  next.splice(elseIdx, 0, newId);                  // insert before else
+  branches.splice(elseIdx, 0, {
+    id: newId, name, operator: 'and',
+    segments: conditions.length ? [{ operator: 'and', conditions }] : [],
+    showErrors: false, branchNameError: 'Branch name cannot be empty!',
+  });
+  const allIds = next;
+  const newEntry = {
+    id: newId, type: 'if_else', name, order: next.indexOf(newId),
+    parent: containerId, parentKey: containerId, cat: '', comments: [],
+    sibling: allIds.filter((x) => x !== newId), nodeType: 'branch-yes', attributes: {}, next: null,
+  };
+  const modified = [containerId];
+  const out = templates.map((t) => {
+    if (t.id === containerId) return { ...t, next, attributes: { ...t.attributes, branches } };
+    if (t.parent === containerId && allIds.includes(t.id)) {
+      modified.push(t.id);
+      return { ...t, sibling: allIds.filter((x) => x !== t.id), order: next.indexOf(t.id) };
+    }
+    return t;
+  });
+  out.push(newEntry);
+  return { templates: out, diff: { createdSteps: [newId], modifiedSteps: modified, deletedSteps: [] } };
+}
+
 // Build the COMMIT body for an edit. Edits must go through the plain PUT
 // /workflow/{loc}/{wid} (the commit path, same as publish) — NOT /auto-save. An
 // auto-save on a freshly-built workflow 422s "previous changes were not committed"
