@@ -1,0 +1,7315 @@
+{
+ "_generated": "gen-catalog.mjs",
+ "_sources": [
+  "catalog/step-examples",
+  "catalog/trigger-examples",
+  "sniffs/bundle/registry-parsed.json",
+  "sniffs/bundle/trigger-registry-parsed.json",
+  "sniffs/bundle/og-action-ui-metadata.json",
+  "sniffs/UNIFIED_ACTION_INDEX.tsv"
+ ],
+ "stepCount": 316,
+ "triggerCount": 59,
+ "filterModels": {
+  "AppointmentFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/AppointmentFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In calendar",
+     "value": "calendar.id",
+     "type": "select"
+    },
+    {
+     "label": "Appointment status is",
+     "value": "appointment.status",
+     "type": "select",
+     "options": [
+      {
+       "label": "new",
+       "value": "new"
+      },
+      {
+       "label": "confirmed",
+       "value": "confirmed"
+      },
+      {
+       "label": "cancelled",
+       "value": "cancelled"
+      },
+      {
+       "label": "Showed",
+       "value": "showed"
+      },
+      {
+       "label": "No-show",
+       "value": "noshow"
+      },
+      {
+       "label": "invalid",
+       "value": "invalid"
+      }
+     ]
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Event Type",
+     "value": "appointment.eventType",
+     "type": "select",
+     "options": [
+      {
+       "label": "Normal",
+       "value": "normal"
+      },
+      {
+       "label": "Recurring",
+       "value": "recurring"
+      },
+      {
+       "label": "Any",
+       "value": "any"
+      }
+     ]
+    },
+    {
+     "label": "Created By/Modified By",
+     "value": "appointment.modifiedBy",
+     "type": "select",
+     "options": [
+      {
+       "label": "Customer",
+       "value": "customer"
+      },
+      {
+       "label": "User",
+       "value": "user"
+      },
+      {
+       "label": "API",
+       "value": "api"
+      },
+      {
+       "label": "Workflow",
+       "value": "workflow"
+      }
+     ]
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "card-select",
+    "has-tag",
+    "index-of-true",
+    "is-any-of"
+   ],
+   "ui_configs": [
+    {
+     "name": "appointmentGuestUIConfig",
+     "conditionField": "contactMode",
+     "conditionUIType": "card-select"
+    },
+    {
+     "name": "customerAppointmentGuestUIConfig",
+     "conditionField": null,
+     "conditionUIType": null
+    }
+   ],
+   "size": 11073
+  },
+  "BirthdayReminderFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/BirthdayReminderFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Month is",
+     "value": "contact.birthMonth",
+     "type": "select",
+     "id": "month-value"
+    },
+    {
+     "label": "Day is",
+     "value": "contact.birthDay",
+     "type": "select",
+     "id": "day-value"
+    },
+    {
+     "label": "Before no. of days",
+     "value": "contact.dateOfBirth",
+     "type": "number",
+     "id": "before-days-in-number",
+     "operator": "time-diff-now-lte"
+    },
+    {
+     "label": "After no. of days",
+     "value": "contact.dateOfBirth",
+     "type": "number",
+     "id": "after-days-in-number",
+     "operator": "time-diff-now-gte"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "after-days-in-number",
+    "before-days-in-number",
+    "day-value",
+    "month-value",
+    "time-diff-now-gte",
+    "time-diff-now-lte"
+   ],
+   "ui_configs": [],
+   "size": 2707
+  },
+  "CallStatusFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/CallStatusFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Call Status",
+     "value": "call_status",
+     "operator": "contains-any",
+     "options": [
+      {
+       "label": "busy",
+       "value": "busy"
+      },
+      {
+       "label": "canceled",
+       "value": "canceled"
+      },
+      {
+       "label": "voicemail",
+       "value": "voicemail"
+      },
+      {
+       "label": "no-answer",
+       "value": "no-answer"
+      },
+      {
+       "label": "completed",
+       "value": "completed"
+      }
+     ]
+    },
+    {
+     "label": "Custom Disposition",
+     "value": "custom_disposition",
+     "operator": "contains-any"
+    },
+    {
+     "label": "Call Direction",
+     "value": "message.direction",
+     "type": "select",
+     "options": [
+      {
+       "label": "Incoming",
+       "value": "inbound"
+      },
+      {
+       "label": "Outgoing",
+       "value": "outbound"
+      }
+     ]
+    },
+    {
+     "label": "In Workflow",
+     "value": "workflow.id",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "contains-any",
+    "inbound-twilio-number",
+    "no-answer"
+   ],
+   "ui_configs": [],
+   "size": 6928
+  },
+  "CampaignFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/CampaignFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In campaign",
+     "value": "campaign.id",
+     "type": "select"
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "doesnot-have-tag",
+    "has-tag",
+    "index-of-false",
+    "index-of-true"
+   ],
+   "ui_configs": [],
+   "size": 1818
+  },
+  "ContactChangedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/ContactChangedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Tags",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag",
+     "operator": "add-index-of-true"
+    },
+    {
+     "label": "DND",
+     "value": "contact.dnd",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Assigned User",
+     "value": "contact.assignedTo",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Phone",
+     "value": "contact.phone",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Email",
+     "value": "contact.email",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Contact Type",
+     "value": "contact.type",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Street Address",
+     "value": "contact.address1",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "City",
+     "value": "contact.city",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "State",
+     "value": "contact.state",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Country",
+     "value": "contact.country",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Postal Code",
+     "value": "contact.postalCode",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Website",
+     "value": "contact.website",
+     "type": "input",
+     "operator": "has-changed"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "add-index-of-true",
+    "has-changed",
+    "remove-index-of-true"
+   ],
+   "ui_configs": [],
+   "size": 6731
+  },
+  "ContactCreatedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/ContactCreatedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Tag",
+     "value": "tagsAdded",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Phone",
+     "value": "contact.phone",
+     "type": "input"
+    },
+    {
+     "label": "Email",
+     "value": "contact.email",
+     "type": "input"
+    },
+    {
+     "label": "Contact Type",
+     "value": "contact.type",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS_ANY",
+    "CONTAINS_NONE",
+    "EQUAL",
+    "INDEX_OF_FALSE",
+    "INDEX_OF_TRUE",
+    "NOT_EQUALS"
+   ],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 4521
+  },
+  "ContactReplyFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/ContactReplyFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Replied to Workflow",
+     "value": "workflow.id",
+     "type": "select"
+    },
+    {
+     "label": "Reply channel",
+     "value": "message.type",
+     "type": "select"
+    },
+    {
+     "label": "Contains phrase",
+     "value": "message.body",
+     "type": "string",
+     "id": "message-contains-phrase"
+    },
+    {
+     "label": "Exact match phrase",
+     "value": "message.body",
+     "type": "input",
+     "id": "message-exact-phrase"
+    },
+    {
+     "label": "Intent type",
+     "value": "message.body",
+     "type": "select",
+     "id": "message-contains-intent",
+     "operator": "matches_intent",
+     "options": [
+      {
+       "label": "Positive/Yes",
+       "value": "schedule-yes"
+      },
+      {
+       "label": "Negative/No",
+       "value": "schedule-no"
+      }
+     ]
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS",
+    "EQUAL",
+    "EXACT",
+    "IS_ANY_OF",
+    "STRING_CONTAINS_ANY_OF",
+    "STRING_MATCHES_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "contains-any",
+    "doesnot-have-tag",
+    "has-tag",
+    "inbound-twilio-number",
+    "index-of-false",
+    "index-of-true",
+    "is-any-of",
+    "message-contains-intent",
+    "message-contains-phrase",
+    "message-exact-phrase",
+    "schedule-no",
+    "schedule-yes",
+    "whatsapp-number"
+   ],
+   "ui_configs": [],
+   "size": 18597
+  },
+  "CustomDateReminderFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/CustomDateReminderFilter.ts",
+   "field_constants": {},
+   "filter_rows": [],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "after-days-in-number",
+    "before-days-in-number",
+    "config-date-field",
+    "custom-field",
+    "custom-field-eq",
+    "custom-object-date-field",
+    "day-value",
+    "has-tag",
+    "index-of-true",
+    "month-value",
+    "opportunity-date-field",
+    "time-diff-now-gte",
+    "time-diff-now-lte"
+   ],
+   "ui_configs": [],
+   "size": 11393
+  },
+  "CustomObjectsFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/CustomObjectsFilter.ts",
+   "field_constants": {},
+   "filter_rows": [],
+   "operators_referenced": [
+    "STRING_CONTAINS_ANY_OF",
+    "STRING_MATCHES_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "add-index-of-true",
+    "has-changed",
+    "remove-index-of-true",
+    "schedule-no",
+    "schedule-yes"
+   ],
+   "ui_configs": [],
+   "size": 8583
+  },
+  "CustomerAppointmentFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/CustomerAppointmentFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In calendar",
+     "value": "calendar.id",
+     "type": "select",
+     "operator": "=="
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "has-tag",
+    "index-of-true"
+   ],
+   "ui_configs": [],
+   "size": 7263
+  },
+  "DNDFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/DNDFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "DND direction is",
+     "value": "contact.dnd_direction",
+     "type": "select",
+     "options": [
+      {
+       "label": "Inbound",
+       "value": "inbound"
+      },
+      {
+       "label": "Outbound",
+       "value": "outbound"
+      }
+     ]
+    },
+    {
+     "label": "DND flag is",
+     "value": "contact.dnd",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS_ANY",
+    "CONTAINS_NONE",
+    "EQUAL",
+    "NOT_EQUALS"
+   ],
+   "operator_literals_present": [
+    "lodash-es"
+   ],
+   "ui_configs": [],
+   "size": 16558
+  },
+  "DefaultFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/DefaultFilter.ts",
+   "field_constants": {},
+   "filter_rows": [],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 728
+  },
+  "EmailEventFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/EmailEventFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In workflow",
+     "value": "workflow.id",
+     "type": "select"
+    },
+    {
+     "label": "Event",
+     "value": "mailgun.event",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1777
+  },
+  "FacebookLeadGenFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/FacebookLeadGenFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Page Is",
+     "value": "facebook.pageId",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "EQUAL",
+    "IS_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "is-any-of",
+    "lodash-es"
+   ],
+   "ui_configs": [],
+   "size": 20882
+  },
+  "FormSubmissionFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/FormSubmissionFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Form is",
+     "value": "form.id"
+    },
+    {
+     "label": "terms_and_conditions",
+     "value": "formData.termsAndConditions",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "EQUAL",
+    "IS_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "max-tag-count"
+   ],
+   "ui_configs": [],
+   "size": 3928
+  },
+  "IVRIncomingCallFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/IVRIncomingCallFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In Phone Number",
+     "value": "inbound_number",
+     "id": "inbound-twilio-number",
+     "operator": "contains-any"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "contains-any",
+    "inbound-twilio-number"
+   ],
+   "ui_configs": [],
+   "size": 4626
+  },
+  "InboundTriggerFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/InboundTriggerFilter.ts",
+   "field_constants": {
+    "INBOUND_IS_REPLY_FILTER_FIELD": "email.isReply"
+   },
+   "filter_rows": [
+    {
+     "label": "contact_tag",
+     "value": "contact.tags",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "ARRAY_MATCHES_ANY_FRAGMENT",
+    "ARRAY_NOT_MATCHES_ANY_FRAGMENT",
+    "CONTAINS_ANY",
+    "EQUAL",
+    "STRING_CONTAINS_ANY_OF",
+    "STRING_CONTAINS_NONE_OF"
+   ],
+   "operator_literals_present": [
+    "index-of-false",
+    "index-of-true"
+   ],
+   "ui_configs": [],
+   "size": 16094
+  },
+  "InvoiceFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/InvoiceFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Invoice Status",
+     "value": "invoice.status",
+     "type": "select",
+     "id": "invoice-status"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS_ANY",
+    "CONTAINS_NONE",
+    "EQUAL",
+    "INDEX_OF_FALSE",
+    "INDEX_OF_TRUE",
+    "NOT_EQUALS"
+   ],
+   "operator_literals_present": [
+    "invoice-status"
+   ],
+   "ui_configs": [],
+   "size": 5780
+  },
+  "MarketplaceFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MarketplaceFilter.ts",
+   "field_constants": {},
+   "filter_rows": [],
+   "operators_referenced": [
+    "STRING_CONTAINS_ANY_OF",
+    "STRING_MATCHES_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "array-contains-substring",
+    "contains-any",
+    "index-of-true",
+    "is-any-of",
+    "is-none-of",
+    "lodash-es",
+    "moment-timezone"
+   ],
+   "ui_configs": [],
+   "size": 41111
+  },
+  "MembershipCategoryCompletedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipCategoryCompletedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "is-any-of",
+    "is-none-of"
+   ],
+   "ui_configs": [],
+   "size": 5545
+  },
+  "MembershipCategoryStartedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipCategoryStartedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "is-any-of",
+    "is-none-of"
+   ],
+   "ui_configs": [],
+   "size": 4661
+  },
+  "MembershipLessonCompletedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipLessonCompletedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "is-any-of",
+    "is-none-of"
+   ],
+   "ui_configs": [],
+   "size": 6575
+  },
+  "MembershipLessonStartedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipLessonStartedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "is-any-of",
+    "is-none-of"
+   ],
+   "ui_configs": [],
+   "size": 6573
+  },
+  "MembershipOfferAccessFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipOfferAccessFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Offer",
+     "value": "offer.id",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1324
+  },
+  "MembershipProductAccessGrantedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipProductAccessGrantedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Select Product",
+     "value": "product.id",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1364
+  },
+  "MembershipProductAccessRemovedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipProductAccessRemovedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Select Product",
+     "value": "product.id",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1364
+  },
+  "MembershipProductCompletedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipProductCompletedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "is-any-of",
+    "is-none-of"
+   ],
+   "ui_configs": [],
+   "size": 2659
+  },
+  "MembershipProductProgressPercentageFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipProductProgressPercentageFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Select Product",
+     "value": "product.id",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1369
+  },
+  "MembershipUserLogin": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/MembershipUserLogin.ts",
+   "field_constants": {},
+   "filter_rows": [],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 735
+  },
+  "NotesFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/NotesFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "doesnot-have-tag",
+    "has-tag",
+    "index-of-false",
+    "index-of-true"
+   ],
+   "ui_configs": [],
+   "size": 1511
+  },
+  "OpportunityChangedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/OpportunityChangedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag",
+     "operator": "=="
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS_ANY",
+    "CONTAINS_NONE",
+    "EQUAL",
+    "INDEX_OF_FALSE",
+    "INDEX_OF_TRUE",
+    "NOT_EQUALS"
+   ],
+   "operator_literals_present": [
+    "add-index-of-true",
+    "has-changed",
+    "has-changed-to",
+    "index-of-true",
+    "remove-index-of-true"
+   ],
+   "ui_configs": [],
+   "size": 16995
+  },
+  "OpportunityCreatedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/OpportunityCreatedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS_ANY",
+    "CONTAINS_NONE",
+    "EQUAL",
+    "INDEX_OF_FALSE",
+    "INDEX_OF_TRUE",
+    "NOT_EQUALS"
+   ],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 11698
+  },
+  "OpportunityFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/OpportunityFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Duration in days",
+     "value": "opportunity.lastActionDate",
+     "type": "number",
+     "operator": "time-diff-now-gte"
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "doesnot-have-tag",
+    "has-tag",
+    "index-of-false",
+    "index-of-true",
+    "time-diff-now-gte"
+   ],
+   "ui_configs": [],
+   "size": 10085
+  },
+  "OpportunityStatusFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/OpportunityStatusFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Moved from status",
+     "value": "opportunity.oldStatus",
+     "type": "select",
+     "id": "moved-from-status"
+    },
+    {
+     "label": "Moved to status",
+     "value": "opportunity.status",
+     "type": "select",
+     "id": "moved-to-status"
+    },
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS_ANY",
+    "CONTAINS_NONE",
+    "EQUAL",
+    "INDEX_OF_FALSE",
+    "INDEX_OF_TRUE",
+    "NOT_EQUALS"
+   ],
+   "operator_literals_present": [
+    "moved-from-status",
+    "moved-to-status"
+   ],
+   "ui_configs": [],
+   "size": 11492
+  },
+  "OrderSubmission": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/OrderSubmission.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Order Source",
+     "value": "order.source",
+     "type": "select",
+     "options": [
+      {
+       "label": "Order Form",
+       "value": "funnel"
+      },
+      {
+       "label": "Store",
+       "value": "store"
+      },
+      {
+       "label": "External",
+       "value": "external"
+      },
+      {
+       "label": "Membership",
+       "value": "membership"
+      },
+      {
+       "label": "Communities",
+       "value": "communities"
+      },
+      {
+       "label": "Form",
+       "value": "form"
+      },
+      {
+       "label": "Survey",
+       "value": "survey"
+      },
+      {
+       "label": "Payment Link",
+       "value": "payment_link"
+      },
+      {
+       "label": "Calendar",
+       "value": "calendar"
+      },
+      {
+       "label": "Point of sale",
+       "value": "point_of_sale"
+      }
+     ]
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 16442
+  },
+  "PaymentReceived": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/PaymentReceived.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Source",
+     "value": "payment.source",
+     "type": "select",
+     "options": [
+      {
+       "label": "Website",
+       "value": "website"
+      },
+      {
+       "label": "Calendar",
+       "value": "calendar"
+      },
+      {
+       "label": "Invoice",
+       "value": "invoice"
+      },
+      {
+       "label": "Funnel",
+       "value": "funnel"
+      },
+      {
+       "label": "Form",
+       "value": "form"
+      },
+      {
+       "label": "Manual Payment",
+       "value": "manual"
+      },
+      {
+       "label": "Memberships",
+       "value": "membership"
+      },
+      {
+       "label": "External",
+       "value": "external"
+      },
+      {
+       "label": "Point of sale",
+       "value": "point_of_sale"
+      },
+      {
+       "label": "Survey",
+       "value": "survey"
+      }
+     ]
+    },
+    {
+     "label": "Payment Status",
+     "value": "payment.payment_status",
+     "type": "select",
+     "options": [
+      {
+       "label": "Success",
+       "value": "succeeded"
+      },
+      {
+       "label": "Failed",
+       "value": "failed"
+      }
+     ]
+    },
+    {
+     "label": "Global Product",
+     "value": "payment.global_product_ids",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "EQUAL",
+    "IS_ANY_OF",
+    "IS_NONE_OF"
+   ],
+   "operator_literals_present": [
+    "max-tag-count"
+   ],
+   "ui_configs": [],
+   "size": 14174
+  },
+  "PipelineFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/PipelineFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS_ANY",
+    "CONTAINS_NONE",
+    "EQUAL",
+    "INDEX_OF_FALSE",
+    "INDEX_OF_TRUE",
+    "NOT_EQUALS"
+   ],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 11703
+  },
+  "SchedulerTriggerFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/SchedulerTriggerFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Interval",
+     "value": "scheduler.interval",
+     "type": "select",
+     "id": "interval-type",
+     "operator": "==",
+     "options": [
+      {
+       "label": "Hourly",
+       "value": "hourly"
+      },
+      {
+       "label": "Daily",
+       "value": "daily"
+      },
+      {
+       "label": "Weekly",
+       "value": "weekly"
+      },
+      {
+       "label": "Monthly",
+       "value": "monthly"
+      },
+      {
+       "label": "Cron",
+       "value": "cron"
+      }
+     ]
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "cron-expression",
+    "daily-times",
+    "hourly-every",
+    "interval-type",
+    "monthly-pattern",
+    "monthly-pattern-type",
+    "monthly-week-index",
+    "monthly-weekday",
+    "weekly-days",
+    "weekly-times"
+   ],
+   "ui_configs": [],
+   "size": 24573
+  },
+  "ShopifyAbandonedCartFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/ShopifyAbandonedCartFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Duration (minutes)",
+     "value": "duration",
+     "type": "number"
+    },
+    {
+     "label": "Cart Value",
+     "value": "cart_value",
+     "type": "numerical"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1869
+  },
+  "ShopifyOrderFulfilledFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/ShopifyOrderFulfilledFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Cart Value",
+     "value": "cart_value",
+     "type": "numerical"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1312
+  },
+  "ShopifyOrderPlacedFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/ShopifyOrderPlacedFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Cart Value",
+     "value": "cart_value",
+     "type": "numerical"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1309
+  },
+  "SurveySubmissionFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/SurveySubmissionFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "survey_is",
+     "value": "survey.id"
+    },
+    {
+     "label": "disqualified",
+     "value": "surveySubmission.disqualified",
+     "type": "select"
+    },
+    {
+     "label": "terms_and_conditions",
+     "value": "surveyData.termsAndConditions",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "EQUAL",
+    "IS_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "max-tag-count"
+   ],
+   "ui_configs": [],
+   "size": 4785
+  },
+  "TagFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TagFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "tag_added",
+     "value": "tagsAdded",
+     "type": "select",
+     "id": "tag-added",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "tag_removed",
+     "value": "tagsRemoved",
+     "type": "select",
+     "id": "tag-removed",
+     "operator": "index-of-true"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "index-of-true",
+    "tag-added",
+    "tag-removed"
+   ],
+   "ui_configs": [],
+   "size": 1495
+  },
+  "TaskDueDateReminderFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TaskDueDateReminderFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "before_no_of_days",
+     "value": "task.dueDate",
+     "type": "number",
+     "id": "before-days-in-number",
+     "operator": "time-diff-now-lte"
+    },
+    {
+     "label": "after_no_of_days",
+     "value": "task.dueDate",
+     "type": "number",
+     "id": "after-days-in-number",
+     "operator": "time-diff-now-gte"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "after-days-in-number",
+    "before-days-in-number",
+    "time-diff-now-gte",
+    "time-diff-now-lte"
+   ],
+   "ui_configs": [],
+   "size": 1770
+  },
+  "TaskFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TaskFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "assigned_user",
+     "value": "task.assignedTo",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1268
+  },
+  "TikTokFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TikTokFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "in_form",
+     "value": "tikTok.formId",
+     "type": "multiselect"
+    }
+   ],
+   "operators_referenced": [
+    "EQUAL",
+    "IS_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "is-any-of"
+   ],
+   "ui_configs": [],
+   "size": 2510
+  },
+  "TriggerConditionUIConfigs": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TriggerConditionUIConfigs.ts",
+   "field_constants": {},
+   "filter_rows": [],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "card-select"
+   ],
+   "ui_configs": [],
+   "size": 1069
+  },
+  "TriggerLinkFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TriggerLinkFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "trigger_link",
+     "value": "link.id",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 1413
+  },
+  "TwilioValidationFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TwilioValidationFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "number_is",
+     "value": "contact.phoneInfo",
+     "operator": "contains-any",
+     "options": [
+      {
+       "label": "sms_incapable",
+       "value": "sms_incapable"
+      },
+      {
+       "label": "not_valid",
+       "value": "not_valid"
+      }
+     ]
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "contains-any"
+   ],
+   "ui_configs": [],
+   "size": 1152
+  },
+  "TwoStepFormFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/TwoStepFormFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "in_funnel_website",
+     "value": "twoStepOrderForm.funnelId",
+     "type": "select_with_pagination"
+    },
+    {
+     "label": "submission_type",
+     "value": "twoStepOrderForm.submissionType",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [],
+   "ui_configs": [],
+   "size": 7128
+  },
+  "UserCommentsOnPostFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/UserCommentsOnPostFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "Page Is",
+     "type": "select"
+    }
+   ],
+   "operators_referenced": [
+    "CONTAINS",
+    "EQUAL",
+    "STRING_CONTAINS_ANY_OF",
+    "STRING_MATCHES_ANY_OF"
+   ],
+   "operator_literals_present": [
+    "index-of-true"
+   ],
+   "ui_configs": [],
+   "size": 10600
+  },
+  "VideoEventFilter": {
+   "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/VideoEventFilter.ts",
+   "field_constants": {},
+   "filter_rows": [
+    {
+     "label": "funnel",
+     "value": "video.funnelId",
+     "type": "multiselect"
+    },
+    {
+     "label": "video",
+     "value": "video.videoId",
+     "type": "multiselect"
+    },
+    {
+     "label": "video_duration_percent",
+     "value": "video.duration",
+     "type": "number"
+    }
+   ],
+   "operators_referenced": [],
+   "operator_literals_present": [
+    "is-any-of",
+    "is-none-of"
+   ],
+   "ui_configs": [],
+   "size": 3369
+  }
+ },
+ "steps": {
+  "add_contact_tag": {
+   "type": "add_contact_tag",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "tags"
+   ],
+   "example": "catalog/step-examples/add_contact_tag.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "add_contact_tag",
+   "requiredFields": [
+    "tags"
+   ]
+  },
+  "add_notes": {
+   "type": "add_notes",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "html",
+    "type"
+   ],
+   "example": "catalog/step-examples/add_notes.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "add_to_notes",
+   "requiredFields": [
+    "html"
+   ]
+  },
+  "add_to_workflow": {
+   "type": "add_to_workflow",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "input_trigger_params",
+    "type",
+    "workflow_id"
+   ],
+   "example": "catalog/step-examples/add_to_workflow.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "add_to_workflow",
+   "requiredFields": [
+    "workflow_id"
+   ]
+  },
+  "ai_agent": {
+   "type": "ai_agent",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "prompt",
+    "structuredResponse",
+    "model",
+    "tools",
+    "outputFormat",
+    "outputDescription",
+    "memoryEnabled"
+   ],
+   "example": "catalog/step-examples/ai_agent.json",
+   "section": "workflow_ai",
+   "beta": true,
+   "display_name": "ai_agent",
+   "requiredFields": []
+  },
+  "appointment_booking": {
+   "type": "appointment_booking",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "calendarId",
+    "startDateTime",
+    "ignoreFreeSlots",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/appointment_booking.json",
+   "requiredFields": []
+  },
+  "assign_user": {
+   "type": "assign_user",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "only_unassigned_contact",
+    "total_index",
+    "traffic_split",
+    "traffic_weightage",
+    "traffic_index",
+    "user_list",
+    "type",
+    "customUserList"
+   ],
+   "example": "catalog/step-examples/assign_user.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "assign_to_user",
+   "requiredFields": [
+    "user_list"
+   ]
+  },
+  "call": {
+   "type": "call",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "timeout",
+    "whisper_message",
+    "disable_detect_voicemail",
+    "call_connect"
+   ],
+   "example": "catalog/step-examples/call.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "call",
+   "requiredFields": [
+    "timeout"
+   ]
+  },
+  "chatgpt": {
+   "type": "chatgpt",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "apiKey",
+    "event",
+    "model",
+    "temperature",
+    "promptText",
+    "actionType",
+    "actionParams",
+    "memoryKey",
+    "excludeFromHistory",
+    "excludeInstructionsFromHistory",
+    "instructions"
+   ],
+   "example": "catalog/step-examples/chatgpt.json",
+   "section": "external_ai_models",
+   "beta": false,
+   "display_name": "gpt_by_open_ai",
+   "requiredFields": [
+    "actionParams.from",
+    "actionParams.length",
+    "actionParams.message",
+    "actionParams.to",
+    "event",
+    "promptText",
+    "temperature"
+   ]
+  },
+  "contact_email_verification": {
+   "type": "contact_email_verification",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/contact_email_verification.json",
+   "requiredFields": []
+  },
+  "contact_engagement_score": {
+   "type": "contact_engagement_score",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "operator",
+    "points",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/contact_engagement_score.json",
+   "requiredFields": []
+  },
+  "conversationai_ai_message": {
+   "type": "conversationai_ai_message",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "message",
+    "waitForReply",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/conversationai_ai_message.json",
+   "requiredFields": []
+  },
+  "conversationai_ai_splitter": {
+   "type": "conversationai_ai_splitter",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "description",
+    "type",
+    "__customInputs__",
+    "cat",
+    "convertToMultipath",
+    "transitions",
+    "__name__"
+   ],
+   "example": "catalog/step-examples/conversationai_ai_splitter.json",
+   "requiredFields": []
+  },
+  "conversationai_custom_message": {
+   "type": "conversationai_custom_message",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "message",
+    "waitForReply",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/conversationai_custom_message.json",
+   "requiredFields": []
+  },
+  "conversationai_objective": {
+   "type": "conversationai_objective",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "objective",
+    "contactField",
+    "instructions",
+    "responseExample",
+    "skipIfFilled",
+    "maxAttempts",
+    "proceedIfNotMet",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/conversationai_objective.json",
+   "requiredFields": []
+  },
+  "conversationai_transfer_bot": {
+   "type": "conversationai_transfer_bot",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "assignedEmployeeId",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/conversationai_transfer_bot.json",
+   "requiredFields": []
+  },
+  "copy_contact_to_subaccount": {
+   "type": "copy_contact_to_subaccount",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "newLocations",
+    "withTags",
+    "withCustomFields",
+    "tags",
+    "updateIfExists"
+   ],
+   "example": "catalog/step-examples/copy_contact_to_subaccount.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "workflow.asideSection.copyContactToSubaccount",
+   "requiredFields": [
+    "newLocations"
+   ]
+  },
+  "create_opportunity": {
+   "type": "create_opportunity",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "pipeline_id",
+    "opportunity_status",
+    "opportunity_name",
+    "opportunity_source",
+    "monetary_value"
+   ],
+   "example": "catalog/step-examples/create_opportunity.json",
+   "section": "opportunity",
+   "beta": false,
+   "display_name": "create_update_opportunity",
+   "requiredFields": [
+    "pipeline_id",
+    "pipeline_stage_id"
+   ]
+  },
+  "create_update_contact": {
+   "type": "create_update_contact",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "fields"
+   ],
+   "example": "catalog/step-examples/create_update_contact.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "workflow.asideSection.createUpdateContact",
+   "requiredFields": [
+    "field",
+    "fields"
+   ]
+  },
+  "custom_code": {
+   "type": "custom_code",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "code",
+    "language",
+    "inputData",
+    "output"
+   ],
+   "example": "catalog/step-examples/custom_code.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "custom_code",
+   "requiredFields": [
+    "code",
+    "output"
+   ]
+  },
+  "custom_webhook": {
+   "type": "custom_webhook",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "event",
+    "method",
+    "url",
+    "body",
+    "headers",
+    "parameters",
+    "authorization",
+    "saveResponse",
+    "webhookResponse"
+   ],
+   "example": "catalog/step-examples/custom_webhook.json",
+   "section": "send_data",
+   "beta": false,
+   "display_name": "custom_webhook",
+   "requiredFields": [
+    "authorization.data",
+    "authorization.data.token",
+    "authorization.data.tokenId",
+    "body.keyValueData",
+    "body.rawData",
+    "event",
+    "headers",
+    "method",
+    "parameters",
+    "url",
+    "webhookResponse"
+   ]
+  },
+  "datetime_formatter": {
+   "type": "datetime_formatter",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "action",
+    "format"
+   ],
+   "example": "catalog/step-examples/datetime_formatter.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "workflow.asideSection.headerMeta.datetime_formatter",
+   "requiredFields": [
+    "action",
+    "compare.endDate",
+    "compare.endDateFormat",
+    "compare.endDatePicker",
+    "compare.startDate",
+    "compare.startDateFormat",
+    "compare.startDatePicker",
+    "compare.type",
+    "format.fromField",
+    "format.fromFieldDatePicker",
+    "format.fromFormat",
+    "format.toFormat",
+    "format.type"
+   ]
+  },
+  "dnd_contact": {
+   "type": "dnd_contact",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "dnd_contact"
+   ],
+   "example": "catalog/step-examples/dnd_contact.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "set_contact_dnd",
+   "requiredFields": [
+    "dnd_contact",
+    "specific_channels"
+   ]
+  },
+  "drip": {
+   "type": "drip",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "batchSize",
+    "interval",
+    "type"
+   ],
+   "example": "catalog/step-examples/drip.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "drip",
+   "requiredFields": [
+    "batchSize",
+    "interval.value"
+   ]
+  },
+  "edit_conversation": {
+   "type": "edit_conversation",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "read",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/edit_conversation.json",
+   "requiredFields": []
+  },
+  "email": {
+   "type": "email",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "html",
+    "from_name",
+    "from_email",
+    "subject",
+    "attachments"
+   ],
+   "example": "catalog/step-examples/email.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "send_email",
+   "requiredFields": [
+    "html",
+    "subject",
+    "template_id"
+   ]
+  },
+  "event_start_date": {
+   "type": "event_start_date",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "event_start_type",
+    "value"
+   ],
+   "example": "catalog/step-examples/event_start_date.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "set_event_start_date",
+   "requiredFields": [
+    "event_start_type",
+    "value"
+   ]
+  },
+  "facebook_add_to_custom_audience": {
+   "type": "facebook_add_to_custom_audience",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "facebook_account_id",
+    "facebook_custom_audience_id"
+   ],
+   "example": "catalog/step-examples/facebook_add_to_custom_audience.json",
+   "section": "marketing",
+   "beta": false,
+   "display_name": "facebook_add_to_custom_audience",
+   "requiredFields": [
+    "facebook_account_id",
+    "facebook_custom_audience_id"
+   ]
+  },
+  "facebook_conversion_api": {
+   "type": "facebook_conversion_api",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "event_type",
+    "access_token",
+    "currency",
+    "connection_type",
+    "customMapping",
+    "isCustomMappingEnabled",
+    "pixel_id",
+    "stage_name"
+   ],
+   "example": "catalog/step-examples/facebook_conversion_api.json",
+   "section": "marketing",
+   "beta": false,
+   "display_name": "facebook_conversion_api",
+   "requiredFields": [
+    "pixel_id"
+   ]
+  },
+  "find_contact": {
+   "type": "find_contact",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "fields",
+    "convertToMultipath",
+    "name",
+    "cat",
+    "isHybridAction",
+    "hybridActionType",
+    "transitions"
+   ],
+   "example": "catalog/step-examples/find_contact.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "workflow.asideSection.findContact",
+   "requiredFields": [
+    "field",
+    "fields"
+   ]
+  },
+  "find_opportunity": {
+   "type": "find_opportunity",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "sorting",
+    "type",
+    "__customInputFields__",
+    "__customInputs__",
+    "cat",
+    "convertToMultipath",
+    "transitions",
+    "__name__"
+   ],
+   "example": "catalog/step-examples/find_opportunity.json",
+   "requiredFields": []
+  },
+  "find_or_create_contact": {
+   "type": "find_or_create_contact",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "emailLabel",
+    "emailAddress",
+    "namePrefix",
+    "names",
+    "middleName",
+    "lastName",
+    "nameSuffix",
+    "organizationName",
+    "jobTitle",
+    "phoneLabel",
+    "phoneNumber",
+    "addressLabel",
+    "country",
+    "poBox",
+    "city",
+    "postalCode",
+    "region",
+    "streetAddress",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/find_or_create_contact.json",
+   "requiredFields": []
+  },
+  "google_sheets": {
+   "type": "google_sheets",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "action",
+    "account",
+    "drive",
+    "spreadsheet",
+    "sheet",
+    "columnRange",
+    "values",
+    "sheetHeaders",
+    "options"
+   ],
+   "example": "catalog/step-examples/google_sheets.json",
+   "section": "send_data",
+   "beta": false,
+   "display_name": "google_sheets",
+   "requiredFields": [
+    "oAuthId"
+   ]
+  },
+  "goto": {
+   "type": "goto",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "targetNodeId",
+    "type"
+   ],
+   "example": "catalog/step-examples/goto.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "workflow.asideSection.headerMeta.goto",
+   "requiredFields": [
+    "placement",
+    "targetNodeId"
+   ]
+  },
+  "if_else": {
+   "type": "if_else",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "else"
+   ],
+   "example": "catalog/step-examples/if_else.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "if_else",
+   "requiredFields": []
+  },
+  "internal-add-contact-followers": {
+   "type": "internal-add-contact-followers",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "users",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/internal-add-contact-followers.json",
+   "requiredFields": []
+  },
+  "internal-add-opportunity-owner": {
+   "type": "internal-add-opportunity-owner",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "user",
+    "onlyUnAssigned",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/internal-add-opportunity-owner.json",
+   "requiredFields": []
+  },
+  "internal-delete-contact": {
+   "type": "internal-delete-contact",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/internal-delete-contact.json",
+   "requiredFields": []
+  },
+  "internal-remove-contact-followers": {
+   "type": "internal-remove-contact-followers",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "isRemoveAllOpportunityFollowers",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/internal-remove-contact-followers.json",
+   "requiredFields": []
+  },
+  "internal_create_opportunity": {
+   "type": "internal_create_opportunity",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "pipelineId",
+    "type",
+    "__customInputs__",
+    "__customInputFields__"
+   ],
+   "example": "catalog/step-examples/internal_create_opportunity.json",
+   "requiredFields": []
+  },
+  "internal_notification": {
+   "type": "internal_notification",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "sms"
+   ],
+   "example": "catalog/step-examples/internal_notification.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "send_internal_notification",
+   "requiredFields": [
+    "email",
+    "email.html",
+    "email.subject",
+    "notification",
+    "notification.message",
+    "sms",
+    "sms.body",
+    "type",
+    "whatsapp",
+    "whatsapp.body"
+   ]
+  },
+  "internal_update_opportunity": {
+   "type": "internal_update_opportunity",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "allowBackward",
+    "type",
+    "__customInputFields__",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/internal_update_opportunity.json",
+   "requiredFields": []
+  },
+  "lc_merge_contact": {
+   "type": "lc_merge_contact",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "match_by",
+    "type",
+    "__customInputs__",
+    "cat",
+    "convertToMultipath",
+    "transitions",
+    "__name__"
+   ],
+   "example": "catalog/step-examples/lc_merge_contact.json",
+   "requiredFields": []
+  },
+  "live_chat_response": {
+   "type": "live_chat_response",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "liveChatResponse",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/live_chat_response.json",
+   "requiredFields": []
+  },
+  "manual-call": {
+   "type": "manual-call",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "assignedUser",
+    "standardAssignedUser"
+   ],
+   "example": "catalog/step-examples/manual-call.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "manual_call",
+   "requiredFields": []
+  },
+  "manual-sms": {
+   "type": "manual-sms",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "body",
+    "assignedUser",
+    "standardAssignedUser",
+    "attachments"
+   ],
+   "example": "catalog/step-examples/manual-sms.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "manual_sms",
+   "requiredFields": []
+  },
+  "math_operation": {
+   "type": "math_operation",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "selectField",
+    "selectFieldtype",
+    "sourceCustomValueId",
+    "updateField",
+    "updateFieldType",
+    "targetCustomValueId",
+    "operators"
+   ],
+   "example": "catalog/step-examples/math_operation.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "math_operation",
+   "requiredFields": [
+    "operators",
+    "selectField",
+    "updateField"
+   ]
+  },
+  "membership_grant_offer": {
+   "type": "membership_grant_offer",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "offer_id"
+   ],
+   "example": "catalog/step-examples/membership_grant_offer.json",
+   "section": "membership",
+   "beta": false,
+   "display_name": "course_grant_offer",
+   "requiredFields": [
+    "offer_id"
+   ]
+  },
+  "proposals_estimates_send_document": {
+   "type": "proposals_estimates_send_document",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "userId",
+    "templateId",
+    "sendDocument",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/proposals_estimates_send_document.json",
+   "requiredFields": []
+  },
+  "remove_assigned_user": {
+   "type": "remove_assigned_user",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type"
+   ],
+   "example": "catalog/step-examples/remove_assigned_user.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "remove_assigned_user",
+   "requiredFields": []
+  },
+  "remove_contact_tag": {
+   "type": "remove_contact_tag",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "tags",
+    "type"
+   ],
+   "example": "catalog/step-examples/remove_contact_tag.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "remove_contact_tag",
+   "requiredFields": [
+    "tags"
+   ]
+  },
+  "remove_from_workflow": {
+   "type": "remove_from_workflow",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "workflow_id"
+   ],
+   "example": "catalog/step-examples/remove_from_workflow.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "remove_from_workflow",
+   "requiredFields": [
+    "workflow_id"
+   ]
+  },
+  "remove_opportunity": {
+   "type": "remove_opportunity",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "opportunity_to_be_found",
+    "pipeline_id"
+   ],
+   "example": "catalog/step-examples/remove_opportunity.json",
+   "section": "opportunity",
+   "beta": false,
+   "display_name": "remove_opportunity",
+   "requiredFields": [
+    "opportunity_to_be_found",
+    "pipeline_id"
+   ]
+  },
+  "review_request": {
+   "type": "review_request",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "review_type"
+   ],
+   "example": "catalog/step-examples/review_request.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "send_review_request",
+   "requiredFields": [
+    "review_type"
+   ]
+  },
+  "slack_message": {
+   "type": "slack_message",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "action",
+    "integration",
+    "channel",
+    "text",
+    "type"
+   ],
+   "example": "catalog/step-examples/slack_message.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "slack",
+   "requiredFields": [
+    "action",
+    "channel",
+    "integration",
+    "text",
+    "userSource"
+   ]
+  },
+  "sms": {
+   "type": "sms",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "body",
+    "attachments"
+   ],
+   "example": "catalog/step-examples/sms.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "send_sms",
+   "requiredFields": [
+    "body",
+    "template_id"
+   ]
+  },
+  "task-notification": {
+   "type": "task-notification",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "title",
+    "assignedTo",
+    "dueDate",
+    "body"
+   ],
+   "example": "catalog/step-examples/task-notification.json",
+   "requiredFields": []
+  },
+  "text_formatter": {
+   "type": "text_formatter",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": true,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "extras",
+    "formatterType",
+    "field"
+   ],
+   "example": "catalog/step-examples/text_formatter.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "text_formatter",
+   "requiredFields": [
+    "field",
+    "formatterType"
+   ]
+  },
+  "transition": {
+   "type": "transition",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [],
+   "example": "catalog/step-examples/transition.json",
+   "requiredFields": []
+  },
+  "update_contact_field": {
+   "type": "update_contact_field",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "actionType",
+    "fields"
+   ],
+   "example": "catalog/step-examples/update_contact_field.json",
+   "section": "contact",
+   "beta": false,
+   "display_name": "update_contact_field",
+   "requiredFields": [
+    "fields"
+   ]
+  },
+  "update_conversation_ai_status": {
+   "type": "update_conversation_ai_status",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "assignedEmployeeId",
+    "status",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/update_conversation_ai_status.json",
+   "requiredFields": []
+  },
+  "voicemail": {
+   "type": "voicemail",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [],
+   "example": "catalog/step-examples/voicemail.json",
+   "section": "communication",
+   "beta": false,
+   "display_name": "voicemail",
+   "requiredFields": [
+    "attachment"
+   ]
+  },
+  "wait": {
+   "type": "wait",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "type",
+    "startAfter"
+   ],
+   "example": "catalog/step-examples/wait.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "wait",
+   "requiredFields": [
+    "appointmentCondition",
+    "appointmentSpecificStep",
+    "appointmentStartAfter",
+    "appointmentStartAfter.value",
+    "appointmentStartAfter.when",
+    "condition",
+    "condition.branches",
+    "emailEventSteps",
+    "emailEventTypes",
+    "link",
+    "name",
+    "reply",
+    "startAfter",
+    "startAfter.value",
+    "type",
+    "window.end",
+    "window.start",
+    "window.value"
+   ]
+  },
+  "webhook": {
+   "type": "webhook",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "method",
+    "url",
+    "customData",
+    "headers"
+   ],
+   "example": "catalog/step-examples/webhook.json",
+   "section": "send_data",
+   "beta": false,
+   "display_name": "webhook",
+   "requiredFields": [
+    "customData",
+    "headers",
+    "method",
+    "url"
+   ]
+  },
+  "workflow_ai_decision_maker": {
+   "type": "workflow_ai_decision_maker",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "instructions",
+    "information",
+    "type",
+    "__customInputs__",
+    "cat",
+    "convertToMultipath",
+    "transitions",
+    "__name__"
+   ],
+   "example": "catalog/step-examples/workflow_ai_decision_maker.json",
+   "requiredFields": []
+  },
+  "workflow_goal": {
+   "type": "workflow_goal",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "op",
+    "segments",
+    "type",
+    "action"
+   ],
+   "example": "catalog/step-examples/workflow_goal.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "workflow.asideSection.headerMeta.workflowGoal",
+   "requiredFields": [
+    "extras.calendarId",
+    "extras.formIds",
+    "extras.globalProductIds",
+    "extras.linkIds",
+    "extras.templateId",
+    "invoiceStepId",
+    "stepIds"
+   ]
+  },
+  "workflow_split": {
+   "type": "workflow_split",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "name",
+    "cat",
+    "transitions",
+    "type",
+    "paths",
+    "condition",
+    "extras"
+   ],
+   "example": "catalog/step-examples/workflow_split.json",
+   "section": "internal",
+   "beta": false,
+   "display_name": "workflow.asideSection.headerMeta.workflowSplit",
+   "requiredFields": [
+    "paths"
+   ]
+  },
+  "create_custom_object": {
+   "type": "create_custom_object",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "customObjects",
+   "display_name": "create_object",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "update_custom_object": {
+   "type": "update_custom_object",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "customObjects",
+   "display_name": "update_object",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "clear_custom_object_fields": {
+   "type": "clear_custom_object_fields",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "customObjects",
+   "display_name": "clear_object_fields",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "messenger": {
+   "type": "messenger",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "communication",
+   "display_name": "messenger",
+   "requiredFields": [
+    "body",
+    "template_id"
+   ],
+   "attrKeys": []
+  },
+  "instagram-dm": {
+   "type": "instagram-dm",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "communication",
+   "display_name": "instagram_dm",
+   "requiredFields": [
+    "body",
+    "template_id"
+   ],
+   "attrKeys": []
+  },
+  "gmb": {
+   "type": "gmb",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "communication",
+   "display_name": "gmb_messaging",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "conversation_ai": {
+   "type": "conversation_ai",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "communication",
+   "display_name": "conversation_ai",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "fb_interactive_messenger": {
+   "type": "fb_interactive_messenger",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "communication",
+   "display_name": "fb_interactive_messenger",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "ig_interactive_messenger": {
+   "type": "ig_interactive_messenger",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "communication",
+   "display_name": "ig_interactive_messenger",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "respond_on_comment": {
+   "type": "respond_on_comment",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "communication",
+   "display_name": "reply_in_comments",
+   "requiredFields": [
+    "commentResponse"
+   ],
+   "attrKeys": []
+  },
+  "update_custom_value": {
+   "type": "update_custom_value",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "internal",
+   "display_name": "update_custom_value",
+   "requiredFields": [
+    "custom_value_id",
+    "new_value"
+   ],
+   "attrKeys": []
+  },
+  "number_formatter": {
+   "type": "number_formatter",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "internal",
+   "display_name": "number_formatter",
+   "requiredFields": [
+    "action",
+    "format.fromField",
+    "format.options.currency.currencyCode",
+    "format.options.currency.currencyLocale",
+    "format.options.inputDecimalMark",
+    "format.options.outputNumberFormat",
+    "format.options.phone.countryCode",
+    "format.options.phone.format",
+    "random.decimalPlaces",
+    "random.max",
+    "random.min"
+   ],
+   "attrKeys": []
+  },
+  "array_functions": {
+   "type": "array_functions",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "internal",
+   "display_name": "array_functions",
+   "requiredFields": [
+    "action",
+    "filter.filters",
+    "filter.fromField",
+    "find.filters",
+    "find.fromField",
+    "find_by_index.fromField",
+    "find_by_index.index",
+    "line_items.fields",
+    "line_items.fromField",
+    "math_functions.fromField",
+    "math_functions.key",
+    "math_functions.operations"
+   ],
+   "attrKeys": []
+  },
+  "add_appointment_booking_ai_bot": {
+   "type": "add_appointment_booking_ai_bot",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "eliza",
+   "display_name": "ai_appointment_booking_bot",
+   "requiredFields": [
+    "calendar_id",
+    "first_message",
+    "success_message",
+    "timeout_time"
+   ],
+   "attrKeys": []
+  },
+  "send_to_eliza": {
+   "type": "send_to_eliza",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "eliza",
+   "display_name": "send_to_eliza_agent_platform",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "update_appointment_status": {
+   "type": "update_appointment_status",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "appointments",
+   "display_name": "update_appointment_status",
+   "requiredFields": [
+    "status_type"
+   ],
+   "attrKeys": []
+  },
+  "stripe_one_time_charge": {
+   "type": "stripe_one_time_charge",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "payment",
+   "display_name": "stripe_one_time_charge",
+   "requiredFields": [
+    "amount",
+    "currency",
+    "stripe_customer_id"
+   ],
+   "attrKeys": []
+  },
+  "google_analytics": {
+   "type": "google_analytics",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketing",
+   "display_name": "add_to_google_analytics",
+   "requiredFields": [
+    "api_secret",
+    "event",
+    "measurement_id"
+   ],
+   "attrKeys": []
+  },
+  "google_adword": {
+   "type": "google_adword",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketing",
+   "display_name": "add_to_google_ads",
+   "requiredFields": [
+    "conversion_name",
+    "conversion_value",
+    "customMapping"
+   ],
+   "attrKeys": []
+  },
+  "facebook_remove_from_custom_audience": {
+   "type": "facebook_remove_from_custom_audience",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketing",
+   "display_name": "facebook_remove_from_custom_audience",
+   "requiredFields": [
+    "facebook_account_id",
+    "facebook_custom_audience_id"
+   ],
+   "attrKeys": []
+  },
+  "add_to_affiliate_manager": {
+   "type": "add_to_affiliate_manager",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "affiliate",
+   "display_name": "add_to_affiliate_manager",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "update_affiliate": {
+   "type": "update_affiliate",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "affiliate",
+   "display_name": "update_affiliate",
+   "requiredFields": [
+    "affiliate_state"
+   ],
+   "attrKeys": []
+  },
+  "add_to_affiliate_campaign": {
+   "type": "add_to_affiliate_campaign",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "affiliate",
+   "display_name": "add_to_affiliate_campaign",
+   "requiredFields": [
+    "campaign_id"
+   ],
+   "attrKeys": []
+  },
+  "remove_from_affiliate_campaign": {
+   "type": "remove_from_affiliate_campaign",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "affiliate",
+   "display_name": "remove_from_affiliate_campaign",
+   "requiredFields": [
+    "campaign_id"
+   ],
+   "attrKeys": []
+  },
+  "membership_revoke_offer": {
+   "type": "membership_revoke_offer",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "membership",
+   "display_name": "course_revoke_offer",
+   "requiredFields": [
+    "offer_id"
+   ],
+   "attrKeys": []
+  },
+  "ivr_gather": {
+   "type": "ivr_gather",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "ivr",
+   "display_name": "gather_input_on_call",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "ivr_say": {
+   "type": "ivr_say",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "ivr",
+   "display_name": "say_or_play_message",
+   "requiredFields": [
+    "audioUrl",
+    "language",
+    "loop",
+    "message",
+    "voice"
+   ],
+   "attrKeys": []
+  },
+  "ivr_connect_call": {
+   "type": "ivr_connect_call",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "ivr",
+   "display_name": "connect_to_call",
+   "requiredFields": [
+    "customNumbers",
+    "users"
+   ],
+   "attrKeys": []
+  },
+  "ivr_hangup": {
+   "type": "ivr_hangup",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "ivr",
+   "display_name": "end_call",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "ivr_collect_voicemail": {
+   "type": "ivr_collect_voicemail",
+   "kind": "step",
+   "confidence": "bundle-derived",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "ivr",
+   "display_name": "record_voicemail",
+   "requiredFields": [],
+   "attrKeys": []
+  },
+  "add_associated_records_to_workflow": {
+   "type": "add_associated_records_to_workflow",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "add_contact_tag_tool": {
+   "type": "add_contact_tag_tool",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "add_contact_to_groups": {
+   "type": "add_contact_to_groups",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "add_person_to_project": {
+   "type": "add_person_to_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "agent_studio_execution": {
+   "type": "agent_studio_execution",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "airtable_create_record": {
+   "type": "airtable_create_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "airtable_delete_record": {
+   "type": "airtable_delete_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "airtable_find_record_by_id": {
+   "type": "airtable_find_record_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "airtable_retrieve_record": {
+   "type": "airtable_retrieve_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "airtable_update_record": {
+   "type": "airtable_update_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "am-add-lead": {
+   "type": "am-add-lead",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "am-add-manual-commission": {
+   "type": "am-add-manual-commission",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "appointment_booking_conversation_ai": {
+   "type": "appointment_booking_conversation_ai",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_add_task_to_section": {
+   "type": "asana_ia_asana_add_task_to_section",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_create_comment": {
+   "type": "asana_ia_asana_create_comment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_create_project": {
+   "type": "asana_ia_asana_create_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_create_section": {
+   "type": "asana_ia_asana_create_section",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_create_subtask": {
+   "type": "asana_ia_asana_create_subtask",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_create_task": {
+   "type": "asana_ia_asana_create_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_find_task_by_id": {
+   "type": "asana_ia_asana_find_task_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_get_task": {
+   "type": "asana_ia_asana_get_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_asana_update_task": {
+   "type": "asana_ia_asana_update_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_find_all_tasks_from_project": {
+   "type": "asana_ia_find_all_tasks_from_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_find_comment_from_task": {
+   "type": "asana_ia_find_comment_from_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_find_comment_from_task_id": {
+   "type": "asana_ia_find_comment_from_task_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "asana_ia_find_task_in_project": {
+   "type": "asana_ia_find_task_in_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "assign_to_user_tool": {
+   "type": "assign_to_user_tool",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "associate_records": {
+   "type": "associate_records",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_campfire_message": {
+   "type": "basecamp_create_campfire_message",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_comment_on_message": {
+   "type": "basecamp_create_comment_on_message",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_comment_on_todo": {
+   "type": "basecamp_create_comment_on_todo",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_document": {
+   "type": "basecamp_create_document",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_message": {
+   "type": "basecamp_create_message",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_project_from_template": {
+   "type": "basecamp_create_project_from_template",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_schedule_entry": {
+   "type": "basecamp_create_schedule_entry",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_todo": {
+   "type": "basecamp_create_todo",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_create_todo_list": {
+   "type": "basecamp_create_todo_list",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_find_document": {
+   "type": "basecamp_find_document",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_find_person": {
+   "type": "basecamp_find_person",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_find_project": {
+   "type": "basecamp_find_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_find_to_do": {
+   "type": "basecamp_find_to_do",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_find_to_do_list": {
+   "type": "basecamp_find_to_do_list",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_get_todo": {
+   "type": "basecamp_get_todo",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_update_todo": {
+   "type": "basecamp_update_todo",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "basecamp_upload_file": {
+   "type": "basecamp_upload_file",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "calendars_create_appointment_note": {
+   "type": "calendars_create_appointment_note",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "calendars_generate_one_time_booking_link": {
+   "type": "calendars_generate_one_time_booking_link",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clear_associated_company_fields": {
+   "type": "clear_associated_company_fields",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_add_comment": {
+   "type": "clickup_add_comment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_archive_task": {
+   "type": "clickup_archive_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_create_list": {
+   "type": "clickup_create_list",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_ia_create_folder": {
+   "type": "clickup_ia_create_folder",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_ia_create_space": {
+   "type": "clickup_ia_create_space",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_ia_create_sub_task": {
+   "type": "clickup_ia_create_sub_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_ia_create_task": {
+   "type": "clickup_ia_create_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_ia_delete_task": {
+   "type": "clickup_ia_delete_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_ia_update_task": {
+   "type": "clickup_ia_update_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "clickup_new_checklist": {
+   "type": "clickup_new_checklist",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "conversationai_book_appointment": {
+   "type": "conversationai_book_appointment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "conversationai_continue": {
+   "type": "conversationai_continue",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "conversationai_end": {
+   "type": "conversationai_end",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "conversationai_services_booking": {
+   "type": "conversationai_services_booking",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "create_and_associate_company": {
+   "type": "create_and_associate_company",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "create_basecamp_project": {
+   "type": "create_basecamp_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "create_new_document": {
+   "type": "create_new_document",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "create_new_document_page": {
+   "type": "create_new_document_page",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "create_recurring_invoice": {
+   "type": "create_recurring_invoice",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "create_task_attachment": {
+   "type": "create_task_attachment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "custom-push-notification": {
+   "type": "custom-push-notification",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "edit_document_page": {
+   "type": "edit_document_page",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "find_all_tasks": {
+   "type": "find_all_tasks",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "find_associated_record": {
+   "type": "find_associated_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "find_custom_fields": {
+   "type": "find_custom_fields",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "find_documents": {
+   "type": "find_documents",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "find_notion_comment": {
+   "type": "find_notion_comment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "find_task_by_id": {
+   "type": "find_task_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "find-notion-page-by-title": {
+   "type": "find-notion-page-by-title",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "generate_marketing_audit_report": {
+   "type": "generate_marketing_audit_report",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "googlecontact_create_contact": {
+   "type": "googlecontact_create_contact",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "googlecontacts_create_contact_group": {
+   "type": "googlecontacts_create_contact_group",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "googlecontacts_find": {
+   "type": "googlecontacts_find",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "googlecontacts_update_contact": {
+   "type": "googlecontacts_update_contact",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "grant_user_group_gamification_points": {
+   "type": "grant_user_group_gamification_points",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "grant-group-access": {
+   "type": "grant-group-access",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "grant-private-channel-access": {
+   "type": "grant-private-channel-access",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "imessage_a": {
+   "type": "imessage_a",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "internal-add-opportunities-followers": {
+   "type": "internal-add-opportunities-followers",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "internal-remove-opportunities-followers": {
+   "type": "internal-remove-opportunities-followers",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "internal-remove-opportunity-owner": {
+   "type": "internal-remove-opportunity-owner",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "issue_certificates_workflow": {
+   "type": "issue_certificates_workflow",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_apify_run_a_actor": {
+   "type": "lc_apify_run_a_actor",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_cal_com_cancel_booking": {
+   "type": "lc_cal_com_cancel_booking",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_cal_com_create_booking": {
+   "type": "lc_cal_com_create_booking",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_cal_com_find_booking": {
+   "type": "lc_cal_com_find_booking",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_cal_com_reschedule_booking": {
+   "type": "lc_cal_com_reschedule_booking",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_apify_fetch_dataset_items": {
+   "type": "lc_custom_apify_fetch_dataset_items",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_apify_fetch_key_value_store_record": {
+   "type": "lc_custom_apify_fetch_key_value_store_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_apify_find_last_actor_run": {
+   "type": "lc_custom_apify_find_last_actor_run",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_apify_find_last_task_run": {
+   "type": "lc_custom_apify_find_last_task_run",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_apify_run_task": {
+   "type": "lc_custom_apify_run_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_apify_scrape_single_url": {
+   "type": "lc_custom_apify_scrape_single_url",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_apify_set_key_value_store_record": {
+   "type": "lc_custom_apify_set_key_value_store_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_asana_find_section": {
+   "type": "lc_custom_asana_find_section",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_custom_asana_get_project_by_id": {
+   "type": "lc_custom_asana_get_project_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_fathom_fetch_summary": {
+   "type": "lc_fathom_fetch_summary",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_fathom_fetch_transcript": {
+   "type": "lc_fathom_fetch_transcript",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_fathom_list_recordings": {
+   "type": "lc_fathom_list_recordings",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_gform_find_responses": {
+   "type": "lc_gform_find_responses",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_gforms_find_form_by_id": {
+   "type": "lc_gforms_find_form_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_gforms_find_forms_by_name": {
+   "type": "lc_gforms_find_forms_by_name",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_gforms_find_response_by_id": {
+   "type": "lc_gforms_find_response_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_google_tasks_create_task": {
+   "type": "lc_google_tasks_create_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_google_tasks_create_task_list": {
+   "type": "lc_google_tasks_create_task_list",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_google_tasks_find_task": {
+   "type": "lc_google_tasks_find_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_google_tasks_get_tasks_by_list": {
+   "type": "lc_google_tasks_get_tasks_by_list",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_google_tasks_update_task": {
+   "type": "lc_google_tasks_update_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_gs_create_presentation_from_template": {
+   "type": "lc_gs_create_presentation_from_template",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_gs_find_presentation": {
+   "type": "lc_gs_find_presentation",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_gs_refresh_charts": {
+   "type": "lc_gs_refresh_charts",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_hubspot_create_contact": {
+   "type": "lc_hubspot_create_contact",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_hubspot_find_contact": {
+   "type": "lc_hubspot_find_contact",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_add_label_to_issue": {
+   "type": "lc_linear_add_label_to_issue",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_create_attachment": {
+   "type": "lc_linear_create_attachment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_create_comment": {
+   "type": "lc_linear_create_comment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_create_customer": {
+   "type": "lc_linear_create_customer",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_create_customer_need": {
+   "type": "lc_linear_create_customer_need",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_create_issue": {
+   "type": "lc_linear_create_issue",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_create_project": {
+   "type": "lc_linear_create_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_find_customer": {
+   "type": "lc_linear_find_customer",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_find_issue_by_id": {
+   "type": "lc_linear_find_issue_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_find_issues": {
+   "type": "lc_linear_find_issues",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_find_project_by_id": {
+   "type": "lc_linear_find_project_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_remove_label": {
+   "type": "lc_linear_remove_label",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_linear_update_issue": {
+   "type": "lc_linear_update_issue",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_manus_continue_task": {
+   "type": "lc_manus_continue_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_manus_create_task": {
+   "type": "lc_manus_create_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_manus_delete_task": {
+   "type": "lc_manus_delete_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_manus_fetch_task": {
+   "type": "lc_manus_fetch_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_manus_get_task": {
+   "type": "lc_manus_get_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_manus_update_task": {
+   "type": "lc_manus_update_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_mistral_ai_analyze_image_vision": {
+   "type": "lc_mistral_ai_analyze_image_vision",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_mistral_ai_create_chat_completion": {
+   "type": "lc_mistral_ai_create_chat_completion",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_mistral_ai_create_embeddings": {
+   "type": "lc_mistral_ai_create_embeddings",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_archieve_board": {
+   "type": "lc_monday_archieve_board",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_archive_group": {
+   "type": "lc_monday_archive_group",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_create_board": {
+   "type": "lc_monday_create_board",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_create_column": {
+   "type": "lc_monday_create_column",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_create_group": {
+   "type": "lc_monday_create_group",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_create_item": {
+   "type": "lc_monday_create_item",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_create_subitem": {
+   "type": "lc_monday_create_subitem",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_delete_group": {
+   "type": "lc_monday_delete_group",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_delete_item": {
+   "type": "lc_monday_delete_item",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_find_by_column": {
+   "type": "lc_monday_find_by_column",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_find_items_by_id": {
+   "type": "lc_monday_find_items_by_id",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_get_items": {
+   "type": "lc_monday_get_items",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_update_item": {
+   "type": "lc_monday_update_item",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_monday_update_subitem": {
+   "type": "lc_monday_update_subitem",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_openrouter_generate_response": {
+   "type": "lc_openrouter_generate_response",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_tf_create_form": {
+   "type": "lc_tf_create_form",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_add_comment_to_project": {
+   "type": "lc_todoist_add_comment_to_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_add_comment_to_task": {
+   "type": "lc_todoist_add_comment_to_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_complete_task": {
+   "type": "lc_todoist_complete_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_create_project": {
+   "type": "lc_todoist_create_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_create_task": {
+   "type": "lc_todoist_create_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_find_project": {
+   "type": "lc_todoist_find_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_find_task": {
+   "type": "lc_todoist_find_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_find_user": {
+   "type": "lc_todoist_find_user",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_get_project_collaborators": {
+   "type": "lc_todoist_get_project_collaborators",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_invite_user_to_project": {
+   "type": "lc_todoist_invite_user_to_project",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_move_task_to_section": {
+   "type": "lc_todoist_move_task_to_section",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_todoist_update_task": {
+   "type": "lc_todoist_update_task",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_create_call": {
+   "type": "lc_vapi_create_call",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_create_chat": {
+   "type": "lc_vapi_create_chat",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_delete_call_data": {
+   "type": "lc_vapi_delete_call_data",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_delete_chat": {
+   "type": "lc_vapi_delete_chat",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_delete_file": {
+   "type": "lc_vapi_delete_file",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_find_call": {
+   "type": "lc_vapi_find_call",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_update_call": {
+   "type": "lc_vapi_update_call",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "lc_vapi_upload_file": {
+   "type": "lc_vapi_upload_file",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "log-external-call": {
+   "type": "log-external-call",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_add_comment": {
+   "type": "notion_add_comment",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_add_content_to_page": {
+   "type": "notion_add_content_to_page",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_create_database_item": {
+   "type": "notion_create_database_item",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_create_page": {
+   "type": "notion_create_page",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_find_database_item": {
+   "type": "notion_find_database_item",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_get_page_and_children": {
+   "type": "notion_get_page_and_children",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_get_page_comments": {
+   "type": "notion_get_page_comments",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_restore_database_item": {
+   "type": "notion_restore_database_item",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_retrieve_page": {
+   "type": "notion_retrieve_page",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "notion_update_database_item": {
+   "type": "notion_update_database_item",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "payments_create_estimate": {
+   "type": "payments_create_estimate",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "payments_create_invoice": {
+   "type": "payments_create_invoice",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "react_to_last_message": {
+   "type": "react_to_last_message",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "remove_associated_record": {
+   "type": "remove_associated_record",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "remove_associated_records_from_workflow": {
+   "type": "remove_associated_records_from_workflow",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "remove_contact_tag_tool": {
+   "type": "remove_contact_tag_tool",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "revoke-group-access": {
+   "type": "revoke-group-access",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "revoke-private-channel-access": {
+   "type": "revoke-private-channel-access",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "send_smart_message": {
+   "type": "send_smart_message",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "send_whatsapp_flow": {
+   "type": "send_whatsapp_flow",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "send_whatsapp_message": {
+   "type": "send_whatsapp_message",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "survey_monkey_ia_create_contact": {
+   "type": "survey_monkey_ia_create_contact",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "survey_monkey_ia_delete_survey": {
+   "type": "survey_monkey_ia_delete_survey",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "survey_monkey_ia_inputs": {
+   "type": "survey_monkey_ia_inputs",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "survey_monkey_ia_search_contact": {
+   "type": "survey_monkey_ia_search_contact",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "survey_monkey_ia_send_survey": {
+   "type": "survey_monkey_ia_send_survey",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "test_compilation": {
+   "type": "test_compilation",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "tiktok-dm": {
+   "type": "tiktok-dm",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "typeform_create_form": {
+   "type": "typeform_create_form",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "typeform_duplicate_existing_form": {
+   "type": "typeform_duplicate_existing_form",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "typeform_search_responses": {
+   "type": "typeform_search_responses",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "update_associated_company": {
+   "type": "update_associated_company",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "voice_ai_outbound_call": {
+   "type": "voice_ai_outbound_call",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "section": "communication",
+   "requiredFields": [
+    "agentId",
+    "fromPhoneNumber"
+   ],
+   "attrKeys": [
+    "agentId",
+    "fromPhoneNumber",
+    "outboundGuidelines",
+    "type",
+    "__customInputs__"
+   ],
+   "marketplace": true,
+   "display_name": "Call with Voice AI",
+   "note": "live-verified 2026-07-11 (SK Skin / GROM); needs outbound-enabled + KYC location to publish"
+  },
+  "whatsapp_24h_window": {
+   "type": "whatsapp_24h_window",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "whatsapp_interactive_messages": {
+   "type": "whatsapp_interactive_messages",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "whatsapp_media": {
+   "type": "whatsapp_media",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "whatsapp_v2": {
+   "type": "whatsapp_v2",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "workflow_ai_intent_detection": {
+   "type": "workflow_ai_intent_detection",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "workflow_ai_summarize_text": {
+   "type": "workflow_ai_summarize_text",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  },
+  "workflow_ai_translate_content": {
+   "type": "workflow_ai_translate_content",
+   "kind": "step",
+   "confidence": "live-schema",
+   "situational": [],
+   "premium": false,
+   "beta": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "section": "marketplace",
+   "requiredFields": [],
+   "attrKeys": [],
+   "marketplace": true
+  }
+ },
+ "triggers": {
+  "birthday_reminder": {
+   "type": "birthday_reminder",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "contact_changed": {
+   "type": "contact_changed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/contact_changed.json"
+  },
+  "contact_created": {
+   "type": "contact_created",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/contact_created.json"
+  },
+  "dnd_contact": {
+   "type": "dnd_contact",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "contact_tag": {
+   "type": "contact_tag",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/contact_tag.json"
+  },
+  "custom_date_reminder": {
+   "type": "custom_date_reminder",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "note_add": {
+   "type": "note_add",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "note_changed": {
+   "type": "note_changed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "task_added": {
+   "type": "task_added",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/task_added.json"
+  },
+  "task_due_date_reminder": {
+   "type": "task_due_date_reminder",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "contact",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/task_due_date_reminder.json"
+  },
+  "custom_object_created": {
+   "type": "custom_object_created",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "custom_object",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "custom_object_changed": {
+   "type": "custom_object_changed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "custom_object",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "inbound_webhook": {
+   "type": "inbound_webhook",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": true,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/inbound_webhook.json"
+  },
+  "scheduler_trigger": {
+   "type": "scheduler_trigger",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/scheduler_trigger.json"
+  },
+  "call_status": {
+   "type": "call_status",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/call_status.json"
+  },
+  "mailgun_email_event": {
+   "type": "mailgun_email_event",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/mailgun_email_event.json"
+  },
+  "customer_reply": {
+   "type": "customer_reply",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/customer_reply.json"
+  },
+  "inbound_trigger": {
+   "type": "inbound_trigger",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "conv_ai_trigger": {
+   "type": "conv_ai_trigger",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/conv_ai_trigger.json"
+  },
+  "conv_ai_autonomous_trigger": {
+   "type": "conv_ai_autonomous_trigger",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "form_submission": {
+   "type": "form_submission",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/form_submission.json"
+  },
+  "survey_submission": {
+   "type": "survey_submission",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/survey_submission.json"
+  },
+  "trigger_link": {
+   "type": "trigger_link",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/trigger_link.json"
+  },
+  "facebook_lead_gen": {
+   "type": "facebook_lead_gen",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/facebook_lead_gen.json"
+  },
+  "tik_tok_form_submitted": {
+   "type": "tik_tok_form_submitted",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "video_event": {
+   "type": "video_event",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "validation_error": {
+   "type": "validation_error",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "events",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "appointment": {
+   "type": "appointment",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "appointments",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/appointment.json"
+  },
+  "customer_appointment": {
+   "type": "customer_appointment",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "appointments",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/customer_appointment.json"
+  },
+  "opportunity_status_changed": {
+   "type": "opportunity_status_changed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "opportunities",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/opportunity_status_changed.json"
+  },
+  "opportunity_created": {
+   "type": "opportunity_created",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "opportunities",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/opportunity_created.json"
+  },
+  "opportunity_changed": {
+   "type": "opportunity_changed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "opportunities",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/opportunity_changed.json"
+  },
+  "pipeline_stage_updated": {
+   "type": "pipeline_stage_updated",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "opportunities",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/pipeline_stage_updated.json"
+  },
+  "opportunity_decay": {
+   "type": "opportunity_decay",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "opportunities",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/opportunity_decay.json"
+  },
+  "affiliate_created": {
+   "type": "affiliate_created",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "affiliates",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "category_started": {
+   "type": "category_started",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "category_completed": {
+   "type": "category_completed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/category_completed.json"
+  },
+  "lesson_started": {
+   "type": "lesson_started",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/lesson_started.json"
+  },
+  "lesson_completed": {
+   "type": "lesson_completed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/lesson_completed.json"
+  },
+  "membership_contact_created": {
+   "type": "membership_contact_created",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "offer_access_granted": {
+   "type": "offer_access_granted",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "offer_access_removed": {
+   "type": "offer_access_removed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "product_access_granted": {
+   "type": "product_access_granted",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "product_access_removed": {
+   "type": "product_access_removed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "product_started": {
+   "type": "product_started",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "product_completed": {
+   "type": "product_completed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "user_log_in": {
+   "type": "user_log_in",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "courses",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "invoice": {
+   "type": "invoice",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "payments",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "payment_received": {
+   "type": "payment_received",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "payments",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "two_step_form_submission": {
+   "type": "two_step_form_submission",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "payments",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "order_submission": {
+   "type": "order_submission",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "payments",
+   "premium": false,
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/order_submission.json"
+  },
+  "shopify_abandoned_cart": {
+   "type": "shopify_abandoned_cart",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "shopify",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "shopify_order_placed": {
+   "type": "shopify_order_placed",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "shopify",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "shopify_order_fulfilled": {
+   "type": "shopify_order_fulfilled",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "shopify",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "ivr_incoming_call": {
+   "type": "ivr_incoming_call",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "ivr",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "facebook_comment_on_post": {
+   "type": "facebook_comment_on_post",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "fb_ig_events",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "ig_comment_on_post": {
+   "type": "ig_comment_on_post",
+   "kind": "trigger",
+   "masterType": "highlevel",
+   "category": "fb_ig_events",
+   "premium": false,
+   "confidence": "bundle-derived"
+  },
+  "affiliate_new_lead": {
+   "type": "affiliate_new_lead",
+   "kind": "trigger",
+   "category": null,
+   "masterType": "internal",
+   "example": "catalog/trigger-examples/affiliate_new_lead.json",
+   "confidence": "verified-live"
+  },
+  "proposal_estimate_update": {
+   "type": "proposal_estimate_update",
+   "kind": "trigger",
+   "category": null,
+   "masterType": "internal",
+   "example": "catalog/trigger-examples/proposal_estimate_update.json",
+   "confidence": "verified-live"
+  }
+ }
+}
