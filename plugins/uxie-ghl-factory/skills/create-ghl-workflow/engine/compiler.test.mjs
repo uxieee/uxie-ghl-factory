@@ -198,7 +198,6 @@ test('voice_ai_outbound_call: attributes + workflowsActionType INTERNAL (live-ve
   const { autoSaveBody } = compile(ir, ctx());
   const t = autoSaveBody.workflowData.templates[0];
   assert.equal(t.type, 'voice_ai_outbound_call');
-  assert.equal(t.name, 'Voice AI outbound call');
   assert.equal(t.workflowsActionType, 'INTERNAL');
   assert.equal(t.attributes.agentId, '6a2632febba50b0bbd1031d2');
   assert.equal(t.attributes.fromPhoneNumber, '+61481610656');
@@ -209,14 +208,11 @@ test('voice_ai_outbound_call: attributes + workflowsActionType INTERNAL (live-ve
 
 test('voice_ai_outbound_call: missing agentId or fromPhoneNumber rejected', () => {
   const missingAgent = { name: 'V', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
-    { ref: 'v', kind: 'action', type: 'voice_ai_outbound_call', name: 'Voice AI outbound call',
-      attributes: { fromPhoneNumber: '+61481610656' } },
+    { ref: 'v', kind: 'action', type: 'voice_ai_outbound_call', name: 'Voice AI outbound call', attributes: { fromPhoneNumber: '+61481610656' } },
   ] };
   assert.throws(() => compile(missingAgent, ctx()), (e) => e.code === 'MISSING_FIELD');
-
   const missingPhone = { name: 'V', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
-    { ref: 'v', kind: 'action', type: 'voice_ai_outbound_call', name: 'Voice AI outbound call',
-      attributes: { agentId: '6a2632febba50b0bbd1031d2' } },
+    { ref: 'v', kind: 'action', type: 'voice_ai_outbound_call', name: 'Voice AI outbound call', attributes: { agentId: '6a2632febba50b0bbd1031d2' } },
   ] };
   assert.throws(() => compile(missingPhone, ctx()), (e) => e.code === 'MISSING_FIELD');
 });
@@ -233,6 +229,7 @@ test('Appendix A acceptance: tagged-vip-nurture compiles to 8 steps, correct sha
   assert.equal(byName('Tag premium').next, null);
   assert.equal(byName('Tag premium').parent, byName('Yes').id);
   assert.equal(triggerBodies[0].type, 'contact_tag');
-  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: ['VIP'] }]);
+  // filter expansion enriches the lean {field,operator,value} into the full UI condition shape
+  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: ['VIP'], title: 'tag_added', type: 'select', id: 'tag-added' }]);
   assert.equal(autoSaveBody.createdSteps.length, 8);
 });

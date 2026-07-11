@@ -4,15 +4,21 @@ export class IRError extends Error {
   constructor(code, message) { super(message); this.name = 'IRError'; this.code = code; }
 }
 
-// Walk every node (graph + nested then[]) and every trigger, collecting refs.
+// Node-level scope arrays that hold a nested linear sequence (a child graph).
+// Every multipath container reaches its children through one of these.
+const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'default'];
+
+// Walk every node (graph + every nested scope) and every trigger, collecting refs.
 export function collectRefs(ir) {
   const refs = [];
   for (const t of ir.triggers ?? []) refs.push(t.ref);
   const walk = (nodes) => {
     for (const n of nodes ?? []) {
-      refs.push(n.ref);
-      for (const b of n.branches ?? []) { refs.push(b.ref); walk(b.then); }
-      for (const p of n.paths ?? []) { refs.push(p.ref); walk(p.then); }
+      if (n.ref !== undefined) refs.push(n.ref);
+      // branch/path collections carry their own ref + a then[] child scope
+      for (const b of n.branches ?? []) { if (b.ref !== undefined) refs.push(b.ref); walk(b.then); }
+      for (const p of n.paths ?? []) { if (p.ref !== undefined) refs.push(p.ref); walk(p.then); }
+      for (const k of SCOPE_KEYS) walk(n[k]);
     }
   };
   walk(ir.graph);
@@ -25,6 +31,7 @@ function walkNodes(nodes, visit) {
     visit(n, i, nodes);
     for (const b of n.branches ?? []) walkNodes(b.then, visit);
     for (const p of n.paths ?? []) walkNodes(p.then, visit);
+    for (const k of SCOPE_KEYS) walkNodes(n[k], visit);
   }
 }
 
@@ -57,8 +64,12 @@ export function parseIR(ir) {
     }
     if (n.kind === 'split') {
       if ((n.paths ?? []).length < 2) throw new IRError('SPLIT_ARITY', `split '${n.ref}' needs >=2 paths`);
-      if ((n.mode === 'weighted' || n.mode === 'random') && n.paths.some((p) => typeof p.weight !== 'number'))
-        throw new IRError('SPLIT_WEIGHT', `split '${n.ref}' ${n.mode} requires weight per path`);
+      if (n.mode === 'weighted' && n.paths.some((p) => typeof p.weight !== 'number'))
+        throw new IRError('SPLIT_WEIGHT', `split '${n.ref}' weighted requires weight per path`);
+    }
+    if (n.kind === 'ai_decision') {
+      if ((n.branches ?? []).length < 1) throw new IRError('AI_DECISION_ARITY', `ai_decision '${n.ref}' needs >=1 branch`);
+      for (const b of n.branches) if (!b.name) throw new IRError('AI_DECISION_BRANCH', `ai_decision '${n.ref}' branch missing name`);
     }
   });
 
