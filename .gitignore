@@ -1,0 +1,4 @@
+.ghl/
+node_modules/
+audits/
+*.local.*
