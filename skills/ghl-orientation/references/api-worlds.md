@@ -62,8 +62,9 @@ still calling this a gap is wrong.
 - **Status:** undocumented, unversioned (from a consumer's standpoint), and
   off-Terms-of-Service — it's the same traffic the GHL web app itself makes
   from your browser, replayed deliberately. GHL owes no compatibility
-  guarantee here; it has already changed auth scheme once mid-project
-  (`token-id` → `Authorization: Bearer`, 2026-07).
+  guarantee here; it has already changed its auth scheme once mid-project,
+  without notice — see `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` for
+  the current format and migration history.
 - **Fragility:** because it's reverse-engineered, not published, it can
   change or break without notice, and every write against it carries real
   risk (wrong account, ToS exposure, silent breakage on GHL's next
