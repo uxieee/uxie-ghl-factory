@@ -5,7 +5,7 @@
   "plugins": [
     {
       "name": "ghl",
-      "source": "./",
+      "source": "./plugins/ghl",
       "description": "GoHighLevel toolkit for Claude Code: build and operate GHL sub-accounts."
     }
   ]
