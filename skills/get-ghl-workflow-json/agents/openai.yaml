@@ -1,0 +1,4 @@
+interface:
+  display_name: "Get GHL Workflow JSON"
+  short_description: "Capture HighLevel workflow JSON safely"
+  default_prompt: "Use $get-ghl-workflow-json to capture the JSON for this HighLevel workflow URL."
