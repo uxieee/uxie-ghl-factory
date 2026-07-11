@@ -76,6 +76,234 @@ test('compileVoiceAiAction: actionParameters defaults to {} when omitted', () =>
   assert.deepEqual(body.actionParameters, {});
 });
 
+test('compileVoiceAiAction: unverified actionType (MCP) stays pure passthrough', () => {
+  const { body } = compileVoiceAiAction(
+    { actionType: 'MCP', name: 'Connect MCP', actionParameters: { someField: 'x' } },
+    { agentId: AGENT_ID, locationId: LOCATION_ID },
+  );
+  assert.deepEqual(body.actionParameters, { someField: 'x' });
+});
+
+// --- Newly verified action types: voiceai-actions-all.json -----------------------
+
+// WORKFLOW_TRIGGER
+test('compileVoiceAiAction: WORKFLOW_TRIGGER matches voiceai-actions-all.json shape', () => {
+  const action = {
+    actionType: 'WORKFLOW_TRIGGER',
+    name: 'Test Workflow Trigger',
+    actionParameters: {
+      triggerPrompt: 'User asks to test the workflow trigger',
+      triggerMessage: 'I have triggered the test workflow.',
+      triggerMessageType: 'static_text',
+      workflowId: '76b6ce98-dd6e-4e4d-aaff-bd58369fe18b',
+    },
+  };
+  const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters, action.actionParameters);
+});
+
+test('compileVoiceAiAction: WORKFLOW_TRIGGER rejects missing workflowId', () => {
+  assert.throws(
+    () => compileVoiceAiAction(
+      { actionType: 'WORKFLOW_TRIGGER', name: 'Trigger', actionParameters: { triggerPrompt: 'x', triggerMessage: 'y', triggerMessageType: 'static_text' } },
+      { locationId: LOCATION_ID },
+    ),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// SMS
+test('compileVoiceAiAction: SMS matches voiceai-actions-all.json shape', () => {
+  const action = {
+    actionType: 'SMS',
+    name: 'Test Send SMS',
+    actionParameters: {
+      triggerPrompt: 'User asks for a test SMS',
+      triggerMessage: 'I have sent you a test SMS.',
+      triggerMessageType: 'static_text',
+      messageBody: 'This is a test SMS message.',
+    },
+  };
+  const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters, action.actionParameters);
+});
+
+test('compileVoiceAiAction: SMS rejects missing messageBody', () => {
+  assert.throws(
+    () => compileVoiceAiAction({ actionType: 'SMS', name: 'Send SMS', actionParameters: {} }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// DATA_EXTRACTION
+test('compileVoiceAiAction: DATA_EXTRACTION matches voiceai-actions-all.json shape', () => {
+  const action = {
+    actionType: 'DATA_EXTRACTION',
+    name: 'Test Update Contact Field',
+    actionParameters: {
+      contactFieldId: 'UEmlm3vvvvht5bybXxTv',
+      description: 'The company name of the caller',
+      contactFieldName: 'Business Name',
+      contactFieldDataType: 'STANDARD_FIELD',
+      contactFieldKey: 'contact.company_name',
+      actionType: 'DATA_EXTRACTION',
+      examples: ['Acme Corporation', 'Tech Solutions Inc'],
+      overwriteExistingValue: false,
+      saveAsAdditional: true,
+    },
+  };
+  const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters, action.actionParameters);
+});
+
+test('compileVoiceAiAction: DATA_EXTRACTION rejects missing contactFieldKey', () => {
+  assert.throws(
+    () => compileVoiceAiAction(
+      { actionType: 'DATA_EXTRACTION', name: 'Update field', actionParameters: { contactFieldId: 'f1', contactFieldDataType: 'STANDARD_FIELD' } },
+      { locationId: LOCATION_ID },
+    ),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// APPOINTMENT_BOOKING
+test('compileVoiceAiAction: APPOINTMENT_BOOKING matches voiceai-actions-all.json shape', () => {
+  const action = {
+    actionType: 'APPOINTMENT_BOOKING',
+    name: 'Appointment Booking Action',
+    actionParameters: { calendarId: '3KIkHmnkrlhfpN9nORu4' },
+  };
+  const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters, {
+    calendarId: '3KIkHmnkrlhfpN9nORu4',
+    calendarIds: null,
+    aiDescription: null,
+    fallbackCalendar: false,
+    fallbackCalendarId: null,
+    calendarActionType: 'single',
+    daysOfOfferingDates: 3,
+    slotsPerDay: 3,
+    hoursBetweenSlots: 3,
+    collectName: false,
+    collectEmail: true,
+    collectAddress: false,
+    collectAdditionalNotes: false,
+    collectPhoneNumber: false,
+    onlyShareBookingLink: false,
+    respectCalendarAutoConfirm: false,
+    cancelEnabled: false,
+    rescheduleEnabled: false,
+    timezoneSelection: 'userAgent',
+    fallbackTimezone: 'askUser',
+  });
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING rejects missing calendarId', () => {
+  assert.throws(
+    () => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: {} }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// CAP
+test('compileVoiceAiAction: CAP matches voiceai-actions-all.json shape', () => {
+  const action = {
+    actionType: 'CAP',
+    name: 'test_custom_action',
+    actionParameters: {
+      capActionId: 'I0WfHWKUfajTT9akCbsM',
+      triggerPrompt: 'When the user asks to test the custom action',
+      triggerMessage: 'Please wait while I test this action.',
+      schemaValues: {
+        paramsValues: {},
+        requestBodyValues: {
+          webhookUrl: { value: 'https://httpbin.org/post', mode: 'manual' },
+          httpMethod: { value: 'POST', mode: 'manual' },
+          headers: { value: { 'Content-Type': 'application/json' }, mode: 'manual' },
+          apiTimeout: { value: 10, mode: 'manual' },
+          retryOnFailure: { value: false, mode: 'manual' },
+        },
+      },
+    },
+  };
+  const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.equal(body.actionParameters.capActionName, 'customApi');
+  assert.equal(body.actionParameters.capActionId, 'I0WfHWKUfajTT9akCbsM');
+  assert.deepEqual(body.actionParameters.schemaValues, action.actionParameters.schemaValues);
+});
+
+test('compileVoiceAiAction: CAP rejects missing capActionId', () => {
+  assert.throws(
+    () => compileVoiceAiAction(
+      {
+        actionType: 'CAP', name: 'test_custom_action',
+        actionParameters: {
+          triggerPrompt: 'x', triggerMessage: 'y',
+          schemaValues: { requestBodyValues: { webhookUrl: { value: 'https://httpbin.org/post' } } },
+        },
+      },
+      { locationId: LOCATION_ID },
+    ),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+test('compileVoiceAiAction: CAP rejects a non-https webhookUrl', () => {
+  assert.throws(
+    () => compileVoiceAiAction(
+      {
+        actionType: 'CAP', name: 'test_custom_action',
+        actionParameters: {
+          capActionId: 'cap1', triggerPrompt: 'x', triggerMessage: 'y',
+          schemaValues: { requestBodyValues: { webhookUrl: { value: 'http://insecure.example.com' } } },
+        },
+      },
+      { locationId: LOCATION_ID },
+    ),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// AGENT_TRANSFER_CHILD
+test('compileVoiceAiAction: AGENT_TRANSFER_CHILD matches voiceai-actions-all.json shape', () => {
+  const action = {
+    actionType: 'AGENT_TRANSFER_CHILD',
+    name: 'transfer_finn_0',
+    actionParameters: {
+      destinationAgentMongoId: '69f8484fee4ecaa5d657c45d',
+      triggerPrompt: 'If the user asks to speak with Finn, transfer the call.',
+    },
+  };
+  const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters, {
+    speakDuringExecution: false,
+    triggerWorkflowsPostCall: true,
+    destinationAgentMongoId: '69f8484fee4ecaa5d657c45d',
+    triggerPrompt: 'If the user asks to speak with Finn, transfer the call.',
+  });
+});
+
+test('compileVoiceAiAction: AGENT_TRANSFER_CHILD rejects missing destinationAgentMongoId', () => {
+  assert.throws(
+    () => compileVoiceAiAction(
+      { actionType: 'AGENT_TRANSFER_CHILD', name: 'transfer', actionParameters: { triggerPrompt: 'x' } },
+      { locationId: LOCATION_ID },
+    ),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+test('compileVoiceAiAction: AGENT_TRANSFER_CHILD lets caller override speakDuringExecution', () => {
+  const { body } = compileVoiceAiAction(
+    {
+      actionType: 'AGENT_TRANSFER_CHILD', name: 'transfer',
+      actionParameters: { destinationAgentMongoId: 'agent2', triggerPrompt: 'x', speakDuringExecution: true },
+    },
+    { agentId: AGENT_ID, locationId: LOCATION_ID },
+  );
+  assert.equal(body.actionParameters.speakDuringExecution, true);
+});
+
 // --- compileVoiceAiUpdate (PUT /voice-ai/agents/:id?publishAgent=true&mode=update) --
 
 // Reproduces captures/voiceai-update-identity.json's requestBody exactly, MINUS

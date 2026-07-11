@@ -24,13 +24,24 @@ export const STT_MODES = ['accurate', 'fast', 'custom'];
 // Only value ever observed live, on both update captures.
 export const WELCOME_MESSAGE_MODES = ['ai_custom'];
 
-// Only CALL_TRANSFER is live-verified (voiceai-action.json's captured POST
-// /voice-ai/actions call). The other 7 builder menu items (Trigger a workflow, Send
-// SMS, Update contact field, Appointment Booking, Custom Action 2.0, Agent Transfer,
-// Add MCP) are NOT rejected here — they pass through as accepted-but-unverified, per
-// voice-ai-internal.md's "Open items before engine build" note (#1: capture the
-// remaining 7 action types).
-export const VERIFIED_ACTION_TYPES = ['CALL_TRANSFER'];
+// CALL_TRANSFER was the first live-verified type (voiceai-action.json's captured POST
+// /voice-ai/actions call). The other 6 captured builder menu items — Trigger a workflow
+// (WORKFLOW_TRIGGER), Send SMS (SMS), Update contact field (DATA_EXTRACTION), Appointment
+// Booking (APPOINTMENT_BOOKING), Custom Action 2.0 (CAP), Agent Transfer
+// (AGENT_TRANSFER_CHILD) — are now ALSO verified, per
+// research/ai-agents-internal/captures/voiceai-actions-all.json (captured 2026-07-11
+// against a real test agent). Only "Add MCP (Beta)" remains unverified (its OAuth-connect
+// flow is out of scope, see the capture's `_skipped` note) — it passes through as
+// accepted-but-unverified, same as any other unlisted actionType.
+export const VERIFIED_ACTION_TYPES = [
+  'CALL_TRANSFER',
+  'WORKFLOW_TRIGGER',
+  'SMS',
+  'DATA_EXTRACTION',
+  'APPOINTMENT_BOOKING',
+  'CAP',
+  'AGENT_TRANSFER_CHILD',
+];
 
 function assertNonEmptyString(v, field) {
   if (typeof v !== 'string' || v.length === 0) throw new IRError('SCHEMA', `${field} must be a non-empty string`);
@@ -141,9 +152,10 @@ function checkNoResponseConfig(nrc) {
 
 // Actions are a separate resource (POST /voice-ai/actions, see voiceai-compiler.mjs)
 // but travel with the IR so compileVoiceAiAgent can compile them alongside the
-// create call. Only actionType + name are required at the IR level; actionParameters
-// shape is passed through as-is (only CALL_TRANSFER's shape is verified — see
-// VERIFIED_ACTION_TYPES above).
+// create call. Only actionType + name are required at the IR level — per-type
+// actionParameters validation (required fields, defaults) lives in
+// voiceai-compiler.mjs's buildActionParameters, for the types listed in
+// VERIFIED_ACTION_TYPES above.
 function checkActions(actions) {
   if (actions === undefined) return;
   if (!Array.isArray(actions)) throw new IRError('SCHEMA', 'actions must be an array');

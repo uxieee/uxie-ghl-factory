@@ -182,13 +182,189 @@ test('compileConvaiAction: humanHandOver rejects too-short triggerCondition', ()
   );
 });
 
-test('compileConvaiAction: non-humanHandOver action types keep pure passthrough (no defaults injected)', () => {
+test('compileConvaiAction: unverified action types keep pure passthrough (no defaults injected)', () => {
   const { body } = compileConvaiAction(
-    { type: 'stopBot', name: 'Stop Bot', details: { someField: 'x' } },
+    { type: 'mcpConnect', name: 'MCP Connect', details: { someField: 'x' } },
     { agentId: 'AGENT1', locationId: 'LOC' },
   );
   assert.deepEqual(body.details, { someField: 'x' });
   assert.equal('enabled' in body.details, false);
+});
+
+// --- Newly verified action types: convai-actions-all.json ------------------------
+
+// appointmentBooking
+test('compileConvaiAction: appointmentBooking matches convai-actions-all.json shape', () => {
+  const { body } = compileConvaiAction(
+    { type: 'appointmentBooking', name: 'Book Appointment', details: { calendarId: '3KIkHmnkrlhfpN9nORu4' } },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details, {
+    calendarActionType: 'single',
+    onlySendLink: false,
+    triggerWorkflow: false,
+    workflowIds: null,
+    sleepAfterBooking: false,
+    sleepTimeUnit: null,
+    sleepTime: null,
+    transferBot: false,
+    transferEmployee: null,
+    cancelEnabled: false,
+    rescheduleEnabled: false,
+    calendarId: '3KIkHmnkrlhfpN9nORu4',
+  });
+});
+
+test('compileConvaiAction: appointmentBooking rejects missing calendarId', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'appointmentBooking', name: 'Book Appointment', details: {} }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// triggerWorkflow
+test('compileConvaiAction: triggerWorkflow matches convai-actions-all.json shape', () => {
+  const { body } = compileConvaiAction(
+    {
+      type: 'triggerWorkflow',
+      name: 'Trigger Workflow 1',
+      details: { triggerCondition: 'Test condition: customer confirms interest in a demo', workflowIds: ['76b6ce98-dd6e-4e4d-aaff-bd58369fe18b'] },
+    },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details, {
+    triggerCondition: 'Test condition: customer confirms interest in a demo',
+    workflowIds: ['76b6ce98-dd6e-4e4d-aaff-bd58369fe18b'],
+  });
+});
+
+test('compileConvaiAction: triggerWorkflow rejects missing workflowIds', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'triggerWorkflow', name: 'Trigger', details: { triggerCondition: 'when x happens' } }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+test('compileConvaiAction: triggerWorkflow rejects missing triggerCondition', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'triggerWorkflow', name: 'Trigger', details: { workflowIds: ['wf1'] } }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// updateContactField
+test('compileConvaiAction: updateContactField matches convai-actions-all.json shape', () => {
+  const { body } = compileConvaiAction(
+    {
+      type: 'updateContactField',
+      name: 'Field update 1',
+      details: {
+        contactFieldId: 'cF7gC1kD5AjJdT951wnr',
+        contactFieldName: 'Date Of Birth',
+        description: 'Ask the customer for their date of birth',
+        contactFieldDataType: 'STANDARD_FIELD',
+        contactFieldKey: 'contact.date_of_birth',
+      },
+    },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details, {
+    contactFieldId: 'cF7gC1kD5AjJdT951wnr',
+    contactFieldName: 'Date Of Birth',
+    description: 'Ask the customer for their date of birth',
+    contactFieldDataType: 'STANDARD_FIELD',
+    contactFieldKey: 'contact.date_of_birth',
+    contactUpdateExamples: [],
+  });
+});
+
+test('compileConvaiAction: updateContactField rejects missing contactFieldId', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'updateContactField', name: 'Field update', details: { description: 'x' } }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+test('compileConvaiAction: updateContactField rejects missing description', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'updateContactField', name: 'Field update', details: { contactFieldId: 'f1' } }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// stopBot
+test('compileConvaiAction: stopBot merges the pre-built Goodbye Detection defaults', () => {
+  const { body } = compileConvaiAction(
+    { type: 'stopBot', name: 'Goodbye Detection', details: {} },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details, {
+    stopBotDetectionType: 'Goodbye',
+    stopBotTriggerCondition: 'When the contact says goodbye or similar phrases ',
+    finalMessage: 'Thank you for your time, Have a nice day.',
+    reactivateEnabled: true,
+    sleepTimeUnit: 'hours',
+    sleepTime: 24,
+    stopBotExamples: ['Bye', 'Goodbye', 'Thank you! have a nice day'],
+    enabled: true,
+    tags: ['stop bot'],
+  });
+});
+
+test('compileConvaiAction: stopBot lets caller override defaults', () => {
+  const { body } = compileConvaiAction(
+    { type: 'stopBot', name: 'Custom Stop', details: { enabled: false, finalMessage: 'Bye!' } },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.equal(body.details.enabled, false);
+  assert.equal(body.details.finalMessage, 'Bye!');
+  assert.equal(body.details.stopBotDetectionType, 'Goodbye');
+});
+
+// transferBot
+test('compileConvaiAction: transferBot matches convai-actions-all.json shape', () => {
+  const { body } = compileConvaiAction(
+    { type: 'transferBot', name: 'Default Transfer Bot', details: { transferToBot: 'MZtNjcbSrGj0NIdw5JdU' } },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details, {
+    transferBotExamples: [],
+    transferBotType: 'Default',
+    enabled: true,
+    transferBotTriggerCondition: "If bot doesn't know the answer",
+    transferToBot: 'MZtNjcbSrGj0NIdw5JdU',
+  });
+});
+
+test('compileConvaiAction: transferBot rejects missing transferToBot', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'transferBot', name: 'Transfer Bot', details: {} }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+// advancedFollowup
+test('compileConvaiAction: advancedFollowup merges the pre-built Contact Stopped Replying defaults', () => {
+  const { body } = compileConvaiAction(
+    { type: 'advancedFollowup', name: 'Contact Stopped Replying', details: {} },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details, {
+    enabled: true,
+    scenarioId: 'contactStoppedReplying',
+    followupSequence: [
+      { id: 1, followupTime: 15, followupTimeUnit: 'minutes', aiEnabledMessage: true, customMessage: null, workflowId: null, triggerWorkflow: false },
+    ],
+  });
+});
+
+test('compileConvaiAction: advancedFollowup lets caller override the followup sequence', () => {
+  const customSequence = [{ id: 1, followupTime: 30, followupTimeUnit: 'minutes', aiEnabledMessage: false, customMessage: 'Still there?', workflowId: null, triggerWorkflow: false }];
+  const { body } = compileConvaiAction(
+    { type: 'advancedFollowup', name: 'Contact Stopped Replying', details: { followupSequence: customSequence } },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details.followupSequence, customSequence);
 });
 
 // Matches captures/convai-kb.json's KB-trigger PUT: only locationId + the touched

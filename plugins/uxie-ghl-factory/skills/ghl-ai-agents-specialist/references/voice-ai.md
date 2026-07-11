@@ -113,13 +113,36 @@ splits actions into typed buckets: `callTransferActions[]`, `contactFieldActions
 `capActions[]`, `mcpServers[]` (plus raw `actions[]` with SCREAMING_SNAKE `actionType`, and
 `actionIds[]`).
 
-**`CALL_TRANSFER` — the only live-verified action type.** Response `type: "callTransfer"`,
+**`CALL_TRANSFER` — the first live-verified action type.** Response `type: "callTransfer"`,
 bucket `callTransferActions[]`. `actionParameters`: `triggerPrompt`, `triggerMessage`,
 `triggerMessageType` (`static_text`), `transferToType` (`number`), `transferToValue`,
 `hearWhisperMessage`.
 
-Not yet captured (inferred only, treat as unverified): `WORKFLOW_TRIGGER`, `SMS`,
-contact-field update, `APPOINTMENT_BOOKING`, Custom Action 2.0, Agent Transfer, MCP.
+**All 6 remaining action types are now ALSO verified**, per
+`research/ai-agents-internal/captures/voiceai-actions-all.json` (POST `/voice-ai/actions`
+against a real test agent, 2026-07-11). `voiceai-compiler.mjs`'s `buildActionParameters`
+dispatches on `actionType` and, for each of these, validates the capture's required
+field(s) and merges the caller's `actionParameters` over any capture-grounded defaults:
+- **`WORKFLOW_TRIGGER`** ("Trigger a workflow") — required: `workflowId`, `triggerPrompt`,
+  `triggerMessage`, `triggerMessageType`. No defaults — all user-authored.
+- **`SMS`** ("Send SMS") — required: `messageBody`.
+- **`DATA_EXTRACTION`** ("Update contact field") — required: `contactFieldId`,
+  `contactFieldKey`, `contactFieldDataType`.
+- **`APPOINTMENT_BOOKING`** — required: `calendarId`. Booking/appointment-management
+  toggles (`daysOfOfferingDates`, `collectEmail`, `cancelEnabled`, `timezoneSelection`, ...)
+  default to their captured values. Only one Appointment Booking action allowed per agent.
+- **`CAP`** ("Custom Action 2.0" / Custom Action Plugin) — required: `capActionId`,
+  `triggerPrompt`, `triggerMessage`, and (validated on the one field the compiler can see)
+  `schemaValues.requestBodyValues.webhookUrl.value` must be an `https://` URL.
+  `capActionName` defaults to the fixed literal `'customApi'`.
+- **`AGENT_TRANSFER_CHILD`** ("Agent Transfer", distinct from `CALL_TRANSFER`) — required:
+  `destinationAgentMongoId`, `triggerPrompt`. `speakDuringExecution` / `triggerWorkflowsPostCall`
+  default to the capture's observed values (`false` / `true`). Max 3 connected agents per UI.
+
+`VERIFIED_ACTION_TYPES` in `voiceai-ir.mjs` now lists all 7. Only `MCP` ("Add MCP (Beta)")
+remains unverified — it needs a third-party OAuth-connect flow, explicitly out of scope per
+the capture's `_skipped` note — and passes through as accepted-but-unverified, same as any
+other unlisted `actionType`.
 
 ## Driving `voiceai-compiler.mjs`
 
