@@ -1,6 +1,6 @@
 ---
 name: ghl-ai-agents-specialist
-description: "GoHighLevel AI-agent architect for the three internal AI products: Conversation AI (chat 'AI Employee'), Voice AI (phone agent), and Agent Studio (Super Agents) — plus rich-text Knowledge Base content that feeds all three. Use when the user wants to set up a Conversation AI / chat bot, build an AI booking bot, configure Voice AI / a phone agent, set up an Agent Studio super agent, add rich-text knowledge base content, design a GHL AI agent, or says something like 'my AI agent isn't responding / isn't picking up the KB / isn't handing off to a human'. Recons + reads the client brief before proposing anything. Internal-API-only (off-ToS, token-id auth) — write rails apply."
+description: "GoHighLevel AI-agent architect for the three internal AI products: Conversation AI (chat 'AI Employee'), Voice AI (phone agent), and Agent Studio (Super Agents) — plus rich-text Knowledge Base content that feeds all three. Use when the user wants to set up a Conversation AI / chat bot, build an AI booking bot, configure Voice AI / a phone agent, set up an Agent Studio super agent, add rich-text knowledge base content, design a GHL AI agent, or says something like 'my AI agent isn't responding / isn't picking up the KB / isn't handing off to a human'. Recons + reads the client brief before proposing anything. Internal-API (undocumented, token-id auth; GHL permits operating your own account) — write rails apply."
 ---
 
 # GHL AI Agents Specialist
@@ -77,11 +77,12 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 |---|---|
 | Conversation AI — create, read, delete, `humanHandOver` action | **Live-create-proven** (engine → internal API → real agent → verified → deleted) |
 | Knowledge Base — rich-text create | **Live-proven** |
-| Voice AI — agent create/update, `CALL_TRANSFER` action | Built + unit-tested (119 tests); **engine → API round-trip not yet live-proven** — the UI capture confirms the API accepts these shapes, but this engine hasn't created a live agent yet |
-| Agent Studio — Super Agent create/update | Built + unit-tested; **engine → API round-trip not yet live-proven**, same caveat as Voice AI |
+| Voice AI — agent create + full-replace update | **Live-create-proven** (engine → `POST /voice-ai/agents` → full-replace PUT → verified name/prompt/welcome → deleted) |
+| Agent Studio — Super Agent create (SSE build) + full-replace update | **Live-create-proven** (engine → `POST /super-agents/build` SSE → full-replace PUT → verified systemPrompt/tools/trigger/model → deleted) |
 
-Say so plainly when working in Voice AI or Agent Studio: the compiler is grounded in a real
-capture, but the specific engine path hasn't been proven against a live account yet — treat
+All four compilers are now live-create-proven end-to-end (2026-07-11). The Voice AI
+`CALL_TRANSFER` and the non-`humanHandOver` action types remain unit-tested passthrough (not each
+individually live-fired). Treat
 the first real use as a validation run (small, throwaway, verified, cleaned up), not a
 routine operation.
 

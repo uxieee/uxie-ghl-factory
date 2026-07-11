@@ -114,4 +114,31 @@ The current JWT payload (decode locally, e.g. via jwt.io — it decodes client-s
 
 - **`get-ghl-workflow-json`** (export) — read-only `GET` calls only. Uses this doc's §1–§4 in full; never issues writes.
 - **`create-ghl-workflow`** and **`ghl-funnels-pages`** — issue writes (`POST`/`PUT`/`PATCH`) against the internal API. They use this doc's §1–§4 for auth *and* must additionally satisfy `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md` (owned-account check + one-time ToS disclosure) before any write executes.
+- **`ghl-ai-agents-specialist`** — issues writes against the **AI internal services** (Conversation AI, Voice AI, Agent Studio, Knowledge Base). Those use a DIFFERENT header — see §7. Write rails (`${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`) still apply.
 - No other plugin component should embed JWT header formats, capture steps, or UID/CID derivation — they point here instead.
+
+## 7. AI-services auth (`token-id`) — SERVICE-DEPENDENT
+
+The internal auth scheme is **not uniform**. §1–§4 above cover the **workflow-builder** surface
+(`backend.leadconnectorhq.com/workflow/...`, `workflows-marketplace/...`), which uses
+`Authorization: Bearer <JWT>`. But the **AI services** on `services.leadconnectorhq.com` —
+`ai-employees` (Conversation AI), `voice-ai`, `agent-studio`, `knowledge-base` — authenticate with a
+**`token-id`** header instead, carrying a Google securetoken RS256 JWT
+(`iss: securetoken.google.com/highlevel-backend`; claims `user_id`, `company_id`, `role`, `locations[]`).
+Sending a `Bearer` token to these services, or a `token-id` to the workflow API, fails.
+
+**Capture procedure (token-id):**
+1. Have an authenticated `app.gohighlevel.com` browser session (Playwright MCP). Navigate into the
+   sub-account (deep links 404 — click through from `/`; the AI area is under "AI Agents").
+2. Trigger any authenticated AI call — e.g. open the Conversation AI / Voice AI / Agent Studio list,
+   which fires a `GET services.leadconnectorhq.com/ai-employees/...` (or `/voice-ai/...`, `/agent-studio/...`).
+3. Read that request's headers via `browser_network_request` and copy the **`token-id`** value. Also
+   present and worth replaying: `channel: APP`, `source: WEB_USER`, `version: <date>`, `content-type: application/json`.
+4. **Never store the token.** It is a ~1 hr session JWT; capture a fresh one each session (a stale one
+   returns `401 … E003`). Re-capture from a fresh authenticated request on expiry.
+
+**Executing a write:** run the compiled request descriptor from the engine
+(`ghl-ai-agents-specialist/engine/*-compiler.mjs` emit `{method, path, body, authHeader:'token-id'}`),
+POST/PUT to `https://services.leadconnectorhq.com<path>` with the `token-id` header + the headers above.
+Conversation AI PUT **merges**; Voice AI and Agent Studio PUT **full-replace** (GET → mutate whole doc → PUT).
+KB rich-text (`POST /knowledge-base/rich-text/`) processes async — poll `.../:id/status` until `trained`.
