@@ -31,7 +31,7 @@
 
 ```
 /plugin marketplace add uxieee/ghl-plugin
-/plugin install ghl@uxieee
+/plugin install uxie-ghl-factory@uxieee
 ```
 
 Then run `/uxie-ghl-factory:setup` to configure your token, verify the MCP connection, and see which features are available in your environment.
