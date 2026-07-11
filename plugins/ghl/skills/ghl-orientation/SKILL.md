@@ -15,3 +15,10 @@ Ground rules for agents working GHL:
 2. Respect the two-API boundary: prefer public; internal only via this
    plugin's capability skills with their gates.
 3. Per-client state lives in .ghl/<locationId>/ (brief.md = client context).
+
+## Specialists
+
+For design-level work, hand off to a specialist rather than building directly:
+`ghl-workflow-specialist` (workflows) and `ghl-pipeline-specialist` (pipelines)
+both recon, blueprint, and get explicit approval before building — follow the
+specialist contract instead of duplicating it here.
