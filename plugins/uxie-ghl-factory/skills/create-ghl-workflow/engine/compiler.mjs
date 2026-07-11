@@ -2,19 +2,33 @@
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
 import { parseIR, IRError } from './ir.mjs';
 
-// Premium actions carry a top-level `stepIndex` (runtime sequence id). Assigned in a
-// post-pass over the emitted templates.
-const PREMIUM_TYPES = new Set(['custom_webhook', 'custom_code']);
-
-function attributesFor(node) {
+function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
   if (node.type === 'email') return emailAttributes(node);
   if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {});
   if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
+  if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {});
   if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {});
-  if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
-  return node.attributes ?? {};
+  // Generic path: the author supplies intent attributes; the compiler fills the
+  // two structural fields the corpus shows on this type but a human never hand-writes:
+  //   - attributes.type  (mirrors the step type — present on ~all linear action types)
+  //   - __customInputs__  (the internal-action field envelope — present on INTERNAL types)
+  // Both are catalog-gated so we never inject a field the verified-live example lacks.
+  return normalizeAttrs(node, node.attributes ?? {}, ctx);
+}
+
+// Fill structural attribute fields from the catalog's verified-live shape. Only
+// touches fields the real persisted example carried, so a bare intent authoring
+// (e.g. { points: 5, operator: 'add' } for contact_engagement_score) round-trips
+// into the exact stored shape without the author knowing the envelope.
+function normalizeAttrs(node, attrs, ctx) {
+  const meta = ctx?.catalog?.step(node.type);
+  if (!meta) return attrs;
+  const out = { ...attrs };
+  if (meta.usesCustomInputs && !('__customInputs__' in out)) out.__customInputs__ = {};
+  if (Array.isArray(meta.attrKeys) && meta.attrKeys.includes('type') && !('type' in out)) out.type = node.type;
+  return out;
 }
 
 // Opportunity actions store their fields in a __customInputFields__ array
@@ -45,8 +59,7 @@ function updateOpportunityAttributes(a) {
 // are both required in the captured schema (`required: true` on both dynamic-fields
 // entries) — a step saved without them is broken, so we fail fast at compile time.
 // `outboundGuidelines` is a frozen, non-interactive info-banner field; the builder
-// always emits it empty on save. `__customInputs__` is an empty placeholder, unused
-// by this action.
+// always emits it empty on save. `__customInputs__` is an empty placeholder, unused.
 function voiceAiOutboundCallAttributes(a) {
   if (!a.agentId) throw new IRError('MISSING_FIELD', "voice_ai_outbound_call requires 'agentId'");
   if (!a.fromPhoneNumber) throw new IRError('MISSING_FIELD', "voice_ai_outbound_call requires 'fromPhoneNumber'");
@@ -285,9 +298,118 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
 
+    // workflow_split — random/weighted A/B/N-way split (live-verified shape mirrors
+    // catalog/step-examples/workflow_split.json). Each path gets a `transition` entry
+    // step (conditionType:"default") that its children hang off. Weights live in
+    // extras.weightDistribution (a `random` split with no weights defaults to even).
+    if (n.kind === 'split') {
+      const pathIds = n.paths.map(() => ctx.idGen());
+      const weighted = n.mode === 'weighted' || n.mode === 'random';
+      const even = Math.round(100 / n.paths.length);
+      const weightDistribution = {};
+      n.paths.forEach((p, pi) => { weightDistribution[pathIds[pi]] = weighted ? (p.weight ?? even) : even; });
+      const container = {
+        id, type: 'workflow_split', name: n.name ?? 'Split', order: i, parentKey, cat: 'multi-path', next: pathIds,
+        attributes: {
+          name: n.name ?? 'Split', cat: 'multi-path', type: 'workflow_split',
+          transitions: n.paths.map((p, pi) => ({
+            id: pathIds[pi], name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+            condition: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+            conditionType: 'default', isPrimaryBranch: false, description: '', attributes: {},
+          })),
+          paths: n.paths.map((p, pi) => ({ name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`, id: pathIds[pi] })),
+          condition: n.condition ?? 'random-split',
+          extras: { weightDistribution },
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(container);
+      n.paths.forEach((p, pi) => {
+        const child = flattenGraph(p.then ?? [], ctx, refMap, pathIds[pi]);
+        templates.push({ id: pathIds[pi], type: 'transition', name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+          cat: 'transition', parentKey: id, parent: id, order: pi, attributes: {}, next: child.entryId });
+        templates.push(...child.templates);
+      });
+      return;
+    }
+
+    // Pre-set 2-branch finder containers: find_contact (user-defined Found/Not-Found),
+    // lc_merge_contact (pre-defined Duplicate Found/Not-Found). Same transition-step
+    // mechanics as find_opportunity; shapes mirror the verified-live corpus examples.
+    if ((n.type === 'find_contact' || n.type === 'lc_merge_contact') && (n.onFound || n.onNotFound)) {
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const isFC = n.type === 'find_contact';
+      const container = {
+        id, type: n.type, name: n.name ?? (isFC ? 'Find Contact' : 'Merge Contact'), order: i, parentKey, cat: 'multi-path', next: [t1, t2],
+        attributes: isFC ? {
+          type: 'find_contact', fields: n.find?.fields ?? [], convertToMultipath: true,
+          name: n.name ?? 'Find Contact', cat: 'multi-path', isHybridAction: true, hybridActionType: 'find_contact',
+          transitions: [
+            { id: t1, name: 'Contact Found', condition: 'contact_found', conditionType: 'user-defined', isPrimaryBranch: true, description: '', attributes: { type: 'contact_found', description: 'Contact Found', cat: 'multi-path' } },
+            { id: t2, name: 'Contact Not Found', condition: 'contact_not_found', conditionType: 'user-defined', isPrimaryBranch: false, description: '', attributes: { type: 'contact_not_found', description: 'Contact Not Found' } },
+          ],
+        } : {
+          match_by: n.match_by ?? 'email', type: 'lc_merge_contact', __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
+          transitions: [
+            { id: t1, name: 'Duplicate Contact Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Duplicate Contact Not Found', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+          ],
+          __name__: n.name ?? `Merge Contact by ${n.match_by ?? 'email'}`,
+        },
+      };
+      if (!isFC) container.workflowsActionType = 'INTERNAL';
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(container);
+      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: 'transition', name: container.attributes.transitions[0].name, cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
+      templates.push(...found.templates);
+      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: 'transition', name: container.attributes.transitions[1].name, cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, next: notf.entryId });
+      templates.push(...notf.templates);
+      return;
+    }
+
+    // AI decision-maker / ConvAI splitter — N author-defined branches routed by an LLM,
+    // plus an always-present pre-defined Default Branch (first). Mirrors the verified-live
+    // workflow_ai_decision_maker corpus shape. Author supplies branches[{name,description,then}].
+    if (n.kind === 'ai_decision') {
+      const type = n.type ?? 'workflow_ai_decision_maker';
+      const defId = ctx.idGen();
+      const branchIds = n.branches.map(() => ctx.idGen());
+      const transitions = [
+        { id: defId, name: 'Default Branch', fields: { description: 'Go in this branch if none of the other branches make sense.', branchKey: 'none' }, meta: { __branchKey__: 'predefined_Default Branch' }, conditionType: 'pre-defined' },
+        ...n.branches.map((b, bi) => ({
+          id: branchIds[bi], name: b.name,
+          fields: { description: b.description ?? '', branchKey: b.branchKey ?? `branch_${bi}` },
+          meta: { __branchKey__: ctx.idGen() }, conditionType: 'user-defined',
+        })),
+      ];
+      const container = {
+        id, type, name: n.name ?? 'Workflow AI - Decision Maker', order: i, parentKey, cat: 'multi-path',
+        workflowsActionType: 'INTERNAL', next: [defId, ...branchIds],
+        attributes: {
+          instructions: n.instructions ?? '', information: n.information ?? '',
+          type, __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
+          transitions, __name__: n.name ?? 'Workflow AI - Decision Maker',
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(container);
+      // Default branch tail (optional) + each author branch
+      const def = flattenGraph(n.default ?? [], ctx, refMap, defId);
+      templates.push({ id: defId, type: 'transition', name: 'Default Branch', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: def.entryId });
+      templates.push(...def.templates);
+      n.branches.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
+        templates.push({ id: branchIds[bi], type: 'transition', name: b.name, cat: 'transition', parentKey: id, parent: id, order: bi + 1, attributes: {}, next: child.entryId });
+        templates.push(...child.templates);
+      });
+      return;
+    }
+
     // Root-scope linear steps stay lean; steps inside a branch carry `parent`
     // (= the branch-entry id) while `parentKey` advances along the chain.
-    const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n), next, parentKey };
+    const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(tmpl);
   });
@@ -304,11 +426,46 @@ export function casingLint({ triggerBodies, autoSaveBody }) {
     throw new IRError('CASING', 'workflow body must use camelCase locationId/companyId');
 }
 
+// Operators that take an array value (the compiler wraps a scalar automatically).
+const ARRAY_OPS = new Set(['is-any-of', 'is-in-array', 'contains-any', 'contains-none',
+  'string-contains-any-of', 'string-matches-any-of', 'index-of-true', 'index-of-false']);
+// Default operator by filter-row type when the row/author didn't specify one.
+function defaultOp(type) {
+  if (type === 'number' || type === 'date') return '==';
+  if (type === 'string' || type === 'input') return 'is-any-of';
+  return '=='; // select
+}
+
+// Expand an authored filter into the full GHL condition shape using the trigger's
+// recovered filter model. The author may write a lean intent filter — `{ on, value }`
+// (on = a row's id / label / field) or `{ field, value }` — and the compiler fills
+// operator/title/type/id from the model row. A fully-specified filter (field+operator+
+// title+type) passes through untouched, so hand-authored conditions still work.
+function expandFilter(f, rows) {
+  if (f.field && f.operator && f.title && f.type) return f; // already complete
+  const key = f.on ?? f.field ?? f.id;
+  const norm = (s) => String(s ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm(r.label) === norm(key) || norm(r.value) === norm(key));
+  if (!row) return f; // unknown row — passthrough whatever was given
+  const type = f.type ?? row.type ?? 'select';
+  let operator = f.operator ?? row.operator ?? defaultOp(type);
+  let value = f.value;
+  // an array value with a scalar-equality operator means "one of" — upgrade to is-any-of
+  // (e.g. form.id, whose recovered row has no operator and defaults to '==')
+  if (Array.isArray(value) && operator === '==') operator = 'is-any-of';
+  if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
+  const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
+  if (row.id) cond.id = row.id;
+  return cond;
+}
+
 function buildTrigger(t, ctx, wid) {
   const meta = ctx.catalog.trigger(t.type);
+  const rows = meta?.filterRows ?? [];
+  const conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
   return {
     status: 'draft', workflowId: wid, schedule_config: {},
-    conditions: t.filters ?? [],
+    conditions,
     type: t.type, masterType: t.masterType ?? meta?.masterType ?? 'highlevel', name: t.name,
     actions: [{ workflow_id: wid, type: 'add_to_workflow' }],
     active: t.active !== false, triggersChanged: true,
@@ -325,10 +482,13 @@ export function compile(ir, ctx) {
   let stepIndex = 0;
   for (const t of templates) {
     const meta = ctx.catalog.step(t.type);
-    if (meta && meta.situational.includes('workflowsActionType') && !('workflowsActionType' in t))
+    if (meta && meta.situational?.includes('workflowsActionType') && !('workflowsActionType' in t))
       t.workflowsActionType = 'INTERNAL';
-    // premium actions (custom_webhook/custom_code) carry a top-level stepIndex
-    if (PREMIUM_TYPES.has(t.type)) t.stepIndex = stepIndex;
+    // premium actions carry a top-level stepIndex (runtime sequence id). Which types
+    // carry it is derived from the verified-live corpus (catalog `premium` flag):
+    // custom_webhook, custom_code, ai_agent, chatgpt, google_sheets, the *_formatter
+    // family, appointment_booking, find_or_create_contact, conversationai_objective.
+    if (meta?.premium && !('stepIndex' in t)) t.stepIndex = stepIndex;
     stepIndex += 1;
   }
 
