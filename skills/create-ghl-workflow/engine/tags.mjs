@@ -1,0 +1,57 @@
+// Tag dependency resolution (offline extraction half).
+// Tags in GHL workflows are referenced by NAME, never id. The builder rejects
+// unknown tag names ("Referenced Tag does not exist"), so the orchestrator must
+// ensure every referenced name exists in the location before building.
+// This module is the pure/offline half: collect the names an IR needs. The
+// actual list/create API calls live in the orchestrator (they need network).
+
+// Collect every tag name an IR references: add/remove_contact_tag steps,
+// contact_tag triggers, and if_else tag conditions. Returned de-duplicated,
+// case-insensitively (first-seen casing preserved).
+export function collectRequiredTags(ir) {
+  const byLower = new Map(); // lowerName -> original casing (first seen)
+  const add = (name) => {
+    if (typeof name !== 'string' || !name) return;
+    const k = name.toLowerCase();
+    if (!byLower.has(k)) byLower.set(k, name);
+  };
+
+  for (const trig of ir.triggers ?? []) {
+    if (trig.type === 'contact_tag') {
+      for (const f of trig.filters ?? []) {
+        if (f.field === 'tagsAdded' || f.field === 'tagsRemoved') {
+          for (const v of [].concat(f.value ?? [])) add(v);
+        }
+      }
+    }
+  }
+
+  const walk = (nodes) => {
+    for (const n of nodes ?? []) {
+      if (n.type === 'add_contact_tag' || n.type === 'remove_contact_tag') {
+        for (const t of n.attributes?.tags ?? []) add(t);
+      }
+      for (const b of n.branches ?? []) {
+        for (const c of b.conditions ?? []) {
+          if (c.conditionType === 'contact_detail' && c.conditionSubType === 'tag') add(c.conditionValue);
+        }
+        walk(b.then);
+      }
+      for (const p of n.paths ?? []) walk(p.then);
+      walk(n.onEvent);      // multipath wait — primary path
+      walk(n.onTimeout);    // multipath wait — timeout path
+      walk(n.onFound);      // find_opportunity — found path
+      walk(n.onNotFound);   // find_opportunity — not-found path
+    }
+  };
+  walk(ir.graph);
+
+  return [...byLower.values()];
+}
+
+// Given the required names and the location's existing tag names, return the
+// names that must be created. `existingNames` is any iterable of strings.
+export function missingTags(requiredNames, existingNames) {
+  const have = new Set([...existingNames].map((n) => String(n).toLowerCase()));
+  return requiredNames.filter((n) => !have.has(n.toLowerCase()));
+}

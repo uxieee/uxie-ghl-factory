@@ -1,0 +1,22 @@
+{
+  "name": "Tagged VIP nurture",
+  "triggers": [
+    { "ref": "trig_vip_tag", "type": "contact_tag", "masterType": "highlevel", "name": "VIP tag added",
+      "filters": [ { "field": "tagsAdded", "operator": "index-of-true", "value": ["VIP"] } ] }
+  ],
+  "graph": [
+    { "ref": "tag_welcomed", "kind": "action", "type": "add_contact_tag", "name": "Tag welcomed", "attributes": { "tags": ["welcomed"] } },
+    { "ref": "check_high_value", "kind": "if_else", "name": "Has high-value tag?", "branches": [
+      { "ref": "branch_yes", "name": "Yes",
+        "conditions": [ { "conditionType": "contact_detail", "conditionSubType": "tag", "conditionOperator": "contains", "conditionValue": "high-value" } ],
+        "then": [
+          { "ref": "wait_1d", "kind": "wait", "name": "Wait 1 day", "config": { "unit": "days", "value": 1, "when": "after" } },
+          { "ref": "tag_premium", "kind": "action", "type": "add_contact_tag", "name": "Tag premium", "attributes": { "tags": ["premium"] } }
+        ] },
+      { "ref": "branch_else", "name": "No", "else": true, "then": [
+          { "ref": "wait_3d", "kind": "wait", "name": "Wait 3 days", "config": { "unit": "days", "value": 3, "when": "after" } },
+          { "ref": "tag_standard", "kind": "action", "type": "add_contact_tag", "name": "Tag standard", "attributes": { "tags": ["standard"] } }
+      ] }
+    ] }
+  ]
+}

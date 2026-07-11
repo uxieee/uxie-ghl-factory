@@ -1,0 +1,350 @@
+// Deterministic compiler: IR -> GHL builder-API payloads (create/auto-save/trigger).
+// See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
+import { parseIR, IRError } from './ir.mjs';
+
+// Premium actions carry a top-level `stepIndex` (runtime sequence id). Assigned in a
+// post-pass over the emitted templates.
+const PREMIUM_TYPES = new Set(['custom_webhook', 'custom_code']);
+
+function attributesFor(node) {
+  if (node.kind === 'wait') return waitAttributes(node);
+  if (node.type === 'email') return emailAttributes(node);
+  if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {});
+  if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
+  if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {});
+  if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {});
+  return node.attributes ?? {};
+}
+
+// Opportunity actions store their fields in a __customInputFields__ array
+// (live-verified shape). Each field = {filterField, value, dataType, valueFieldType, __customInputs__}.
+// The IR supplies resolved pipelineId + stageId (the orchestrator resolves names→ids via the
+// pipelines list, like tags/templates).
+function oppField(filterField, value, dataType, valueFieldType) {
+  return { __customInputs__: {}, dataType, filterField, value, valueFieldType };
+}
+function createOpportunityAttributes(a) {
+  const f = [];
+  if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
+  if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
+  f.push(oppField('status', a.status ?? 'open', 'SINGLE_OPTIONS', 'select'));
+  if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
+  if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'number'));
+  return { pipelineId: a.pipelineId, type: 'internal_create_opportunity', __customInputFields__: f, __customInputs__: {} };
+}
+function updateOpportunityAttributes(a) {
+  // a.updates: [{ field, value, dataType?, valueFieldType? }]
+  const f = (a.updates ?? []).map((u) => oppField(u.field, u.value, u.dataType ?? 'SINGLE_OPTIONS', u.valueFieldType ?? 'select'));
+  return { allowBackward: a.allowBackward ?? false, type: 'internal_update_opportunity', __customInputFields__: f, __customInputs__: {} };
+}
+
+// custom_webhook (outbound HTTP) — live-verified shape. body.rawData is a JSON STRING;
+// headers/parameters are arrays of {key,value}; authorization is a {type,data} union.
+function webhookAttributes(a) {
+  return {
+    event: a.event ?? 'CUSTOM',
+    method: a.method ?? 'POST',
+    url: a.url ?? '',
+    body: a.body ?? { contentType: 'application/json', rawData: a.rawData ?? '{}', keyValueData: [] },
+    headers: a.headers ?? [],
+    parameters: a.parameters ?? [],
+    authorization: a.authorization ?? { type: 'NONE', data: null },
+    saveResponse: a.saveResponse ?? false,
+    webhookResponse: a.webhookResponse ?? { isSampleRequested: false, selectedContact: '' },
+  };
+}
+
+// custom_code (JS sandbox) — `code` is a function body; `inputData` is a flat object
+// {key:value}; `output` is a REQUIRED hand-populated sample of the return value (publish
+// blocks on empty output). Sandbox HTTP uses customRequest.*, not fetch.
+function codeAttributes(a) {
+  return {
+    code: a.code ?? 'return {};',
+    language: a.language ?? 'javascript',
+    inputData: a.inputData ?? {},
+    output: a.output ?? {},
+  };
+}
+
+// wait — 9 subtypes discriminated by attributes.type. This builds LINEAR waits
+// (single next). Multipath waits (timeout branching) are handled in flattenGraph.
+function waitAttributes(node) {
+  const a = node.attributes ?? {};
+  const hybrid = { cat: '', isHybridAction: true, hybridActionType: 'wait', convertToMultipath: false, transitions: [] };
+  const wt = node.waitType ?? (node.config ? 'time' : (a.type ?? 'time'));
+  if (wt === 'time') {
+    const c = node.config ?? {};
+    const base = { type: 'time', startAfter: { type: c.unit, value: c.value, when: c.when }, ...hybrid };
+    // "Advance window" — resume-on days + resume-between-hours (live-verified shape)
+    if (node.window) {
+      const w = node.window;
+      base.window = w.condition === 'exact'
+        ? { condition: 'exact', days: w.days ?? [], start: w.start }
+        : { condition: 'when', days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
+      base.windowCondition = { field: '', operator: '', value: '' };
+    }
+    return base;
+  }
+  // other subtypes (appointment, email_event, link_clicked, condition, ...): the IR supplies
+  // the subtype-specific fields in node.attributes; we set type + hybrid flags.
+  return { type: wt, ...a, ...hybrid };
+}
+
+// Email attributes — fills the fields the builder requires (live-verified 2026-07-10:
+// a bare {subject,html} email shows an error until these are present). Handles both the
+// inline-HTML path and the template path. For template mode the `template_id` must already
+// exist (created via POST /emails/builder by the orchestrator) — a non-existent id errors.
+function emailAttributes(node) {
+  const a = node.attributes ?? {};
+  const base = {
+    trackingOptions: a.trackingOptions ?? { hasTrackingLinks: true, hasUtmTracking: true, hasTags: false },
+    conditions: a.conditions ?? [],
+    subject: a.subject ?? '',
+    preHeader: a.preHeader ?? '',
+    from_name: a.from_name ?? '{{location.name}}',
+    from_email: a.from_email ?? '{{location.email}}',
+    templateCreationMode: a.templateCreationMode ?? 'existing',
+    syncEnabled: a.syncEnabled ?? false,
+    attachments: a.attachments ?? [],
+    fieldDefaults: a.fieldDefaults ?? { subject: {} },
+  };
+  if (a.template_id) {
+    // template path: html lives in the template, not the step
+    base.template_id = a.template_id;
+    base.templatesource = a.templatesource ?? 'email-builder';
+  } else {
+    // inline path: NO template_id key (a literal "none" errors); html on the step
+    base.html = a.html ?? '';
+    base.htmlDefaults = a.htmlDefaults ?? {};
+  }
+  return base;
+}
+
+function typeFor(node) {
+  if (node.kind === 'wait') return 'wait';
+  if (node.type === 'create_opportunity') return 'internal_create_opportunity';
+  if (node.type === 'update_opportunity') return 'internal_update_opportunity';
+  return node.type; // action / raw
+}
+
+// Flatten a linear scope into template objects, wiring next/parentKey/order.
+// parentScopeId: the id set as `parent` for nodes in this scope (null at root).
+// Returns { templates, entryId }.
+export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
+  const templates = [];
+  const ids = nodes.map((n) => {
+    if (!refMap.has(n.ref)) refMap.set(n.ref, ctx.idGen());
+    return refMap.get(n.ref);
+  });
+  nodes.forEach((n, i) => {
+    const id = ids[i];
+    const next = i < nodes.length - 1 ? ids[i + 1] : null;
+    const parentKey = i > 0 ? ids[i - 1] : (parentScopeId ?? null);
+
+    if (n.kind === 'if_else') {
+      const branchIds = n.branches.map((b) => {
+        if (!refMap.has(b.ref)) refMap.set(b.ref, ctx.idGen());
+        return refMap.get(b.ref);
+      });
+      // Container shape mirrors a real live container (harvested 2026-07-10):
+      // the builder's node label comes from `attributes.conditionName` — without it
+      // the node renders "undefined". The container carries cat/comments (not parent/sibling).
+      const elseBranch = n.branches.find((b) => b.else === true);
+      templates.push({
+        id, type: 'if_else', name: n.name, order: i,
+        parentKey, next: branchIds, nodeType: 'condition-node',
+        cat: '', comments: [],
+        attributes: {
+          branches: n.branches.map((b, bi) => ({
+            id: branchIds[bi], name: b.name, operator: 'and',
+            segments: (b.conditions && b.conditions.length)
+              ? [{ operator: 'and', conditions: b.conditions }] : [],
+            showErrors: false, branchNameError: 'Branch name cannot be empty!',
+          })),
+          currentRecipeType: 'CUSTOM',
+          conditionName: n.name,        // <- the builder's display label
+          if: true,
+          operator: 'and',
+          noneBranchName: elseBranch?.name ?? 'No',
+        },
+      });
+      n.branches.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
+        templates.push({
+          id: branchIds[bi], type: 'if_else', name: b.name, order: bi,
+          parent: id, parentKey: id, cat: '', comments: [],
+          sibling: branchIds.filter((x) => x !== branchIds[bi]),
+          nodeType: b.else === true ? 'branch-no' : 'branch-yes',
+          attributes: {},
+          next: child.entryId,
+        });
+        templates.push(...child.templates);
+      });
+      return;
+    }
+
+    // Multipath wait (reply/condition/email_event/link_clicked WITH a timeout) — a 2-path
+    // container mirroring if_else: next=[primaryTransition, timeoutTransition], plus separate
+    // type:"transition" entry steps that children hang off. Live-verified shape 2026-07-10.
+    if (n.kind === 'wait' && (n.onEvent || n.onTimeout)) {
+      const wt = n.waitType ?? 'reply';
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const eventDesc = n.reply?.labels?.length ? `What will happen when a contact replies on ${n.reply.labels.join(', ')}` : 'What will happen when the event fires';
+      const timeoutDesc = n.timeout ? `What will happen after ${n.timeout.value} ${n.timeout.unit}` : 'What will happen on timeout';
+      const startAfter = n.timeout ? { type: n.timeout.unit, value: n.timeout.value, when: n.timeout.when ?? 'after' } : undefined;
+      // subtype-specific fields (reply references prior step ids — resolve via refMap)
+      let subtype = {};
+      if (wt === 'reply') {
+        const replyIds = (n.reply?.steps ?? []).map((r) => { if (!refMap.has(r)) refMap.set(r, ctx.idGen()); return refMap.get(r); });
+        subtype = { reply: replyIds, replyLabel: n.reply?.labels ?? [] };
+      } else {
+        subtype = { ...(n.attributes ?? {}) };
+      }
+      const mkTrans = (tid, name, cond, primary, desc) => ({ id: tid, name, condition: cond, conditionType: 'user-defined', isPrimaryBranch: primary, description: '', attributes: { type: primary ? `wait_${wt}` : 'wait_timeout', description: desc } });
+      const container = {
+        id, type: 'wait', name: n.name, order: i, parentKey, next: [t1, t2], cat: 'multi-path',
+        attributes: {
+          type: wt, ...(startAfter ? { startAfter } : {}), ...subtype, name: n.name, cat: 'multi-path',
+          timePeriodInputMode: 'standard', unitInputMode: 'standard',
+          isHybridAction: true, hybridActionType: 'wait', convertToMultipath: true,
+          transitions: [mkTrans(t1, 'wait', 'primary', true, eventDesc), mkTrans(t2, 'timeout', 'timeout', false, timeoutDesc)],
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(container);
+      const prim = flattenGraph(n.onEvent ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, parentKey: id, parent: id, type: 'transition', name: 'wait', attributes: { type: `wait_${wt}`, description: eventDesc }, order: 0, cat: 'transition', next: prim.entryId });
+      templates.push(...prim.templates);
+      const tout = flattenGraph(n.onTimeout ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, parentKey: id, parent: id, type: 'transition', name: 'timeout', attributes: { type: 'wait_timeout', description: timeoutDesc }, order: 1, cat: 'transition', next: tout.entryId });
+      templates.push(...tout.templates);
+      return;
+    }
+
+    // find_opportunity — multipath container with PRE-DEFINED Found/Not-Found branches
+    // (live-verified). Same transition-step mechanics as the multipath wait.
+    if (n.type === 'find_opportunity' && (n.onFound || n.onNotFound)) {
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? 'eq', secondValue: f.value }));
+      const container = {
+        id, type: 'find_opportunity', name: n.name, order: i, parentKey, cat: 'multi-path',
+        workflowsActionType: 'INTERNAL', next: [t1, t2],
+        attributes: {
+          sorting: n.find?.sorting ?? 'latest', type: 'find_opportunity',
+          __customInputFields__: fields, __customInputs__: {}, cat: 'multi-path', convertToMultipath: true,
+          transitions: [
+            { id: t1, name: 'Opportunity Found', fields: [], meta: { __branchKey__: 'predefined_Opportunity Found' }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Opportunity Not Found', fields: [], meta: { __branchKey__: 'predefined_Opportunity Not Found' }, conditionType: 'pre-defined' },
+          ],
+          __name__: n.name,
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(container);
+      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: 'transition', name: 'Opportunity Found', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
+      templates.push(...found.templates);
+      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: 'transition', name: 'Opportunity Not Found', cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, next: notf.entryId });
+      templates.push(...notf.templates);
+      return;
+    }
+
+    if (n.kind === 'goto') {
+      // Resolve the target id (forward refs legal — pre-assign if not seen yet;
+      // the target node reuses this id when its own scope is walked).
+      if (!refMap.has(n.target)) refMap.set(n.target, ctx.idGen());
+      const tmpl = {
+        id, type: 'goto', name: n.name ?? 'Go To', order: i,
+        attributes: { targetNodeId: refMap.get(n.target), type: 'goto' },
+        next: null, parentKey,
+      };
+      if (parentScopeId !== null) tmpl.parent = parentScopeId;
+      templates.push(tmpl);
+      return;
+    }
+
+    // Root-scope linear steps stay lean; steps inside a branch carry `parent`
+    // (= the branch-entry id) while `parentKey` advances along the chain.
+    const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n), next, parentKey };
+    if (parentScopeId !== null) tmpl.parent = parentScopeId;
+    templates.push(tmpl);
+  });
+  return { templates, entryId: ids[0] ?? null };
+}
+
+export function casingLint({ triggerBodies, autoSaveBody }) {
+  for (const tb of triggerBodies ?? []) {
+    if ('workflow_id' in tb) throw new IRError('CASING', 'trigger root must use camelCase workflowId, not workflow_id');
+    if (!('workflowId' in tb)) throw new IRError('CASING', 'trigger missing camelCase workflowId');
+    for (const k of ['location_id', 'company_id']) if (!(k in tb)) throw new IRError('CASING', `trigger missing snake ${k}`);
+  }
+  if (autoSaveBody && ('location_id' in autoSaveBody || 'company_id' in autoSaveBody))
+    throw new IRError('CASING', 'workflow body must use camelCase locationId/companyId');
+}
+
+function buildTrigger(t, ctx, wid) {
+  const meta = ctx.catalog.trigger(t.type);
+  return {
+    status: 'draft', workflowId: wid, schedule_config: {},
+    conditions: t.filters ?? [],
+    type: t.type, masterType: t.masterType ?? meta?.masterType ?? 'highlevel', name: t.name,
+    actions: [{ workflow_id: wid, type: 'add_to_workflow' }],
+    active: t.active !== false, triggersChanged: true,
+    location_id: ctx.loc, company_id: ctx.cid, company_age: ctx.companyAge,
+  };
+}
+
+export function compile(ir, ctx) {
+  const norm = parseIR(ir);
+  const refMap = new Map();
+  const { templates } = flattenGraph(norm.graph, ctx, refMap, null);
+
+  // situational injection (catalog-gated); parent/sibling/nodeType already set structurally
+  let stepIndex = 0;
+  for (const t of templates) {
+    const meta = ctx.catalog.step(t.type);
+    if (meta && meta.situational.includes('workflowsActionType') && !('workflowsActionType' in t))
+      t.workflowsActionType = 'INTERNAL';
+    // premium actions (custom_webhook/custom_code) carry a top-level stepIndex
+    if (PREMIUM_TYPES.has(t.type)) t.stepIndex = stepIndex;
+    stepIndex += 1;
+  }
+
+  const wid = ctx.idGen();
+  const sessionId = ctx.idGen();
+  const createdSteps = templates.map((t) => t.id);
+
+  const createBody = {
+    name: norm.name, status: 'draft', parentId: null, updatedBy: ctx.uid,
+    modifiedSteps: [], deletedSteps: [], createdSteps: [], senderAddress: {},
+    stopOnResponse: false, allowMultiple: false, allowMultipleOpportunity: true,
+    autoMarkAsRead: false, eventStartDate: '', timezone: '',
+    workflowData: { templates: [] }, triggersChanged: false,
+    company_id: ctx.cid, company_age: ctx.companyAge,
+  };
+
+  const autoSaveBody = {
+    _id: wid, id: wid, locationId: ctx.loc, companyId: ctx.cid, companyAge: ctx.companyAge,
+    name: norm.name, status: 'draft', version: 1, dataVersion: 7, type: 'workflow', parentId: null,
+    permission: 380, permissionMeta: { canRead: true, canWrite: true },
+    creationSource: 'builder', originType: 'user', isTriggerBucketMigrated: true, deleted: false,
+    timezone: norm.settings?.timezone ?? 'account',
+    allowMultiple: norm.settings?.allowMultiple ?? false,
+    allowMultipleOpportunity: norm.settings?.allowMultipleOpportunity ?? true,
+    removeContactFromLastStep: norm.settings?.removeContactFromLastStep ?? true,
+    stopOnResponse: norm.settings?.stopOnResponse ?? false,
+    autoMarkAsRead: norm.settings?.autoMarkAsRead ?? false,
+    scheduledPauseDates: [], senderAddress: norm.settings?.senderAddress ?? {},
+    eventStartDate: norm.settings?.eventStartDate ?? '', updatedBy: ctx.uid,
+    triggersChanged: false, isAutoSave: true,
+    autoSaveSession: { workflowId: wid, id: sessionId, userId: ctx.uid, version: 1 },
+    createdSteps, modifiedSteps: [], deletedSteps: [],
+    workflowData: { templates },
+  };
+
+  const triggerBodies = norm.triggers.map((t) => buildTrigger(t, ctx, wid));
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid };
+  casingLint(result);
+  return result;
+}
