@@ -32,6 +32,8 @@ export function buildResolvers(raw = {}) {
     surveyId: (q) => byName(raw.surveys, [(s) => s.name])(q)?.id,
     userId: (q) => byName(raw.users, [(u) => u.email, (u) => u.name, (u) => `${u.firstName ?? ''} ${u.lastName ?? ''}`])(q)?.id,
     customFieldId: (q) => byName(raw.customFields, [(c) => c.name, (c) => c.fieldKey])(q)?.id,
+    // AI agents (voice + conversation AI), matched by name
+    agentId: (q) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q)?.id,
   };
 }
 
@@ -104,6 +106,14 @@ export function resolveIR(ir, r) {
     // appointment_booking: calendar name → calendarId
     if (type === 'appointment_booking' && a.calendar && !a.calendarId) {
       a.calendarId = need(r.calendarId(a.calendar), 'appointment_booking.calendar', a.calendar);
+    }
+    // AI agents by name: voice_ai_outbound_call.agent → agentId;
+    // conversationai_* / update_conversation_ai_status .employee → assignedEmployeeId
+    if (type === 'voice_ai_outbound_call' && a.agent && !a.agentId) {
+      a.agentId = need(r.agentId(a.agent), 'voice_ai_outbound_call.agent', a.agent);
+    }
+    if (a.employee && !a.assignedEmployeeId && /^(conversationai_|update_conversation_ai_status)/.test(type ?? '')) {
+      a.assignedEmployeeId = need(r.agentId(a.employee), `${type}.employee`, a.employee);
     }
     n.attributes = a;
   });
