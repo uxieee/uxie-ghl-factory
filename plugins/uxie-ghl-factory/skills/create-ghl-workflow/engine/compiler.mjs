@@ -426,11 +426,46 @@ export function casingLint({ triggerBodies, autoSaveBody }) {
     throw new IRError('CASING', 'workflow body must use camelCase locationId/companyId');
 }
 
+// Operators that take an array value (the compiler wraps a scalar automatically).
+const ARRAY_OPS = new Set(['is-any-of', 'is-in-array', 'contains-any', 'contains-none',
+  'string-contains-any-of', 'string-matches-any-of', 'index-of-true', 'index-of-false']);
+// Default operator by filter-row type when the row/author didn't specify one.
+function defaultOp(type) {
+  if (type === 'number' || type === 'date') return '==';
+  if (type === 'string' || type === 'input') return 'is-any-of';
+  return '=='; // select
+}
+
+// Expand an authored filter into the full GHL condition shape using the trigger's
+// recovered filter model. The author may write a lean intent filter — `{ on, value }`
+// (on = a row's id / label / field) or `{ field, value }` — and the compiler fills
+// operator/title/type/id from the model row. A fully-specified filter (field+operator+
+// title+type) passes through untouched, so hand-authored conditions still work.
+function expandFilter(f, rows) {
+  if (f.field && f.operator && f.title && f.type) return f; // already complete
+  const key = f.on ?? f.field ?? f.id;
+  const norm = (s) => String(s ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm(r.label) === norm(key) || norm(r.value) === norm(key));
+  if (!row) return f; // unknown row — passthrough whatever was given
+  const type = f.type ?? row.type ?? 'select';
+  let operator = f.operator ?? row.operator ?? defaultOp(type);
+  let value = f.value;
+  // an array value with a scalar-equality operator means "one of" — upgrade to is-any-of
+  // (e.g. form.id, whose recovered row has no operator and defaults to '==')
+  if (Array.isArray(value) && operator === '==') operator = 'is-any-of';
+  if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
+  const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
+  if (row.id) cond.id = row.id;
+  return cond;
+}
+
 function buildTrigger(t, ctx, wid) {
   const meta = ctx.catalog.trigger(t.type);
+  const rows = meta?.filterRows ?? [];
+  const conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
   return {
     status: 'draft', workflowId: wid, schedule_config: {},
-    conditions: t.filters ?? [],
+    conditions,
     type: t.type, masterType: t.masterType ?? meta?.masterType ?? 'highlevel', name: t.name,
     actions: [{ workflow_id: wid, type: 'add_to_workflow' }],
     active: t.active !== false, triggersChanged: true,

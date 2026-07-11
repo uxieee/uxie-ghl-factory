@@ -6819,7 +6819,36 @@
    "masterType": "highlevel",
    "category": "contact",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "BirthdayReminderFilter",
+   "filterRows": [
+    {
+     "label": "Month is",
+     "value": "contact.birthMonth",
+     "type": "select",
+     "id": "month-value"
+    },
+    {
+     "label": "Day is",
+     "value": "contact.birthDay",
+     "type": "select",
+     "id": "day-value"
+    },
+    {
+     "label": "Before no. of days",
+     "value": "contact.dateOfBirth",
+     "type": "number",
+     "id": "before-days-in-number",
+     "operator": "time-diff-now-lte"
+    },
+    {
+     "label": "After no. of days",
+     "value": "contact.dateOfBirth",
+     "type": "number",
+     "id": "after-days-in-number",
+     "operator": "time-diff-now-gte"
+    }
+   ]
   },
   "contact_changed": {
    "type": "contact_changed",
@@ -6828,7 +6857,83 @@
    "category": "contact",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/contact_changed.json"
+   "example": "catalog/trigger-examples/contact_changed.json",
+   "filterClass": "ContactChangedFilter",
+   "filterRows": [
+    {
+     "label": "Tags",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag",
+     "operator": "add-index-of-true"
+    },
+    {
+     "label": "DND",
+     "value": "contact.dnd",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Assigned User",
+     "value": "contact.assignedTo",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Phone",
+     "value": "contact.phone",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Email",
+     "value": "contact.email",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Contact Type",
+     "value": "contact.type",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Street Address",
+     "value": "contact.address1",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "City",
+     "value": "contact.city",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "State",
+     "value": "contact.state",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Country",
+     "value": "contact.country",
+     "type": "select",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Postal Code",
+     "value": "contact.postalCode",
+     "type": "input",
+     "operator": "has-changed"
+    },
+    {
+     "label": "Website",
+     "value": "contact.website",
+     "type": "input",
+     "operator": "has-changed"
+    }
+   ]
   },
   "contact_created": {
    "type": "contact_created",
@@ -6837,7 +6942,31 @@
    "category": "contact",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/contact_created.json"
+   "example": "catalog/trigger-examples/contact_created.json",
+   "filterClass": "ContactCreatedFilter",
+   "filterRows": [
+    {
+     "label": "Tag",
+     "value": "tagsAdded",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Phone",
+     "value": "contact.phone",
+     "type": "input"
+    },
+    {
+     "label": "Email",
+     "value": "contact.email",
+     "type": "input"
+    },
+    {
+     "label": "Contact Type",
+     "value": "contact.type",
+     "type": "select"
+    }
+   ]
   },
   "dnd_contact": {
    "type": "dnd_contact",
@@ -6845,7 +6974,36 @@
    "masterType": "highlevel",
    "category": "contact",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "DNDFilter",
+   "filterRows": [
+    {
+     "label": "DND direction is",
+     "value": "contact.dnd_direction",
+     "type": "select",
+     "options": [
+      {
+       "label": "Inbound",
+       "value": "inbound"
+      },
+      {
+       "label": "Outbound",
+       "value": "outbound"
+      }
+     ]
+    },
+    {
+     "label": "DND flag is",
+     "value": "contact.dnd",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    }
+   ]
   },
   "contact_tag": {
    "type": "contact_tag",
@@ -6854,7 +7012,24 @@
    "category": "contact",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/contact_tag.json"
+   "example": "catalog/trigger-examples/contact_tag.json",
+   "filterClass": "TagFilter",
+   "filterRows": [
+    {
+     "label": "tag_added",
+     "value": "tagsAdded",
+     "type": "select",
+     "id": "tag-added",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "tag_removed",
+     "value": "tagsRemoved",
+     "type": "select",
+     "id": "tag-removed",
+     "operator": "index-of-true"
+    }
+   ]
   },
   "custom_date_reminder": {
    "type": "custom_date_reminder",
@@ -6862,7 +7037,9 @@
    "masterType": "highlevel",
    "category": "contact",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "CustomDateReminderFilter",
+   "filterRows": []
   },
   "note_add": {
    "type": "note_add",
@@ -6870,7 +7047,24 @@
    "masterType": "highlevel",
    "category": "contact",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "NotesFilter",
+   "filterRows": [
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ]
   },
   "note_changed": {
    "type": "note_changed",
@@ -6878,7 +7072,24 @@
    "masterType": "highlevel",
    "category": "contact",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "NotesFilter",
+   "filterRows": [
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ]
   },
   "task_added": {
    "type": "task_added",
@@ -6887,7 +7098,15 @@
    "category": "contact",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/task_added.json"
+   "example": "catalog/trigger-examples/task_added.json",
+   "filterClass": "TaskFilter",
+   "filterRows": [
+    {
+     "label": "assigned_user",
+     "value": "task.assignedTo",
+     "type": "select"
+    }
+   ]
   },
   "task_due_date_reminder": {
    "type": "task_due_date_reminder",
@@ -6896,7 +7115,24 @@
    "category": "contact",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/task_due_date_reminder.json"
+   "example": "catalog/trigger-examples/task_due_date_reminder.json",
+   "filterClass": "TaskDueDateReminderFilter",
+   "filterRows": [
+    {
+     "label": "before_no_of_days",
+     "value": "task.dueDate",
+     "type": "number",
+     "id": "before-days-in-number",
+     "operator": "time-diff-now-lte"
+    },
+    {
+     "label": "after_no_of_days",
+     "value": "task.dueDate",
+     "type": "number",
+     "id": "after-days-in-number",
+     "operator": "time-diff-now-gte"
+    }
+   ]
   },
   "custom_object_created": {
    "type": "custom_object_created",
@@ -6904,7 +7140,9 @@
    "masterType": "highlevel",
    "category": "custom_object",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "CustomObjectsFilter",
+   "filterRows": []
   },
   "custom_object_changed": {
    "type": "custom_object_changed",
@@ -6912,7 +7150,9 @@
    "masterType": "highlevel",
    "category": "custom_object",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "CustomObjectsFilter",
+   "filterRows": []
   },
   "inbound_webhook": {
    "type": "inbound_webhook",
@@ -6930,7 +7170,39 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/scheduler_trigger.json"
+   "example": "catalog/trigger-examples/scheduler_trigger.json",
+   "filterClass": "SchedulerTriggerFilter",
+   "filterRows": [
+    {
+     "label": "Interval",
+     "value": "scheduler.interval",
+     "type": "select",
+     "id": "interval-type",
+     "operator": "==",
+     "options": [
+      {
+       "label": "Hourly",
+       "value": "hourly"
+      },
+      {
+       "label": "Daily",
+       "value": "daily"
+      },
+      {
+       "label": "Weekly",
+       "value": "weekly"
+      },
+      {
+       "label": "Monthly",
+       "value": "monthly"
+      },
+      {
+       "label": "Cron",
+       "value": "cron"
+      }
+     ]
+    }
+   ]
   },
   "call_status": {
    "type": "call_status",
@@ -6939,7 +7211,62 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/call_status.json"
+   "example": "catalog/trigger-examples/call_status.json",
+   "filterClass": "CallStatusFilter",
+   "filterRows": [
+    {
+     "label": "Call Status",
+     "value": "call_status",
+     "operator": "contains-any",
+     "options": [
+      {
+       "label": "busy",
+       "value": "busy"
+      },
+      {
+       "label": "canceled",
+       "value": "canceled"
+      },
+      {
+       "label": "voicemail",
+       "value": "voicemail"
+      },
+      {
+       "label": "no-answer",
+       "value": "no-answer"
+      },
+      {
+       "label": "completed",
+       "value": "completed"
+      }
+     ]
+    },
+    {
+     "label": "Custom Disposition",
+     "value": "custom_disposition",
+     "operator": "contains-any"
+    },
+    {
+     "label": "Call Direction",
+     "value": "message.direction",
+     "type": "select",
+     "options": [
+      {
+       "label": "Incoming",
+       "value": "inbound"
+      },
+      {
+       "label": "Outgoing",
+       "value": "outbound"
+      }
+     ]
+    },
+    {
+     "label": "In Workflow",
+     "value": "workflow.id",
+     "type": "select"
+    }
+   ]
   },
   "mailgun_email_event": {
    "type": "mailgun_email_event",
@@ -6948,7 +7275,20 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/mailgun_email_event.json"
+   "example": "catalog/trigger-examples/mailgun_email_event.json",
+   "filterClass": "EmailEventFilter",
+   "filterRows": [
+    {
+     "label": "In workflow",
+     "value": "workflow.id",
+     "type": "select"
+    },
+    {
+     "label": "Event",
+     "value": "mailgun.event",
+     "type": "select"
+    }
+   ]
   },
   "customer_reply": {
    "type": "customer_reply",
@@ -6957,7 +7297,63 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/customer_reply.json"
+   "example": "catalog/trigger-examples/customer_reply.json",
+   "filterClass": "ContactReplyFilter",
+   "filterRows": [
+    {
+     "label": "Replied to Workflow",
+     "value": "workflow.id",
+     "type": "select"
+    },
+    {
+     "label": "Reply channel",
+     "value": "message.type",
+     "type": "select"
+    },
+    {
+     "label": "Contains phrase",
+     "value": "message.body",
+     "type": "string",
+     "id": "message-contains-phrase"
+    },
+    {
+     "label": "Exact match phrase",
+     "value": "message.body",
+     "type": "input",
+     "id": "message-exact-phrase"
+    },
+    {
+     "label": "Intent type",
+     "value": "message.body",
+     "type": "select",
+     "id": "message-contains-intent",
+     "operator": "matches_intent",
+     "options": [
+      {
+       "label": "Positive/Yes",
+       "value": "schedule-yes"
+      },
+      {
+       "label": "Negative/No",
+       "value": "schedule-no"
+      }
+     ]
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ]
   },
   "inbound_trigger": {
    "type": "inbound_trigger",
@@ -6965,7 +7361,15 @@
    "masterType": "highlevel",
    "category": "events",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "InboundTriggerFilter",
+   "filterRows": [
+    {
+     "label": "contact_tag",
+     "value": "contact.tags",
+     "type": "select"
+    }
+   ]
   },
   "conv_ai_trigger": {
    "type": "conv_ai_trigger",
@@ -6991,7 +7395,19 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/form_submission.json"
+   "example": "catalog/trigger-examples/form_submission.json",
+   "filterClass": "FormSubmissionFilter",
+   "filterRows": [
+    {
+     "label": "Form is",
+     "value": "form.id"
+    },
+    {
+     "label": "terms_and_conditions",
+     "value": "formData.termsAndConditions",
+     "type": "select"
+    }
+   ]
   },
   "survey_submission": {
    "type": "survey_submission",
@@ -7000,7 +7416,24 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/survey_submission.json"
+   "example": "catalog/trigger-examples/survey_submission.json",
+   "filterClass": "SurveySubmissionFilter",
+   "filterRows": [
+    {
+     "label": "survey_is",
+     "value": "survey.id"
+    },
+    {
+     "label": "disqualified",
+     "value": "surveySubmission.disqualified",
+     "type": "select"
+    },
+    {
+     "label": "terms_and_conditions",
+     "value": "surveyData.termsAndConditions",
+     "type": "select"
+    }
+   ]
   },
   "trigger_link": {
    "type": "trigger_link",
@@ -7009,7 +7442,15 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/trigger_link.json"
+   "example": "catalog/trigger-examples/trigger_link.json",
+   "filterClass": "TriggerLinkFilter",
+   "filterRows": [
+    {
+     "label": "trigger_link",
+     "value": "link.id",
+     "type": "select"
+    }
+   ]
   },
   "facebook_lead_gen": {
    "type": "facebook_lead_gen",
@@ -7018,7 +7459,15 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/facebook_lead_gen.json"
+   "example": "catalog/trigger-examples/facebook_lead_gen.json",
+   "filterClass": "FacebookLeadGenFilter",
+   "filterRows": [
+    {
+     "label": "Page Is",
+     "value": "facebook.pageId",
+     "type": "select"
+    }
+   ]
   },
   "tik_tok_form_submitted": {
    "type": "tik_tok_form_submitted",
@@ -7026,7 +7475,15 @@
    "masterType": "highlevel",
    "category": "events",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "TikTokFilter",
+   "filterRows": [
+    {
+     "label": "in_form",
+     "value": "tikTok.formId",
+     "type": "multiselect"
+    }
+   ]
   },
   "video_event": {
    "type": "video_event",
@@ -7034,7 +7491,25 @@
    "masterType": "highlevel",
    "category": "events",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "VideoEventFilter",
+   "filterRows": [
+    {
+     "label": "funnel",
+     "value": "video.funnelId",
+     "type": "multiselect"
+    },
+    {
+     "label": "video",
+     "value": "video.videoId",
+     "type": "multiselect"
+    },
+    {
+     "label": "video_duration_percent",
+     "value": "video.duration",
+     "type": "number"
+    }
+   ]
   },
   "validation_error": {
    "type": "validation_error",
@@ -7051,7 +7526,95 @@
    "category": "appointments",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/appointment.json"
+   "example": "catalog/trigger-examples/appointment.json",
+   "filterClass": "AppointmentFilter",
+   "filterRows": [
+    {
+     "label": "In calendar",
+     "value": "calendar.id",
+     "type": "select"
+    },
+    {
+     "label": "Appointment status is",
+     "value": "appointment.status",
+     "type": "select",
+     "options": [
+      {
+       "label": "new",
+       "value": "new"
+      },
+      {
+       "label": "confirmed",
+       "value": "confirmed"
+      },
+      {
+       "label": "cancelled",
+       "value": "cancelled"
+      },
+      {
+       "label": "Showed",
+       "value": "showed"
+      },
+      {
+       "label": "No-show",
+       "value": "noshow"
+      },
+      {
+       "label": "invalid",
+       "value": "invalid"
+      }
+     ]
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Event Type",
+     "value": "appointment.eventType",
+     "type": "select",
+     "options": [
+      {
+       "label": "Normal",
+       "value": "normal"
+      },
+      {
+       "label": "Recurring",
+       "value": "recurring"
+      },
+      {
+       "label": "Any",
+       "value": "any"
+      }
+     ]
+    },
+    {
+     "label": "Created By/Modified By",
+     "value": "appointment.modifiedBy",
+     "type": "select",
+     "options": [
+      {
+       "label": "Customer",
+       "value": "customer"
+      },
+      {
+       "label": "User",
+       "value": "user"
+      },
+      {
+       "label": "API",
+       "value": "api"
+      },
+      {
+       "label": "Workflow",
+       "value": "workflow"
+      }
+     ]
+    }
+   ]
   },
   "customer_appointment": {
    "type": "customer_appointment",
@@ -7060,7 +7623,23 @@
    "category": "appointments",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/customer_appointment.json"
+   "example": "catalog/trigger-examples/customer_appointment.json",
+   "filterClass": "CustomerAppointmentFilter",
+   "filterRows": [
+    {
+     "label": "In calendar",
+     "value": "calendar.id",
+     "type": "select",
+     "operator": "=="
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    }
+   ]
   },
   "opportunity_status_changed": {
    "type": "opportunity_status_changed",
@@ -7069,7 +7648,58 @@
    "category": "opportunities",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/opportunity_status_changed.json"
+   "example": "catalog/trigger-examples/opportunity_status_changed.json",
+   "filterClass": "OpportunityStatusFilter",
+   "filterRows": [
+    {
+     "label": "Moved from status",
+     "value": "opportunity.oldStatus",
+     "type": "select",
+     "id": "moved-from-status"
+    },
+    {
+     "label": "Moved to status",
+     "value": "opportunity.status",
+     "type": "select",
+     "id": "moved-to-status"
+    },
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ]
   },
   "opportunity_created": {
    "type": "opportunity_created",
@@ -7078,7 +7708,51 @@
    "category": "opportunities",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/opportunity_created.json"
+   "example": "catalog/trigger-examples/opportunity_created.json",
+   "filterClass": "OpportunityCreatedFilter",
+   "filterRows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ]
   },
   "opportunity_changed": {
    "type": "opportunity_changed",
@@ -7087,7 +7761,52 @@
    "category": "opportunities",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/opportunity_changed.json"
+   "example": "catalog/trigger-examples/opportunity_changed.json",
+   "filterClass": "OpportunityChangedFilter",
+   "filterRows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag",
+     "operator": "=="
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ]
   },
   "pipeline_stage_updated": {
    "type": "pipeline_stage_updated",
@@ -7096,7 +7815,51 @@
    "category": "opportunities",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/pipeline_stage_updated.json"
+   "example": "catalog/trigger-examples/pipeline_stage_updated.json",
+   "filterClass": "PipelineFilter",
+   "filterRows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ]
   },
   "opportunity_decay": {
    "type": "opportunity_decay",
@@ -7105,7 +7868,65 @@
    "category": "opportunities",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/opportunity_decay.json"
+   "example": "catalog/trigger-examples/opportunity_decay.json",
+   "filterClass": "OpportunityFilter",
+   "filterRows": [
+    {
+     "label": "In pipeline",
+     "value": "opportunity.pipelineId",
+     "type": "select"
+    },
+    {
+     "label": "Duration in days",
+     "value": "opportunity.lastActionDate",
+     "type": "number",
+     "operator": "time-diff-now-gte"
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    },
+    {
+     "label": "Assigned to",
+     "value": "opportunity.assignedTo",
+     "type": "select"
+    },
+    {
+     "label": "Lead value",
+     "value": "opportunity.monetaryValue",
+     "type": "number"
+    },
+    {
+     "label": "Expected Close Date",
+     "value": "opportunity.forecastExpectedCloseDate",
+     "type": "date"
+    },
+    {
+     "label": "Forecast Probability",
+     "value": "opportunity.forecastProbability",
+     "type": "number"
+    },
+    {
+     "label": "Status",
+     "value": "opportunity.status",
+     "type": "select"
+    },
+    {
+     "label": "Lost Reason",
+     "value": "opportunity.lostReasonId",
+     "type": "select"
+    }
+   ]
   },
   "affiliate_created": {
    "type": "affiliate_created",
@@ -7113,7 +7934,29 @@
    "masterType": "highlevel",
    "category": "affiliates",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "CampaignFilter",
+   "filterRows": [
+    {
+     "label": "In campaign",
+     "value": "campaign.id",
+     "type": "select"
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ]
   },
   "category_started": {
    "type": "category_started",
@@ -7121,7 +7964,15 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipCategoryStartedFilter",
+   "filterRows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ]
   },
   "category_completed": {
    "type": "category_completed",
@@ -7130,7 +7981,15 @@
    "category": "courses",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/category_completed.json"
+   "example": "catalog/trigger-examples/category_completed.json",
+   "filterClass": "MembershipCategoryCompletedFilter",
+   "filterRows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ]
   },
   "lesson_started": {
    "type": "lesson_started",
@@ -7139,7 +7998,15 @@
    "category": "courses",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/lesson_started.json"
+   "example": "catalog/trigger-examples/lesson_started.json",
+   "filterClass": "MembershipLessonStartedFilter",
+   "filterRows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ]
   },
   "lesson_completed": {
    "type": "lesson_completed",
@@ -7148,7 +8015,15 @@
    "category": "courses",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/lesson_completed.json"
+   "example": "catalog/trigger-examples/lesson_completed.json",
+   "filterClass": "MembershipLessonCompletedFilter",
+   "filterRows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ]
   },
   "membership_contact_created": {
    "type": "membership_contact_created",
@@ -7164,7 +8039,15 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipOfferAccessFilter",
+   "filterRows": [
+    {
+     "label": "Offer",
+     "value": "offer.id",
+     "type": "select"
+    }
+   ]
   },
   "offer_access_removed": {
    "type": "offer_access_removed",
@@ -7172,7 +8055,15 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipOfferAccessFilter",
+   "filterRows": [
+    {
+     "label": "Offer",
+     "value": "offer.id",
+     "type": "select"
+    }
+   ]
   },
   "product_access_granted": {
    "type": "product_access_granted",
@@ -7180,7 +8071,15 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipProductAccessGrantedFilter",
+   "filterRows": [
+    {
+     "label": "Select Product",
+     "value": "product.id",
+     "type": "select"
+    }
+   ]
   },
   "product_access_removed": {
    "type": "product_access_removed",
@@ -7188,7 +8087,15 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipProductAccessRemovedFilter",
+   "filterRows": [
+    {
+     "label": "Select Product",
+     "value": "product.id",
+     "type": "select"
+    }
+   ]
   },
   "product_started": {
    "type": "product_started",
@@ -7196,7 +8103,15 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipProductProgressPercentageFilter",
+   "filterRows": [
+    {
+     "label": "Select Product",
+     "value": "product.id",
+     "type": "select"
+    }
+   ]
   },
   "product_completed": {
    "type": "product_completed",
@@ -7204,7 +8119,15 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipProductCompletedFilter",
+   "filterRows": [
+    {
+     "label": "Product",
+     "value": "membership.product.id",
+     "type": "multiselect"
+    }
+   ]
   },
   "user_log_in": {
    "type": "user_log_in",
@@ -7212,7 +8135,9 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "MembershipUserLogin",
+   "filterRows": []
   },
   "invoice": {
    "type": "invoice",
@@ -7220,7 +8145,22 @@
    "masterType": "highlevel",
    "category": "payments",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "InvoiceFilter",
+   "filterRows": [
+    {
+     "label": "Invoice Status",
+     "value": "invoice.status",
+     "type": "select",
+     "id": "invoice-status"
+    },
+    {
+     "label": "Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "tag"
+    }
+   ]
   },
   "payment_received": {
    "type": "payment_received",
@@ -7228,7 +8168,77 @@
    "masterType": "highlevel",
    "category": "payments",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "PaymentReceived",
+   "filterRows": [
+    {
+     "label": "Source",
+     "value": "payment.source",
+     "type": "select",
+     "options": [
+      {
+       "label": "Website",
+       "value": "website"
+      },
+      {
+       "label": "Calendar",
+       "value": "calendar"
+      },
+      {
+       "label": "Invoice",
+       "value": "invoice"
+      },
+      {
+       "label": "Funnel",
+       "value": "funnel"
+      },
+      {
+       "label": "Form",
+       "value": "form"
+      },
+      {
+       "label": "Manual Payment",
+       "value": "manual"
+      },
+      {
+       "label": "Memberships",
+       "value": "membership"
+      },
+      {
+       "label": "External",
+       "value": "external"
+      },
+      {
+       "label": "Point of sale",
+       "value": "point_of_sale"
+      },
+      {
+       "label": "Survey",
+       "value": "survey"
+      }
+     ]
+    },
+    {
+     "label": "Payment Status",
+     "value": "payment.payment_status",
+     "type": "select",
+     "options": [
+      {
+       "label": "Success",
+       "value": "succeeded"
+      },
+      {
+       "label": "Failed",
+       "value": "failed"
+      }
+     ]
+    },
+    {
+     "label": "Global Product",
+     "value": "payment.global_product_ids",
+     "type": "select"
+    }
+   ]
   },
   "two_step_form_submission": {
    "type": "two_step_form_submission",
@@ -7236,7 +8246,20 @@
    "masterType": "highlevel",
    "category": "payments",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "TwoStepFormFilter",
+   "filterRows": [
+    {
+     "label": "in_funnel_website",
+     "value": "twoStepOrderForm.funnelId",
+     "type": "select_with_pagination"
+    },
+    {
+     "label": "submission_type",
+     "value": "twoStepOrderForm.submissionType",
+     "type": "select"
+    }
+   ]
   },
   "order_submission": {
    "type": "order_submission",
@@ -7245,7 +8268,57 @@
    "category": "payments",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/order_submission.json"
+   "example": "catalog/trigger-examples/order_submission.json",
+   "filterClass": "OrderSubmission",
+   "filterRows": [
+    {
+     "label": "Order Source",
+     "value": "order.source",
+     "type": "select",
+     "options": [
+      {
+       "label": "Order Form",
+       "value": "funnel"
+      },
+      {
+       "label": "Store",
+       "value": "store"
+      },
+      {
+       "label": "External",
+       "value": "external"
+      },
+      {
+       "label": "Membership",
+       "value": "membership"
+      },
+      {
+       "label": "Communities",
+       "value": "communities"
+      },
+      {
+       "label": "Form",
+       "value": "form"
+      },
+      {
+       "label": "Survey",
+       "value": "survey"
+      },
+      {
+       "label": "Payment Link",
+       "value": "payment_link"
+      },
+      {
+       "label": "Calendar",
+       "value": "calendar"
+      },
+      {
+       "label": "Point of sale",
+       "value": "point_of_sale"
+      }
+     ]
+    }
+   ]
   },
   "shopify_abandoned_cart": {
    "type": "shopify_abandoned_cart",
@@ -7253,7 +8326,20 @@
    "masterType": "highlevel",
    "category": "shopify",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "ShopifyAbandonedCartFilter",
+   "filterRows": [
+    {
+     "label": "Duration (minutes)",
+     "value": "duration",
+     "type": "number"
+    },
+    {
+     "label": "Cart Value",
+     "value": "cart_value",
+     "type": "numerical"
+    }
+   ]
   },
   "shopify_order_placed": {
    "type": "shopify_order_placed",
@@ -7261,7 +8347,15 @@
    "masterType": "highlevel",
    "category": "shopify",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "ShopifyOrderPlacedFilter",
+   "filterRows": [
+    {
+     "label": "Cart Value",
+     "value": "cart_value",
+     "type": "numerical"
+    }
+   ]
   },
   "shopify_order_fulfilled": {
    "type": "shopify_order_fulfilled",
@@ -7269,7 +8363,15 @@
    "masterType": "highlevel",
    "category": "shopify",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "ShopifyOrderFulfilledFilter",
+   "filterRows": [
+    {
+     "label": "Cart Value",
+     "value": "cart_value",
+     "type": "numerical"
+    }
+   ]
   },
   "ivr_incoming_call": {
    "type": "ivr_incoming_call",
@@ -7277,7 +8379,16 @@
    "masterType": "highlevel",
    "category": "ivr",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "IVRIncomingCallFilter",
+   "filterRows": [
+    {
+     "label": "In Phone Number",
+     "value": "inbound_number",
+     "id": "inbound-twilio-number",
+     "operator": "contains-any"
+    }
+   ]
   },
   "facebook_comment_on_post": {
    "type": "facebook_comment_on_post",
@@ -7285,7 +8396,14 @@
    "masterType": "highlevel",
    "category": "fb_ig_events",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "UserCommentsOnPostFilter",
+   "filterRows": [
+    {
+     "label": "Page Is",
+     "type": "select"
+    }
+   ]
   },
   "ig_comment_on_post": {
    "type": "ig_comment_on_post",
@@ -7293,7 +8411,14 @@
    "masterType": "highlevel",
    "category": "fb_ig_events",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterClass": "UserCommentsOnPostFilter",
+   "filterRows": [
+    {
+     "label": "Page Is",
+     "type": "select"
+    }
+   ]
   },
   "affiliate_new_lead": {
    "type": "affiliate_new_lead",
@@ -7301,7 +8426,29 @@
    "category": null,
    "masterType": "internal",
    "example": "catalog/trigger-examples/affiliate_new_lead.json",
-   "confidence": "verified-live"
+   "confidence": "verified-live",
+   "filterClass": "CampaignFilter",
+   "filterRows": [
+    {
+     "label": "In campaign",
+     "value": "campaign.id",
+     "type": "select"
+    },
+    {
+     "label": "Has Tag",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "has-tag",
+     "operator": "index-of-true"
+    },
+    {
+     "label": "Doesn",
+     "value": "contact.tags",
+     "type": "select",
+     "id": "doesnot-have-tag",
+     "operator": "index-of-false"
+    }
+   ]
   },
   "proposal_estimate_update": {
    "type": "proposal_estimate_update",

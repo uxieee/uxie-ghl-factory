@@ -229,6 +229,7 @@ test('Appendix A acceptance: tagged-vip-nurture compiles to 8 steps, correct sha
   assert.equal(byName('Tag premium').next, null);
   assert.equal(byName('Tag premium').parent, byName('Yes').id);
   assert.equal(triggerBodies[0].type, 'contact_tag');
-  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: ['VIP'] }]);
+  // filter expansion enriches the lean {field,operator,value} into the full UI condition shape
+  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: ['VIP'], title: 'tag_added', type: 'select', id: 'tag-added' }]);
   assert.equal(autoSaveBody.createdSteps.length, 8);
 });
