@@ -13,6 +13,7 @@ function attributesFor(node) {
   if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {});
   if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {});
+  if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   return node.attributes ?? {};
 }
 
@@ -36,6 +37,26 @@ function updateOpportunityAttributes(a) {
   // a.updates: [{ field, value, dataType?, valueFieldType? }]
   const f = (a.updates ?? []).map((u) => oppField(u.field, u.value, u.dataType ?? 'SINGLE_OPTIONS', u.valueFieldType ?? 'select'));
   return { allowBackward: a.allowBackward ?? false, type: 'internal_update_opportunity', __customInputFields__: f, __customInputs__: {} };
+}
+
+// voice_ai_outbound_call — places an outbound call from a configured Voice AI agent
+// (live-verified 2026-07-11). `agentId` (the Voice AI agent record id) and
+// `fromPhoneNumber` (the literal E.164 number string — NOT a number-pool/id reference)
+// are both required in the captured schema (`required: true` on both dynamic-fields
+// entries) — a step saved without them is broken, so we fail fast at compile time.
+// `outboundGuidelines` is a frozen, non-interactive info-banner field; the builder
+// always emits it empty on save. `__customInputs__` is an empty placeholder, unused
+// by this action.
+function voiceAiOutboundCallAttributes(a) {
+  if (!a.agentId) throw new IRError('MISSING_FIELD', "voice_ai_outbound_call requires 'agentId'");
+  if (!a.fromPhoneNumber) throw new IRError('MISSING_FIELD', "voice_ai_outbound_call requires 'fromPhoneNumber'");
+  return {
+    agentId: a.agentId,
+    fromPhoneNumber: a.fromPhoneNumber,
+    outboundGuidelines: '',
+    type: 'voice_ai_outbound_call',
+    __customInputs__: {},
+  };
 }
 
 // custom_webhook (outbound HTTP) — live-verified shape. body.rawData is a JSON STRING;
