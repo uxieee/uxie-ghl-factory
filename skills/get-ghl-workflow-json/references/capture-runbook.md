@@ -32,13 +32,13 @@ If the URL includes query params or extra path segments, keep only the location 
 Run this before each backend fetch:
 
 ```bash
-python3 ~/.claude/skills/get-ghl-workflow-json/scripts/throttle.py wait --state .ghl-workflow-json-throttle.json
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/get-ghl-workflow-json/scripts/throttle.py wait --state .ghl-workflow-json-throttle.json
 ```
 
 If a response returns `429` or `403`, immediately run:
 
 ```bash
-python3 ~/.claude/skills/get-ghl-workflow-json/scripts/throttle.py reject 429 --state .ghl-workflow-json-throttle.json
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/get-ghl-workflow-json/scripts/throttle.py reject 429 --state .ghl-workflow-json-throttle.json
 ```
 
 Replace `429` with the actual status. Stop after this; do not retry in the same turn.
@@ -124,7 +124,7 @@ Create `manifest.json` next to the captured JSON:
 Run:
 
 ```bash
-python3 ~/.claude/skills/get-ghl-workflow-json/scripts/validate_workflow_capture.py workflow-json/{LOCATION_ID}/{WORKFLOW_ID}/{YYYY-MM-DD-HHMM}
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/get-ghl-workflow-json/scripts/validate_workflow_capture.py workflow-json/{LOCATION_ID}/{WORKFLOW_ID}/{YYYY-MM-DD-HHMM}
 ```
 
 Report validation warnings plainly. Do not pretend a partial capture is complete.

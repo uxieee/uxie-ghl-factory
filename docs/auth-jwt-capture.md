@@ -96,7 +96,7 @@ The current JWT payload (decode locally, e.g. via jwt.io — it decodes client-s
 - **UID** (user id) = the `authClassId` claim. Send this as `updatedBy` on workflow writes.
 - **CID** (company/agency id) is **not** in the current token — the payload no longer carries `company_id` or a `locations[]` claim. Derive it from any row of `GET /workflow/{LOCATION_ID}/list` (the `companyId` field), using the same Bearer auth from §1.
 
-> Note on provenance: the capture procedure in §2 and the header format in §1 come from this plugin's Bearer-verified export skill (2026-07-11). The exact JWT claim names above were cross-checked against `ghl-workflow-api-docs/docs/02-auth.md` (verified 2026-07-10, same auth migration) because the export skill's runbook documents capturing the token but not decoding UID/CID from it — see the Task 2 report for detail.
+> Note on provenance: the capture procedure in §2 and the header format in §1 come from this plugin's Bearer-verified export skill (2026-07-11). The exact JWT claim names above were cross-checked against `ghl-workflow-api-docs/docs/02-auth.md` (verified 2026-07-10, same auth migration) because the export skill's runbook documents capturing the token but not decoding UID/CID from it.
 
 ## 4. Token lifetime & re-auth contract
 

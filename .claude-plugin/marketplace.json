@@ -6,7 +6,7 @@
     {
       "name": "ghl",
       "source": "./",
-      "description": "GoHighLevel toolkit for Claude Code: audit, build, and operate GHL sub-accounts."
+      "description": "GoHighLevel toolkit for Claude Code: build and operate GHL sub-accounts."
     }
   ]
 }
