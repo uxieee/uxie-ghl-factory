@@ -10,7 +10,7 @@ const raw = {
   calendars: [{ id: 'CAL_CONS', name: 'Consultation' }],
   users: [{ id: 'USR_JANE', firstName: 'Jane', lastName: 'Doe', email: 'jane@x.com' }],
   forms: [{ id: 'FORM_CONTACT', name: 'Contact Us' }],
-  customFields: [{ id: 'CF_STATUS', name: 'Status', fieldKey: 'contact.status' }],
+  customFields: [{ id: 'em3R3rToFy8N0oYcJDwE', name: 'Status', fieldKey: 'contact.status' }],
 };
 const r = buildResolvers(raw);
 
@@ -56,6 +56,31 @@ test('resolveIR: trigger filter values (pipeline/form/calendar names) → ids', 
   const { ir: out } = resolveIR(ir, r);
   assert.equal(out.triggers[0].filters[0].value, 'PIPE_SALES');
   assert.deepEqual(out.triggers[1].filters[0].value, ['FORM_CONTACT']);
+});
+
+test('resolveIR: custom-field NAME → id; standard fields + ids left alone', () => {
+  const ir = { triggers: [], graph: [
+    { ref: 'u', kind: 'action', type: 'update_contact_field', name: 'U', attributes: { fields: [
+      { field: 'Status', value: 'active' },                 // custom field by name → id
+      { field: 'email', value: '{{x}}' },                   // standard → literal
+      { field: 'em3R3rToFy8N0oYcJDwE', value: 'x' },                   // already an id → untouched
+    ] } },
+  ] };
+  const { ir: out, unresolved } = resolveIR(ir, r);
+  const fields = out.graph[0].attributes.fields;
+  assert.equal(fields[0].field, 'em3R3rToFy8N0oYcJDwE');   // resolved
+  assert.equal(fields[0].title, 'Status');      // name preserved as title
+  assert.equal(fields[1].field, 'email');       // standard, untouched
+  assert.equal(fields[2].field, 'em3R3rToFy8N0oYcJDwE');   // id, untouched
+  assert.deepEqual(unresolved, []);
+});
+
+test('resolveIR: unknown custom-field name is reported', () => {
+  const ir = { triggers: [], graph: [
+    { ref: 'u', kind: 'action', type: 'update_contact_field', name: 'U', attributes: { fields: [{ field: 'Ghost Field', value: 'x' }] } },
+  ] };
+  const { unresolved } = resolveIR(ir, r);
+  assert.equal(unresolved.some((x) => x.name === 'Ghost Field'), true);
 });
 
 test('resolveIR: already-resolved ids pass through; unknown names reported', () => {

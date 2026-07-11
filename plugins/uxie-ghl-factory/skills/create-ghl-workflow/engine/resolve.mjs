@@ -8,6 +8,14 @@
 
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 
+// Standard contact fields — their `field` key is a literal name, never a custom-field id,
+// so the resolver leaves them alone.
+const STANDARD_CONTACT_FIELDS = new Set([
+  'phone', 'email', 'firstName', 'lastName', 'name', 'fullName', 'address', 'address1',
+  'city', 'state', 'country', 'postalCode', 'companyName', 'businessName', 'website',
+  'dateOfBirth', 'timezone', 'source', 'tags', 'dnd', 'gender', 'type', 'assignedTo',
+]);
+
 // raw = { pipelines:[{id,name,stages:[{id,name}]}], calendars:[{id,name}],
 //         users:[{id,firstName,lastName,email,name}], forms:[{id,name}],
 //         surveys:[{id,name}], customFields:[{id,name,fieldKey}] }
@@ -106,6 +114,16 @@ export function resolveIR(ir, r) {
     // appointment_booking: calendar name → calendarId
     if (type === 'appointment_booking' && a.calendar && !a.calendarId) {
       a.calendarId = need(r.calendarId(a.calendar), 'appointment_booking.calendar', a.calendar);
+    }
+    // update_contact_field / create_update_contact: a fields[] entry whose `field` is a
+    // human custom-field NAME (not a standard field, not already an id) → resolve to id.
+    if ((type === 'update_contact_field' || type === 'create_update_contact') && Array.isArray(a.fields)) {
+      for (const f of a.fields) {
+        if (!f || f.field == null || STANDARD_CONTACT_FIELDS.has(f.field) || looksLikeId(f.field)) continue;
+        const id = r.customFieldId(f.field);
+        if (id) { if (!f.title) f.title = f.field; f.field = id; }
+        else unresolved.push({ where: `${type}.field`, name: f.field });
+      }
     }
     // AI agents by name: voice_ai_outbound_call.agent → agentId;
     // conversationai_* / update_conversation_ai_status .employee → assignedEmployeeId
