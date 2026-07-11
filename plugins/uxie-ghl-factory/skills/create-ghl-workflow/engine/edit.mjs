@@ -155,6 +155,27 @@ export function addBranch(templates, containerId, { name, conditions = [] }, idG
   return { templates: out, diff: { createdSteps: [newId], modifiedSteps: modified, deletedSteps: [] } };
 }
 
+// Delete a whole container (if_else / workflow_split / finder) and EVERYTHING under it —
+// all branch-entries, their children, and any nested containers. Rewires the container's
+// predecessor to null (a container is terminal in its scope — branches don't re-merge).
+// Everything removed goes in deletedSteps.
+export function deleteContainer(templates, containerId) {
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  if (!byId.has(containerId)) return { templates, diff: emptyDiff() };
+  const remove = new Set([containerId]);
+  const queue = [containerId];
+  while (queue.length) {
+    const cur = byId.get(queue.shift());
+    if (!cur) continue;
+    const nexts = Array.isArray(cur.next) ? cur.next : (typeof cur.next === 'string' ? [cur.next] : []);
+    for (const n of nexts) if (byId.has(n) && !remove.has(n)) { remove.add(n); queue.push(n); }
+    for (const t of templates) if (t.parent === cur.id && !remove.has(t.id)) { remove.add(t.id); queue.push(t.id); }
+  }
+  const pred = templates.find((t) => t.next === containerId);
+  const out = templates.filter((t) => !remove.has(t.id)).map((t) => (pred && t.id === pred.id ? { ...t, next: null } : t));
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: pred ? [pred.id] : [], deletedSteps: [...remove] } };
+}
+
 // Build the COMMIT body for an edit. Edits must go through the plain PUT
 // /workflow/{loc}/{wid} (the commit path, same as publish) — NOT /auto-save. An
 // auto-save on a freshly-built workflow 422s "previous changes were not committed"

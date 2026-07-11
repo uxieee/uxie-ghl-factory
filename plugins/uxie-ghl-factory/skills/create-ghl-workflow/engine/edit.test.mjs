@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch } from './edit.mjs';
+import { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch, deleteContainer } from './edit.mjs';
 
 let _n = 0;
 const seqId = () => `gen${++_n}`;
@@ -102,6 +102,25 @@ test('moveStep reorders within the root trunk', () => {
   assert.equal(diff.createdSteps.length, 0);
   assert.equal(diff.deletedSteps.length, 0);
   assert.ok(diff.modifiedSteps.includes('s3'));
+});
+
+test('deleteContainer removes the if_else and all descendants, rewiring the predecessor', () => {
+  const { templates, diff } = deleteContainer(branched(), 'cont');
+  // container + both branch-entries + the Yes child (y1) all gone
+  for (const id of ['cont', 'yes', 'no', 'y1']) assert.equal(templates.find((t) => t.id === id), undefined, `${id} should be removed`);
+  assert.equal(templates.find((t) => t.id === 'root1').next, null);   // predecessor rewired
+  assert.deepEqual(diff.deletedSteps.sort(), ['cont', 'no', 'y1', 'yes']);
+  assert.deepEqual(diff.modifiedSteps, ['root1']);
+});
+
+test('moveStep does a cross-scope move (branch step → root trunk)', () => {
+  // move y1 (inside the Yes branch) to after root1 (root trunk)
+  const { templates } = moveStep(branched(), 'y1', 'root1');
+  const y1 = templates.find((t) => t.id === 'y1');
+  assert.equal(y1.parent, undefined);          // no longer in a branch scope
+  assert.equal(y1.parentKey, 'root1');
+  assert.equal(templates.find((t) => t.id === 'root1').next, 'y1');   // now in the trunk
+  assert.equal(templates.find((t) => t.id === 'yes').next, null);     // Yes branch now empty
 });
 
 test('addBranch inserts a new conditional branch before the else', () => {
