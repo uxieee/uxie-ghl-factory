@@ -7,8 +7,11 @@
 > public `conversation-ai-v3` API is a separate, thinner façade the UI doesn't call.
 
 **Status: LIVE-CREATE-PROVEN.** Create → read → delete, plus the `humanHandOver` action, have
-all been round-tripped against a real account and verified. This is the most mature of the
-three AI products in this skill.
+all been round-tripped against a real account and verified. The other 6 action types
+(`appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,
+`advancedFollowup`) are verified against their captures (see the Actions section below) but
+not yet individually live-fired. This is the most mature of the three AI products in this
+skill.
 
 ## What Conversation AI is
 
@@ -83,7 +86,7 @@ are a **separate resource**, not embedded in the agent's create/update body — 
 call itself always sends `actions: []`; actions are POSTed after, once the real `employeeId`
 is known.
 
-**`humanHandOver` — the only live-verified action type.** Two live-verified 422 gaps found
+**`humanHandOver` — the first live-verified action type.** Two live-verified 422 gaps found
 during capture, both baked into `convai-compiler.mjs`'s `HUMAN_HANDOVER_DETAIL_DEFAULTS`:
 - `details.enabled`, `details.triggerCondition`, `details.reactivateEnabled` are all required
   by the API even though they look optional from the UI.
@@ -93,11 +96,31 @@ during capture, both baked into `convai-compiler.mjs`'s `HUMAN_HANDOVER_DETAIL_D
 - `triggerCondition` has no sane default (it's the bot's own decision text for when to hand
   off) — the compiler requires it as a string 10-500 chars and throws `IRError` otherwise.
 
-Everything else — Appointment Booking, Trigger a Workflow, Contact Info extraction, Stop Bot,
-Transfer Bot, Auto Followup — was only ever seen as a UI button label, never captured live.
-The IR does **not** reject these `type` values (they pass through as accepted-but-unverified,
-per the research doc's "capture next" note) — but treat any result from them as unverified
-until a live capture backs it up.
+**All 6 remaining action types are now ALSO verified**, per
+`research/ai-agents-internal/captures/convai-actions-all.json` (POST `/ai-employees/actions`
+against a real test agent, 2026-07-11). `convai-compiler.mjs`'s `buildActionDetails`
+dispatches on `action.type` and, for each of these, validates the required field(s) and
+merges the caller's `details` over the capture's literal defaults:
+- **`appointmentBooking`** — required: `details.calendarId`. Advanced-options toggles
+  (`triggerWorkflow`, `sleepAfterBooking`, `transferBot`, `cancelEnabled`,
+  `rescheduleEnabled`, ...) default to their captured off/null values.
+- **`triggerWorkflow`** — required: `details.workflowIds` (non-empty array),
+  `details.triggerCondition`. No optional fields observed.
+- **`updateContactField`** ("Contact Info" in the UI) — required: `details.contactFieldId`,
+  `details.description`. `contactUpdateExamples` defaults to `[]`.
+- **`stopBot`** — required: `name` only (top-level). Ships with a pre-built "Goodbye
+  Detection" scenario; the defaults reproduce its literal captured values
+  (`stopBotDetectionType: 'Goodbye'`, `sleepTime: 24`, `tags: ['stop bot']`, ...).
+- **`transferBot`** — required: `name` (top-level) + `details.transferToBot` (the target
+  bot's employeeId — not asterisk-marked in the UI, but the field that makes the action
+  functional). Ships pre-built as "Default Transfer Bot" targeting the location's primary
+  bot.
+- **`advancedFollowup`** ("Auto Followup" in the UI) — required: `name` only (top-level).
+  Ships with a pre-built "Contact Stopped Replying" scenario (one `followupSequence` step).
+
+`VERIFIED_ACTION_TYPES` in `convai-ir.mjs` now lists all 7. Any `type` outside this list (no
+capture exists for it) still passes through as accepted-but-unverified — treat any result
+from an unlisted type as unverified until a live capture backs it up.
 
 ## Knowledge base (rich-text, feeds this + Voice AI + Agent Studio)
 
@@ -112,6 +135,26 @@ doc as usable. `compileRichTextDelete(id)` handles cleanup (`DELETE
 
 `POST /knowledge-base/default` is idempotent — call it to get-or-create the account's default
 KB before attaching content, rather than assuming one exists.
+
+**Tables (CSV-only) and Files (PDF/DOC/DOCX/MD)** are the other two captured KB content-source
+types, per `captures/knowledge-base-tables-files.json`. `kb-compiler.mjs`'s
+`compileKbTableUpload` and `compileKbFileUpload` produce their request descriptors (method,
+path, and the known non-binary form/JSON fields) — but since both are multipart uploads of
+real file bytes, this compiler describes the request shape rather than building the binary
+body itself:
+- **Tables** is a 3-step async pipeline: upload (multipart) → schema auto-detect (GET) →
+  select-columns (POST, which actually finalizes the schema and queues Parquet conversion) →
+  poll parquet-status → summary → delete. `fileId` is server-assigned on the upload response,
+  so steps after upload use a `:fileId` path placeholder for the caller to fill in.
+- **Files** is a single multipart POST that both uploads AND registers the KB record (no
+  separate finalize step), then an async CONVERSION → EXTRACTION → CHUNKING → EMBEDDING
+  pipeline polled via the status endpoint. The capture's network inspector could not render
+  the multipart body as text, so the exact form-field names for `locationId` /
+  `knowledgeBaseId` / the file itself are unverified — `compileKbFileUpload`'s
+  `bodyFieldsBestEffort` marks this explicitly as a best-effort guess, not a proven contract.
+
+Both are verified-against-capture (endpoint/method/flow accurate) but not yet live-fired —
+same epistemic stance as the Conversation AI / Voice AI action types above.
 
 ## Driving `convai-compiler.mjs`
 

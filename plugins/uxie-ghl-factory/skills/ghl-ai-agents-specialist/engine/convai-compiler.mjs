@@ -1,9 +1,10 @@
 // Deterministic compiler: Conversation AI IR -> GHL internal /ai-employees/* payloads.
 // See research/ai-agents-internal/conversation-ai-internal.md and
-// captures/convai-{create,update,action,kb}.json for the ground truth this traces to.
-// This module produces request DESCRIPTORS ({method, path, body}) — it never makes a
-// live call. Auth is `token-id` (NOT `Authorization: Bearer`) per the capture notes;
-// the caller is responsible for attaching the header value.
+// captures/convai-{create,update,action,kb}.json + captures/convai-actions-all.json
+// (the 6 additional action types) for the ground truth this traces to. This module
+// produces request DESCRIPTORS ({method, path, body}) — it never makes a live call.
+// Auth is `token-id` (NOT `Authorization: Bearer`) per the capture notes; the caller
+// is responsible for attaching the header value.
 import { parseConvaiIR, parseConvaiPartialIR, IRError } from './convai-ir.mjs';
 
 export const AUTH_HEADER = 'token-id';
@@ -86,14 +87,7 @@ const HUMAN_HANDOVER_DETAIL_DEFAULTS = {
 const TRIGGER_CONDITION_MIN = 10;
 const TRIGGER_CONDITION_MAX = 500;
 
-// Merge user-provided `details` over the API-required defaults for the one action type
-// we've verified live (humanHandOver). Every other type (appointmentBooking,
-// triggerWorkflow, contactInfo, stopBot, transferBot, autoFollowup, ...) is unverified —
-// we have no capture of their required fields, so they stay pure passthrough rather than
-// risk inventing fields the API doesn't expect.
-function buildActionDetails(action) {
-  const details = action.details ?? {};
-  if (action.type !== 'humanHandOver') return details;
+function buildHumanHandOverDetails(details) {
   const triggerCondition = details.triggerCondition;
   if (
     typeof triggerCondition !== 'string' ||
@@ -106,6 +100,162 @@ function buildActionDetails(action) {
     );
   }
   return { ...HUMAN_HANDOVER_DETAIL_DEFAULTS, ...details };
+}
+
+// --- Verified action-type detail builders ---------------------------------------
+// Ground truth: research/ai-agents-internal/captures/convai-actions-all.json
+// (captured 2026-07-11, POST /ai-employees/actions against a real test agent). Each
+// builder validates the fields the capture's `requiredFieldsUI` (or, where the UI ships
+// a pre-built default scenario needing only its enable toggle, the task's explicit
+// required-field list) marks required, then merges the caller's details over the
+// capture's literal default values for every optional field.
+
+// appointmentBooking: only calendarId gated the modal's Proceed button (no asterisk
+// shown, but functionally required — see the capture's requiredFieldsUI note). Every
+// other field is an advanced-options toggle, defaulted to its captured off/null value.
+const APPOINTMENT_BOOKING_DETAIL_DEFAULTS = {
+  calendarActionType: 'single',
+  onlySendLink: false,
+  triggerWorkflow: false,
+  workflowIds: null,
+  sleepAfterBooking: false,
+  sleepTimeUnit: null,
+  sleepTime: null,
+  transferBot: false,
+  transferEmployee: null,
+  cancelEnabled: false,
+  rescheduleEnabled: false,
+};
+
+function buildAppointmentBookingDetails(details) {
+  if (typeof details.calendarId !== 'string' || details.calendarId.length === 0) {
+    throw new IRError(
+      'SCHEMA',
+      `appointmentBooking action.details.calendarId is required (gates the calendar-selection step; convai-actions-all.json), got: ${JSON.stringify(details.calendarId)}`,
+    );
+  }
+  return { ...APPOINTMENT_BOOKING_DETAIL_DEFAULTS, ...details };
+}
+
+// triggerWorkflow: workflowIds + triggerCondition are both marked required-with-asterisk
+// in the capture (`name (Action name *)`, `workflowIds *`, `triggerCondition *`). name is
+// the top-level action.name, already validated by compileConvaiAction. No optional
+// fields observed for this type — nothing to default.
+function buildTriggerWorkflowDetails(details) {
+  if (!Array.isArray(details.workflowIds) || details.workflowIds.length === 0) {
+    throw new IRError(
+      'SCHEMA',
+      `triggerWorkflow action.details.workflowIds must be a non-empty array (API-required per convai-actions-all.json), got: ${JSON.stringify(details.workflowIds)}`,
+    );
+  }
+  if (typeof details.triggerCondition !== 'string' || details.triggerCondition.length === 0) {
+    throw new IRError(
+      'SCHEMA',
+      `triggerWorkflow action.details.triggerCondition is required (API-required per convai-actions-all.json), got: ${JSON.stringify(details.triggerCondition)}`,
+    );
+  }
+  return { ...details };
+}
+
+// updateContactField ("Contact Info" in the UI): contactFieldId + description are both
+// marked required-with-asterisk in the capture. contactUpdateExamples is an array left
+// empty by default; contactFieldName/contactFieldDataType/contactFieldKey are UI-derived
+// from the picked field and passed through as given (no sane default — they describe
+// whichever field the caller picked).
+const UPDATE_CONTACT_FIELD_DETAIL_DEFAULTS = {
+  contactUpdateExamples: [],
+};
+
+function buildUpdateContactFieldDetails(details) {
+  if (typeof details.contactFieldId !== 'string' || details.contactFieldId.length === 0) {
+    throw new IRError(
+      'SCHEMA',
+      `updateContactField action.details.contactFieldId is required (API-required per convai-actions-all.json), got: ${JSON.stringify(details.contactFieldId)}`,
+    );
+  }
+  if (typeof details.description !== 'string' || details.description.length === 0) {
+    throw new IRError(
+      'SCHEMA',
+      `updateContactField action.details.description is required (API-required per convai-actions-all.json), got: ${JSON.stringify(details.description)}`,
+    );
+  }
+  return { ...UPDATE_CONTACT_FIELD_DETAIL_DEFAULTS, ...details };
+}
+
+// stopBot: the capture's only required-with-asterisk field is `name` (the top-level
+// action.name, already validated). GHL ships this action with one pre-built, pre-filled
+// scenario ("Goodbye Detection") that only needs its enable toggle switched on — these
+// defaults reproduce that pre-built scenario's literal values.
+const STOP_BOT_DETAIL_DEFAULTS = {
+  stopBotDetectionType: 'Goodbye',
+  stopBotTriggerCondition: 'When the contact says goodbye or similar phrases ',
+  finalMessage: 'Thank you for your time, Have a nice day.',
+  reactivateEnabled: true,
+  sleepTimeUnit: 'hours',
+  sleepTime: 24,
+  stopBotExamples: ['Bye', 'Goodbye', 'Thank you! have a nice day'],
+  enabled: true,
+  tags: ['stop bot'],
+};
+
+function buildStopBotDetails(details) {
+  return { ...STOP_BOT_DETAIL_DEFAULTS, ...details };
+}
+
+// transferBot: the capture's UI-required-with-asterisk field is only `name`, but
+// transferToBot (the target bot's employeeId) is what makes the action functional at
+// all — the task spec calls it out as required, so it's validated here even though the
+// UI didn't mark it with a visible asterisk (GHL ships it pre-filled with the location's
+// primary bot, same "pre-built default scenario" pattern as stopBot).
+const TRANSFER_BOT_DETAIL_DEFAULTS = {
+  transferBotExamples: [],
+  transferBotType: 'Default',
+  enabled: true,
+  transferBotTriggerCondition: "If bot doesn't know the answer",
+};
+
+function buildTransferBotDetails(details) {
+  if (typeof details.transferToBot !== 'string' || details.transferToBot.length === 0) {
+    throw new IRError(
+      'SCHEMA',
+      `transferBot action.details.transferToBot is required (target bot employeeId; convai-actions-all.json), got: ${JSON.stringify(details.transferToBot)}`,
+    );
+  }
+  return { ...TRANSFER_BOT_DETAIL_DEFAULTS, ...details };
+}
+
+// advancedFollowup ("Auto Followup" in the UI): the capture's only required-with-asterisk
+// field is `name` (top-level, already validated). Ships with a pre-built
+// "Contact Stopped Replying" scenario (one followupSequence step, AI-authored message)
+// that only needs its enable toggle switched on.
+const ADVANCED_FOLLOWUP_DETAIL_DEFAULTS = {
+  enabled: true,
+  scenarioId: 'contactStoppedReplying',
+  followupSequence: [
+    { id: 1, followupTime: 15, followupTimeUnit: 'minutes', aiEnabledMessage: true, customMessage: null, workflowId: null, triggerWorkflow: false },
+  ],
+};
+
+function buildAdvancedFollowupDetails(details) {
+  return { ...ADVANCED_FOLLOWUP_DETAIL_DEFAULTS, ...details };
+}
+
+// Dispatch on action.type. Merges user-provided `details` over API-required/capture-
+// grounded defaults for every VERIFIED_ACTION_TYPES entry (convai-ir.mjs). Any other
+// (unlisted) type has no capture backing it — it stays pure passthrough rather than risk
+// inventing fields the API doesn't expect.
+function buildActionDetails(action) {
+  const details = action.details ?? {};
+  switch (action.type) {
+    case 'humanHandOver': return buildHumanHandOverDetails(details);
+    case 'appointmentBooking': return buildAppointmentBookingDetails(details);
+    case 'triggerWorkflow': return buildTriggerWorkflowDetails(details);
+    case 'updateContactField': return buildUpdateContactFieldDetails(details);
+    case 'stopBot': return buildStopBotDetails(details);
+    case 'transferBot': return buildTransferBotDetails(details);
+    case 'advancedFollowup': return buildAdvancedFollowupDetails(details);
+    default: return details; // unverified type — passthrough, no defaults injected
+  }
 }
 
 // POST /ai-employees/actions — body: {employeeId, locationId, type, name, details}

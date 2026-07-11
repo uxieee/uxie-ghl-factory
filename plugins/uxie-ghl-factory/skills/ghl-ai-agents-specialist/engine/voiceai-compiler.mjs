@@ -1,8 +1,9 @@
 // Deterministic compiler: Voice AI IR -> GHL internal /voice-ai/* payloads. See
 // research/ai-agents-internal/voice-ai-internal.md and
 // captures/voiceai-{create,update-identity,update-behavior-transcription-voice,
-// action,delete}.json for the ground truth this traces to. This module produces
-// request DESCRIPTORS ({method, path, body}) — it never makes a live call. Auth is
+// action,delete}.json + captures/voiceai-actions-all.json (the 6 additional action
+// types) for the ground truth this traces to. This module produces request
+// DESCRIPTORS ({method, path, body}) — it never makes a live call. Auth is
 // `token-id` (same header as ConvAI/KB, NOT `Authorization: Bearer`); the caller is
 // responsible for attaching the header value.
 //
@@ -201,6 +202,130 @@ function buildUpdateBody(ir, { locationId } = {}) {
   };
 }
 
+// --- Verified actionType actionParameters builders --------------------------------
+// Ground truth: research/ai-agents-internal/captures/voiceai-actions-all.json
+// (captured 2026-07-11, POST /voice-ai/actions against a real test agent). CALL_TRANSFER
+// (already live-verified pre-existing) stays pure passthrough below; each of these 6
+// newly-captured types validates its capture-required fields and merges the caller's
+// actionParameters over any capture-grounded defaults.
+
+function assertRequiredParam(v, field, type) {
+  if (typeof v !== 'string' || v.length === 0) {
+    throw new IRError(
+      'SCHEMA',
+      `${type} action.actionParameters.${field} is required (API-required per voiceai-actions-all.json), got: ${JSON.stringify(v)}`,
+    );
+  }
+}
+
+// WORKFLOW_TRIGGER ("Trigger a workflow"): all 4 fields travel together in the capture's
+// fullCapturedRequestBody and are called out as required by the task spec — none has a
+// sane default (they're all user-authored trigger copy or a specific workflow id).
+function buildWorkflowTriggerParams(p) {
+  assertRequiredParam(p.workflowId, 'workflowId', 'WORKFLOW_TRIGGER');
+  assertRequiredParam(p.triggerPrompt, 'triggerPrompt', 'WORKFLOW_TRIGGER');
+  assertRequiredParam(p.triggerMessage, 'triggerMessage', 'WORKFLOW_TRIGGER');
+  assertRequiredParam(p.triggerMessageType, 'triggerMessageType', 'WORKFLOW_TRIGGER');
+  return { ...p };
+}
+
+// SMS ("Send SMS"): messageBody is the capture's one required-fields-list entry beyond
+// name (top-level, already validated).
+function buildSmsParams(p) {
+  assertRequiredParam(p.messageBody, 'messageBody', 'SMS');
+  return { ...p };
+}
+
+// DATA_EXTRACTION ("Update contact field"): contactFieldId/contactFieldKey identify the
+// field to write; contactFieldDataType distinguishes STANDARD_FIELD vs (presumably)
+// CUSTOM_FIELD. No defaults observed — all three are tied to whichever field the caller
+// picked, nothing sane to default.
+function buildDataExtractionParams(p) {
+  assertRequiredParam(p.contactFieldId, 'contactFieldId', 'DATA_EXTRACTION');
+  assertRequiredParam(p.contactFieldKey, 'contactFieldKey', 'DATA_EXTRACTION');
+  assertRequiredParam(p.contactFieldDataType, 'contactFieldDataType', 'DATA_EXTRACTION');
+  return { ...p };
+}
+
+// APPOINTMENT_BOOKING: only calendarId gated the "Pick a Calendar" step per the capture's
+// requiredFields. Every other field is a booking/appointment-management toggle, defaulted
+// to its captured value.
+const APPOINTMENT_BOOKING_PARAM_DEFAULTS = {
+  calendarIds: null,
+  aiDescription: null,
+  fallbackCalendar: false,
+  fallbackCalendarId: null,
+  calendarActionType: 'single',
+  daysOfOfferingDates: 3,
+  slotsPerDay: 3,
+  hoursBetweenSlots: 3,
+  collectName: false,
+  collectEmail: true,
+  collectAddress: false,
+  collectAdditionalNotes: false,
+  collectPhoneNumber: false,
+  onlyShareBookingLink: false,
+  respectCalendarAutoConfirm: false,
+  cancelEnabled: false,
+  rescheduleEnabled: false,
+  timezoneSelection: 'userAgent',
+  fallbackTimezone: 'askUser',
+};
+
+function buildAppointmentBookingParams(p) {
+  assertRequiredParam(p.calendarId, 'calendarId', 'APPOINTMENT_BOOKING');
+  return { ...APPOINTMENT_BOOKING_PARAM_DEFAULTS, ...p };
+}
+
+// CAP ("Custom Action 2.0" / Custom Action Plugin): capActionId references a separately-
+// created custom-action resource; triggerPrompt/triggerMessage are the two other
+// required-fields-list entries. The capture's Save button additionally requires a
+// successful test-webhook run (not something this offline compiler can verify), and the
+// endpoint must be https — validated here on the one field this compiler can see
+// (schemaValues.requestBodyValues.webhookUrl.value). capActionName is a fixed literal for
+// this action family, defaulted below when omitted.
+function buildCapParams(p) {
+  assertRequiredParam(p.capActionId, 'capActionId', 'CAP');
+  assertRequiredParam(p.triggerPrompt, 'triggerPrompt', 'CAP');
+  assertRequiredParam(p.triggerMessage, 'triggerMessage', 'CAP');
+  const webhookUrl = p.schemaValues?.requestBodyValues?.webhookUrl?.value;
+  if (typeof webhookUrl !== 'string' || !webhookUrl.startsWith('https://')) {
+    throw new IRError(
+      'SCHEMA',
+      `CAP action.actionParameters.schemaValues.requestBodyValues.webhookUrl.value must be an https:// URL (API-required per voiceai-actions-all.json), got: ${JSON.stringify(webhookUrl)}`,
+    );
+  }
+  return { capActionName: 'customApi', ...p };
+}
+
+// AGENT_TRANSFER_CHILD ("Agent Transfer"): destinationAgentMongoId (the target Voice AI
+// agent) + triggerPrompt are the capture's requiredFields. speakDuringExecution /
+// triggerWorkflowsPostCall default to the capture's observed values.
+function buildAgentTransferChildParams(p) {
+  assertRequiredParam(p.destinationAgentMongoId, 'destinationAgentMongoId', 'AGENT_TRANSFER_CHILD');
+  assertRequiredParam(p.triggerPrompt, 'triggerPrompt', 'AGENT_TRANSFER_CHILD');
+  return {
+    speakDuringExecution: false,
+    triggerWorkflowsPostCall: true,
+    ...p,
+  };
+}
+
+// Dispatch on actionType. CALL_TRANSFER and any other unlisted actionType (e.g. the
+// unverified "Add MCP (Beta)") stay pure passthrough — no defaults injected.
+function buildActionParameters(action) {
+  const p = action.actionParameters ?? {};
+  switch (action.actionType) {
+    case 'WORKFLOW_TRIGGER': return buildWorkflowTriggerParams(p);
+    case 'SMS': return buildSmsParams(p);
+    case 'DATA_EXTRACTION': return buildDataExtractionParams(p);
+    case 'APPOINTMENT_BOOKING': return buildAppointmentBookingParams(p);
+    case 'CAP': return buildCapParams(p);
+    case 'AGENT_TRANSFER_CHILD': return buildAgentTransferChildParams(p);
+    default: return p;
+  }
+}
+
 // POST /voice-ai/actions — body: {agentId, actionType, locationId, name,
 // actionParameters} (voiceai-action.json's createAction.requestBody). `agentId`
 // defaults to null: at the point compileVoiceAiAgent() assembles these, the agent
@@ -220,7 +345,7 @@ export function compileVoiceAiAction(action, { agentId = null, locationId } = {}
     actionType: action.actionType,
     locationId,
     name: action.name,
-    actionParameters: action.actionParameters ?? {},
+    actionParameters: buildActionParameters(action),
   };
   return { method: 'POST', path: '/voice-ai/actions', body };
 }

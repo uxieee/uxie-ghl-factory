@@ -14,11 +14,22 @@ export class IRError extends Error {
 export const MODES = ['off', 'suggestive', 'autoPilot'];
 // channels enum — observed live on create + update.
 export const CHANNELS = ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp'];
-// Only humanHandOver is live-verified (convai-action.json). Other type values seen only as
-// UI button labels (Appointment Booking, Trigger a Workflow, Contact Info, Stop Bot,
-// Transfer Bot, Auto Followup) are NOT rejected here — they pass through as
-// accepted-but-unverified, per the doc's "capture next" note.
-export const VERIFIED_ACTION_TYPES = ['humanHandOver'];
+// humanHandOver was the first live-verified type (convai-action.json). The other 6 UI
+// button-label types (Appointment Booking, Trigger a Workflow, Contact Info, Stop Bot,
+// Transfer Bot, Auto Followup) are now ALSO verified, per
+// research/ai-agents-internal/captures/convai-actions-all.json (captured 2026-07-11 via
+// POST /ai-employees/actions against a real test agent). Any `type` outside this list is
+// NOT rejected here — it passes through as accepted-but-unverified (see
+// convai-compiler.mjs's buildActionDetails default branch).
+export const VERIFIED_ACTION_TYPES = [
+  'humanHandOver',
+  'appointmentBooking',
+  'triggerWorkflow',
+  'updateContactField',
+  'stopBot',
+  'transferBot',
+  'advancedFollowup',
+];
 
 function assertNonEmptyString(v, field) {
   if (typeof v !== 'string' || v.length === 0) throw new IRError('SCHEMA', `${field} must be a non-empty string`);

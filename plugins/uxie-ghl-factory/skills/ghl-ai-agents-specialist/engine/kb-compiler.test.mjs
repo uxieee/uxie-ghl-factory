@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compileRichTextDoc, compileRichTextDelete, AUTH_HEADER } from './kb-compiler.mjs';
+import { compileRichTextDoc, compileRichTextDelete, compileKbTableUpload, compileKbFileUpload, AUTH_HEADER } from './kb-compiler.mjs';
 import { IRError } from './convai-ir.mjs';
 
 // Matches captures/knowledge-base-richtext.json's create request_body field-for-field.
@@ -72,4 +72,74 @@ test('compileRichTextDelete: builds delete descriptor', () => {
 test('compileRichTextDelete: requires a non-empty id', () => {
   assert.throws(() => compileRichTextDelete(), (e) => e.code === 'MISSING_FIELD');
   assert.throws(() => compileRichTextDelete(''), (e) => e.code === 'MISSING_FIELD');
+});
+
+// --- compileKbTableUpload (captures/knowledge-base-tables-files.json's `tables` section) --
+
+const KB_ID = 'tJdoJJkFGwqhsWKmHLEd';
+const LOCATION_ID = 'wdzEoUZnXO9tB3PPzcot';
+
+test('compileKbTableUpload: upload descriptor matches knowledge-base-tables-files.json shape', () => {
+  const { upload, authHeader } = compileKbTableUpload({ knowledgeBaseId: KB_ID, csvFilename: 'TEST-CAP-TABLE.csv' }, { locationId: LOCATION_ID });
+  assert.equal(upload.method, 'POST');
+  assert.equal(upload.path, `/knowledge-base/table/location/${LOCATION_ID}/kb/${KB_ID}/upload`);
+  assert.equal(upload.contentType, 'multipart/form-data');
+  assert.equal(upload.body.name, 'TEST-CAP-TABLE');
+  assert.equal(authHeader, 'token-id');
+  assert.equal(AUTH_HEADER, 'token-id');
+});
+
+test('compileKbTableUpload: schema/selectColumns/parquetStatus/summary/delete descriptors use the :fileId placeholder', () => {
+  const base = `/knowledge-base/table/location/${LOCATION_ID}/kb/${KB_ID}`;
+  const d = compileKbTableUpload({ knowledgeBaseId: KB_ID, csvFilename: 'data.csv' }, { locationId: LOCATION_ID });
+  assert.equal(d.schema.method, 'GET');
+  assert.equal(d.schema.path, `${base}/:fileId/schema`);
+  assert.equal(d.selectColumns.method, 'POST');
+  assert.equal(d.selectColumns.path, `${base}/:fileId/select-columns`);
+  assert.deepEqual(d.selectColumns.bodyTemplate.processingOptions, { chunkSize: 1000, compressionType: 'snappy' });
+  assert.equal(d.selectColumns.bodyTemplate.selectedColumns, null);
+  assert.equal(d.parquetStatus.method, 'GET');
+  assert.equal(d.parquetStatus.path, `${base}/:fileId/parquet-status`);
+  assert.equal(d.summary.method, 'GET');
+  assert.equal(d.summary.path, `${base}/:fileId/summary`);
+  assert.equal(d.delete.method, 'DELETE');
+  assert.equal(d.delete.path, `${base}/:fileId`);
+});
+
+test('compileKbTableUpload: rejects missing knowledgeBaseId', () => {
+  assert.throws(() => compileKbTableUpload({ csvFilename: 'x.csv' }, { locationId: LOCATION_ID }), (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileKbTableUpload: rejects missing csvFilename', () => {
+  assert.throws(() => compileKbTableUpload({ knowledgeBaseId: KB_ID }, { locationId: LOCATION_ID }), (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+// --- compileKbFileUpload (captures/knowledge-base-tables-files.json's `files` section) ----
+
+test('compileKbFileUpload: upload descriptor matches knowledge-base-tables-files.json shape', () => {
+  const { upload, status, delete: del, authHeader } = compileKbFileUpload(
+    { knowledgeBaseId: KB_ID, filename: 'TEST-CAP-FILE.md', mimeType: 'text/markdown' },
+    { locationId: LOCATION_ID },
+  );
+  assert.equal(upload.method, 'POST');
+  assert.equal(upload.path, '/knowledge-base/files');
+  assert.equal(upload.contentType, 'multipart/form-data');
+  assert.deepEqual(upload.bodyFieldsBestEffort, { locationId: LOCATION_ID, knowledgeBaseId: KB_ID, file: 'TEST-CAP-FILE.md', mimeType: 'text/markdown' });
+  assert.equal(status.method, 'GET');
+  assert.equal(status.path, '/knowledge-base/files/:fileId/status');
+  assert.equal(del.method, 'DELETE');
+  assert.equal(del.path, '/knowledge-base/files/:fileId');
+  assert.equal(authHeader, 'token-id');
+});
+
+test('compileKbFileUpload: rejects missing knowledgeBaseId', () => {
+  assert.throws(() => compileKbFileUpload({ filename: 'x.md', mimeType: 'text/markdown' }, { locationId: LOCATION_ID }), (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileKbFileUpload: rejects missing filename', () => {
+  assert.throws(() => compileKbFileUpload({ knowledgeBaseId: KB_ID, mimeType: 'text/markdown' }, { locationId: LOCATION_ID }), (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileKbFileUpload: rejects missing mimeType', () => {
+  assert.throws(() => compileKbFileUpload({ knowledgeBaseId: KB_ID, filename: 'x.md' }, { locationId: LOCATION_ID }), (e) => e instanceof IRError && e.code === 'SCHEMA');
 });

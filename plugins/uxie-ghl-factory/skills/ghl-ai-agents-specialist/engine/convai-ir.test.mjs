@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseConvaiIR, parseConvaiPartialIR, IRError, MODES, CHANNELS } from './convai-ir.mjs';
+import { parseConvaiIR, parseConvaiPartialIR, IRError, MODES, CHANNELS, VERIFIED_ACTION_TYPES } from './convai-ir.mjs';
 
 const validIR = () => ({
   name: 'Support Bot',
@@ -59,6 +59,18 @@ test('action missing type rejected', () => {
 test('action missing name rejected', () => {
   const ir = validIR(); ir.actions = [{ type: 'humanHandOver' }];
   assert.throws(() => parseConvaiIR(ir), (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('verified action types cover all 7 captured convai action types', () => {
+  assert.deepEqual(VERIFIED_ACTION_TYPES, [
+    'humanHandOver',
+    'appointmentBooking',
+    'triggerWorkflow',
+    'updateContactField',
+    'stopBot',
+    'transferBot',
+    'advancedFollowup',
+  ]);
 });
 
 test('valid humanHandOver action passes', () => {

@@ -72,8 +72,16 @@ test('welcomeMessageMode enum matches captured values', () => {
   assert.deepEqual(WELCOME_MESSAGE_MODES, ['ai_custom']);
 });
 
-test('verified action types is CALL_TRANSFER only', () => {
-  assert.deepEqual(VERIFIED_ACTION_TYPES, ['CALL_TRANSFER']);
+test('verified action types cover all 7 captured voice-ai action types', () => {
+  assert.deepEqual(VERIFIED_ACTION_TYPES, [
+    'CALL_TRANSFER',
+    'WORKFLOW_TRIGGER',
+    'SMS',
+    'DATA_EXTRACTION',
+    'APPOINTMENT_BOOKING',
+    'CAP',
+    'AGENT_TRANSFER_CHILD',
+  ]);
 });
 
 test('action missing actionType rejected', () => {
@@ -95,9 +103,12 @@ test('valid CALL_TRANSFER action passes', () => {
 
 test('unverified action type passes through (not rejected)', () => {
   const ir = validIR();
-  ir.actions = [{ actionType: 'WORKFLOW_TRIGGER', name: 'Notify team' }];
+  // MCP ("Add MCP (Beta)") is the one captured menu item explicitly skipped — it needs
+  // a third-party OAuth connect flow before an action can be configured, out of scope
+  // per the capture's `_skipped` note. It's the only remaining genuinely-unverified type.
+  ir.actions = [{ actionType: 'MCP', name: 'Connect MCP server' }];
   const out = parseVoiceAiIR(ir);
-  assert.equal(out.actions[0].actionType, 'WORKFLOW_TRIGGER');
+  assert.equal(out.actions[0].actionType, 'MCP');
 });
 
 test('voice section: non-object rejected', () => {

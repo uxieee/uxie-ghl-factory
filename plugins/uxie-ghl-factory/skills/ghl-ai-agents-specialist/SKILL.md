@@ -80,11 +80,19 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 | Voice AI — agent create + full-replace update | **Live-create-proven** (engine → `POST /voice-ai/agents` → full-replace PUT → verified name/prompt/welcome → deleted) |
 | Agent Studio — Super Agent create (SSE build) + full-replace update | **Live-create-proven** (engine → `POST /super-agents/build` SSE → full-replace PUT → verified systemPrompt/tools/trigger/model → deleted) |
 
-All four compilers are now live-create-proven end-to-end (2026-07-11). The Voice AI
-`CALL_TRANSFER` and the non-`humanHandOver` action types remain unit-tested passthrough (not each
-individually live-fired). Treat
-the first real use as a validation run (small, throwaway, verified, cleaned up), not a
-routine operation.
+All four compilers are now live-create-proven end-to-end (2026-07-11). ConvAI now has
+verified (not passthrough) support for all 7 captured action types (`humanHandOver` +
+`appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,
+`advancedFollowup`), and Voice AI for all 7 captured types (`CALL_TRANSFER` +
+`WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`, `APPOINTMENT_BOOKING`, `CAP`,
+`AGENT_TRANSFER_CHILD`) — each validates its capture-required fields and merges
+capture-grounded defaults, per `convai-actions-all.json` / `voiceai-actions-all.json`. KB
+also gained verified descriptor-builders for Tables (`compileKbTableUpload`) and Files
+(`compileKbFileUpload`), alongside the live-proven rich-text path — per
+`knowledge-base-tables-files.json`. None of this is yet **live-fired** (each type is
+unit-tested against its capture, not each individually round-tripped against a real
+account). Treat the first real use of any given action/source type as a validation run
+(small, throwaway, verified, cleaned up), not a routine operation.
 
 ## Scope
 **IN:** designing/building/configuring Conversation AI, Voice AI, and Agent Studio agents,
