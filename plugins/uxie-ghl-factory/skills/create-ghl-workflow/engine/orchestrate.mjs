@@ -134,14 +134,27 @@ export async function orchestrate(ir, gw, opts = {}) {
     if (dropped.length) report.verify.issues.push({ type: gt.type, dropped }); else report.verify.pass++;
   }
 
-  // 6. optional publish (opt-in; strip server/session fields, flip status)
+  // 6. optional publish (opt-in). Mirrors the builder's real publish PUT — this is
+  //    NOT a bare status flip. The UI sends the WHOLE workflow object as-is (it keeps
+  //    filePath/fileUrl/version/autoSaveSessionId — do NOT strip them), bumps `version`,
+  //    and includes oldTriggers + newTriggers (the full trigger list). Those trigger
+  //    arrays are what wire the triggers into the live execution bucket; without them
+  //    status becomes "published" but the workflow never fires (verified 2026-07-11).
   if (opts.publish) {
-    const fresh = (await call('GET', `/workflow/${loc}/${WID}`)).json;
-    for (const k of ['autoSaveSession', 'autoSaveSessionId', '__v', 'filePath', 'createdAt', 'updatedAt']) delete fresh[k];
-    fresh.status = 'published';
-    const pub = await call('PUT', `/workflow/${loc}/${WID}`, fresh);
-    report.published = pub.ok;
-    if (!pub.ok) report.verify.issues.push({ publish: pub.status, body: JSON.stringify(pub.json).slice(0, 160) });
+    // NB: the bare GET /workflow/{loc}/{wid} 404s ("Not Found") — the workflow GET
+    // REQUIRES the ?includeScheduledPauseInfo=true query param.
+    const fresh = (await call('GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`)).json;
+    const tr = (await call('GET', `/workflow/${loc}/trigger?workflowId=${WID}`)).json;
+    const triggers = (Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || [])).map((t) => ({ ...t, active: true }));
+    // Send the CURRENT version (optimistic-concurrency check) — NOT version+1, which
+    // 422s "version is outdated". The server bumps it internally on publish.
+    const body = { ...fresh, status: 'published', version: fresh.version,
+      triggersChanged: false, oldTriggers: triggers, newTriggers: triggers,
+      modifiedSteps: [], deletedSteps: [], createdSteps: [] };
+    const pub = await call('PUT', `/workflow/${loc}/${WID}`, body);
+    const check = (await call('GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`)).json;
+    report.published = pub.ok && (check?.status === 'published');
+    if (!report.published) report.verify.issues.push({ publish: pub.status, status: check?.status, body: JSON.stringify(pub.json).slice(0, 160) });
   }
 
   return report;
