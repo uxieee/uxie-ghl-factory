@@ -1,0 +1,297 @@
+# Recipes — GHL internal funnels/pages API
+
+Host: `https://backend.leadconnectorhq.com` (paths below are relative to this
+host — e.g. `/funnels/funnel/create` means
+`POST https://backend.leadconnectorhq.com/funnels/funnel/create`).
+
+Source: `ghl-workflow-api-docs/docs/superpowers/specs/2026-07-11-pipelines-funnels-html-injection.md`
+(sections 2–3) and the dev scripts in that repo's
+`skills/create-ghl-workflow/dev/`: `build-funnel-page.mjs`, `fullbleed.mjs`,
+`page-trackingcode.mjs`, `seo.mjs` (probed via `probe.mjs`). Every payload
+below is copied from those two sources — nothing invented.
+
+Auth headers on every call: see `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`
+(§1) — the current header format, not any older scheme. Every write in this
+file must first pass both gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`.
+
+IDs: `LOC` = locationId. `funnelId` = returned by funnel creation. `pageId`
+= server-assigned when a step is created. `step.id` = a **client**-generated
+uuid v4 (you generate this before calling create-step — the server does not).
+
+---
+
+## 1. Create a funnel
+
+**Purpose:** create the funnel container that pages/steps live under.
+
+**Endpoint:** `POST /funnels/funnel/create`
+
+**Payload:**
+```json
+{ "locationId": "<loc>", "name": "My Funnel", "type": "funnel" }
+```
+
+**Response:** `{ "ok": true, "id": "<funnelId>", "name": "..." }`
+
+**Required IDs:** `locationId` only (from the account/session). Produces
+`funnelId`, needed by every other recipe in this file.
+
+**Verification:** `GET /funnels/funnel/fetch/{funnelId}?locationId={loc}` →
+confirm the funnel doc exists with the name you set.
+
+**Known limits:**
+- `type` is only proven as `"funnel"` — no other value was tested; don't
+  invent alternatives (e.g. a `"website"` type).
+- Proven live on GROM Digital AU (funnel `RipeI1dmKTAtdKQSbBVy`).
+
+---
+
+## 2. Add a step (creates the page)
+
+**Purpose:** add a step to a funnel — this is what actually creates the page
+document.
+
+**Endpoint:** `POST /funnels/funnel/create-step`
+
+**Payload:**
+```json
+{ "step": { "id": "<client-uuidv4>", "name": "TEST Landing", "url": "test-landing",
+            "pages": [], "type": "optin_funnel_page", "split": false, "control_traffic": 100 },
+  "funnelId": "<funnelId>" }
+```
+
+**Response:** creates the page doc server-side (Firestore
+`funnel_pages/{pageId}`, `page_version:1`, `section_version:1`); the created
+page object comes back with a server-assigned `_id` — that is your `pageId`.
+
+**Required IDs:**
+- `funnelId` — from recipe 1.
+- `step.id` — **you generate this** (uuid v4) before calling; the server
+  generates the page id, not the step id.
+
+**Verification:** `GET /funnels/page/{pageId}` (page metadata) and/or
+`GET /funnels/funnel/fetch/{funnelId}?locationId={loc}` and confirm the new
+step appears in the funnel's `steps[]` array (`{id,name,pages:[pageId],sequence,type,url}`).
+
+**Known limits:**
+- `"optin_funnel_page"` is the only proven `step.type`. `pages: []` is sent
+  empty in every proven call — its purpose beyond that isn't explored;
+  don't invent contents for it.
+- Proven live (page `pWOizhNP5hBqHtVNLgfu`).
+- The freshly created page's *default* section/row/col skeleton was not
+  independently exercised — the proven build path (recipe 3) reads an
+  **existing** page's `pageData` as a structural template and clones it
+  rather than hand-building a section tree from scratch. Treat "build a
+  page's content from nothing but this recipe" as unproven; always start
+  from a real `GET /funnels/builder/page/data?pageId=` response (either the
+  new page's own, or a known-good existing page) and edit that.
+
+---
+
+## 3. Read current page/funnel state (used before every write in recipes 4–6)
+
+**Purpose:** every content write below (full-bleed HTML, page-level tracking
+code, SEO re-render) is a **full-replacement** save — you must read the
+current `pageData` first, mutate only the piece you care about, and save the
+whole thing back. These GETs are also the recon/verification reads.
+
+**Endpoints (all read-only, Bearer JWT):**
+- `GET /funnels/funnel/list?locationId=&type=funnel&category=all&offset=&limit=` — list funnels (recon).
+- `GET /funnels/funnel/fetch/{funnelId}?locationId=` — funnel doc: `_id, name, steps[], trackingCodeHead, trackingCodeBody, url, domainId, globalSectionsUrl, orderFormVersion, ...`.
+- `GET /funnels/page/{pageId}` — page metadata: name, url, funnelId, stepId, `meta` (SEO), `pageDataUrl`/`pageDataDownloadUrl`, versions. **Content is NOT inline here.**
+- `GET /funnels/page/list?funnelId=&locationId=` — list pages in a funnel.
+- `GET /funnels/builder/page/data?pageId=` — the actual working content:
+  `{sections, settings, general, pageStyles, trackingCode, popups, funnelId, stepId, locationId, pageId}`. This is what you clone/mutate/send back to `builder/autosave`.
+
+**Known limits:**
+- None of these GETs return an obvious authoritative "current save version"
+  counter that the proven scripts read and increment — see the `pageVersion`
+  gotcha under recipe 4.
+
+---
+
+## 4. Full-bleed custom-HTML page (element injection + edge-to-edge layout)
+
+**Purpose:** build a page whose entire content is one raw HTML/CSS/JS block
+(a `c-custom-code` element), with GHL's default section/row/col padding and
+the 1170px content cap removed so the HTML fills the viewport edge-to-edge.
+
+**The `c-custom-code` element** (lives inside `pageData.sections[].elements[]`,
+nested under row → col in a real page tree):
+```jsonc
+{ "id": "custom-code-<rand>", "type": "element", "meta": "custom-code", "tagName": "c-custom-code",
+  "title": "Custom Code", "tag": "", "child": [], "class": {}, "styles": {}, "customCss": [],
+  "wrapper": { /* margins + width/height: auto */ },
+  "extra": { "nodeId": "ccustom-code-<rand>",
+             "visibility": { "value": { "hideDesktop": false, "hideMobile": false } },
+             "customCode": { "value": { "rawCustomCode": "<YOUR RAW HTML STRING>" } },
+             "customClass": { "value": [] } } }
+```
+
+**Endpoint (the save):** `POST /funnels/builder/autosave/{pageId}`
+```jsonc
+{ "funnelId": "<fid>",
+  "pageData": {
+    "sections": [ /* cloned from an existing page's GET, with the target element's
+                     extra.customCode.value.rawCustomCode replaced by your HTML */ ],
+    "settings": {}, "general": {}, "pageStyles": "…",
+    "trackingCode": { "headerCode": "…", "footerCode": "…" },
+    "fontsForPreview": [], "popups": [], "popupsList": [] },
+  "pageVersion": <int>, "pageType": "draft", "manualSave": true,
+  "integrations": { "videoBackground": false, "blogMeta": { "selectedBlogCategories": [], "categoryNavigationList": [] },
+                     "customCode": <count of customCode elements>, "popup": false } }
+```
+`→ 201 { pageDataUrl, pageDataDownloadUrl }`. GHL persists to Firestore +
+Firebase Storage and re-renders the preview server-side.
+
+**Full-bleed CSS zeroing** (apply to every section before the same
+`autosave` call — either at build time, or as a retrofit on an existing
+page): for each `section` in `pageData.sections`:
+- zero `paddingTop/Bottom/Left/Right` and `marginTop/Bottom/Left/Right` on
+  `section.metaData.styles` and on every `section.elements[].styles`
+  (`{unit:"px", value:0}`).
+- zero `marginTop/Bottom/Left/Right` on `section.metaData.wrapper` and each
+  element's `wrapper`.
+- **also rewrite the compiled CSS string** at `section.general.sectionStyles`:
+  `padding:...` → `padding:0`, `margin:0 auto` → `margin:0`,
+  `max-width:1170px` → `max-width:100%`. The render uses `sectionStyles`
+  directly, so zeroing the element-style fields alone is not enough.
+
+**Required IDs:** `pageId`, `funnelId` (both from recipes 1–2); a source
+`pageData` to clone (either the new page's own current data, or an existing
+known-good page's structure).
+
+**Verification:** fetch the live rendered preview,
+`https://<funnel-domain>/preview/{pageId}?z=<cache-bust>`, and confirm (a)
+your HTML/marker is present in the response, and (b) the section/content
+elements measure `0,0` padding (i.e. edge-to-edge).
+
+**Known limits:**
+- Proven end-to-end for a page whose entire body is a single `c-custom-code`
+  element (real GROM example: a 55KB full `<!DOCTYPE html>` doc in one
+  element). Multi-element/multi-column full-bleed layouts weren't
+  separately exercised.
+- **`pageVersion` gotcha:** the proven scripts send different hardcoded
+  integers across separate runs (seen: 1, 2, 4, 5) rather than reading a
+  current version and incrementing it. The exact required semantics of this
+  field are not nailed down by the source material — read whatever version
+  information the page exposes before you save, and don't assume "always
+  send 1" is safe for a page that's been saved before.
+- With `general`/`settings` too thin (e.g. omitting a section's `general`
+  block), the proven scripts default it from the cloned template
+  (`s.general ??= tpl.general?.general ?? tpl.general ?? {}`) — always carry
+  forward the source page's `general`/`settings`/`pageStyles`/`fontsForPreview`/
+  `popups`/`popupsList` verbatim except for the piece you're intentionally
+  changing.
+
+---
+
+## 5. Tracking code (head/body HTML injection)
+
+Two different vectors, two different endpoints, two different scopes. Don't
+conflate them.
+
+### 5a. Funnel-level (applies to EVERY page in the funnel)
+
+**Purpose:** inject raw HTML/JS into `<head>`/before `</body>` on every page
+of a funnel at once (analytics snippets, global custom markup).
+
+**Endpoint:** `POST /funnels/funnel/update-settings`
+```json
+{ "locationId": "<loc>", "funnelId": "<id>", "funnelPath": "/path", "funnelName": "...",
+  "domainId": "", "faviconUrl": "",
+  "headTrackingCode": "<script>...</script><meta ...>",
+  "bodyTrackingCode": "<!-- ... -->",
+  "allowPaymentModeOption": true, "paymentMode": true, "chatWidgetId": "",
+  "imageOptimization": true, "isGdprCompliant": false, "isOptimisePageLoad": true,
+  "stopAllSplitTestsAndReset": null, "requireCreditCard": true, "storeCurrencyFormatting": false }
+```
+- `headTrackingCode` persists as the funnel's `trackingCodeHead` field;
+  `bodyTrackingCode` persists as `trackingCodeBody`.
+
+**Required IDs:** `funnelId`, `locationId`.
+
+**Verification:** `GET /funnels/funnel/fetch/{funnelId}?locationId={loc}` and
+confirm `trackingCodeHead`/`trackingCodeBody` match verbatim what you sent
+(these two field names come directly from the funnel-doc shape documented in
+recipe 3) — or fetch any page in the funnel's rendered preview and confirm
+the markup appears in `<head>`/before `</body>`.
+
+**Known limits:**
+- Applies to **every page in the funnel**, not one page — if you only want
+  one page affected, use 5b instead.
+- With `isOptimisePageLoad: true` (the default in the proven payload),
+  custom JS/HTML is lazy-loaded — don't assume it executes at first paint.
+- Proven via a real round-trip: injected
+  `<script>window.__API_INJECTED__=true;</script><meta name="built-by" ...>`
+  and read it back verbatim.
+
+### 5b. Page-level (applies to ONE page only)
+
+**Purpose:** per-page head/footer HTML, independent of the funnel-level
+injection above.
+
+**Endpoint:** same content-save endpoint as recipe 4 —
+`POST /funnels/builder/autosave/{pageId}`, setting:
+```json
+{ "pageData": { "trackingCode": { "headerCode": "<meta/script>", "footerCode": "<script>" }, "...": "rest of pageData unchanged, see recipe 3" } }
+```
+`headerCode` renders in `<head>`; `footerCode` renders before `</body>`, on
+that page only.
+
+**Required IDs:** `pageId`, `funnelId`. Read the page's current `pageData`
+first (recipe 3) and only replace `trackingCode`; leave `sections`, `settings`,
+etc. as read.
+
+**Verification:** fetch the page's rendered preview and confirm the
+injected markers are present in `<head>` and before `</body>` respectively
+(the proven script polls the live preview URL and checks
+`indexOf(marker) < indexOf("</head>")` / `< lastIndexOf("</body>")`).
+
+**Known limits:** same `pageVersion` gotcha as recipe 4.
+
+---
+
+## 6. SEO metadata — EXPERIMENTAL, not fully covered by this plugin's auth doc
+
+**Purpose:** set a page's SEO title/description/keywords/image/author/language.
+
+**Status: proven live by the source investigation, but excluded from the
+normal single-Bearer-JWT flow this skill otherwise relies on.** Include this
+recipe only with that caveat surfaced to the user before attempting it.
+
+**Why it's different:** SEO metadata lives on the page's Firestore doc
+(`funnel_pages/{pageId}.meta`), not in `pageData`. The `builder/autosave`
+endpoint (Bearer JWT, same as every other recipe here) **ignores a
+top-level `meta` key** — verified twice in the source investigation. There
+is no pure-Bearer REST endpoint for SEO; GHL's own builder writes `meta`
+directly to Firestore using a **separate Firebase ID token** (obtained via a
+`signInWithCustomToken` exchange during the builder's page load, itself
+minted by `POST /oauth/users/{uid}/sessions/token`). **This plugin's
+canonical auth doc (`${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`) only
+documents capturing the Bearer JWT — it does not document capturing this
+second Firebase token.** That gap is the reason this recipe is experimental
+here rather than a first-class recipe: don't attempt it without first
+extending the auth capture procedure (and getting that reviewed), and never
+improvise a token format in its place.
+
+**Shape, for reference (source-faithful, not to be run without the missing
+auth step above):**
+1. Write `meta` on the Firestore page doc — a PATCH to the Firestore REST API
+   (`firestore.googleapis.com`, project `highlevel-backend`, database
+   `(default)`, document `funnel_pages/{pageId}`, field mask `meta`), body
+   `{"fields":{"meta":{"mapValue":{"fields":{"title":{...},"description":{...},"keywords":{...},"imageUrl":{...},"author":{...},"language":{...},"canonicalMeta":{...},"customMeta":{...}}}}}}`
+   — authenticated with the Firebase ID token described above (not the
+   canonical Bearer JWT).
+2. Trigger a normal `POST /funnels/builder/autosave/{pageId}` (Bearer JWT,
+   current `pageData` unchanged) to force GHL to re-render the preview,
+   which reads `meta` fresh at render time.
+
+**Verification (if ever run):** fetch the rendered preview and confirm
+title/description/keywords appear in the served `<head>`.
+
+**Known limits:**
+- Genuinely needs two different tokens — the only recipe in this file that
+  does.
+- The autosave step alone does nothing for SEO; skipping step 1 above and
+  only doing step 2 leaves `meta` unchanged.
