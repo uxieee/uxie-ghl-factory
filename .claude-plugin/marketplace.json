@@ -1,5 +1,6 @@
 {
   "name": "uxieee",
+  "description": "Xander Roque's Claude Code plugin marketplace.",
   "owner": { "name": "Xander Roque", "url": "https://github.com/uxieee" },
   "plugins": [
     {
