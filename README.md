@@ -13,51 +13,70 @@ Then run `/uxie-ghl-factory:setup`.
 
 ## What's inside
 
-The plugin is built in layers — knowledge the agent reasons with, capabilities it acts through, specialists that compose those capabilities, and an auditor that inspects the whole system.
+The plugin is built in layers: **knowledge** the agent reasons with → **capabilities** it acts through → **specialists** that compose those capabilities → an **auditor** that inspects the whole system. It all sits on a bundled MCP server exposing **1,207 actions / 83 categories** of GoHighLevel's official public API (you supply your own Private Integration token at setup).
 
-### The MCP server — the public-API backbone
-A bundled MCP server exposing **1,207 actions across 83 categories** of GoHighLevel's official public API (contacts, pipelines, calendars, conversations, invoices, products, and much more). You supply your own GHL Private Integration token at setup; everything ToS-clean flows through here. Skills lean on it for recon and for anything the public API covers.
+### Commands (what you type)
 
-### Knowledge — `ghl-orientation`
-The object model (agency → sub-account → contacts/pipelines/workflows/funnels/calendars), the terminology, and — crucially — the map of **which API surface can do what**. Every other skill assumes this fluency.
+| Command | What it does |
+|---|---|
+| `/uxie-ghl-factory:setup` | First-run: token, connection test, prerequisites |
+| `/uxie-ghl-factory:brief` | Create/update the persisted per-client account brief |
+| `/uxie-ghl-factory:audit` | Whole-account, **read-only**, two-altitude audit → Mermaid map + impact-ranked report |
+| `/uxie-ghl-factory:build-workflow` | Design + build a workflow (draft-only) via the workflow specialist |
+| `/uxie-ghl-factory:build-funnel` | Build a funnel/page with custom HTML, tracking, SEO |
+| `/uxie-ghl-factory:pipeline` | Design/build/diagnose a pipeline and its stages |
+| `/uxie-ghl-factory:export-workflow` | Read-only export of a workflow's raw JSON |
 
-### Capabilities — the hands
-- **`create-ghl-workflow`** — compiles a clean intermediate representation into a real GHL workflow via the builder's internal API. Its engine knows the exact payload shape of each supported step/trigger because each was reverse-engineered from real workflows and locked behind a test (draft-only; see honesty note below).
-- **`get-ghl-workflow-json`** — read-only export/inspection of a workflow's raw JSON.
-- **`ghl-funnels-pages`** — build funnels and pages, inject full-bleed custom HTML, set page/funnel tracking code and SEO.
+### Skills (how it reasons and builds)
 
-### Specialists — the brains (recon, propose, then build)
-Every specialist follows the same contract: **recon the account → read the client brief → ask only what's missing → propose a blueprint → get approval → build → verify.** No building from a one-line prompt.
-- **`ghl-workflow-specialist`** — a senior automation architect. Knows the full trigger/action catalog (28 triggers, 66 step types distilled from a corpus of real production workflows), the patterns, and the anti-patterns (tag-trigger loops, cross-workflow races, timezone traps). Delegates the actual build to `create-ghl-workflow`.
-- **`ghl-pipeline-specialist`** — stage design (stages are *states*, not tasks), opportunity hygiene, and the pipeline↔automation interplay. Public-API only, fully ToS-clean.
-- **`ghl-ai-agents-specialist`** — builds GHL's three AI products through their internal APIs: **Conversation AI** (chat "AI Employee"), **Voice AI** (phone agent), and **Agent Studio** (Super Agents), plus rich-text **Knowledge Base** content the public API can't create. Backed by a tested engine (four compilers) that was **live-create-proven** end-to-end.
+| Skill | Layer | What it does |
+|---|---|---|
+| `ghl-orientation` | Knowledge | The object model, terminology, and which API surface can do what — the fluency every other skill assumes |
+| `create-ghl-workflow` | Capability | Compiles a clean IR into a real workflow via the builder's internal API — each supported step reverse-engineered + test-locked (draft-only) |
+| `get-ghl-workflow-json` | Capability | Read-only export/inspection of a workflow's raw JSON |
+| `ghl-funnels-pages` | Capability | Build funnels & pages, inject full-bleed custom HTML, set tracking code + SEO |
+| `ghl-workflow-specialist` | Specialist | Senior automation architect — full trigger/action catalog (28 triggers / 66 steps from real production workflows), patterns + anti-patterns; delegates the build to `create-ghl-workflow` |
+| `ghl-pipeline-specialist` | Specialist | Stage design (stages are *states*), opportunity hygiene, pipeline↔automation interplay — public-API only, ToS-clean |
+| `ghl-ai-agents-specialist` | Specialist | Builds **Conversation AI**, **Voice AI**, and **Agent Studio** agents + rich-text **Knowledge Base** via their internal APIs — tested engine (4 compilers), **live-create-proven** |
+| `ghl-reverse-engineering` | Meta | The methodology for capturing GHL's internal APIs (auth map, capture discipline) — how the engines grow to cover new surfaces |
+| `ghl-audit-primitives`, `ghl-defect-catalog`, `ghl-opportunity-catalog`, `ghl-mermaid-map` | Audit | The finding schema, defect rules, opportunity rules, and system-map grammar the auditor runs on |
 
-### The auditor — `/uxie-ghl-factory:audit`
-A whole-account, **read-only**, two-altitude audit. An orchestrator fans out a `surface-auditor` across eight surfaces (workflows, pipelines, funnels, calendars, forms, AI agents, messaging, tracking), runs both a **defect** lens (bugs, races, orphaned tags, misconfigurations) and an **opportunity** lens (slow speed-to-lead, missing automations, funnel leaks) against the client's goals, adversarially verifies each finding, and synthesizes a **Mermaid system map + an impact-ranked report**. It never writes to the account.
+### Agents (the audit fan-out)
 
-### The account brief — `/uxie-ghl-factory:brief`
-A persisted per-client context doc (business, ideal client avatar, offer, goals) that every specialist and the auditor read *before* asking you anything — so they never re-interview from scratch, and the auditor judges findings against what actually matters to the business.
+| Agent | What it does |
+|---|---|
+| `surface-auditor` | Recons one GHL surface (read-only) through both a defect lens and an opportunity lens, returns structured findings |
+| `finding-verifier` | Adversarially re-checks each finding, stamping confirmed / plausible / refuted before it reaches the report |
 
-### `ghl-reverse-engineering`
-The methodology skill for capturing GHL's internal APIs when the public one can't do something — authenticated-browser network capture, the service-dependent auth map (`token-id` for AI services vs `Bearer` for the workflow builder), capture discipline (create → capture → delete), and documenting findings. This is how the workflow and AI engines grow to cover new surfaces.
+**How the audit works:** `/uxie-ghl-factory:audit` fans `surface-auditor` across eight surfaces (workflows, pipelines, funnels, calendars, forms, AI agents, messaging, tracking), verifies every finding, ranks them against the client's stated goals, and synthesizes a Mermaid system map + report. It never writes to the account.
 
-### Commands
-`/uxie-ghl-factory:setup` · `:brief` · `:audit` · `:export-workflow` · `:build-workflow` · `:build-funnel` · `:pipeline`
+**The account brief** (`/uxie-ghl-factory:brief`) is a persisted per-client doc — business, ideal client avatar, offer, goals — that every specialist and the auditor read *before* asking you anything, so they never re-interview from scratch.
 
 ---
 
 ## The two API worlds (and honest limits)
 
-- **Public API** — official, documented, stable, in-Terms-of-Service. The bundled MCP server, `ghl-orientation`, pipelines, and the auditor's recon all run here.
-- **Internal API** — the same endpoints GHL's own app UI uses, reached by capturing your logged-in session's token. It's undocumented and can change without notice (GHL permits operating your own account this way). Workflow creation, funnels, and the AI-agent builders use it. **`create-ghl-workflow` and the AI builders are draft-first** and were proven by actually creating-then-deleting real objects against a live account — but they're grounded in what's been captured, not a full spec, so new/rare surfaces expand one reverse-engineered step at a time.
+| | Public API | Internal API |
+|---|---|---|
+| What | Official, documented, stable, in-ToS | The same endpoints GHL's own app UI uses |
+| Auth | Private Integration token | Your logged-in session token (captured via Playwright) |
+| Used by | MCP server, orientation, pipelines, audit recon | Workflow creation, funnels, AI-agent builders |
+| Caveat | — | Undocumented, can change without notice (GHL permits operating your own account this way) |
+
+The internal-API builders (`create-ghl-workflow`, the AI builders) are **draft-first** and were proven by creating-then-deleting real objects against a live account — but they're grounded in what's been captured, not a full spec, so coverage expands one reverse-engineered surface at a time.
 
 ## Prerequisites
-- **Node ≥ 18**
-- **A Playwright MCP server** — only for the internal-API features; without it the public-API MCP, orientation, pipelines, and audit-recon still work fully.
-- A GoHighLevel account with admin access, and a Private Integration token.
+
+| Requirement | Needed for |
+|---|---|
+| **Node ≥ 18** | The compiler engines |
+| **A Playwright MCP server** | Internal-API features only — without it, the public MCP, orientation, pipelines, and audit recon still work fully |
+| **A GHL account (admin) + Private Integration token** | Everything |
 
 ## Repository layout
-The plugin itself lives in [`plugins/uxie-ghl-factory/`](plugins/uxie-ghl-factory/); the repo root is a Claude Code **marketplace** (`.claude-plugin/marketplace.json`) so `/plugin marketplace add` works. That's all that's here.
+
+The plugin lives in [`plugins/uxie-ghl-factory/`](plugins/uxie-ghl-factory/); the repo root is a Claude Code **marketplace** (`.claude-plugin/marketplace.json`) so `/plugin marketplace add` works. That's all that's here.
 
 ## License
+
 MIT.
