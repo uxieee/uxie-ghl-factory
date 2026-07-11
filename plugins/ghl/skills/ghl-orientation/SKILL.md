@@ -22,3 +22,10 @@ For design-level work, hand off to a specialist rather than building directly:
 `ghl-workflow-specialist` (workflows) and `ghl-pipeline-specialist` (pipelines)
 both recon, blueprint, and get explicit approval before building — follow the
 specialist contract instead of duplicating it here.
+
+## Auditor
+
+For a whole-account health check, use `/ghl:audit` instead of building or
+diagnosing surface-by-surface — it runs a read-only, two-altitude (defect +
+opportunity) sweep across all 8 surfaces and produces a Mermaid system map
+plus an impact-ranked report.

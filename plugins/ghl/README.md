@@ -13,12 +13,19 @@
 | Skill | `ghl-orientation` | GHL object model, terminology, and public-vs-internal API guidance for agents new to GHL |
 | Skill | `ghl-workflow-specialist` | Designs and builds GHL workflows/automations — recons, blueprints, gets approval, then builds via `create-ghl-workflow` (draft-only) |
 | Skill | `ghl-pipeline-specialist` | Designs, builds, or diagnoses GHL pipelines and stages via the public-API v3 pipeline actions (ToS-clean) |
+| Skill | `ghl-audit-primitives` | Shared substrate for whole-account audits — the finding record schema, audit folder layout, impact-ranking rubric, and concurrency/throttle limits |
+| Skill | `ghl-defect-catalog` | The defect lens for audits — per-surface rules for things that are wrong across workflows, pipelines, funnels, calendars, forms, ai-agents, messaging, and tracking |
+| Skill | `ghl-opportunity-catalog` | The opportunity lens for audits — per-surface rules for what an account should be doing per its brief's ranked goals but isn't |
+| Skill | `ghl-mermaid-map` | Renders the account's contact journey as a Mermaid flowchart from recon data — descriptive only, never findings or verdicts |
+| Agent | `surface-auditor` | Audits exactly one GHL surface, read-only, running both the defect and opportunity lenses, and writes structured candidate findings (dispatched per-surface by `/ghl:audit`) |
+| Agent | `finding-verifier` | Adversarial critic that re-fetches cited evidence read-only and tries to refute each candidate finding, stamping confirmed/plausible/refuted (dispatched by `/ghl:audit`) |
 | Command | `/ghl:setup` | First-run setup — prerequisites, token, MCP connection test, version check |
 | Command | `/ghl:brief` | Creates/updates a per-client account brief (`.ghl/<locationId>/brief.md`) via an MCP-informed interview |
 | Command | `/ghl:export-workflow` | Runs `get-ghl-workflow-json` for a given workflow |
 | Command | `/ghl:build-workflow` | Runs `ghl-workflow-specialist` for a given ask (draft-only) |
 | Command | `/ghl:build-funnel` | Runs `ghl-funnels-pages` for a given ask |
 | Command | `/ghl:pipeline` | Runs `ghl-pipeline-specialist` for a given ask |
+| Command | `/ghl:audit` | Runs a whole-account, **read-only** audit — dispatches `surface-auditor` across all 8 surfaces and `finding-verifier` per finding, producing a Mermaid system map and an impact-ranked report |
 
 ## Install
 
