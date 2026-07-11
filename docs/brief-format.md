@@ -5,6 +5,7 @@ canonical client key; NEVER key by business name). Audit artifacts share the
 root: .ghl/<locationId>/audits/<timestamp>/. The .ghl/ dir is gitignored (PII).
 
 Template:
+```markdown
 ---
 locationId: ""        # required — canonical key
 alias: ""             # human-readable business name
@@ -23,3 +24,4 @@ updated: YYYY-MM-DD
 (quiet hours, regulated claims, brand rules, tech constraints)
 ## Discovered facts
 (agent-appended, each line dated; facts recon found that the human confirmed)
+```
