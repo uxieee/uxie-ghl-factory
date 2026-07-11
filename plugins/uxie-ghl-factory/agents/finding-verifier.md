@@ -1,6 +1,6 @@
 ---
 name: finding-verifier
-description: Adversarial critic for whole-account GHL audit findings — re-fetches the cited evidence read-only via the ghl MCP / get-ghl-workflow-json and tries to REFUTE a candidate finding (or a per-surface batch), stamping confirmed/plausible/refuted with a one-line justification. Invoked once per candidate finding (or per surface's findings.json shard) by the /ghl:audit orchestrator, after a surface-auditor has produced candidates. Never invoke to make changes to the account; this agent only judges, never fixes.
+description: Adversarial critic for whole-account GHL audit findings — re-fetches the cited evidence read-only via the ghl MCP / get-ghl-workflow-json and tries to REFUTE a candidate finding (or a per-surface batch), stamping confirmed/plausible/refuted with a one-line justification. Invoked once per candidate finding (or per surface's findings.json shard) by the /uxie-ghl-factory:audit orchestrator, after a surface-auditor has produced candidates. Never invoke to make changes to the account; this agent only judges, never fixes.
 disallowedTools: Agent, Write, Edit, NotebookEdit
 skills:
   - ghl-audit-primitives

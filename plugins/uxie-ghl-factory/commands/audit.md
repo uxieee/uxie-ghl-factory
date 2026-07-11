@@ -2,7 +2,7 @@
 description: Run a whole-account, read-only GHL audit — dispatch the surface-auditor agent across all 8 surfaces (bounded concurrency), then the finding-verifier agent per candidate, and synthesize a brief-ranked report with a Mermaid system-flow map. Triggers — "audit my GHL", "audit my sub-account", "audit the whole system", "audit my workflows", "review my GHL setup", "what's wrong with my GHL account".
 ---
 
-# /ghl:audit
+# /uxie-ghl-factory:audit
 
 Orchestrates a whole-account, two-altitude (defect + opportunity) GHL audit by
 dispatching the `surface-auditor` agent per surface and the `finding-verifier`
@@ -44,7 +44,7 @@ artifact is missing or incomplete rather than restarting the whole run.
    explicit `OVERRIDE: <reason>`, logged verbatim.
 3. Load `.ghl/<locationId>/brief.md` (format:
    `${CLAUDE_PLUGIN_ROOT}/docs/brief-format.md`). If it doesn't exist, run
-   `/ghl:brief` first — an audit with no brief has no ranked goals to score
+   `/uxie-ghl-factory:brief` first — an audit with no brief has no ranked goals to score
    impact against, and every finding downstream would cap at `low`.
 4. Create `.ghl/<locationId>/audits/<timestamp>/` (layout:
    `ghl-audit-primitives` `references/audit-io.md` §1) — `raw/`, `findings/`,

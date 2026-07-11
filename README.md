@@ -9,7 +9,7 @@ This repository is a Claude Code **plugin marketplace**. The shippable plugin li
 /plugin install ghl@uxieee
 ```
 
-Then run `/ghl:setup`. Full plugin docs: [`plugins/ghl/README.md`](plugins/ghl/README.md).
+Then run `/uxie-ghl-factory:setup`. Full plugin docs: [`plugins/ghl/README.md`](plugins/ghl/README.md).
 
 ## Repository layout
 

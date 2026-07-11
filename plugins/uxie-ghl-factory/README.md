@@ -17,15 +17,15 @@
 | Skill | `ghl-defect-catalog` | The defect lens for audits — per-surface rules for things that are wrong across workflows, pipelines, funnels, calendars, forms, ai-agents, messaging, and tracking |
 | Skill | `ghl-opportunity-catalog` | The opportunity lens for audits — per-surface rules for what an account should be doing per its brief's ranked goals but isn't |
 | Skill | `ghl-mermaid-map` | Renders the account's contact journey as a Mermaid flowchart from recon data — descriptive only, never findings or verdicts |
-| Agent | `surface-auditor` | Audits exactly one GHL surface, read-only, running both the defect and opportunity lenses, and writes structured candidate findings (dispatched per-surface by `/ghl:audit`) |
-| Agent | `finding-verifier` | Adversarial critic that re-fetches cited evidence read-only and tries to refute each candidate finding, stamping confirmed/plausible/refuted (dispatched by `/ghl:audit`) |
-| Command | `/ghl:setup` | First-run setup — prerequisites, token, MCP connection test, version check |
-| Command | `/ghl:brief` | Creates/updates a per-client account brief (`.ghl/<locationId>/brief.md`) via an MCP-informed interview |
-| Command | `/ghl:export-workflow` | Runs `get-ghl-workflow-json` for a given workflow |
-| Command | `/ghl:build-workflow` | Runs `ghl-workflow-specialist` for a given ask (draft-only) |
-| Command | `/ghl:build-funnel` | Runs `ghl-funnels-pages` for a given ask |
-| Command | `/ghl:pipeline` | Runs `ghl-pipeline-specialist` for a given ask |
-| Command | `/ghl:audit` | Runs a whole-account, **read-only** audit — dispatches `surface-auditor` across all 8 surfaces and `finding-verifier` per finding, producing a Mermaid system map and an impact-ranked report |
+| Agent | `surface-auditor` | Audits exactly one GHL surface, read-only, running both the defect and opportunity lenses, and writes structured candidate findings (dispatched per-surface by `/uxie-ghl-factory:audit`) |
+| Agent | `finding-verifier` | Adversarial critic that re-fetches cited evidence read-only and tries to refute each candidate finding, stamping confirmed/plausible/refuted (dispatched by `/uxie-ghl-factory:audit`) |
+| Command | `/uxie-ghl-factory:setup` | First-run setup — prerequisites, token, MCP connection test, version check |
+| Command | `/uxie-ghl-factory:brief` | Creates/updates a per-client account brief (`.ghl/<locationId>/brief.md`) via an MCP-informed interview |
+| Command | `/uxie-ghl-factory:export-workflow` | Runs `get-ghl-workflow-json` for a given workflow |
+| Command | `/uxie-ghl-factory:build-workflow` | Runs `ghl-workflow-specialist` for a given ask (draft-only) |
+| Command | `/uxie-ghl-factory:build-funnel` | Runs `ghl-funnels-pages` for a given ask |
+| Command | `/uxie-ghl-factory:pipeline` | Runs `ghl-pipeline-specialist` for a given ask |
+| Command | `/uxie-ghl-factory:audit` | Runs a whole-account, **read-only** audit — dispatches `surface-auditor` across all 8 surfaces and `finding-verifier` per finding, producing a Mermaid system map and an impact-ranked report |
 
 ## Install
 
@@ -34,7 +34,7 @@
 /plugin install ghl@uxieee
 ```
 
-Then run `/ghl:setup` to configure your token, verify the MCP connection, and see which features are available in your environment.
+Then run `/uxie-ghl-factory:setup` to configure your token, verify the MCP connection, and see which features are available in your environment.
 
 ## Prerequisites
 
@@ -46,7 +46,7 @@ Then run `/ghl:setup` to configure your token, verify the MCP connection, and se
 
 GHL exposes two very different surfaces, and this plugin treats them differently on purpose:
 
-- **Public API** — official, documented, stable, in-Terms-of-Service. This is what the bundled `ghl` MCP server talks to. It covers contacts, pipelines (fully writable), calendars, conversations, and most day-to-day GHL operations. `ghl-orientation` and `/ghl:brief` work entirely through this surface.
+- **Public API** — official, documented, stable, in-Terms-of-Service. This is what the bundled `ghl` MCP server talks to. It covers contacts, pipelines (fully writable), calendars, conversations, and most day-to-day GHL operations. `ghl-orientation` and `/uxie-ghl-factory:brief` work entirely through this surface.
 - **Internal API** — undocumented, off-Terms-of-Service, and can change or break without notice. This is what `get-ghl-workflow-json` (read-only export), `create-ghl-workflow` (write, draft-only — never publishes), and `ghl-funnels-pages` (write) use, because the public API has no workflow-builder or funnel-builder endpoints at all.
 
 This isn't hypothetical: GHL's internal-API auth already migrated once (2026-07, from a `token-id` header to `Authorization: Bearer`), and every skill that had captured the old scheme broke outright. The plugin is designed to fail safe when that happens again — write skills stop on a `401` instead of retry-looping, auth details live in one canonical doc (`docs/auth-jwt-capture.md`) so a future migration is a one-file fix, and every internal-API write passes an owned-account check plus a one-time Terms-of-Service disclosure (`docs/write-rails.md`) before it touches anything.
@@ -60,7 +60,7 @@ By default, this plugin routes your GHL requests through the plugin author's Clo
 
 To remove **both** dependencies, self-host: deploy [`github.com/uxieee/ghl-mcp-server`](https://github.com/uxieee/ghl-mcp-server) yourself and set `GHL_MCP_URL` to your own Worker URL — then the author's infrastructure is out of the loop for both credential handling and tool/response trust.
 
-`/ghl:setup` shows this same notice on first run.
+`/uxie-ghl-factory:setup` shows this same notice on first run.
 
 ## Client data
 

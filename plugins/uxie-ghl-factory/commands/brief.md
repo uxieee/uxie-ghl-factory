@@ -2,7 +2,7 @@
 description: Create or update the per-client GHL account brief (.ghl/<locationId>/brief.md) via a short interview informed by MCP recon
 ---
 
-# /ghl:brief
+# /uxie-ghl-factory:brief
 
 1. Determine target locationId: ask, or list locations via the ghl MCP if
    the user isn't sure. State layout: ${CLAUDE_PLUGIN_ROOT}/docs/brief-format.md.
