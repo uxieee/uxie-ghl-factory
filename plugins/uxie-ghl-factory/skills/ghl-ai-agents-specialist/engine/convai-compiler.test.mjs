@@ -81,7 +81,14 @@ test('compileConvaiAgent: rejects invalid IR (missing name)', () => {
 });
 
 test('compileConvaiAgent: action list compiled into separate actions[] descriptors', () => {
-  const ir = { ...fullIR, actions: [{ type: 'humanHandOver', name: 'Human Requested', details: { handoverType: 'contactRequest' } }] };
+  const ir = {
+    ...fullIR,
+    actions: [{
+      type: 'humanHandOver',
+      name: 'Human Requested',
+      details: { handoverType: 'contactRequest', triggerCondition: 'Direct request to speak with human' },
+    }],
+  };
   const { create, actions } = compileConvaiAgent(ir, { locationId: 'LOC' });
   // create body itself always carries an empty actions[] (actions are a separate resource)
   assert.deepEqual(create.body.actions, []);
@@ -91,7 +98,12 @@ test('compileConvaiAgent: action list compiled into separate actions[] descripto
   assert.equal(actions[0].body.type, 'humanHandOver');
   assert.equal(actions[0].body.name, 'Human Requested');
   assert.equal(actions[0].body.locationId, 'LOC');
-  assert.deepEqual(actions[0].body.details, { handoverType: 'contactRequest' });
+  assert.deepEqual(actions[0].body.details, {
+    handoverType: 'contactRequest',
+    triggerCondition: 'Direct request to speak with human',
+    enabled: true,
+    reactivateEnabled: false,
+  });
 });
 
 // Matches captures/convai-action.json's request_body field-for-field.
@@ -128,6 +140,51 @@ test('compileConvaiAction: humanHandOver matches convai-action.json shape', () =
 test('compileConvaiAction: rejects missing type/name', () => {
   assert.throws(() => compileConvaiAction({ name: 'X' }, { locationId: 'LOC' }), (e) => e.code === 'SCHEMA');
   assert.throws(() => compileConvaiAction({ type: 'humanHandOver' }, { locationId: 'LOC' }), (e) => e.code === 'SCHEMA');
+});
+
+// Live-verified 422 gap: the API rejects a humanHandOver action lacking these fields
+// even though only `details.handoverType` was previously emitted.
+test('compileConvaiAction: humanHandOver merges API-required detail defaults over provided details', () => {
+  const { body } = compileConvaiAction(
+    { type: 'humanHandOver', name: 'Human Requested', details: { triggerCondition: 'Direct request to speak with human', handoverType: 'contactRequest' } },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.equal(body.details.enabled, true);
+  assert.equal(body.details.reactivateEnabled, false);
+  assert.equal(body.details.triggerCondition, 'Direct request to speak with human');
+  assert.equal(body.details.handoverType, 'contactRequest');
+});
+
+test('compileConvaiAction: humanHandOver provided enabled/reactivateEnabled override the defaults', () => {
+  const { body } = compileConvaiAction(
+    { type: 'humanHandOver', name: 'Human Requested', details: { triggerCondition: 'Direct request to speak with human', enabled: false, reactivateEnabled: true } },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.equal(body.details.enabled, false);
+  assert.equal(body.details.reactivateEnabled, true);
+});
+
+test('compileConvaiAction: humanHandOver rejects missing triggerCondition', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'humanHandOver', name: 'Human Requested', details: { handoverType: 'contactRequest' } }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+test('compileConvaiAction: humanHandOver rejects too-short triggerCondition', () => {
+  assert.throws(
+    () => compileConvaiAction({ type: 'humanHandOver', name: 'Human Requested', details: { triggerCondition: 'short' } }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA',
+  );
+});
+
+test('compileConvaiAction: non-humanHandOver action types keep pure passthrough (no defaults injected)', () => {
+  const { body } = compileConvaiAction(
+    { type: 'stopBot', name: 'Stop Bot', details: { someField: 'x' } },
+    { agentId: 'AGENT1', locationId: 'LOC' },
+  );
+  assert.deepEqual(body.details, { someField: 'x' });
+  assert.equal('enabled' in body.details, false);
 });
 
 // Matches captures/convai-kb.json's KB-trigger PUT: only locationId + the touched

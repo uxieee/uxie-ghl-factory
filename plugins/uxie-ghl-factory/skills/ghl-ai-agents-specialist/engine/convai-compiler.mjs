@@ -66,6 +66,37 @@ function buildCreateBody(ir, { locationId }) {
   };
 }
 
+// Live-verified 422 gap: POSTing a humanHandOver action without `details.enabled` /
+// `details.triggerCondition` / `details.reactivateEnabled` is rejected by the API even
+// though convai-action.json's request_body carries them. Defaults below match the
+// capture's values for the two boolean flags; `triggerCondition` has no sane default (it's
+// the bot's own decision trigger text) so it's required and length-validated instead.
+const HUMAN_HANDOVER_DETAIL_DEFAULTS = { enabled: true, reactivateEnabled: false };
+const TRIGGER_CONDITION_MIN = 10;
+const TRIGGER_CONDITION_MAX = 500;
+
+// Merge user-provided `details` over the API-required defaults for the one action type
+// we've verified live (humanHandOver). Every other type (appointmentBooking,
+// triggerWorkflow, contactInfo, stopBot, transferBot, autoFollowup, ...) is unverified —
+// we have no capture of their required fields, so they stay pure passthrough rather than
+// risk inventing fields the API doesn't expect.
+function buildActionDetails(action) {
+  const details = action.details ?? {};
+  if (action.type !== 'humanHandOver') return details;
+  const triggerCondition = details.triggerCondition;
+  if (
+    typeof triggerCondition !== 'string' ||
+    triggerCondition.length < TRIGGER_CONDITION_MIN ||
+    triggerCondition.length > TRIGGER_CONDITION_MAX
+  ) {
+    throw new IRError(
+      'SCHEMA',
+      `humanHandOver action.details.triggerCondition must be a string between ${TRIGGER_CONDITION_MIN} and ${TRIGGER_CONDITION_MAX} chars (API-required; live-verified 422 without it), got: ${JSON.stringify(triggerCondition)}`,
+    );
+  }
+  return { ...HUMAN_HANDOVER_DETAIL_DEFAULTS, ...details };
+}
+
 // POST /ai-employees/actions — body: {employeeId, locationId, type, name, details}
 // (convai-action.json). `agentId` defaults to null: at the point compileConvaiAgent()
 // assembles these, the agent does not exist yet (employeeId is server-assigned on the
@@ -83,7 +114,7 @@ export function compileConvaiAction(action, { agentId = null, locationId } = {})
     locationId,
     type: action.type,
     name: action.name,
-    details: action.details ?? {},
+    details: buildActionDetails(action),
   };
   return { method: 'POST', path: '/ai-employees/actions', body };
 }
