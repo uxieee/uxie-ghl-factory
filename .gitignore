@@ -3,3 +3,4 @@ node_modules/
 audits/
 *.local.*
 .DS_Store
+docs/superpowers/
