@@ -11,11 +11,14 @@
 | Skill | `create-ghl-workflow` | Creates/edits GHL workflows via the internal builder API (draft-only; publish path untested) |
 | Skill | `ghl-funnels-pages` | Builds funnels/pages, custom HTML, tracking, and SEO via the internal API |
 | Skill | `ghl-orientation` | GHL object model, terminology, and public-vs-internal API guidance for agents new to GHL |
+| Skill | `ghl-workflow-specialist` | Designs and builds GHL workflows/automations — recons, blueprints, gets approval, then builds via `create-ghl-workflow` (draft-only) |
+| Skill | `ghl-pipeline-specialist` | Designs, builds, or diagnoses GHL pipelines and stages via the public-API v3 pipeline actions (ToS-clean) |
 | Command | `/ghl:setup` | First-run setup — prerequisites, token, MCP connection test, version check |
 | Command | `/ghl:brief` | Creates/updates a per-client account brief (`.ghl/<locationId>/brief.md`) via an MCP-informed interview |
 | Command | `/ghl:export-workflow` | Runs `get-ghl-workflow-json` for a given workflow |
-| Command | `/ghl:build-workflow` | Runs `create-ghl-workflow` for a given ask (draft-only) |
+| Command | `/ghl:build-workflow` | Runs `ghl-workflow-specialist` for a given ask (draft-only) |
 | Command | `/ghl:build-funnel` | Runs `ghl-funnels-pages` for a given ask |
+| Command | `/ghl:pipeline` | Runs `ghl-pipeline-specialist` for a given ask |
 
 ## Install
 
