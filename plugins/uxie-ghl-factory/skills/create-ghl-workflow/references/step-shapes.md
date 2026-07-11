@@ -73,6 +73,34 @@ Caveat: they aren't universally forbidden — some steps legitimately carry a su
 - Omit `from_name`/`from_email` to use the account's default sender, or set both explicitly.
 - Email merge tokens use the field's `fieldKey` (e.g. `{{contact.zoom_join_url}}`), not the field id.
 
+### `voice_ai_outbound_call` — needs `workflowsActionType: "INTERNAL"`; both attribute fields required
+
+```json
+{
+  "id": "{UUID}",
+  "order": 0,
+  "attributes": {
+    "outboundGuidelines": "",
+    "agentId": "6a2632febba50b0bbd1031d2",
+    "fromPhoneNumber": "+61481610656",
+    "type": "voice_ai_outbound_call",
+    "__customInputs__": {}
+  },
+  "name": "Voice AI outbound call",
+  "type": "voice_ai_outbound_call",
+  "workflowsActionType": "INTERNAL",
+  "next": null,
+  "parentKey": null
+}
+```
+
+- `agentId` = the Voice AI agent record id (from the location's configured Conversation AI / Voice AI agents), not a name.
+- `fromPhoneNumber` = the literal E.164 phone number string (e.g. `"+61481610656"`) of a connected LC phone number — NOT a number-pool id.
+- Both fields are `required: true` in the live dynamic-fields schema; the engine throws `IRError('MISSING_FIELD', ...)` at compile time if either is missing.
+- `outboundGuidelines` is a frozen, non-interactive info-banner field (scheduling/throttling rules, not configurable) — always emit it as `""`; the builder echoes its own HTML back on real saves, but an empty string round-trips fine for this action.
+- No retry/schedule/number-pool fields exist on this action — scheduling (8am–8pm local time, 1 call/day/number, 10 calls/min) is fully server-side.
+- Like `internal_create_opportunity`, this is an internal action and carries top-level `workflowsActionType: "INTERNAL"` (not inside `attributes`).
+
 ## Linking multiple steps
 
 `parentKey` = previous step id (null at root) · `next` = next step id (null at end) · `order` increments per step. For `if_else` branches, harvest a real branched workflow and mirror its `parent`/`sibling`/`nodeType` graph — those fields ARE used inside branches (the toxic-field rule is about linear action steps that shouldn't carry them).

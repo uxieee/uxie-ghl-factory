@@ -15,3 +15,10 @@ test('trigger master type resolves', () => {
 test('unknown type returns undefined', () => {
   assert.equal(loadCatalog().step('nope'), undefined);
 });
+
+test('voice_ai_outbound_call resolves as an internal action requiring agentId/fromPhoneNumber', () => {
+  const step = loadCatalog().step('voice_ai_outbound_call');
+  assert.equal(step.isMultipathContainer, false);
+  assert.deepEqual(step.situational, ['workflowsActionType']);
+  assert.deepEqual(step.requiredFields, ['agentId', 'fromPhoneNumber']);
+});

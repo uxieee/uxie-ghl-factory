@@ -11,6 +11,7 @@ const STEPS = {
   remove_from_workflow: { type: 'remove_from_workflow', situational: [], isMultipathContainer: false, referencesWorkflow: true },
   internal_create_opportunity: { type: 'internal_create_opportunity', situational: ['workflowsActionType'], isMultipathContainer: false, requiresPipeline: true },
   internal_update_opportunity: { type: 'internal_update_opportunity', situational: ['workflowsActionType'], isMultipathContainer: false },
+  voice_ai_outbound_call: { type: 'voice_ai_outbound_call', situational: ['workflowsActionType'], isMultipathContainer: false, requiredFields: ['agentId', 'fromPhoneNumber'] },
   find_opportunity: { type: 'find_opportunity', situational: [], isMultipathContainer: true },
   if_else: { type: 'if_else', situational: ['parent', 'sibling', 'cat', 'comments', 'nodeType'], isMultipathContainer: true },
 };
