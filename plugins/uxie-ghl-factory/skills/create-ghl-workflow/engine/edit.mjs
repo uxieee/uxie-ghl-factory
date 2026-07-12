@@ -7,6 +7,7 @@
 // GHL's incremental save only touches steps named in the diff arrays — sending the
 // full templates[] with correct createdSteps/modifiedSteps/deletedSteps is what makes
 // an edit apply cleanly without disturbing untouched steps.
+import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).
@@ -176,13 +177,80 @@ export function deleteContainer(templates, containerId) {
   return { templates: out, diff: { createdSteps: [], modifiedSteps: pred ? [pred.id] : [], deletedSteps: [...remove] } };
 }
 
+// The opportunity-association invariant on the EDIT path (compile()'s
+// checkOpportunityAssociation never sees edits — edit-mode mutates compiled
+// templates directly). Same rule, template-graph flavor: an opportunity-requiring
+// step is only legal where an opportunity is guaranteed — rootAssoc (the caller
+// verified ALL the workflow's triggers are opportunity-based), a create step
+// earlier on the chain, or a find_opportunity "Opportunity Found" scope. Lexical
+// per scope like the IR checker: goto edges don't propagate, containers are
+// terminal in their scope (branches don't re-merge).
+export function checkOpportunityAssociationTemplates(templates, rootAssoc = false) {
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const walkChain = (startId, assoc) => {
+    let cur = startId != null ? byId.get(startId) : null;
+    const seen = new Set();
+    while (cur && !seen.has(cur.id)) {
+      seen.add(cur.id);
+      if (REQUIRES_OPPORTUNITY.has(cur.type) && !assoc)
+        throw new IRError('OPP_UNASSOCIATED',
+          `step '${cur.name ?? cur.id}' (${cur.id}) updates an opportunity but none is associated on its path — ` +
+          `add a create step or a find_opportunity Found scope before it, or pass assumeAssociated:true ` +
+          `if ALL the workflow's triggers are opportunity-based.`);
+      if (CREATES_OPPORTUNITY.has(cur.type)) assoc = true;
+      if (Array.isArray(cur.next)) {
+        // container: recurse into each branch-entry/transition scope. Only
+        // find_opportunity's "Opportunity Found" scope guarantees an opportunity.
+        const trs = cur.attributes?.transitions ?? [];
+        // stable pre-defined key first (survives rename/localization in harvested
+        // workflows), then display name, then position (Found is always first).
+        const foundId = cur.type === 'find_opportunity'
+          ? (trs.find((t) => t.meta?.__branchKey__ === 'predefined_Opportunity Found')
+             ?? trs.find((t) => t.name === 'Opportunity Found') ?? trs[0])?.id ?? null : null;
+        for (const bid of cur.next) {
+          const entry = byId.get(bid);
+          if (!entry) continue;
+          walkChain(typeof entry.next === 'string' ? entry.next : null, bid === foundId ? true : assoc);
+        }
+        return; // terminal in this scope
+      }
+      cur = typeof cur.next === 'string' ? byId.get(cur.next) : null;
+    }
+  };
+  const head = templates.find((t) => (t.parentKey === null || t.parentKey === undefined) && t.parent == null);
+  // Fail CLOSED: edit-mode runs on harvested workflows whose head shape isn't
+  // guaranteed. If we can't find the root, we can't prove association — refuse
+  // rather than silently pass an unassociated update (the exact bug class this
+  // check exists to prevent).
+  if (!head) {
+    if (templates.some((t) => REQUIRES_OPPORTUNITY.has(t.type)))
+      throw new IRError('OPP_UNASSOCIATED',
+        'cannot locate the workflow head step (parentKey null, no parent) — unable to prove opportunity '
+        + 'association for the update step(s) present. Fix the graph or pass assumeAssociated:true.');
+    return;
+  }
+  walkChain(head.id, rootAssoc);
+}
+
 // Build the COMMIT body for an edit. Edits must go through the plain PUT
 // /workflow/{loc}/{wid} (the commit path, same as publish) — NOT /auto-save. An
 // auto-save on a freshly-built workflow 422s "previous changes were not committed"
 // because the build's auto-save session is still pending. The plain PUT with the
 // whole GET-back object + edited workflowData + diff arrays commits directly.
 // (verified 2026-07-11). Keep the server envelope (version/filePath/etc.) intact.
-export function editCommitBody(fresh, newTemplates, diff, uid) {
+export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
+  // Enforce the opportunity invariant only when THIS edit CREATES an
+  // opportunity-requiring step (append/insert) — the real bug class. Gating on
+  // modifiedSteps would brick unrelated edits: appending anything after an
+  // existing update step marks it modified (wiring), and a legacy workflow's
+  // pre-existing violation would then block every edit near it. opts.assumeAssociated
+  // skips the check (edit-path analog of the IR's assocGuaranteed). NOT covered:
+  // moving an existing update out of a Found scope, or deleting the create step a
+  // downstream update depends on (a diff carries only ids, not intent).
+  const created = new Set(diff.createdSteps ?? []);
+  if (opts.assumeAssociated !== true
+      && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
+    checkOpportunityAssociationTemplates(newTemplates, false);
   return {
     ...fresh,
     updatedBy: uid,
