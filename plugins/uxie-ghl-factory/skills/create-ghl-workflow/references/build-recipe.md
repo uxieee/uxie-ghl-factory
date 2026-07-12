@@ -83,3 +83,40 @@ GET the workflow, then on the returned object:
 `PUT /workflow/{LOC}/{WID}` (plain — no `/auto-save`) with the modified object. Re-GET to confirm `status:"published"`. To unpublish, same flow with `status:"draft"`.
 
 Optimistic locking: the `version` field increments on each write; a stale version can 409. Always start from a fresh GET before the publish PUT.
+
+## 6. Opportunity actions — the find-or-create dependency
+
+`internal_update_opportunity` only acts on the opportunity **associated in the workflow
+context**. Association comes from exactly three sources: an opportunity-based trigger
+(all 5: `opportunity_created`, `opportunity_status_changed`, `opportunity_changed`,
+`pipeline_stage_updated`, `opportunity_decay` — and every trigger on the workflow must
+be one of them), a prior `create_opportunity` on the same path, or the **Opportunity
+Found** branch of `find_opportunity`. The engine rejects anything else with
+`IRError OPP_UNASSOCIATED`.
+
+Canonical IR pattern (non-opp trigger → find, update in Found, create in Not Found,
+converge with a goto):
+
+```json
+{ "ref": "find1", "kind": "action", "type": "find_opportunity", "name": "Find Opp",
+  "find": { "filters": [{ "field": "pipelineId", "value": "PIPELINE_ID" }], "sorting": "latest" },
+  "onFound": [
+    { "ref": "upd1", "kind": "action", "type": "update_opportunity", "name": "Move stage",
+      "attributes": { "updates": [{ "field": "pipelineStageId", "value": "STAGE_ID" }] } }
+  ],
+  "onNotFound": [
+    { "ref": "crt1", "kind": "action", "type": "create_opportunity", "name": "Create Opp",
+      "attributes": { "pipelineId": "PIPELINE_ID", "stageId": "STAGE_ID", "name": "{{contact.name}}" } },
+    { "ref": "g1", "kind": "goto", "target": "next_shared_step" }
+  ] }
+```
+
+Notes:
+- The state is **lexical per scope** (v1): a `goto` out of Not Found onto a shared
+  downstream `update_opportunity` is NOT proven across the jump — either keep the
+  update inside `onFound` (and let Not Found create at the right stage directly, as
+  above), or mark the shared step `"assocGuaranteed": true`.
+- Mixed triggers (e.g. `opportunity_created` + `contact_tag`): branch on trigger
+  identity with `if_else`; the tag path still needs find-or-create; mark the
+  opp-trigger path's branch `"assocGuaranteed": true`.
+- `assocGuaranteed` is IR-only; the compiler never emits it to GHL.

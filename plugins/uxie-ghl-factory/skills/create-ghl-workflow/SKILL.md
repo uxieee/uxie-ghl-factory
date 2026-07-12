@@ -106,6 +106,7 @@ The orchestrator prints exactly what it did. Check it:
   `{conditionType, conditionSubType, conditionOperator, conditionValue}`.
 - `DELETE /workflow/{loc}/{wid}` works (confirmed) — used for clean teardown of
   throwaway/failed builds.
+- **Opportunity actions need an associated opportunity.** `update_opportunity` is a runtime no-op unless the contact entered via an opportunity trigger (`opportunity_created`, `opportunity_status_changed`, `opportunity_changed`, `pipeline_stage_updated`, `opportunity_decay` — and ALL triggers must be opp-based, a mixed set doesn't count), or the path already ran `create_opportunity`, or the step sits in a `find_opportunity` **Opportunity Found** branch. The engine hard-fails with `OPP_UNASSOCIATED` otherwise — build the find-or-create pattern (see `references/build-recipe.md` §6). `assocGuaranteed: true` on the node/branch is the escape hatch for shapes the checker can't prove (trigger-identity if/else, goto convergence).
 
 ## Red flags — STOP
 
@@ -115,6 +116,7 @@ The orchestrator prints exactly what it did. Check it:
 - About to ignore an `ABORTED` / `UNRESOLVED` line → don't; that's a missing dependency.
 - About to `--publish` without the user's explicit OK → stop.
 - Got a 401 → JWT expired; re-capture and resume.
+- About to add `update_opportunity` with no opp trigger, no prior `create_opportunity`, and outside a `find_opportunity` Found branch → the update will silently do nothing at runtime; build find-or-create first.
 
 ## Resources
 

@@ -1,6 +1,6 @@
 // Deterministic compiler: IR -> GHL builder-API payloads (create/auto-save/trigger).
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
-import { parseIR, IRError } from './ir.mjs';
+import { parseIR, IRError, checkOpportunityAssociation } from './ir.mjs';
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
@@ -475,6 +475,11 @@ function buildTrigger(t, ctx, wid) {
 
 export function compile(ir, ctx) {
   const norm = parseIR(ir);
+  // update_opportunity needs an associated opportunity at runtime — enforce the
+  // invariant with the catalog-derived set of opportunity-attaching triggers.
+  const oppTriggerTypes = new Set(
+    ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === 'opportunities'));
+  checkOpportunityAssociation(norm, oppTriggerTypes);
   const refMap = new Map();
   const { templates } = flattenGraph(norm.graph, ctx, refMap, null);
 

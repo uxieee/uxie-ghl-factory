@@ -76,3 +76,43 @@ export function parseIR(ir) {
   const triggers = ir.triggers.map((t) => ({ active: true, ...t }));
   return { ...ir, triggers };
 }
+
+// --- Opportunity-association invariant -------------------------------------
+// update_opportunity is a runtime no-op unless the executing contact already
+// has an opportunity ASSOCIATED in the workflow context. Association sources:
+//   1. ALL entry triggers are opportunity-based (catalog category 'opportunities'
+//      — the caller passes that set; ir.mjs stays catalog-free),
+//   2. a create_opportunity earlier on the same path,
+//   3. being inside a find_opportunity `onFound` scope.
+// A mixed trigger set does NOT seed the root (contacts entering via the non-opp
+// trigger carry no opportunity). `assocGuaranteed: true` on a node or on a
+// branch/path scope is the author's escape hatch for shapes static analysis
+// can't prove (trigger-identity if/else, goto convergence). Lexical per-scope
+// only — no propagation across goto edges (v1 limitation, see the spec).
+const REQUIRES_OPPORTUNITY = new Set(['update_opportunity', 'internal_update_opportunity']);
+const CREATES_OPPORTUNITY = new Set(['create_opportunity', 'internal_create_opportunity']);
+
+export function checkOpportunityAssociation(norm, oppTriggerTypes) {
+  const rootAssoc = norm.triggers.length > 0 && norm.triggers.every((t) => oppTriggerTypes.has(t.type));
+  const walk = (nodes, assoc) => {
+    for (const n of nodes ?? []) {
+      if (REQUIRES_OPPORTUNITY.has(n.type) && !assoc && n.assocGuaranteed !== true)
+        throw new IRError('OPP_UNASSOCIATED',
+          `update_opportunity '${n.ref}' has no associated opportunity on its path — ` +
+          `add a find_opportunity (put this step in its Found branch, and a create_opportunity in Not Found), ` +
+          `add a create_opportunity before it, use an opportunity trigger on ALL triggers, ` +
+          `or set assocGuaranteed:true if you know association is established in a way the checker can't see.`);
+      if (CREATES_OPPORTUNITY.has(n.type)) assoc = true; // flows to later siblings + their child scopes
+      for (const b of n.branches ?? []) walk(b.then, b.assocGuaranteed === true || assoc);
+      for (const p of n.paths ?? []) walk(p.then, p.assocGuaranteed === true || assoc);
+      walk(n.onEvent, assoc);
+      walk(n.onTimeout, assoc);
+      walk(n.default, assoc);
+      // onFound guarantees an opportunity ONLY for find_opportunity — find_contact
+      // and lc_merge_contact reuse the same scope keys for contact-level branches.
+      walk(n.onFound, n.type === 'find_opportunity' ? true : assoc);
+      walk(n.onNotFound, assoc);
+    }
+  };
+  walk(norm.graph, rootAssoc);
+}
