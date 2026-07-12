@@ -117,7 +117,7 @@ The orchestrator prints exactly what it did. Check it:
 - About to `--publish` without the user's explicit OK → stop.
 - Got a 401 → JWT expired; re-capture and resume.
 - About to add `update_opportunity` with no opp trigger, no prior `create_opportunity`, and outside a `find_opportunity` Found branch → the update will silently do nothing at runtime; build find-or-create first.
-- About to add an opportunity step via EDIT-MODE (`engine/edit.mjs` — appendStep/insertAfter/appendToBranch) → edit-mode bypasses the `OPP_UNASSOCIATED` compile check entirely; verify the association sources yourself before appending `internal_update_opportunity`.
+- Adding an opportunity step via EDIT-MODE → `editCommitBody` now throws `OPP_UNASSOCIATED` when the edit CREATES an unassociated `internal_update_opportunity`; pass `assumeAssociated: true` only after verifying ALL the workflow's triggers are opportunity-based. Still unchecked: moving an existing update out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation that skips `editCommitBody` — verify those yourself.
 
 ## Resources
 

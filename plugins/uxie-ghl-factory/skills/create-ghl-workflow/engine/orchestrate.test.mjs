@@ -67,3 +67,14 @@ test('orchestrate resolves a real pipeline name and proceeds', async () => {
   assert.equal(report.wid, 'WID_1');
   assert.deepEqual(report.unresolved, []);
 });
+
+test('orchestrate ABORTS gracefully on compile rejection (OPP_UNASSOCIATED) instead of throwing', async () => {
+  const { gw, calls } = mockGateway({});
+  const ir = { name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'u', kind: 'action', type: 'update_opportunity', name: 'Upd',
+      attributes: { updates: [{ field: 'status', value: 'won' }] } }] };
+  const report = await orchestrate(ir, gw);   // must NOT throw
+  assert.ok(report.aborted && report.aborted.includes('OPP_UNASSOCIATED'), 'aborted names the code');
+  assert.equal(report.wid, null);
+  assert.equal(calls.some((c) => c.method === 'POST' && /\/workflow\/[^/]+$/.test(c.path)), false, 'no workflow created');
+});

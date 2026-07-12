@@ -89,8 +89,8 @@ export function parseIR(ir) {
 // branch/path scope is the author's escape hatch for shapes static analysis
 // can't prove (trigger-identity if/else, goto convergence). Lexical per-scope
 // only — no propagation across goto edges (v1 limitation, see the spec).
-const REQUIRES_OPPORTUNITY = new Set(['update_opportunity', 'internal_update_opportunity']);
-const CREATES_OPPORTUNITY = new Set(['create_opportunity', 'internal_create_opportunity']);
+export const REQUIRES_OPPORTUNITY = new Set(['update_opportunity', 'internal_update_opportunity']);
+export const CREATES_OPPORTUNITY = new Set(['create_opportunity', 'internal_create_opportunity']);
 
 export function checkOpportunityAssociation(norm, oppTriggerTypes) {
   const rootAssoc = norm.triggers.length > 0 && norm.triggers.every((t) => oppTriggerTypes.has(t.type));

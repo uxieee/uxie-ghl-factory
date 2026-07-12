@@ -110,8 +110,15 @@ export async function orchestrate(ir, gw, opts = {}) {
     }
   }
 
-  // 4. compile + build
-  const built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog });
+  // 4. compile + build. IR rejections (OPP_UNASSOCIATED, schema/invariant errors)
+  //    land in report.aborted like the other failure modes — not a raw throw.
+  let built;
+  try {
+    built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog });
+  } catch (e) {
+    if (e?.name === 'IRError') { report.aborted = `compile rejected (${e.code}): ${e.message}`; return report; }
+    throw e;
+  }
   const ph = built._wid;
   const c = await call('POST', `/workflow/${loc}`, built.createBody);
   const WID = c.json?.id || c.json?._id;
