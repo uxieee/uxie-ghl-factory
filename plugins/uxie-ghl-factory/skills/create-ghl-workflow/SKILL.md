@@ -32,6 +32,25 @@ account dependency is missing** → **auto-creates tags + inline email templates
 → compiles → creates a DRAFT → auto-saves steps → creates triggers → round-trip
 verifies → prints a report. Publish only with `--publish`, only after the user OKs.
 
+## Know what you can build — check before you say "can't"
+
+The catalog is **complete**: 316 step types / 59 trigger types (62 native steps +
+58 native triggers live-proven). If you're about to tell the user a step or trigger
+"isn't supported", or about to fake a native action with a webhook/custom-code
+workaround, **check the catalog first** — your recall of GHL's action list is
+incomplete; the catalog is the truth:
+
+```
+node engine/query-catalog.mjs <term>    # e.g. "notification", "opportunity", "reply"
+node engine/query-catalog.mjs           # coverage summary
+```
+
+Full scannable index (every type, with attribute keys and trigger filter fields):
+`references/capabilities.md`. Marketplace-app steps (219 of the 316) build fine but
+only RUN if the app is installed on the location. A catalog miss doesn't prove GHL
+lacks the type — harvest a live example (`scripts/harvest-step.js`) and extend the
+catalog rather than improvising a shape.
+
 ## Before any write
 
 1. Run BOTH gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`
@@ -76,7 +95,8 @@ graph:
 - **Inline emails:** put `attributes._template: { title, html, previewText }` on an
   `email` node — the orchestrator creates the template first and links it.
 - **Coverage:** 316 step types / 59 trigger types are catalogued; 62 native steps +
-  58 native triggers are live-proven. See `engine/COVERAGE.md`.
+  58 native triggers are live-proven. Full index: `references/capabilities.md`;
+  per-type lookup: `node engine/query-catalog.mjs <term>`.
 
 ## Read the build report — every time
 
@@ -123,7 +143,8 @@ The orchestrator prints exactly what it did. Check it:
 
 - `scripts/build.mjs` — **the entry point.** IR → verified draft, deps handled.
 - `engine/` — IR parser, compiler, catalog, resolver, orchestrator (+ tests).
-- `engine/COVERAGE.md` — what's catalogued vs live-proven; filter + resolver behaviour.
+- `references/capabilities.md` — generated index of ALL 316 step / 59 trigger types
+  with attribute keys and filter fields; `engine/query-catalog.mjs` searches it.
 - `references/build-recipe.md` / `references/step-shapes.md` — endpoint/payload truth
   and the mirror-don't-invent doctrine (background; the engine already applies them).
 - `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`, `docs/write-rails.md` — auth + gates.
