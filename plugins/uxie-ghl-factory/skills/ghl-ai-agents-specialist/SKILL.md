@@ -95,14 +95,16 @@ account). Treat the first real use of any given action/source type as a validati
 (small, throwaway, verified, cleaned up), not a routine operation.
 
 ## Scope
-**IN:** designing/building/configuring Conversation AI, Voice AI, and Agent Studio agents,
-their actions, and rich-text Knowledge Base content, via the internal API.
+**IN:** designing/building/configuring Conversation AI (both `PROMPT_BASED_BOT` and the
+`FLOW_BUILDER_BOT` / Flow-Based Builder), Voice AI, and Agent Studio agents, their actions, and
+rich-text Knowledge Base content, via the internal API. A flow bot's logic is a workflow
+(`conv_ai_trigger` + `conversationai_*` nodes) — build it with `compileFlowBuilderBot` (agent)
++ the `create-ghl-workflow` engine (flow), then link via `objectiveBuilderWorkflowId`. See
+`references/conversation-ai.md` → "Flow-Based Builder".
 
 **OUT:**
 - Phone-number provisioning/KYC for Voice AI (`phone-system` internal surface) — compliance
   territory, out of scope for this skill.
-- The Conversation AI "Flow Based Builder" / objective-builder bot-canvas
-  (`ai-employees-api::objective-builder/execute`) — not captured, don't attempt it.
 - Publishing/enabling an agent without explicit user approval.
 - The workflow-builder AI *steps* (e.g. `voice_ai_outbound_call`, which places an outbound
   call from a Voice AI agent as one step inside a workflow) — those belong to

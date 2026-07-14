@@ -85,6 +85,49 @@ test('binary if_else: container + branch-yes/branch-no wiring', () => {
   assert.ok(['parent', 'sibling', 'cat', 'comments', 'nodeType', 'parentKey'].every((k) => k in yes));
 });
 
+// Regression (root-caused 2026-07-15): when if_else branches omit `ref`, every
+// ref-less branch used to collapse onto one refMap `undefined` key — duplicating
+// branch ids in next[] (live symptom next:[b1,b2,b2]) and dropping later branches'
+// segments. Mirrors the live "08 Deposit Paid Handler" defect: two conditioned
+// branches + an else fallback, all authored WITHOUT refs.
+const refLessMultiBranchIR = {
+  name: 'PaidProduct', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+  graph: [
+    { kind: 'if_else', name: 'Which paid product?', branches: [
+      { name: 'Treatment', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'treatment' }], then: [
+        { kind: 'action', type: 'add_contact_tag', name: 'Tag Treatment', attributes: { tags: ['treatment'] } } ] },
+      { name: 'Course', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'course' }], then: [
+        { kind: 'action', type: 'add_contact_tag', name: 'Tag Course', attributes: { tags: ['course'] } } ] },
+      { name: 'None', else: true, then: [
+        { kind: 'action', type: 'add_contact_tag', name: 'Tag Fallback', attributes: { tags: ['fallback'] } } ] },
+    ] },
+  ],
+};
+
+test('if_else with ref-less branches: distinct ids, no duplicate in next, per-branch segments', () => {
+  const { autoSaveBody } = compile(refLessMultiBranchIR, ctx());
+  const t = autoSaveBody.workflowData.templates;
+  const container = t.find((s) => s.name === 'Which paid product?');
+  // next has each branch id EXACTLY once — no duplication of the none-branch id
+  assert.equal(container.next.length, 3);
+  assert.equal(new Set(container.next).size, 3, 'branch ids in next must be distinct');
+  // attributes.branches ids line up with next[] and are all distinct
+  const branchIds = container.attributes.branches.map((b) => b.id);
+  assert.deepEqual(branchIds, container.next);
+  assert.equal(new Set(branchIds).size, 3);
+  // EVERY conditioned branch keeps its own segments (not just the first); else is empty
+  const [treatment, course, none] = container.attributes.branches;
+  assert.equal(treatment.segments.length, 1);
+  assert.equal(course.segments.length, 1, 'second conditioned branch must keep its condition');
+  assert.equal(course.segments[0].conditions[0].conditionValue, 'course');
+  assert.equal(none.segments.length, 0);
+  // the three branch NODES are distinct and each has a distinct child tail
+  const branchNodes = container.next.map((id) => t.find((s) => s.id === id && s.type === 'if_else'));
+  assert.equal(new Set(branchNodes.map((b) => b.id)).size, 3);
+  assert.equal(branchNodes[2].nodeType, 'branch-no');
+  assert.equal(branchNodes[0].nodeType, 'branch-yes');
+});
+
 test('create body + auto-save envelope are well-formed', () => {
   const { createBody, autoSaveBody } = compile(linearIR, ctx());
   assert.equal(createBody.name, 'Linear');

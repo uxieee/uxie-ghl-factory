@@ -45,8 +45,9 @@ parent SKILL.md's Execute section for the capture procedure pointer.
   bot, `suggestive` drafts replies for a human to approve, `autoPilot` sends unattended (capped
   by `autoPilotMaxMessages`, default 75).
 - `channels[]` — enum: `SMS`, `IG`, `FB`, `WebChat`, `Live_Chat`, `WhatsApp`. Non-empty required.
-- `botType` — `PROMPT_BASED_BOT` (confirmed; the alternative "Flow Based Builder" / objective
-  canvas is NOT captured — out of scope, see parent SKILL.md's Scope section).
+- `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT`**. The prompt bot is the
+  three-part-prompt agent above; the flow bot's logic is a **workflow** (see "Flow-Based
+  Builder" below). Both are buildable via the engine (`convai-ir.mjs` `BOT_TYPES`).
 - **Three-part prompt** — the entire personality of the bot lives in three free-text fields,
   each with a UI word-limit:
   - `personality` — who the bot is / tone.
@@ -156,6 +157,54 @@ body itself:
 Both are verified-against-capture (endpoint/method/flow accurate) but not yet live-fired —
 same epistemic stance as the Conversation AI / Voice AI action types above.
 
+## Flow-Based Builder (`FLOW_BUILDER_BOT`)
+
+Reverse-engineered + engine-captured 2026-07-14/15 (was previously "not captured / out of
+scope"). **A flow bot's logic IS a workflow.** Creating a `FLOW_BUILDER_BOT` and opening its
+"Launch/Edit Flow Builder" loads the normal workflow builder at
+`/automation/workflow/{WID}?triggerType=conv_ai_trigger&convTriggerBotId={AGENT_ID}`:
+
+- The flow lives in a workflow (`workflowType: "agent"`) whose entry trigger is
+  **`conv_ai_trigger`** ("Chat Initiated"), bound to the agent by **`convTriggerBotId`**.
+- The agent (`/ai-employees`) carries `botType: FLOW_BUILDER_BOT`,
+  `isObjectiveBuilderEnabled: true`, `objectiveBuilderWorkflowId: {WID}`.
+- The flow builder's palette is the **full workflow action catalog** + a "Conversation AI"
+  category of **9 `conversationai_*` nodes**. So the whole booking flow is buildable by the
+  `create-ghl-workflow` engine: `conv_ai_trigger` + AI nodes + `custom_webhook` to the worker.
+
+**The 9 Conversation-AI node keys** (all `type: conversationai_*`, `workflowsActionType: "INTERNAL"`,
+`attributes: { ...fields, type, __customInputs__: {} }`) — captured in the `create-ghl-workflow`
+engine's catalog (`node engine/query-catalog.mjs conversationai`):
+
+| UI name | action key | shape |
+|---|---|---|
+| AI capture information | `conversationai_objective` | ✅ full (premium; carries `stepIndex`) |
+| AI message | `conversationai_ai_message` | ✅ full (`message`, `waitForReply`) |
+| Custom message | `conversationai_custom_message` | ✅ full (verbatim send) |
+| Book appointment | `conversationai_book_appointment` | ✅ multi-path (`onBooked`/`onNotBooked`; `calendarId`) |
+| AI splitter | `conversationai_ai_splitter` | ✅ multi-path (`branches[]` + "No condition met" fallback via `default`) |
+| End conversation | `conversationai_end` | ⚑ recon-fields (`customMessage`, `reactivate`, `duration`) |
+| Continue conversation | `conversationai_continue` | ⚑ recon-fields (`prompt`) |
+| Transfer bot | `conversationai_transfer_bot` | ✅ (`assignedEmployeeId`, `prompt`) |
+| Services booking | `conversationai_services_booking` | ⚑ recon-fields (`services[]`, `description`; needs a configured commerce service) |
+
+The two multi-path nodes emit `cat:"multi-path"`, `convertToMultipath:true`, `transitions[]`, and
+a separate `type:"transition"` node per branch (mirrors `find_opportunity`). ⚑ = field structure
+captured but not yet commit-verified — capture a committed template to promote to ✅ (throwaway
+recon bot still live: see `flow-builder-recon.md`).
+
+**Commit path.** Node "Save action" only stages a node locally; the top-right **"Save workflow"**
+button flushes `workflowData.templates` to the backend. Enable auto-save with
+`PUT backend.leadconnectorhq.com/workflow/{LOC}/auto-save/settings {"isActive":true}`. Node option
+lists (calendar picker, contact-field picker, bot list) come from
+`GET backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_{key}?optionType=default&workflowId={WID}`.
+
+**Two auth rails.** Agent CRUD = `services.leadconnectorhq.com/ai-employees` + **`token-id`**. The
+flow workflow = `backend.leadconnectorhq.com/workflow` + **`Authorization: Bearer`** (the
+`create-ghl-workflow` recipe). The `compileFlowBuilderBot` driver keeps them as separate descriptors.
+
+**Build it end to end** with `compileFlowBuilderBot` (see driver example below).
+
 ## Driving `convai-compiler.mjs`
 
 ```js
@@ -169,11 +218,36 @@ const { create, actions, authHeader } = compileConvaiAgent({
   channels: ['SMS', 'WebChat'],
   personality: '...', goal: '...', instructions: '...',
   actions: [{ type: 'humanHandOver', name: 'Escalate to human',
-              details: { triggerCondition: 'Contact explicitly asks for a person, 3+ times, or expresses frustration.' } }],
+              // handoverType is API-REQUIRED (live-verified 422 without it, 2026-07-15):
+              // contactRequest | lackOfInformation | failedToResolveIssue | custom. Defaults to 'custom'.
+              details: { handoverType: 'contactRequest',
+                         triggerCondition: 'Contact explicitly asks for a person, 3+ times, or expresses frustration.' } }],
 }, { locationId });
 
 // Update: only pass what's changing — merge semantics, no need to resend the whole agent.
 const upd = compileConvaiUpdate({ mode: 'autoPilot' }, { agentId, locationId });
+
+// Flow-Based Builder (FLOW_BUILDER_BOT) — build the agent + its flow workflow end to end:
+import { compileFlowBuilderBot } from './engine/convai-compiler.mjs';
+import { compile as compileWorkflow } from '../create-ghl-workflow/engine/compiler.mjs';
+
+const plan = compileFlowBuilderBot({
+  name: 'Booking Flow Bot', mode: 'autoPilot', channels: ['SMS', 'WebChat'],
+  flow: {                          // a create-ghl-workflow IR (conv_ai_trigger auto-injected + bound)
+    name: 'Booking flow',
+    graph: [
+      { kind: 'action', type: 'conversationai_objective', name: 'AI capture information',
+        attributes: { objective: 'capture whether the lead prefers weekday or weekend', contactField: 'day_type_preference' } },
+      { kind: 'action', type: 'custom_webhook', name: 'Get slots',
+        attributes: { method: 'GET', url: 'https://worker/slots', event: 'workflow' } },
+      { kind: 'action', type: 'conversationai_ai_message', name: 'Offer slots',
+        attributes: { message: 'Offer the live slots to the lead', waitForReply: true } },
+    ],
+  },
+}, { locationId, compileWorkflow, workflowCtx });
+// Runtime order: POST plan.createAgent → get agentId → compile+create plan.flowWorkflow(agentId)
+//   → get workflowId → PUT plan.linkWorkflow(agentId, workflowId).  DRAFTS ONLY — never publish
+//   the agent/workflow without explicit approval.
 ```
 
 Both compilers only produce `{method, path, body, authHeader}` descriptors — issuing the HTTP

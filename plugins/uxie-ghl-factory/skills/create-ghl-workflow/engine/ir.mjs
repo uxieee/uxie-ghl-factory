@@ -6,7 +6,7 @@ export class IRError extends Error {
 
 // Node-level scope arrays that hold a nested linear sequence (a child graph).
 // Every multipath container reaches its children through one of these.
-const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'default'];
+const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'onBooked', 'onNotBooked', 'default'];
 
 // Walk every node (graph + every nested scope) and every trigger, collecting refs.
 export function collectRefs(ir) {
@@ -73,6 +73,12 @@ export function parseIR(ir) {
       if ((n.branches ?? []).length < 1) throw new IRError('AI_DECISION_ARITY', `ai_decision '${n.ref}' needs >=1 branch`);
       for (const b of n.branches) if (!b.name) throw new IRError('AI_DECISION_BRANCH', `ai_decision '${n.ref}' branch missing name`);
     }
+    // Conversation-AI "AI splitter" — LLM-routed named branches (no conditions; the
+    // routing prose lives in attributes.description). Each branch needs a name so it
+    // can label its transition node + fallback branch.
+    if (n.type === 'conversationai_ai_splitter') {
+      for (const b of n.branches ?? []) if (!b.name) throw new IRError('AI_SPLITTER_BRANCH', `conversationai_ai_splitter '${n.ref}' branch missing name`);
+    }
   });
 
   const triggers = ir.triggers.map((t) => ({ active: true, ...t }));
@@ -114,6 +120,10 @@ export function checkOpportunityAssociation(norm, oppTriggerTypes) {
       // and lc_merge_contact reuse the same scope keys for contact-level branches.
       walk(n.onFound, n.type === 'find_opportunity' ? true : assoc);
       walk(n.onNotFound, assoc);
+      // Conversation-AI book_appointment branches book into a GHL calendar, not an
+      // opportunity — association carries through unchanged.
+      walk(n.onBooked, assoc);
+      walk(n.onNotBooked, assoc);
     }
   };
   walk(norm.graph, rootAssoc);
