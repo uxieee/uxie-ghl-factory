@@ -68,7 +68,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   const { call, loc, uid } = gw;
   const catalog = loadCatalog();
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
-    steps: 0, verify: { pass: 0, issues: [] }, published: false, aborted: null };
+    steps: 0, triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false, aborted: null };
 
   // 1. resolve names → ids
   const entities = await fetchEntities(gw);
@@ -128,7 +128,21 @@ export async function orchestrate(ir, gw, opts = {}) {
   const sent = swap(built.autoSaveBody);
   const s = await call('PUT', `/workflow/${loc}/${WID}/auto-save`, sent);
   if (!s.ok) { report.aborted = `auto-save failed: ${s.status}`; return report; }
-  for (const tb of built.triggerBodies.map(swap)) await call('POST', `/workflow/${loc}/trigger`, tb);
+  // Trigger POSTs right after auto-save intermittently 400 {"message":"Workflow
+  // not found"} — the workflow doc hasn't settled server-side yet (observed live
+  // 2026-07-13). Retry with backoff, and RECORD failures instead of dropping them.
+  const backoff = opts.triggerBackoffMs ?? [0, 700, 2000];
+  for (const tb of built.triggerBodies.map(swap)) {
+    let r;
+    for (const delay of backoff) {
+      if (delay) await new Promise((res) => setTimeout(res, delay));
+      r = await call('POST', `/workflow/${loc}/trigger`, tb);
+      if (r.ok) break;
+    }
+    if (r?.ok) report.triggers.posted++;
+    else report.triggers.failed.push({ type: tb.type, name: tb.name, status: r?.status,
+      error: JSON.stringify(r?.json ?? '').slice(0, 160) });
+  }
 
   // 5. round-trip verify
   const back = await call('GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);

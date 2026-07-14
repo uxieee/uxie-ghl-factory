@@ -23,6 +23,10 @@ test('bare update with non-opp trigger rejected', () => {
   fails([tagTrigger], [upd('u1')]);
 });
 
+test('empty trigger set does NOT vacuously seed association (add_to_workflow entry carries no opp)', () => {
+  fails([], [upd('u1')]);
+});
+
 test('error message names the ref and the fixes', () => {
   try { check([tagTrigger], [upd('u1')]); assert.fail('should throw'); }
   catch (e) {

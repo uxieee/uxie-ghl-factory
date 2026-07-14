@@ -38,7 +38,9 @@ function walkNodes(nodes, visit) {
 export function parseIR(ir) {
   if (!ir || typeof ir !== 'object' || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph))
     throw new IRError('SCHEMA', 'IR must have triggers[] and graph[]');
-  if (ir.triggers.length < 1) throw new IRError('SCHEMA', 'at least one trigger required');
+  // triggers: [] is legal — trigger-less workflows are enrolled from another
+  // workflow via add_to_workflow (the builder's "empty trigger tab" shape).
+  // The build path simply has no trigger POSTs to make.
 
   const refs = collectRefs(ir);
   const seen = new Set();

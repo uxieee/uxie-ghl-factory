@@ -50,3 +50,10 @@ test('branch with both conditions and else rejected', () => {
 test('collectRefs finds nested refs', () => {
   assert.deepEqual(new Set(collectRefs(validIR())), new Set(['t1', 'a', 'b', 'y', 'w', 'n']));
 });
+
+test('triggers: [] is legal (trigger-less workflow enrolled via add_to_workflow)', () => {
+  const ir = { name: 'W', triggers: [], graph: [
+    { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'A', attributes: { tags: ['x'] } }] };
+  const norm = parseIR(ir);
+  assert.deepEqual(norm.triggers, []);
+});

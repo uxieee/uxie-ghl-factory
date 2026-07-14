@@ -94,6 +94,12 @@ graph:
   trigger filter values referencing pipeline/form/calendar/survey names.
 - **Inline emails:** put `attributes._template: { title, html, previewText }` on an
   `email` node — the orchestrator creates the template first and links it.
+- **Trigger-less workflows:** `triggers: []` is legal — for workflows enrolled via
+  `add_to_workflow` from another workflow. The build simply makes no trigger POSTs.
+- **Attribute keys are validated** on verified-live types: an invented key (e.g.
+  `message` instead of `body` on `sms`) fails compile with `ATTR_KEY` instead of
+  saving a step that renders blank. Check the type's real keys with
+  `node engine/query-catalog.mjs <type>`.
 - **Coverage:** 316 step types / 59 trigger types are catalogued; 62 native steps +
   58 native triggers are live-proven. Full index: `references/capabilities.md`;
   per-type lookup: `node engine/query-catalog.mjs <term>`.
@@ -107,6 +113,9 @@ The orchestrator prints exactly what it did. Check it:
 - `created tags: …` / `created email templates: …` → dependencies it made for you.
 - `round-trip: N clean` with `ISSUES: …` → a step's fields were dropped by the
   server (a shape problem) — investigate before calling it done.
+- `triggers: { posted, failed }` → trigger POSTs are retried through the
+  post-auto-save settle race ("Workflow not found" 400s); anything in `failed`
+  after retries means the workflow has NO working trigger — fix before done.
 - `UNRESOLVED (built anyway): …` → only appears with `--ignore-unresolved`.
 
 ## Critical gotchas (the engine handles these — don't re-introduce them)
