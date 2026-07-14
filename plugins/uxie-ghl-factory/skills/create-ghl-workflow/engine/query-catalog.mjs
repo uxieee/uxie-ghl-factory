@@ -27,7 +27,7 @@ const IR_KIND = {
   find_opportunity: 'find_opportunity (onFound/onNotFound)',
   lc_merge_contact: 'lc_merge_contact (onFound/onNotFound)',
 };
-const TIER_MARK = { 'verified-live': '✅', 'bundle-derived': '◐', 'live-schema': '▫' };
+const TIER_MARK = { 'verified-live': '✅', 'bundle-derived': '◐', 'live-schema': '▫', 'recon-fields': '⚑' };
 
 const norm = (s) => String(s ?? '').toLowerCase().replace(/[\s_-]+/g, '');
 
@@ -99,7 +99,7 @@ export function renderMarkdown(d) {
     'NEVER tell the user a step or trigger "isn\'t supported", and never substitute a ' +
     'webhook/custom-code workaround for a native action, without searching here first.');
   out.push('');
-  out.push('Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-derived · ▫ live-schema (marketplace).');
+  out.push('Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-derived · ▫ live-schema (marketplace) · ⚑ recon-fields (field structure captured; not yet commit-verified).');
   out.push('');
   out.push('## Native steps — by section (with authorable attribute keys)');
   const bySection = {};

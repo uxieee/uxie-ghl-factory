@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compileConvaiAgent, compileConvaiAction, compileConvaiUpdate, AUTH_HEADER } from './convai-compiler.mjs';
+import { compileConvaiAgent, compileConvaiAction, compileConvaiUpdate, compileLinkFlowWorkflow, compileFlowBuilderBot, AUTH_HEADER } from './convai-compiler.mjs';
 import { IRError } from './convai-ir.mjs';
 
 // Mirrors captures/convai-create.json's request_body 1:1 (values changed only where the
@@ -400,4 +400,82 @@ test('compileConvaiUpdate: requires agentId', () => {
 
 test('compileConvaiUpdate: rejects invalid mode even in a partial body', () => {
   assert.throws(() => compileConvaiUpdate({ mode: 'nope' }, { agentId: 'id1', locationId: 'LOC' }), (e) => e.code === 'BAD_MODE');
+});
+
+// --- humanHandOver.handoverType (live-verified 422 gap, 2026-07-15) ---------------
+test('humanHandOver: handoverType defaults to custom when omitted', () => {
+  const { actions } = compileConvaiAgent(
+    { ...fullIR, actions: [{ type: 'humanHandOver', name: 'Handover', details: { triggerCondition: 'When the customer explicitly asks for a human agent' } }] },
+    { locationId: 'LOC' });
+  assert.equal(actions[0].body.details.handoverType, 'custom');
+});
+
+test('humanHandOver: valid handoverType passes through, invalid is rejected', () => {
+  const { actions } = compileConvaiAgent(
+    { ...fullIR, actions: [{ type: 'humanHandOver', name: 'H', details: { handoverType: 'lackOfInformation', triggerCondition: 'When the bot lacks the information needed' } }] },
+    { locationId: 'LOC' });
+  assert.equal(actions[0].body.details.handoverType, 'lackOfInformation');
+  assert.throws(() => compileConvaiAgent(
+    { ...fullIR, actions: [{ type: 'humanHandOver', name: 'H', details: { handoverType: 'nope', triggerCondition: 'A valid length trigger condition text' } }] },
+    { locationId: 'LOC' }), (e) => e.code === 'SCHEMA');
+});
+
+// --- FLOW_BUILDER_BOT support -----------------------------------------------------
+test('compileConvaiAgent: botType FLOW_BUILDER_BOT + flow linkage fields', () => {
+  const { create } = compileConvaiAgent(
+    { ...fullIR, botType: 'FLOW_BUILDER_BOT', isObjectiveBuilderEnabled: true, objectiveBuilderWorkflowId: 'WID123' },
+    { locationId: 'LOC' });
+  assert.equal(create.body.botType, 'FLOW_BUILDER_BOT');
+  assert.equal(create.body.isObjectiveBuilderEnabled, true);
+  assert.equal(create.body.objectiveBuilderWorkflowId, 'WID123');
+});
+
+test('compileConvaiAgent: rejects unknown botType', () => {
+  assert.throws(() => compileConvaiAgent({ ...fullIR, botType: 'BOGUS' }, { locationId: 'LOC' }), (e) => e.code === 'BAD_BOT_TYPE');
+});
+
+test('compileLinkFlowWorkflow: PUT sets isObjectiveBuilderEnabled + objectiveBuilderWorkflowId', () => {
+  const d = compileLinkFlowWorkflow('AGENT1', 'WID123', { locationId: 'LOC' });
+  assert.equal(d.method, 'PUT');
+  assert.equal(d.path, '/ai-employees/employees/AGENT1');
+  assert.equal(d.body.isObjectiveBuilderEnabled, true);
+  assert.equal(d.body.objectiveBuilderWorkflowId, 'WID123');
+  assert.equal(d.body.locationId, 'LOC');
+  assert.equal(d.authHeader, AUTH_HEADER);
+  assert.throws(() => compileLinkFlowWorkflow(null, 'WID', { locationId: 'LOC' }), (e) => e.code === 'MISSING_FIELD');
+  assert.throws(() => compileLinkFlowWorkflow('A', null, { locationId: 'LOC' }), (e) => e.code === 'MISSING_FIELD');
+});
+
+test('compileFlowBuilderBot: end-to-end plan (agent + flow workflow bound + link)', () => {
+  const flow = {
+    name: 'Booking flow', triggers: [],
+    graph: [
+      { ref: 'obj', kind: 'action', type: 'conversationai_objective', name: 'AI capture information', attributes: { objective: 'capture day-type' } },
+      { ref: 'slots', kind: 'action', type: 'custom_webhook', name: 'Get slots', attributes: { method: 'GET', url: 'https://worker/slots', event: 'workflow' } },
+    ],
+  };
+  const plan = compileFlowBuilderBot({ ...fullIR, flow }, { locationId: 'LOC' });
+  // 1. agent is created as a flow bot
+  assert.equal(plan.createAgent.create.body.botType, 'FLOW_BUILDER_BOT');
+  // 2. the flow workflow is bound to the agent id via a conv_ai_trigger
+  const wfIr = plan.flowWorkflow('AGENT9');
+  const trig = wfIr.triggers.find((t) => t.type === 'conv_ai_trigger');
+  assert.ok(trig, 'conv_ai_trigger injected');
+  assert.equal(trig.convTriggerBotId, 'AGENT9');
+  assert.equal(wfIr.workflowType, 'agent');
+  assert.equal(wfIr.graph.length, 2);
+  // 3. link step wires the agent to the created workflow
+  const link = plan.linkWorkflow('AGENT9', 'WID55');
+  assert.equal(link.body.objectiveBuilderWorkflowId, 'WID55');
+  assert.equal(link.body.isObjectiveBuilderEnabled, true);
+});
+
+test('compileFlowBuilderBot: flowWorkflow honors an injected create-ghl-workflow compile fn', () => {
+  const plan = compileFlowBuilderBot(
+    { ...fullIR, flow: { name: 'F', triggers: [], graph: [] } },
+    { locationId: 'LOC', compileWorkflow: (ir, ctx) => ({ compiled: true, triggerBot: ir.triggers[0].convTriggerBotId, ctx }), workflowCtx: { loc: 'LOC' } });
+  const out = plan.flowWorkflow('AG1');
+  assert.equal(out.compiled, true);
+  assert.equal(out.triggerBot, 'AG1');
+  assert.deepEqual(out.ctx, { loc: 'LOC' });
 });

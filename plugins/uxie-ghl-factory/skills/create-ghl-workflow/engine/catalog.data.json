@@ -2067,6 +2067,7 @@
    "usesCustomInputs": true,
    "attrKeys": [
     "assignedEmployeeId",
+    "prompt",
     "type",
     "__customInputs__"
    ],
@@ -4533,57 +4534,95 @@
   "conversationai_book_appointment": {
    "type": "conversationai_book_appointment",
    "kind": "step",
-   "confidence": "live-schema",
-   "situational": [],
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
    "premium": false,
    "beta": false,
-   "isMultipathContainer": false,
-   "usesCustomInputs": false,
-   "section": "marketplace",
-   "requiredFields": [],
-   "attrKeys": [],
+   "isMultipathContainer": true,
+   "usesCustomInputs": true,
+   "section": "conversation_ai",
+   "requiredFields": [
+    "calendarId"
+   ],
+   "attrKeys": [
+    "promptInstructions",
+    "calendarId",
+    "type",
+    "__customInputs__",
+    "cat",
+    "convertToMultipath",
+    "transitions",
+    "__name__"
+   ],
+   "example": "flow-builder-captures/conv-ai-node-templates.json",
    "marketplace": true
   },
   "conversationai_continue": {
    "type": "conversationai_continue",
    "kind": "step",
-   "confidence": "live-schema",
-   "situational": [],
+   "confidence": "recon-fields",
+   "situational": [
+    "workflowsActionType"
+   ],
    "premium": false,
    "beta": false,
    "isMultipathContainer": false,
-   "usesCustomInputs": false,
-   "section": "marketplace",
+   "usesCustomInputs": true,
+   "section": "conversation_ai",
    "requiredFields": [],
-   "attrKeys": [],
+   "attrKeys": [
+    "prompt",
+    "type",
+    "__customInputs__"
+   ],
+   "note": "recon field-structure only (2026-07-15); minimal prompt panel. Capture a committed template to promote to verified-live.",
    "marketplace": true
   },
   "conversationai_end": {
    "type": "conversationai_end",
    "kind": "step",
-   "confidence": "live-schema",
-   "situational": [],
+   "confidence": "recon-fields",
+   "situational": [
+    "workflowsActionType"
+   ],
    "premium": false,
    "beta": false,
    "isMultipathContainer": false,
-   "usesCustomInputs": false,
-   "section": "marketplace",
+   "usesCustomInputs": true,
+   "section": "conversation_ai",
    "requiredFields": [],
-   "attrKeys": [],
+   "attrKeys": [
+    "customMessage",
+    "reactivate",
+    "duration",
+    "type",
+    "__customInputs__"
+   ],
+   "note": "recon field-structure only (2026-07-15): optional customMessage, reactivate checkbox (default on) + duration (default 1). Capture a committed template to promote to verified-live.",
    "marketplace": true
   },
   "conversationai_services_booking": {
    "type": "conversationai_services_booking",
    "kind": "step",
-   "confidence": "live-schema",
-   "situational": [],
+   "confidence": "recon-fields",
+   "situational": [
+    "workflowsActionType"
+   ],
    "premium": false,
    "beta": false,
    "isMultipathContainer": false,
-   "usesCustomInputs": false,
-   "section": "marketplace",
+   "usesCustomInputs": true,
+   "section": "conversation_ai",
    "requiredFields": [],
-   "attrKeys": [],
+   "attrKeys": [
+    "services",
+    "description",
+    "type",
+    "__customInputs__"
+   ],
+   "note": "recon field-structure only (2026-07-15): services multiselect (requires a configured commerce service) + booking description. Capture a committed template to promote to verified-live.",
    "marketplace": true
   },
   "create_and_associate_company": {

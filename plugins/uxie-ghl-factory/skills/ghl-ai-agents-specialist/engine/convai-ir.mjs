@@ -12,6 +12,12 @@ export class IRError extends Error {
 
 // mode enum — observed live on both create + update (lowercase strings).
 export const MODES = ['off', 'suggestive', 'autoPilot'];
+// botType enum. PROMPT_BASED_BOT is the default "Start from Scratch" prompt bot;
+// FLOW_BUILDER_BOT is the "Flow Based Builder" agent whose logic IS a workflow
+// (conv_ai_trigger bound to the agent via convTriggerBotId; the agent carries
+// isObjectiveBuilderEnabled:true + objectiveBuilderWorkflowId = that workflow's id).
+// Verified live 2026-07-14 (flow-builder-recon.md).
+export const BOT_TYPES = ['PROMPT_BASED_BOT', 'FLOW_BUILDER_BOT'];
 // channels enum — observed live on create + update.
 export const CHANNELS = ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp'];
 // humanHandOver was the first live-verified type (convai-action.json). The other 6 UI
@@ -81,6 +87,18 @@ function checkKnowledgeBaseIds(ids) {
   if (!Array.isArray(ids)) throw new IRError('SCHEMA', 'knowledgeBaseIds must be an array');
 }
 
+function checkBotType(botType) {
+  if (botType === undefined) return;
+  if (!BOT_TYPES.includes(botType)) throw new IRError('BAD_BOT_TYPE', `botType must be one of ${BOT_TYPES.join(', ')}, got: ${JSON.stringify(botType)}`);
+}
+
+function checkFlowFields(ir) {
+  if (ir.isObjectiveBuilderEnabled !== undefined && typeof ir.isObjectiveBuilderEnabled !== 'boolean')
+    throw new IRError('SCHEMA', 'isObjectiveBuilderEnabled must be a boolean');
+  if (ir.objectiveBuilderWorkflowId !== undefined && typeof ir.objectiveBuilderWorkflowId !== 'string')
+    throw new IRError('SCHEMA', 'objectiveBuilderWorkflowId must be a string');
+}
+
 // Full validation — used when compiling a create (POST /ai-employees/employees). Required:
 // name, mode (enum), channels (enum, non-empty). Everything else is optional with
 // capture-grounded defaults applied by the compiler.
@@ -93,6 +111,8 @@ export function parseConvaiIR(ir) {
   checkWait(ir.wait);
   checkSleep(ir.sleep);
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
+  checkBotType(ir.botType);
+  checkFlowFields(ir);
   return { ...ir };
 }
 
@@ -108,5 +128,7 @@ export function parseConvaiPartialIR(ir) {
   checkWait(ir.wait);
   checkSleep(ir.sleep);
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
+  checkBotType(ir.botType);
+  checkFlowFields(ir);
   return { ...ir };
 }

@@ -188,25 +188,33 @@ function typeFor(node) {
   return node.type; // action / raw
 }
 
+// Resolve a stable id for a ref. NAMED refs (ref defined) are cached in refMap so
+// goto/reply can target them and repeated mentions reuse the same id. REF-LESS
+// nodes/branches (ref === undefined/null) must get a FRESH id on every call:
+// caching them all under the single `undefined` key would collapse every anonymous
+// branch onto ONE id — duplicating branch ids in a container's next[] and (because
+// GHL dedupes branch entries by id) dropping the later branches' segments. That was
+// the live if_else defect root-caused 2026-07-15 (next:[b1,b2,b2], "else" branch with
+// empty segments). split/ai_decision never hit this because they mint ids positionally.
+function idForRef(refMap, ctx, ref) {
+  if (ref === undefined || ref === null) return ctx.idGen();
+  if (!refMap.has(ref)) refMap.set(ref, ctx.idGen());
+  return refMap.get(ref);
+}
+
 // Flatten a linear scope into template objects, wiring next/parentKey/order.
 // parentScopeId: the id set as `parent` for nodes in this scope (null at root).
 // Returns { templates, entryId }.
 export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
   const templates = [];
-  const ids = nodes.map((n) => {
-    if (!refMap.has(n.ref)) refMap.set(n.ref, ctx.idGen());
-    return refMap.get(n.ref);
-  });
+  const ids = nodes.map((n) => idForRef(refMap, ctx, n.ref));
   nodes.forEach((n, i) => {
     const id = ids[i];
     const next = i < nodes.length - 1 ? ids[i + 1] : null;
     const parentKey = i > 0 ? ids[i - 1] : (parentScopeId ?? null);
 
     if (n.kind === 'if_else') {
-      const branchIds = n.branches.map((b) => {
-        if (!refMap.has(b.ref)) refMap.set(b.ref, ctx.idGen());
-        return refMap.get(b.ref);
-      });
+      const branchIds = n.branches.map((b) => idForRef(refMap, ctx, b.ref));
       // Container shape mirrors a real live container (harvested 2026-07-10):
       // the builder's node label comes from `attributes.conditionName` — without it
       // the node renders "undefined". The container carries cat/comments (not parent/sibling).
@@ -244,6 +252,79 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
 
+    // Conversation-AI "Book appointment" node — a multi-path INTERNAL step with two
+    // PRE-DEFINED branches (Appointment Booked / Appointment Not booked). Same
+    // transition-step mechanics as find_opportunity. Shape mirrors the live capture
+    // flow-builder-captures/conv-ai-node-templates.json exactly (2026-07-14). Tails
+    // hang off `onBooked` / `onNotBooked` scopes (both optional).
+    if (n.type === 'conversationai_book_appointment') {
+      const attrs = n.attributes ?? {};
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const container = {
+        id, type: 'conversationai_book_appointment', name: n.name ?? 'Book appointment',
+        order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL', next: [t1, t2],
+        attributes: {
+          promptInstructions: attrs.promptInstructions ?? 'Get the customer to book an appointment',
+          calendarId: attrs.calendarId,
+          type: 'conversationai_book_appointment', __customInputs__: {},
+          cat: 'multi-path', convertToMultipath: true,
+          transitions: [
+            { id: t1, name: 'Appointment Booked', fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Appointment Not booked', fields: { appointmentNotBooked: true }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+          ],
+          __name__: n.name ?? 'Book appointment',
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(container);
+      const booked = flattenGraph(n.onBooked ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: 'transition', name: 'Appointment Booked', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: booked.entryId });
+      templates.push(...booked.templates);
+      const notb = flattenGraph(n.onNotBooked ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: 'transition', name: 'Appointment Not booked', cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, next: notb.entryId });
+      templates.push(...notb.templates);
+      return;
+    }
+
+    // Conversation-AI "AI splitter" node — an LLM routes the conversation to one of the
+    // author-defined branches based on `attributes.description`, else the always-present
+    // "No condition met" fallback (whose tail hangs off `default`). Each branch is a
+    // separate type:"transition" node. Structure mirrors the live capture (the captured
+    // splitter had only the fallback); named-branch `fields` beyond {} are not commit-
+    // verified — routing is driven by description + branch name.
+    if (n.type === 'conversationai_ai_splitter') {
+      const attrs = n.attributes ?? {};
+      const authorBranches = n.branches ?? [];
+      const branchIds = authorBranches.map(() => ctx.idGen());
+      const noneId = ctx.idGen();
+      const container = {
+        id, type: 'conversationai_ai_splitter', name: n.name ?? 'AI splitter',
+        order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL',
+        next: [...branchIds, noneId],
+        attributes: {
+          description: attrs.description ?? '',
+          type: 'conversationai_ai_splitter', __customInputs__: {},
+          cat: 'multi-path', convertToMultipath: true,
+          transitions: [
+            ...authorBranches.map((b, bi) => ({ id: branchIds[bi], name: b.name, fields: b.fields ?? {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' })),
+            { id: noneId, name: 'No condition met', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+          ],
+          __name__: n.name ?? 'AI splitter',
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(container);
+      authorBranches.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
+        templates.push({ id: branchIds[bi], type: 'transition', name: b.name, cat: 'transition', parentKey: id, parent: id, order: bi, attributes: {}, next: child.entryId });
+        templates.push(...child.templates);
+      });
+      const none = flattenGraph(n.default ?? [], ctx, refMap, noneId);
+      templates.push({ id: noneId, type: 'transition', name: 'No condition met', cat: 'transition', parentKey: id, parent: id, order: authorBranches.length, attributes: {}, next: none.entryId });
+      templates.push(...none.templates);
+      return;
+    }
+
     // Multipath wait (reply/condition/email_event/link_clicked WITH a timeout) — a 2-path
     // container mirroring if_else: next=[primaryTransition, timeoutTransition], plus separate
     // type:"transition" entry steps that children hang off. Live-verified shape 2026-07-10.
@@ -256,7 +337,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // subtype-specific fields (reply references prior step ids — resolve via refMap)
       let subtype = {};
       if (wt === 'reply') {
-        const replyIds = (n.reply?.steps ?? []).map((r) => { if (!refMap.has(r)) refMap.set(r, ctx.idGen()); return refMap.get(r); });
+        const replyIds = (n.reply?.steps ?? []).map((r) => idForRef(refMap, ctx, r));
         subtype = { reply: replyIds, replyLabel: n.reply?.labels ?? [] };
       } else {
         subtype = { ...(n.attributes ?? {}) };

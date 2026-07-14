@@ -54,14 +54,19 @@ function buildCreateBody(ir, { locationId }) {
     personality: ir.personality ?? '',
     goal: ir.goal ?? '',
     instructions: ir.instructions ?? '',
-    botType: 'PROMPT_BASED_BOT',
+    botType: ir.botType ?? 'PROMPT_BASED_BOT',
     knowledgeBaseIds: ir.knowledgeBaseIds ?? [],
     knowledgeBaseTriggers: [],
     summary: defaultSummary(),
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
-    objectiveBuilderWorkflowId: '',
-    isObjectiveBuilderEnabled: false,
+    // Flow-Based Builder linkage. A FLOW_BUILDER_BOT's logic lives in a workflow whose
+    // conv_ai_trigger is bound to this agent; once that workflow exists, the agent is
+    // linked via objectiveBuilderWorkflowId + isObjectiveBuilderEnabled:true (usually a
+    // follow-up PUT — see compileLinkFlowWorkflow / compileFlowBuilderBot). Emitting them
+    // here too lets a caller create an already-linked agent when the workflow id is known.
+    objectiveBuilderWorkflowId: ir.objectiveBuilderWorkflowId ?? '',
+    isObjectiveBuilderEnabled: ir.isObjectiveBuilderEnabled ?? false,
     aiResponseLengthEnabled: false,
     responseLength: 'balanced',
   };
@@ -78,11 +83,17 @@ function buildCreateBody(ir, { locationId }) {
 // days|hours|minutes) for humanHandOver, even though it's unrelated to the handover
 // semantics — it was present in convai-action.json's request_body all along
 // (sleepTime: 8, sleepTimeUnit: "hours") but had been dropped from the defaults here.
+// Third live-verified 422 gap (found 2026-07-15): the API now also REQUIRES
+// `details.handoverType` (enum below) on humanHandOver — the first POST without it 422'd.
+// It classifies WHY the bot hands off. Default 'custom' pairs with the always-present
+// free-text triggerCondition (the bot's own decision text); override per intent.
+export const HANDOVER_TYPES = ['contactRequest', 'lackOfInformation', 'failedToResolveIssue', 'custom'];
 const HUMAN_HANDOVER_DETAIL_DEFAULTS = {
   enabled: true,
   reactivateEnabled: false,
   sleepTime: 8,
   sleepTimeUnit: 'hours',
+  handoverType: 'custom',
 };
 const TRIGGER_CONDITION_MIN = 10;
 const TRIGGER_CONDITION_MAX = 500;
@@ -97,6 +108,12 @@ function buildHumanHandOverDetails(details) {
     throw new IRError(
       'SCHEMA',
       `humanHandOver action.details.triggerCondition must be a string between ${TRIGGER_CONDITION_MIN} and ${TRIGGER_CONDITION_MAX} chars (API-required; live-verified 422 without it), got: ${JSON.stringify(triggerCondition)}`,
+    );
+  }
+  if (details.handoverType !== undefined && !HANDOVER_TYPES.includes(details.handoverType)) {
+    throw new IRError(
+      'SCHEMA',
+      `humanHandOver action.details.handoverType must be one of ${HANDOVER_TYPES.join(', ')} (API-required; live-verified 422 without it, 2026-07-15), got: ${JSON.stringify(details.handoverType)}`,
     );
   }
   return { ...HUMAN_HANDOVER_DETAIL_DEFAULTS, ...details };
@@ -302,6 +319,9 @@ const UPDATE_FIELD_MAP = {
   knowledgeBaseTriggers: 'knowledgeBaseTriggers',
   respondToImages: 'respondToImages',
   respondToAudio: 'respondToAudio',
+  botType: 'botType',
+  isObjectiveBuilderEnabled: 'isObjectiveBuilderEnabled',
+  objectiveBuilderWorkflowId: 'objectiveBuilderWorkflowId',
 };
 
 // PUT /ai-employees/employees/:agentId — the backend MERGES (confirmed by convai-kb.json,
@@ -328,4 +348,65 @@ export function compileConvaiUpdate(partialIr, { agentId, locationId } = {}) {
     if (s.timeUnit !== undefined) body.sleepTimeUnit = s.timeUnit;
   }
   return { method: 'PUT', path: `/ai-employees/employees/${agentId}`, body, authHeader: AUTH_HEADER };
+}
+
+// --- Flow-Based Builder (FLOW_BUILDER_BOT) ---------------------------------------
+// A flow bot's logic IS a workflow: a create-ghl-workflow with a conv_ai_trigger bound
+// to the agent (convTriggerBotId = agentId), whose steps are the conversationai_* nodes
+// (+ custom_webhook to the worker). The agent is then linked to that workflow via a PUT
+// setting isObjectiveBuilderEnabled:true + objectiveBuilderWorkflowId = the workflow id.
+// Verified live 2026-07-14 (flow-builder-recon.md). Agent CRUD uses `token-id`; the flow
+// workflow uses the create-ghl-workflow recipe (Authorization: Bearer) — two different
+// auth rails, so this driver keeps the agent + workflow steps as separate descriptors.
+
+// PUT that links an existing FLOW_BUILDER_BOT agent to its (now-created) flow workflow.
+export function compileLinkFlowWorkflow(agentId, workflowId, { locationId } = {}) {
+  if (!agentId) throw new IRError('MISSING_FIELD', 'compileLinkFlowWorkflow requires agentId');
+  if (!workflowId) throw new IRError('MISSING_FIELD', 'compileLinkFlowWorkflow requires workflowId');
+  return compileConvaiUpdate(
+    { isObjectiveBuilderEnabled: true, objectiveBuilderWorkflowId: workflowId },
+    { agentId, locationId },
+  );
+}
+
+// Build a FLOW_BUILDER_BOT end to end. Returns an ordered PLAN of descriptors/factories —
+// it makes no live calls (agentId + workflowId are runtime values the caller threads in):
+//   1. createAgent          — POST the agent as FLOW_BUILDER_BOT (token-id).
+//   2. flowWorkflow(agentId)— the flow workflow bound to the agent id. If a
+//      `compileWorkflow` fn (create-ghl-workflow's compile) + `workflowCtx` are injected,
+//      returns its compiled descriptors; otherwise returns the workflow IR for the caller
+//      to compile. The conv_ai_trigger carries convTriggerBotId = agentId.
+//   3. linkWorkflow(agentId, workflowId) — PUT linking the agent to the created workflow.
+//
+// `ir.flow` is a create-ghl-workflow IR (triggers optional — a conv_ai_trigger is injected/
+// bound automatically). Its graph is the conversationai_* + custom_webhook steps.
+export function compileFlowBuilderBot(ir, { locationId, compileWorkflow, workflowCtx } = {}) {
+  const agentIr = { ...ir, botType: 'FLOW_BUILDER_BOT' };
+  delete agentIr.flow;
+  const createAgent = compileConvaiAgent(agentIr, { locationId });
+
+  const flowWorkflow = (agentId) => {
+    if (!agentId) throw new IRError('MISSING_FIELD', 'flowWorkflow requires the created agentId');
+    const flow = ir.flow ?? { name: ir.name, triggers: [], graph: [] };
+    // Bind (or inject) the conv_ai_trigger to this agent. A caller-supplied conv_ai_trigger
+    // is honored; otherwise one is added. convTriggerBotId is what ties the workflow to the
+    // agent so the flow builder opens it as the agent's canvas.
+    const triggers = [...(flow.triggers ?? [])];
+    const existing = triggers.find((t) => t.type === 'conv_ai_trigger');
+    if (existing) {
+      existing.convTriggerBotId = agentId;
+    } else {
+      triggers.unshift({ ref: 'conv_ai', type: 'conv_ai_trigger', name: 'Chat Initiated', filters: [], convTriggerBotId: agentId });
+    }
+    const workflowIr = { ...flow, triggers, workflowType: 'agent' };
+    if (typeof compileWorkflow === 'function') return compileWorkflow(workflowIr, workflowCtx);
+    return workflowIr;
+  };
+
+  return {
+    createAgent,
+    flowWorkflow,
+    linkWorkflow: (agentId, workflowId) => compileLinkFlowWorkflow(agentId, workflowId, { locationId }),
+    authHeader: AUTH_HEADER,
+  };
 }
