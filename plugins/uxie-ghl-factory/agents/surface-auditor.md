@@ -73,14 +73,25 @@ bodies, not every reference file.)
   payment mutation — not even with `dry_run=true` "to see what it would do."
   If you are unsure whether an action is a read, treat it as a write and skip
   it. Never pass `confirm=true` to `execute_action` for any reason.
-- For workflow-surface depth (step internals, trigger JSON, sticky notes,
-  step counts) that the public MCP can't reach: invoke the
+- For workflow-surface **definition** depth (step internals, trigger JSON,
+  sticky notes, step counts) that the public MCP can't reach: invoke the
   `get-ghl-workflow-json` skill and follow its runbook exactly. Do not
   hand-roll `backend.leadconnectorhq.com` fetches yourself, and do not
   restate or re-derive the auth header format — that skill already owns the
   read-only capture path (browser JWT interception, human-paced throttle,
   GET-only). If SURFACE is not `workflows`, you should not need this skill at
   all.
+- For workflow-surface **runtime** depth — the defects you can only see in
+  what the workflow actually *did*, not how it's built (`workflows-13..16`
+  in the defect catalog: dead branches, stuck enrollments, silent send
+  failures, anomalous early exits; and the runtime read `workflows-11` now
+  calls for): invoke the `get-ghl-workflow-logs` skill and follow its
+  runbook. It reads `logs/v2`, `workflow-with-filter`, and `count-per-step`
+  read-only through the same JWT/throttle/GET-only path — same auth single-
+  sourcing rule applies. Only reach for it when a defect-catalog rule on
+  your surface actually needs runtime evidence, and only for `workflows`.
+  Bound the `logs/v2` date window to the question (a 60–90 day sweep is
+  usually enough); don't pull the entire history of a busy workflow.
 - For any other surface's depth dive that needs browser internals no skill
   in this plugin captures yet (funnel page contents, form-builder internals,
   ConvAI prompts), do not drive the browser yourself — pause and use the
