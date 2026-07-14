@@ -1,5 +1,5 @@
 ---
-description: Run a whole-account, read-only GHL audit — dispatch the surface-auditor agent across all 8 surfaces (bounded concurrency), then the finding-verifier agent per candidate, and synthesize a brief-ranked report with a Mermaid system-flow map. Triggers — "audit my GHL", "audit my sub-account", "audit the whole system", "audit my workflows", "review my GHL setup", "what's wrong with my GHL account".
+description: Run a whole-account, read-only GHL audit — dispatch the surface-auditor agent across EVERY GHL surface (8 deep-catalog surfaces + baseline coverage of all the rest, per audit-io.md §5; bounded concurrency), then the finding-verifier agent per candidate, and synthesize a brief-ranked report with a Mermaid system-flow map. Triggers — "audit my GHL", "audit my sub-account", "audit the whole system", "audit my workflows", "review my GHL setup", "what's wrong with my GHL account".
 ---
 
 # /uxie-ghl-factory:audit
@@ -51,11 +51,15 @@ artifact is missing or incomplete rather than restarting the whole run.
 4. Create `.ghl/<locationId>/audits/<timestamp>/` (layout:
    `ghl-audit-primitives` `references/audit-io.md` §1) — `raw/`, `findings/`,
    and an append-only `log.md`.
-5. Run an MCP-wide inventory (read-only counts across all 8 surfaces:
-   workflows, pipelines, funnels, calendars, forms, ai-agents, messaging,
-   tracking) and write it to `inventory.json` in the audit root. This is the
-   shared entity-count baseline every surface-auditor and the aggregator
-   reads later — it is not itself a finding.
+5. Run an MCP-wide inventory (read-only counts across **every surface in the
+   coverage map**, `ghl-audit-primitives` `references/audit-io.md` §5 — the 8
+   Tier-1 surfaces plus every Tier-2 surface: contacts, commerce, deliverability,
+   email-marketing, social, reputation, memberships, users-access, settings,
+   integrations, blogs, ads, affiliates, saas). Use each surface's recon-manifest
+   categories in §5. Write it to `inventory.json` in the audit root (one entry per
+   surface: category counts + Tier). This is the shared entity-count baseline every
+   surface-auditor and the aggregator read later — it is not itself a finding, and it
+   is what proves no surface was skipped.
 
 ## Phase 1.5 — Workflow-JSON corpus capture (shared, once)
 
@@ -79,15 +83,22 @@ resumed (Phase 2 re-reads whatever `raw/_shared/workflows/` then contains).
 
 ## Phase 2 — Breadth sweep (surface-auditor, bounded concurrency)
 
-Dispatch the `uxie-ghl-factory:surface-auditor` agent once per surface — workflows,
-pipelines, funnels, calendars, forms, ai-agents, messaging, tracking — each
-run given explicitly: `SURFACE`, the target `locationId`, the audit root
-path, and that the shared workflow-JSON corpus is at `raw/_shared/workflows/`
-(read-only) for any workflow trigger/action cross-reference on its surface.
-Each surface-auditor runs both lenses (`ghl-defect-catalog` +
-`ghl-opportunity-catalog`) against MCP reads + the shared corpus and writes its own
-candidate findings to `findings/<surface>.json`, all `verdict: plausible`
-pending verification.
+Dispatch the `uxie-ghl-factory:surface-auditor` agent once per surface in the
+coverage map (`audit-io.md` §5) — every Tier-1 AND Tier-2 surface, so the whole
+account is covered — each run given explicitly: `SURFACE`, its **Tier** (1 or 2),
+the target `locationId`, the audit root path, and that the shared workflow-JSON
+corpus is at `raw/_shared/workflows/` (read-only) for any workflow cross-reference.
+
+- **Tier-1** surface-auditors run both deep lenses (`ghl-defect-catalog` +
+  `ghl-opportunity-catalog`) against MCP reads + the shared corpus.
+- **Tier-2** surface-auditors run the **baseline protocol** (`audit-io.md` §5's five
+  generic checks) against their recon-manifest reads, marking findings `coverage: baseline`.
+  Every Tier-2 surface is dispatched even if likely empty — a surface with no findings
+  logs "checked, no issues (baseline)" so the report proves coverage.
+
+Each writes its candidate findings to `findings/<surface>.json`, all `verdict: plausible`
+pending verification. (~22 surfaces total — the 3–4 concurrency cap means several waves;
+that's expected for a whole-account sweep.)
 
 **Cap concurrency at 3–4 surface-auditors in flight at once** (per
 `audit-io.md` §3) — this is a hard bound, not a suggestion; unbounded fan-out

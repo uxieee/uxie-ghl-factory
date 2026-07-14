@@ -1,17 +1,18 @@
 # Finding Schema
 
-The canonical finding record every surface-auditor (workflows, pipelines, funnels,
-calendars, forms, ai-agents, messaging, tracking) emits. One finding per issue —
-do not bundle. This is the whole-account auditor's version of `ghl-specialist`'s
-finding object (`ghl-specialist/runbooks/audit-common.md` §2), extended with two
-fields the single-account, single-altitude skill never needed: `altitude` and
-`brief_tieback`.
+The canonical finding record every surface-auditor emits (for any surface in the
+coverage map, `audit-io.md` §5 — the 8 Tier-1 deep-catalog surfaces plus the Tier-2
+baseline surfaces). One finding per issue — do not bundle. This is the whole-account
+auditor's version of `ghl-specialist`'s finding object (`ghl-specialist/runbooks/audit-common.md`
+§2), extended with three fields the single-account, single-altitude skill never needed:
+`altitude`, `brief_tieback`, and `coverage`.
 
 ```yaml
 finding:
   id: <surface>-<n>
-  surface: workflows|pipelines|funnels|calendars|forms|ai-agents|messaging|tracking
+  surface: <any surface in audit-io.md §5>   # workflows|pipelines|…|contacts|commerce|deliverability|…
   altitude: defect | opportunity
+  coverage: deep | baseline   # deep = from a Tier-1 rule catalog; baseline = Tier-2 generic protocol
   title: <one line>
   severity: high|medium|low   # assigned by the deterministic rubric (audit-io.md), not gut
   verdict: confirmed | plausible   # stamped by finding-verifier, never self-assigned
@@ -25,10 +26,16 @@ finding:
 - **id** — `<surface>-<n>`, stable within one audit run. Surface prefix lets
   findings be re-assembled from `findings/<surface>.json` shards (see
   `audit-io.md`) without collision.
-- **surface** — exactly one of the eight enumerated surfaces. A finding that
-  spans two surfaces (e.g. a workflow driving a broken calendar booking) still
-  picks the surface where the defect *lives*; use `remediation` or a future
+- **surface** — exactly one surface from the coverage map (`audit-io.md` §5). A
+  finding that spans two surfaces (e.g. a workflow driving a broken calendar booking)
+  still picks the surface where the defect *lives*; use `remediation` or a future
   cross-reference to point at the other surface, don't dual-file it.
+- **coverage** — **new field.** `deep` when the finding came from a Tier-1 rule
+  catalog (`ghl-defect-catalog` / `ghl-opportunity-catalog`); `baseline` when it came
+  from the Tier-2 generic baseline protocol (`audit-io.md` §5) for a surface without a
+  deep catalog yet. The report surfaces this honestly so a reader knows which findings
+  are catalog-grounded vs. baseline-scanned; it never inflates a baseline finding's
+  severity, and a repeatedly-firing baseline surface is the signal to build it a catalog.
 - **altitude** — **new field.** `ghl-specialist` only ever reported defects
   (things wrong); this auditor also surfaces `opportunity` findings (things
   absent or under-leveraged relative to the brief's goals — e.g. no re-engagement

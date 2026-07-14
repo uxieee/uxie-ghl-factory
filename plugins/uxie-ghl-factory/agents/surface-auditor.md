@@ -19,11 +19,14 @@ job, run after you.
 
 Your task prompt tells you, explicitly:
 
-- **SURFACE** — exactly one of `workflows | pipelines | funnels | calendars |
-  forms | ai-agents | messaging | tracking`. Audit only this surface. Do not
-  wander into another surface's objects even if you notice something wrong
-  there in passing — note it one line in `log.md` with a pointer, and let that
-  surface's own auditor (or a future run) pick it up.
+- **SURFACE** — exactly one surface from the coverage map (`audit-io.md` §5): a
+  Tier-1 surface (`workflows | pipelines | funnels | calendars | forms | ai-agents |
+  messaging | tracking`) or a Tier-2 surface (`contacts | commerce | deliverability |
+  email-marketing | social | reputation | memberships | users-access | settings |
+  integrations | blogs | ads | affiliates | saas`). Your task prompt also gives you the
+  surface's **Tier**. Audit only this surface. Do not wander into another surface's
+  objects even if you notice something wrong there in passing — note it one line in
+  `log.md` with a pointer, and let that surface's own auditor (or a future run) pick it up.
 - **locationId** — the target sub-account. Use it for every MCP call and for
   the output path below.
 - **audit root** — the `.ghl/<locationId>/audits/<timestamp>/` folder this
@@ -63,6 +66,19 @@ before reading anything — do not guess a surface or a locationId.
 frontmatter field above; re-read the referenced files above via the `Read`
 tool if you need the full text, since preload injects the top-level `SKILL.md`
 bodies, not every reference file.)
+
+**Tier-1 vs Tier-2 (from your task prompt + `audit-io.md` §5).**
+- **Tier-1** surfaces (the 8) have curated rules — run the defect + opportunity
+  catalogs above, filtered to your surface. Findings are `coverage: deep`.
+- **Tier-2** surfaces have NO deep catalog yet, so the catalog rules for your surface
+  will be empty — do NOT invent deep rules to fill the gap. Instead run the **baseline
+  protocol** in `audit-io.md` §5 (recon & count → populated-vs-expected → configured-but-
+  orphaned → obvious misconfiguration → referenced-but-missing), using your surface's
+  recon-manifest categories from the §5 table. Every Tier-2 finding is `coverage: baseline`,
+  still evidence-backed and brief-gated. If your surface is genuinely empty or not
+  applicable (e.g. `saas` on a non-SaaS account, `ads` with no ad accounts), that is a
+  valid result — write an empty `findings/<surface>.json` and log "`<surface>`: checked,
+  no issues (baseline)" so the run proves the surface was inspected, not skipped.
 
 ## Recon — read-only, this surface only
 

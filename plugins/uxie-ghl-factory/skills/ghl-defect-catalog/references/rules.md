@@ -963,13 +963,24 @@ default here is what a surface-auditor should propose absent other signal.
 | tracking | 2 | lightly-covered (see note) |
 | ai-agents | 4 (incl. 1 recon-limitation caveat) | lightly-covered (see note) |
 
-8 of 8 surfaces present. Every rule above cites a source; none is
-invented. Where a rule's grounding is thin, the surface's heading note says
-so explicitly rather than papering over it with invented specifics.
+These 8 are the **Tier-1** deep-catalog surfaces. Every rule above cites a source;
+none is invented. Where a rule's grounding is thin, the surface's heading note says
+so explicitly rather than papering over it with invented specifics. The remaining
+GHL surfaces (contacts, commerce, deliverability, …) are **Tier-2** — audited every
+run via the generic baseline protocol in `ghl-audit-primitives` `references/audit-io.md`
+§5, not by rules here. See §5 for the complete surface coverage map.
+
+> **Provenance note:** citations to `ghl-specialist/...` (e.g. `audit-common.md`,
+> `push-back-guide.md`) mark where a rule was harvested from — `ghl-specialist` is a
+> separate USER-LEVEL skill (`~/.claude/skills/ghl-specialist`), **not bundled in this
+> plugin**. They are provenance, not loadable references; do not try to `Read` them.
+> The load-bearing pointers (`ghl-workflow-specialist`, `ghl-pipeline-specialist`,
+> `ghl-funnels-pages`, `create-ghl-workflow`) all resolve to real in-plugin skills.
 
 ## How to extend
 
-When a surface-auditor run confirms a defect not covered by any rule above,
-follow the `ghl-specialist` learning-log convention (propose the addition
-with a concrete detection rule, get the rule reviewed, then add it here with
-its source) rather than acting on an ungrounded ad hoc rule mid-audit.
+When a surface-auditor run confirms a defect not covered by any rule above (or a
+Tier-2 baseline surface repeatedly surfaces the same real defect, the signal to
+promote it to Tier-1), follow the `ghl-specialist` learning-log convention (propose
+the addition with a concrete detection rule, get the rule reviewed, then add it here
+with its source) rather than acting on an ungrounded ad hoc rule mid-audit.
