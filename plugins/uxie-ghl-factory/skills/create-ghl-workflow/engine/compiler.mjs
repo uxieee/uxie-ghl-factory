@@ -579,6 +579,10 @@ function buildTrigger(t, ctx, wid) {
     actions: [{ workflow_id: wid, type: 'add_to_workflow' }],
     active: t.active !== false, triggersChanged: true,
     location_id: ctx.loc, company_id: ctx.cid, company_age: ctx.companyAge,
+    // conv_ai_trigger binds a FLOW_BUILDER_BOT flow workflow to its agent — without
+    // convTriggerBotId the flow builder never opens the workflow as that agent's canvas
+    // (the agent→workflow half is set separately via the /ai-employees link PUT).
+    ...(t.convTriggerBotId ? { convTriggerBotId: t.convTriggerBotId } : {}),
   };
 }
 
@@ -622,6 +626,9 @@ export function compile(ir, ctx) {
   const autoSaveBody = {
     _id: wid, id: wid, locationId: ctx.loc, companyId: ctx.cid, companyAge: ctx.companyAge,
     name: norm.name, status: 'draft', version: 1, dataVersion: 7, type: 'workflow', parentId: null,
+    // A FLOW_BUILDER_BOT's flow workflow persists with workflowType:"agent" (live capture
+    // recon-flow-workflow-full.json). Plain workflows omit it. type stays "workflow".
+    ...(norm.workflowType ? { workflowType: norm.workflowType } : {}),
     permission: 380, permissionMeta: { canRead: true, canWrite: true },
     creationSource: 'builder', originType: 'user', isTriggerBucketMigrated: true, deleted: false,
     timezone: norm.settings?.timezone ?? 'account',

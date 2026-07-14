@@ -87,13 +87,16 @@ are a **separate resource**, not embedded in the agent's create/update body — 
 call itself always sends `actions: []`; actions are POSTed after, once the real `employeeId`
 is known.
 
-**`humanHandOver` — the first live-verified action type.** Two live-verified 422 gaps found
-during capture, both baked into `convai-compiler.mjs`'s `HUMAN_HANDOVER_DETAIL_DEFAULTS`:
+**`humanHandOver` — the first live-verified action type.** Three live-verified 422 gaps found
+during capture, all baked into `convai-compiler.mjs`'s `HUMAN_HANDOVER_DETAIL_DEFAULTS`:
 - `details.enabled`, `details.triggerCondition`, `details.reactivateEnabled` are all required
   by the API even though they look optional from the UI.
 - `details.sleepTime` / `details.sleepTimeUnit` (number 1-30 / enum `days`|`hours`|`minutes`)
   are ALSO required — unrelated to handover semantics on its face, but the API 422s without
   them.
+- **`details.handoverType`** — REQUIRED (found 2026-07-15; first POST 422'd without it). Enum
+  `contactRequest | lackOfInformation | failedToResolveIssue | custom`; the compiler defaults
+  it to `custom` and validates the enum.
 - `triggerCondition` has no sane default (it's the bot's own decision text for when to hand
   off) — the compiler requires it as a string 10-500 chars and throws `IRError` otherwise.
 
@@ -122,6 +125,15 @@ merges the caller's `details` over the capture's literal defaults:
 `VERIFIED_ACTION_TYPES` in `convai-ir.mjs` now lists all 7. Any `type` outside this list (no
 capture exists for it) still passes through as accepted-but-unverified — treat any result
 from an unlisted type as unverified until a live capture backs it up.
+
+**⚠️ Resolve dependency IDs FIRST (via the `ghl` MCP).** Every action detail that is an ID must
+be a REAL account ID before you POST — the compiler validates presence/shape, not existence.
+Resolve up front: `appointmentBooking.calendarId` + `conversationai_book_appointment.calendarId`
+(calendars), `updateContactField.contactFieldId` + `conversationai_objective.contactField`
+(contact custom fields), `triggerWorkflow.workflowIds` (workflows), `transferBot.transferToBot`
++ `conversationai_transfer_bot.assignedEmployeeId` (the target agent's employeeId), and
+`knowledgeBaseIds` (KBs). `conversationai_services_booking` additionally needs a pre-configured
+commerce service. A wrong/missing id posts clean and no-ops at runtime.
 
 ## Knowledge base (rich-text, feeds this + Voice AI + Agent Studio)
 
@@ -190,8 +202,10 @@ engine's catalog (`node engine/query-catalog.mjs conversationai`):
 
 The two multi-path nodes emit `cat:"multi-path"`, `convertToMultipath:true`, `transitions[]`, and
 a separate `type:"transition"` node per branch (mirrors `find_opportunity`). ⚑ = field structure
-captured but not yet commit-verified — capture a committed template to promote to ✅ (throwaway
-recon bot still live: see `flow-builder-recon.md`).
+captured but not yet commit-verified — capture a committed template to promote to ✅. (Full
+provenance lives in the external research repo `uxieee/ghl-workflow-api-docs`:
+`research/ai-agents-internal/conversation-ai-internal.md` + `flow-builder-captures/`, not shipped
+in this plugin.)
 
 **Commit path.** Node "Save action" only stages a node locally; the top-right **"Save workflow"**
 button flushes `workflowData.templates` to the backend. Enable auto-save with
@@ -228,8 +242,16 @@ const { create, actions, authHeader } = compileConvaiAgent({
 const upd = compileConvaiUpdate({ mode: 'autoPilot' }, { agentId, locationId });
 
 // Flow-Based Builder (FLOW_BUILDER_BOT) — build the agent + its flow workflow end to end:
-import { compileFlowBuilderBot } from './engine/convai-compiler.mjs';
+import { compileFlowBuilderBot, compileLinkFlowWorkflow } from './engine/convai-compiler.mjs';
 import { compile as compileWorkflow } from '../create-ghl-workflow/engine/compiler.mjs';
+import { loadCatalog } from '../create-ghl-workflow/engine/catalog.mjs';
+import { makeSeededIdGen } from '../create-ghl-workflow/engine/idgen.mjs';
+
+// workflowCtx is the create-ghl-workflow compile() ctx — you must supply all keys:
+//   loc/cid/uid from the /ai-employees list or JWT claims; companyAge from the location;
+//   idGen (uuid factory) + catalog (loadCatalog()). Prefer the create-ghl-workflow
+//   orchestrator (scripts/build.mjs) to actually CREATE the compiled flow workflow.
+const workflowCtx = { loc: locationId, cid, uid, companyAge, idGen: makeSeededIdGen('x'), catalog: loadCatalog() };
 
 const plan = compileFlowBuilderBot({
   name: 'Booking Flow Bot', mode: 'autoPilot', channels: ['SMS', 'WebChat'],
@@ -245,9 +267,12 @@ const plan = compileFlowBuilderBot({
     ],
   },
 }, { locationId, compileWorkflow, workflowCtx });
-// Runtime order: POST plan.createAgent → get agentId → compile+create plan.flowWorkflow(agentId)
-//   → get workflowId → PUT plan.linkWorkflow(agentId, workflowId).  DRAFTS ONLY — never publish
-//   the agent/workflow without explicit approval.
+// Runtime order:
+//   1. POST plan.createAgent.create  (body is plan.createAgent.create.body) → get agentId
+//   2. plan.flowWorkflow(agentId) → create-ghl-workflow descriptors (conv_ai_trigger already
+//      carries convTriggerBotId=agentId; workflow persists workflowType:"agent") → create → get workflowId
+//   3. PUT plan.linkWorkflow(agentId, workflowId)  (=== compileLinkFlowWorkflow(agentId, workflowId, {locationId}))
+// DRAFTS ONLY — never publish the agent/workflow without explicit approval.
 ```
 
 Both compilers only produce `{method, path, body, authHeader}` descriptors — issuing the HTTP

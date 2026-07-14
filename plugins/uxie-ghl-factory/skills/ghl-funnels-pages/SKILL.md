@@ -11,7 +11,7 @@ Writes to a GHL account via the undocumented internal API.
 1. Run BOTH gates in ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md.
 2. Auth: ${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md (capture, 1-hr expiry, re-auth contract).
 
-## Contract (uniform specialist contract, spec §5)
+## Contract (uniform specialist contract)
 Recon (MCP read of existing funnels) → read the account brief
 (.ghl/<locationId>/brief.md if present) → intake only what's missing →
 blueprint with explicit page list + HTML/tracking plan → user approval →

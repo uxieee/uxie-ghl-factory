@@ -34,8 +34,8 @@ verifies → prints a report. Publish only with `--publish`, only after the user
 
 ## Know what you can build — check before you say "can't"
 
-The catalog is **complete**: 316 step types / 59 trigger types (62 native steps +
-58 native triggers live-proven). If you're about to tell the user a step or trigger
+The catalog is **complete**: 316 step types / 59 trigger types (the live-proven subset
+is flagged ✅ in the index; `query-catalog.mjs` prints the current counts). If you're about to tell the user a step or trigger
 "isn't supported", or about to fake a native action with a webhook/custom-code
 workaround, **check the catalog first** — your recall of GHL's action list is
 incomplete; the catalog is the truth:
@@ -56,8 +56,10 @@ catalog rather than improvising a shape.
 1. Run BOTH gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`
    (OWNED-ACCOUNT CHECK every session; TOS DISCLOSURE once per workspace).
 2. Auth: `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`. `Authorization: Bearer`,
-   **NOT** `token-id`. Save the header line to `../.playwright-mcp/tok.txt`. JWT
-   ~1 hr; on 401 mid-run stop, re-capture, resume — never retry-loop.
+   **NOT** `token-id`. Save the captured `Authorization: Bearer …` line to the file
+   `scripts/build.mjs` reads — set `GHL_TOK_FILE=<path>` (recommended) or drop it at
+   the default `plugins/.playwright-mcp/tok.txt`. JWT ~1 hr; on 401 mid-run stop,
+   re-capture, resume — never retry-loop.
 3. **Draft-first.** Everything builds as `draft`. Publish is a separate, opt-in
    `--publish` run gated on explicit user confirmation.
 
@@ -88,10 +90,25 @@ graph:
   (`workflow_ai_decision_maker`, Default + N branches), `goto` (must be last in its
   branch). Pre-set 2-branch finders (`find_contact`/`find_opportunity`/`lc_merge_contact`)
   use `onFound`/`onNotFound`.
-- **Names the resolver understands:** `attributes.pipeline`/`stage` (opportunity
-  steps), `attributes.user` (assign_user), `attributes.calendar` (appointment_booking),
-  `attributes.assignedTo` (task), `attributes.agent`/`employee` (voice/ConvAI), and
-  trigger filter values referencing pipeline/form/calendar/survey names.
+- **Conversation-AI flow-builder containers** (for `FLOW_BUILDER_BOT` flows — see
+  the `ghl-ai-agents-specialist` skill): `conversationai_book_appointment` uses scope
+  keys `onBooked`/`onNotBooked`; `conversationai_ai_splitter` uses `branches: [{name, then}]`
+  + an optional `default: [...]` "No condition met" tail. The other 7 `conversationai_*`
+  nodes are linear `action`s. Bind the flow to its agent by putting `convTriggerBotId: <agentId>`
+  on the `conv_ai_trigger`, and set top-level `workflowType: "agent"` on the IR.
+- **Names the resolver understands** (CLOSED list — everything else must already be a
+  real ID): `attributes.pipeline`/`stage` (opportunity steps), `attributes.user`
+  (assign_user), `attributes.calendar` (appointment_booking ONLY), `attributes.assignedTo`
+  (task), `attributes.agent`/`employee` (voice/ConvAI agent), and trigger filter values
+  referencing pipeline/form/calendar/survey names.
+- **⚠️ NOT resolved and NOT flagged — you must pre-resolve these to real IDs yourself
+  (via the `ghl` MCP) before authoring, or the workflow builds clean and silently no-ops
+  at runtime:** custom values (`{{custom_values.x}}` in bodies), payment products/prices,
+  `add_to_workflow`/`remove_from_workflow` `workflow_id` (a SIBLING workflow — pass its id,
+  NOT its name; the validator does not check it exists), `conversationai_book_appointment.calendarId`,
+  `conversationai_transfer_bot.assignedEmployeeId`, `conversationai_objective.contactField`,
+  and custom-field ids used in trigger filter conditions. The abort gate only covers the
+  closed list above — these pass through untouched.
 - **Inline emails:** put `attributes._template: { title, html, previewText }` on an
   `email` node — the orchestrator creates the template first and links it.
 - **Trigger-less workflows:** `triggers: []` is legal — for workflows enrolled via
@@ -100,16 +117,29 @@ graph:
   `message` instead of `body` on `sms`) fails compile with `ATTR_KEY` instead of
   saving a step that renders blank. Check the type's real keys with
   `node engine/query-catalog.mjs <type>`.
-- **Coverage:** 316 step types / 59 trigger types are catalogued; 62 native steps +
-  58 native triggers are live-proven. Full index: `references/capabilities.md`;
-  per-type lookup: `node engine/query-catalog.mjs <term>`.
+- **Coverage:** 316 step types / 59 trigger types are catalogued (the live-proven
+  subset is flagged ✅). Full index: `references/capabilities.md`; per-type lookup:
+  `node engine/query-catalog.mjs <term>`; live counts: `node engine/query-catalog.mjs`.
+
+## Editing an existing workflow (not a fresh create)
+
+`scripts/build.mjs` is CREATE-only. To ADD/insert/delete/modify/move steps or branches
+on a workflow that already exists, use the edit engine `engine/edit.mjs` — GET the live
+workflow JSON (via the `get-ghl-workflow-json` skill), apply an op, then commit with a
+**plain `PUT /workflow/{loc}/{wid}`** (NOT `/auto-save`). Ops: `appendStep`, `insertAfter`,
+`insertBefore`, `deleteStep`, `modifyStep`, `moveStep`, `addBranch`, `appendToBranch`,
+`deleteContainer`, and `editCommitBody` (assembles the PUT body). Adding an
+`internal_update_opportunity` this way triggers the `OPP_UNASSOCIATED` guard (see gotchas
+below). Follow `engine/edit.mjs` + `engine/edit.test.mjs` for the exact op signatures.
 
 ## Read the build report — every time
 
 The orchestrator prints exactly what it did. Check it:
 - `ABORTED: Missing account dependencies …` → a pipeline/calendar/user/form/agent
-  you named doesn't exist. Tell the user; create/rename it (or `--ignore-unresolved`
-  to force a build that points at nothing — rarely what you want).
+  you named doesn't exist. Tell the user; look it up or create it — see
+  `references/discovery.md` for the MCP lookups/creates per dependency type — then
+  rebuild (or `--ignore-unresolved` to force a build that points at nothing — rarely
+  what you want).
 - `created tags: …` / `created email templates: …` → dependencies it made for you.
 - `round-trip: N clean` with `ISSUES: …` → a step's fields were dropped by the
   server (a shape problem) — investigate before calling it done.
@@ -156,5 +186,8 @@ The orchestrator prints exactly what it did. Check it:
   with attribute keys and filter fields; `engine/query-catalog.mjs` searches it.
 - `references/build-recipe.md` / `references/step-shapes.md` — endpoint/payload truth
   and the mirror-don't-invent doctrine (background; the engine already applies them).
+- `references/discovery.md` — how to look up / create a missing account dependency
+  (forms, custom fields, calendars, …) via the MCP after an `ABORTED` report.
+- `engine/edit.mjs` (+ `edit.test.mjs`) — edit-mode ops for changing an existing workflow.
 - `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`, `docs/write-rails.md` — auth + gates.
 - Inspect/export an existing workflow → the `get-ghl-workflow-json` skill.

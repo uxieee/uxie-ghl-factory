@@ -49,11 +49,10 @@ never make live calls; the caller/executor attaches auth and issues the HTTP req
 
 **Auth is `token-id`** (a Google `securetoken` JWT), **NOT** the workflow-builder's
 `Authorization: Bearer` scheme — this is a different, service-dependent auth surface.
-Capture it per the `ghl-reverse-engineering` skill's
-`references/internal-api-map.md` + `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`'s general
-JWT-capture procedure (that doc's specific header/claim details are for the workflow-builder
-Bearer scheme — follow its *procedure*, substitute the `token-id` header and host per the
-internal-api-map for this domain).
+Capture it per `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` **§7 "AI-services auth
+(`token-id`)"** — the dedicated procedure + `services.leadconnectorhq.com` host for this
+domain. (The `token-id`-is-retired note in `get-ghl-workflow-json` applies ONLY to the
+workflow API's Bearer scheme, not to these AI-services endpoints.)
 
 **Write rails apply.** Before any create/update, run
 `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`'s two gates: the owned-account check (every
@@ -77,10 +76,12 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 |---|---|
 | Conversation AI — create, read, delete, `humanHandOver` action | **Live-create-proven** (engine → internal API → real agent → verified → deleted) |
 | Knowledge Base — rich-text create | **Live-proven** |
-| Voice AI — agent create + full-replace update | **Live-create-proven** (engine → `POST /voice-ai/agents` → full-replace PUT → verified name/prompt/welcome → deleted) |
-| Agent Studio — Super Agent create (SSE build) + full-replace update | **Live-create-proven** (engine → `POST /super-agents/build` SSE → full-replace PUT → verified systemPrompt/tools/trigger/model → deleted) |
+| Voice AI — agent create + full-replace update | **Engine-complete + unit-tested; NOT yet live-proven** — `references/voice-ai.md` says treat the first real use as a small throwaway validation run |
+| Agent Studio — Super Agent create (SSE build) + full-replace update | **Engine-complete + unit-tested; NOT yet live-proven** — `references/agent-studio.md` says treat the first real use as a small throwaway validation run |
 
-All four compilers are now live-create-proven end-to-end (2026-07-11). ConvAI now has
+ConvAI + KB rich-text are live-proven; Voice AI + Agent Studio are engine-complete and
+unit-tested (119 engine tests) but should be treated as unproven until a first throwaway
+live-validation run confirms them (matches the reference docs). ConvAI now has
 verified (not passthrough) support for all 7 captured action types (`humanHandOver` +
 `appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,
 `advancedFollowup`), and Voice AI for all 7 captured types (`CALL_TRANSFER` +
