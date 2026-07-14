@@ -15,7 +15,7 @@ which live in a separate catalog.
 - `references/rules.md` — the defect rules, grouped by surface
   (workflows, pipelines, funnels, calendars, forms, messaging, tracking,
   ai-agents). Every rule gives: what to look for, how to detect it via
-  read-only recon (MCP call or read-only browser/`get-ghl-workflow-json`
+  read-only recon (MCP call or read-only browser/`get-ghl-workflow-json`/`get-ghl-workflow-logs`
   inspection), a default severity, a remediation pointer (which
   specialist/skill fixes it), and its source citation.
 - Finding shape: read

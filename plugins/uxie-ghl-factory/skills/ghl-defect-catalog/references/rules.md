@@ -227,10 +227,14 @@ default here is what a surface-auditor should propose absent other signal.
   dev/staging pass, and no monitoring of whether they're actually running.
 - **Detection:** Search contacts for name/email containing `test`/`demo`/
   `qa`; flag if the only such contacts are stale (>90 days old, no recent
-  test runs). Separately, inspect each workflow's Execution Logs / last-run
-  timestamp; flag any workflow whose most recent run is >60 days old while
-  its trigger is technically live, and any workflow with 0 enrollments
-  since creation.
+  test runs). Separately, use `get-ghl-workflow-logs` to read each live
+  workflow's runtime: a `logs/v2` window sweep (last 60–90 days) plus
+  `workflow-with-filter` enrollment history. Flag any workflow whose most
+  recent `logs/v2` row is >60 days old while its trigger is technically
+  live, and any workflow with zero enrollments since creation. (This is
+  the runtime read the earlier version of this rule described but had no
+  mechanism for — see `workflows-13..16` for the runtime-proven defects it
+  now unlocks.)
 - **Default severity:** low as general hygiene, medium when paired with a
   workflow the business describes as mission-critical.
 - **Remediation:** narrative — no single specialist owns this; raise with
@@ -251,6 +255,94 @@ default here is what a surface-auditor should propose absent other signal.
 - **Remediation:** `ghl-workflow-specialist` for anything that should
   become a proper workflow.
 - **Source:** `ghl-specialist references/common-audit-findings.md` #16.
+
+> **workflows-13 through workflows-16 are runtime-proven defects.** Unlike the
+> rules above (which read the workflow's *definition*), these read what it
+> actually *did* — via the `get-ghl-workflow-logs` skill's three read
+> endpoints (`logs/v2`, `workflow-with-filter`, `count-per-step`). They exist
+> because a whole class of defects is invisible to static review: a branch can
+> look reachable but never be traversed, a send step can look healthy but be
+> silently failing. Only fire these when you actually pulled the runtime data
+> this run — the evidence item must cite a `raw/workflows/logs-*.json` /
+> `enrollments-*.json` / `step-counts-*.json` capture, never an inference.
+
+### workflows-13. Dead branch / never-traversed path (runtime-proven)
+- **What to look for:** A step or whole branch of a live, enrolling workflow
+  that **no contact ever actually reaches** — an unsatisfiable condition, a
+  misordered filter, or an if/else leg whose predicate can never be true.
+  Static review can only say a path "looks" unreachable; runtime proves it.
+- **Detection:** Pull `count-per-step` (current occupancy) and a `logs/v2`
+  sweep over a window in which the workflow had meaningful enrollment
+  (confirm enrollment via `workflow-with-filter`). A `stepId` that appears in
+  the static graph (`get-ghl-workflow-json`) as downstream of a live path but
+  **never** appears in `count-per-step` and **never** as a `stepId` in
+  `logs/v2` over that window is the finding. Cross-check the static graph so
+  you don't flag an intentionally-off leg (a note in the brief, a disabled
+  branch) as dead.
+- **Default severity:** medium; **high** when the never-traversed branch sits
+  on the revenue path (e.g. the "booked / qualified" leg of a booking or
+  sales workflow — leads that should convert are silently skipping it).
+- **Remediation:** `ghl-workflow-specialist` — fix the condition/filter that
+  makes the branch unreachable; re-verify against runtime after the change.
+- **Source:** runtime execution-log reverse-engineering,
+  `ghl-workflow-api-docs research/execution-logs-internal/` (this run's
+  capability); interpretation aligns with `workflows-6` (marooned contacts)
+  and `workflows-11` (dead workflows).
+
+### workflows-14. Stuck / stalled enrollments (runtime-proven)
+- **What to look for:** Contacts parked at a step whose **resume time has
+  already passed** — the workflow has effectively stalled for them. Points at
+  a wait whose window can never open (timezone/business-hours trap), a
+  rate-limit backlog, or a queue failure.
+- **Detection:** `workflow-with-filter` — enrollment rows still `status:
+  wait_time` where `executeOn` is in the past. A cluster of stuck contacts at
+  one `currentStepId` localizes the fault to that step (often ties to
+  `workflows-4` timezone/wait traps or `workflows-7` unbounded waits).
+- **Default severity:** medium; escalate by count and revenue proximity
+  (many contacts stalled on an intake/nurture path is **high**).
+- **Remediation:** `ghl-workflow-specialist` fixes the wait/window design.
+  Note: clearing the already-stuck contacts needs a runtime-control action
+  (requeue) that is **out of scope for this read-only audit** — flag it for
+  the operator, don't attempt it.
+- **Source:** runtime execution-log reverse-engineering,
+  `ghl-workflow-api-docs research/execution-logs-internal/`; related to
+  `workflows-4` and `workflows-7`.
+
+### workflows-15. Silent send failures (runtime-proven)
+- **What to look for:** A send step (email/SMS) that reports as **executed**
+  in the builder while the downstream provider actually **rejected** it — the
+  workflow looks healthy while messages aren't landing.
+- **Detection:** `logs/v2` over the window — rows on a send step with
+  `status: success` but `meta.status ≥ 400`, or `status: failed` / recurring
+  `status: retry`. A repeating failure at one `stepId` is the finding (a
+  single transient blip is not).
+- **Default severity:** **high** — this is revenue-path messaging broken in a
+  way the UI hides. Cross-reference `messaging-1` (deliverability) — a cluster
+  here often shares a root cause with a messaging-surface finding.
+- **Remediation:** `ghl-workflow-specialist` for the step; pair with a
+  messaging deliverability check (sender/domain/number health).
+- **Source:** runtime execution-log reverse-engineering,
+  `ghl-workflow-api-docs research/execution-logs-internal/`
+  (`meta.status` on a `success` row is the silent-failure tell); cross-ref
+  `messaging-1`.
+
+### workflows-16. Anomalous early exits (runtime-proven)
+- **What to look for:** Contacts leaving the workflow **earlier or more often
+  than the design intends** — e.g. a spike of wait-window-in-past drops, or an
+  abnormally high reply-stop rate signalling a messaging or targeting problem.
+- **Detection:** `logs/v2` `status: finished` rows over the window, bucketed
+  by `meta.removedFrom.type`. A concentration of `wait_step_window_in_past`
+  confirms a timezone/window trap (`workflows-4`) is silently ejecting
+  contacts; a high `contact_reply_stop_response` rate flags messaging fatigue
+  or mistargeting. Compare the exit-reason distribution against what the
+  workflow's design would predict.
+- **Default severity:** medium; **high** when the early-exit volume is large
+  or on a revenue-path sequence.
+- **Remediation:** `ghl-workflow-specialist` (fix the wait/window or the
+  branching); if reply-stop-driven, also raise messaging cadence/targeting.
+- **Source:** runtime execution-log reverse-engineering,
+  `ghl-workflow-api-docs research/execution-logs-internal/`
+  (`meta.removedFrom.type` enum); ties to `workflows-4`.
 
 ---
 
@@ -862,7 +954,7 @@ default here is what a surface-auditor should propose absent other signal.
 
 | Surface | Rule count | Coverage |
 |---|---|---|
-| workflows | 12 | full |
+| workflows | 16 (4 runtime-proven, `13–16`) | full |
 | pipelines | 8 | full |
 | funnels | 3 | lightly-covered (see note) |
 | calendars | 6 | full |

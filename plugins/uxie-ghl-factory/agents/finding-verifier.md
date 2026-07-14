@@ -50,12 +50,21 @@ For each finding:
      `confirm=true`) and compare the fresh response against the claimed
      value. Account state can have changed since the surface-auditor ran;
      that's a legitimate reason to downgrade or refute, not an error.
-   - If the finding depends on workflow-builder internals, use the
-     `get-ghl-workflow-json` skill to re-capture (read-only, human-paced) —
+   - If the finding depends on workflow-builder **definition** internals, use
+     the `get-ghl-workflow-json` skill to re-capture (read-only, human-paced) —
      do not hand-roll the internal-endpoint fetch, and do not restate the
      auth header format; point at
      `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` if you need to mention
      auth at all.
+   - If the finding is a **runtime-proven** workflow defect (`workflows-13..16`,
+     or the runtime read behind `workflows-11`) — it cites `logs/v2`,
+     `workflow-with-filter`, or `count-per-step` data — re-capture with the
+     `get-ghl-workflow-logs` skill, read-only, over the **same date window**
+     the finding used. Runtime is more volatile than config: a stuck contact
+     may have since resumed, a dead branch may have finally been traversed,
+     a failing send may have recovered. That legitimately downgrades or
+     refutes the finding — a fresh runtime read that no longer shows the
+     problem is a real `refuted`/`plausible`, not a re-capture error.
 2. **Actively try to refute it.** Ask, for each finding: is there a reading
    of this same evidence where the account is actually fine? Is there a
    field the surface-auditor didn't check that would explain the apparent
