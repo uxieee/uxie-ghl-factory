@@ -73,6 +73,13 @@ Caveat: they aren't universally forbidden — some steps legitimately carry a su
 - Omit `from_name`/`from_email` to use the account's default sender, or set both explicitly.
 - Email merge tokens use the field's `fieldKey` (e.g. `{{contact.zoom_join_url}}`), not the field id.
 
+**Inline HTML formatting (quick-compose rendering, observed live 2026-07-13):** GHL's
+quick-compose renderer STRIPS `<br>` tags and COLLAPSES `<p>` margins, so naive HTML
+arrives as a wall of text. For blank-line spacing use an explicit spacer paragraph
+`<p>&nbsp;</p>` between paragraphs; use `<strong>` for bold (not `<b>`); and put each
+signature line in its own `<p>` (name, title, company as three separate paragraphs),
+again separated by `<p>&nbsp;</p>` where you want visible gaps.
+
 ### `voice_ai_outbound_call` — needs `workflowsActionType: "INTERNAL"`; both attribute fields required
 
 ```json

@@ -78,3 +78,44 @@ test('orchestrate ABORTS gracefully on compile rejection (OPP_UNASSOCIATED) inst
   assert.equal(report.wid, null);
   assert.equal(calls.some((c) => c.method === 'POST' && /\/workflow\/[^/]+$/.test(c.path)), false, 'no workflow created');
 });
+
+test('orchestrate retries the trigger POST through the settle race and records the outcome', async () => {
+  const { gw } = mockGateway({ tags: ['new-tag'] });
+  // first two trigger POSTs hit the race ("Workflow not found"), third succeeds
+  let attempts = 0;
+  const inner = gw.call;
+  gw.call = async (m, p, b) => {
+    if (m === 'POST' && p.includes('/trigger')) {
+      attempts++;
+      if (attempts < 3) return { ok: false, status: 400, json: { message: 'Workflow not found' } };
+    }
+    return inner(m, p, b);
+  };
+  const report = await orchestrate(tagIR(), gw, { triggerBackoffMs: [0, 0, 0] });
+  assert.equal(attempts, 3);
+  assert.equal(report.triggers.posted, 1);
+  assert.deepEqual(report.triggers.failed, []);
+});
+
+test('orchestrate records a trigger that never persists instead of dropping it silently', async () => {
+  const { gw } = mockGateway({ tags: ['new-tag'] });
+  const inner = gw.call;
+  gw.call = async (m, p, b) => (m === 'POST' && p.includes('/trigger'))
+    ? { ok: false, status: 400, json: { message: 'Workflow not found' } } : inner(m, p, b);
+  const report = await orchestrate(tagIR(), gw, { triggerBackoffMs: [0, 0] });
+  assert.equal(report.triggers.posted, 0);
+  assert.equal(report.triggers.failed.length, 1);
+  assert.equal(report.triggers.failed[0].type, 'contact_tag');
+  assert.equal(report.triggers.failed[0].status, 400);
+});
+
+test('orchestrate builds a trigger-less workflow with zero trigger POSTs', async () => {
+  const { gw, calls } = mockGateway({ tags: ['new-tag'] });
+  const ir = { name: 'W', triggers: [],
+    graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['new-tag'] } }] };
+  const report = await orchestrate(ir, gw);
+  assert.equal(report.wid, 'WID_1');
+  assert.equal(report.aborted, null);
+  assert.equal(calls.some((c) => c.method === 'POST' && c.path.includes('/trigger')), false);
+  assert.equal(report.triggers.posted, 0);
+});

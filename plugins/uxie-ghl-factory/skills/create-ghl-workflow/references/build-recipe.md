@@ -120,3 +120,23 @@ Notes:
   identity with `if_else`; the tag path still needs find-or-create; mark the
   opp-trigger path's branch `"assocGuaranteed": true`.
 - `assocGuaranteed` is IR-only; the compiler never emits it to GHL.
+
+### The monotonic stage-move pattern (`allowBackward: false`)
+
+`update_opportunity` takes `allowBackward` (the compiler defaults it to `false`).
+With `false`, a pipeline-stage update only ever moves the opportunity FORWARD —
+if the opportunity is already at or past the target stage, the update is a no-op
+instead of a regression. This is the "don't regress the pipeline" guard for
+stage-sync workflows (e.g. marking *Engaged* or *Details Sent* from message/activity
+triggers, where events can arrive out of order or re-fire): every sync workflow can
+safely set its stage without checking the current one. Set `allowBackward: true`
+only when a workflow is explicitly supposed to move a deal backwards (e.g. a
+re-qualification flow).
+
+### Verifying a built step — GET, not the editor panel
+
+Via **browser automation** the builder's editor panel is unreliable to open for ANY
+node type — correct steps included — so a panel that won't open under automation
+proves nothing (observed live 2026-07-13). Verify programmatically: the orchestrator's
+round-trip verify (sent-vs-GET diff) is the correctness signal, plus the node's
+type/icon on the canvas. Only a human manually clicking the node is a valid panel test.

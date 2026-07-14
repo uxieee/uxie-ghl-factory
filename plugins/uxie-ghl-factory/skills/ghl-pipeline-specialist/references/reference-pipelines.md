@@ -124,3 +124,17 @@ subscription win-back tracked as opportunities — not the storefront cart itsel
 - If the account's motion doesn't cleanly match any shape above, build from the
   stages-as-states principle directly (`references/stage-design.md` §1) rather than
   forcing a mismatched template.
+
+## Adjacent surface: calendars-v3 writes are FULL-REPLACE
+
+Pipeline work often touches booking calendars (discovery-call stages). When updating
+a calendar via `calendars-v3__update-calendar`, the PUT is a **full replacement** —
+same family of trap as `opportunities-v3__update-pipeline` (reported live 2026-07-13):
+
+- **Omitting a field WIPES it** — e.g. leaving out `slotDuration` resets it to 30,
+  leaving out `openHours` clears the availability entirely. Always GET the calendar,
+  mutate the full document, and PUT the whole thing back.
+- `openHours` needs **one entry per weekday** you want open — a single entry does not
+  fan out across days.
+- `teamMembers` entries must **NOT include a `primary` key** — strip it from the GET
+  response before PUTting, or the update is rejected.

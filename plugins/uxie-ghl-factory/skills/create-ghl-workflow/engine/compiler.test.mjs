@@ -233,3 +233,34 @@ test('Appendix A acceptance: tagged-vip-nurture compiles to 8 steps, correct sha
   assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: ['VIP'], title: 'tag_added', type: 'select', id: 'tag-added' }]);
   assert.equal(autoSaveBody.createdSteps.length, 8);
 });
+
+test('empty triggers compile to zero triggerBodies', () => {
+  const { triggerBodies, autoSaveBody } = compile({ name: 'W', triggers: [],
+    graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'A', attributes: { tags: ['x'] } }] }, ctx());
+  assert.deepEqual(triggerBodies, []);
+  assert.equal(autoSaveBody.workflowData.templates.length, 1);
+});
+
+test('invented attribute key fails at compile (ATTR_KEY), not as a blank step', () => {
+  const ir = { name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 's', kind: 'action', type: 'sms', name: 'S', attributes: { message: 'hi' } }] };
+  assert.throws(() => compile(ir, ctx()), (e) => e.code === 'ATTR_KEY' && /message/.test(e.message) && /body/.test(e.message));
+});
+
+test('known + engine + resolver-intent attribute keys pass validation', () => {
+  const ir = { name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [
+      { ref: 's', kind: 'action', type: 'sms', name: 'S', attributes: { body: 'hi', attachments: [], template_id: 'X' } },
+      { ref: 'u', kind: 'action', type: 'assign_user', name: 'U', attributes: { user: 'Jane Doe', user_list: ['UID1'] } },
+    ] };
+  const { autoSaveBody } = compile(ir, ctx());
+  assert.equal(autoSaveBody.workflowData.templates.length, 2);
+});
+
+test('internal_notification derives attributes.type from the channel envelope', () => {
+  const ir = { name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'N',
+      attributes: { sms: { body: 'ping', userType: 'assign', attachments: [] } } }] };
+  const { autoSaveBody } = compile(ir, ctx());
+  assert.equal(autoSaveBody.workflowData.templates[0].attributes.type, 'sms');
+});

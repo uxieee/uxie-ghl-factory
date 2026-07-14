@@ -27,8 +27,35 @@ function normalizeAttrs(node, attrs, ctx) {
   if (!meta) return attrs;
   const out = { ...attrs };
   if (meta.usesCustomInputs && !('__customInputs__' in out)) out.__customInputs__ = {};
-  if (Array.isArray(meta.attrKeys) && meta.attrKeys.includes('type') && !('type' in out)) out.type = node.type;
+  if (Array.isArray(meta.attrKeys) && meta.attrKeys.includes('type') && !('type' in out)) {
+    // internal_notification's attributes.type is the CHANNEL, not the step type —
+    // derive it from whichever channel envelope the author supplied.
+    out.type = node.type === 'internal_notification'
+      ? (['sms', 'email', 'notification', 'whatsapp'].find((c) => c in out) ?? node.type)
+      : node.type;
+  }
+  checkAttrKeys(node, out, meta);
   return out;
+}
+
+// Attribute keys the compiler/orchestrator/resolver own, plus the documented
+// name-authoring intent keys (the resolver adds the resolved id but keeps the name).
+const ENGINE_ATTR_KEYS = new Set(['type', '__customInputs__', '__customInputFields__', '_template',
+  'user', 'calendar', 'agent', 'employee', 'assignedEmployeeId', 'pipeline', 'stage']);
+
+// An invented attribute key (e.g. `message` instead of `body` on sms) saves fine
+// but renders a blank step at runtime — fail at compile instead. Enforced only
+// where the catalog carries a verified-live example whose key set we trust;
+// bundle-derived/marketplace shapes are too loosely known to fail closed on.
+function checkAttrKeys(node, out, meta) {
+  if (meta.confidence !== 'verified-live' || !Array.isArray(meta.attrKeys) || meta.attrKeys.length === 0) return;
+  const known = new Set([...meta.attrKeys, ...(meta.requiredFields ?? []).map((k) => k.split('.')[0]), ...ENGINE_ATTR_KEYS]);
+  const bad = Object.keys(out).filter((k) => !known.has(k));
+  if (bad.length)
+    throw new IRError('ATTR_KEY',
+      `unknown attribute key(s) [${bad.join(', ')}] on '${node.ref}' (${node.type}) — ` +
+      `known keys for this type: ${meta.attrKeys.join(', ')}. An invented key saves but renders a blank step; ` +
+      `check the corpus example (${meta.example ?? 'catalog'}) for the real shape.`);
 }
 
 // Opportunity actions store their fields in a __customInputFields__ array
