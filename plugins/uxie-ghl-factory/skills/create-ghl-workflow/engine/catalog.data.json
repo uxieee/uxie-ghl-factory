@@ -4556,7 +4556,7 @@
     "transitions",
     "__name__"
    ],
-   "example": "flow-builder-captures/conv-ai-node-templates.json",
+   "example": "catalog/step-examples/conversationai_book_appointment.json",
    "marketplace": true
   },
   "conversationai_continue": {

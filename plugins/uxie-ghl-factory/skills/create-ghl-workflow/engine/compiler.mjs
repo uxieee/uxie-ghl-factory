@@ -288,40 +288,41 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
 
     // Conversation-AI "AI splitter" node — an LLM routes the conversation to one of the
     // author-defined branches based on `attributes.description`, else the always-present
-    // "No condition met" fallback (whose tail hangs off `default`). Each branch is a
-    // separate type:"transition" node. Structure mirrors the live capture (the captured
-    // splitter had only the fallback); named-branch `fields` beyond {} are not commit-
-    // verified — routing is driven by description + branch name.
+    // "No condition met" fallback (whose tail hangs off `default`). Shape mirrors the
+    // captured example catalog/step-examples/conversationai_ai_splitter.json: the fallback
+    // comes FIRST (conditionType:"pre-defined", meta.__branchKey__); each author branch is
+    // conditionType:"user-defined" with empty meta. Each branch is a separate
+    // type:"transition" node; routing is driven by description + branch name (fields stay {}).
     if (n.type === 'conversationai_ai_splitter') {
       const attrs = n.attributes ?? {};
       const authorBranches = n.branches ?? [];
-      const branchIds = authorBranches.map(() => ctx.idGen());
       const noneId = ctx.idGen();
+      const branchIds = authorBranches.map(() => ctx.idGen());
       const container = {
         id, type: 'conversationai_ai_splitter', name: n.name ?? 'AI splitter',
         order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL',
-        next: [...branchIds, noneId],
+        next: [noneId, ...branchIds],
         attributes: {
           description: attrs.description ?? '',
           type: 'conversationai_ai_splitter', __customInputs__: {},
           cat: 'multi-path', convertToMultipath: true,
           transitions: [
-            ...authorBranches.map((b, bi) => ({ id: branchIds[bi], name: b.name, fields: b.fields ?? {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' })),
             { id: noneId, name: 'No condition met', fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            ...authorBranches.map((b, bi) => ({ id: branchIds[bi], name: b.name, fields: b.fields ?? {}, meta: {}, conditionType: 'user-defined' })),
           ],
           __name__: n.name ?? 'AI splitter',
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
       templates.push(container);
+      const none = flattenGraph(n.default ?? [], ctx, refMap, noneId);
+      templates.push({ id: noneId, type: 'transition', name: 'No condition met', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: none.entryId });
+      templates.push(...none.templates);
       authorBranches.forEach((b, bi) => {
         const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
-        templates.push({ id: branchIds[bi], type: 'transition', name: b.name, cat: 'transition', parentKey: id, parent: id, order: bi, attributes: {}, next: child.entryId });
+        templates.push({ id: branchIds[bi], type: 'transition', name: b.name, cat: 'transition', parentKey: id, parent: id, order: bi + 1, attributes: {}, next: child.entryId });
         templates.push(...child.templates);
       });
-      const none = flattenGraph(n.default ?? [], ctx, refMap, noneId);
-      templates.push({ id: noneId, type: 'transition', name: 'No condition met', cat: 'transition', parentKey: id, parent: id, order: authorBranches.length, attributes: {}, next: none.entryId });
-      templates.push(...none.templates);
       return;
     }
 

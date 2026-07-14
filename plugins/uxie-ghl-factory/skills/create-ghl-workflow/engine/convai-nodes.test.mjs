@@ -87,17 +87,23 @@ test('conversationai_ai_splitter: author branches + No-condition-met fallback, d
   assert.equal(c.cat, 'multi-path');
   assert.equal(c.workflowsActionType, 'INTERNAL');
   assert.equal(c.attributes.description, 'weekday vs weekend');
-  // 2 author branches + 1 fallback = 3 transitions, all distinct
+  // 1 fallback (FIRST) + 2 author branches = 3 transitions, all distinct
+  // (mirrors catalog/step-examples/conversationai_ai_splitter.json)
   assert.equal(c.attributes.transitions.length, 3);
   assert.equal(c.next.length, 3);
   assert.equal(new Set(c.next).size, 3, 'branch ids in next must be distinct');
-  assert.equal(c.attributes.transitions[2].name, 'No condition met');
-  // fallback branch key set is unique per transition
-  const keys = c.attributes.transitions.map((tr) => tr.meta.__branchKey__);
-  assert.equal(new Set(keys).size, 3);
-  // tails wired
-  assert.equal(t.find((s) => s.name === 'WD').parent, c.next[0]);
-  assert.equal(t.find((s) => s.name === 'Fallback').parent, c.next[2]);
+  // fallback comes first: pre-defined + __branchKey__
+  assert.equal(c.attributes.transitions[0].name, 'No condition met');
+  assert.equal(c.attributes.transitions[0].conditionType, 'pre-defined');
+  assert.ok(c.attributes.transitions[0].meta.__branchKey__);
+  assert.equal(c.next[0], c.attributes.transitions[0].id);
+  // author branches: user-defined with empty meta
+  assert.equal(c.attributes.transitions[1].name, 'Weekday');
+  assert.equal(c.attributes.transitions[1].conditionType, 'user-defined');
+  assert.deepEqual(c.attributes.transitions[2].meta, {});
+  // tails wired: fallback first, named after
+  assert.equal(t.find((s) => s.name === 'Fallback').parent, c.next[0]);
+  assert.equal(t.find((s) => s.name === 'WD').parent, c.next[1]);
 });
 
 test('fields-only conv-ai nodes (end/continue/transfer_bot/services_booking) get the INTERNAL envelope', () => {
