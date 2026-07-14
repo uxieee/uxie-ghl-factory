@@ -267,6 +267,37 @@ names the categories, not the action ids, so it can't drift.
 | `affiliates` | 2 | `affiliate-manager` | program configured, payouts sane |
 | `saas` | 2 | `saas-api`, `snapshots` | (only if an agency-SaaS sub-account) SaaS plans, rebilling, snapshot drift — else mark N/A |
 
+**Read-depth ladder — pull the deepest layer available for your surface.** The MCP is
+only the FLOOR. Where an internal-API read skill exists, config-level MCP data is not
+enough — read the internals; where execution/runtime evidence exists, a defect isn't
+proven from config alone. Per surface:
+
+| Surface | (A) MCP config | (B) internal-API deep read | (C) runtime / execution evidence |
+|---|---|---|---|
+| `workflows` | list/count | **`get-ghl-workflow-json`** — step logic, trigger JSON, sticky notes (→ shared corpus, Phase 1.5) | **`get-ghl-workflow-logs`** — `logs/v2`, `count-per-step`, enrollment history (the only true execution log in GHL) |
+| `funnels` / `tracking` | list | **`ghl-funnels-pages`** read recipes — `GET /funnels/funnel/fetch`, `/builder/page/data` (page content + tracking codes) | ⚠️ GAP — pageview/conversion analytics not captured (see below) |
+| `ai-agents` | `conversation-ai` list | **`ghl-ai-agents-specialist`** (token-id, read) — bot config, actions, KB | conversation outcomes surface under `messaging` |
+| `pipelines` | opportunities list | — | stage aging / open-count via MCP (runtime-ish) |
+| `calendars` | calendars list | — | appointment statuses (booked/no-show/cancelled) via MCP |
+| `forms` | forms/surveys list | — | submission counts/recency via MCP |
+| `messaging` | conversations list | — | message history, response times, send status via MCP |
+| Tier-2 surfaces | manifest categories | — (mostly) | none beyond MCP status fields |
+
+Rules: (1) **Use B before concluding from A** on `workflows`/`funnels`/`ai-agents` — a
+config-only read of those surfaces misses the defects that live in the internals. (2) A
+defect-catalog rule tagged "runtime-proven" (workflows-13..16) REQUIRES layer C evidence —
+don't file it from config. (3) When only layer A is available for a surface, say so in the
+finding's evidence ("config-level only; runtime not captured") rather than implying you
+proved runtime behavior.
+
+**Known runtime-capture gap (reverse-engineering candidate).** Funnel pageview/conversion
+analytics and email open/click/deliverability stats have **no capture path in this plugin
+yet** — they're visible in the GHL UI but neither the public MCP nor an existing read skill
+exposes them. Until captured, findings on funnel/email *performance* are config-level
+inferences, not measured. To add a surface's runtime read, use the **`ghl-reverse-engineering`**
+skill to capture the internal endpoint (read-only), document it, and add it to this ladder —
+same pattern that produced `get-ghl-workflow-logs`.
+
 **Baseline protocol (Tier-2 surfaces).** For each Tier-2 surface, the surface-auditor runs
 these five generic checks against its recon reads (+ the shared workflow-JSON corpus for
 cross-references), scoring with the §2 rubric and gating on the brief like any finding:

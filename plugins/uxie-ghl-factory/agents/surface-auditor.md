@@ -82,7 +82,15 @@ bodies, not every reference file.)
 
 ## Recon — read-only, this surface only
 
-- Use the `ghl` MCP (`search_actions` → `execute_action`) exclusively for
+- **Pull the deepest read layer available for your surface** (`audit-io.md` §5's
+  read-depth ladder). The MCP is only the floor: on `workflows`, `funnels`/`tracking`,
+  and `ai-agents` there is an internal-API deep read (layer B) — use it before drawing
+  conclusions from config counts, or you'll miss the defects that live in the internals.
+  Where execution evidence exists (workflow logs, layer C), a "runtime-proven" rule needs
+  it — don't file that class of finding from config. When only MCP config is available for
+  your surface, say so in the finding's evidence ("config-level only; runtime not captured")
+  rather than implying you proved runtime behavior.
+- Use the `ghl` MCP (`search_actions` → `execute_action`) as the config floor for
   live account data. **Only ever call read actions: `list`, `search`, `get`,
   `count` shapes.** Never call an action whose id or description implies
   `create`, `update`, `delete`, `publish`, `send`, `cancel`, or any billing/
