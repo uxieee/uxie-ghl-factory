@@ -32,6 +32,9 @@ account dependency is missing** → **auto-creates tags + inline email templates
 → compiles → creates a DRAFT → auto-saves steps → creates triggers → round-trip
 verifies → prints a report. Publish only with `--publish`, only after the user OKs.
 
+(This rule is for CREATING a new workflow. To EDIT an existing one — add/delete/modify
+steps — use `scripts/edit.mjs`, see "Editing an existing workflow" below.)
+
 ## Know what you can build — check before you say "can't"
 
 The catalog is **complete**: 316 step types / 59 trigger types (the live-proven subset
@@ -124,13 +127,31 @@ graph:
 ## Editing an existing workflow (not a fresh create)
 
 `scripts/build.mjs` is CREATE-only. To ADD/insert/delete/modify/move steps or branches
-on a workflow that already exists, use the edit engine `engine/edit.mjs` — GET the live
-workflow JSON (via the `get-ghl-workflow-json` skill), apply an op, then commit with a
-**plain `PUT /workflow/{loc}/{wid}`** (NOT `/auto-save`). Ops: `appendStep`, `insertAfter`,
-`insertBefore`, `deleteStep`, `modifyStep`, `moveStep`, `addBranch`, `appendToBranch`,
-`deleteContainer`, and `editCommitBody` (assembles the PUT body). Adding an
-`internal_update_opportunity` this way triggers the `OPP_UNASSOCIATED` guard (see gotchas
-below). Follow `engine/edit.mjs` + `engine/edit.test.mjs` for the exact op signatures.
+on a workflow that already exists, use the edit CLI:
+
+```
+node scripts/edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--dry-run]
+```
+
+It GETs the live workflow, applies the ops to `workflowData.templates`, and commits via
+the **plain `PUT /workflow/{loc}/{wid}`** (NOT `/auto-save` — that 422s on an existing
+workflow). `--dry-run` computes + prints the diff without sending the PUT. The edit-spec is
+`{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`
+(each takes a linear `step: {type,name,attributes}` compiled from IR), `deleteStep`,
+`modifyStep` (`attrPatch`), `moveStep`, `addBranch` (`{containerId,name,conditions}`),
+`deleteContainer`. Example — add an SMS after step `abc` and delete step `xyz`:
+
+```json
+{ "ops": [
+  { "op": "insertAfter", "afterId": "abc", "step": { "type": "sms", "name": "Nudge", "attributes": { "body": "Still there?" } } },
+  { "op": "deleteStep", "stepId": "xyz" }
+] }
+```
+
+Adding an `internal_update_opportunity` this way triggers the `OPP_UNASSOCIATED` guard
+(pass `--assume-associated` only if ALL the workflow's triggers are opportunity-based).
+v1 edit-add is linear steps only (containers compile to >1 template — use `addBranch` for
+new branches). Pure core: `engine/edit-driver.mjs` + `engine/edit.mjs` (see their tests).
 
 ## Read the build report — every time
 
@@ -188,6 +209,7 @@ The orchestrator prints exactly what it did. Check it:
   and the mirror-don't-invent doctrine (background; the engine already applies them).
 - `references/discovery.md` — how to look up / create a missing account dependency
   (forms, custom fields, calendars, …) via the MCP after an `ABORTED` report.
-- `engine/edit.mjs` (+ `edit.test.mjs`) — edit-mode ops for changing an existing workflow.
+- `scripts/edit.mjs` — edit-mode entry point (GET → apply ops → plain-PUT commit).
+- `engine/edit.mjs` / `engine/edit-driver.mjs` (+ tests) — the edit ops + pure driver.
 - `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`, `docs/write-rails.md` — auth + gates.
 - Inspect/export an existing workflow → the `get-ghl-workflow-json` skill.

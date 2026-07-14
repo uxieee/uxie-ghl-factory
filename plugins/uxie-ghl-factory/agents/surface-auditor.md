@@ -73,14 +73,19 @@ bodies, not every reference file.)
   payment mutation — not even with `dry_run=true` "to see what it would do."
   If you are unsure whether an action is a read, treat it as a write and skip
   it. Never pass `confirm=true` to `execute_action` for any reason.
-- For workflow-surface **definition** depth (step internals, trigger JSON,
-  sticky notes, step counts) that the public MCP can't reach: invoke the
-  `get-ghl-workflow-json` skill and follow its runbook exactly. Do not
-  hand-roll `backend.leadconnectorhq.com` fetches yourself, and do not
-  restate or re-derive the auth header format — that skill already owns the
-  read-only capture path (browser JWT interception, human-paced throttle,
-  GET-only). If SURFACE is not `workflows`, you should not need this skill at
-  all.
+- **Workflow internals — READ THE SHARED CORPUS FIRST.** Many rules on EVERY
+  surface cross-reference workflow triggers/actions (a Form Submitted trigger, a
+  Pipeline Stage Changed trigger, a Send action with `userType:user`, a
+  calendar-linked booking step). The orchestrator captured the full workflow-JSON
+  corpus once in Phase 1.5 into `raw/_shared/workflows/` (`<wid>.json` +
+  `<wid>.trigger.json`) — this is **read-only shared context for you regardless of
+  your SURFACE**. Read it for any workflow cross-reference your rules need; do NOT
+  re-capture it. Only if a specific workflow your rule needs is NOT in that store
+  (and a browser session is available) invoke the `get-ghl-workflow-json` skill
+  and follow its runbook exactly — never hand-roll `backend.leadconnectorhq.com`
+  fetches or restate the auth header format. If the corpus is absent entirely
+  (MCP-only run), report rules that need workflow internals as "unverified
+  (workflow internals not captured)" — never fabricate the cross-reference.
 - For workflow-surface **runtime** depth — the defects you can only see in
   what the workflow actually *did*, not how it's built (`workflows-13..16`
   in the defect catalog: dead branches, stuck enrollments, silent send
@@ -92,12 +97,15 @@ bodies, not every reference file.)
   your surface actually needs runtime evidence, and only for `workflows`.
   Bound the `logs/v2` date window to the question (a 60–90 day sweep is
   usually enough); don't pull the entire history of a busy workflow.
-- For any other surface's depth dive that needs browser internals no skill
-  in this plugin captures yet (funnel page contents, form-builder internals,
-  ConvAI prompts), do not drive the browser yourself — pause and use the
-  human-pace handoff prompt from `audit-io.md` §3 verbatim, wait for `ready`,
-  then continue. If a browser session isn't available, stop, save what you
-  have, and report that this surface's depth coverage is partial.
+- For a surface's depth dive that needs browser internals beyond the workflow
+  corpus: funnel page contents + tracking pixels → the `ghl-funnels-pages` skill's
+  read-only recipes (`GET /funnels/funnel/fetch/{id}`, `GET /funnels/builder/page/data`);
+  ConvAI/Voice/Studio agent internals → the `ghl-ai-agents-specialist` (read-only)
+  or `ghl-reverse-engineering` skill. For anything no skill captures yet
+  (form-builder internals), do not drive the browser yourself — pause and use the
+  human-pace handoff prompt from `audit-io.md` §3 verbatim, wait for `ready`, then
+  continue. If a browser session isn't available, stop, save what you have, and
+  report that this surface's depth coverage is partial.
 - Throttle every fetch (MCP call or, for workflow depth, internal-endpoint
   fetch) per `audit-io.md` §3. On any `429`/`403`: record it, **stop**, do
   not retry in the same turn, and surface the rejection to whoever invoked

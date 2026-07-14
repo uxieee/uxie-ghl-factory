@@ -14,6 +14,12 @@ under each section for what changed and why.
 .ghl/<locationId>/audits/<timestamp>/
 ├── inventory.json           # Phase A entity counts across all surfaces
 ├── raw/
+│   ├── _shared/
+│   │   └── workflows/       # the workflow-JSON corpus, captured ONCE in Phase 1.5
+│   │                         # (<wid>.json + <wid>.trigger.json). READ-ONLY to every
+│   │                         # surface-auditor — pipelines/forms/calendars/messaging/
+│   │                         # funnels rules cross-reference workflow triggers/actions
+│   │                         # here instead of re-capturing them per surface.
 │   └── <surface>/           # workflows/ pipelines/ funnels/ calendars/ forms/
 │                             # ai-agents/ messaging/ tracking/ — raw MCP + capture
 │                             # payloads this surface's auditor read, one file per read
@@ -42,6 +48,14 @@ under each section for what changed and why.
   it only ever inspected workflows in depth. This auditor spans eight surfaces,
   so the split is by *surface* instead; each surface-auditor owns one
   subdirectory and doesn't touch another's.
+- **`raw/_shared/workflows/` is new** — the one exception to "each auditor owns
+  its own subdir." So many non-workflow rules cross-reference workflow internals
+  (a Form Submitted trigger, a Pipeline Stage Changed trigger, a Send action with
+  `userType:user`) that having each surface re-capture the workflow corpus would
+  multiply the human-paced browser handoff and the throttle load. Instead the
+  corpus is captured ONCE in Phase 1.5 into this shared, read-only store, and every
+  surface-auditor reads it. Only the workflows-auditor writes here (during 1.5);
+  all others treat it as read-only.
 - **`findings/<surface>.json` is new**, one shard per surface-auditor, written
   before verification. `ghl-specialist` had one agent writing directly to
   `audit-report.md`; this auditor's surface-auditors run independently (see §3
@@ -184,9 +198,18 @@ because it spans more surfaces.
 
 **Owned-account check (harvested from `ghl-specialist/runbooks/owned-account-check.md`,
 adapted to current auth terms):** before auditing, confirm the authenticated
-session actually admins the target `locationId`. Decode the captured JWT's
-claims per `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` §3, confirm the
-target location is one the session is scoped to, and cross-check the
-account-holder's role via the MCP's user-search action. Refuse to proceed if
-the check fails; accept an explicit `OVERRIDE: <reason>` from the user, logged
-verbatim to `log.md` — never a silent override.
+session actually admins the target `locationId`. An audit begins MCP-only (the
+browser JWT may never be captured), so the gate is **MCP-native**:
+
+1. **Primary (MCP, always available):** fetch the target location via the `ghl`
+   MCP (`locations get`/`search`) and confirm it resolves under the configured
+   token, then cross-check the account-holder via the MCP's user-search action.
+   If the location doesn't resolve, or the user isn't an admin on it, the check
+   fails.
+2. **Secondary (only if a JWT was already captured for a depth dive):** decode the
+   captured JWT's claims per `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` §3
+   and confirm the target location is in scope. Do NOT force a browser capture
+   just to run this gate — the MCP check above is sufficient to start.
+
+Refuse to proceed if the check fails; accept an explicit `OVERRIDE: <reason>` from
+the user, logged verbatim to `log.md` — never a silent override.

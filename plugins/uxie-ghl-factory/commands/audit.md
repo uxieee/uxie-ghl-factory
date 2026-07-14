@@ -40,7 +40,9 @@ artifact is missing or incomplete rather than restarting the whole run.
 2. State and honor the read-only + owned-account posture from
    `ghl-audit-primitives` (`references/audit-io.md` §4): confirm the
    authenticated session actually admins this `locationId` before reading
-   anything else. Refuse to proceed on a mismatch unless the user gives an
+   anything else. Use the **MCP-native** ownership check (fetch the location +
+   user-search via the `ghl` MCP) — do NOT force a browser JWT capture just to
+   pass this gate. Refuse to proceed on a mismatch unless the user gives an
    explicit `OVERRIDE: <reason>`, logged verbatim.
 3. Load `.ghl/<locationId>/brief.md` (format:
    `${CLAUDE_PLUGIN_ROOT}/docs/brief-format.md`). If it doesn't exist, run
@@ -55,13 +57,35 @@ artifact is missing or incomplete rather than restarting the whole run.
    shared entity-count baseline every surface-auditor and the aggregator
    reads later — it is not itself a finding.
 
+## Phase 1.5 — Workflow-JSON corpus capture (shared, once)
+
+Most non-workflow surface rules cross-reference workflow internals — a Form
+Submitted trigger (forms), a Pipeline Stage Changed trigger (pipelines), a Send
+action with `userType:user` (messaging), a calendar-linked booking step
+(calendars), a funnel-step trigger (funnels). Capturing that per surface would
+multiply the browser handoff and throttle load, so capture the workflow-JSON
+corpus **once, here, into the shared read-only store** `raw/_shared/workflows/`
+(`<wid>.json` + `<wid>.trigger.json` per workflow), via the `get-ghl-workflow-json`
+skill's read-only runbook exactly (human-paced, resumable — reuse the same
+handoff prompt, and skip any `<wid>.json` already present so a re-run continues
+where it left off). Every surface-auditor in Phase 2 reads this store instead of
+re-capturing.
+
+**If no browser session is available:** skip this phase, note the degraded
+coverage in `log.md`, and proceed MCP-only — surface rules that need workflow
+internals will be reported as "unverified (workflow internals not captured)"
+rather than fabricated. The corpus can be captured in a later session and the run
+resumed (Phase 2 re-reads whatever `raw/_shared/workflows/` then contains).
+
 ## Phase 2 — Breadth sweep (surface-auditor, bounded concurrency)
 
-Dispatch the `surface-auditor` agent once per surface — workflows,
+Dispatch the `uxie-ghl-factory:surface-auditor` agent once per surface — workflows,
 pipelines, funnels, calendars, forms, ai-agents, messaging, tracking — each
-run given explicitly: `SURFACE`, the target `locationId`, and the audit root
-path. Each surface-auditor runs both lenses (`ghl-defect-catalog` +
-`ghl-opportunity-catalog`) against MCP-only reads and writes its own
+run given explicitly: `SURFACE`, the target `locationId`, the audit root
+path, and that the shared workflow-JSON corpus is at `raw/_shared/workflows/`
+(read-only) for any workflow trigger/action cross-reference on its surface.
+Each surface-auditor runs both lenses (`ghl-defect-catalog` +
+`ghl-opportunity-catalog`) against MCP reads + the shared corpus and writes its own
 candidate findings to `findings/<surface>.json`, all `verdict: plausible`
 pending verification.
 
@@ -76,9 +100,13 @@ let other surfaces "make up for" a throttled one.
 
 ## Phase 3 — Depth dives (gated, only on flagged hot-spots)
 
-Not every candidate finding needs this — only ones a surface-auditor flagged
-as needing internals the public MCP can't reach (workflow step logic and
-trigger JSON, in particular). For those: use the `get-ghl-workflow-json`
+Workflow step logic + trigger JSON are already in the shared corpus from Phase
+1.5, so most "needs internals" findings resolve by reading `raw/_shared/workflows/`.
+This phase is for what the corpus does NOT cover: runtime execution logs (via
+`get-ghl-workflow-logs`), and non-workflow browser internals a surface-auditor
+flagged (funnel page contents → the `ghl-funnels-pages` read recipes; form-builder
+internals; ConvAI prompts → `ghl-ai-agents-specialist` / `ghl-reverse-engineering`).
+For any additional workflow-JSON not yet captured, use the `get-ghl-workflow-json`
 skill's read-only capture path exactly as documented — do not hand-roll the
 fetch or restate its auth mechanics. This is a human-paced handoff (browser
 tabs staged, explicit `ready` from the user before proceeding, per
@@ -89,14 +117,20 @@ note the partial coverage in `log.md` — the run resumes here later.
 
 ## Phase 4 — Verify (finding-verifier, per candidate)
 
-Dispatch the `finding-verifier` agent once per candidate finding (or once per
-surface's `findings/<surface>.json` shard, if batching) to adversarially
-re-check each `plausible` candidate: re-fetch its cited evidence read-only,
-try to construct an innocent explanation, and stamp `confirmed`, `plausible`
-(the default under any ambiguity), or `refuted`. Drop every `refuted`
-finding — it does not carry forward into the report. Persist the stamped
-verdicts back onto each finding record (the orchestrator's job; the verifier
-itself has no `Write` tool).
+Dispatch the `uxie-ghl-factory:finding-verifier` agent to adversarially re-check each `plausible`
+candidate: re-fetch its cited evidence read-only, try to construct an innocent
+explanation, and stamp `confirmed`, `plausible` (the default under any ambiguity),
+or `refuted`. **Batch per surface shard by default** (one verifier call per
+`findings/<surface>.json`, returning a verdict per finding `id`) — not per
+individual finding — to keep the dispatch count bounded.
+
+**Merge the verdicts back (the orchestrator's job — the verifier has no `Write`
+tool).** For each shard: parse the verifier's returned `{id → verdict}` map, set
+each finding's `verdict` field in `findings/<surface>.json`, and rewrite that one
+file. Drop every `refuted` finding — it does not carry forward into the report
+(keep it in the file with `verdict: refuted` for the audit trail, but exclude it
+from Phase 5). If a returned `id` doesn't match a finding in the shard, log the
+mismatch to `log.md` and leave that finding `plausible` rather than guessing.
 
 ## Phase 5 — Synthesize
 
@@ -115,7 +149,11 @@ itself has no `Write` tool).
    from the recon already captured (workflow roster, pipeline/stage list,
    tags, forms) → `system-flow.mmd` in the audit root. The map is descriptive
    only — structure, never verdicts; findings cite map nodes/edges as
-   evidence, they don't get drawn onto the diagram itself.
+   evidence, they don't get drawn onto the diagram itself. Map completeness is
+   bounded by the shared workflow-JSON corpus (Phase 1.5): cross-surface edges
+   (tag handoffs, stage-change chains) need workflow internals, so on an
+   MCP-only run with no corpus the map is legitimately stub-heavy — note that
+   rather than inventing edges.
 4. **Write `audit-report.md`**: findings interleaved by impact (high →
    medium → low, not grouped by surface), each one tagged `defect` or
    `opportunity` (both altitudes must appear when both lenses found
