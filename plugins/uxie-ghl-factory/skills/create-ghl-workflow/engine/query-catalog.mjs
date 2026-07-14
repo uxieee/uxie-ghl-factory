@@ -123,6 +123,8 @@ export function renderMarkdown(d) {
   out.push('| `wait` | `wait` | plain wait, or multipath on outcomes |');
   out.push('| `goto` | `goto` | must be last node in its branch |');
   out.push('| `onFound`/`onNotFound` | `find_contact`, `find_opportunity`, `lc_merge_contact` | pre-set 2-branch finders |');
+  out.push('| `onBooked`/`onNotBooked` | `conversationai_book_appointment` | flow-builder 2-branch booking (Booked/Not-booked) |');
+  out.push('| `branches`/`default` | `conversationai_ai_splitter` | flow-builder LLM router: named branches + "No condition met" fallback |');
   out.push('', '## Marketplace steps (▫ live-schema — build fine, RUN only if the app is installed)', '');
   out.push(market.map((s) => `\`${s.type}\``).sort().join(', '));
   out.push('', '## Triggers — by category (with filterable fields)');

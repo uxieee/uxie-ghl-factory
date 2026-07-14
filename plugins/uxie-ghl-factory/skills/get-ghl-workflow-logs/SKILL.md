@@ -57,7 +57,7 @@ Raw log rows are only useful once mapped to what they mean. The signal lives in 
 |---|---|---|
 | `status: success` but `meta.status ≥ 400` | logs/v2 | **Silent failure** — the step "ran" but the downstream send/API rejected it. |
 | `status: failed` | logs/v2 | Hard error; `meta.msg` / `meta.status` say why. |
-| `status: skipped` | logs/v2 | Gated out; `meta.skippedFor.type` (`dnd`, `time-window`, `missing-data`, `active-already`, …) says which gate. |
+| `status: skipped` | logs/v2 | Gated out; `meta.skippedFor.type` (`dnd`, `time-window`, `missing-data`, `active-already`, `appointment-wait`, …) says which gate. |
 | `status: finished` | logs/v2 | Contact left the workflow; `meta.removedFrom.type` says why (reply-stop, end-of-workflow, wait-window-in-past). |
 | `executeOn` in the **past**, still `wait_time` | workflow-with-filter | **Stuck contact** — should have resumed already. |
 | step absent from `count-per-step` | count-per-step | No contact is (or maybe ever was) there — candidate **dead branch**; confirm against logs. |

@@ -19,9 +19,10 @@ Ground rules for agents working GHL:
 ## Specialists
 
 For design-level work, hand off to a specialist rather than building directly:
-`ghl-workflow-specialist` (workflows) and `ghl-pipeline-specialist` (pipelines)
-both recon, blueprint, and get explicit approval before building — follow the
-specialist contract instead of duplicating it here.
+`ghl-workflow-specialist` (workflows), `ghl-pipeline-specialist` (pipelines), and
+`ghl-funnels-pages` (funnels/pages) all recon, blueprint, and get explicit approval
+before building — follow the specialist contract instead of duplicating it here.
+(AI agents — Conversation/Voice/Studio — go to `ghl-ai-agents-specialist`.)
 
 ## Auditor
 

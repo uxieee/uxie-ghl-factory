@@ -155,6 +155,8 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 | `wait` | `wait` | plain wait, or multipath on outcomes |
 | `goto` | `goto` | must be last node in its branch |
 | `onFound`/`onNotFound` | `find_contact`, `find_opportunity`, `lc_merge_contact` | pre-set 2-branch finders |
+| `onBooked`/`onNotBooked` | `conversationai_book_appointment` | flow-builder 2-branch booking (Booked/Not-booked) |
+| `branches`/`default` | `conversationai_ai_splitter` | flow-builder LLM router: named branches + "No condition met" fallback |
 
 ## Marketplace steps (▫ live-schema — build fine, RUN only if the app is installed)
 

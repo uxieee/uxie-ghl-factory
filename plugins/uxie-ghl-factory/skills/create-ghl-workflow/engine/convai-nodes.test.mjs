@@ -123,6 +123,29 @@ test('fields-only conv-ai nodes (end/continue/transfer_bot/services_booking) get
   }
 });
 
+test('FLOW_BUILDER_BOT binding: conv_ai_trigger carries convTriggerBotId + workflow persists workflowType:agent', () => {
+  const out = compile({
+    name: 'Flow', workflowType: 'agent',
+    triggers: [{ ref: 't', type: 'conv_ai_trigger', name: 'Chat Initiated', filters: [], convTriggerBotId: 'AGENT9' }],
+    graph: [{ ref: 'm', kind: 'action', type: 'conversationai_ai_message', name: 'AI message', attributes: { message: 'hi', waitForReply: true } }],
+  }, ctx());
+  // the flow binds to its agent (was silently dropped before the 2026-07-15 fix)
+  assert.equal(out.triggerBodies[0].convTriggerBotId, 'AGENT9');
+  assert.equal(out.triggerBodies[0].type, 'conv_ai_trigger');
+  // and persists as an agent-type workflow so the flow builder opens it as the bot canvas
+  assert.equal(out.autoSaveBody.workflowType, 'agent');
+  assert.equal(out.autoSaveBody.type, 'workflow'); // type stays "workflow"
+});
+
+test('non-flow workflows omit workflowType and convTriggerBotId', () => {
+  const out = compile({
+    name: 'Plain', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['x'] } }],
+  }, ctx());
+  assert.equal('workflowType' in out.autoSaveBody, false);
+  assert.equal('convTriggerBotId' in out.triggerBodies[0], false);
+});
+
 test('ai_splitter branch missing name is rejected', () => {
   assert.throws(() => tmpl({
     name: 'Bad', triggers: [flowTrigger],
