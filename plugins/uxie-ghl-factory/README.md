@@ -8,6 +8,7 @@
 |---|---|---|
 | MCP server | `ghl` | Public GHL API v2/v3 — search/execute across 1,207 actions (contacts, pipelines, calendars, conversations, etc.) |
 | Skill | `get-ghl-workflow-json` | Read-only export of a workflow's raw JSON from the internal builder API |
+| Skill | `get-ghl-workflow-logs` | Read-only capture of a workflow's runtime — execution logs, enrollment history, per-step contact counts — from the internal builder API |
 | Skill | `create-ghl-workflow` | Creates/edits GHL workflows via the internal builder API (draft-only; publish path untested) |
 | Skill | `ghl-funnels-pages` | Builds funnels/pages, custom HTML, tracking, and SEO via the internal API |
 | Skill | `ghl-orientation` | GHL object model, terminology, and public-vs-internal API guidance for agents new to GHL |
@@ -40,7 +41,7 @@ Then run `/uxie-ghl-factory:setup` to configure your token, verify the MCP conne
 ## Prerequisites
 
 - **Node.js ≥18** (required by the plugin tooling).
-- **Playwright MCP server**, for internal-API features only (`get-ghl-workflow-json`, `create-ghl-workflow`, `ghl-funnels-pages`). Without it, those three skills degrade — the public-API MCP and `ghl-orientation` still work fully.
+- **Playwright MCP server**, for internal-API features only (`get-ghl-workflow-json`, `get-ghl-workflow-logs`, `create-ghl-workflow`, `ghl-funnels-pages`). Without it, those skills degrade — the public-API MCP and `ghl-orientation` still work fully.
 - **A GHL account with admin access** to whichever sub-account(s) you point this at. Write-capable skills verify admin access to the target `locationId` before writing (see write-rails, below) — the plugin will refuse and explain rather than write to an account you don't administer.
 
 ## The two API worlds
@@ -48,7 +49,7 @@ Then run `/uxie-ghl-factory:setup` to configure your token, verify the MCP conne
 GHL exposes two very different surfaces, and this plugin treats them differently on purpose:
 
 - **Public API** — official, documented, stable, in-Terms-of-Service. This is what the bundled `ghl` MCP server talks to. It covers contacts, pipelines (fully writable), calendars, conversations, and most day-to-day GHL operations. `ghl-orientation` and `/uxie-ghl-factory:brief` work entirely through this surface.
-- **Internal API** — undocumented, off-Terms-of-Service, and can change or break without notice. This is what `get-ghl-workflow-json` (read-only export), `create-ghl-workflow` (write, draft-only — never publishes), and `ghl-funnels-pages` (write) use, because the public API has no workflow-builder or funnel-builder endpoints at all.
+- **Internal API** — undocumented, off-Terms-of-Service, and can change or break without notice. This is what `get-ghl-workflow-json` (read-only export), `get-ghl-workflow-logs` (read-only runtime capture), `create-ghl-workflow` (write, draft-only — never publishes), and `ghl-funnels-pages` (write) use, because the public API has no workflow-builder or funnel-builder endpoints at all.
 
 This isn't hypothetical: GHL's internal-API auth already migrated once (2026-07, from a `token-id` header to `Authorization: Bearer`), and every skill that had captured the old scheme broke outright. The plugin is designed to fail safe when that happens again — write skills stop on a `401` instead of retry-looping, auth details live in one canonical doc (`docs/auth-jwt-capture.md`) so a future migration is a one-file fix, and every internal-API write passes an owned-account check plus a one-time Terms-of-Service disclosure (`docs/write-rails.md`) before it touches anything.
 
