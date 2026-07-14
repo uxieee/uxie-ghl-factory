@@ -333,6 +333,16 @@ sections carry an explicit best-effort marker per spec §10, and neither
 references any non-public AI backend route — only the confirmed public
 `conversation-ai` MCP category.
 
+These are **Tier-1** deep-catalog surfaces. Under-leveraged-vs-brief signals on the
+**Tier-2** surfaces (contacts, commerce, deliverability, memberships, social, …) are
+caught every run by the baseline protocol's "populated-vs-expected" check
+(`ghl-audit-primitives` `references/audit-io.md` §5), marked `coverage: baseline` —
+not by opportunity rules here. See §5 for the full surface coverage map.
+
+> **Provenance note:** citations to `ghl-specialist/...` mark where a rule was harvested
+> from — that is a separate USER-LEVEL skill (`~/.claude/skills/ghl-specialist`), **not
+> bundled here**. Provenance only, not loadable references.
+
 ## How to extend
 
 When a surface-auditor run confirms an opportunity pattern not covered by any

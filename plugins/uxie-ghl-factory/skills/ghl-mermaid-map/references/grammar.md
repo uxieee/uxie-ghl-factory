@@ -1,10 +1,12 @@
 # Mermaid Map Grammar
 
 Grounded in `~/.claude/skills/ghl-specialist/runbooks/map-generation.md`
-(§1, §4, §5, §10). This reference restates that runbook's grammar as a
-standalone skill so the auditor can render a system-flow map without pulling
-in the full `ghl-specialist` audit-mode machinery (thesis/deep-dive/sweep
-scoping, narrative-writing beats, learning-log wiring). Scope control (which
+(§1, §4, §5, §10) — **provenance only; `ghl-specialist` is a separate user-level
+skill, not bundled in this plugin, so don't try to `Read` that path.** This
+reference restates that runbook's grammar as a standalone skill so the auditor can
+render a system-flow map without pulling in the full `ghl-specialist` audit-mode
+machinery (thesis/deep-dive/sweep scoping, narrative beats, learning-log wiring).
+This file is self-contained. Scope control (which
 nodes are in-frame for a given audit) and the narrative-commentary writeup
 stay upstream of this skill — this file owns node taxonomy, edge inference,
 the descriptive-not-verdict boundary, and stub handling only.

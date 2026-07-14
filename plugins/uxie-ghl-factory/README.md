@@ -27,7 +27,7 @@
 | Command | `/uxie-ghl-factory:build-workflow` | Runs `ghl-workflow-specialist` for a given ask (draft-only) |
 | Command | `/uxie-ghl-factory:build-funnel` | Runs `ghl-funnels-pages` for a given ask |
 | Command | `/uxie-ghl-factory:pipeline` | Runs `ghl-pipeline-specialist` for a given ask |
-| Command | `/uxie-ghl-factory:audit` | Runs a whole-account, **read-only** audit — dispatches `surface-auditor` across all 8 surfaces and `finding-verifier` per finding, producing a Mermaid system map and an impact-ranked report |
+| Command | `/uxie-ghl-factory:audit` | Runs a whole-account, **read-only** audit — dispatches `surface-auditor` across **every GHL surface** (8 deep-catalog + baseline coverage of the rest) and `finding-verifier` per finding, producing a Mermaid system map and an impact-ranked report |
 
 ## Install
 

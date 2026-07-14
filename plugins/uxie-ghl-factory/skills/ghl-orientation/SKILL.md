@@ -28,5 +28,5 @@ before building — follow the specialist contract instead of duplicating it her
 
 For a whole-account health check, use `/uxie-ghl-factory:audit` instead of building or
 diagnosing surface-by-surface — it runs a read-only, two-altitude (defect +
-opportunity) sweep across all 8 surfaces and produces a Mermaid system map
-plus an impact-ranked report.
+opportunity) sweep across **every GHL surface** (8 deep-catalog surfaces + baseline
+coverage of all the rest) and produces a Mermaid system map plus an impact-ranked report.
