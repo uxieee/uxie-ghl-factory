@@ -84,9 +84,25 @@ graph:
     kind: if_else
     name: "High value?"
     branches:
-      - { ref: y, name: "Yes", conditions: [ { conditionType: contact_detail, conditionSubType: tag, conditionOperator: contains, conditionValue: high-value } ], then: [ ... ] }
+      - { ref: y, name: "Yes", conditions: [ { conditionType: contact_detail, tag: high-value } ], then: [ ... ] }   # simple TAG intent — compiler normalizes the shape
       - { ref: n, name: "No", else: true, then: [ ... ] }
 ```
+
+**if_else condition authoring — write SIMPLE intent; the compiler normalizes the exact
+GHL shape per type (a hand-crafted shape compiles clean but MATCHES WRONGLY at runtime):**
+
+| Intent | Author as | Compiler emits |
+|---|---|---|
+| Has tag | `{ conditionType: contact_detail, tag: "vip" }` | `conditionSubType: tags` (plural), `conditionOperator: index-of-true`, `conditionValue: ["vip"]` (array) |
+| Does NOT have tag | `{ conditionType: contact_detail, tag: "vip", not: true }` | …`conditionOperator: index-of-false` |
+| Opportunity in stage | `{ conditionType: opportunities, stage: "<id or name>" }` | `conditionSubType: pipelineStageId`, `conditionOperator: ==`, `conditionValue: "<stageId>"` (string; a name → id in resolve) |
+| Custom field (text) | `{ conditionType: contact_detail, conditionSubType: "<fieldId>", conditionValue: "X" }` | `conditionOperator: contain`, value **lowercased** |
+| Custom field (number/date) | …add `conditionOperator: "=="` | `conditionOperator: ==` (no lowercasing) |
+| Trigger identity | `{ conditionType: trigger, conditionValue: "<triggerId>" }` | `conditionOperator: ==` |
+
+Do NOT author `conditionSubType: tag` + `conditionOperator: contains` — that legacy shape
+matches nothing and mis-routes tagged contacts to the None branch (the normalizer rewrites
+it, but don't rely on that; use the `tag:` form).
 
 - **Node kinds:** `action` (any linear type), `wait`, `if_else` (N≥2 branches, one
   optional `else: true`), `split` (`workflow_split`, weighted/random), `ai_decision`
@@ -182,8 +198,11 @@ The orchestrator prints exactly what it did. Check it:
 - Trigger casing: root `workflowId` **camelCase**; `location_id`/`company_id` snake.
   The compiler's casing-lint enforces this.
 - Filters: trigger conditions are `{field, operator, value, title, type}` (engine
-  expands lean intent filters); `if_else` conditions use a different shape
-  `{conditionType, conditionSubType, conditionOperator, conditionValue}`.
+  expands lean intent filters); `if_else` conditions author as SIMPLE intent
+  (`{conditionType, tag}` / `{conditionType, stage}` / `{conditionType, conditionSubType,
+  conditionValue}`) and the compiler's `normalizeCondition` emits the correct stored
+  `{conditionType, conditionSubType, conditionOperator, conditionValue}` shape per type —
+  see the condition-authoring table above. NEVER hand-craft the tag/stage shape.
 - `DELETE /workflow/{loc}/{wid}` works (confirmed) — used for clean teardown of
   throwaway/failed builds.
 - **Opportunity actions need an associated opportunity.** `update_opportunity` is a runtime no-op unless the contact entered via an opportunity trigger (`opportunity_created`, `opportunity_status_changed`, `opportunity_changed`, `pipeline_stage_updated`, `opportunity_decay` — and ALL triggers must be opp-based, a mixed set doesn't count), or the path already ran `create_opportunity`, or the step sits in a `find_opportunity` **Opportunity Found** branch. The engine hard-fails with `OPP_UNASSOCIATED` otherwise — build the find-or-create pattern (see `references/build-recipe.md` §6). `assocGuaranteed: true` on the node/branch is the escape hatch for shapes the checker can't prove (trigger-identity if/else, goto convergence).

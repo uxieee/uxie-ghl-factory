@@ -1,6 +1,6 @@
 {
   "name": "uxie-ghl-factory",
   "description": "GoHighLevel toolkit: MCP server (1,207 public-API actions), workflow export/creation, funnel & page building, account briefs, and GHL domain skills.",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "author": { "name": "Xander Roque", "url": "https://github.com/uxieee" }
 }

@@ -266,37 +266,130 @@ function idForRef(refMap, ctx, ref) {
 }
 
 // Frozen UI-hint arrays present on every live UI-built if_else condition (harvested
-// 2026-07-15 from the ghl-internal-api-research corpus). Constant across conditions —
-// copied verbatim; the builder/runtime carry them on the stored condition object.
+// 2026-07-15 from the ghl-internal-api-research corpus; the 10-item UI capture —
+// correct-ifelse-reference.json). Constant across conditions — copied verbatim; the
+// builder/runtime carry them on the stored condition object.
 export const IFELSE_NESTED_DROPDOWN_TYPES = ['inboundWebhookRequest', 'sheet', 'datetime_formatter',
-  'custom_webhook', 'array_functions', 'ivr_gather', 'ivr_connect_call', 'custom_code'];
+  'custom_webhook', 'array_functions', 'ivr_gather', 'ivr_connect_call', 'custom_code',
+  'ai_agent', 'task-notification'];
 export const IFELSE_ALLOW_IS_OPERATOR_TYPES = ['contact_reply', 'inboundWebhookRequest', 'custom_webhook',
-  'custom_code', 'contact_detail', 'array_functions', 'appointment', 'service_booking'];
+  'custom_code', 'ai_agent', 'contact_detail', 'array_functions', 'appointment', 'service_booking',
+  'rental_booking'];
 
-// Enrich an authored if_else condition into the full stored shape. The author writes the
-// intent 4-tuple {conditionType, conditionSubType, conditionOperator, conditionValue}; the
-// compiler adds the envelope real conditions carry: a generated __conditionId, ifElseNodeId:"",
-// isWait:false, the two constant UI-hint arrays, and (for contact_detail) __customFieldType__:
-// "standard". Any value the author already supplied wins (idempotent on a full condition).
-// conditionOperator is condition-type-specific and AUTHOR-owned — the compiler does NOT
-// rewrite it: contact_detail tag → "index-of-true"; contact_detail custom text field →
-// "contain" (a UI "Is <value>" lowercases the value); number/date → "==". A wrong operator
-// still compiles the graph — it just matches wrongly at runtime.
-export function expandCondition(c, ctx) {
-  const out = {
-    conditionType: c.conditionType,
+// Intent-only authoring keys the normalizer consumes but that must NOT survive into the
+// stored condition object (`tag`/`stage`/`not`/`trigger`), plus the four canonical shape
+// fields the normalizer always sets explicitly. Everything else on the authored condition
+// is passed through untouched (forward-compat: __conditionId, ifElseNodeId, envelope hints…).
+const CONDITION_INTENT_KEYS = new Set(['tag', 'stage', 'not', 'trigger',
+  'conditionType', 'conditionSubType', 'conditionOperator', 'conditionValue']);
+function conditionExtras(c) {
+  const out = {};
+  for (const k of Object.keys(c)) if (!CONDITION_INTENT_KEYS.has(k)) out[k] = c[k];
+  return out;
+}
+
+// Normalize an authored if_else condition into the correct GHL 4-tuple SHAPE by type.
+// The per-type shapes were captured from live UI-built conditions (2026-07-15,
+// correct-ifelse-reference.json + workflow fc0d50bc) and differ enough that authors must
+// NOT hand-craft them — a wrong shape compiles clean but MATCHES WRONGLY at runtime (silent).
+// So the author writes simple INTENT and the compiler emits the exact stored shape:
+//
+//   Tag       { conditionType:'contact_detail', tag:'vip' }            (add not:true for "does not have")
+//     → conditionSubType:'tags', conditionOperator:'index-of-true'|'index-of-false',
+//       conditionValue:['vip']   (ALWAYS an array; subType is 'tags' PLURAL, not 'tag')
+//   Opp stage { conditionType:'opportunities', stage:'<id or name>' }  (name→id resolved in resolve.mjs)
+//     → conditionSubType:'pipelineStageId', conditionOperator:'==', conditionValue:'<stageId>' (string)
+//   Field     { conditionType:'contact_detail', conditionSubType:'<fieldId>', conditionValue:'X' }
+//     → conditionOperator:'contain', conditionValue lowercased  (UI "Is <value>" → contain + lowercase)
+//       number/date fields: pass conditionOperator:'==' explicitly (no lowercasing).
+//   Trigger   { conditionType:'trigger', conditionValue:'<triggerId>' } → conditionOperator:'=='
+//
+// A full author-supplied shape round-trips unchanged (idempotent); a WRONG legacy tag shape
+// ({conditionSubType:'tag', conditionOperator:'contains'}) is REWRITTEN to the correct one.
+export function normalizeCondition(c) {
+  const extras = conditionExtras(c);
+  const type = c.conditionType;
+
+  // Tag on contact_detail: `tag` intent key, or a (correct/legacy) tags/tag subType.
+  const tagIntent = c.tag !== undefined || c.conditionSubType === 'tags' || c.conditionSubType === 'tag';
+  if (type === 'contact_detail' && tagIntent) {
+    const raw = c.tag ?? c.conditionValue;
+    const negate = c.not === true || c.conditionOperator === 'index-of-false'
+      || c.conditionOperator === 'not-contains';
+    return {
+      ...extras,
+      conditionType: 'contact_detail',
+      conditionSubType: 'tags',
+      conditionOperator: negate ? 'index-of-false' : 'index-of-true',
+      conditionValue: raw == null ? [] : (Array.isArray(raw) ? raw : [raw]),
+    };
+  }
+
+  // Opportunity pipeline stage: `stage` intent key, or the pipelineStageId subType.
+  // resolve.mjs turns a stage NAME into an id and writes it to conditionValue before compile;
+  // conditionValue therefore wins over the raw `stage` name here.
+  const stageIntent = c.stage !== undefined || c.conditionSubType === 'pipelineStageId';
+  if (type === 'opportunities' && stageIntent) {
+    const raw = c.conditionValue ?? c.stage;
+    return {
+      ...extras,
+      conditionType: 'opportunities',
+      conditionSubType: 'pipelineStageId',
+      conditionOperator: '==',
+      conditionValue: Array.isArray(raw) ? raw[0] : raw,
+    };
+  }
+
+  // Trigger identity.
+  if (type === 'trigger') {
+    return {
+      ...extras,
+      conditionType: 'trigger',
+      conditionSubType: c.conditionSubType,
+      conditionOperator: '==',
+      conditionValue: c.conditionValue ?? c.trigger,
+    };
+  }
+
+  // contact_detail custom field: default to the UI's "Is <value>" → contain + lowercase.
+  // number/date fields want '=='; the author signals that by passing conditionOperator:'=='.
+  if (type === 'contact_detail') {
+    const op = c.conditionOperator ?? 'contain';
+    let val = c.conditionValue;
+    if (op === 'contain' && typeof val === 'string') val = val.toLowerCase();
+    return { ...extras, conditionType: 'contact_detail', conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val };
+  }
+
+  // Anything else: pass the shape through as authored (operator defaults to '==').
+  return {
+    ...extras,
+    conditionType: type,
     conditionSubType: c.conditionSubType,
     conditionOperator: c.conditionOperator ?? '==',
     conditionValue: c.conditionValue,
-    __conditionId: c.__conditionId ?? ctx.idGen(),
-    ifElseNodeId: c.ifElseNodeId ?? '',
-    isWait: c.isWait ?? false,
-    nestedDropdownTypes: c.nestedDropdownTypes ?? IFELSE_NESTED_DROPDOWN_TYPES,
-    allowIsOperatorTypes: c.allowIsOperatorTypes ?? IFELSE_ALLOW_IS_OPERATOR_TYPES,
   };
-  if (c.conditionType === 'contact_detail') out.__customFieldType__ = c.__customFieldType__ ?? 'standard';
+}
+
+// Enrich an authored if_else condition into the full stored shape. First NORMALIZE the shape
+// by type (normalizeCondition), then add the envelope real conditions carry: a generated
+// __conditionId, ifElseNodeId:"", isWait:false, the two constant UI-hint arrays, and (for
+// contact_detail) __customFieldType__:"standard". Any envelope value the author supplied wins.
+export function expandCondition(c, ctx) {
+  const n = normalizeCondition(c);
+  const out = {
+    conditionType: n.conditionType,
+    conditionSubType: n.conditionSubType,
+    conditionOperator: n.conditionOperator,
+    conditionValue: n.conditionValue,
+    __conditionId: n.__conditionId ?? ctx.idGen(),
+    ifElseNodeId: n.ifElseNodeId ?? '',
+    isWait: n.isWait ?? false,
+    nestedDropdownTypes: n.nestedDropdownTypes ?? IFELSE_NESTED_DROPDOWN_TYPES,
+    allowIsOperatorTypes: n.allowIsOperatorTypes ?? IFELSE_ALLOW_IS_OPERATOR_TYPES,
+  };
+  if (n.conditionType === 'contact_detail') out.__customFieldType__ = n.__customFieldType__ ?? 'standard';
   // carry any extra author-specified keys through untouched (forward-compat)
-  for (const k of Object.keys(c)) if (!(k in out)) out[k] = c[k];
+  for (const k of Object.keys(n)) if (!(k in out)) out[k] = n[k];
   return out;
 }
 

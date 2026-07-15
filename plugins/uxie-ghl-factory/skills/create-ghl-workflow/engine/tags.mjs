@@ -33,7 +33,15 @@ export function collectRequiredTags(ir) {
       }
       for (const b of n.branches ?? []) {
         for (const c of b.conditions ?? []) {
-          if (c.conditionType === 'contact_detail' && c.conditionSubType === 'tag') add(c.conditionValue);
+          // if_else tag conditions — cover BOTH the simple `tag:` intent key and the
+          // full/legacy shape (conditionSubType 'tags' plural or 'tag', value string OR
+          // array). The compiler's normalizer accepts all of these, so tag-name collection
+          // (for pre-creation) must too, or the builder rejects "Referenced Tag does not exist".
+          if (c.conditionType !== 'contact_detail') continue;
+          if (c.tag != null) for (const t of [].concat(c.tag)) add(t);
+          if (c.conditionSubType === 'tags' || c.conditionSubType === 'tag') {
+            for (const t of [].concat(c.conditionValue ?? [])) add(t);
+          }
         }
         walk(b.then);
       }

@@ -3,15 +3,18 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { compile, casingLint } from './compiler.mjs';
+import { compile, casingLint, normalizeCondition, IFELSE_NESTED_DROPDOWN_TYPES as ENGINE_NESTED, IFELSE_ALLOW_IS_OPERATOR_TYPES as ENGINE_ALLOW_IS } from './compiler.mjs';
 
 // Frozen UI-hint arrays harvested verbatim from live UI-built if_else conditions
-// (ghl-internal-api-research corpus, 2026-07-15). The compiler must emit these on
-// every condition; the test pins the exact values independently of the compiler.
+// (ghl-internal-api-research corpus, 2026-07-15 — the 10-item UI capture in
+// correct-ifelse-reference.json). The compiler must emit these on every condition;
+// the test pins the exact values independently of the compiler.
 const IFELSE_NESTED_DROPDOWN_TYPES = ['inboundWebhookRequest', 'sheet', 'datetime_formatter',
-  'custom_webhook', 'array_functions', 'ivr_gather', 'ivr_connect_call', 'custom_code'];
+  'custom_webhook', 'array_functions', 'ivr_gather', 'ivr_connect_call', 'custom_code',
+  'ai_agent', 'task-notification'];
 const IFELSE_ALLOW_IS_OPERATOR_TYPES = ['contact_reply', 'inboundWebhookRequest', 'custom_webhook',
-  'custom_code', 'contact_detail', 'array_functions', 'appointment', 'service_booking'];
+  'custom_code', 'ai_agent', 'contact_detail', 'array_functions', 'appointment', 'service_booking',
+  'rental_booking'];
 import { makeSeededIdGen } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
 
@@ -51,7 +54,8 @@ const ifElseIR = {
   graph: [
     { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['x'] } },
     { ref: 'b', kind: 'if_else', name: 'Check', branches: [
-      { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'hv' }], then: [
+      // simple tag intent — the normalizer emits the correct tags/index-of-true/array shape
+      { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'hv' }], then: [
         { ref: 'yt', kind: 'action', type: 'add_contact_tag', name: 'Premium', attributes: { tags: ['premium'] } } ] },
       { ref: 'n', name: 'No', else: true, then: [
         { ref: 'nt', kind: 'action', type: 'add_contact_tag', name: 'Standard', attributes: { tags: ['standard'] } } ] },
@@ -117,8 +121,10 @@ test('if_else conditions get the full UI/runtime condition shape (not the bare 4
   const container = t.find((s) => s.name === 'Check');
   const cond = container.attributes.branches[0].segments[0].conditions[0];
   assert.equal(cond.conditionType, 'contact_detail');
-  assert.equal(cond.conditionSubType, 'tag');
-  assert.equal(cond.conditionValue, 'hv');
+  // normalized tag shape: PLURAL subType, index-of-true operator, ARRAY value
+  assert.equal(cond.conditionSubType, 'tags');
+  assert.equal(cond.conditionOperator, 'index-of-true');
+  assert.deepEqual(cond.conditionValue, ['hv']);
   // envelope fields the builder/runtime expect
   assert.equal(typeof cond.__conditionId, 'string');
   assert.ok(cond.__conditionId.length > 0);
@@ -138,9 +144,9 @@ const refLessMultiBranchIR = {
   name: 'PaidProduct', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
   graph: [
     { kind: 'if_else', name: 'Which paid product?', branches: [
-      { name: 'Treatment', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'treatment' }], then: [
+      { name: 'Treatment', conditions: [{ conditionType: 'contact_detail', tag: 'treatment' }], then: [
         { kind: 'action', type: 'add_contact_tag', name: 'Tag Treatment', attributes: { tags: ['treatment'] } } ] },
-      { name: 'Course', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'course' }], then: [
+      { name: 'Course', conditions: [{ conditionType: 'contact_detail', tag: 'course' }], then: [
         { kind: 'action', type: 'add_contact_tag', name: 'Tag Course', attributes: { tags: ['course'] } } ] },
       { name: 'None', else: true, then: [
         { kind: 'action', type: 'add_contact_tag', name: 'Tag Fallback', attributes: { tags: ['fallback'] } } ] },
@@ -164,9 +170,9 @@ test('if_else with ref-less branches: N conditioned + separate None node, per-br
   // EVERY conditioned branch keeps its own segments (not just the first)
   const [treatment, course] = container.attributes.branches;
   assert.equal(treatment.segments.length, 1);
-  assert.equal(treatment.segments[0].conditions[0].conditionValue, 'treatment');
+  assert.deepEqual(treatment.segments[0].conditions[0].conditionValue, ['treatment']);
   assert.equal(course.segments.length, 1, 'second conditioned branch must keep its condition');
-  assert.equal(course.segments[0].conditions[0].conditionValue, 'course');
+  assert.deepEqual(course.segments[0].conditions[0].conditionValue, ['course']);
   // the None node is the 3rd next entry: nodeType branch-no, attributes {else:true}
   const noneNode = t.find((s) => s.id === container.next[2] && s.type === 'if_else');
   assert.equal(noneNode.nodeType, 'branch-no');
@@ -420,4 +426,106 @@ test('internal_notification notification: nested type + string selectedUser', ()
   assert.equal(a.notification.title, 'T');
   assert.equal(a.notification.redirectPage, 'contact');
   assert.equal(a.notification.selectedUser, 'U1', 'notification selectedUser is a STRING (not array)');
+});
+
+// ---------------------------------------------------------------------------
+// Condition normalizer (2026-07-15 follow-up): the author writes simple INTENT and
+// the compiler emits the correct GHL shape per type. A wrong hand-crafted shape
+// compiles clean but matches WRONGLY at runtime — these pin the captured-correct shapes.
+
+test('normalizeCondition: tag intent → tags/index-of-true/ARRAY (subType is PLURAL)', () => {
+  const n = normalizeCondition({ conditionType: 'contact_detail', tag: 'vip' });
+  assert.equal(n.conditionType, 'contact_detail');
+  assert.equal(n.conditionSubType, 'tags');
+  assert.equal(n.conditionOperator, 'index-of-true');
+  assert.deepEqual(n.conditionValue, ['vip']);
+  // intent-only key must NOT leak into the stored shape
+  assert.ok(!('tag' in n));
+});
+
+test('normalizeCondition: not:true tag → index-of-false', () => {
+  const n = normalizeCondition({ conditionType: 'contact_detail', tag: 'vip', not: true });
+  assert.equal(n.conditionSubType, 'tags');
+  assert.equal(n.conditionOperator, 'index-of-false');
+  assert.deepEqual(n.conditionValue, ['vip']);
+  assert.ok(!('not' in n));
+});
+
+test('normalizeCondition: WRONG legacy tag shape (tag/contains/string) is rewritten to correct', () => {
+  const n = normalizeCondition({ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'vip' });
+  assert.equal(n.conditionSubType, 'tags');
+  assert.equal(n.conditionOperator, 'index-of-true');
+  assert.deepEqual(n.conditionValue, ['vip']);
+});
+
+test('normalizeCondition: already-correct tag shape round-trips unchanged (idempotent)', () => {
+  const input = { conditionType: 'contact_detail', conditionSubType: 'tags', conditionOperator: 'index-of-true', conditionValue: ['vip'] };
+  const n = normalizeCondition(input);
+  assert.equal(n.conditionSubType, 'tags');
+  assert.equal(n.conditionOperator, 'index-of-true');
+  assert.deepEqual(n.conditionValue, ['vip']);
+});
+
+test('normalizeCondition: opportunity stage intent → pipelineStageId/==/string', () => {
+  const n = normalizeCondition({ conditionType: 'opportunities', stage: 'STAGE_ID_123' });
+  assert.equal(n.conditionType, 'opportunities');
+  assert.equal(n.conditionSubType, 'pipelineStageId');
+  assert.equal(n.conditionOperator, '==');
+  assert.equal(n.conditionValue, 'STAGE_ID_123'); // a STRING, not an array
+  assert.ok(!('stage' in n));
+});
+
+test('normalizeCondition: opportunity stage — resolved conditionValue (an id) wins over the raw stage name', () => {
+  // resolve.mjs writes the resolved id into conditionValue before compile
+  const n = normalizeCondition({ conditionType: 'opportunities', stage: 'Booked', conditionValue: 'STAGE_ID_XYZ' });
+  assert.equal(n.conditionValue, 'STAGE_ID_XYZ');
+});
+
+test('normalizeCondition: trigger identity → trigger/==/value', () => {
+  const n = normalizeCondition({ conditionType: 'trigger', conditionValue: 'TRIG_1' });
+  assert.equal(n.conditionType, 'trigger');
+  assert.equal(n.conditionOperator, '==');
+  assert.equal(n.conditionValue, 'TRIG_1');
+});
+
+test('normalizeCondition: custom text field → contain + lowercased value', () => {
+  const n = normalizeCondition({ conditionType: 'contact_detail', conditionSubType: 'FIELD_ID', conditionValue: 'Treatment' });
+  assert.equal(n.conditionSubType, 'FIELD_ID');
+  assert.equal(n.conditionOperator, 'contain');
+  assert.equal(n.conditionValue, 'treatment');
+});
+
+test('normalizeCondition: number/date field keeps == and does NOT lowercase', () => {
+  const n = normalizeCondition({ conditionType: 'contact_detail', conditionSubType: 'FIELD_ID', conditionOperator: '==', conditionValue: 'ABC' });
+  assert.equal(n.conditionOperator, '==');
+  assert.equal(n.conditionValue, 'ABC');
+});
+
+test('engine exports the 10-item UI-hint arrays (matches the live capture)', () => {
+  assert.deepEqual(ENGINE_NESTED, IFELSE_NESTED_DROPDOWN_TYPES);
+  assert.deepEqual(ENGINE_ALLOW_IS, IFELSE_ALLOW_IS_OPERATOR_TYPES);
+  assert.equal(ENGINE_NESTED.length, 10);
+  assert.equal(ENGINE_ALLOW_IS.length, 10);
+});
+
+test('compile: opportunity-stage if_else condition gets the correct stored shape', () => {
+  const ir = {
+    name: 'Stage gate', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [
+      { kind: 'if_else', name: 'Which stage?', branches: [
+        { name: 'Won', conditions: [{ conditionType: 'opportunities', stage: 'STAGE_WON' }], then: [
+          { kind: 'action', type: 'add_contact_tag', name: 'Tag won', attributes: { tags: ['won'] } } ] },
+        { name: 'None', else: true, then: [] },
+      ] },
+    ],
+  };
+  const { autoSaveBody } = compile(ir, ctx());
+  const container = autoSaveBody.workflowData.templates.find((s) => s.name === 'Which stage?');
+  const cond = container.attributes.branches[0].segments[0].conditions[0];
+  assert.equal(cond.conditionType, 'opportunities');
+  assert.equal(cond.conditionSubType, 'pipelineStageId');
+  assert.equal(cond.conditionOperator, '==');
+  assert.equal(cond.conditionValue, 'STAGE_WON');
+  // opportunities conditions do NOT carry the contact_detail-only __customFieldType__
+  assert.ok(!('__customFieldType__' in cond));
 });
