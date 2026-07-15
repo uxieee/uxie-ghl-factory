@@ -1,0 +1,23 @@
+{
+  "name": "uxie-ghl-factory",
+  "version": "0.2.8",
+  "description": "GoHighLevel toolkit skills: workflow export/creation, funnel & page building, account audits, and GHL domain expertise. The GHL MCP server is configured separately (see README).",
+  "author": { "name": "Xander Roque", "url": "https://github.com/uxieee" },
+  "homepage": "https://github.com/uxieee/uxie-ghl-factory",
+  "repository": "https://github.com/uxieee/uxie-ghl-factory",
+  "license": "MIT",
+  "keywords": ["gohighlevel", "ghl", "highlevel", "crm", "automation", "workflows", "funnels", "pipelines"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Uxie GHL Factory",
+    "shortDescription": "GoHighLevel operator skills for Codex",
+    "longDescription": "Skills that turn Codex into a competent GoHighLevel operator — design and build workflows, funnels, pipelines, and AI agents, run read-only account audits, and reverse-engineer GHL's internal APIs. Most skills call the GoHighLevel MCP server, which you configure separately in ~/.codex/config.toml (see the plugin README).",
+    "developerName": "Xander Roque",
+    "category": "Productivity",
+    "defaultPrompt": [
+      "Use uxie-ghl-factory to design a GoHighLevel workflow.",
+      "Use uxie-ghl-factory to audit my GHL sub-account.",
+      "Use uxie-ghl-factory to export a GHL workflow's JSON."
+    ]
+  }
+}

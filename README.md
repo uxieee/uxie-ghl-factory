@@ -1,6 +1,8 @@
 # uxie-ghl-factory
 
-A Claude Code plugin that turns Claude into a competent **GoHighLevel operator** — it can read a sub-account, design and build workflows, funnels, pipelines, and AI agents, run a whole-account audit, and reverse-engineer GHL's own internal APIs when the public API falls short.
+A plugin that turns **Claude Code** — or **Codex** — into a competent **GoHighLevel operator**: it can read a sub-account, design and build workflows, funnels, pipelines, and AI agents, run a whole-account audit, and reverse-engineer GHL's own internal APIs when the public API falls short.
+
+### Install in Claude Code
 
 ```
 /plugin marketplace add uxieee/uxie-ghl-factory
@@ -8,6 +10,15 @@ A Claude Code plugin that turns Claude into a competent **GoHighLevel operator**
 ```
 
 Then run `/uxie-ghl-factory:setup`.
+
+### Install in Codex
+
+```
+codex plugin marketplace add uxieee/uxie-ghl-factory
+codex plugin add uxie-ghl-factory@uxieee
+```
+
+The Codex build ships the **skills only** and does **not** bundle the MCP server — configure it yourself (one-time), and note that the slash commands and the multi-agent audit are Claude Code-only. See **[Using in Codex](#using-in-codex)** below.
 
 ---
 
@@ -65,6 +76,25 @@ The plugin is built in layers: **knowledge** the agent reasons with → **capabi
 
 The internal-API builders (`create-ghl-workflow`, the AI builders) are **draft-first** and were proven by creating-then-deleting real objects against a live account — but they're grounded in what's been captured, not a full spec, so coverage expands one reverse-engineered surface at a time.
 
+## Using in Codex
+
+Codex plugins load **skills, MCP servers, hooks, and apps** — but **not** slash commands or subagents. So the Codex build is skills-only, with two consequences:
+
+- **Slash commands are Claude Code-only.** In Codex there are no `/uxie-ghl-factory:*` commands — invoke the underlying skills directly instead (e.g. *"use `create-ghl-workflow` to build…"*, *"use `ghl-workflow-specialist` to design…"*, *"use `get-ghl-workflow-json` to export…"*). The build / export / logs / pipeline / funnel functionality all lives in skills, so you keep it.
+- **The multi-agent audit is Claude Code-only.** `/uxie-ghl-factory:audit` fans out to the `surface-auditor` and `finding-verifier` subagents, which Codex can't load. The audit *knowledge* skills (`ghl-audit-primitives`, `ghl-defect-catalog`, `ghl-opportunity-catalog`, `ghl-mermaid-map`) still load and can guide a manual audit.
+
+**MCP server (configure once).** The Codex plugin does not bundle the GHL MCP. Add it to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.ghl]
+url = "https://ghl-mcp-server.xanderjohnrazonroque.workers.dev/mcp"
+
+[mcp_servers.ghl.http_headers]
+X-GHL-Token = "YOUR_GHL_PRIVATE_INTEGRATION_TOKEN"
+```
+
+Without it, the skills that reason about GHL (orientation, workflow/pipeline design) still load, but anything that *calls* the API needs this server.
+
 ## Prerequisites
 
 | Requirement | Needed for |
@@ -75,7 +105,7 @@ The internal-API builders (`create-ghl-workflow`, the AI builders) are **draft-f
 
 ## Repository layout
 
-The plugin lives in [`plugins/uxie-ghl-factory/`](plugins/uxie-ghl-factory/); the repo root is a Claude Code **marketplace** (`.claude-plugin/marketplace.json`) so `/plugin marketplace add` works. That's all that's here.
+The plugin lives in [`plugins/uxie-ghl-factory/`](plugins/uxie-ghl-factory/). The repo root carries **both** marketplace manifests so either host can install it: `.claude-plugin/marketplace.json` (Claude Code) and `.agents/plugins/marketplace.json` (Codex). The plugin itself carries both plugin manifests: `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (skills-only). That's all that's here.
 
 ## License
 

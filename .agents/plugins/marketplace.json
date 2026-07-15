@@ -1,0 +1,17 @@
+{
+  "name": "uxieee",
+  "description": "Xander Roque's Codex plugin marketplace.",
+  "plugins": [
+    {
+      "name": "uxie-ghl-factory",
+      "source": {
+        "source": "local",
+        "path": "./plugins/uxie-ghl-factory"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
