@@ -104,6 +104,15 @@ Do NOT author `conditionSubType: tag` + `conditionOperator: contains` — that l
 matches nothing and mis-routes tagged contacts to the None branch (the normalizer rewrites
 it, but don't rely on that; use the `tag:` form).
 
+⚠️ **Opportunity-stage conditions need an ASSOCIATED opportunity** (runtime-proven 2026-07-15).
+An `opportunities`/`pipelineStageId` if_else evaluates against the opportunity associated with
+the *workflow run*, not "any opp the contact has". If the contact didn't enter via an
+opportunity trigger (`opportunity_created`, `pipeline_stage_updated`, …) and the path never ran
+`create_opportunity`/`find_opportunity`, the run has no associated opportunity and the condition
+falls to None even when the stage id is correct — the same OPP_UNASSOCIATED rule the compiler
+enforces for `update_opportunity`. Enter via an opp trigger (or create/find on the path) before
+an opp-stage branch.
+
 - **Node kinds:** `action` (any linear type), `wait`, `if_else` (N≥2 branches, one
   optional `else: true`), `split` (`workflow_split`, weighted/random), `ai_decision`
   (`workflow_ai_decision_maker`, Default + N branches), `goto` (must be last in its
