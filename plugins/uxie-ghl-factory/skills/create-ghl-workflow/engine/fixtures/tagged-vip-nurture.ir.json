@@ -8,7 +8,7 @@
     { "ref": "tag_welcomed", "kind": "action", "type": "add_contact_tag", "name": "Tag welcomed", "attributes": { "tags": ["welcomed"] } },
     { "ref": "check_high_value", "kind": "if_else", "name": "Has high-value tag?", "branches": [
       { "ref": "branch_yes", "name": "Yes",
-        "conditions": [ { "conditionType": "contact_detail", "conditionSubType": "tag", "conditionOperator": "contains", "conditionValue": "high-value" } ],
+        "conditions": [ { "conditionType": "contact_detail", "tag": "high-value" } ],
         "then": [
           { "ref": "wait_1d", "kind": "wait", "name": "Wait 1 day", "config": { "unit": "days", "value": 1, "when": "after" } },
           { "ref": "tag_premium", "kind": "action", "type": "add_contact_tag", "name": "Tag premium", "attributes": { "tags": ["premium"] } }

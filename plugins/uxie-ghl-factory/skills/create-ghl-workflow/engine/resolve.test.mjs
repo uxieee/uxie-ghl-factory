@@ -36,6 +36,45 @@ test('resolveIR: opportunity pipeline/stage names → ids', () => {
   assert.deepEqual(unresolved, []);
 });
 
+test('resolveIR: if_else opportunity-stage condition — stage NAME → id (written to conditionValue)', () => {
+  const ir = { triggers: [], graph: [
+    { ref: 'b', kind: 'if_else', name: 'Stage?', branches: [
+      { ref: 'y', name: 'Won', conditions: [{ conditionType: 'opportunities', stage: 'Won', pipeline: 'Sales' }], then: [] },
+      { ref: 'n', name: 'None', else: true, then: [] },
+    ] },
+  ] };
+  const { ir: out, unresolved } = resolveIR(ir, r);
+  const cond = out.graph[0].branches[0].conditions[0];
+  assert.equal(cond.conditionValue, 'ST_WON'); // the compiler's normalizer reads conditionValue first
+  assert.deepEqual(unresolved, []);
+});
+
+test('resolveIR: if_else stage condition — an already-resolved id passes through; a tag condition is left alone', () => {
+  const ir = { triggers: [], graph: [
+    { ref: 'b', kind: 'if_else', name: 'Mixed', branches: [
+      { ref: 'y', name: 'Won', conditions: [{ conditionType: 'opportunities', conditionSubType: 'pipelineStageId', conditionOperator: '==', conditionValue: 'ST_WON' }], then: [] },
+      { ref: 't', name: 'Tag', conditions: [{ conditionType: 'contact_detail', tag: 'vip' }], then: [] },
+      { ref: 'n', name: 'None', else: true, then: [] },
+    ] },
+  ] };
+  const { ir: out, unresolved } = resolveIR(ir, r);
+  assert.equal(out.graph[0].branches[0].conditions[0].conditionValue, 'ST_WON'); // id untouched
+  assert.equal(out.graph[0].branches[1].conditions[0].tag, 'vip');               // tag not resolved
+  assert.deepEqual(unresolved, []);
+});
+
+test('resolveIR: unknown if_else stage name is reported', () => {
+  const ir = { triggers: [], graph: [
+    { ref: 'b', kind: 'if_else', name: 'Stage?', branches: [
+      { ref: 'y', name: 'X', conditions: [{ conditionType: 'opportunities', stage: 'Nonexistent Stage' }], then: [] },
+      { ref: 'n', name: 'None', else: true, then: [] },
+    ] },
+  ] };
+  const { unresolved } = resolveIR(ir, r);
+  assert.equal(unresolved.length, 1);
+  assert.match(unresolved[0].where, /if_else opportunities\.stage/);
+});
+
 test('resolveIR: assign_user + appointment calendar + task assignee', () => {
   const ir = { triggers: [], graph: [
     { ref: 'u', kind: 'action', type: 'assign_user', name: 'A', attributes: { user: 'jane@x.com' } },

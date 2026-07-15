@@ -134,6 +134,21 @@ export function resolveIR(ir, r) {
       a.assignedEmployeeId = need(r.agentId(a.employee), `${type}.employee`, a.employee);
     }
     n.attributes = a;
+
+    // if_else opportunity-stage conditions: resolve a pipeline-stage NAME → id so the
+    // author can write { conditionType:'opportunities', stage:'Booked' }. Only the `stage`
+    // INTENT key is resolved (a full-shape condition already carries the id in conditionValue,
+    // which the compiler's normalizeCondition reads first — leave it alone). The resolved id
+    // is written to conditionValue. (Tag conditions need no resolution — a tag is a literal.)
+    for (const b of n.branches ?? []) {
+      for (const cond of b.conditions ?? []) {
+        if (!cond || cond.conditionType !== 'opportunities' || cond.stage == null) continue;
+        if (looksLikeId(cond.stage)) { cond.conditionValue = cond.stage; continue; }
+        const id = r.stageId(cond.stage, cond.pipeline);
+        if (id) cond.conditionValue = id;
+        else unresolved.push({ where: 'if_else opportunities.stage', name: cond.stage });
+      }
+    }
   });
 
   return { ir, unresolved };

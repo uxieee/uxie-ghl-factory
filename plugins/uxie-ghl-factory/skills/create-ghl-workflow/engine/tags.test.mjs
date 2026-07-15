@@ -19,6 +19,22 @@ test('collectRequiredTags gathers names from triggers, steps, and conditions', (
   assert.deepEqual(new Set(collectRequiredTags(ir)), new Set(['VIP', 'welcomed', 'high-value', 'premium']));
 });
 
+test('collectRequiredTags: new authoring — simple `tag:` intent key AND plural tags/array shape', () => {
+  const ir2 = {
+    triggers: [],
+    graph: [
+      { ref: 'b', kind: 'if_else', name: 'B', branches: [
+        // simple intent key
+        { ref: 'y', name: 'Y', conditions: [{ conditionType: 'contact_detail', tag: 'vip' }], then: [] },
+        // full/normalized shape: plural subType + ARRAY value (possibly multi-tag)
+        { ref: 'z', name: 'Z', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tags', conditionOperator: 'index-of-true', conditionValue: ['gold', 'silver'] }], then: [] },
+        { ref: 'n', name: 'No', else: true, then: [] },
+      ] },
+    ],
+  };
+  assert.deepEqual(new Set(collectRequiredTags(ir2)), new Set(['vip', 'gold', 'silver']));
+});
+
 test('collectRequiredTags dedupes case-insensitively, keeps first casing', () => {
   const ir2 = { triggers: [], graph: [
     { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'A', attributes: { tags: ['VIP', 'vip', 'Vip'] } },

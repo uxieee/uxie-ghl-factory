@@ -22,7 +22,7 @@ const complexIR = {
   graph: [
     { ref: 'start', kind: 'action', type: 'add_contact_tag', name: 'Entered', attributes: { tags: ['entered'] } },
     { ref: 'branch', kind: 'if_else', name: 'Segment', branches: [
-      { ref: 'hot', name: 'Hot', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'hot' }], then: [
+      { ref: 'hot', name: 'Hot', conditions: [{ conditionType: 'contact_detail', tag: 'hot' }], then: [
         { ref: 'find', type: 'find_contact', name: 'Find dup',
           find: { fields: [{ field: 'email', value: '{{contact.email}}', title: 'Email', type: 'string', date: '' }] },
           onFound: [
@@ -33,7 +33,7 @@ const complexIR = {
           ],
           onNotFound: [{ ref: 'note', kind: 'action', type: 'add_notes', name: 'No dup', attributes: { html: '<p>new</p>' } }] },
       ] },
-      { ref: 'warm', name: 'Warm', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tag', conditionOperator: 'contains', conditionValue: 'warm' }], then: [
+      { ref: 'warm', name: 'Warm', conditions: [{ conditionType: 'contact_detail', tag: 'warm' }], then: [
         { ref: 'ai', kind: 'ai_decision', name: 'Milestone?', instructions: 'Decide', information: 'ctx', branches: [
           { name: 'Celebrate', description: 'milestone', then: [{ ref: 'c1', kind: 'action', type: 'sms', name: 'Congrats', attributes: { body: 'nice!' } }] },
           { name: 'Skip', description: 'not yet', then: [] },
