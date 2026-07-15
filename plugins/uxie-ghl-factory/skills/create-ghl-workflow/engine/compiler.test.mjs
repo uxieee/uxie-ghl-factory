@@ -4,6 +4,14 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { compile, casingLint } from './compiler.mjs';
+
+// Frozen UI-hint arrays harvested verbatim from live UI-built if_else conditions
+// (ghl-internal-api-research corpus, 2026-07-15). The compiler must emit these on
+// every condition; the test pins the exact values independently of the compiler.
+const IFELSE_NESTED_DROPDOWN_TYPES = ['inboundWebhookRequest', 'sheet', 'datetime_formatter',
+  'custom_webhook', 'array_functions', 'ivr_gather', 'ivr_connect_call', 'custom_code'];
+const IFELSE_ALLOW_IS_OPERATOR_TYPES = ['contact_reply', 'inboundWebhookRequest', 'custom_webhook',
+  'custom_code', 'contact_detail', 'array_functions', 'appointment', 'service_booking'];
 import { makeSeededIdGen } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
 
@@ -51,7 +59,7 @@ const ifElseIR = {
   ],
 };
 
-test('binary if_else: container + branch-yes/branch-no wiring', () => {
+test('binary if_else: container + branch-yes/None-node wiring (runtime-correct structure)', () => {
   const { autoSaveBody } = compile(ifElseIR, ctx());
   const t = autoSaveBody.workflowData.templates;
   const byRef = (name) => t.find((s) => s.name === name);
@@ -59,30 +67,66 @@ test('binary if_else: container + branch-yes/branch-no wiring', () => {
   assert.equal(container.type, 'if_else');
   assert.equal(container.nodeType, 'condition-node');
   assert.equal(container.parentKey, byRef('Tag').id);
-  assert.deepEqual(container.next.length, 2);
   const yes = t.find((s) => s.name === 'Yes'), no = t.find((s) => s.name === 'No');
   assert.equal(yes.nodeType, 'branch-yes');
   assert.equal(no.nodeType, 'branch-no');
-  assert.equal(yes.parent, container.id);
-  assert.deepEqual(yes.sibling, [no.id]);
-  assert.deepEqual(no.sibling, [yes.id]);
+  // The None node is a SEPARATE node in next[] — next.length === conditioned + 1.
+  // (This is the runtime fix: with the None fused onto the conditioned branch the
+  // graph compile made the pre-container step terminal → end_of_workflow.)
+  assert.equal(container.next.length, 2, 'next = [conditionedYes, None]');
   assert.equal(container.next[0], yes.id);
   assert.equal(container.next[1], no.id);
+  // attributes.branches holds CONDITIONED branches ONLY — the None/else is NOT here.
+  assert.equal(container.attributes.branches.length, 1);
   assert.equal(container.attributes.branches[0].id, yes.id);
-  assert.equal(container.attributes.branches[1].id, no.id);
-  assert.equal(container.attributes.branches[1].segments.length, 0);
-  // container renders its label from attributes.conditionName (the "undefined" fix)
+  assert.ok(container.attributes.branches.every((b) => b.id !== no.id),
+    'the None/else id must not appear as an attributes.branches entry');
+  assert.equal(container.next.length, container.attributes.branches.length + 1);
+  // conditioned branch carries a real segment (with a generated __segmentId)
+  const seg = container.attributes.branches[0].segments[0];
+  assert.equal(container.attributes.branches[0].segments.length, 1);
+  assert.equal(typeof seg.__segmentId, 'string');
+  assert.ok(seg.__segmentId.length > 0);
+  // container attributes: label + version + none-branch name
   assert.equal(container.attributes.conditionName, 'Check');
   assert.equal(container.attributes.if, true);
   assert.equal(container.attributes.operator, 'and');
+  assert.equal(container.attributes.currentRecipeType, 'CUSTOM');
+  assert.equal(container.attributes.version, 2);
   assert.equal(container.attributes.noneBranchName, 'No');
-  assert.equal(container.cat, '');
+  assert.equal(container.cat, 'conditions');
   assert.deepEqual(container.comments, []);
   assert.equal(container.attributes.branches[0].showErrors, false);
+  // branch-yes node attributes are the real non-empty shape (NOT {})
+  assert.deepEqual(yes.attributes, { if: false, conditionName: 'Condition', operator: 'and', branches: [] });
+  // None node attributes are {else:true}; its next wires the fallback ladder
+  assert.deepEqual(no.attributes, { else: true });
+  assert.equal(yes.parent, container.id);
+  assert.deepEqual(yes.sibling, [no.id]);
+  assert.deepEqual(no.sibling, [yes.id]);
   assert.equal(yes.next, byRef('Premium').id);
   assert.equal(byRef('Premium').parent, yes.id);
   assert.equal(byRef('Premium').next, null);
+  assert.equal(no.next, byRef('Standard').id, 'None node wires the else fallback ladder');
   assert.ok(['parent', 'sibling', 'cat', 'comments', 'nodeType', 'parentKey'].every((k) => k in yes));
+});
+
+test('if_else conditions get the full UI/runtime condition shape (not the bare 4 fields)', () => {
+  const { autoSaveBody } = compile(ifElseIR, ctx());
+  const t = autoSaveBody.workflowData.templates;
+  const container = t.find((s) => s.name === 'Check');
+  const cond = container.attributes.branches[0].segments[0].conditions[0];
+  assert.equal(cond.conditionType, 'contact_detail');
+  assert.equal(cond.conditionSubType, 'tag');
+  assert.equal(cond.conditionValue, 'hv');
+  // envelope fields the builder/runtime expect
+  assert.equal(typeof cond.__conditionId, 'string');
+  assert.ok(cond.__conditionId.length > 0);
+  assert.equal(cond.ifElseNodeId, '');
+  assert.equal(cond.isWait, false);
+  assert.equal(cond.__customFieldType__, 'standard'); // contact_detail carries this
+  assert.deepEqual(cond.nestedDropdownTypes, IFELSE_NESTED_DROPDOWN_TYPES);
+  assert.deepEqual(cond.allowIsOperatorTypes, IFELSE_ALLOW_IS_OPERATOR_TYPES);
 });
 
 // Regression (root-caused 2026-07-15): when if_else branches omit `ref`, every
@@ -104,28 +148,60 @@ const refLessMultiBranchIR = {
   ],
 };
 
-test('if_else with ref-less branches: distinct ids, no duplicate in next, per-branch segments', () => {
+test('if_else with ref-less branches: N conditioned + separate None node, per-branch segments', () => {
   const { autoSaveBody } = compile(refLessMultiBranchIR, ctx());
   const t = autoSaveBody.workflowData.templates;
   const container = t.find((s) => s.name === 'Which paid product?');
-  // next has each branch id EXACTLY once — no duplication of the none-branch id
+  // next = [treatment, course, None] — 2 conditioned + 1 separate None node
   assert.equal(container.next.length, 3);
   assert.equal(new Set(container.next).size, 3, 'branch ids in next must be distinct');
-  // attributes.branches ids line up with next[] and are all distinct
+  // attributes.branches holds the 2 CONDITIONED branches only (None excluded)
   const branchIds = container.attributes.branches.map((b) => b.id);
-  assert.deepEqual(branchIds, container.next);
-  assert.equal(new Set(branchIds).size, 3);
-  // EVERY conditioned branch keeps its own segments (not just the first); else is empty
-  const [treatment, course, none] = container.attributes.branches;
+  assert.equal(branchIds.length, 2);
+  assert.equal(new Set(branchIds).size, 2);
+  assert.deepEqual(branchIds, container.next.slice(0, 2), 'conditioned ids lead next[]');
+  assert.equal(container.next.length, branchIds.length + 1);
+  // EVERY conditioned branch keeps its own segments (not just the first)
+  const [treatment, course] = container.attributes.branches;
   assert.equal(treatment.segments.length, 1);
+  assert.equal(treatment.segments[0].conditions[0].conditionValue, 'treatment');
   assert.equal(course.segments.length, 1, 'second conditioned branch must keep its condition');
   assert.equal(course.segments[0].conditions[0].conditionValue, 'course');
-  assert.equal(none.segments.length, 0);
-  // the three branch NODES are distinct and each has a distinct child tail
-  const branchNodes = container.next.map((id) => t.find((s) => s.id === id && s.type === 'if_else'));
-  assert.equal(new Set(branchNodes.map((b) => b.id)).size, 3);
-  assert.equal(branchNodes[2].nodeType, 'branch-no');
-  assert.equal(branchNodes[0].nodeType, 'branch-yes');
+  // the None node is the 3rd next entry: nodeType branch-no, attributes {else:true}
+  const noneNode = t.find((s) => s.id === container.next[2] && s.type === 'if_else');
+  assert.equal(noneNode.nodeType, 'branch-no');
+  assert.deepEqual(noneNode.attributes, { else: true });
+  assert.equal(noneNode.next, t.find((s) => s.name === 'Tag Fallback').id, 'else fallback wired to None node');
+  // the two conditioned nodes are branch-yes
+  const yes0 = t.find((s) => s.id === container.next[0] && s.type === 'if_else');
+  assert.equal(yes0.nodeType, 'branch-yes');
+});
+
+// An if_else with NO authored else branch still gets a synthesized None node
+// (the builder always adds one; next.length === conditioned + 1). Its next is null.
+const noElseIR = {
+  name: 'NoElse', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+  graph: [
+    { kind: 'if_else', name: 'Gate', branches: [
+      { name: 'A', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'field', conditionOperator: 'contain', conditionValue: 'a' }], then: [
+        { kind: 'action', type: 'add_contact_tag', name: 'Tag A', attributes: { tags: ['a'] } } ] },
+      { name: 'B', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'field', conditionOperator: 'contain', conditionValue: 'b' }], then: [
+        { kind: 'action', type: 'add_contact_tag', name: 'Tag B', attributes: { tags: ['b'] } } ] },
+    ] },
+  ],
+};
+
+test('if_else with no else branch synthesizes a None node with next:null', () => {
+  const { autoSaveBody } = compile(noElseIR, ctx());
+  const t = autoSaveBody.workflowData.templates;
+  const container = t.find((s) => s.name === 'Gate');
+  assert.equal(container.next.length, 3, '2 conditioned + synthesized None');
+  assert.equal(container.attributes.branches.length, 2);
+  assert.equal(container.attributes.noneBranchName, 'None');
+  const noneNode = t.find((s) => s.id === container.next[2] && s.type === 'if_else');
+  assert.equal(noneNode.nodeType, 'branch-no');
+  assert.deepEqual(noneNode.attributes, { else: true });
+  assert.equal(noneNode.next, null, 'no fallback ladder → None.next is null');
 });
 
 test('create body + auto-save envelope are well-formed', () => {
@@ -306,4 +382,42 @@ test('internal_notification derives attributes.type from the channel envelope', 
       attributes: { sms: { body: 'ping', userType: 'assign', attachments: [] } } }] };
   const { autoSaveBody } = compile(ir, ctx());
   assert.equal(autoSaveBody.workflowData.templates[0].attributes.type, 'sms');
+});
+
+// The builder's editor form binds to the full per-channel shape; a drifted/partial shape
+// fires at runtime but won't OPEN when clicked. The compiler emits the corpus-canonical
+// field set per channel (harvested from 180 live steps, 2026-07-15), correctly typed.
+const inA = (ir) => compile(ir, ctx()).autoSaveBody.workflowData.templates[0].attributes;
+
+test('internal_notification sms/user: selectedUser coerced to array + full fields', () => {
+  const a = inA({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ kind: 'action', type: 'internal_notification', name: 'N',
+      attributes: { sms: { body: 'ping', userType: 'user', selectedUser: 'USER123' } } }] });
+  assert.equal(a.type, 'sms');
+  assert.deepEqual(a.sms.selectedUser, ['USER123'], 'sms selectedUser must be an ARRAY');
+  assert.equal(a.sms.body, 'ping');
+  assert.equal(a.sms.userType, 'user');
+  assert.deepEqual(a.sms.attachments, []);
+});
+
+test('internal_notification email: full editable shape (from/userType/subject/html/attachments)', () => {
+  const a = inA({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ kind: 'action', type: 'internal_notification', name: 'N',
+      attributes: { email: { subject: 'Hi', html: '<p>x</p>' } } }] });
+  assert.equal(a.type, 'email');
+  assert.deepEqual(Object.keys(a.email).sort(),
+    ['attachments', 'from_email', 'from_name', 'html', 'subject', 'userType']);
+  assert.equal(a.email.userType, 'all'); // default when no recipient specified
+  assert.equal(a.email.subject, 'Hi');
+});
+
+test('internal_notification notification: nested type + string selectedUser', () => {
+  const a = inA({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ kind: 'action', type: 'internal_notification', name: 'N',
+      attributes: { notification: { body: 'hey', title: 'T', userType: 'user', selectedUser: ['U1'] } } }] });
+  assert.equal(a.type, 'notification');
+  assert.equal(a.notification.type, 'send_notification'); // nested subtype the editor needs
+  assert.equal(a.notification.title, 'T');
+  assert.equal(a.notification.redirectPage, 'contact');
+  assert.equal(a.notification.selectedUser, 'U1', 'notification selectedUser is a STRING (not array)');
 });

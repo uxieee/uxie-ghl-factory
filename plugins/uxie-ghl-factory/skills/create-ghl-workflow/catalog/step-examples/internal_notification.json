@@ -1,0 +1,62 @@
+{
+  "_note": "internal_notification per-channel editable shapes (corpus-canonical, 180 live steps, 2026-07-15). The channel object MUST carry the full field set or the builder editor will not OPEN when the step is clicked (it still fires at runtime). Traps: selectedUser is an ARRAY for email/sms/whatsapp but a STRING for notification; userType is always present (all | user | assign | custom_email | custom_sms). Real notification steps use `body` (GHL validator metadata mislabels it `message`).",
+  "examples": {
+    "email (to all staff)": {
+      "id": "n10000000-0000-4000-8000-000000000001",
+      "type": "internal_notification",
+      "name": "Internal Notification",
+      "order": 0,
+      "attributes": {
+        "type": "email",
+        "email": {
+          "from_name": "{{location.name}}",
+          "from_email": "{{location.email}}",
+          "userType": "all",
+          "subject": "New lead: {{contact.name}}",
+          "html": "Follow up with {{contact.name}}.",
+          "attachments": []
+        }
+      },
+      "next": null,
+      "parentKey": null
+    },
+    "sms (to a specific user)": {
+      "id": "n20000000-0000-4000-8000-000000000001",
+      "type": "internal_notification",
+      "name": "Internal Notification",
+      "order": 0,
+      "attributes": {
+        "type": "sms",
+        "sms": {
+          "body": "New lead {{contact.name}}",
+          "userType": "user",
+          "attachments": [],
+          "selectedUser": [
+            "USER_ID_HERE"
+          ]
+        }
+      },
+      "next": null,
+      "parentKey": null
+    },
+    "notification (in-app bell)": {
+      "id": "n30000000-0000-4000-8000-000000000001",
+      "type": "internal_notification",
+      "name": "Internal Notification",
+      "order": 0,
+      "attributes": {
+        "type": "notification",
+        "notification": {
+          "type": "send_notification",
+          "body": "{{contact.name}} just came in",
+          "title": "New lead",
+          "redirectPage": "contact",
+          "userType": "user",
+          "selectedUser": "USER_ID_HERE"
+        }
+      },
+      "next": null,
+      "parentKey": null
+    }
+  }
+}

@@ -140,3 +140,28 @@ test('addBranch inserts a new conditional branch before the else', () => {
   assert.ok(templates.find((t) => t.id === 'yes').sibling.includes('gen1'));
   assert.deepEqual(diff.createdSteps, ['gen1']);
 });
+
+// addBranch must emit the SAME runtime-correct branch shape as the compiler: a non-empty
+// branch-yes `attributes`, a segment with a generated __segmentId, and fully-enriched
+// conditions (not the bare authored tuple). An empty attributes / bare condition made the
+// edited step uneditable in the builder and mis-shaped at runtime.
+test('addBranch emits enriched conditions + non-empty branch-yes attributes', () => {
+  _n = 0;
+  const { templates } = addBranch(branched(), 'cont',
+    { name: 'Maybe', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'fld', conditionOperator: 'contain', conditionValue: 'x' }] }, seqId);
+  const cont = templates.find((t) => t.id === 'cont');
+  const seg = cont.attributes.branches[1].segments[0];
+  assert.equal(typeof seg.__segmentId, 'string');
+  assert.ok(seg.__segmentId.length > 0);
+  const cond = seg.conditions[0];
+  assert.equal(typeof cond.__conditionId, 'string');
+  assert.ok(cond.__conditionId.length > 0);
+  assert.equal(cond.ifElseNodeId, '');
+  assert.equal(cond.isWait, false);
+  assert.equal(cond.__customFieldType__, 'standard');
+  assert.ok(Array.isArray(cond.nestedDropdownTypes) && cond.nestedDropdownTypes.length > 0);
+  assert.ok(Array.isArray(cond.allowIsOperatorTypes) && cond.allowIsOperatorTypes.length > 0);
+  const newEntry = templates.find((t) => t.id === 'gen1');
+  assert.deepEqual(newEntry.attributes, { if: false, conditionName: 'Condition', operator: 'and', branches: [] });
+  assert.equal(newEntry.cat, 'conditions');
+});

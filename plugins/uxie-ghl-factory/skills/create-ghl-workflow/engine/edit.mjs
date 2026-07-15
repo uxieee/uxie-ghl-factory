@@ -8,6 +8,7 @@
 // full templates[] with correct createdSteps/modifiedSteps/deletedSteps is what makes
 // an edit apply cleanly without disturbing untouched steps.
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
+import { expandCondition } from './compiler.mjs';
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).
@@ -130,18 +131,23 @@ export function addBranch(templates, containerId, { name, conditions = [] }, idG
   const newId = idGen();
   const next = [...container.next];
   const branches = [...(container.attributes?.branches || [])];
-  const elseIdx = next.length - 1;                 // the else/branch-no is always last
-  next.splice(elseIdx, 0, newId);                  // insert before else
+  const elseIdx = next.length - 1;                 // the else/branch-no (None) is always last
+  next.splice(elseIdx, 0, newId);                  // insert the conditioned branch before None
+  // Mirror the compiler's runtime-correct branch shape: a segment with a generated
+  // __segmentId + fully-enriched conditions (not the bare authored tuple).
   branches.splice(elseIdx, 0, {
-    id: newId, name, operator: 'and',
-    segments: conditions.length ? [{ operator: 'and', conditions }] : [],
+    id: newId, name,
+    segments: conditions.length ? [{ __segmentId: idGen(), operator: 'and', conditions: conditions.map((c) => expandCondition(c, { idGen })) }] : [],
+    operator: 'and',
     showErrors: false, branchNameError: 'Branch name cannot be empty!',
   });
   const allIds = next;
   const newEntry = {
     id: newId, type: 'if_else', name, order: next.indexOf(newId),
-    parent: containerId, parentKey: containerId, cat: '', comments: [],
-    sibling: allIds.filter((x) => x !== newId), nodeType: 'branch-yes', attributes: {}, next: null,
+    parent: containerId, parentKey: containerId, cat: 'conditions', comments: [],
+    sibling: allIds.filter((x) => x !== newId), nodeType: 'branch-yes',
+    // the editor needs the real non-empty branch-yes attributes, NOT `{}`
+    attributes: { if: false, conditionName: 'Condition', operator: 'and', branches: [] }, next: null,
   };
   const modified = [containerId];
   const out = templates.map((t) => {
