@@ -164,14 +164,24 @@ workflow). `--dry-run` computes + prints the diff without sending the PUT. The e
 `{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`
 (each takes a linear `step: {type,name,attributes}` compiled from IR), `deleteStep`,
 `modifyStep` (`attrPatch`), `moveStep`, `addBranch` (`{containerId,name,conditions}`),
-`deleteContainer`. Example — add an SMS after step `abc` and delete step `xyz`:
+`deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
+(`{type,disabled}`). The disable operations use GHL's native top-level
+`advanceCanvasMeta.isDisabled` flag, preserve the full step config, and commit only changed
+step IDs in `modifiedSteps`. Example — add an SMS, delete a step, and natively pause all
+internal notifications:
 
 ```json
 { "ops": [
   { "op": "insertAfter", "afterId": "abc", "step": { "type": "sms", "name": "Nudge", "attributes": { "body": "Still there?" } } },
-  { "op": "deleteStep", "stepId": "xyz" }
+  { "op": "deleteStep", "stepId": "xyz" },
+  { "op": "disableStepsByType", "type": "internal_notification", "disabled": true }
 ] }
 ```
+
+For a newly compiled workflow, put `disabled: true` directly on any IR step node. This
+emits the same native flag; false/absent means enabled. See
+`references/step-shapes.md#disabling-steps-native-pause` for the live-proven shape and
+the ruled-out notification-recipient workarounds.
 
 Adding an `internal_update_opportunity` this way triggers the `OPP_UNASSOCIATED` guard
 (pass `--assume-associated` only if ALL the workflow's triggers are opportunity-based).

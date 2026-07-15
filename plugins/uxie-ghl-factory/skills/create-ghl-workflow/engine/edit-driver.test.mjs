@@ -80,3 +80,40 @@ test('editCommitBody consumes the driver output into a plain-PUT body', () => {
   assert.deepEqual(body.createdSteps, diff.createdSteps);
   assert.deepEqual(body.modifiedSteps, diff.modifiedSteps);
 });
+
+test('disableStepsByType op round-trips through the published commit body without changing anything else', () => {
+  const original = chain().map((t) => t.type === 'sms' ? {
+    ...t,
+    attributes: { ...t.attributes, selectedUser: ['u1'], userType: 'user' },
+    advanceCanvasMeta: { position: { x: 120, y: 240 } },
+  } : t);
+  let edited;
+  assert.doesNotThrow(() => {
+    edited = applyOps(original, [
+      { op: 'disableStepsByType', type: 'sms', disabled: true },
+    ], { ctx: ctx(), idGen: makeSeededIdGen('z') });
+  });
+  const fresh = {
+    _id: 'w', id: 'w', name: 'Published workflow', status: 'published', version: 9,
+    filePath: 'keep.json', permission: 380, workflowData: { templates: original },
+  };
+  const body = editCommitBody(fresh, edited.templates, edited.diff, 'UID');
+  const changed = body.workflowData.templates.find((t) => t.id === 's2');
+
+  assert.equal(body.status, 'published');
+  assert.equal(body.version, 9);
+  assert.equal(body.filePath, 'keep.json');
+  assert.equal(body.permission, 380);
+  assert.equal(body.updatedBy, 'UID');
+  assert.equal(body.triggersChanged, false);
+  assert.deepEqual(body.createdSteps, []);
+  assert.deepEqual(body.modifiedSteps, ['s2']);
+  assert.deepEqual(body.deletedSteps, []);
+  assert.deepEqual(changed.attributes, original.find((t) => t.id === 's2').attributes);
+  assert.deepEqual(changed.advanceCanvasMeta, {
+    position: { x: 120, y: 240 },
+    isDisabled: true,
+  });
+  assert.deepEqual(body.workflowData.templates.filter((t) => t.id !== 's2'),
+    original.filter((t) => t.id !== 's2'));
+});

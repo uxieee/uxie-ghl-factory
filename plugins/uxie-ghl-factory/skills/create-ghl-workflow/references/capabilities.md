@@ -6,6 +6,8 @@
 
 **316 step types / 59 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
 
+**Native pause (every step type):** set IR `disabled: true` to emit top-level `advanceCanvasMeta.isDisabled: true`. This is the same per-action pause used by GHL's ⏸ button; it preserves the step config and skips that step at runtime.
+
 Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-derived · ▫ live-schema (marketplace) · ⚑ recon-fields (field structure captured; not yet commit-verified).
 
 ## Native steps — by section (with authorable attribute keys)

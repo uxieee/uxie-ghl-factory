@@ -68,6 +68,34 @@ export function modifyStep(templates, stepId, attrPatch) {
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
 }
 
+// Native GHL per-action pause. The flag lives at the template root (never in
+// attributes), and the rest of the step must round-trip byte-for-byte in shape.
+function setDisabledWhere(templates, matches, disabled) {
+  const desired = disabled === true;
+  const changed = [];
+  const out = templates.map((t) => {
+    if (!matches(t) || Boolean(t.advanceCanvasMeta?.isDisabled) === desired) return t;
+    changed.push(t.id);
+    return {
+      ...t,
+      advanceCanvasMeta: { ...(t.advanceCanvasMeta ?? {}), isDisabled: desired },
+    };
+  });
+  if (!changed.length) return { templates, diff: emptyDiff() };
+  return {
+    templates: out,
+    diff: { createdSteps: [], modifiedSteps: changed, deletedSteps: [] },
+  };
+}
+
+export function setStepDisabled(templates, stepId, disabled) {
+  return setDisabledWhere(templates, (t) => t.id === stepId, disabled);
+}
+
+export function disableStepsByType(templates, type, disabled) {
+  return setDisabledWhere(templates, (t) => t.type === type, disabled);
+}
+
 // Append newStep to the tail of a BRANCH scope (the steps whose parent === branchEntryId).
 // Handles an empty branch (wire the branch-entry's next) and a non-empty branch (find its
 // tail and chain on). `branchEntryId` is the branch-entry step id (nodeType branch-yes/no,

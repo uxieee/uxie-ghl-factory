@@ -8,6 +8,7 @@
 //                              isMultipathContainer, usesCustomInputs, requiredFields[], ... } | undefined
 //   catalog.trigger(type) -> { type, masterType, category, confidence, ... } | undefined
 //   catalog.filterModel(triggerType) -> recovered filter-row schema | undefined
+//   catalog.stepCapabilities() -> universal author/edit capabilities for all steps
 //   catalog.allSteps() / catalog.allTriggers() -> type[]  (for coverage reporting)
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -40,6 +41,7 @@ export function loadCatalog() {
     step: (type) => d.steps[type],
     trigger: (type) => d.triggers[type],
     filterModel: (type) => findFilterModel(d, type),
+    stepCapabilities: () => d.stepCapabilities ?? {},
     allSteps: () => Object.keys(d.steps),
     allTriggers: () => Object.keys(d.triggers),
     // coverage snapshot for reporting / tests

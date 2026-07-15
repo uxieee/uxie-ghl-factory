@@ -22,3 +22,10 @@ test('voice_ai_outbound_call resolves as an internal action requiring agentId/fr
   assert.deepEqual(step.situational, ['workflowsActionType']);
   assert.deepEqual(step.requiredFields, ['agentId', 'fromPhoneNumber']);
 });
+
+test('catalog exposes native pause as a universal step capability', () => {
+  const pause = loadCatalog().stepCapabilities().isDisabled;
+  assert.equal(pause.appliesTo, 'all-step-types');
+  assert.equal(pause.irField, 'disabled');
+  assert.equal(pause.templatePath, 'advanceCanvasMeta.isDisabled');
+});
