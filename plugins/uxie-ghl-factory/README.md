@@ -1,8 +1,10 @@
-# ghl — GoHighLevel plugin for Claude Code
+# ghl — GoHighLevel plugin for Claude Code & Codex
 
 ## What this is
 
-`ghl` is a Claude Code plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts. It bundles a hosted MCP server covering GHL's public API (1,207 actions across 83 categories), plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), and funnel/page building — built against GHL's undocumented internal API, with explicit safety gates around that surface.
+`ghl` is a plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts in **Claude Code** or **Codex**. It bundles a hosted MCP server covering GHL's public API (1,207 actions across 83 categories), plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), and funnel/page building — built against GHL's undocumented internal API, with explicit safety gates around that surface.
+
+> **Codex note:** Codex plugins load **skills only** — not slash commands or subagents — so in Codex the `/uxie-ghl-factory:*` commands and the multi-agent `/uxie-ghl-factory:audit` are unavailable; invoke the skills directly instead, and configure the MCP server yourself. See [Install](#install) and [Using in Codex](#using-in-codex).
 
 | Component | Name | What it does |
 |---|---|---|
@@ -31,12 +33,42 @@
 
 ## Install
 
+**Claude Code:**
+
 ```
-/plugin marketplace add uxieee/ghl-plugin
+/plugin marketplace add uxieee/uxie-ghl-factory
 /plugin install uxie-ghl-factory@uxieee
 ```
 
 Then run `/uxie-ghl-factory:setup` to configure your token, verify the MCP connection, and see which features are available in your environment.
+
+**Codex:**
+
+```
+codex plugin marketplace add uxieee/uxie-ghl-factory
+codex plugin add uxie-ghl-factory@uxieee
+```
+
+The Codex build ships the **skills only** and does not bundle the MCP server — set it up yourself (one-time) per [Using in Codex](#using-in-codex).
+
+## Using in Codex
+
+Codex plugins load **skills, MCP servers, hooks, and apps** — but not slash commands or subagents. Two consequences:
+
+- **No slash commands.** In Codex there are no `/uxie-ghl-factory:*` commands — invoke the underlying skills directly (e.g. *"use `create-ghl-workflow` to build…"*, *"use `ghl-workflow-specialist` to design…"*, *"use `get-ghl-workflow-json` to export…"*). Build / export / logs / pipeline / funnel all live in skills, so you keep that functionality.
+- **No multi-agent audit.** `/uxie-ghl-factory:audit` dispatches the `surface-auditor` and `finding-verifier` subagents, which Codex can't load. The audit *knowledge* skills (`ghl-audit-primitives`, `ghl-defect-catalog`, `ghl-opportunity-catalog`, `ghl-mermaid-map`) still load and can guide a manual audit.
+
+**MCP server (configure once).** Add the GHL MCP to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.ghl]
+url = "https://ghl-mcp-server.xanderjohnrazonroque.workers.dev/mcp"
+
+[mcp_servers.ghl.http_headers]
+X-GHL-Token = "YOUR_GHL_PRIVATE_INTEGRATION_TOKEN"
+```
+
+Without it, the skills that only *reason* about GHL still load, but anything that *calls* the API needs this server. (Self-hosting the Worker? Point `url` at your own deployment — see [Trust model](#trust-model).)
 
 ## Prerequisites
 
