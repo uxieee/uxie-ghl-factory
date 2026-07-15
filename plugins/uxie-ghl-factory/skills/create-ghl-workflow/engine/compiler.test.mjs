@@ -49,6 +49,23 @@ test('linear chain wires next/parentKey/order and lean envelope', () => {
   assert.deepEqual(autoSaveBody.modifiedSteps, []);
 });
 
+test('disabled IR step emits native pause metadata without dropping canvas position', () => {
+  const ir = {
+    ...linearIR,
+    graph: linearIR.graph.map((node, i) => i === 0 ? {
+      ...node,
+      disabled: true,
+      advanceCanvasMeta: { position: { x: 248, y: 96 } },
+    } : node),
+  };
+  const [step] = compile(ir, ctx()).autoSaveBody.workflowData.templates;
+  assert.deepEqual(step.advanceCanvasMeta, {
+    position: { x: 248, y: 96 },
+    isDisabled: true,
+  });
+  assert.equal('isDisabled' in step.attributes, false);
+});
+
 const ifElseIR = {
   name: 'Branchy', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
   graph: [

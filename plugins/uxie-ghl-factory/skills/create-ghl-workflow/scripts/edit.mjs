@@ -12,6 +12,8 @@
 //   { "op":"appendToBranch",  "branchEntryId":"<id>", "step": {...} }
 //   { "op":"deleteStep",      "stepId":"<id>" }
 //   { "op":"modifyStep",      "stepId":"<id>", "attrPatch": {...} }
+//   { "op":"setStepDisabled", "stepId":"<id>", "disabled":true|false }
+//   { "op":"disableStepsByType", "type":"internal_notification", "disabled":true|false }
 //   { "op":"moveStep",        "stepId":"<id>", "afterId":"<id>" }
 //   { "op":"addBranch",       "containerId":"<id>", "name":"...", "conditions":[...] }
 //   { "op":"deleteContainer", "containerId":"<id>" }

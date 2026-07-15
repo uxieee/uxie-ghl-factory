@@ -10,6 +10,14 @@
  ],
  "stepCount": 316,
  "triggerCount": 59,
+ "stepCapabilities": {
+  "isDisabled": {
+   "appliesTo": "all-step-types",
+   "irField": "disabled",
+   "templatePath": "advanceCanvasMeta.isDisabled",
+   "description": "Native per-action pause; preserves the full step config and skips the step at runtime"
+  }
+ },
  "filterModels": {
   "AppointmentFilter": {
    "source_path": "sniffs/bundle/recovered-source/src/models/Triggers/Filters/AppointmentFilter.ts",

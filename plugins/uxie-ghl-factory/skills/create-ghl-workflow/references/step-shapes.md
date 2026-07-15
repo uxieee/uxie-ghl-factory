@@ -16,6 +16,36 @@ On a modern linear action step these are usually **absent**, and adding ones the
 
 Caveat: they aren't universally forbidden — some steps legitimately carry a subset. `parent`/`sibling`/`nodeType` are real inside `if_else` branch substructure, and `workflowsActionType` appears on certain internal actions (e.g. `internal_create_opportunity` has it; `internal_notification` doesn't). That's exactly why the rule is *mirror the harvested step*, not *always add* or *always omit*.
 
+## Disabling steps (native pause)
+
+GHL's per-action ⏸ button is represented by one top-level template flag:
+
+```json
+{
+  "id": "{STEP_ID}",
+  "type": "internal_notification",
+  "attributes": { "...full step config...": "..." },
+  "advanceCanvasMeta": {
+    "position": { "x": 248, "y": 96 },
+    "isDisabled": true
+  }
+}
+```
+
+- `advanceCanvasMeta.isDisabled` is a sibling of `advanceCanvasMeta.position` and is **not** inside `attributes`.
+- `true` disables the step. `false` or an absent flag enables it.
+- The flag applies to **every step type**. A disabled step keeps its complete config, is skipped at runtime, and appears in the builder with the `(Disabled)` label. Flipping the flag is fully reversible and exactly matches the per-action ⏸ button.
+- At author time, set `disabled: true` on any IR step node. The compiler merges `isDisabled: true` into existing `advanceCanvasMeta`, preserving `position` and any other metadata.
+- For an existing workflow, use edit op `{ "op":"setStepDisabled", "stepId":"...", "disabled":true|false }`, or batch by exact type with `{ "op":"disableStepsByType", "type":"internal_notification", "disabled":true|false }`. Both are idempotent and add only steps whose state changed to `modifiedSteps`.
+- The proven commit path is: GET `/workflow/{loc}/{wid}?includeScheduledPauseInfo=true`, mutate the fetched `workflowData.templates`, then plain PUT `/workflow/{loc}/{wid}` with the fresh workflow envelope, `updatedBy` from JWT `authClassId`, `status:fresh.status`, `version:fresh.version`, `triggersChanged:false`, `workflowData:{templates:newTemplates}`, `createdSteps:[]`, changed IDs in `modifiedSteps`, and `deletedSteps:[]`. Keeping the fetched status commits in place without unpublishing a published workflow; do not use a live-builder auto-save session for this edit.
+
+Two approaches are known-wrong and must not be used as substitutes:
+
+- Blanking `internal_notification` recipients with `selectedUser: []` fails with GHL 400 `recipient mandatory`.
+- Switching `userType` to `assign` changes recipient semantics; it does not pause the action.
+
+`advanceCanvasMeta.isDisabled` is the only correct native pause mechanism.
+
 ## Verified shapes (live account, 2026-06)
 
 ### `custom_webhook` — needs `stepIndex` + `advanceCanvasMeta`
@@ -48,6 +78,7 @@ Caveat: they aren't universally forbidden — some steps legitimately carry a su
 ```
 
 - This shape was harvested as a single/root step, so it has no `parentKey`. When chaining it after another step, add `parentKey` = the previous step's `id` (see "Linking multiple steps" below) — `parentKey` is a normal edge field, not a don't-invent field.
+- If this webhook is paused, `isDisabled` belongs beside `position` in the same top-level `advanceCanvasMeta` object; never place it in `attributes`.
 - The request body is a STRING template in `rawData` with `{{merge.fields}}` — not nested JSON.
 - Custom headers (`headers: [{key,value}]`) can be dropped by the sender; carrying a secret as a `?secret=` query param on `url` is a robust fallback if the receiver supports it.
 

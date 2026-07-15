@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch, deleteContainer } from './edit.mjs';
+import * as edit from './edit.mjs';
+
+const { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch, deleteContainer } = edit;
 
 let _n = 0;
 const seqId = () => `gen${++_n}`;
@@ -55,6 +57,47 @@ test('modifyStep patches attributes in place', () => {
   assert.equal(s2.attributes.body, 'new');
   assert.equal(s2.attributes.mediaUrl, 'x');
   assert.deepEqual(diff, { createdSteps: [], modifiedSteps: ['s2'], deletedSteps: [] });
+});
+
+test('setStepDisabled preserves config and position, flips both directions, and is idempotent', () => {
+  assert.equal(typeof edit.setStepDisabled, 'function');
+  const base = chain().map((t) => t.id === 's2' ? {
+    ...t,
+    attributes: { body: 'keep me', selectedUser: ['u1'] },
+    advanceCanvasMeta: { position: { x: 12, y: 34 } },
+  } : t);
+
+  const disabled = edit.setStepDisabled(base, 's2', true);
+  assert.deepEqual(disabled.diff, { createdSteps: [], modifiedSteps: ['s2'], deletedSteps: [] });
+  assert.deepEqual(disabled.templates.find((t) => t.id === 's2'), {
+    ...base.find((t) => t.id === 's2'),
+    advanceCanvasMeta: { position: { x: 12, y: 34 }, isDisabled: true },
+  });
+
+  const alreadyDisabled = edit.setStepDisabled(disabled.templates, 's2', true);
+  assert.strictEqual(alreadyDisabled.templates, disabled.templates);
+  assert.deepEqual(alreadyDisabled.diff.modifiedSteps, []);
+
+  const enabled = edit.setStepDisabled(disabled.templates, 's2', false);
+  assert.equal(enabled.templates.find((t) => t.id === 's2').advanceCanvasMeta.isDisabled, false);
+  assert.deepEqual(enabled.diff.modifiedSteps, ['s2']);
+
+  const alreadyEnabled = edit.setStepDisabled(enabled.templates, 's2', false);
+  assert.strictEqual(alreadyEnabled.templates, enabled.templates);
+  assert.deepEqual(alreadyEnabled.diff.modifiedSteps, []);
+});
+
+test('disableStepsByType changes only matching steps that need a state flip', () => {
+  assert.equal(typeof edit.disableStepsByType, 'function');
+  const base = chain().map((t) => t.id === 's3'
+    ? { ...t, advanceCanvasMeta: { position: { x: 3, y: 4 }, isDisabled: true } }
+    : t);
+  const { templates, diff } = edit.disableStepsByType(base, 'add_contact_tag', true);
+  assert.deepEqual(diff.modifiedSteps, ['s1']);
+  assert.equal(templates.find((t) => t.id === 's1').advanceCanvasMeta.isDisabled, true);
+  assert.deepEqual(templates.find((t) => t.id === 's3').advanceCanvasMeta,
+    { position: { x: 3, y: 4 }, isDisabled: true });
+  assert.equal(templates.find((t) => t.id === 's2').advanceCanvasMeta, undefined);
 });
 
 // a branched graph: container B with a Yes branch-entry (has 1 child) and an empty No branch-entry

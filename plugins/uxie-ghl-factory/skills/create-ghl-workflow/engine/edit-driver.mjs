@@ -1,7 +1,10 @@
 // Pure driver for edit-mode: turn a list of edit ops into { templates, diff } over an
 // existing workflow's templates[]. No I/O — scripts/edit.mjs does the GET/PUT and passes
 // the fresh templates in. Keeping this pure makes the op sequencing + diff-merge testable.
-import { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch, deleteContainer } from './edit.mjs';
+import {
+  appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep,
+  addBranch, deleteContainer, setStepDisabled, disableStepsByType,
+} from './edit.mjs';
 import { compile } from './compiler.mjs';
 
 // Compile a single LINEAR step from an IR action node so its attributes/situational
@@ -53,6 +56,8 @@ export function applyOp(templates, op, { ctx, idGen }) {
     case 'appendToBranch': return appendToBranch(templates, op.branchEntryId, compileStep(op.step, ctx));
     case 'deleteStep': return deleteStep(templates, op.stepId);
     case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {});
+    case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);
+    case 'disableStepsByType': return disableStepsByType(templates, op.type, op.disabled);
     case 'moveStep': return moveStep(templates, op.stepId, op.afterId);
     case 'addBranch': return addBranch(templates, op.containerId, { name: op.name, conditions: op.conditions ?? [] }, idGen);
     case 'deleteContainer': return deleteContainer(templates, op.containerId);
