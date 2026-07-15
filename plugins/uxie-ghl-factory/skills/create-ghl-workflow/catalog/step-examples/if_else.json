@@ -1,0 +1,143 @@
+{
+  "_note": "Correct if_else structure (harvested from live UI-built condition-node 2026-07-15). Container next=[...conditionedBranchNodes, NoneNode] (always +1 for the separate None). attributes.branches holds CONDITIONED branches ONLY. Each condition carries the full envelope (__conditionId, ifElseNodeId, isWait, nestedDropdownTypes, allowIsOperatorTypes, and __customFieldType__ for contact_detail). conditionOperator is condition-type-specific: contact_detail tag -> index-of-true; custom text field -> contain (UI \"Is <value>\" lowercases); number/date -> ==.",
+  "templates": [
+    {
+      "id": "e0000000-0000-4000-8000-000000000001",
+      "type": "if_else",
+      "name": "Has VIP tag?",
+      "order": 0,
+      "parentKey": null,
+      "next": [
+        "e0000000-0000-4000-8000-000000000002",
+        "e0000000-0000-4000-8000-000000000003"
+      ],
+      "nodeType": "condition-node",
+      "cat": "conditions",
+      "comments": [],
+      "attributes": {
+        "currentRecipeType": "CUSTOM",
+        "branches": [
+          {
+            "id": "e0000000-0000-4000-8000-000000000002",
+            "name": "VIP",
+            "segments": [
+              {
+                "__segmentId": "e0000000-0000-4000-8000-000000000004",
+                "operator": "and",
+                "conditions": [
+                  {
+                    "conditionType": "contact_detail",
+                    "conditionSubType": "tags",
+                    "conditionOperator": "index-of-true",
+                    "conditionValue": [
+                      "vip"
+                    ],
+                    "__conditionId": "e0000000-0000-4000-8000-000000000005",
+                    "ifElseNodeId": "",
+                    "isWait": false,
+                    "nestedDropdownTypes": [
+                      "inboundWebhookRequest",
+                      "sheet",
+                      "datetime_formatter",
+                      "custom_webhook",
+                      "array_functions",
+                      "ivr_gather",
+                      "ivr_connect_call",
+                      "custom_code"
+                    ],
+                    "allowIsOperatorTypes": [
+                      "contact_reply",
+                      "inboundWebhookRequest",
+                      "custom_webhook",
+                      "custom_code",
+                      "contact_detail",
+                      "array_functions",
+                      "appointment",
+                      "service_booking"
+                    ],
+                    "__customFieldType__": "standard"
+                  }
+                ]
+              }
+            ],
+            "operator": "and",
+            "showErrors": false,
+            "branchNameError": "Branch name cannot be empty!"
+          }
+        ],
+        "operator": "and",
+        "if": true,
+        "conditionName": "Has VIP tag?",
+        "version": 2,
+        "noneBranchName": "None"
+      }
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000002",
+      "type": "if_else",
+      "name": "VIP",
+      "order": 0,
+      "parent": "e0000000-0000-4000-8000-000000000001",
+      "parentKey": "e0000000-0000-4000-8000-000000000001",
+      "cat": "conditions",
+      "comments": [],
+      "sibling": [
+        "e0000000-0000-4000-8000-000000000003"
+      ],
+      "nodeType": "branch-yes",
+      "attributes": {
+        "if": false,
+        "conditionName": "Condition",
+        "operator": "and",
+        "branches": []
+      },
+      "next": "e0000000-0000-4000-8000-000000000006"
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000006",
+      "type": "add_contact_tag",
+      "name": "Tag Priority",
+      "order": 0,
+      "attributes": {
+        "tags": [
+          "priority"
+        ]
+      },
+      "next": null,
+      "parentKey": "e0000000-0000-4000-8000-000000000002",
+      "parent": "e0000000-0000-4000-8000-000000000002"
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000003",
+      "type": "if_else",
+      "name": "None",
+      "order": 1,
+      "parent": "e0000000-0000-4000-8000-000000000001",
+      "parentKey": "e0000000-0000-4000-8000-000000000001",
+      "cat": "conditions",
+      "comments": [],
+      "sibling": [
+        "e0000000-0000-4000-8000-000000000002"
+      ],
+      "nodeType": "branch-no",
+      "attributes": {
+        "else": true
+      },
+      "next": "e0000000-0000-4000-8000-000000000007"
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000007",
+      "type": "add_contact_tag",
+      "name": "Tag Standard",
+      "order": 0,
+      "attributes": {
+        "tags": [
+          "standard"
+        ]
+      },
+      "next": null,
+      "parentKey": "e0000000-0000-4000-8000-000000000003",
+      "parent": "e0000000-0000-4000-8000-000000000003"
+    }
+  ]
+}

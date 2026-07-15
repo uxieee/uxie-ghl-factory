@@ -8,6 +8,7 @@ function attributesFor(node, ctx) {
   if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {});
   if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
+  if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {});
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {});
   if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {});
   // Generic path: the author supplies intent attributes; the compiler fills the
@@ -97,6 +98,68 @@ function voiceAiOutboundCallAttributes(a) {
     type: 'voice_ai_outbound_call',
     __customInputs__: {},
   };
+}
+
+// internal_notification — a staff-facing notification on one of 4 channels
+// (email/sms/notification/whatsapp), discriminated by attributes.type. The channel object
+// must carry the exact fields the builder's editor form binds to, or the editor WON'T OPEN
+// when the step is clicked (it still fires fine at runtime — which is why this class of bug
+// stayed invisible). Field sets are the corpus-canonical shape from 180 live UI-built steps
+// (ghl-internal-api-research, harvested 2026-07-15). Two typing traps the generic passthrough
+// missed: (1) selectedUser is an ARRAY for email/sms/whatsapp but a STRING for notification;
+// (2) userType is always present. When userType is 'user', selectedUser names the recipients;
+// for 'all'/'assign'/'custom_*' the corpus omits selectedUser.
+// NOTE: "editor opens" is a client-side builder behavior that can only be *confirmed* in the
+// live builder — this handler makes the emitted step match real editable steps field-for-field.
+const NOTIFICATION_CHANNELS = ['email', 'sms', 'notification', 'whatsapp'];
+function asUserArray(v) {
+  if (v == null || v === '') return [];
+  return Array.isArray(v) ? v : [v];
+}
+function internalNotificationAttributes(a) {
+  const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null)
+    ?? NOTIFICATION_CHANNELS.find((c) => c in a) ?? 'email';
+  const b = a[channel] ?? {};
+  const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== '' ? 'user' : 'all');
+  const wantsUsers = userType === 'user';
+  if (channel === 'email') {
+    return { type: 'email', email: {
+      from_name: b.from_name ?? '{{location.name}}',
+      from_email: b.from_email ?? '{{location.email}}',
+      userType,
+      subject: b.subject ?? '',
+      html: b.html ?? '',
+      attachments: b.attachments ?? [],
+      ...(wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}),
+    } };
+  }
+  if (channel === 'sms') {
+    return { type: 'sms', sms: {
+      body: b.body ?? '',
+      userType,
+      attachments: b.attachments ?? [],
+      ...(wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}),
+    } };
+  }
+  if (channel === 'notification') {
+    // the in-app bell: selectedUser is a single STRING, and the object carries its own
+    // nested `type` (send_notification) plus title/redirectPage the editor requires.
+    const sel = asUserArray(b.selectedUser);
+    return { type: 'notification', notification: {
+      type: b.notificationType ?? 'send_notification',
+      body: b.body ?? '',
+      title: b.title ?? '',
+      redirectPage: b.redirectPage ?? 'contact',
+      userType,
+      ...(wantsUsers ? { selectedUser: sel[0] ?? '' } : {}),
+    } };
+  }
+  // whatsapp — the staff-facing channel of internal_notification (not the native action)
+  return { type: 'whatsapp', whatsapp: {
+    body: b.body ?? '',
+    userType,
+    selectedUser: asUserArray(b.selectedUser),
+  } };
 }
 
 // custom_webhook (outbound HTTP) — live-verified shape. body.rawData is a JSON STRING;
@@ -202,6 +265,41 @@ function idForRef(refMap, ctx, ref) {
   return refMap.get(ref);
 }
 
+// Frozen UI-hint arrays present on every live UI-built if_else condition (harvested
+// 2026-07-15 from the ghl-internal-api-research corpus). Constant across conditions —
+// copied verbatim; the builder/runtime carry them on the stored condition object.
+export const IFELSE_NESTED_DROPDOWN_TYPES = ['inboundWebhookRequest', 'sheet', 'datetime_formatter',
+  'custom_webhook', 'array_functions', 'ivr_gather', 'ivr_connect_call', 'custom_code'];
+export const IFELSE_ALLOW_IS_OPERATOR_TYPES = ['contact_reply', 'inboundWebhookRequest', 'custom_webhook',
+  'custom_code', 'contact_detail', 'array_functions', 'appointment', 'service_booking'];
+
+// Enrich an authored if_else condition into the full stored shape. The author writes the
+// intent 4-tuple {conditionType, conditionSubType, conditionOperator, conditionValue}; the
+// compiler adds the envelope real conditions carry: a generated __conditionId, ifElseNodeId:"",
+// isWait:false, the two constant UI-hint arrays, and (for contact_detail) __customFieldType__:
+// "standard". Any value the author already supplied wins (idempotent on a full condition).
+// conditionOperator is condition-type-specific and AUTHOR-owned — the compiler does NOT
+// rewrite it: contact_detail tag → "index-of-true"; contact_detail custom text field →
+// "contain" (a UI "Is <value>" lowercases the value); number/date → "==". A wrong operator
+// still compiles the graph — it just matches wrongly at runtime.
+export function expandCondition(c, ctx) {
+  const out = {
+    conditionType: c.conditionType,
+    conditionSubType: c.conditionSubType,
+    conditionOperator: c.conditionOperator ?? '==',
+    conditionValue: c.conditionValue,
+    __conditionId: c.__conditionId ?? ctx.idGen(),
+    ifElseNodeId: c.ifElseNodeId ?? '',
+    isWait: c.isWait ?? false,
+    nestedDropdownTypes: c.nestedDropdownTypes ?? IFELSE_NESTED_DROPDOWN_TYPES,
+    allowIsOperatorTypes: c.allowIsOperatorTypes ?? IFELSE_ALLOW_IS_OPERATOR_TYPES,
+  };
+  if (c.conditionType === 'contact_detail') out.__customFieldType__ = c.__customFieldType__ ?? 'standard';
+  // carry any extra author-specified keys through untouched (forward-compat)
+  for (const k of Object.keys(c)) if (!(k in out)) out[k] = c[k];
+  return out;
+}
+
 // Flatten a linear scope into template objects, wiring next/parentKey/order.
 // parentScopeId: the id set as `parent` for nodes in this scope (null at root).
 // Returns { templates, entryId }.
@@ -214,41 +312,70 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     const parentKey = i > 0 ? ids[i - 1] : (parentScopeId ?? null);
 
     if (n.kind === 'if_else') {
-      const branchIds = n.branches.map((b) => idForRef(refMap, ctx, b.ref));
-      // Container shape mirrors a real live container (harvested 2026-07-10):
-      // the builder's node label comes from `attributes.conditionName` — without it
-      // the node renders "undefined". The container carries cat/comments (not parent/sibling).
+      // Runtime-correct structure, diffed against a live UI-built condition-node
+      // (harvested 2026-07-15). CONDITIONED branches and the else/None are DIFFERENT
+      // things: the container's next[] is [...conditionedBranchNodeIds, noneNodeId] — the
+      // None is ALWAYS a SEPARATE node (even when no else is authored), never fused onto a
+      // conditioned branch. `attributes.branches` holds the CONDITIONED branches ONLY.
+      // The pre-2026-07-15 bug fused them (next.length === branches.length, else with a
+      // phantom empty-segments entry); that broke the runtime graph compile so the step
+      // BEFORE the container went terminal and the contact hit end_of_workflow there,
+      // never reaching the condition. The earlier 2026-07-15 patch only de-duplicated the
+      // reused else id (next:[b1,b2,b2]) — it did NOT split out the None node.
+      const conditioned = n.branches.filter((b) => b.else !== true);
       const elseBranch = n.branches.find((b) => b.else === true);
+      const conditionedIds = conditioned.map((b) => idForRef(refMap, ctx, b.ref));
+      // else id reuses its ref (goto/reply targeting); a synthesized None gets a fresh id.
+      const noneId = elseBranch ? idForRef(refMap, ctx, elseBranch.ref) : ctx.idGen();
+      const allBranchIds = [...conditionedIds, noneId];
+      const noneName = elseBranch?.name ?? 'None';
       templates.push({
         id, type: 'if_else', name: n.name, order: i,
-        parentKey, next: branchIds, nodeType: 'condition-node',
-        cat: '', comments: [],
+        parentKey, next: allBranchIds, nodeType: 'condition-node',
+        cat: 'conditions', comments: [],
         attributes: {
-          branches: n.branches.map((b, bi) => ({
-            id: branchIds[bi], name: b.name, operator: 'and',
+          currentRecipeType: 'CUSTOM',
+          branches: conditioned.map((b, bi) => ({
+            id: conditionedIds[bi], name: b.name,
             segments: (b.conditions && b.conditions.length)
-              ? [{ operator: 'and', conditions: b.conditions }] : [],
+              ? [{ __segmentId: ctx.idGen(), operator: 'and', conditions: b.conditions.map((c) => expandCondition(c, ctx)) }]
+              : [],
+            operator: 'and',
             showErrors: false, branchNameError: 'Branch name cannot be empty!',
           })),
-          currentRecipeType: 'CUSTOM',
-          conditionName: n.name,        // <- the builder's display label
-          if: true,
           operator: 'and',
-          noneBranchName: elseBranch?.name ?? 'No',
+          if: true,
+          conditionName: n.name,        // <- the builder's container display label
+          version: 2,
+          noneBranchName: noneName,
         },
       });
-      n.branches.forEach((b, bi) => {
-        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
+      // conditioned branch nodes (branch-yes): the editor needs the real non-empty
+      // attributes shape here, NOT `{}` (an empty attributes made the node uneditable).
+      conditioned.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, conditionedIds[bi]);
         templates.push({
-          id: branchIds[bi], type: 'if_else', name: b.name, order: bi,
-          parent: id, parentKey: id, cat: '', comments: [],
-          sibling: branchIds.filter((x) => x !== branchIds[bi]),
-          nodeType: b.else === true ? 'branch-no' : 'branch-yes',
-          attributes: {},
+          id: conditionedIds[bi], type: 'if_else', name: b.name, order: bi,
+          parent: id, parentKey: id, cat: 'conditions', comments: [],
+          sibling: allBranchIds.filter((x) => x !== conditionedIds[bi]),
+          nodeType: 'branch-yes',
+          attributes: { if: false, conditionName: 'Condition', operator: 'and', branches: [] },
           next: child.entryId,
         });
         templates.push(...child.templates);
       });
+      // the None node (branch-no): a separate node; next = the else fallback ladder, or
+      // null when no else was authored (the builder still renders the None terminus).
+      const noneChild = flattenGraph(elseBranch?.then ?? [], ctx, refMap, noneId);
+      templates.push({
+        id: noneId, type: 'if_else', name: noneName, order: conditioned.length,
+        parent: id, parentKey: id, cat: 'conditions', comments: [],
+        sibling: allBranchIds.filter((x) => x !== noneId),
+        nodeType: 'branch-no',
+        attributes: { else: true },
+        next: noneChild.entryId,
+      });
+      templates.push(...noneChild.templates);
       return;
     }
 
