@@ -4,3 +4,4 @@ audits/
 *.local.*
 .DS_Store
 docs/superpowers/
+plugins/*/skills/*-workspace/
