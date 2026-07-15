@@ -44,12 +44,19 @@ export const probeConditions = {
 // The MATCHED (Yes) branch adds matchTag; the None branch adds noneTag. Because the tags —
 // and therefore the step NAMES — DIFFER, analyzeRun can tell which branch ran. A contact
 // stuck by the graph bug never reaches either tag.
-export function buildRuntimeIR({ triggerTag, condition, matchTag = 'rt-matched', noneTag = 'rt-none', name = 'RUNTIME-TEST if_else probe' }) {
+// `trigger` overrides the default contact_tag trigger — the opportunity-stage probe MUST
+// enter via an opportunity trigger (opportunity_created) so the run has an ASSOCIATED
+// opportunity; an `opportunities`/pipelineStageId if_else condition evaluates against the
+// run's associated opportunity, so a contact enrolled any other way falls to None even when
+// the condition shape is correct (proven live 2026-07-15 — same OPP_UNASSOCIATED principle
+// the compiler already enforces for update_opportunity).
+export function buildRuntimeIR({ triggerTag, trigger, condition, matchTag = 'rt-matched', noneTag = 'rt-none', name = 'RUNTIME-TEST if_else probe' }) {
   if (!condition) throw new Error('buildRuntimeIR requires a `condition` (see probeConditions.*)');
   const tag = (t, step) => ({ kind: 'action', type: 'add_contact_tag', name: step, attributes: { tags: [t] } });
+  const trig = trigger ?? { ref: 't', type: 'contact_tag', name: 'RT trigger tag added', filters: [{ field: 'tagsAdded', operator: 'index-of-true', value: [triggerTag] }] };
   return {
     name,
-    triggers: [{ ref: 't', type: 'contact_tag', name: 'RT trigger tag added', filters: [{ field: 'tagsAdded', operator: 'index-of-true', value: [triggerTag] }] }],
+    triggers: [trig],
     graph: [
       { ref: 'w', kind: 'wait', name: 'Wait 1 min', config: { unit: 'minutes', value: 1, when: 'after' } },
       { ref: 'c', kind: 'if_else', name: 'Probe condition', branches: [
@@ -113,9 +120,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Enrol a real contact whose state SATISFIES the Match branch, per probe kind. Returns the
 // new contactId. Throws on any setup failure (the caller treats that as a harness error, not
-// a runtime FAIL). `spec` carries the kind-specific ids (customFieldId / probeTag /
-// pipelineId+stageId). Every enrolment ends by adding `triggerTag`, which fires the workflow.
-async function enrolMatchingContact(gw, { kind, email, triggerTag, spec }) {
+// a runtime FAIL). Enrolment differs by WHAT the condition reads (proven live 2026-07-15):
+//   - customField / tag: a CONTACT-level condition — set the state, then MANUALLY enrol
+//     (POST /contacts/{id}/workflow/{wid}). Deterministic; does NOT depend on a trigger firing
+//     (the internal host's tag-write does not reliably emit the contact_tag event).
+//   - oppStage: the condition reads the run's ASSOCIATED opportunity, so enrol by CREATING an
+//     opportunity in the target stage — that fires the workflow's opportunity_created trigger
+//     and associates the opportunity to the run. Manual enrol would leave the run with no
+//     associated opportunity → the (correct) condition falls to None (false wrong-branch).
+async function enrolMatchingContact(gw, { kind, email, wid, spec }) {
   const { call, loc } = gw;
   const base = { locationId: loc, email, firstName: 'Runtime', lastName: 'Test' };
   if (kind === 'customField') base.customFields = [{ id: spec.customFieldId, value: spec.matchValue ?? 'yes' }];
@@ -123,23 +136,23 @@ async function enrolMatchingContact(gw, { kind, email, triggerTag, spec }) {
   const contactId = created.json?.contact?.id || created.json?.id || created.json?._id;
   if (!contactId) throw new Error(`contact create failed: ${created.status} ${JSON.stringify(created.json).slice(0, 200)}`);
 
-  if (kind === 'tag') {
-    // the CONDITION tag must be present before the trigger fires — add it first, separately
-    const t = await call('POST', `/contacts/${contactId}/tags`, { tags: [spec.probeTag] });
-    if (!t.ok) throw new Error(`add probe tag failed: ${t.status} ${JSON.stringify(t.json).slice(0, 200)}`);
-  }
   if (kind === 'oppStage') {
-    // create an opportunity in the target stage so the opportunities/pipelineStageId condition matches
+    // create the opportunity → fires opportunity_created → associates it to the run (enrols)
     const opp = await call('POST', '/opportunities/', {
       locationId: loc, pipelineId: spec.pipelineId, pipelineStageId: spec.stageId,
       contactId, name: `RT probe ${email}`, status: 'open',
     });
     if (!opp.ok && !(opp.json?.opportunity?.id || opp.json?.id)) throw new Error(`opportunity create failed: ${opp.status} ${JSON.stringify(opp.json).slice(0, 200)}`);
+    return contactId;
   }
 
-  // adding the trigger tag fires the contact_tag trigger → enrols into the workflow
-  const tagged = await call('POST', `/contacts/${contactId}/tags`, { tags: [triggerTag] });
-  if (!tagged.ok) throw new Error(`add trigger tag failed: ${tagged.status} ${JSON.stringify(tagged.json).slice(0, 200)}`);
+  if (kind === 'tag') {
+    const t = await call('POST', `/contacts/${contactId}/tags`, { tags: [spec.probeTag] });
+    if (!t.ok) throw new Error(`add probe tag failed: ${t.status} ${JSON.stringify(t.json).slice(0, 200)}`);
+  }
+  // contact-level conditions: manually enrol (deterministic).
+  const en = await call('POST', `/contacts/${contactId}/workflow/${wid}`, {});
+  if (!(en.json?.succeeded || en.json?.succeded)) throw new Error(`manual enrol failed: ${en.status} ${JSON.stringify(en.json).slice(0, 200)}`);
   return contactId;
 }
 
@@ -153,7 +166,13 @@ export async function runRuntimeTest(gw, {
   const { call, loc } = gw;
   if (!probe || !probe.kind) throw new Error('runRuntimeTest requires a `probe` ({ kind, ...ids }).');
   const condition = buildProbeCondition(probe);
-  const ir = buildRuntimeIR({ triggerTag, condition, matchTag, noneTag, name: `RUNTIME-TEST if_else probe (${probe.kind})` });
+  // opp-stage MUST enter via an opportunity trigger so the run has an associated opportunity;
+  // the other kinds keep the default contact_tag trigger (present only so the workflow is
+  // valid — enrolment for them is a deterministic manual enrol, not a trigger event).
+  const trigger = probe.kind === 'oppStage'
+    ? { ref: 't', type: 'opportunity_created', name: 'RT opp created', filters: [] }
+    : undefined;
+  const ir = buildRuntimeIR({ triggerTag, trigger, condition, matchTag, noneTag, name: `RUNTIME-TEST if_else probe (${probe.kind})` });
 
   log(`▶ [${probe.kind}] publishing probe workflow…`);
   const report = await orchestrate(ir, gw, { publish: true });
@@ -165,8 +184,8 @@ export async function runRuntimeTest(gw, {
 
   const email = contactEmail || `rt+${probe.kind}-${wid.slice(0, 8)}@runtime-test.invalid`;
   log(`▶ [${probe.kind}] enrolling matching contact ${email}…`);
-  const contactId = await enrolMatchingContact(gw, { kind: probe.kind, email, triggerTag, spec: probe });
-  log(`  contactId=${contactId} enrolled (trigger '${triggerTag}')`);
+  const contactId = await enrolMatchingContact(gw, { kind: probe.kind, email, wid, spec: probe });
+  log(`  contactId=${contactId} enrolled (${probe.kind === 'oppStage' ? 'opportunity_created trigger' : 'manual enrol'})`);
 
   // poll the execution logs until a terminal verdict or attempts exhausted (wait is 1 min)
   log(`▶ [${probe.kind}] polling /workflows/logs/v2 (up to ${pollAttempts}×${Math.round(pollMs / 1000)}s)…`);
