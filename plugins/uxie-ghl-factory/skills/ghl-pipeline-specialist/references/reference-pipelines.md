@@ -157,23 +157,49 @@ It uniquely supports a per-slot **seat cap** and **recurrence** *together*:
   it `appointmentPerSlot` silently does nothing.
 - **Recurrence:** `recurring: { freq, count, bookingOption }`.
 
-Combined, they produce a **capped group cohort that books multiple consecutive days as ONE
-linked series**. GHL stores an `rrule` (e.g. `"RRULE:FREQ=DAILY;COUNT=2"`); the booking widget
-renders "REPEATS Every day for N occurrences" and decrements the remaining seat count. This is
-how you model e.g. a 2-day course cohort with 8 seats.
+GHL stores an `rrule` (e.g. `"RRULE:FREQ=DAILY;COUNT=2"`) and the booking widget renders
+"REPEATS Every day for N occurrences" — so a 2-day cohort *looks* like a linked 2-day series.
 
-**Gotchas — all three will bite silently:**
+### 🚨 The multi-day series is a DISPLAY WRAPPER, not two appointments
+
+**Verified twice, 2026-07-17** (Phase-0 gate + a Course Booking agent E2E): a booking on a
+2-day (Mon+Tue) cohort produces **ONE appointment record** — `startTime` Mon 10:00 →
+`endTime` Mon 16:00, **no Tuesday event**. `get-appointments-for-contact` returns a single
+event. Even **live widget** bookings showed single Monday events in `get-calendar-events`. The
+`rrule` / "REPEATS Every day for 2 occurrences" is a **display wrapper**, not a second record.
+
+**Do not design as if day 2 exists as data.** Anything that keys off appointment records
+(reminders, no-show detection, day-2 attendance, "appointment on Tuesday" triggers) will find
+nothing on day 2 and silently no-op.
+
+**Recommended pattern** (shipped in Francesca as "Outcome 2"): model the cohort as the **Day-1
+seat only** — the Monday held appointment *is* the cohort seat. Carry "two days, Mon + Tue,
+one place across both" in the **AI prompt and email/SMS copy**, never as a second calendar
+event. This makes the design independent of recurrence behaviour entirely.
+
+**Gotchas — each bites silently:**
 
 - **`appoinmentPerSlot` is IGNORED on create** (defaults to `1`). Create the calendar, then set
   the cap with `calendars-v3__update-calendar` — and per the full-replace rule above, send the
   whole config when you do. A cohort calendar that silently caps at 1 seat looks like a
   working calendar until the second person tries to book.
-- **Recurrence is applied by the WIDGET booking flow, not enforced per-method.** A raw
-  `calendars-v3__create-appointment` does **NOT** auto-recur — it books day 1 only, with
-  `isRecurring: false`. So an appointment written via the API is not equivalent to one booked
-  through the widget. If you seed or migrate cohort bookings programmatically, expect to
-  handle the series yourself.
-- **OPEN / untested:** whether an AI `appointmentBooking` action (Conversation AI or Voice AI)
-  can target a `class_booking` calendar at all. **Flag this to the user and verify on a
-  throwaway booking before promising a client an AI-books-cohorts flow** — it is the load
-  bearing assumption in that design.
+- **Recurrence is applied by the WIDGET flow, not per-method.** A raw
+  `calendars-v3__create-appointment` books day 1 only with `isRecurring: false` — and per the
+  finding above, so does an AI booking. Programmatic bookings are not equivalent to widget ones.
+- ⚠️ **Possible OVERBOOKING risk — UNTESTED.** The cap decrement (5→4) was confirmed on the
+  **widget** path. An AI/API-created appointment lands on the same slot and so *occupies* the
+  cap, but **nobody has tested whether the cap actually BLOCKS a 6th AI/API booking**. If a
+  client depends on a hard seat limit, **test the over-cap booking explicitly before go-live** —
+  a silently-overbooked cohort is discovered by the people who turn up.
+
+### AI booking into a `class_booking` calendar — resolved 2026-07-17
+
+| Question | Verdict |
+|---|---|
+| ConvAI `appointmentBooking.details.calendarId` accepts a `class_booking` id? | ✅ **Yes — 200**, both on create-action and on repointing a live action |
+| ConvAI books it at runtime? | ✅ **Yes, live-verified** — held appointment landed on the class calendar (`status: new`, `createdBy.source: conversations_ai`) |
+| Does the AI booking recur Mon+Tue? | ❌ **NO — Day 1 only**, identical to a raw `create-appointment` |
+| Voice AI `APPOINTMENT_BOOKING` against a `class_booking` calendar? | ❓ **UNTESTED** — chat is proven, voice may differ. Verify on a throwaway before promising it |
+
+Chat is proven; **voice remains genuinely open**. Do not extrapolate the ConvAI result to Voice
+AI without testing it.

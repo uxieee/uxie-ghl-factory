@@ -79,17 +79,22 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 | Voice AI — agent create + full-replace update | **Engine-complete + unit-tested; agent create/update NOT yet live-proven** (several *action* + `patch-agent` paths ARE live-proven as of 2026-07-17) — `references/voice-ai.md` §Status has the proven/unproven split |
 | Agent Studio — Super Agent create (SSE build) + full-replace update | **Engine-complete + unit-tested; NOT yet live-proven** — `references/agent-studio.md` says treat the first real use as a small throwaway validation run |
 
-ConvAI + KB rich-text are live-proven. Voice AI is substantially live-proven: several action
-and `patch-agent` paths fired against a real account on 2026-07-17 (`DATA_EXTRACTION`
-creation, `APPOINTMENT_BOOKING` calendar repointing, voices catalog read).
+ConvAI + KB rich-text are live-proven.
+
+⚠️ **Voice AI: the API SHAPES are live-proven; the ENGINE is not.** Several Voice AI paths
+fired against a real account on 2026-07-17 (`DATA_EXTRACTION` creation, `APPOINTMENT_BOOKING`
+calendar repointing, `patch-agent`, voices read) — but **all via the public `voice-ai-v3` MCP,
+never through `voiceai-compiler.mjs`**. Those results prove the shapes, not the compiler. Do
+not cite them as evidence the engine works.
 
 ⚠️ **Voice AI + Agent Studio agent-create status is UNRECONCILED.** These docs carry a "NOT
 yet live-proven" banner, but the project record says all four compilers — including Voice AI
 and Agent Studio agent create + full-replace update — were live-create-proven on GROM AU on
 2026-07-11 (objects verified then deleted, so no capture survives). The banner is likely
-stale. Until reconciled, take the conservative read: keep the throwaway-validation discipline
-for a first agent create/full-replace build, and tell the user it is unconfirmed rather than
-promising either way. See `references/voice-ai.md` §Status. ConvAI now has
+stale, but Francesca has been **checked and ruled out** as evidence (public MCP only). Only a
+fresh throwaway live-fire through the internal compiler will settle it. Until then: keep the
+throwaway-validation discipline for a first agent create/full-replace build, and tell the user
+it is unconfirmed rather than promising either way. See `references/voice-ai.md` §Status. ConvAI now has
 verified (not passthrough) support for all 7 captured action types (`humanHandOver` +
 `appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,
 `advancedFollowup`), and Voice AI for all 7 captured types (`CALL_TRANSFER` +

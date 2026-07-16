@@ -6,23 +6,33 @@
 > the public `voice-ai-v3` API reaches only a fraction of it (basic CRUD + call logs).
 > Underlying voice provider is **Retell** (`provider: "RETELL"`, not IR-settable).
 
-**Status: built + unit-tested (119 tests across the engine); substantially live-proven.**
+**Status: built + unit-tested (119 tests across the engine). The ENGINE is NOT live-proven.**
 
-Live-proven against a real account (Francesca, `SJRURxzgbPTVBNLhqEZi`, 2026-07-17 voice
-go-live prep): `DATA_EXTRACTION` action creation (201 ×6 on real contact fields),
+⚠️ **Read the distinction below before claiming anything is proven — it is the whole point.**
+
+**API SHAPES: live-proven.** Against a real account (Francesca, `SJRURxzgbPTVBNLhqEZi`,
+2026-07-17): `DATA_EXTRACTION` action creation (201 ×6 on real contact fields),
 `APPOINTMENT_BOOKING` `calendarId` repointing via `update-action`, `patch-agent` (`voiceId`,
 `sendPostCallNotificationTo`), and the voices catalog read.
 
-⚠️ **Unreconciled status conflict — agent create + full-replace update.** This doc originally
-carried a "NOT yet live-proven" banner, but the project record reports that the engine's
-Voice AI **agent create + full-replace update WAS live-create-proven on GROM AU
-(`wdzEoUZnXO9tB3PPzcot`) on 2026-07-11** — engine → internal API → real object → verified →
-deleted, alongside the other three compilers. That banner appears to be stale boilerplate
-(the identical sentence still sits in `agent-studio.md`) that was never updated after the
-proving run; the proving objects were deleted, so no capture survives to confirm it here.
-**Until someone reconciles this, take the conservative read**: treat a first agent
-create/full-replace build as a small, throwaway, verified, cleaned-up validation run, and say
-so plainly to the user rather than promising a proven path.
+**THE ENGINE: still not exercised by any of that.** Every Francesca call went through the
+**public `voice-ai-v3` MCP**, *not* through this skill's `voiceai-compiler.mjs` → internal
+API path. So those results prove the **shapes are right**; they do **not** prove the compiler
+emits them correctly end-to-end. Do not cite Francesca as evidence the engine works.
+
+⚠️ **Unreconciled — agent create + full-replace update via the engine.** The project record
+says the engine's Voice AI agent create + full-replace update **was live-create-proven on
+GROM AU (`wdzEoUZnXO9tB3PPzcot`) 2026-07-11** (engine → internal API → real object → verified
+→ **deleted**), alongside the other three compilers. But this doc has always said "NOT yet
+live-proven", and the identical boilerplate still sits in `agent-studio.md` — so the banner is
+*probably* stale, yet nothing survives to confirm it. **Checked and ruled out as evidence:**
+Francesca (2026-07-17) — public MCP only, never touches the internal compiler; don't re-check
+it. The only things that would settle this are the deleted GROM-AU objects or a **fresh
+throwaway live-fire through the internal compiler**.
+
+**Until then, take the conservative read**: treat a first agent create/full-replace build as a
+small, throwaway, verified, cleaned-up validation run, and say so plainly to the user rather
+than promising a proven path.
 
 Genuinely NOT live-fired: the `WORKFLOW_TRIGGER` / `SMS` / `CAP` / `AGENT_TRANSFER_CHILD`
 action types (unit-tested against their captures only), and `IN_CALL_DATA_EXTRACTION`.
@@ -173,10 +183,14 @@ field(s) and merges the caller's `actionParameters` over any capture-grounded de
   sub-fields (`calendarActionType`, `collectEmail`, reschedule/cancel flags) — it does not
   strip them, so you can safely move an agent between calendars without re-sending the whole
   booking config (live-verified 2026-07-17).
-  ⚠️ **If `calendarId` points at a `class_booking` (group / cohort / multi-day) calendar, read
+  **`class_booking` (group / cohort / multi-day) calendars — VOICE IS UNTESTED (open as of
+  2026-07-17).** ConvAI is proven to accept and book one (Day 1 only), but **Voice AI has never
+  been fired at a `class_booking` calendar** — nobody has checked whether
+  `create-action` / `update-action` even accepts the id, let alone whether it books. **Do not
+  extrapolate the chat result to voice.** Verify on a throwaway booking first, and expect the
+  Day-1-only behaviour to apply here too. See
   `ghl-pipeline-specialist/references/reference-pipelines.md` §"Adjacent surface:
-  `class_booking` calendars" FIRST** — whether an AI booking action can target one **is
-  untested**. Verify on a throwaway booking before promising a client an AI-books-cohorts flow.
+  `class_booking` calendars".
 - **`CAP`** ("Custom Action 2.0" / Custom Action Plugin) — required: `capActionId`,
   `triggerPrompt`, `triggerMessage`, and (validated on the one field the compiler can see)
   `schemaValues.requestBodyValues.webhookUrl.value` must be an `https://` URL.
