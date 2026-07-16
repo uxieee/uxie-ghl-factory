@@ -7,6 +7,13 @@
 > agent, **NOT** the public 11-action `agent-studio` category. Underlying model:
 > `anthropic/claude-sonnet-4-6`. Builder-chat runtime codename: `anton`.
 
+> ⚠️ **The status line below is UNRECONCILED (flagged 2026-07-17).** The project record
+> reports that all four AI compilers — including Agent Studio's SSE-build + full-replace
+> update — were live-create-proven on GROM AU (`wdzEoUZnXO9tB3PPzcot`) on 2026-07-11, with the
+> objects verified then deleted (so no capture survives). This banner may simply never have
+> been updated after that run. Until someone reconciles it, keep the conservative discipline
+> below, but do not state "never live-proven" to the user as established fact.
+
 **Status: built + unit-tested (119 tests across the engine), NOT yet live-proven.** The
 capture confirms the API accepts these shapes, but this engine has not yet created a real
 Super Agent end-to-end. State this plainly before building one for a user — treat the first
