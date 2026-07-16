@@ -2020,6 +2020,34 @@
    "example": "catalog/step-examples/conversationai_ai_splitter.json",
    "requiredFields": []
   },
+  "conversationai_book_appointment": {
+   "type": "conversationai_book_appointment",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": true,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "promptInstructions",
+    "calendarId",
+    "type",
+    "__customInputs__",
+    "cat",
+    "convertToMultipath",
+    "transitions",
+    "__name__"
+   ],
+   "example": "catalog/step-examples/conversationai_book_appointment.json",
+   "requiredFields": [
+    "calendarId"
+   ],
+   "beta": false,
+   "section": "conversation_ai",
+   "marketplace": true
+  },
   "conversationai_custom_message": {
    "type": "conversationai_custom_message",
    "kind": "step",
@@ -4539,34 +4567,6 @@
    "attrKeys": [],
    "marketplace": true
   },
-  "conversationai_book_appointment": {
-   "type": "conversationai_book_appointment",
-   "kind": "step",
-   "confidence": "verified-live",
-   "situational": [
-    "workflowsActionType"
-   ],
-   "premium": false,
-   "beta": false,
-   "isMultipathContainer": true,
-   "usesCustomInputs": true,
-   "section": "conversation_ai",
-   "requiredFields": [
-    "calendarId"
-   ],
-   "attrKeys": [
-    "promptInstructions",
-    "calendarId",
-    "type",
-    "__customInputs__",
-    "cat",
-    "convertToMultipath",
-    "transitions",
-    "__name__"
-   ],
-   "example": "catalog/step-examples/conversationai_book_appointment.json",
-   "marketplace": true
-  },
   "conversationai_continue": {
    "type": "conversationai_continue",
    "kind": "step",
@@ -4585,8 +4585,8 @@
     "type",
     "__customInputs__"
    ],
-   "note": "recon field-structure only (2026-07-15); minimal prompt panel. Capture a committed template to promote to verified-live.",
-   "marketplace": true
+   "marketplace": true,
+   "note": "recon field-structure only (2026-07-15); minimal prompt panel. Capture a committed template to promote to verified-live."
   },
   "conversationai_end": {
    "type": "conversationai_end",
@@ -4608,8 +4608,8 @@
     "type",
     "__customInputs__"
    ],
-   "note": "recon field-structure only (2026-07-15): optional customMessage, reactivate checkbox (default on) + duration (default 1). Capture a committed template to promote to verified-live.",
-   "marketplace": true
+   "marketplace": true,
+   "note": "recon field-structure only (2026-07-15): optional customMessage, reactivate checkbox (default on) + duration (default 1). Capture a committed template to promote to verified-live."
   },
   "conversationai_services_booking": {
    "type": "conversationai_services_booking",
@@ -4630,8 +4630,8 @@
     "type",
     "__customInputs__"
    ],
-   "note": "recon field-structure only (2026-07-15): services multiselect (requires a configured commerce service) + booking description. Capture a committed template to promote to verified-live.",
-   "marketplace": true
+   "marketplace": true,
+   "note": "recon field-structure only (2026-07-15): services multiselect (requires a configured commerce service) + booking description. Capture a committed template to promote to verified-live."
   },
   "create_and_associate_company": {
    "type": "create_and_associate_company",
