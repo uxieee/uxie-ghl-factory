@@ -275,6 +275,18 @@ Two things the engine handles that a hand-rolled POST gets wrong:
   `triggers active: N/M`. On a **draft** workflow it SKIPS activation and says so — a
   trigger edit must never publish a workflow as a side effect (publish stays opt-in). The
   trigger activates when the user publishes normally.
+  > ⚠️ The activation decision is made ONCE, from the status BEFORE the cycle
+  > (`shouldActivateTriggers`). Never re-derive it between the two legs: the draft leg
+  > sets status to `draft`, so re-asking "is it published?" always answers no, the
+  > published leg never fires, and the workflow is left **downgraded to draft with every
+  > trigger switched off**. That bug shipped in v0.3.4 and was caught only by a live run
+  > (unit tests passed — they planned from an already-published object). Fixed in v0.3.5;
+  > `edit-triggers.test.mjs` carries the regression test.
+
+**Live-proven 2026-07-17** on GROM AU (throwaway canary, since deleted): `addTrigger`
+POST 200 → cycle → `2/2 active` on a published workflow; `modifyTrigger` PUT 200 with the
+rename + new condition confirmed by GET (value a plain string); `deleteTrigger` via a name
+matcher 200; and `addTrigger` on a draft correctly SKIPPED activation and left it a draft.
 
 Trigger filter values obey the string/array split above — `value: "vip"`, never `["vip"]`.
 `expandFilter` unwraps a single-element array on this path too, but author the string.
