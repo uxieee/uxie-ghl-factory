@@ -253,6 +253,42 @@ test('trigger body casing: workflowId camel at root, location_id snake', () => {
   assert.deepEqual(tb.actions, [{ workflow_id: _wid, type: 'add_to_workflow' }]);
 });
 
+// A tag TRIGGER condition takes a bare string value; an if/else tag CONDITION takes an
+// array. They are different schemas that share the index-of-true operator. Array-wrapping
+// a trigger's value saves and reads back fine but the dispatcher never subscribes to the
+// tag event, so the trigger is inert. Ground truth: TagFilter.ts rows are type 'select',
+// TriggerFilter.updateValue assigns a scalar for single-select, and TagSelect.vue emits
+// `tags.map(t => t.value)[0]` when not `multiple`.
+test('contact_tag trigger filter value is a string, not an array', () => {
+  const ir = { name: 'TagTrig',
+    triggers: [{ ref: 't', type: 'contact_tag', name: 'Tag added',
+      filters: [{ on: 'tag-added', value: 'ai:off' }] }],
+    graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'T', attributes: { tags: ['x'] } }] };
+  const { triggerBodies } = compile(ir, ctx());
+  const cond = triggerBodies[0].conditions[0];
+  assert.equal(cond.value, 'ai:off');
+  assert.equal(cond.field, 'tagsAdded');
+  assert.equal(cond.operator, 'index-of-true');
+  assert.equal(cond.type, 'select');
+  assert.equal(cond.id, 'tag-added');
+});
+
+// Same conflation, wider blast radius: every trigger row that uses index-of-true is a
+// single-select tag row (contact.tags on appointment, note_add, customer_reply, ...).
+test('contact.tags filter on a non-tag trigger is also a string', () => {
+  const ir = { name: 'ApptTagged',
+    triggers: [{ ref: 't', type: 'appointment', name: 'Appt',
+      filters: [{ on: 'contact.tags', value: 'vip' }] }],
+    graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'T', attributes: { tags: ['x'] } }] };
+  const { triggerBodies } = compile(ir, ctx());
+  const cond = triggerBodies[0].conditions.find((c) => c.field === 'contact.tags');
+  assert.equal(cond.value, 'vip');
+});
+
+// The other half of the conflation — if/else tag conditions must STAY arrays — is
+// guarded by 'binary if_else: container + branch-yes/None-node wiring' above, which
+// asserts conditionValue: ['hv'].
+
 test('casingLint rejects snake workflow_id at trigger root', () => {
   assert.throws(() => casingLint({ triggerBodies: [{ workflow_id: 'x' }], autoSaveBody: {} }),
     (e) => e.code === 'CASING');
@@ -371,8 +407,9 @@ test('Appendix A acceptance: tagged-vip-nurture compiles to 8 steps, correct sha
   assert.equal(byName('Tag premium').next, null);
   assert.equal(byName('Tag premium').parent, byName('Yes').id);
   assert.equal(triggerBodies[0].type, 'contact_tag');
-  // filter expansion enriches the lean {field,operator,value} into the full UI condition shape
-  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: ['VIP'], title: 'tag_added', type: 'select', id: 'tag-added' }]);
+  // filter expansion enriches the lean {field,operator,value} into the full UI condition
+  // shape, unwrapping the fixture's authored ['VIP'] to the scalar the dispatcher needs
+  assert.deepEqual(triggerBodies[0].conditions, [{ field: 'tagsAdded', operator: 'index-of-true', value: 'VIP', title: 'tag_added', type: 'select', id: 'tag-added' }]);
   assert.equal(autoSaveBody.createdSteps.length, 8);
 });
 

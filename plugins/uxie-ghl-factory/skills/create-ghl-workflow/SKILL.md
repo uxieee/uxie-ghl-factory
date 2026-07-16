@@ -88,12 +88,22 @@ graph:
       - { ref: n, name: "No", else: true, then: [ ... ] }
 ```
 
+> **Trigger tag value = STRING; if/else tag value = ARRAY.** These are different schemas
+> that share the `index-of-true` operator — do not copy one into the other. A trigger
+> condition written as `value: ["VIP"]` saves, reads back `active: true`, and survives a
+> draft→publish cycle, but GHL's tag-event dispatcher never subscribes, so the workflow
+> silently NEVER FIRES. The compiler now unwraps a single-element array for
+> `index-of-true`/`index-of-false` on trigger filters; author `value: "VIP"` anyway.
+> One tag per filter row — a multi-tag array is rejected (`FILTER_VALUE`).
+> This applies to every trigger tag row: `tagsAdded`, `tagsRemoved`, and `contact.tags`
+> on `appointment` / `note_add` / `customer_reply` / `opportunity_decay` / `affiliate_*`.
+
 **if_else condition authoring — write SIMPLE intent; the compiler normalizes the exact
 GHL shape per type (a hand-crafted shape compiles clean but MATCHES WRONGLY at runtime):**
 
 | Intent | Author as | Compiler emits |
 |---|---|---|
-| Has tag | `{ conditionType: contact_detail, tag: "vip" }` | `conditionSubType: tags` (plural), `conditionOperator: index-of-true`, `conditionValue: ["vip"]` (array) |
+| Has tag | `{ conditionType: contact_detail, tag: "vip" }` | `conditionSubType: tags` (plural), `conditionOperator: index-of-true`, `conditionValue: ["vip"]` (**array** — contrast the TRIGGER note below) |
 | Does NOT have tag | `{ conditionType: contact_detail, tag: "vip", not: true }` | …`conditionOperator: index-of-false` |
 | Opportunity in stage | `{ conditionType: opportunities, stage: "<id or name>" }` | `conditionSubType: pipelineStageId`, `conditionOperator: ==`, `conditionValue: "<stageId>"` (string; a name → id in resolve) |
 | Custom field (text) | `{ conditionType: contact_detail, conditionSubType: "<fieldId>", conditionValue: "X" }` | `conditionOperator: contain`, value **lowercased** |
