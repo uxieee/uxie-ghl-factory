@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { partitionOps, planTriggerOps, resolveTrigger, applyOps } from './edit-driver.mjs';
-import { triggerActivationBodies } from './edit.mjs';
+import { shouldActivateTriggers, triggerActivationBody } from './edit.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
 
@@ -92,24 +92,33 @@ test('resolveTrigger: a miss names what is actually there', () => {
   assert.throws(() => resolveTrigger({ op: 'deleteTrigger' }, existing()), /needs a triggerId, or a name\/type/);
 });
 
-test('activation: a published workflow gets the draft→published cycle with every trigger active', () => {
-  const fresh = { _id: 'w', id: 'w', status: 'published', version: 7, filePath: 'keep.json', workflowData: { templates: [] } };
-  const [draft, published] = triggerActivationBodies(fresh, [
-    { id: 'tr1', active: false }, { id: 'tr2', active: true },
-  ]);
-  assert.equal(draft.status, 'draft');
-  assert.equal(published.status, 'published');
-  for (const b of [draft, published]) {
-    assert.equal(b.version, 7);                 // current version — version+1 422s
-    assert.equal(b.filePath, 'keep.json');      // server envelope preserved
-    assert.equal(b.triggersChanged, false);
-    assert.deepEqual(b.oldTriggers, b.newTriggers);
-    assert.deepEqual(b.oldTriggers.map((t) => t.active), [true, true]);  // API-added lands false; this is what flips it
-    assert.deepEqual(b.createdSteps, []);
-  }
+test('activation: only a published workflow gets the cycle; a draft is never published as a side effect', () => {
+  assert.equal(shouldActivateTriggers({ status: 'published' }), true);
+  assert.equal(shouldActivateTriggers({ status: 'draft' }), false);
+  assert.equal(shouldActivateTriggers(undefined), false);
 });
 
-test('activation: a DRAFT workflow is never published as a side effect of a trigger edit', () => {
-  const fresh = { _id: 'w', status: 'draft', version: 2, workflowData: { templates: [] } };
-  assert.equal(triggerActivationBodies(fresh, [{ id: 'tr1', active: false }]), null);
+test('activation body forces every trigger active and preserves the server envelope', () => {
+  const fresh = { _id: 'w', id: 'w', status: 'published', version: 7, filePath: 'keep.json', workflowData: { templates: [] } };
+  const b = triggerActivationBody(fresh, [{ id: 'tr1', active: false }, { id: 'tr2', active: true }], 'draft');
+  assert.equal(b.status, 'draft');
+  assert.equal(b.version, 7);                 // current version — version+1 422s
+  assert.equal(b.filePath, 'keep.json');      // server envelope preserved
+  assert.equal(b.triggersChanged, false);
+  assert.deepEqual(b.oldTriggers, b.newTriggers);
+  assert.deepEqual(b.oldTriggers.map((t) => t.active), [true, true]);  // API-added lands false; this flips it
+  assert.deepEqual(b.createdSteps, []);
+});
+
+// THE REGRESSION. Live-caught 2026-07-17: the published leg was planned by re-asking
+// "is this published?" AFTER the draft leg had already made it a draft — so it never
+// fired, and a live workflow was downgraded to draft with every trigger switched off.
+// The status decision is made ONCE, before the cycle; the second leg must still build
+// a published body from the (now draft) re-GET object.
+test('activation: the published leg builds from the mid-cycle DRAFT object (never re-gated on status)', () => {
+  const mid = { _id: 'w', status: 'draft', version: 8, filePath: 'keep.json' };  // what the re-GET returns
+  const b = triggerActivationBody(mid, [{ id: 'tr1', active: false }], 'published');
+  assert.equal(b.status, 'published', 'must publish from a draft mid-cycle object — this is the leg that re-publishes');
+  assert.equal(b.version, 8, 'must send the re-GET version — the draft PUT bumped it');
+  assert.deepEqual(b.oldTriggers.map((t) => t.active), [true]);
 });
