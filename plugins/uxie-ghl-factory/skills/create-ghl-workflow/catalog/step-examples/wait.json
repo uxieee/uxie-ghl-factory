@@ -1,0 +1,15 @@
+{
+  "id": "<uuid-001>",
+  "order": 3,
+  "attributes": {
+    "type": "time",
+    "startAfter": {
+      "type": "days",
+      "value": 3,
+      "when": "after"
+    }
+  },
+  "name": "Wait 3 Day",
+  "type": "wait",
+  "next": "<uuid-002>"
+}

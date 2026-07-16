@@ -19,7 +19,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ◐ `update_affiliate`
 
 ### appointments
-- ◐ `update_appointment_status`
+- ✅ `update_appointment_status` — attrs: `category`, `type`, `status_type`
 
 ### communication
 - ✅ `call` — attrs: `timeout`, `whisper_message`, `disable_detect_voicemail`, `call_connect`

@@ -1,0 +1,28 @@
+{
+  "id": "<uuid-001>",
+  "order": 7,
+  "attributes": {
+    "op": "or",
+    "segments": [
+      {
+        "conditions": [
+          {
+            "goal_condition": "add_contact_tag",
+            "extras": {
+              "tags": [
+                "fdd signed"
+              ]
+            },
+            "id": "<uuid-002>"
+          }
+        ],
+        "op": "or"
+      }
+    ],
+    "type": "workflow_goal",
+    "action": "exit"
+  },
+  "name": "Goal 'FDD Signed'",
+  "type": "workflow_goal",
+  "parentKey": "<uuid-003>"
+}

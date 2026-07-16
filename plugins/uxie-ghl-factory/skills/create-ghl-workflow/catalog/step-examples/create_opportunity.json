@@ -1,0 +1,14 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "create_opportunity",
+    "pipeline_id": "SEAZf6sVqvfQdFbdecZO",
+    "opportunity_status": "abandoned",
+    "opportunity_name": "",
+    "opportunity_source": "",
+    "monetary_value": ""
+  },
+  "name": "Update Opportunity Status to Abandoned",
+  "type": "create_opportunity"
+}

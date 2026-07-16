@@ -16,37 +16,107 @@ On a modern linear action step these are usually **absent**, and adding ones the
 
 Caveat: they aren't universally forbidden — some steps legitimately carry a subset. `parent`/`sibling`/`nodeType` are real inside `if_else` branch substructure, and `workflowsActionType` appears on certain internal actions (e.g. `internal_create_opportunity` has it; `internal_notification` doesn't). That's exactly why the rule is *mirror the harvested step*, not *always add* or *always omit*.
 
-## Disabling steps (native pause)
+## OPEN: `internal_notification` steps won't open in the builder editor
 
-GHL's per-action ⏸ button is represented by one top-level template flag:
+**Status: root cause NOT yet established. Do not "fix" this by guessing.**
 
-```json
-{
-  "id": "{STEP_ID}",
-  "type": "internal_notification",
-  "attributes": { "...full step config...": "..." },
-  "advanceCanvasMeta": {
-    "position": { "x": 248, "y": 96 },
-    "isDisabled": true
-  }
-}
+Symptom: engine-built `internal_notification` steps render on the canvas and FIRE correctly
+at runtime, but clicking one does not open its editor panel, so an operator can't tweak the
+recipient or copy in the UI. Observed 2026-07-16 on live workflows built by the engine.
+
+What is ESTABLISHED:
+- The `attributes` payload is correct and identical to a working UI-built step. The problem
+  is the step's TOP-LEVEL node shape, not its attributes.
+- Real UI-built steps carry a top-level **`parent`** alongside `parentKey`, with a
+  **different value** (`sniffs/FIELDS_GLOSSARY.json`: `parent` appears on 2,949 live
+  step-top-levels, `parentKey` on 3,674). The engine emits `parent` only for steps inside a
+  branch scope, never for a root-level linear step.
+- `parent` is **NOT** the DAG edge — `parentKey` is (per the glossary). So `parent` is not
+  simply "the previous step's id", and setting it to that is an invention.
+
+What is NOT established (and why this is still open):
+- **What `parent` actually points to for a root-level linear step.** The derived glossary has
+  the counts but not the raw blobs, so it cannot be inferred offline.
+- The earlier report that the engine emits `workflowsActionType: 'INTERNAL'` on
+  `internal_notification` does **not** reproduce: the catalog marks it `situational: []`, the
+  engine emits no such field, and this file already records that `internal_notification`
+  doesn't carry it. If a live blob shows it, GHL's backend is adding it on save — which would
+  make it a red herring for the editor bug rather than a cause.
+
+To close this, harvest ground truth and diff — do not reason from first principles:
+
+```
+node scripts/harvest-step.js internal_notification     # a REAL UI-built step, this account
 ```
 
-- `advanceCanvasMeta.isDisabled` is a sibling of `advanceCanvasMeta.position` and is **not** inside `attributes`.
-- `true` disables the step. `false` or an absent flag enables it.
-- The flag applies to **every step type**. A disabled step keeps its complete config, is skipped at runtime, and appears in the builder with the `(Disabled)` label. Flipping the flag is fully reversible and exactly matches the per-action ⏸ button.
-- At author time, set `disabled: true` on any IR step node. The compiler merges `isDisabled: true` into existing `advanceCanvasMeta`, preserving `position` and any other metadata.
-- For an existing workflow, use edit op `{ "op":"setStepDisabled", "stepId":"...", "disabled":true|false }`, or batch by exact type with `{ "op":"disableStepsByType", "type":"internal_notification", "disabled":true|false }`. Both are idempotent and add only steps whose state changed to `modifiedSteps`.
-- The proven commit path is: GET `/workflow/{loc}/{wid}?includeScheduledPauseInfo=true`, mutate the fetched `workflowData.templates`, then plain PUT `/workflow/{loc}/{wid}` with the fresh workflow envelope, `updatedBy` from JWT `authClassId`, `status:fresh.status`, `version:fresh.version`, `triggersChanged:false`, `workflowData:{templates:newTemplates}`, `createdSteps:[]`, changed IDs in `modifiedSteps`, and `deletedSteps:[]`. Keeping the fetched status commits in place without unpublishing a published workflow; do not use a live-builder auto-save session for this edit.
-
-Two approaches are known-wrong and must not be used as substitutes:
-
-- Blanking `internal_notification` recipients with `selectedUser: []` fails with GHL 400 `recipient mandatory`.
-- Switching `userType` to `assign` changes recipient semantics; it does not pause the action.
-
-`advanceCanvasMeta.isDisabled` is the only correct native pause mechanism.
+Then diff its top-level key set against an engine-built one in the same workflow at the same
+position, and confirm what `parent` references (a sibling? the trigger? the canvas group?).
+Only then change the emitter. Per this file's own rule: **mirror, never invent.**
 
 ## Verified shapes (live account, 2026-06)
+
+### `wait` (time) — the duration lives in `startAfter`, and an EMPTY one does not pause
+
+```json
+{ "ref": "w1", "kind": "wait", "name": "Wait 1 day",
+  "config": { "unit": "days", "value": 1, "when": "after" },
+  "window": { "condition": "when", "days": [0,1,2,3,4,5,6], "start": "07:00", "end": "18:00" } }
+```
+
+The IR's canonical spelling is node-level `config` + `window`; `attributes.startAfter` +
+`attributes.window` (the shape a live blob stores — see `catalog/step-examples/wait.json`)
+is accepted as an equivalent alias. Both compile to `attributes.startAfter {type,value,when}`.
+
+> ⚠️ **An empty or partial `startAfter` means the wait DOES NOT PAUSE.** Every step after it
+> fires immediately. Live 2026-07-16: a warm-catch + nudge + two close messages + a tag all
+> fired within **6 seconds** instead of over 6 days — 4 messages blasted at a real customer
+> at once. The compiler now rejects this at build time (`IRError EMPTY_STEP`); it can never
+> be emitted again. If you are hand-assembling payloads outside the engine, check this first.
+
+### `wait` (appointment-anchored) — relative to the appointment, not enrolment
+
+```json
+{ "ref": "w2", "kind": "wait", "name": "24h before appt",
+  "attributes": { "type": "appointment", "appointmentCondition": "appointment",
+    "appointmentStartAfter": { "when": "before", "type": "hours", "value": 24, "distributed": {} } } }
+```
+
+Verified live 2026-07-16 (workflow 07e). `distributed: {}` is required and always empty.
+
+### `update_appointment_status` — targets an appointment you cannot name
+
+```json
+{ "ref": "s1", "kind": "action", "type": "update_appointment_status", "name": "Confirm",
+  "attributes": { "category": "appointment", "type": "update_appointment_status",
+                  "status_type": "confirmed" } }
+```
+
+`status_type` is `confirmed` | `cancelled`. **Which appointment it acts on is implicit**: in an
+appointment-triggered workflow it is the TRIGGERING appointment; entered any other way (e.g.
+`payment_received`) GHL acts on *the most recent appointment the contact is carrying*. There is
+no field to target a specific one — if the contact can hold several, confirm "most recent" is
+the one you mean.
+
+### Reschedule detection — there is NO native reschedule trigger or status
+
+GHL has no "rescheduled" trigger and no `rescheduled` status. The only working pattern is two
+parts: trigger on the `appointment` event **with no status filter**, then gate with
+
+```json
+{ "conditionType": "appointment", "conditionSubType": "appointmentRescheduled",
+  "conditionOperator": "is", "conditionValue": "true" }
+```
+
+`conditionValue` is the STRING `"true"`, not a boolean. Verified live 2026-07-16.
+
+### `remove_from_workflow` — `workflow_id` is an ARRAY
+
+```json
+{ "ref": "r1", "kind": "action", "type": "remove_from_workflow", "name": "Exit nurture",
+  "attributes": { "workflow_id": ["<wid>", "<wid>"] } }
+```
+
+Always an array, even for a single workflow. A bare string removes nothing.
 
 ### `custom_webhook` — needs `stepIndex` + `advanceCanvasMeta`
 
@@ -78,7 +148,6 @@ Two approaches are known-wrong and must not be used as substitutes:
 ```
 
 - This shape was harvested as a single/root step, so it has no `parentKey`. When chaining it after another step, add `parentKey` = the previous step's `id` (see "Linking multiple steps" below) — `parentKey` is a normal edge field, not a don't-invent field.
-- If this webhook is paused, `isDisabled` belongs beside `position` in the same top-level `advanceCanvasMeta` object; never place it in `attributes`.
 - The request body is a STRING template in `rawData` with `{{merge.fields}}` — not nested JSON.
 - Custom headers (`headers: [{key,value}]`) can be dropped by the sender; carrying a secret as a `?secret=` query param on `url` is a robust fallback if the receiver supports it.
 
@@ -111,33 +180,15 @@ arrives as a wall of text. For blank-line spacing use an explicit spacer paragra
 signature line in its own `<p>` (name, title, company as three separate paragraphs),
 again separated by `<p>&nbsp;</p>` where you want visible gaps.
 
-### `voice_ai_outbound_call` — needs `workflowsActionType: "INTERNAL"`; both attribute fields required
+## Verifying a built step — GET, not the editor panel
 
-```json
-{
-  "id": "{UUID}",
-  "order": 0,
-  "attributes": {
-    "outboundGuidelines": "",
-    "agentId": "6a2632febba50b0bbd1031d2",
-    "fromPhoneNumber": "+61481610656",
-    "type": "voice_ai_outbound_call",
-    "__customInputs__": {}
-  },
-  "name": "Voice AI outbound call",
-  "type": "voice_ai_outbound_call",
-  "workflowsActionType": "INTERNAL",
-  "next": null,
-  "parentKey": null
-}
-```
-
-- `agentId` = the Voice AI agent record id (from the location's configured Conversation AI / Voice AI agents), not a name.
-- `fromPhoneNumber` = the literal E.164 phone number string (e.g. `"+61481610656"`) of a connected LC phone number — NOT a number-pool id.
-- Both fields are `required: true` in the live dynamic-fields schema; the engine throws `IRError('MISSING_FIELD', ...)` at compile time if either is missing.
-- `outboundGuidelines` is a frozen, non-interactive info-banner field (scheduling/throttling rules, not configurable) — always emit it as `""`; the builder echoes its own HTML back on real saves, but an empty string round-trips fine for this action.
-- No retry/schedule/number-pool fields exist on this action — scheduling (8am–8pm local time, 1 call/day/number, 10 calls/min) is fully server-side.
-- Like `internal_create_opportunity`, this is an internal action and carries top-level `workflowsActionType: "INTERNAL"` (not inside `attributes`).
+The "editor panel won't open" symptom is a *human-clicking* diagnostic. Via **browser
+automation** the builder's editor panel is unreliable to open for ANY node type —
+correct steps included — so a panel that won't open under automation proves nothing
+(observed live 2026-07-13). Verify programmatically instead: GET the workflow back and
+diff the step's key set + attributes against what you sent (the engine's round-trip
+verify does exactly this), and check the node renders with the right type/icon on the
+canvas. Only a human manually clicking the node is a valid panel test.
 
 ## Linking multiple steps
 

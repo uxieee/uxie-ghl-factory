@@ -1,0 +1,22 @@
+{
+  "id": "<uuid-001>",
+  "order": 17,
+  "attributes": {
+    "allowBackward": false,
+    "type": "internal_update_opportunity",
+    "__customInputFields__": [
+      {
+        "__customInputs__": {},
+        "dataType": "SINGLE_OPTIONS",
+        "filterField": "status",
+        "value": "lost",
+        "valueFieldType": "select"
+      }
+    ],
+    "__customInputs__": {}
+  },
+  "name": "Update opportunity",
+  "type": "internal_update_opportunity",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-002>"
+}

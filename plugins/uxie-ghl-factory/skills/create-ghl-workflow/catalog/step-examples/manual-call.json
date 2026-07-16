@@ -1,0 +1,13 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 5,
+  "attributes": {
+    "assignedUser": "E4xqUlZjsMDFO5US1tYz",
+    "standardAssignedUser": "E4xqUlZjsMDFO5US1tYz"
+  },
+  "name": "Manual Call",
+  "type": "manual-call",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-004>"
+}

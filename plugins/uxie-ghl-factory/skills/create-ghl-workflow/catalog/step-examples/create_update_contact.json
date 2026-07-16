@@ -1,0 +1,19 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "create_update_contact",
+    "fields": [
+      {
+        "field": "phone",
+        "value": "{{inboundWebhookRequest.phone}}",
+        "title": "Phone",
+        "type": "string",
+        "date": ""
+      }
+    ]
+  },
+  "name": "Create (or find) Contact by phone",
+  "type": "create_update_contact",
+  "next": "<uuid-002>"
+}

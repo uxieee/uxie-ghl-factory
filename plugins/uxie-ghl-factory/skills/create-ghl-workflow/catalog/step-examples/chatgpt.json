@@ -1,0 +1,31 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 1,
+  "order": 0,
+  "attributes": {
+    "type": "chatgpt",
+    "apiKey": "",
+    "event": "simple-prompt",
+    "model": "gpt-5",
+    "temperature": "0.2",
+    "promptText": "{{contact.weekly_checkin_message}}",
+    "actionType": "custom",
+    "actionParams": {
+      "message": "",
+      "categories": [],
+      "length": "",
+      "from": "",
+      "to": "",
+      "memoryKeyToggle": true,
+      "memoryKeyType": "action",
+      "memoryKeyCustom": ""
+    },
+    "memoryKey": "action",
+    "excludeFromHistory": false,
+    "excludeInstructionsFromHistory": false,
+    "instructions": "# Role and Objective\n- You are a specialized analyzer. Your mission is to extract the triggers a user experienced based on their weekly reflection.\n# Instructions\n- The input is a user's weekly reflection.\n- Identify situations, places, feelings, or events described as leading to cravings or struggles (triggers). Examples: stress, boredom, parties, loneliness.\n- Extract each trigger as a short phrase.\n- If multiple triggers are present, separate them by commas.\n# Output Format\n- Output a comma-separated list of triggers extracted from the reflection.\n- If no triggers are mentioned, output: None.\n# Stop Conditions\n- Provide the output when all triggers have been extracted from the user's reflection"
+  },
+  "name": "Trigger Analyzer",
+  "type": "chatgpt",
+  "next": "<uuid-002>"
+}

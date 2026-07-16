@@ -1,0 +1,19 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 23,
+  "attributes": {
+    "users": [
+      "frf7TGGmvAwCz8T0rdwT",
+      "rMsDQVzxwVmb44rFzcac",
+      "E4xqUlZjsMDFO5US1tYz"
+    ],
+    "type": "internal-add-contact-followers",
+    "__customInputs__": {}
+  },
+  "name": "Add Contact Followers",
+  "type": "internal-add-contact-followers",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-004>"
+}

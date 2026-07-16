@@ -1,0 +1,19 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "update_contact_field",
+    "actionType": "clear_field_data",
+    "fields": [
+      {
+        "field": "em3R3rToFy8N0oYcJDwE",
+        "value": "",
+        "title": "HB Timezone",
+        "type": "string",
+        "date": ""
+      }
+    ]
+  },
+  "name": "Update contact field",
+  "type": "update_contact_field"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 2,
+  "attributes": {
+    "action": {
+      "id": "public-channel",
+      "name": "Send Public Channel message"
+    },
+    "integration": {
+      "id": "U0B01M40BQV-U0ARRMX9JF6",
+      "name": "subaccount-b - operator",
+      "idType": "altId"
+    },
+    "channel": {
+      "id": "C0B01MR75SR",
+      "name": "help-channel"
+    },
+    "text": "\ud83d\udd14 *Reviews | {{contact.reviews_support_ticket}}*\n\n<@channel> a new partner support request has been submitted and needs your review.\n\n*Partner Info*\n\u2022 *Name:* {{contact.name}}\n\u2022 *Email:* {{contact.email}}\n\u2022 *Franchise Territory:* {{contact.franchise_territory}}\n\n*Request*\n> {{contact.question__inquiry}}\n\n*Tracker:* <https://docs.google.com/spreadsheets/d/1KEXkQX6jUhfGVvXKmvEzvW1G9BKbrnpzZEZ7eOM-jqQ/edit?usp=sharing|Partner Support Request Form Tracker>\n*Submission Date:* {{right_now.middle_endian_date}}",
+    "type": "slack_message"
+  },
+  "name": "Slack - Reviews",
+  "type": "slack_message",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-004>"
+}

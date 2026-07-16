@@ -1,0 +1,18 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 3,
+  "parent": "<uuid-002>",
+  "order": 0,
+  "attributes": {
+    "code": "  return {\n    message_id: Date.now().toString(36) + \"-\" + Math.random().toString(36).slice(2, 10) +\n  Math.random().toString(36).slice(2, 10)\n  };",
+    "language": "javascript",
+    "inputData": {},
+    "output": {
+      "message_id": "mojhwk94-0j4urt6nh0lvu32i"
+    }
+  },
+  "name": "mint message_id (UUID)",
+  "type": "custom_code",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-002>"
+}

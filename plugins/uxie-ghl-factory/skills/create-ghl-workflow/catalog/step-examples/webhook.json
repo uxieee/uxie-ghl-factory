@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "method": "POST",
+    "url": "https://hydraulic-miss-targeted-compound.trycloudflare.com/webhooks/ghl",
+    "customData": [],
+    "headers": []
+  },
+  "name": "Webhook",
+  "type": "webhook"
+}

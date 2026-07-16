@@ -1,0 +1,10 @@
+{
+  "id": "<uuid-001>",
+  "parentKey": "<uuid-002>",
+  "parent": "<uuid-002>",
+  "type": "transition",
+  "name": "No condition met",
+  "attributes": {},
+  "order": 2,
+  "cat": "transition"
+}

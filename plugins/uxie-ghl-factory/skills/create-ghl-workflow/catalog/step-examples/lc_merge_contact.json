@@ -1,0 +1,42 @@
+{
+  "id": "<uuid-001>",
+  "parentKey": "<uuid-002>",
+  "parent": "<uuid-003>",
+  "type": "lc_merge_contact",
+  "name": "Merge Contact",
+  "attributes": {
+    "match_by": "email",
+    "type": "lc_merge_contact",
+    "__customInputs__": {},
+    "cat": "multi-path",
+    "convertToMultipath": true,
+    "transitions": [
+      {
+        "id": "<uuid-004>",
+        "name": "Duplicate Contact Found",
+        "fields": {},
+        "meta": {
+          "__branchKey__": "<uuid-005>"
+        },
+        "conditionType": "pre-defined"
+      },
+      {
+        "id": "<uuid-006>",
+        "name": "Duplicate Contact Not Found",
+        "fields": {},
+        "meta": {
+          "__branchKey__": "<uuid-007>"
+        },
+        "conditionType": "pre-defined"
+      }
+    ],
+    "__name__": "Merge Contact by email"
+  },
+  "order": 26,
+  "cat": "multi-path",
+  "workflowsActionType": "INTERNAL",
+  "next": [
+    "<uuid-004>",
+    "<uuid-006>"
+  ]
+}

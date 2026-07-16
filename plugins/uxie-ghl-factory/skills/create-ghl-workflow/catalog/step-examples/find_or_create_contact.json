@@ -1,0 +1,30 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 2,
+  "order": 0,
+  "attributes": {
+    "emailLabel": "home",
+    "emailAddress": "{{contact.email}}",
+    "namePrefix": "",
+    "names": "{{contact.first_name}}",
+    "middleName": "",
+    "lastName": "{{contact.last_name}}",
+    "nameSuffix": "",
+    "organizationName": "{{contact.company_name}}",
+    "jobTitle": "",
+    "phoneLabel": "home",
+    "phoneNumber": "{{contact.phone}}",
+    "addressLabel": "home",
+    "country": "{{contact.country}}",
+    "poBox": "",
+    "city": "{{contact.city}}",
+    "postalCode": "{{contact.postal_code}}",
+    "region": "{{contact.state}}",
+    "streetAddress": "{{contact.address1}}",
+    "type": "find_or_create_contact",
+    "__customInputs__": {}
+  },
+  "name": "Find Or Create Contact",
+  "type": "find_or_create_contact",
+  "workflowsActionType": "INTEGRATION_AI"
+}

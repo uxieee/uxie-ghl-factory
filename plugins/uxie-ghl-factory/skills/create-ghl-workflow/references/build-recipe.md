@@ -99,10 +99,11 @@ converge with a goto):
 
 ```json
 { "ref": "find1", "kind": "action", "type": "find_opportunity", "name": "Find Opp",
-  "find": { "filters": [{ "field": "pipelineId", "value": "PIPELINE_ID" }], "sorting": "latest" },
+  "find": { "filters": [{ "field": "pipeline_id", "value": "PIPELINE_ID" }], "sorting": "latest" },
   "onFound": [
     { "ref": "upd1", "kind": "action", "type": "update_opportunity", "name": "Move stage",
-      "attributes": { "updates": [{ "field": "pipelineStageId", "value": "STAGE_ID" }] } }
+      "attributes": { "allowBackward": true,
+                      "updates": [{ "field": "pipelineStageId", "value": "STAGE_ID" }] } }
   ],
   "onNotFound": [
     { "ref": "crt1", "kind": "action", "type": "create_opportunity", "name": "Create Opp",
@@ -111,7 +112,17 @@ converge with a goto):
   ] }
 ```
 
+> **The find filter field is `pipeline_id` — snake_case.** `pipelineId` (camelCase) looks
+> right, matches every other id field in this API, and **422s at runtime** with
+> `Invalid field - pipelineId`. This one is snake. Ground truth: live workflow blobs.
+> (The *update* side is the opposite — `updates[].field` is `pipelineStageId`, camelCase.
+> The two casings genuinely differ; do not "fix" either to match the other.)
+
 Notes:
+- `update_opportunity` accepts EITHER an explicit `updates: [{field,value}]` (full control)
+  or the name path `attributes: { "pipeline": "...", "stage": "...", "status": "open" }`,
+  which the resolver turns into ids. Both compile to the same `__customInputFields__`.
+  A step with neither is rejected (`IRError EMPTY_STEP`) rather than emitted empty.
 - The state is **lexical per scope** (v1): a `goto` out of Not Found onto a shared
   downstream `update_opportunity` is NOT proven across the jump — either keep the
   update inside `onFound` (and let Not Found create at the right stage directly, as
@@ -121,17 +132,62 @@ Notes:
   opp-trigger path's branch `"assocGuaranteed": true`.
 - `assocGuaranteed` is IR-only; the compiler never emits it to GHL.
 
-### The monotonic stage-move pattern (`allowBackward: false`)
+### `allowBackward` — the silent [skipped] trap
 
-`update_opportunity` takes `allowBackward` (the compiler defaults it to `false`).
-With `false`, a pipeline-stage update only ever moves the opportunity FORWARD —
-if the opportunity is already at or past the target stage, the update is a no-op
-instead of a regression. This is the "don't regress the pipeline" guard for
-stage-sync workflows (e.g. marking *Engaged* or *Details Sent* from message/activity
-triggers, where events can arrive out of order or re-fire): every sync workflow can
-safely set its stage without checking the current one. Set `allowBackward: true`
-only when a workflow is explicitly supposed to move a deal backwards (e.g. a
-re-qualification flow).
+> **Any stage move that can run BACKWARD needs `allowBackward: true`, or it silently does
+> nothing.** The compiler defaults it to `false`. With `false`, GHL logs a backward move as
+> **`[skipped]`** — not an error, not a warning — and the opportunity never moves. The build
+> succeeds, the publish succeeds, the round-trip is clean, and the step is dead.
+> Verified live 2026-07-16: `Stage -> Deposit Paid [skipped]` with the default; the identical
+> step reported `[success]` and moved the opp once `allowBackward: true` was set.
+
+"Backward" means *earlier in the pipeline's stage order than the opportunity's current
+stage* — a fact about the CONTACT at runtime, not about the IR, which is why the engine
+cannot detect it for you and why this is documentation rather than a compile error.
+
+Set `allowBackward: true` whenever the target stage could be behind where the opp already
+is. In practice that is most **event-driven** moves, e.g.:
+- a cancellation / refund / no-show returning a deal to an earlier stage
+  (*Booked → Deposit Paid*, *Booked → Deposit Pending*),
+- a re-qualification or win-back flow,
+- any move whose trigger can fire after the opp has already advanced.
+
+Leave it `false` only for the deliberate **monotonic stage-sync** pattern: a workflow that
+should only ever move a deal FORWARD (marking *Engaged* or *Details Sent* from
+message/activity triggers, where events arrive out of order or re-fire). There `false` is
+the "don't regress the pipeline" guard and the no-op is the intent.
+
+If a stage move is not firing at runtime, check `allowBackward` FIRST — before the
+condition, the trigger, or the association. This is the most common cause, and previously
+generated workflows may carry the `false` default on regression moves that need `true`.
+
+## 7. GHL workflows are TREES, not DAGs — branches never re-converge
+
+**This is the single biggest architectural constraint of the platform, and it is not
+documented by GHL anywhere.** A workflow is a strict tree: every step has exactly ONE
+parent. Two branches can never merge back into a shared downstream step.
+
+Evidence: across every working published workflow in a mature real account there are
+**ZERO multi-parent nodes**. GHL's own builder obeys this — it *triplicates* a shared
+reminder tail across three reply-branches rather than merging them.
+
+Consequences for IR authors:
+
+- **Every branch owns its continuation.** If three branches all end in "wait 1 day → SMS
+  → tag", that tail is written three times, once per branch. There is no merge node.
+- **This is why the engine duplicates subtrees.** That behaviour is CORRECT — it is the
+  tree constraint surfacing, not a bug. Do not try to defeat it.
+- **`goto` is the only convergence primitive**, and it is a jump, not a merge: it re-enters
+  a target node rather than joining paths. It is also why the opportunity-association
+  checker is lexical per scope — it cannot prove state across a jump.
+- **Duplication has a real ceiling.** Unbounded tail duplication has bloated a workflow to
+  the point where GHL's own publish validator REJECTED it (a 131-template workflow that
+  only published after a UI re-save normalized it to 71). If a build is heading past ~100
+  templates, restructure — split into multiple workflows chained with `add_to_workflow`,
+  or move the shared tail into its own workflow — rather than duplicating further.
+
+Design the shape as a tree from the start. An IR authored as a DAG (a diamond that
+re-joins) cannot be built as drawn; it will either duplicate or need a `goto`.
 
 ### Verifying a built step — GET, not the editor panel
 

@@ -1,0 +1,47 @@
+{
+  "id": "<uuid-001>",
+  "parentKey": "<uuid-002>",
+  "type": "conversationai_book_appointment",
+  "name": "Book appointment",
+  "attributes": {
+    "promptInstructions": "Get the customer to book an appointment",
+    "calendarId": "<calendar-id>",
+    "type": "conversationai_book_appointment",
+    "__customInputs__": {},
+    "cat": "multi-path",
+    "convertToMultipath": true,
+    "transitions": [
+      {
+        "id": "<uuid-003>",
+        "name": "Appointment Booked",
+        "fields": {
+          "appointmentBooked": true,
+          "appointmentNotBooked": false
+        },
+        "meta": {
+          "__branchKey__": "<uuid-004>"
+        },
+        "conditionType": "pre-defined"
+      },
+      {
+        "id": "<uuid-005>",
+        "name": "Appointment Not booked",
+        "fields": {
+          "appointmentNotBooked": true
+        },
+        "meta": {
+          "__branchKey__": "<uuid-006>"
+        },
+        "conditionType": "pre-defined"
+      }
+    ],
+    "__name__": "Book appointment"
+  },
+  "order": 1,
+  "cat": "multi-path",
+  "workflowsActionType": "INTERNAL",
+  "next": [
+    "<uuid-003>",
+    "<uuid-005>"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "<uuid-001>",
+  "type": "find_opportunity",
+  "name": "Find Opportunity",
+  "attributes": {
+    "sorting": "latest",
+    "type": "find_opportunity",
+    "__customInputFields__": [],
+    "__customInputs__": {},
+    "cat": "multi-path",
+    "convertToMultipath": true,
+    "transitions": [
+      {
+        "id": "<uuid-002>",
+        "name": "Opportunity Found",
+        "fields": [],
+        "meta": {
+          "__branchKey__": "predefined_Opportunity Found"
+        },
+        "conditionType": "pre-defined"
+      },
+      {
+        "id": "<uuid-003>",
+        "name": "Opportunity Not Found",
+        "fields": [],
+        "meta": {
+          "__branchKey__": "predefined_Opportunity Not Found"
+        },
+        "conditionType": "pre-defined"
+      }
+    ],
+    "__name__": "Find Opportunity"
+  },
+  "order": 0,
+  "cat": "multi-path",
+  "workflowsActionType": "INTERNAL",
+  "next": [
+    "<uuid-002>",
+    "<uuid-003>"
+  ]
+}

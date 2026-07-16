@@ -1,0 +1,11 @@
+{
+  "id": "<uuid-001>",
+  "order": 2,
+  "attributes": {
+    "type": "review_request",
+    "review_type": "sms"
+  },
+  "name": "Send Review Request - SMS",
+  "type": "review_request",
+  "next": "<uuid-002>"
+}

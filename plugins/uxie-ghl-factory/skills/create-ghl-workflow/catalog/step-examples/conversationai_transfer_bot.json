@@ -1,0 +1,14 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 1,
+  "attributes": {
+    "assignedEmployeeId": "IniTeIlfUvxMQpZiB2ZE",
+    "type": "conversationai_transfer_bot",
+    "__customInputs__": {}
+  },
+  "name": "Transfer Bot to Primary",
+  "type": "conversationai_transfer_bot",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-003>"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 1,
+  "attributes": {
+    "user": "37PdZ4nCLADLuTjNbtd0",
+    "onlyUnAssigned": false,
+    "type": "internal-add-opportunity-owner",
+    "__customInputs__": {}
+  },
+  "name": "Add Owner to Opportunity",
+  "type": "internal-add-opportunity-owner",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-004>"
+}

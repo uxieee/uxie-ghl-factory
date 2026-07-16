@@ -1,0 +1,16 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 0,
+  "attributes": {
+    "message": "Send one short warm fallback message saying you do not want to send the wrong booking page and that Tracey will pick this up and point them the right way. One message only. No internal mechanics. No emoji.",
+    "waitForReply": true,
+    "type": "conversationai_ai_message",
+    "__customInputs__": {}
+  },
+  "name": "AI Message",
+  "type": "conversationai_ai_message",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-002>"
+}

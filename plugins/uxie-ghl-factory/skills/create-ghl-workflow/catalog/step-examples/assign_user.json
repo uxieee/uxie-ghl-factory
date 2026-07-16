@@ -1,0 +1,19 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 0,
+  "attributes": {
+    "only_unassigned_contact": false,
+    "total_index": 0,
+    "traffic_split": "equally",
+    "traffic_weightage": {},
+    "traffic_index": [],
+    "user_list": [],
+    "type": "assign_user",
+    "customUserList": "{{opportunity.assignedTo}}"
+  },
+  "name": "Assign to user",
+  "type": "assign_user",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-002>"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "event_start_date",
+    "event_start_type": "custom_field",
+    "value": "{{task.dueDate}}"
+  },
+  "name": "Task Due Date",
+  "type": "event_start_date",
+  "next": "<uuid-002>"
+}

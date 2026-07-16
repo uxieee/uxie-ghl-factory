@@ -1,0 +1,14 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "html": "<br/>",
+    "from_name": "Colin Sprake",
+    "from_email": "colin@localhandymangroup.com",
+    "subject": "test",
+    "attachments": []
+  },
+  "name": "Nurture Email 1",
+  "type": "email",
+  "next": "<uuid-002>"
+}

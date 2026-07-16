@@ -1,0 +1,21 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "selectField": "rxFwurOF45kbdVGZBDLE",
+    "selectFieldtype": "numerical",
+    "sourceCustomValueId": "",
+    "updateField": "rxFwurOF45kbdVGZBDLE",
+    "updateFieldType": "numerical",
+    "targetCustomValueId": "",
+    "operators": [
+      {
+        "operator": "add",
+        "__id": "<uuid-002>",
+        "value": 1
+      }
+    ]
+  },
+  "name": "Math Operation",
+  "type": "math_operation"
+}

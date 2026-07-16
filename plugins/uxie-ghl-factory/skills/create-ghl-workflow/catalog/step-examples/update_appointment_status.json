@@ -1,0 +1,13 @@
+{
+  "_note": "update_appointment_status — verified live 2026-07-16. WHICH appointment it targets is IMPLICIT and cannot be named: in an appointment-triggered workflow it acts on the TRIGGERING appointment; in a workflow entered any other way (e.g. payment_received) GHL acts on the most recent appointment the contact is carrying. If a contact can hold several, confirm 'most recent' is the one you mean. status_type is 'confirmed' | 'cancelled'. NOTE: GHL has NO native 'rescheduled' status — detect a reschedule by triggering on the appointment event with no status filter plus an if_else on {conditionType:'appointment', conditionSubType:'appointmentRescheduled', conditionOperator:'is', conditionValue:'true'}.",
+  "id": "<uuid-001>",
+  "order": 2,
+  "attributes": {
+    "category": "appointment",
+    "type": "update_appointment_status",
+    "status_type": "confirmed"
+  },
+  "name": "Confirm Appointment",
+  "type": "update_appointment_status",
+  "next": "<uuid-002>"
+}

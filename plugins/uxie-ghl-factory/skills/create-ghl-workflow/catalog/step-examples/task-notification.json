@@ -1,0 +1,14 @@
+{
+  "id": "<uuid-001>",
+  "order": 3,
+  "attributes": {
+    "type": "task_notification",
+    "title": "Check in with Client",
+    "assignedTo": "ewScqOUGHdRrqzf1VjQv",
+    "dueDate": 1,
+    "body": "14 days of disclosure are done and it's time to connect with the client"
+  },
+  "name": "Add Task",
+  "type": "task-notification",
+  "parentKey": "<uuid-002>"
+}

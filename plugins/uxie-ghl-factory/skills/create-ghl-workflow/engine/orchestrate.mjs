@@ -67,8 +67,13 @@ function collectEmailTemplates(ir) {
 export async function orchestrate(ir, gw, opts = {}) {
   const { call, loc, uid } = gw;
   const catalog = loadCatalog();
+  // authored/compiled/steps are reported TOGETHER on purpose. A bare "steps: 8 | round-trip:
+  // 8 clean" hid a dropped 51-step subtree on a live build (2026-07-16) because round-trip
+  // only compares SENT vs GOT — both were 8. `authored` is the only number tied to what the
+  // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
-    steps: 0, triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false, aborted: null };
+    authored: 0, compiled: 0, steps: 0,
+    triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false, aborted: null };
 
   // 1. resolve names → ids
   const entities = await fetchEntities(gw);
@@ -119,6 +124,8 @@ export async function orchestrate(ir, gw, opts = {}) {
     if (e?.name === 'IRError') { report.aborted = `compile rejected (${e.code}): ${e.message}`; return report; }
     throw e;
   }
+  report.authored = built.authored;
+  report.compiled = built.compiled;
   const ph = built._wid;
   const c = await call('POST', `/workflow/${loc}`, built.createBody);
   const WID = c.json?.id || c.json?._id;
@@ -149,6 +156,12 @@ export async function orchestrate(ir, gw, opts = {}) {
   const got = back.json?.workflowData?.templates || [];
   const sentById = new Map(sent.workflowData.templates.map((x) => [x.id, x]));
   report.steps = got.length;
+  // The server dropping whole steps is a distinct failure from it dropping attributes —
+  // and the old per-step loop `continue`d right past it, so a short GET still reported
+  // every surviving step as a pass.
+  if (got.length !== sent.workflowData.templates.length)
+    report.verify.issues.push({ stepCountMismatch: { sent: sent.workflowData.templates.length, got: got.length },
+      note: 'GHL did not persist every step that was sent — the workflow is INCOMPLETE.' });
   for (const gt of got) {
     const st = sentById.get(gt.id); if (!st) continue;
     const dropped = Object.keys(st.attributes || {}).filter((k) => !(k in (gt.attributes || {})) && k !== 'template_id');

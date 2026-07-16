@@ -1,0 +1,61 @@
+{
+  "id": "<uuid-001>",
+  "type": "workflow_ai_decision_maker",
+  "name": "Workflow AI - Decision Maker",
+  "attributes": {
+    "instructions": "Decide YES or NO on whether today ({{contact.hb_days_since_start}}) is a meaningful subscription milestone worth celebrating.\n\nUse dynamic, flexible judgment (not a rigid list). Apply these guidelines:\n\nEarly on: small numbers like 3, 7, 10, 14, 21 feel meaningful as \u201cnew user wins.\u201d\n\nLater: multiples of 30, 60, 90, 180, 365, or other clean round/weekly numbers feel significant.\n\nTreat larger numbers (200+, 500+, etc.) as milestones when they stand out as \u201cmajor steps.\u201d\n\nBe human-first: err on the side of YES when the number feels worth recognizing.",
+    "information": "Input: {{contact.hb_days_since_start}} (integer \u22651).\n\nPurpose: keep users motivated in their subaccount-a subscription journey, not just addiction recovery.\n\nSubscription start date ({{contact.habit_buddy_start_date}}) can be referenced in downstream messaging for extra personalization.\n\nNo cooldowns or blockers \u2014 repeat celebrations are okay.",
+    "type": "workflow_ai_decision_maker",
+    "__customInputs__": {},
+    "cat": "multi-path",
+    "convertToMultipath": true,
+    "transitions": [
+      {
+        "id": "<uuid-002>",
+        "name": "Default Branch",
+        "fields": {
+          "description": "Go in this branch if none of the other branches make sense.",
+          "branchKey": "none"
+        },
+        "meta": {
+          "__branchKey__": "predefined_Default Branch"
+        },
+        "conditionType": "pre-defined"
+      },
+      {
+        "id": "<uuid-003>",
+        "name": "Yes \u2014 Milestone Achieved",
+        "fields": {
+          "description": "Route here when {{contact.hb_days_since_start}} feels like a meaningful subaccount-a milestone (early wins, clean numbers, months, anniversaries, or major round steps).",
+          "branchKey": "send_discount_offer"
+        },
+        "meta": {
+          "__branchKey__": "<uuid-004>"
+        },
+        "conditionType": "user-defined"
+      },
+      {
+        "id": "<uuid-005>",
+        "name": "No \u2014 Not a Milestone Today",
+        "fields": {
+          "description": "Route here when today\u2019s number feels like a regular day without special milestone weight.",
+          "branchKey": "assign_sales_call"
+        },
+        "meta": {
+          "__branchKey__": "<uuid-006>"
+        },
+        "conditionType": "user-defined"
+      }
+    ],
+    "__name__": "Workflow AI - Decision Maker"
+  },
+  "order": 1,
+  "cat": "multi-path",
+  "workflowsActionType": "INTERNAL",
+  "next": [
+    "<uuid-002>",
+    "<uuid-003>",
+    "<uuid-005>"
+  ],
+  "parentKey": "<uuid-007>"
+}

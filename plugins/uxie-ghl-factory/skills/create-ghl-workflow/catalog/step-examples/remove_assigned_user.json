@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 9,
+  "attributes": {
+    "type": "remove_assigned_user"
+  },
+  "name": "Remove Assigned User",
+  "type": "remove_assigned_user",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-004>"
+}
