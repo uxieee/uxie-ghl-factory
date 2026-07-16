@@ -108,11 +108,14 @@ merges the caller's `details` over the capture's literal defaults:
 - **`appointmentBooking`** — required: `details.calendarId`. Advanced-options toggles
   (`triggerWorkflow`, `sleepAfterBooking`, `transferBot`, `cancelEnabled`,
   `rescheduleEnabled`, ...) default to their captured off/null values.
-  ⚠️ **If `details.calendarId` points at a `class_booking` (group / cohort / multi-day)
-  calendar, read `ghl-pipeline-specialist/references/reference-pipelines.md` §"Adjacent
-  surface: `class_booking` calendars" FIRST** — whether an AI booking action can target one
-  **is untested** (open as of 2026-07-17). Verify on a throwaway booking before promising a
-  client an AI-books-cohorts flow.
+  **`class_booking` (group / cohort / multi-day) calendars — live-verified 2026-07-17:** ConvAI
+  **accepts** a `class_booking` `details.calendarId` (200, on both create-action and repointing
+  a live action) and **does book it at runtime** (held appointment, `createdBy.source:
+  conversations_ai`). 🚨 **But the booking is DAY 1 ONLY** — it does not recur across the
+  cohort's days, exactly like a raw `create-appointment`. Never promise a client that the AI
+  books a multi-day series; model the cohort as the Day-1 seat and carry "both days" in copy.
+  See `ghl-pipeline-specialist/references/reference-pipelines.md` §"Adjacent surface:
+  `class_booking` calendars" before building one.
 - **`triggerWorkflow`** — required: `details.workflowIds` (non-empty array),
   `details.triggerCondition`. No optional fields observed.
 - **`updateContactField`** ("Contact Info" in the UI) — required: `details.contactFieldId`,
