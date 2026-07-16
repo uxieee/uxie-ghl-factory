@@ -1,6 +1,7 @@
 // Deterministic compiler: IR -> GHL builder-API payloads (create/auto-save/trigger).
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
-import { parseIR, IRError, checkOpportunityAssociation } from './ir.mjs';
+import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
+  lintConditionShape, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
@@ -322,7 +323,10 @@ function conditionExtras(c) {
 //
 // A full author-supplied shape round-trips unchanged (idempotent); a WRONG legacy tag shape
 // ({conditionSubType:'tag', conditionOperator:'contains'}) is REWRITTEN to the correct one.
-export function normalizeCondition(c) {
+export function normalizeCondition(rawC) {
+  // Canonicalize opp-stage aliases FIRST so the per-type dispatch below (and the
+  // resolver, which shares this helper) only ever sees the one true spelling.
+  const c = canonicalizeOppStageCondition(rawC);
   const extras = conditionExtras(c);
   const type = c.conditionType;
 
@@ -344,13 +348,13 @@ export function normalizeCondition(c) {
   // Opportunity pipeline stage: `stage` intent key, or the pipelineStageId subType.
   // resolve.mjs turns a stage NAME into an id and writes it to conditionValue before compile;
   // conditionValue therefore wins over the raw `stage` name here.
-  const stageIntent = c.stage !== undefined || c.conditionSubType === 'pipelineStageId';
-  if (type === 'opportunities' && stageIntent) {
+  const stageIntent = c.stage !== undefined || c.conditionSubType === OPP_STAGE_SUBTYPE;
+  if (type === OPP_STAGE_TYPE && stageIntent) {
     const raw = c.conditionValue ?? c.stage;
     return {
       ...extras,
-      conditionType: 'opportunities',
-      conditionSubType: 'pipelineStageId',
+      conditionType: OPP_STAGE_TYPE,
+      conditionSubType: OPP_STAGE_SUBTYPE,
       conditionOperator: '==',
       conditionValue: Array.isArray(raw) ? raw[0] : raw,
     };
@@ -391,7 +395,10 @@ export function normalizeCondition(c) {
 // __conditionId, ifElseNodeId:"", isWait:false, the two constant UI-hint arrays, and (for
 // contact_detail) __customFieldType__:"standard". Any envelope value the author supplied wins.
 export function expandCondition(c, ctx) {
-  const n = normalizeCondition(c);
+  // normalizeCondition canonicalizes every alias it recognizes; the lint is the
+  // fail-closed backstop for a shape it could not (e.g. an opp type paired with an
+  // unrecognized subType), which would otherwise be stored as a silently-dead branch.
+  const n = lintConditionShape(normalizeCondition(c));
   const out = {
     conditionType: n.conditionType,
     conditionSubType: n.conditionSubType,

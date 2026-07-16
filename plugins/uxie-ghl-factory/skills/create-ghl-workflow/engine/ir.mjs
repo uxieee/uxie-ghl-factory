@@ -8,6 +8,63 @@ export class IRError extends Error {
 // Every multipath container reaches its children through one of these.
 const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'onBooked', 'onNotBooked', 'default'];
 
+// ─── Opportunity pipeline-stage condition: the ONE canonical spelling ────────────────
+// GHL stores a stage condition as conditionType:'opportunities' (PLURAL) +
+// conditionSubType:'pipelineStageId' (camelCase). Any other spelling is a SILENT
+// failure: it compiles, publishes and round-trips clean, but GHL cannot map the
+// type/subType back to a known field — so the branch never evaluates at runtime and
+// the builder renders a blank "Select" instead of the stage picker. Confirmed live
+// 2026-07-16 (workflow "08 Deposit Paid Handler", 37d8de74) where all three
+// "Booked yet?" checkpoints came out dead this way.
+//
+// Both the compiler (shape emission) and the resolver (stage NAME→id lookup) key off
+// this type, so the alias tables live here — shared, single source of truth.
+export const OPP_STAGE_TYPE = 'opportunities';
+export const OPP_STAGE_SUBTYPE = 'pipelineStageId';
+const OPP_STAGE_TYPE_ALIASES = new Set(['opportunity', 'opportunities', 'opportunity_stage',
+  'opportunities_stage', 'opportunityStage']);
+const OPP_STAGE_SUBTYPE_ALIASES = new Set(['pipelinestageid', 'pipeline_stage_id', 'pipeline_stage',
+  'pipelinestage', 'stage']);
+
+const isOppStageSubType = (v) => typeof v === 'string' && OPP_STAGE_SUBTYPE_ALIASES.has(v.toLowerCase());
+
+// Does this authored condition intend an opportunity pipeline-stage test?
+// True when the type is an opportunity alias AND the stage is identified by any of the
+// accepted routes: the `stage` intent key, a stage-ish conditionSubType, or lean-IR `field`.
+export function isOppStageCondition(c) {
+  if (!c || !OPP_STAGE_TYPE_ALIASES.has(c.conditionType)) return false;
+  return c.stage !== undefined || isOppStageSubType(c.conditionSubType) || isOppStageSubType(c.field);
+}
+
+// Rewrite an opp-stage condition's type/subType to the canonical pair, dropping the
+// lean-IR `field` alias (it is intent-only and must not reach the stored object).
+// Returns a new object; non-stage conditions pass through untouched.
+export function canonicalizeOppStageCondition(c) {
+  if (!isOppStageCondition(c)) return c;
+  const { field, ...rest } = c;
+  return { ...rest, conditionType: OPP_STAGE_TYPE, conditionSubType: OPP_STAGE_SUBTYPE };
+}
+
+// Fail-closed backstop for any path that reaches condition emission without
+// canonicalizing. These two spellings are the known-dead ones; they must never be
+// stored, so surface them at compile like the ATTR_KEY lint rather than shipping a
+// branch that quietly never fires.
+export function lintConditionShape(c) {
+  if (c.conditionType === 'opportunity') {
+    throw new IRError('COND_SHAPE',
+      `if_else condition has conditionType:"opportunity" (singular) — GHL requires "${OPP_STAGE_TYPE}". `
+      + 'This shape publishes clean but the branch never evaluates and the builder shows a blank "Select". '
+      + `Author it as { conditionType:"${OPP_STAGE_TYPE}", stage:"<name or id>" }.`);
+  }
+  if (isOppStageSubType(c.conditionSubType) && c.conditionSubType !== OPP_STAGE_SUBTYPE) {
+    throw new IRError('COND_SHAPE',
+      `if_else condition has conditionSubType:"${c.conditionSubType}" — GHL requires "${OPP_STAGE_SUBTYPE}" `
+      + `(camelCase) on conditionType:"${OPP_STAGE_TYPE}". This shape publishes clean but the branch never `
+      + `evaluates. Author it as { conditionType:"${OPP_STAGE_TYPE}", stage:"<name or id>" }.`);
+  }
+  return c;
+}
+
 // Walk every node (graph + every nested scope) and every trigger, collecting refs.
 export function collectRefs(ir) {
   const refs = [];

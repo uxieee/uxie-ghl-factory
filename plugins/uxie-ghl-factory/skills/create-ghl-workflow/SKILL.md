@@ -114,6 +114,17 @@ Do NOT author `conditionSubType: tag` + `conditionOperator: contains` — that l
 matches nothing and mis-routes tagged contacts to the None branch (the normalizer rewrites
 it, but don't rely on that; use the `tag:` form).
 
+⚠️ **Opportunity-stage: the type is PLURAL and the subType is camelCase** (live-confirmed
+2026-07-16, workflow `08 Deposit Paid Handler`). `conditionType: opportunity` (singular) or
+`conditionSubType: pipeline_stage_id` (snake_case) is a **silent** failure — it builds,
+publishes and round-trips clean, but GHL can't map it back to a known field, so the branch
+never evaluates and the builder shows a blank "Select" instead of the stage picker. The
+compiler now canonicalizes the known aliases (`opportunity`, `opportunity_stage`,
+`pipeline_stage_id`, lean-IR `field: pipeline_stage`) to `opportunities`/`pipelineStageId`,
+and any remaining dead spelling hard-fails at compile with `COND_SHAPE` rather than being
+saved. Don't lean on the aliases — author the `{ conditionType: opportunities, stage: … }`
+form in the table above.
+
 ⚠️ **Opportunity-stage conditions need an ASSOCIATED opportunity** (runtime-proven 2026-07-15).
 An `opportunities`/`pipelineStageId` if_else evaluates against the opportunity associated with
 the *workflow run*, not "any opp the contact has". If the contact didn't enter via an

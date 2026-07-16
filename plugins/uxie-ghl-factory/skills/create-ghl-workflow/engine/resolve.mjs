@@ -5,6 +5,7 @@
 //   - resolveIR(ir, r)     — pure: walks the IR, rewrites known name fields to IDs
 // The live fetch (which endpoints, which token) lives in the caller; these stay pure
 // so they're unit-testable offline.
+import { isOppStageCondition } from './ir.mjs';
 
 const norm = (s) => String(s ?? '').trim().toLowerCase();
 
@@ -142,7 +143,10 @@ export function resolveIR(ir, r) {
     // is written to conditionValue. (Tag conditions need no resolution — a tag is a literal.)
     for (const b of n.branches ?? []) {
       for (const cond of b.conditions ?? []) {
-        if (!cond || cond.conditionType !== 'opportunities' || cond.stage == null) continue;
+        // Match via the shared alias-aware predicate, NOT an exact type compare: an
+        // aliased spelling ({conditionType:'opportunity'}) must resolve too, else the
+        // stage NAME survives into conditionValue and the branch dies a second way.
+        if (!cond || !isOppStageCondition(cond) || cond.stage == null) continue;
         if (looksLikeId(cond.stage)) { cond.conditionValue = cond.stage; continue; }
         const id = r.stageId(cond.stage, cond.pipeline);
         if (id) cond.conditionValue = id;
