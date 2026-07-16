@@ -1,17 +1,18 @@
 {
+  "_note": "REDACTED 2026-07-17. access_token and pixel_id are live Meta credentials — placeholders only, never commit real ones. Both values are per-account: get the System User access token from Meta Business Settings and the pixel id from Events Manager. This file is a SHAPE reference (gen-catalog reads its key set, not its values).",
   "id": "<uuid-001>",
   "order": 0,
   "attributes": {
     "type": "facebook_conversion_api",
     "event_type": "lead_event",
-    "access_token": "EAALTtbk6ytsBRUtyLbNNdenCNEFyeDZCIFyQIykEVpZBo5kBdVy1LfOwnH80SP92K9VaDSIINT2uIbFEyEZBO42WdqAy6UyZBaiOBhRqIZC0il5NqVML268NK9p4CKcWZCcGFUbPtibpCnNO70cDN2k8SSO5SJssOWnF8YGcrpqNKCljTzIuv2lgx79aHtCAZDZD",
+    "access_token": "<META_SYSTEM_USER_ACCESS_TOKEN>",
     "currency": "AUD",
     "connection_type": "INTEGRATION",
     "customMapping": {
       "fbLeadId": "{{contact.facebookLeadId}}"
     },
     "isCustomMappingEnabled": true,
-    "pixel_id": "957973136735756",
+    "pixel_id": "<META_PIXEL_ID>",
     "stage_name": "Lead"
   },
   "name": "Meta Conversion API",
