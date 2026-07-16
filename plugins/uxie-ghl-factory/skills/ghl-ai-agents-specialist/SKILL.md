@@ -76,12 +76,15 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 |---|---|
 | Conversation AI — create, read, delete, `humanHandOver` action | **Live-create-proven** (engine → internal API → real agent → verified → deleted) |
 | Knowledge Base — rich-text create | **Live-proven** |
-| Voice AI — agent create + full-replace update | **Engine-complete + unit-tested; NOT yet live-proven** — `references/voice-ai.md` says treat the first real use as a small throwaway validation run |
+| Voice AI — agent create + full-replace update | **Engine-complete + unit-tested; agent create/update NOT yet live-proven** (several *action* + `patch-agent` paths ARE live-proven as of 2026-07-17) — `references/voice-ai.md` §Status has the proven/unproven split |
 | Agent Studio — Super Agent create (SSE build) + full-replace update | **Engine-complete + unit-tested; NOT yet live-proven** — `references/agent-studio.md` says treat the first real use as a small throwaway validation run |
 
-ConvAI + KB rich-text are live-proven; Voice AI + Agent Studio are engine-complete and
-unit-tested (119 engine tests) but should be treated as unproven until a first throwaway
-live-validation run confirms them (matches the reference docs). ConvAI now has
+ConvAI + KB rich-text are live-proven. Agent Studio is engine-complete and unit-tested (119
+engine tests) but should be treated as unproven until a first throwaway live-validation run
+confirms it. Voice AI is now **partially** live-proven (2026-07-17): `DATA_EXTRACTION`
+creation, `APPOINTMENT_BOOKING` calendar repointing, `patch-agent`, and the voices catalog
+read all fired against a real account — but agent create/full-replace-update has not, so keep
+the throwaway-validation discipline for that path (see `references/voice-ai.md` §Status). ConvAI now has
 verified (not passthrough) support for all 7 captured action types (`humanHandOver` +
 `appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,
 `advancedFollowup`), and Voice AI for all 7 captured types (`CALL_TRANSFER` +

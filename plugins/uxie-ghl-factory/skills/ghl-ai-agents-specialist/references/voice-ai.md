@@ -6,11 +6,16 @@
 > the public `voice-ai-v3` API reaches only a fraction of it (basic CRUD + call logs).
 > Underlying voice provider is **Retell** (`provider: "RETELL"`, not IR-settable).
 
-**Status: built + unit-tested (119 tests across the engine), NOT yet live-proven.** The
-capture confirms the API accepts these shapes, but this engine has not yet created a real
-Voice AI agent end-to-end. Treat the first real use as a small, throwaway, verified,
-cleaned-up validation run — same discipline as the original capture session — not a routine
-operation. State this plainly to the user before building a Voice AI agent for them.
+**Status: built + unit-tested (119 tests across the engine); PARTIALLY live-proven as of
+2026-07-17.** Live-proven against a real account (Francesca, 2026-07-17 voice go-live prep):
+`DATA_EXTRACTION` action creation (201 ×6 on real contact fields), `APPOINTMENT_BOOKING`
+`calendarId` repointing via `update-action`, `patch-agent` for `voiceId` and
+`sendPostCallNotificationTo`, and the voices catalog read. Still NOT live-proven: agent
+creation end-to-end via `compileVoiceAiAgent` → full-replace PUT, and the `WORKFLOW_TRIGGER`
+/ `SMS` / `CAP` / `AGENT_TRANSFER_CHILD` action types. Treat the first real use of an
+unproven path as a small, throwaway, verified, cleaned-up validation run — same discipline
+as the original capture session — not a routine operation. State this plainly to the user
+before building a Voice AI agent for them.
 
 ## What Voice AI is
 
@@ -31,7 +36,7 @@ post-call, outbound/consent), not a short free-text prompt like Conversation AI.
 | List agents | `GET` | `/voice-ai/agents/agents-with-folders` · `/agents/simple` · `/agents/all` |
 | Prompt defaults | `GET` | `/voice-ai/agents/:id/prompts/defaults` |
 | Transfer-connections check (pre-delete guard) | `GET` | `/voice-ai/agents/:id/transfer-connections` |
-| Voices | `GET` | `/voice-ai/voices/all?provider=r` · `/voices/my-voices` |
+| Voices (full ~142 catalog) | `GET` | `/voice-ai/voices/all?locationId=` — see ⚠️ below · `/voices/my-voices` |
 | Prompt char limit | `GET` | `/voice-ai/configurations/AGENT_PROMPT_LIMIT` |
 | Outbound consent | `GET` | `/voice-ai/consent/outbound/:locationId` · `/consent/location/:locationId/compliant` |
 | Feature flag | `GET` | `/voice-ai/feature-flags/{FLAG}/is-enabled` |
@@ -75,7 +80,8 @@ compiler's.
   `beginMessageDelayMs`, `prompts{}` (System-Prompt section overrides — Personality, Date &
   Time Awareness, Numbers & Symbols Speech Rules, Email Confirmation Process; not fully
   captured, passed through as-is).
-- **Voice:** `voiceId` (default `g6xIsTj2HwM6VR4iXFCw`), `voiceModel` (`auto`), `voiceTemperature`,
+- **Voice:** `voiceId` (default `g6xIsTj2HwM6VR4iXFCw`) — ⚠️ see "Picking a voice" below,
+  `voiceModel` (`auto`), `voiceTemperature`,
   `voiceSpeed`, `voiceVolume`, `denoisingMode` (only observed value: `noise-cancellation`),
   `backgroundSound`, `normalizeForSpeech`, `ambientSoundVolume`, `enableDynamicVoiceSpeed`.
 - **Behavior:** `responsiveness`, `interruptionSensitivity`, `modelTemperature`,
@@ -103,6 +109,27 @@ compiler's.
 - **Server-assigned (read-only, appear after first save):** `retellLlmId`, `providerAgentId`,
   `providerAgents[]`.
 
+## Picking a voice (voices ARE programmatically listable)
+
+> Verified live 2026-07-17 (Francesca). Supersedes the older assumption that `voiceId` was a
+> UI-only pick — you do **not** need to open the builder to choose a voice.
+
+```
+GET https://services.leadconnectorhq.com/voice-ai/voices/all?locationId=<loc>
+    Authorization: Bearer <PIT>
+    Version: 2021-07-28
+```
+
+Returns the **full ~142-voice catalog** with `accent`, `gender` and `previewUrl` — filter it
+in-process to pick a voice against the client's brief (accent/gender), then set it.
+
+- ⚠️ **Use `/voices/all?locationId=`.** The plain `/voice-ai/voices` (no `locationId`) returns
+  only **10** voices — enough to look like the whole catalog and quietly deny you the other 132.
+- ⚠️ **`voiceId` is the ElevenLabs `providerVoiceId` (20-char), NOT the Mongo `_id`
+  (24-char hex).** Each catalog entry carries both; picking the wrong one is easy because both
+  are opaque ID strings. Rule of thumb: **24 hex chars = wrong field.**
+- Set it with `voice-ai-v3__patch-agent { voiceId: <providerVoiceId> }`.
+
 ## Actions
 
 `POST /voice-ai/actions` — body `{agentId, actionType, locationId, name, actionParameters{…}}`.
@@ -127,10 +154,19 @@ field(s) and merges the caller's `actionParameters` over any capture-grounded de
   `triggerMessage`, `triggerMessageType`. No defaults — all user-authored.
 - **`SMS`** ("Send SMS") — required: `messageBody`.
 - **`DATA_EXTRACTION`** ("Update contact field") — required: `contactFieldId`,
-  `contactFieldKey`, `contactFieldDataType`.
+  `contactFieldKey`, `contactFieldDataType`. **Full shape + live-proof: see "DATA_EXTRACTION
+  in depth" below.**
 - **`APPOINTMENT_BOOKING`** — required: `calendarId`. Booking/appointment-management
   toggles (`daysOfOfferingDates`, `collectEmail`, `cancelEnabled`, `timezoneSelection`, ...)
   default to their captured values. Only one Appointment Booking action allowed per agent.
+  Repointing `calendarId` via `voice-ai-v3__update-action` **preserves** the booking
+  sub-fields (`calendarActionType`, `collectEmail`, reschedule/cancel flags) — it does not
+  strip them, so you can safely move an agent between calendars without re-sending the whole
+  booking config (live-verified 2026-07-17).
+  ⚠️ **If `calendarId` points at a `class_booking` (group / cohort / multi-day) calendar, read
+  `ghl-pipeline-specialist/references/reference-pipelines.md` §"Adjacent surface:
+  `class_booking` calendars" FIRST** — whether an AI booking action can target one **is
+  untested**. Verify on a throwaway booking before promising a client an AI-books-cohorts flow.
 - **`CAP`** ("Custom Action 2.0" / Custom Action Plugin) — required: `capActionId`,
   `triggerPrompt`, `triggerMessage`, and (validated on the one field the compiler can see)
   `schemaValues.requestBodyValues.webhookUrl.value` must be an `https://` URL.
@@ -138,6 +174,82 @@ field(s) and merges the caller's `actionParameters` over any capture-grounded de
 - **`AGENT_TRANSFER_CHILD`** ("Agent Transfer", distinct from `CALL_TRANSFER`) — required:
   `destinationAgentMongoId`, `triggerPrompt`. `speakDuringExecution` / `triggerWorkflowsPostCall`
   default to the capture's observed values (`false` / `true`). Max 3 connected agents per UI.
+
+### ⚠️ `actionParameters` MUST be an OBJECT, never a JSON string
+
+> Live-verified 2026-07-17 (Francesca). Applies to **both** `voice-ai-v3__create-action` and
+> `voice-ai-v3__update-action`.
+
+Passing `actionParameters` as a JSON **string** fails with a misleading HTTP 400:
+
+```
+Cannot read properties of undefined (reading 'constructor')
+```
+
+That error names no field and reads like a server bug — it is not. It means the backend tried
+to introspect your string's `.constructor` as if it were a parsed object. **Send an object.**
+This is the same class of gotcha as Conversation AI's `details`-must-be-object rule; if you
+hit an unexplained `constructor` 400 anywhere in the AI surface, suspect a stringified object
+first.
+
+### DATA_EXTRACTION in depth (live-proven 2026-07-17)
+
+Captured from the Voice builder UI: **Actions → New Action → "Update contact field" →
+_After The Call_ → Save**, which fires `POST /voice-ai/actions` (**not** the agent PUT).
+
+- **`actionType: "DATA_EXTRACTION"` is the _After The Call_ variant** — extraction runs after
+  the call ends. `IN_CALL_DATA_EXTRACTION` is the _During The Call_ variant; **its shape is
+  still untested** — do not assume it mirrors this one.
+- Earlier `422`s on both types were a **wrong-sub-schema** problem, not an API limitation.
+- The **public** `voice-ai-v3__create-action` works with this exact object (201 ×6 on real
+  fields) — no internal `token-id` call needed for this type.
+
+`actionParameters` (object):
+
+```jsonc
+{
+  "contactFieldId":         "Qq7ZMgxqom0UpbVXEZYn",
+  "contactFieldKey":        "contact.service_interest",
+  "contactFieldName":       "Service Interest",
+  "contactFieldDataType":   "STANDARD_FIELD",   // or the custom-field data type
+  "description":            "What treatment the caller asked about.",
+  "actionType":             "DATA_EXTRACTION",  // repeated INSIDE the params object
+  "examples":               ["Botox", "Dermal filler"],
+  "overwriteExistingValue": false,
+  "saveAsAdditional":       true
+}
+```
+
+Note `actionType` is repeated **inside** `actionParameters` as well as at the body's top
+level — both are required.
+
+**`overwriteExistingValue` is a judgement call, not a default.** Set it `false` for fields a
+form or human already populated (overwriting clobbers better data with a transcript guess);
+`true` for volatile state the latest call is authoritative on (e.g. a preferred time, a call
+outcome). For free-text notes, prefer `false` + `saveAsAdditional: true` so calls append
+rather than overwrite each other.
+
+### Public vs internal agent representation (do NOT misread this as a wiring bug)
+
+The two GETs return the **same actions in different shapes** — a trap that can look like data
+loss:
+
+| Read | Auth | Shape |
+|---|---|---|
+| `voice-ai-v3__get-agent` (public) | PIT Bearer | **Trims** actions into one generic `actions[]` with slim params |
+| Internal `GET /voice-ai/agents/:id` | `token-id` | **Typed groupings** the builder reads: `workflowActions`, `contactFieldActions`, `appointmentBookingAction`, `callTransferActions`, `extractDataFields`, `actionIds` |
+
+**VERIFIED 2026-07-17:** actions created via `POST /voice-ai/actions` (public MCP) **do** land
+correctly in the typed groupings **and** in `actionIds`, byte-identical to UI-built actions.
+API-built `DATA_EXTRACTION` actions render fine in the builder.
+
+- If the builder appears not to show an API-built action, it is almost certainly a **stale
+  builder tab — refresh it** before reporting a bug. The slim public `actions[]` is likewise a
+  *view*, not evidence the action failed to wire.
+- ⚠️ **Do not generalise this reassurance.** It is the opposite of the `create-ghl-workflow`
+  `internal_notification` bug, which is **real**: engine-built notification nodes fire at
+  runtime but the builder will not open their editor. "Trust the API, refresh the tab" applies
+  to voice actions; it does not apply there.
 
 `VERIFIED_ACTION_TYPES` in `voiceai-ir.mjs` now lists all 7. Only `MCP` ("Add MCP (Beta)")
 remains unverified — it needs a third-party OAuth-connect flow, explicitly out of scope per
