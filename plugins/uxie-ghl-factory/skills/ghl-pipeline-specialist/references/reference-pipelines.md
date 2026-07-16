@@ -138,3 +138,42 @@ same family of trap as `opportunities-v3__update-pipeline` (reported live 2026-0
   fan out across days.
 - `teamMembers` entries must **NOT include a `primary` key** — strip it from the GET
   response before PUTting, or the update is rejected.
+- **Do NOT include `locationId` in the update body** — `update-calendar` rejects it with a
+  `422` (the location is already addressed by the calendar id).
+
+Re-confirmed live 2026-07-17 (Francesca cohort-booking build) on a `class_booking` calendar:
+omitting fields reset `slotDuration`→30, `openHours`→`{}`, and `enableRecurring`→`false` in a
+single PUT. The trap is real across calendar types — always PUT the full config.
+
+## Adjacent surface: `class_booking` calendars (group / cohort / multi-day)
+
+> Live-verified 2026-07-17 (Francesca course-cohort booking).
+
+A `class_booking` calendar is the shape to reach for when **many contacts book the same slot**
+(a cohort, class, workshop or group session) rather than one contact booking a private slot.
+It uniquely supports a per-slot **seat cap** and **recurrence** *together*:
+
+- **Seat cap:** `appoinmentPerSlot` — note the **typo is GHL's and is load-bearing**; spelling
+  it `appointmentPerSlot` silently does nothing.
+- **Recurrence:** `recurring: { freq, count, bookingOption }`.
+
+Combined, they produce a **capped group cohort that books multiple consecutive days as ONE
+linked series**. GHL stores an `rrule` (e.g. `"RRULE:FREQ=DAILY;COUNT=2"`); the booking widget
+renders "REPEATS Every day for N occurrences" and decrements the remaining seat count. This is
+how you model e.g. a 2-day course cohort with 8 seats.
+
+**Gotchas — all three will bite silently:**
+
+- **`appoinmentPerSlot` is IGNORED on create** (defaults to `1`). Create the calendar, then set
+  the cap with `calendars-v3__update-calendar` — and per the full-replace rule above, send the
+  whole config when you do. A cohort calendar that silently caps at 1 seat looks like a
+  working calendar until the second person tries to book.
+- **Recurrence is applied by the WIDGET booking flow, not enforced per-method.** A raw
+  `calendars-v3__create-appointment` does **NOT** auto-recur — it books day 1 only, with
+  `isRecurring: false`. So an appointment written via the API is not equivalent to one booked
+  through the widget. If you seed or migrate cohort bookings programmatically, expect to
+  handle the series yourself.
+- **OPEN / untested:** whether an AI `appointmentBooking` action (Conversation AI or Voice AI)
+  can target a `class_booking` calendar at all. **Flag this to the user and verify on a
+  throwaway booking before promising a client an AI-books-cohorts flow** — it is the load
+  bearing assumption in that design.
