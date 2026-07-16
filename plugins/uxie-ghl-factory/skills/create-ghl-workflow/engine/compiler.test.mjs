@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { compile, casingLint, normalizeCondition, IFELSE_NESTED_DROPDOWN_TYPES as ENGINE_NESTED, IFELSE_ALLOW_IS_OPERATOR_TYPES as ENGINE_ALLOW_IS } from './compiler.mjs';
+import { compile, casingLint, normalizeCondition, expandCondition, IFELSE_NESTED_DROPDOWN_TYPES as ENGINE_NESTED, IFELSE_ALLOW_IS_OPERATOR_TYPES as ENGINE_ALLOW_IS } from './compiler.mjs';
 
 // Frozen UI-hint arrays harvested verbatim from live UI-built if_else conditions
 // (ghl-internal-api-research corpus, 2026-07-15 — the 10-item UI capture in
@@ -533,6 +533,60 @@ test('normalizeCondition: opportunity stage — resolved conditionValue (an id) 
   // resolve.mjs writes the resolved id into conditionValue before compile
   const n = normalizeCondition({ conditionType: 'opportunities', stage: 'Booked', conditionValue: 'STAGE_ID_XYZ' });
   assert.equal(n.conditionValue, 'STAGE_ID_XYZ');
+});
+
+// Opportunity-stage ALIAS canonicalization. Confirmed live 2026-07-16 on workflow
+// "08 Deposit Paid Handler" (37d8de74): a stage condition authored with the singular
+// type + snake_case subType compiled AND published clean, but the branch was dead at
+// runtime and rendered a blank "Select" in the builder. GHL only maps the plural
+// type + camelCase subType back to a known field, so every accepted spelling must
+// canonicalize to opportunities/pipelineStageId before it is stored.
+for (const [label, authored] of [
+  ['singular type + snake_case subType (the live-confirmed break)',
+    { conditionType: 'opportunity', conditionSubType: 'pipeline_stage_id', conditionValue: 'STAGE_ID_123' }],
+  ['lean IR: opportunity_stage + field:pipeline_stage',
+    { conditionType: 'opportunity_stage', field: 'pipeline_stage', conditionValue: 'STAGE_ID_123' }],
+  ['lean IR: opportunities + field:pipelineStageId',
+    { conditionType: 'opportunities', field: 'pipelineStageId', conditionValue: 'STAGE_ID_123' }],
+  ['singular type + stage intent key',
+    { conditionType: 'opportunity', stage: 'STAGE_ID_123' }],
+]) {
+  test(`normalizeCondition: opp-stage alias → canonical shape — ${label}`, () => {
+    const n = normalizeCondition(authored);
+    assert.equal(n.conditionType, 'opportunities');
+    assert.equal(n.conditionSubType, 'pipelineStageId');
+    assert.equal(n.conditionOperator, '==');
+    assert.equal(n.conditionValue, 'STAGE_ID_123'); // a STRING, not an array
+    // intent-only authoring keys must not survive into the stored condition
+    assert.ok(!('stage' in n));
+    assert.ok(!('field' in n));
+  });
+}
+
+test('expandCondition: opp-stage alias emits the full canonical envelope', () => {
+  const out = expandCondition({ conditionType: 'opportunity', conditionSubType: 'pipeline_stage_id', conditionValue: 'STAGE_ID_123' }, ctx());
+  assert.equal(out.conditionType, 'opportunities');
+  assert.equal(out.conditionSubType, 'pipelineStageId');
+  assert.equal(out.conditionOperator, '==');
+  assert.equal(out.conditionValue, 'STAGE_ID_123');
+  assert.equal(out.ifElseNodeId, '');
+  assert.equal(out.isWait, false);
+  assert.ok(out.__conditionId);
+  assert.deepEqual(out.nestedDropdownTypes, IFELSE_NESTED_DROPDOWN_TYPES);
+  assert.deepEqual(out.allowIsOperatorTypes, IFELSE_ALLOW_IS_OPERATOR_TYPES);
+  // opportunities conditions do NOT carry the contact_detail-only __customFieldType__
+  assert.ok(!('__customFieldType__' in out));
+});
+
+test('COND_SHAPE lint: a dead opp-stage shape hard-fails instead of saving silently', () => {
+  // Defence in depth for any path that reaches expandCondition without canonicalizing:
+  // these two spellings publish clean but never evaluate, so fail at compile instead.
+  assert.throws(
+    () => expandCondition({ conditionType: 'opportunity', conditionSubType: 'somethingElse', conditionValue: 'X' }, ctx()),
+    (e) => e.code === 'COND_SHAPE' && /opportunities/.test(e.message));
+  assert.throws(
+    () => expandCondition({ conditionType: 'contact_detail', conditionSubType: 'pipeline_stage_id', conditionValue: 'X' }, ctx()),
+    (e) => e.code === 'COND_SHAPE' && /pipelineStageId/.test(e.message));
 });
 
 test('normalizeCondition: trigger identity → trigger/==/value', () => {

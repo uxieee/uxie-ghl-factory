@@ -49,6 +49,26 @@ test('resolveIR: if_else opportunity-stage condition — stage NAME → id (writ
   assert.deepEqual(unresolved, []);
 });
 
+// The stage-name resolver keys off the SAME canonical type the compiler emits, so every
+// accepted alias spelling must resolve too — otherwise an aliased condition silently keeps
+// a stage NAME in conditionValue and the branch is dead for a second, separate reason.
+for (const [label, authored] of [
+  ['singular conditionType', { conditionType: 'opportunity', stage: 'Won', pipeline: 'Sales' }],
+  ['lean IR opportunity_stage', { conditionType: 'opportunity_stage', field: 'pipeline_stage', stage: 'Won', pipeline: 'Sales' }],
+]) {
+  test(`resolveIR: if_else opp-stage alias — stage NAME → id — ${label}`, () => {
+    const ir = { triggers: [], graph: [
+      { ref: 'b', kind: 'if_else', name: 'Stage?', branches: [
+        { ref: 'y', name: 'Won', conditions: [authored], then: [] },
+        { ref: 'n', name: 'None', else: true, then: [] },
+      ] },
+    ] };
+    const { ir: out, unresolved } = resolveIR(ir, r);
+    assert.equal(out.graph[0].branches[0].conditions[0].conditionValue, 'ST_WON');
+    assert.deepEqual(unresolved, []);
+  });
+}
+
 test('resolveIR: if_else stage condition — an already-resolved id passes through; a tag condition is left alone', () => {
   const ir = { triggers: [], graph: [
     { ref: 'b', kind: 'if_else', name: 'Mixed', branches: [
