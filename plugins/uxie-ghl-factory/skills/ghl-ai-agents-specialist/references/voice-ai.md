@@ -6,16 +6,26 @@
 > the public `voice-ai-v3` API reaches only a fraction of it (basic CRUD + call logs).
 > Underlying voice provider is **Retell** (`provider: "RETELL"`, not IR-settable).
 
-**Status: built + unit-tested (119 tests across the engine); PARTIALLY live-proven as of
-2026-07-17.** Live-proven against a real account (Francesca, 2026-07-17 voice go-live prep):
-`DATA_EXTRACTION` action creation (201 ×6 on real contact fields), `APPOINTMENT_BOOKING`
-`calendarId` repointing via `update-action`, `patch-agent` for `voiceId` and
-`sendPostCallNotificationTo`, and the voices catalog read. Still NOT live-proven: agent
-creation end-to-end via `compileVoiceAiAgent` → full-replace PUT, and the `WORKFLOW_TRIGGER`
-/ `SMS` / `CAP` / `AGENT_TRANSFER_CHILD` action types. Treat the first real use of an
-unproven path as a small, throwaway, verified, cleaned-up validation run — same discipline
-as the original capture session — not a routine operation. State this plainly to the user
-before building a Voice AI agent for them.
+**Status: built + unit-tested (119 tests across the engine); substantially live-proven.**
+
+Live-proven against a real account (Francesca, `SJRURxzgbPTVBNLhqEZi`, 2026-07-17 voice
+go-live prep): `DATA_EXTRACTION` action creation (201 ×6 on real contact fields),
+`APPOINTMENT_BOOKING` `calendarId` repointing via `update-action`, `patch-agent` (`voiceId`,
+`sendPostCallNotificationTo`), and the voices catalog read.
+
+⚠️ **Unreconciled status conflict — agent create + full-replace update.** This doc originally
+carried a "NOT yet live-proven" banner, but the project record reports that the engine's
+Voice AI **agent create + full-replace update WAS live-create-proven on GROM AU
+(`wdzEoUZnXO9tB3PPzcot`) on 2026-07-11** — engine → internal API → real object → verified →
+deleted, alongside the other three compilers. That banner appears to be stale boilerplate
+(the identical sentence still sits in `agent-studio.md`) that was never updated after the
+proving run; the proving objects were deleted, so no capture survives to confirm it here.
+**Until someone reconciles this, take the conservative read**: treat a first agent
+create/full-replace build as a small, throwaway, verified, cleaned-up validation run, and say
+so plainly to the user rather than promising a proven path.
+
+Genuinely NOT live-fired: the `WORKFLOW_TRIGGER` / `SMS` / `CAP` / `AGENT_TRANSFER_CHILD`
+action types (unit-tested against their captures only), and `IN_CALL_DATA_EXTRACTION`.
 
 ## What Voice AI is
 
