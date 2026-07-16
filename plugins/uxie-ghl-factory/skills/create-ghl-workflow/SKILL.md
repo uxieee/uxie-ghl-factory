@@ -283,10 +283,20 @@ Two things the engine handles that a hand-rolled POST gets wrong:
   > (unit tests passed — they planned from an already-published object). Fixed in v0.3.5;
   > `edit-triggers.test.mjs` carries the regression test.
 
-**Live-proven 2026-07-17** on GROM AU (throwaway canary, since deleted): `addTrigger`
-POST 200 → cycle → `2/2 active` on a published workflow; `modifyTrigger` PUT 200 with the
-rename + new condition confirmed by GET (value a plain string); `deleteTrigger` via a name
-matcher 200; and `addTrigger` on a draft correctly SKIPPED activation and left it a draft.
+> ⚠️ **The edit path does NOT pre-create tags.** `scripts/build.mjs` routes through the
+> orchestrator, which pre-creates every referenced tag; `scripts/edit.mjs` has no
+> equivalent. A trigger (or step) referencing a tag that doesn't exist in the account
+> will point at nothing. Create the tag first — `POST /locations/{loc}/tags {name}` — or
+> check `GET /locations/{loc}/tags` before the edit.
+
+**Live-proven 2026-07-17** on GROM AU (throwaway canaries, since deleted, account verified
+clean): `addTrigger` POST 200 → cycle → `2/2 active` on a published workflow;
+`modifyTrigger` PUT 200 with the rename + new condition confirmed by GET (value a plain
+string); `deleteTrigger` via a name matcher 200; `addTrigger` on a draft correctly SKIPPED
+activation and left it a draft. **RUNTIME-proven**: tag write → `added_to_workflow` in
+`/workflows/logs/v2` within 4s, i.e. an edit-added trigger genuinely subscribes. That last
+check is the only one that counts — `active: true` plus a clean round-trip is NOT proof a
+trigger fires (see the 2026-07-16 inert-trigger bug).
 
 Trigger filter values obey the string/array split above — `value: "vip"`, never `["vip"]`.
 `expandFilter` unwraps a single-element array on this path too, but author the string.
