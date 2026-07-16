@@ -217,7 +217,8 @@ workflow). `--dry-run` computes + prints the diff without sending the PUT. The e
 (each takes a linear `step: {type,name,attributes}` compiled from IR), `deleteStep`,
 `modifyStep` (`attrPatch`), `moveStep`, `addBranch` (`{containerId,name,conditions}`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
-(`{type,disabled}`). The disable operations use GHL's native top-level
+(`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
+(see "Editing TRIGGERS" below). The disable operations use GHL's native top-level
 `advanceCanvasMeta.isDisabled` flag, preserve the full step config, and commit only changed
 step IDs in `modifiedSteps`. Example — add an SMS, delete a step, and natively pause all
 internal notifications:
@@ -239,6 +240,44 @@ Adding an `internal_update_opportunity` this way triggers the `OPP_UNASSOCIATED`
 (pass `--assume-associated` only if ALL the workflow's triggers are opportunity-based).
 v1 edit-add is linear steps only (containers compile to >1 template — use `addBranch` for
 new branches). Pure core: `engine/edit-driver.mjs` + `engine/edit.mjs` (see their tests).
+
+### Editing TRIGGERS on an existing workflow
+
+Triggers live in a **separate document** from `workflowData.templates`, with their own CRUD
+endpoints — so trigger ops are partitioned out and applied *after* the step commit, never
+through the templates diff. Never hand-roll a trigger POST; these ops reuse the same
+corpus-traced `buildTrigger` the create path uses:
+
+```json
+{ "ops": [
+  { "op": "addTrigger", "trigger": { "type": "contact_tag", "name": "Course purchased",
+      "filters": [ { "field": "tagsAdded", "value": "course-purchased" } ] } },
+  { "op": "modifyTrigger", "name": "VIP added", "trigger": { "filters": [ { "field": "tagsAdded", "value": "gold" } ] } },
+  { "op": "deleteTrigger", "triggerId": "abc" }
+] }
+```
+
+`deleteTrigger`/`modifyTrigger` take a `triggerId`, or a `name`/`type` matched against the
+live trigger list — an ambiguous match is a hard error, never a silent pick. `modifyTrigger`
+PUTs the full merged object (unspecified fields carry over from the live trigger).
+
+Two things the engine handles that a hand-rolled POST gets wrong:
+
+- **The full envelope is load-bearing.** A lean body (just type/name/conditions) saves and
+  returns a believable `200 {id}` but never attaches. `buildTrigger` always sends
+  `status/workflowId/schedule_config/conditions/type/masterType/name/actions/active/`
+  `triggersChanged/location_id/company_age`. Root `workflowId` is **camelCase**;
+  `location_id`/`company_age`/`actions[].workflow_id` are **snake_case** — sending the root
+  as `workflow_id` also 200s and also silently doesn't persist.
+- **API-added triggers land `active: false`** regardless of what the POST body says. They
+  only start firing after a `status: draft` → `published` PUT cycle. `scripts/edit.mjs`
+  runs that cycle automatically **when the workflow is already published**, then reports
+  `triggers active: N/M`. On a **draft** workflow it SKIPS activation and says so — a
+  trigger edit must never publish a workflow as a side effect (publish stays opt-in). The
+  trigger activates when the user publishes normally.
+
+Trigger filter values obey the string/array split above — `value: "vip"`, never `["vip"]`.
+`expandFilter` unwraps a single-element array on this path too, but author the string.
 
 ## Read the build report — every time
 
