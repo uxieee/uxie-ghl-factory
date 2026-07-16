@@ -1,0 +1,15 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 20,
+  "attributes": {
+    "read": true,
+    "type": "edit_conversation",
+    "__customInputs__": {}
+  },
+  "name": "Edit Conversation (Mark as read, none)",
+  "type": "edit_conversation",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-004>"
+}

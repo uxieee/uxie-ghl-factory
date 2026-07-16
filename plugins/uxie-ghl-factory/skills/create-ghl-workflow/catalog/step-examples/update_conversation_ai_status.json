@@ -1,0 +1,13 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "assignedEmployeeId": "HooI1DyemxEsnT8mP6wc",
+    "status": "active",
+    "type": "update_conversation_ai_status",
+    "__customInputs__": {}
+  },
+  "name": "Update Conversation AI Bot and Status",
+  "type": "update_conversation_ai_status",
+  "workflowsActionType": "INTERNAL"
+}

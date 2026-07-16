@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "order": 4,
+  "attributes": {
+    "html": "{{contact.notes_from_tradeshow}}",
+    "type": "add_notes"
+  },
+  "name": "Notes from Tradeshow",
+  "type": "add_notes",
+  "next": "<uuid-002>",
+  "parentKey": "<uuid-003>"
+}

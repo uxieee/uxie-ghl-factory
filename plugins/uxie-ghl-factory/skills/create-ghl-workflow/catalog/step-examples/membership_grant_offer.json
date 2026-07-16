@@ -1,0 +1,10 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "membership_grant_offer",
+    "offer_id": "<uuid-002>"
+  },
+  "name": "Course Grant offer",
+  "type": "membership_grant_offer"
+}

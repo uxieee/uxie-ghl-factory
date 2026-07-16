@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "remove_from_workflow",
+    "workflow_id": [
+      "<uuid-002>"
+    ]
+  },
+  "name": "Remove from Workflow",
+  "type": "remove_from_workflow"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 17,
+  "attributes": {
+    "type": "copy_contact_to_subaccount",
+    "newLocations": [
+      {
+        "value": "RVUTfBBLbuGYBAj3Vv3V",
+        "label": "Jacklyn Insures"
+      }
+    ],
+    "withTags": true,
+    "withCustomFields": true,
+    "tags": [
+      "ac-test",
+      "ef-purchase-pb-fired"
+    ],
+    "updateIfExists": true
+  },
+  "name": "Copy Contact (add tags, copy tagds, copy custom fields, update contact if it already exists)",
+  "type": "copy_contact_to_subaccount",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-004>"
+}

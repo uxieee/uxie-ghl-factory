@@ -1,0 +1,16 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 22,
+  "attributes": {
+    "operator": "Add",
+    "points": 1,
+    "type": "contact_engagement_score",
+    "__customInputs__": {}
+  },
+  "name": "Modify Contact Engagement Score",
+  "type": "contact_engagement_score",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-004>"
+}

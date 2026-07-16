@@ -1,0 +1,15 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 4,
+  "attributes": {
+    "body": "test sms",
+    "assignedUser": "E4xqUlZjsMDFO5US1tYz",
+    "standardAssignedUser": "E4xqUlZjsMDFO5US1tYz",
+    "attachments": []
+  },
+  "name": "MANUAL-SMS",
+  "type": "manual-sms",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-004>"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "dnd_contact",
+    "dnd_contact": "enable"
+  },
+  "name": "Enable/Disable DND",
+  "type": "dnd_contact",
+  "next": "<uuid-002>"
+}

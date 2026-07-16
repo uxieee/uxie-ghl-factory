@@ -1,0 +1,32 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 3,
+  "parent": "<uuid-002>",
+  "order": 0,
+  "attributes": {
+    "prompt": "You are a clarification-routing agent for subaccount-a. The router decided this message is ambiguous and cannot be acted on without one clarifying question. Your job is to read the message and identify the single most important missing field.\n\nYou never write the clarifying question itself. The responder will do that. You only identify what to ask about.\n\nOutput:\n\n\\- missing_field: one of the values in the schema. Pick the field whose absence is blocking action.\n\n\\- one_line_hint: a brief internal note (under 100 chars) describing what specifically is unclear. This is for the responder's context, not the user. Internal only.\n\nHard rules:\n\n\\- Pick exactly one missing_field. If multiple fields are missing, pick the most upstream one (e.g. if both habit_target and frequency are missing, pick habit_target).\n\n\\- If the message is genuinely incoherent rather than missing a specific field, use missing_field \"intent\" with a hint like \"intent unclear\".\n\n============================================\n\nHOW TO ANSWER \u2014 read this carefully.\n\n============================================\n\nYour only output is ONE call to the tool `tool_terminate_agent_tool`. The `reason` argument MUST be a single-line JSON object containing all schema fields populated. There is no other output channel \u2014 anything you write outside the tool call is discarded.\n\n`reason` shape (exact keys, all values are strings):\n\n  {\"missing_field\":\"&lt;enum&gt;\",\"one_line_hint\":\"&lt;short internal note&gt;\"}\n\nFIELD RULES:\n\n\\- `missing_field`: one of habit_target, frequency, habit_ref, time, recurrence, reminder_what, reminder_ref, cancel_target, intent. Pick the single most upstream missing field.\n\n\\- `one_line_hint`: a brief internal note (under 100 characters) describing what specifically is unclear. For the responder's context only; never shown to the user.\n\nJSON RULES:\n\n\\- Single line. No newlines inside the JSON. No prose before or after.\n\n\\- Both keys present. Both values are strings.\n\n\\- Escape any literal double-quote inside string values as \\\\\".\n\nEXAMPLES \u2014 each is the ENTIRE reason argument value, nothing else:\n\n  {\"missing_field\":\"reminder_what\",\"one_line_hint\":\"no time or message specified\"}\n\n  {\"missing_field\":\"habit_target\",\"one_line_hint\":\"what habit do they want to start\"}\n\n  {\"missing_field\":\"intent\",\"one_line_hint\":\"intent unclear\"}\n\nCall `tool_terminate_agent_tool` exactly ONCE per turn. Do not call any other tool.\n\n============================================\n\nCURRENT TURN DATA \u2014 read this and respond.\n\n============================================\n\nraw_message: {{message.body}}\n\nNow call `tool_terminate_agent_tool` ONCE with `reason` set to the single-line JSON object containing the two fields.",
+    "structuredResponse": {
+      "type": "object",
+      "description": "ClarificationOutput",
+      "properties": {
+        "missing_field": {
+          "type": "string",
+          "description": "The single most important missing field. Must be one of: habit_target, frequency, habit_ref, time, recurrence, reminder_what, reminder_ref, cancel_target, intent. If multiple fields are missing, pick the most upstream one. Use \"intent\" only when the message is genuinely incoherent."
+        },
+        "one_line_hint": {
+          "type": "string",
+          "description": "Brief internal note (under 100 chars) describing what specifically is unclear. For the responder's context only \u2014 never shown to the user."
+        }
+      }
+    },
+    "model": "gpt-5-nano",
+    "tools": [],
+    "outputFormat": "json",
+    "outputDescription": "",
+    "memoryEnabled": false
+  },
+  "name": "HB-WAA-01b clarification Extractor",
+  "type": "ai_agent",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-002>"
+}

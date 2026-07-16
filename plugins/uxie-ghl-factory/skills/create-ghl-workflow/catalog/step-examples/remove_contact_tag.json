@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "tags": [
+      "remove"
+    ],
+    "type": "remove_contact_tag"
+  },
+  "name": "Remove Tag",
+  "type": "remove_contact_tag"
+}

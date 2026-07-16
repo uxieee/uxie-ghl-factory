@@ -1,0 +1,15 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 18,
+  "attributes": {
+    "liveChatResponse": "<p style=\"margin:0px\">test chat</p>",
+    "type": "live_chat_response",
+    "__customInputs__": {}
+  },
+  "name": "Send Live Chat Message",
+  "type": "live_chat_response",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-004>"
+}

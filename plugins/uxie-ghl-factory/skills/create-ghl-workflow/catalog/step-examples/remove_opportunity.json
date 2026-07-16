@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "order": 2,
+  "attributes": {
+    "type": "remove_opportunity",
+    "opportunity_to_be_found": "all",
+    "pipeline_id": "roXA27O7DX6mqb6SdSK1"
+  },
+  "name": "Remove Opportunity",
+  "type": "remove_opportunity",
+  "parentKey": "<uuid-002>"
+}

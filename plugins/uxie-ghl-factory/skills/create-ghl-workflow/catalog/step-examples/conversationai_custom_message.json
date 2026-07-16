@@ -1,0 +1,16 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 2,
+  "attributes": {
+    "message": "is there anything else i can help you with?",
+    "waitForReply": true,
+    "type": "conversationai_custom_message",
+    "__customInputs__": {}
+  },
+  "name": "Custom Message",
+  "type": "conversationai_custom_message",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-004>"
+}

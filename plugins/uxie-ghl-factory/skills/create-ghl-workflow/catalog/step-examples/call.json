@@ -1,0 +1,15 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 3,
+  "attributes": {
+    "timeout": 60,
+    "whisper_message": "this is a call whisper",
+    "disable_detect_voicemail": true,
+    "call_connect": true
+  },
+  "name": "Call",
+  "type": "call",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-004>"
+}

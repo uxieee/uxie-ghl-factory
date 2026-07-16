@@ -1,0 +1,48 @@
+{
+  "id": "<uuid-001>",
+  "parentKey": "<uuid-002>",
+  "parent": "<uuid-003>",
+  "type": "conversationai_ai_splitter",
+  "name": "AI Splitter",
+  "attributes": {
+    "description": "If {{conversationai_objective.1.result}} is SMP, go to SMP branch.\n\nOtherwise, got o SPMU branch",
+    "type": "conversationai_ai_splitter",
+    "__customInputs__": {},
+    "cat": "multi-path",
+    "convertToMultipath": true,
+    "transitions": [
+      {
+        "id": "<uuid-004>",
+        "name": "No condition met",
+        "fields": {},
+        "meta": {
+          "__branchKey__": "<uuid-005>"
+        },
+        "conditionType": "pre-defined"
+      },
+      {
+        "id": "<uuid-006>",
+        "name": "SMP",
+        "fields": {},
+        "meta": {},
+        "conditionType": "user-defined"
+      },
+      {
+        "id": "<uuid-007>",
+        "name": "SPMU",
+        "fields": {},
+        "meta": {},
+        "conditionType": "user-defined"
+      }
+    ],
+    "__name__": "AI Splitter"
+  },
+  "order": 1,
+  "cat": "multi-path",
+  "workflowsActionType": "INTERNAL",
+  "next": [
+    "<uuid-004>",
+    "<uuid-006>",
+    "<uuid-007>"
+  ]
+}

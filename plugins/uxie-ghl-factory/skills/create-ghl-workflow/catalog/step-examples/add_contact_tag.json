@@ -1,0 +1,11 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "tags": [
+      "sba"
+    ]
+  },
+  "name": "Add Tag",
+  "type": "add_contact_tag"
+}

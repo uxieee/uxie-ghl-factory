@@ -1,7 +1,7 @@
 // Deterministic compiler: IR -> GHL builder-API payloads (create/auto-save/trigger).
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
-  lintConditionShape, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
+  lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
@@ -11,7 +11,7 @@ function attributesFor(node, ctx) {
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {});
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {});
-  if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {});
+  if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {}, node.ref);
   // Generic path: the author supplies intent attributes; the compiler fills the
   // two structural fields the corpus shows on this type but a human never hand-writes:
   //   - attributes.type  (mirrors the step type — present on ~all linear action types)
@@ -76,9 +76,32 @@ function createOpportunityAttributes(a) {
   if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'number'));
   return { pipelineId: a.pipelineId, type: 'internal_create_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
-function updateOpportunityAttributes(a) {
-  // a.updates: [{ field, value, dataType?, valueFieldType? }]
+// update_opportunity fields come from EITHER an explicit updates[] (full control) or the
+// documented name-authoring path — attributes.pipeline/stage, which resolve.mjs turns into
+// pipelineId/stageId exactly like create_opportunity. Reading only `updates` made the
+// documented path compile to __customInputFields__:[] — a step that round-trips clean and
+// no-ops at runtime (live 2026-07-16: a "move to Deposit Paid" step that never moved
+// anything). Both paths now work; neither may produce an empty field list.
+//
+// allowBackward gates BACKWARD stage moves. GHL logs a regression (e.g. Booked →
+// Deposit Paid on a cancellation) as [skipped] when this is false — the default — and the
+// opportunity never moves. Any step that can move an opp EARLIER in its pipeline must set
+// allowBackward:true. See references/build-recipe.md §6.
+function updateOpportunityAttributes(a, ref) {
   const f = (a.updates ?? []).map((u) => oppField(u.field, u.value, u.dataType ?? 'SINGLE_OPTIONS', u.valueFieldType ?? 'select'));
+  if (!f.length) {
+    if (a.pipelineId != null) f.push(oppField('pipelineId', a.pipelineId, 'SINGLE_OPTIONS', 'select'));
+    if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
+    if (a.status != null) f.push(oppField('status', a.status, 'SINGLE_OPTIONS', 'select'));
+    if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
+    if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
+    if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'number'));
+  }
+  if (!f.length)
+    throw new IRError('EMPTY_STEP',
+      `update_opportunity '${ref}' has nothing to update — it would compile to ` +
+      `__customInputFields__:[] and no-op at runtime while round-tripping clean. Author either ` +
+      `attributes.updates:[{field,value}] or the name path attributes:{pipeline,stage,status,...}.`);
   return { allowBackward: a.allowBackward ?? false, type: 'internal_update_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
 
@@ -198,11 +221,27 @@ function waitAttributes(node) {
   const hybrid = { cat: '', isHybridAction: true, hybridActionType: 'wait', convertToMultipath: false, transitions: [] };
   const wt = node.waitType ?? (node.config ? 'time' : (a.type ?? 'time'));
   if (wt === 'time') {
+    // Duration may be authored two ways: the canonical node.config {unit,value,when},
+    // or attributes.startAfter {type,value,when} — the shape a live workflow blob stores,
+    // which is what an author mirroring a real export naturally writes. Reading only
+    // node.config meant the blob shape compiled to startAfter:{} and the wait DID NOT
+    // PAUSE: on a live account 2026-07-16 a warm-catch + nudge + 2 close messages + a tag
+    // all fired within 6 SECONDS instead of over 6 days. An empty or partial startAfter
+    // must never compile.
     const c = node.config ?? {};
-    const base = { type: 'time', startAfter: { type: c.unit, value: c.value, when: c.when }, ...hybrid };
-    // "Advance window" — resume-on days + resume-between-hours (live-verified shape)
-    if (node.window) {
-      const w = node.window;
+    const startAfter = { type: c.unit ?? a.startAfter?.type, value: c.value ?? a.startAfter?.value,
+      when: c.when ?? a.startAfter?.when ?? 'after' };
+    if (startAfter.type == null || startAfter.value == null)
+      throw new IRError('EMPTY_STEP',
+        `wait '${node.ref}' has no usable duration — a time wait needs config:{unit,value,when} ` +
+        `(or attributes.startAfter:{type,value,when}). Got startAfter:${JSON.stringify(startAfter)}. ` +
+        `An empty/partial startAfter compiles and publishes clean but the wait DOES NOT PAUSE at ` +
+        `runtime — every following step fires immediately.`);
+    const base = { type: 'time', startAfter, ...hybrid };
+    // "Advance window" — resume-on days + resume-between-hours (live-verified shape).
+    // Accept it from either the node level or attributes, mirroring the duration.
+    const w = node.window ?? a.window;
+    if (w) {
       base.window = w.condition === 'exact'
         ? { condition: 'exact', days: w.days ?? [], start: w.start }
         : { condition: 'when', days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
@@ -423,6 +462,9 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
   const templates = [];
   const ids = nodes.map((n) => idForRef(refMap, ctx, n.ref));
   nodes.forEach((n, i) => {
+    // Record that this node was actually reached by the flattener. compile() diffs this
+    // against the authored graph to prove nothing was silently dropped (see NODE_DROPPED).
+    ctx.__visited?.add(n);
     const id = ids[i];
     const next = i < nodes.length - 1 ? ids[i + 1] : null;
     const parentKey = i > 0 ? ids[i - 1] : (parentScopeId ?? null);
@@ -858,7 +900,29 @@ export function compile(ir, ctx) {
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === 'opportunities'));
   checkOpportunityAssociation(norm, oppTriggerTypes);
   const refMap = new Map();
-  const { templates } = flattenGraph(norm.graph, ctx, refMap, null);
+  // ─── Authored-vs-compiled assertion ────────────────────────────────────────────────
+  // Round-trip verification only ever proved that what was SENT came back. It never
+  // checked that what was AUTHORED was sent — so a dropped subtree reported a clean
+  // build for a fraction of the IR ("steps: 8 | round-trip: 8 clean" for a 51-step IR,
+  // live 2026-07-16). We diff the node objects the flattener actually reached against the
+  // authored graph. Node identity, not refs: `ref` is optional, and a ref-less node must
+  // be provable too. Counts are NOT expected to match — containers legitimately add
+  // transition/None steps, so compiled >= authored is normal and fine.
+  const visited = new Set();
+  const { templates } = flattenGraph(norm.graph, { ...ctx, __visited: visited }, refMap, null);
+
+  const missing = [];
+  let authored = 0;
+  walkNodes(norm.graph, (n) => {
+    authored += 1;
+    if (!visited.has(n)) missing.push(n.ref ?? `<${n.type ?? n.kind} "${n.name ?? '?'}">`);
+  });
+  if (missing.length)
+    throw new IRError('NODE_DROPPED',
+      `${missing.length} authored node(s) never reached the built payload: ${missing.join(', ')}. ` +
+      `They were silently discarded — without this check the build would have reported a clean ` +
+      `round-trip for an incomplete workflow. Usually this means a node carries a child scope ` +
+      `(onFound/onEvent/…) that its type has no container handler for.`);
 
   // situational injection (catalog-gated); parent/sibling/nodeType already set structurally
   let stepIndex = 0;
@@ -910,7 +974,9 @@ export function compile(ir, ctx) {
   };
 
   const triggerBodies = norm.triggers.map((t) => buildTrigger(t, ctx, wid));
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid };
+  // authored/compiled travel with the payload so the caller can report
+  // `authored N → compiled M → round-tripped M` instead of a bare step count.
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
   casingLint(result);
   return result;
 }

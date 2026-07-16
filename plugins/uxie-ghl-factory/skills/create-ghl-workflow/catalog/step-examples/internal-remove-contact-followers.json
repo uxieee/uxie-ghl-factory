@@ -1,0 +1,14 @@
+{
+  "id": "<uuid-001>",
+  "order": 1,
+  "attributes": {
+    "isRemoveAllOpportunityFollowers": true,
+    "type": "internal-remove-contact-followers",
+    "__customInputs__": {}
+  },
+  "name": "Remove Contact Followers",
+  "type": "internal-remove-contact-followers",
+  "next": "<uuid-002>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-003>"
+}

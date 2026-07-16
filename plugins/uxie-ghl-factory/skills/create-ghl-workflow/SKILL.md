@@ -109,6 +109,12 @@ GHL shape per type (a hand-crafted shape compiles clean but MATCHES WRONGLY at r
 | Custom field (text) | `{ conditionType: contact_detail, conditionSubType: "<fieldId>", conditionValue: "X" }` | `conditionOperator: contain`, value **lowercased** |
 | Custom field (number/date) | …add `conditionOperator: "=="` | `conditionOperator: ==` (no lowercasing) |
 | Trigger identity | `{ conditionType: trigger, conditionValue: "<triggerId>" }` | `conditionOperator: ==` |
+| Appointment was rescheduled | `{ conditionType: appointment, conditionSubType: appointmentRescheduled, conditionOperator: is, conditionValue: "true" }` | as authored (`conditionValue` is the STRING `"true"`, not a boolean) |
+
+**Reschedule detection — GHL has NO native "rescheduled" trigger or status.** The only way
+to catch a reschedule is the two-part pattern: trigger on the `appointment` event with **no
+status filter**, then gate with the `appointmentRescheduled` condition above. Verified live
+2026-07-16. Don't hunt for a reschedule trigger — there isn't one.
 
 Do NOT author `conditionSubType: tag` + `conditionOperator: contains` — that legacy shape
 matches nothing and mis-routes tagged contacts to the None branch (the normalizer rewrites
@@ -166,6 +172,31 @@ an opp-stage branch.
   `message` instead of `body` on `sms`) fails compile with `ATTR_KEY` instead of
   saving a step that renders blank. Check the type's real keys with
   `node engine/query-catalog.mjs <type>`.
+
+### The engine fails LOUD rather than silently dropping intent
+
+A build that reports success while doing nothing at runtime is the worst failure this tool
+has — an operator only finds out when a real customer gets spammed or a lead sits in the
+wrong stage. Every guard below exists because that happened on a live account (2026-07-16):
+
+| Code | Fires when | The silent failure it replaces |
+|---|---|---|
+| `NODE_KEY` | An unknown node-level key, or a scope (`onFound`/`onEvent`/…) on a type with no container handler for it | The whole subtree was discarded; the build reported a clean round-trip for a fraction of the IR |
+| `NODE_DROPPED` | An authored node never reached the built payload (engine backstop) | As above — the authored-vs-compiled proof that round-trip verification never gave |
+| `EMPTY_STEP` | A `wait` with no/partial duration, or an `update_opportunity` with nothing to update | `startAfter: {}` (the wait **did not pause** — 4 messages in 6 seconds) and `__customInputFields__: []` (a stage move that never moved) |
+| `COND_SHAPE` | A dead opportunity-stage condition spelling | A branch that publishes clean and never evaluates |
+| `ATTR_KEY` | An invented attribute key on a verified-live type | A step that saves and renders blank |
+| `OPP_UNASSOCIATED` | `update_opportunity` with no proven opportunity on its path | A stage move that no-ops at runtime |
+
+**`kind:` is an accepted alias for `type:` on the finder containers** (`find_opportunity`,
+`find_contact`, `lc_merge_contact`) — both spellings keep their `onFound`/`onNotFound`
+subtree. Previously `kind: 'find_opportunity'` (no `type:`) silently dropped the entire
+subtree: a 51-step IR built 8 steps and reported "round-trip: 8 clean".
+
+**Read `authored → compiled`, not `steps`.** The build report carries `authored` (nodes you
+wrote), `compiled` (templates sent) and `steps` (templates GHL returned). `compiled >=
+authored` is normal — containers add transition/None steps. A round-trip is only meaningful
+next to `authored`; on its own it merely proves the server echoed what was sent.
 - **Coverage:** 316 step types / 59 trigger types are catalogued (the live-proven
   subset is flagged ✅). Full index: `references/capabilities.md`; per-type lookup:
   `node engine/query-catalog.mjs <term>`; live counts: `node engine/query-catalog.mjs`.

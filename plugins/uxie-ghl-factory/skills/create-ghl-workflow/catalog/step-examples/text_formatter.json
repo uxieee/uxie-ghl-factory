@@ -1,0 +1,15 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 1,
+  "order": 1,
+  "attributes": {
+    "type": "text_formatter",
+    "extras": {},
+    "formatterType": "length",
+    "field": "{{chatgpt.1.response}}"
+  },
+  "name": "Length",
+  "type": "text_formatter",
+  "next": "<uuid-002>",
+  "parentKey": "<uuid-003>"
+}

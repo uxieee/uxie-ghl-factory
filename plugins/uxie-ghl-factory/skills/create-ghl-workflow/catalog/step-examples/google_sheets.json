@@ -1,0 +1,50 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 1,
+  "order": 0,
+  "attributes": {
+    "type": "google_sheets",
+    "action": {
+      "id": "create_row",
+      "name": "Create Spreadsheet Row"
+    },
+    "account": {
+      "id": "114917792102524452475",
+      "name": "michael@scale50.com",
+      "idType": "altId"
+    },
+    "drive": {
+      "id": "my_drive",
+      "name": "My Drive"
+    },
+    "spreadsheet": {
+      "id": "1RdWyyhNRmohwn14Qr69GAoCWt5DvuTU1LO_Cs8wq8pI",
+      "name": "Peter V Leads"
+    },
+    "sheet": {
+      "id": "0",
+      "name": "Sheet1"
+    },
+    "columnRange": [
+      "A",
+      "D"
+    ],
+    "values": [
+      "{{contact.name}}",
+      "{{contact.email}}",
+      "{{contact.phone}}",
+      "{{appointment.start_time}}"
+    ],
+    "sheetHeaders": [
+      "Name",
+      "Email",
+      "Phone",
+      "Call date",
+      "Status"
+    ],
+    "options": {}
+  },
+  "name": "Create Spreadsheet Row",
+  "type": "google_sheets",
+  "next": "<uuid-002>"
+}

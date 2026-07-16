@@ -1,0 +1,55 @@
+{
+  "id": "<uuid-001>",
+  "type": "find_contact",
+  "name": "Find Contact",
+  "attributes": {
+    "type": "find_contact",
+    "fields": [
+      {
+        "field": "email",
+        "value": "{{inboundWebhookRequest.user.email}}",
+        "title": "Email",
+        "type": "string",
+        "date": ""
+      }
+    ],
+    "convertToMultipath": true,
+    "name": "Find Contact",
+    "cat": "multi-path",
+    "isHybridAction": true,
+    "hybridActionType": "find_contact",
+    "transitions": [
+      {
+        "id": "<uuid-002>",
+        "name": "Contact Found",
+        "condition": "contact_found",
+        "conditionType": "user-defined",
+        "isPrimaryBranch": true,
+        "description": "",
+        "attributes": {
+          "type": "contact_found",
+          "description": "Contact Found",
+          "cat": "multi-path"
+        }
+      },
+      {
+        "id": "<uuid-003>",
+        "name": "Contact Not Found",
+        "condition": "contact_not_found",
+        "conditionType": "user-defined",
+        "isPrimaryBranch": false,
+        "description": "",
+        "attributes": {
+          "type": "contact_not_found",
+          "description": "Contact Not Found"
+        }
+      }
+    ]
+  },
+  "order": 0,
+  "cat": "multi-path",
+  "next": [
+    "<uuid-002>",
+    "<uuid-003>"
+  ]
+}

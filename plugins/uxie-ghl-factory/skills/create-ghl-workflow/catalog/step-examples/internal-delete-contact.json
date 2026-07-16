@@ -1,0 +1,13 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 1,
+  "attributes": {
+    "type": "internal-delete-contact",
+    "__customInputs__": {}
+  },
+  "name": "Delete Contact",
+  "type": "internal-delete-contact",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-002>"
+}

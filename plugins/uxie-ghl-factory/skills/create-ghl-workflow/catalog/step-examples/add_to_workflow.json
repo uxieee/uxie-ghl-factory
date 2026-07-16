@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "order": 2,
+  "attributes": {
+    "input_trigger_params": false,
+    "type": "add_to_workflow",
+    "workflow_id": "<uuid-002>"
+  },
+  "name": "Add to Workflow",
+  "type": "add_to_workflow",
+  "parentKey": "<uuid-003>"
+}

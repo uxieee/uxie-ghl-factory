@@ -1,0 +1,12 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 1,
+  "attributes": {
+    "body": "{{chatgpt.1.response}}",
+    "attachments": []
+  },
+  "name": "SMS",
+  "type": "sms",
+  "parentKey": "<uuid-003>"
+}

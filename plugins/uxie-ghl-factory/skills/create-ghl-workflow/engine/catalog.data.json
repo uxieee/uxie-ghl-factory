@@ -3065,6 +3065,27 @@
    "example": "catalog/step-examples/transition.json",
    "requiredFields": []
   },
+  "update_appointment_status": {
+   "type": "update_appointment_status",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": false,
+   "attrKeys": [
+    "category",
+    "type",
+    "status_type"
+   ],
+   "example": "catalog/step-examples/update_appointment_status.json",
+   "section": "appointments",
+   "beta": false,
+   "display_name": "update_appointment_status",
+   "requiredFields": [
+    "status_type"
+   ]
+  },
   "update_contact_field": {
    "type": "update_contact_field",
    "kind": "step",
@@ -3509,22 +3530,6 @@
    "section": "eliza",
    "display_name": "send_to_eliza_agent_platform",
    "requiredFields": [],
-   "attrKeys": []
-  },
-  "update_appointment_status": {
-   "type": "update_appointment_status",
-   "kind": "step",
-   "confidence": "bundle-derived",
-   "situational": [],
-   "premium": false,
-   "beta": false,
-   "isMultipathContainer": false,
-   "usesCustomInputs": false,
-   "section": "appointments",
-   "display_name": "update_appointment_status",
-   "requiredFields": [
-    "status_type"
-   ],
    "attrKeys": []
   },
   "stripe_one_time_charge": {

@@ -1,0 +1,55 @@
+{
+  "id": "<uuid-001>",
+  "parentKey": "<uuid-002>",
+  "parent": "<uuid-002>",
+  "type": "workflow_split",
+  "name": "workflow.asideSection.headerMeta.workflowSplit",
+  "attributes": {
+    "name": "A/B Test flows",
+    "cat": "multi-path",
+    "transitions": [
+      {
+        "id": "<uuid-003>",
+        "name": "Path A",
+        "condition": "Path A",
+        "conditionType": "default",
+        "isPrimaryBranch": false,
+        "description": "",
+        "attributes": {}
+      },
+      {
+        "id": "<uuid-004>",
+        "name": "Path B",
+        "condition": "Path B",
+        "conditionType": "default",
+        "isPrimaryBranch": false,
+        "description": "",
+        "attributes": {}
+      }
+    ],
+    "type": "workflow_split",
+    "paths": [
+      {
+        "name": "Path A",
+        "id": "<uuid-003>"
+      },
+      {
+        "name": "Path B",
+        "id": "<uuid-004>"
+      }
+    ],
+    "condition": "random-split",
+    "extras": {
+      "weightDistribution": {
+        "<uuid-003>": 50,
+        "<uuid-004>": 50
+      }
+    }
+  },
+  "order": 0,
+  "cat": "multi-path",
+  "next": [
+    "<uuid-003>",
+    "<uuid-004>"
+  ]
+}

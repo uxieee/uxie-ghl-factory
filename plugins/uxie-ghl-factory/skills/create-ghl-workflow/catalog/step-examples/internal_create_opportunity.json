@@ -1,0 +1,16 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 0,
+  "attributes": {
+    "pipelineId": "zds62BQRinETZ2Ldljaj",
+    "type": "internal_create_opportunity",
+    "__customInputs__": {},
+    "__customInputFields__": []
+  },
+  "name": "Create Opportunity",
+  "type": "internal_create_opportunity",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-002>"
+}

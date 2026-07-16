@@ -1,0 +1,14 @@
+{
+  "id": "<uuid-001>",
+  "parent": "<uuid-002>",
+  "order": 0,
+  "attributes": {
+    "type": "contact_email_verification",
+    "__customInputs__": {}
+  },
+  "name": "Email Verification",
+  "type": "contact_email_verification",
+  "next": "<uuid-003>",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-002>"
+}

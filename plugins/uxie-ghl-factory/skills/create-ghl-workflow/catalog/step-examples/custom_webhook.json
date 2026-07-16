@@ -1,0 +1,30 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 8,
+  "parent": "<uuid-002>",
+  "order": 0,
+  "attributes": {
+    "event": "CUSTOM",
+    "method": "POST",
+    "url": "https://habitbuddy-bot-services.xanderjohnrazontest.workers.dev/reminders/{{inboundWebhookRequest.reminder_id}}/delivery-result",
+    "body": {
+      "contentType": "application/json",
+      "rawData": "{\n  \"delivery_id\":\"{{inboundWebhookRequest.delivery_id}}\",\n  \"status\":\"delivered\"\n}",
+      "keyValueData": []
+    },
+    "headers": [],
+    "parameters": [],
+    "authorization": {
+      "type": "NONE",
+      "data": null
+    },
+    "saveResponse": false,
+    "webhookResponse": {
+      "isSampleRequested": false,
+      "selectedContact": ""
+    }
+  },
+  "name": "Custom Webhook",
+  "type": "custom_webhook",
+  "parentKey": "<uuid-002>"
+}

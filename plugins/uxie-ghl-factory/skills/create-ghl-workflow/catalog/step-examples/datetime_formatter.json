@@ -1,0 +1,20 @@
+{
+  "id": "<uuid-001>",
+  "stepIndex": 1,
+  "parent": "<uuid-002>",
+  "order": 7,
+  "attributes": {
+    "type": "datetime_formatter",
+    "action": "format_datetime",
+    "format": {
+      "type": "datetime",
+      "fromField": "current_date",
+      "fromFormat": "YYYY-MM-DD hh:mm A",
+      "toFormat": "X"
+    }
+  },
+  "name": "Format Date and Time",
+  "type": "datetime_formatter",
+  "next": "<uuid-003>",
+  "parentKey": "<uuid-004>"
+}

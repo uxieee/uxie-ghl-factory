@@ -8,6 +8,60 @@ export class IRError extends Error {
 // Every multipath container reaches its children through one of these.
 const SCOPE_KEYS = ['onEvent', 'onTimeout', 'onFound', 'onNotFound', 'onBooked', 'onNotBooked', 'default'];
 
+// ─── Container kinds: `kind:` is an accepted alias for `type:` ────────────────────────
+// The find/merge containers are discriminated in the compiler by node.type. An author
+// mirroring the `kind:'wait'` / `kind:'if_else'` spelling naturally writes
+// `kind:'find_opportunity'` — which used to leave n.type undefined, so the container
+// handler never matched, the node fell through to the LINEAR path, and its whole
+// onFound/onNotFound subtree was silently discarded. The build then reported a clean
+// round-trip for a fraction of the authored IR (found live 2026-07-16: a 51-step IR
+// reported "steps: 8 | round-trip: 8 clean"). Normalize the alias here, once, so both
+// spellings reach the compiler as { kind:'action', type:'<container>' }.
+const CONTAINER_KINDS = new Set(['find_opportunity', 'find_contact', 'lc_merge_contact']);
+
+// Every node-level key the compiler actually reads. A key outside this set is author
+// intent the engine would silently discard — see checkNodeKeys.
+const KNOWN_NODE_KEYS = new Set([
+  'ref', 'kind', 'type', 'name', 'attributes', 'assocGuaranteed', 'disabled', 'advanceCanvasMeta',
+  'config', 'window', 'waitType',          // wait
+  'branches', 'paths', 'mode', 'condition', // if_else / split
+  'find', 'match_by',                       // find_opportunity / find_contact / lc_merge_contact
+  'reply', 'timeout',                       // multipath wait
+  'instructions', 'information',            // ai_decision
+  'target',                                 // goto
+  ...SCOPE_KEYS,
+]);
+
+// Scope keys only mean something on a node the compiler routes to a container handler.
+// `onFound` on a plain action is the item-1 failure in miniature: authored, never read.
+const SCOPE_OWNERS = {
+  onEvent: ['wait'], onTimeout: ['wait'],
+  onFound: ['find_opportunity', 'find_contact', 'lc_merge_contact'],
+  onNotFound: ['find_opportunity', 'find_contact', 'lc_merge_contact'],
+  onBooked: ['conversationai_book_appointment'], onNotBooked: ['conversationai_book_appointment'],
+  default: ['ai_decision', 'conversationai_ai_splitter', 'split'],
+};
+
+// Reject any node-level key the compiler will not read. Attribute keys already had this
+// (ATTR_KEY); node keys did not, which is how `kind:'find_opportunity'`, a typo'd
+// `attribute:`, and a stray `onFound:` all compiled "clean" while doing nothing.
+function checkNodeKeys(n) {
+  const bad = Object.keys(n).filter((k) => !KNOWN_NODE_KEYS.has(k));
+  if (bad.length)
+    throw new IRError('NODE_KEY',
+      `unknown node key(s) [${bad.join(', ')}] on '${n.ref}' — the compiler never reads these, so they ` +
+      `would be silently discarded. Known node keys: ${[...KNOWN_NODE_KEYS].join(', ')}.`);
+  for (const [scope, owners] of Object.entries(SCOPE_OWNERS)) {
+    if (n[scope] === undefined) continue;
+    const owns = owners.includes(n.type) || owners.includes(n.kind);
+    if (!owns)
+      throw new IRError('NODE_KEY',
+        `node '${n.ref}' has scope '${scope}' but its type/kind ('${n.type ?? n.kind}') has no container ` +
+        `handler that reads it — the entire '${scope}' subtree would be silently discarded. ` +
+        `'${scope}' belongs on: ${owners.join(', ')}.`);
+  }
+}
+
 // ─── Opportunity pipeline-stage condition: the ONE canonical spelling ────────────────
 // GHL stores a stage condition as conditionType:'opportunities' (PLURAL) +
 // conditionSubType:'pipelineStageId' (camelCase). Any other spelling is a SILENT
@@ -82,7 +136,10 @@ export function collectRefs(ir) {
   return refs;
 }
 
-function walkNodes(nodes, visit) {
+// Visit every authored NODE (graph + branch/path `then` + every nested scope). Branch and
+// path records themselves are NOT nodes — they become container-internal branch entries,
+// not standalone templates — so they are walked through, never visited.
+export function walkNodes(nodes, visit) {
   for (let i = 0; i < (nodes ?? []).length; i++) {
     const n = nodes[i];
     visit(n, i, nodes);
@@ -105,6 +162,13 @@ export function parseIR(ir) {
     if (seen.has(r)) throw new IRError('DUP_REF', `duplicate ref: ${r}`);
     seen.add(r);
   }
+
+  // Normalize the container-kind alias BEFORE any type-keyed validation runs, so the
+  // rest of the pipeline only ever sees the canonical { kind:'action', type:'<container>' }.
+  walkNodes(ir.graph, (n) => {
+    if (CONTAINER_KINDS.has(n.kind) && n.type === undefined) { n.type = n.kind; n.kind = 'action'; }
+  });
+  walkNodes(ir.graph, (n) => checkNodeKeys(n));
 
   walkNodes(ir.graph, (n, idx, siblings) => {
     if (n.kind === 'goto') {

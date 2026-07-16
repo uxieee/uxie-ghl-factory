@@ -1,0 +1,11 @@
+{
+  "id": "<uuid-001>",
+  "order": 4,
+  "attributes": {
+    "targetNodeId": "<uuid-002>",
+    "type": "goto"
+  },
+  "name": "Go To",
+  "type": "goto",
+  "parentKey": "<uuid-003>"
+}

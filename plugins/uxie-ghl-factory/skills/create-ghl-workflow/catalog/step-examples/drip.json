@@ -1,0 +1,15 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "batchSize": 100,
+    "interval": {
+      "timeUnit": "minutes",
+      "value": 1
+    },
+    "type": "drip"
+  },
+  "name": "Drip Mode",
+  "type": "drip",
+  "next": "<uuid-002>"
+}

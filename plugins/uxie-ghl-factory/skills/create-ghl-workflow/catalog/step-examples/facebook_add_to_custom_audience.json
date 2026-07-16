@@ -1,0 +1,11 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "type": "facebook_add_to_custom_audience",
+    "facebook_account_id": "act_672606820851612",
+    "facebook_custom_audience_id": "120214395248540594"
+  },
+  "name": "Add to customer Audience - Facebook",
+  "type": "facebook_add_to_custom_audience"
+}
