@@ -18,14 +18,24 @@
 //   { "op":"addBranch",       "containerId":"<id>", "name":"...", "conditions":[...] }
 //   { "op":"deleteContainer", "containerId":"<id>" }
 //
+// TRIGGER ops (triggers live in a SEPARATE document with their own CRUD endpoints — they
+// are applied after the step commit, not through workflowData.templates):
+//   { "op":"addTrigger",    "trigger": {type,name,filters:[...]} }
+//   { "op":"deleteTrigger", "triggerId":"<id>" | "name":"..." | "type":"..." }
+//   { "op":"modifyTrigger", "triggerId":"<id>"|"name":"...", "trigger": {filters:[...], ...} }
+// A trigger added via the API lands active:false regardless of the POST body; if the
+// workflow is PUBLISHED this runs the draft→published activation cycle so it actually
+// fires. If it's a DRAFT, activation is skipped and reported — publishing is the user's
+// call, never a side effect of a trigger edit.
+//
 // --assume-associated : skip the opportunity-association check when adding an
 //   internal_update_opportunity (only if ALL the workflow's triggers are opp-based).
 // --dry-run : compute + print the diff/commit body, send NO PUT (works offline).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { editCommitBody } from '../engine/edit.mjs';
-import { applyOps } from '../engine/edit-driver.mjs';
+import { editCommitBody, triggerActivationBodies } from '../engine/edit.mjs';
+import { applyOps, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
 import { loadCatalog } from '../engine/catalog.mjs';
 import { makeUuidV4 } from '../engine/idgen.mjs';
 
@@ -57,27 +67,78 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const call = async (m, p, b) => { await sleep(300); const r = await fetch(BASE + p, { method: m, headers: H(m !== 'GET'), body: b ? JSON.stringify(b) : undefined });
   const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch { j = txt; } return { status: r.status, ok: r.ok, json: j }; };
 
-const ctx = { loc: LOC, cid: '_edit', uid: UID, companyAge: 0, idGen: makeUuidV4, catalog: loadCatalog() };
+// cid is left undefined on purpose (same as orchestrate()): the trigger envelope's
+// company_id then drops out of the JSON rather than carrying a placeholder string.
+const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuidV4, catalog: loadCatalog() };
 
 const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
 
-const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], ops, { ctx, idGen: makeUuidV4 });
+const { stepOps, triggerOps } = partitionOps(ops);
+const listTriggers = async () => {
+  const tr = (await call('GET', `/workflow/${LOC}/trigger?workflowId=${WID}`)).json;
+  return Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || []);
+};
+
+const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4 });
 const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated });
+const plan = triggerOps.length
+  ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
+  : [];
 
 if (dryRun) {
-  console.log('=== DRY RUN (no PUT sent) ===');
+  console.log('=== DRY RUN (nothing sent) ===');
   console.log('ops:', ops.map((o) => o.op).join(', '));
-  console.log('diff:', JSON.stringify(diff));
-  console.log('templates:', templates.length, 'steps (was', (fresh.workflowData.templates ?? []).length + ')');
+  if (stepOps.length) {
+    console.log('diff:', JSON.stringify(diff));
+    console.log('templates:', templates.length, 'steps (was', (fresh.workflowData.templates ?? []).length + ')');
+  }
+  for (const r of plan) console.log(`trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
+  if (plan.length) console.log('activation:', fresh.status === 'published'
+    ? 'draft→published cycle WILL run (workflow is published)'
+    : `SKIPPED — workflow is '${fresh.status}'; triggers activate when you publish`);
   process.exit(0);
 }
 
-const put = await call('PUT', `/workflow/${LOC}/${WID}`, body);
 console.log('\n=== EDIT REPORT ===');
-console.log('PUT status:', put.status, put.ok ? 'OK' : 'FAIL');
-console.log('diff:', JSON.stringify(diff));
-if (!put.ok) { console.log('body:', JSON.stringify(put.json).slice(0, 240)); process.exit(2); }
+if (stepOps.length) {
+  const put = await call('PUT', `/workflow/${LOC}/${WID}`, body);
+  console.log('PUT status:', put.status, put.ok ? 'OK' : 'FAIL');
+  console.log('diff:', JSON.stringify(diff));
+  if (!put.ok) { console.log('body:', JSON.stringify(put.json).slice(0, 240)); process.exit(2); }
+}
+
+let triggerFailed = false;
+for (const r of plan) {
+  const res = await call(r.method, r.path, r.body);
+  console.log(`${r.op}: ${r.method} ${r.path.split('?')[0]} → ${res.status} ${res.ok ? 'OK' : 'FAIL'}`);
+  if (!res.ok) { triggerFailed = true; console.log('  body:', JSON.stringify(res.json).slice(0, 240)); }
+}
+
+// Activation. API-added triggers land active:false server-side no matter what the POST
+// said — only a status draft→published round trip subscribes them. Two PUTs, re-GETting
+// between them because the draft PUT bumps `version` (a stale version 422s).
+if (plan.length && !triggerFailed) {
+  const after = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
+  const bodies = triggerActivationBodies(after, await listTriggers());
+  if (!bodies) {
+    console.log(`activation: SKIPPED — workflow is '${after?.status}', not published.`);
+    console.log('  The trigger is saved but will not fire until you publish (publish is opt-in).');
+  } else {
+    const d = await call('PUT', `/workflow/${LOC}/${WID}`, bodies[0]);
+    const mid = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
+    const [, pubBody] = triggerActivationBodies(mid, await listTriggers()) ?? [];
+    const p = pubBody ? await call('PUT', `/workflow/${LOC}/${WID}`, pubBody) : { ok: false, status: 'n/a' };
+    const live = await listTriggers();
+    const inactive = live.filter((t) => !t.active).map((t) => t.name ?? t.id);
+    console.log(`activation: draft ${d.status} → published ${p.status}`);
+    console.log('triggers active:', live.filter((t) => t.active).length, '/', live.length,
+      inactive.length ? `— STILL INACTIVE: ${inactive.join(', ')}` : '');
+    if (inactive.length) process.exitCode = 2;
+  }
+}
+
 const back = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
-console.log('steps now:', back?.workflowData?.templates?.length ?? '?');
+console.log('steps now:', back?.workflowData?.templates?.length ?? '?', '| status:', back?.status);
 console.log('URL:', `https://app.gohighlevel.com/v2/location/${LOC}/automation/workflow/${WID}`);
+if (triggerFailed) process.exit(2);

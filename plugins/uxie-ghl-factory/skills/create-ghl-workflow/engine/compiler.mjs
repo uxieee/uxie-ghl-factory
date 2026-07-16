@@ -874,7 +874,7 @@ function expandFilter(f, rows) {
   return cond;
 }
 
-function buildTrigger(t, ctx, wid) {
+export function buildTrigger(t, ctx, wid) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
   const conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));

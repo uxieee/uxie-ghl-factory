@@ -10,6 +10,30 @@
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
 import { expandCondition } from './compiler.mjs';
 
+// A trigger added via the API lands `active: false` on the server NO MATTER WHAT the
+// POST body said — it only starts firing after a status draft→published round trip
+// (the "draftcycle", verified live 2026-07-17). This plans that cycle: two full-object
+// PUTs to /workflow/{loc}/{wid}, every trigger forced active:true, mirroring the
+// builder's real publish (oldTriggers/newTriggers are what wire triggers into the live
+// execution bucket — see orchestrate()'s publish step).
+//
+// Returns null when the workflow is NOT currently published. Publishing a draft is a
+// separate, user-confirmed decision (the skill's draft-first rule) — a trigger edit must
+// never do it as a side effect. The new trigger activates when the user publishes.
+export function triggerActivationBodies(fresh, triggers) {
+  if (fresh?.status !== 'published') return null;
+  const live = (triggers ?? []).map((t) => ({ ...t, active: true }));
+  // Send the CURRENT version on both PUTs — the server bumps it internally; version+1
+  // 422s "version is outdated". The draft PUT bumps it, so the caller must re-GET and
+  // re-plan before sending [1], or the published PUT 422s on a stale version.
+  const base = {
+    ...fresh, version: fresh.version, triggersChanged: false,
+    oldTriggers: live, newTriggers: live,
+    createdSteps: [], modifiedSteps: [], deletedSteps: [],
+  };
+  return [{ ...base, status: 'draft' }, { ...base, status: 'published' }];
+}
+
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).
 function rootTail(templates) {
