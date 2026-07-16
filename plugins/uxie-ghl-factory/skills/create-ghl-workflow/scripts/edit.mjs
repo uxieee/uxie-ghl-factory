@@ -38,6 +38,7 @@ import { editCommitBody, shouldActivateTriggers, triggerActivationBody } from '.
 import { applyOps, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
 import { loadCatalog } from '../engine/catalog.mjs';
 import { makeUuidV4 } from '../engine/idgen.mjs';
+import { collectOpTags, missingTags } from '../engine/tags.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const [LOC, WID, specPath] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
@@ -86,6 +87,18 @@ const plan = triggerOps.length
   ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
   : [];
 
+// Tag pre-creation — the edit-path analog of what orchestrate() does before a build.
+// GHL references tags by NAME and rejects unknown ones, so every tag an op references
+// must exist BEFORE the commit/POST lands. Without this, an edit silently points at a
+// tag that doesn't exist (and a tag TRIGGER on a missing tag never fires).
+const neededTags = collectOpTags(ops);
+let tagsToCreate = [];
+if (neededTags.length) {
+  const tl = await call('GET', `/locations/${LOC}/tags`);
+  const have = (Array.isArray(tl.json) ? tl.json : (tl.json?.tags ?? [])).map((t) => t.name);
+  tagsToCreate = missingTags(neededTags, have);
+}
+
 if (dryRun) {
   console.log('=== DRY RUN (nothing sent) ===');
   console.log('ops:', ops.map((o) => o.op).join(', '));
@@ -97,10 +110,19 @@ if (dryRun) {
   if (plan.length) console.log('activation:', fresh.status === 'published'
     ? 'draft→published cycle WILL run (workflow is published)'
     : `SKIPPED — workflow is '${fresh.status}'; triggers activate when you publish`);
+  if (neededTags.length) console.log('tags referenced:', neededTags.join(', '),
+    tagsToCreate.length ? `| WOULD CREATE: ${tagsToCreate.join(', ')}` : '| all exist');
   process.exit(0);
 }
 
 console.log('\n=== EDIT REPORT ===');
+
+// Create missing tags FIRST — before the commit and before any trigger POST.
+for (const name of tagsToCreate) {
+  const r = await call('POST', `/locations/${LOC}/tags`, { name });
+  if (!r.ok) { console.error(`ABORT: could not create tag '${name}' (${r.status}) — the edit would reference a tag that doesn't exist.`); process.exit(2); }
+}
+if (tagsToCreate.length) console.log('created tags:', tagsToCreate.join(', '));
 if (stepOps.length) {
   const put = await call('PUT', `/workflow/${LOC}/${WID}`, body);
   console.log('PUT status:', put.status, put.ok ? 'OK' : 'FAIL');

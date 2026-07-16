@@ -57,6 +57,33 @@ export function collectRequiredTags(ir) {
   return [...byLower.values()];
 }
 
+// Same job, EDIT path: collect every tag name a list of edit ops references.
+// The edit path had no tag pre-creation at all — orchestrate() does it for builds, so an
+// edit that added a tag-referencing trigger/step pointed at a tag that didn't exist
+// ("Referenced Tag does not exist" — the exact bug class orchestrate was written to kill).
+//
+// Rather than duplicate the traversal, project the ops into a synthetic IR and reuse
+// collectRequiredTags — one source of truth for what counts as a tag reference.
+export function collectOpTags(ops) {
+  const triggers = [], graph = [];
+  for (const op of ops ?? []) {
+    // addTrigger/modifyTrigger. modifyTrigger may omit `type` (it's inherited from the
+    // live trigger), so default it — the tagsAdded/tagsRemoved FIELD gate below does the
+    // real filtering, and a non-tag trigger has no such filter rows to match.
+    if (op.trigger) triggers.push({ ...op.trigger, type: op.trigger.type ?? 'contact_tag' });
+    // appendStep / insertAfter / appendToBranch carry a full step node.
+    if (op.step) graph.push(op.step);
+    // modifyStep patches attributes directly; a `tags` key means the patched step
+    // references those tags, whatever its type.
+    if (op.op === 'modifyStep' && op.attrPatch?.tags)
+      graph.push({ type: 'add_contact_tag', attributes: { tags: [].concat(op.attrPatch.tags) } });
+    // addBranch conditions can carry tag intent (if_else tag conditions).
+    if (op.op === 'addBranch' && op.conditions?.length)
+      graph.push({ branches: [{ conditions: op.conditions, then: [] }] });
+  }
+  return collectRequiredTags({ triggers, graph });
+}
+
 // Given the required names and the location's existing tag names, return the
 // names that must be created. `existingNames` is any iterable of strings.
 export function missingTags(requiredNames, existingNames) {
