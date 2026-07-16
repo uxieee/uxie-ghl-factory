@@ -283,11 +283,13 @@ Two things the engine handles that a hand-rolled POST gets wrong:
   > (unit tests passed — they planned from an already-published object). Fixed in v0.3.5;
   > `edit-triggers.test.mjs` carries the regression test.
 
-> ⚠️ **The edit path does NOT pre-create tags.** `scripts/build.mjs` routes through the
-> orchestrator, which pre-creates every referenced tag; `scripts/edit.mjs` has no
-> equivalent. A trigger (or step) referencing a tag that doesn't exist in the account
-> will point at nothing. Create the tag first — `POST /locations/{loc}/tags {name}` — or
-> check `GET /locations/{loc}/tags` before the edit.
+**Tags are pre-created for you**, same as on the build path. `scripts/edit.mjs` collects
+every tag name the ops reference (trigger filter values, `add`/`remove_contact_tag` steps,
+`modifyStep` patches, `addBranch` tag conditions), diffs them against the account, and
+creates the missing ones BEFORE the commit and before any trigger POST — aborting if a tag
+create fails rather than referencing a tag that doesn't exist. It reports `created tags:`;
+`--dry-run` prints `WOULD CREATE`. (GHL references tags by NAME and rejects unknown ones;
+a tag trigger on a missing tag never fires.)
 
 **Live-proven 2026-07-17** on GROM AU (throwaway canaries, since deleted, account verified
 clean): `addTrigger` POST 200 → cycle → `2/2 active` on a published workflow;

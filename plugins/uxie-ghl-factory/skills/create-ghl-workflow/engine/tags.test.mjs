@@ -1,5 +1,46 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { collectOpTags } from './tags.mjs';
+
+// The edit path had NO tag pre-creation (orchestrate does it for builds only), so an edit
+// could reference a tag that didn't exist — "Referenced Tag does not exist", and a tag
+// trigger on a missing tag never fires. Found live 2026-07-17.
+test('collectOpTags: addTrigger tag-filter value', () => {
+  assert.deepEqual(collectOpTags([
+    { op: 'addTrigger', trigger: { type: 'contact_tag', name: 'T', filters: [{ field: 'tagsAdded', value: 'vip' }] } },
+  ]), ['vip']);
+});
+
+test('collectOpTags: modifyTrigger with no `type` (inherited from the live trigger) still collects', () => {
+  assert.deepEqual(collectOpTags([
+    { op: 'modifyTrigger', name: 'X', trigger: { filters: [{ field: 'tagsRemoved', value: 'gold' }] } },
+  ]), ['gold']);
+});
+
+test('collectOpTags: step ops, modifyStep patches, and addBranch conditions', () => {
+  const got = collectOpTags([
+    { op: 'appendStep', step: { type: 'add_contact_tag', attributes: { tags: ['a'] } } },
+    { op: 'insertAfter', afterId: 'x', step: { type: 'remove_contact_tag', attributes: { tags: ['b'] } } },
+    { op: 'modifyStep', stepId: 's', attrPatch: { tags: ['c'] } },
+    { op: 'addBranch', containerId: 'k', name: 'B', conditions: [{ conditionType: 'contact_detail', tag: 'd' }] },
+  ]);
+  assert.deepEqual(got.sort(), ['a', 'b', 'c', 'd']);
+});
+
+test('collectOpTags: de-dupes case-insensitively and ignores non-tag ops', () => {
+  assert.deepEqual(collectOpTags([
+    { op: 'addTrigger', trigger: { type: 'contact_tag', name: 'T', filters: [{ field: 'tagsAdded', value: 'VIP' }] } },
+    { op: 'appendStep', step: { type: 'add_contact_tag', attributes: { tags: ['vip'] } } },
+    { op: 'deleteStep', stepId: 's1' },
+    { op: 'appendStep', step: { type: 'sms', attributes: { body: 'hi' } } },
+  ]), ['VIP']);   // first-seen casing wins
+});
+
+test('collectOpTags: a non-tag trigger contributes nothing', () => {
+  assert.deepEqual(collectOpTags([
+    { op: 'addTrigger', trigger: { type: 'form_submission', name: 'F', filters: [{ field: 'form_id', value: 'abc' }] } },
+  ]), []);
+});
 import { collectRequiredTags, missingTags } from './tags.mjs';
 
 const ir = {
