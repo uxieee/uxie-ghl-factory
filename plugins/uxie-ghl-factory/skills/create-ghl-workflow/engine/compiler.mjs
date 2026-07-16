@@ -773,7 +773,13 @@ export function casingLint({ triggerBodies, autoSaveBody }) {
 
 // Operators that take an array value (the compiler wraps a scalar automatically).
 const ARRAY_OPS = new Set(['is-any-of', 'is-in-array', 'contains-any', 'contains-none',
-  'string-contains-any-of', 'string-matches-any-of', 'index-of-true', 'index-of-false']);
+  'string-contains-any-of', 'string-matches-any-of']);
+// index-of-true/false are deliberately NOT array ops here. They are shared with if/else
+// tag CONDITIONS, which do take an array (conditionValue: ['vip']) — but on a TRIGGER
+// every row carrying them is a single-select tag row (tagsAdded/tagsRemoved/contact.tags),
+// and the UI sends a bare string. An array saves and reads back fine, but the tag-event
+// dispatcher never subscribes, leaving the trigger permanently inert.
+const SCALAR_OPS = new Set(['index-of-true', 'index-of-false']);
 // Default operator by filter-row type when the row/author didn't specify one.
 function defaultOp(type) {
   if (type === 'number' || type === 'date') return '==';
@@ -785,9 +791,16 @@ function defaultOp(type) {
 // recovered filter model. The author may write a lean intent filter — `{ on, value }`
 // (on = a row's id / label / field) or `{ field, value }` — and the compiler fills
 // operator/title/type/id from the model row. A fully-specified filter (field+operator+
-// title+type) passes through untouched, so hand-authored conditions still work.
+// title+type) passes through, so hand-authored conditions still work — save for the
+// scalar-op value normalization below, which no shape is allowed to bypass.
 function expandFilter(f, rows) {
-  if (f.field && f.operator && f.title && f.type) return f; // already complete
+  // already complete — but still normalize a scalar-op value, so a hand-authored
+  // ['tag'] can't silently reintroduce the inert-trigger bug via this passthrough.
+  if (f.field && f.operator && f.title && f.type) {
+    return SCALAR_OPS.has(f.operator) && Array.isArray(f.value) && f.value.length === 1
+      ? { ...f, value: f.value[0] }
+      : f;
+  }
   const key = f.on ?? f.field ?? f.id;
   const norm = (s) => String(s ?? '').toLowerCase().replace(/[\s_-]+/g, '');
   const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm(r.label) === norm(key) || norm(r.value) === norm(key));
@@ -799,6 +812,14 @@ function expandFilter(f, rows) {
   // (e.g. form.id, whose recovered row has no operator and defaults to '==')
   if (Array.isArray(value) && operator === '==') operator = 'is-any-of';
   if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
+  // Unwrap a convenience-authored ['tag'] back to the scalar the dispatcher requires.
+  if (SCALAR_OPS.has(operator) && Array.isArray(value)) {
+    if (value.length > 1) {
+      throw new IRError('FILTER_VALUE',
+        `trigger filter '${row.value}' (${operator}) takes a single tag, got ${value.length}; use one filter row per tag`);
+    }
+    value = value[0];
+  }
   const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
   if (row.id) cond.id = row.id;
   return cond;
