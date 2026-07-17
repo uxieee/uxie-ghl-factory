@@ -87,7 +87,33 @@ function createOpportunityAttributes(a) {
 // Deposit Paid on a cancellation) as [skipped] when this is false — the default — and the
 // opportunity never moves. Any step that can move an opp EARLIER in its pipeline must set
 // allowBackward:true. See references/build-recipe.md §6.
+// The name-authoring path's known keys. The generic unknown-key guard (checkAttrKeys)
+// can't police this step: it validates against the catalog's EMITTED attrKeys
+// (allowBackward/type/__customInputFields__/…), none of which an author writes here —
+// so every authored key looks "unknown" to it and the check is skipped wholesale.
+// That left this path silently dropping typos. The trap that actually bites is
+// `pipelineStageId`: it is what GHL calls the field, it is what this function EMITS, and
+// it is the name the field carries in every live blob — so it is the obvious thing to
+// write. The author-side key is `stageId`. Writing the emitted name got you a step with
+// a pipeline and no stage, which round-trips clean and no-ops at runtime (the live
+// 2026-07-16 "move to Deposit Paid that never moved anything").
+const UPDATE_OPP_AUTHOR_KEYS = new Set([
+  'updates', 'pipelineId', 'stageId', 'status', 'name', 'source', 'value', 'allowBackward',
+  'pipeline', 'stage',    // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+]);
+const UPDATE_OPP_ALIASES = { pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_id: 'pipelineId', monetaryValue: 'value' };
+
 function updateOpportunityAttributes(a, ref) {
+  const bad = Object.keys(a).filter((k) => !UPDATE_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError('UNKNOWN_ATTR',
+      `update_opportunity '${ref}' has unknown attribute key(s) [${bad.join(', ')}]${
+        bad.some((k) => UPDATE_OPP_ALIASES[k])
+          ? ` — did you mean ${bad.filter((k) => UPDATE_OPP_ALIASES[k]).map((k) => `'${UPDATE_OPP_ALIASES[k]}' (not '${k}')`).join(', ')}?`
+          : ''
+      }. Author keys: ${[...UPDATE_OPP_AUTHOR_KEYS].join(', ')}. NOTE the asymmetry — you author 'stageId', `
+      + `which compiles to the filterField 'pipelineStageId'; 'pipelineId' is the same on both sides. `
+      + `An ignored key compiles to a step that saves, round-trips clean, and no-ops at runtime.`);
   const f = (a.updates ?? []).map((u) => oppField(u.field, u.value, u.dataType ?? 'SINGLE_OPTIONS', u.valueFieldType ?? 'select'));
   if (!f.length) {
     if (a.pipelineId != null) f.push(oppField('pipelineId', a.pipelineId, 'SINGLE_OPTIONS', 'select'));
@@ -480,6 +506,16 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // BEFORE the container went terminal and the contact hit end_of_workflow there,
       // never reaching the condition. The earlier 2026-07-15 patch only de-duplicated the
       // reused else id (next:[b1,b2,b2]) — it did NOT split out the None node.
+      // OPEN QUESTION (2026-07-17): a NESTED if_else container is the only one of the
+      // eight container types that does NOT get `parent = parentScopeId` set on its own
+      // entry (the others all do it explicitly before their push). It may be a genuine
+      // omission or it may match GHL — the live corpus has no nested-if_else capture to
+      // settle it, and changing an emitted shape on a hunch is how this engine has
+      // shipped green-but-broken workflows before. Left as-is deliberately.
+      // Edit-mode no longer depends on it either way: appendToBranch derives branch
+      // membership by walking the `next` chain (edit.mjs scopeChain), not by filtering
+      // on `parent`, so a missing parent can't orphan a subtree any more. Settle this
+      // with a live capture of a nested if_else before touching it.
       const conditioned = n.branches.filter((b) => b.else !== true);
       const elseBranch = n.branches.find((b) => b.else === true);
       const conditionedIds = conditioned.map((b) => idForRef(refMap, ctx, b.ref));

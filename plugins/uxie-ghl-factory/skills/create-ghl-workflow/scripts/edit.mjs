@@ -7,9 +7,25 @@
 // "previous changes were not committed"). Round-trip GETs and reports.
 //
 // edit-spec.json: { "ops": [ { "op": "...", ...args } ] }, applied in order:
-//   { "op":"appendStep",      "step": {type,name,attributes} }        # linear step, compiled from IR
-//   { "op":"insertAfter",     "afterId":"<id>", "step": {...} }
+//   { "op":"appendStep",      "step": {type,name,attributes} }        # linear step OR container
+//   { "op":"insertAfter",     "afterId":"<id>", "step": {...}, "attachTailTo":"<branch>" }
 //   { "op":"appendToBranch",  "branchEntryId":"<id>", "step": {...} }
+//
+// The three add ops take EITHER a linear step or a CONTAINER (find_opportunity with
+// onFound/onNotFound, if_else, workflow_split, the multipath waits…). A container
+// compiles to a whole subgraph — entry + branch entries + their children — and the
+// splice wires the lot in. This is what lets opportunity logic be added to an EXISTING
+// workflow: any opportunity write needs a find_opportunity above it ("Please use
+// Opportunity trigger/find opportunity action to get the opportunity" at runtime
+// otherwise), and before this the only way to get one was to build a new workflow.
+//
+//   attachTailTo: REQUIRED on insertAfter when a container goes in mid-chain and the
+//   container has >1 branch. A container is terminal in its scope, so the steps that
+//   followed the anchor must be re-scoped onto ONE branch. Name it by display name
+//   ('Opportunity Found'), stable branch key ('predefined_Opportunity Found' — survives
+//   rename), or branch id. It is never guessed: on find_opportunity the tail belongs on
+//   Found ~always, and "~always" silently reroutes live contacts in the exception case.
+//   Not needed when nothing follows the anchor, or when the container has one branch.
 //   { "op":"deleteStep",      "stepId":"<id>" }
 //   { "op":"modifyStep",      "stepId":"<id>", "attrPatch": {...} }
 //   { "op":"setStepDisabled", "stepId":"<id>", "disabled":true|false }

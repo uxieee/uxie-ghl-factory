@@ -4,6 +4,7 @@
 import {
   appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep,
   addBranch, deleteContainer, setStepDisabled, disableStepsByType,
+  appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
 
@@ -77,23 +78,45 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
   });
 }
 
-// Compile a single LINEAR step from an IR action node so its attributes/situational
-// fields match the catalog (v1 supports linear types only — a container/multipath type
-// compiles to >1 template and is rejected). assocGuaranteed keeps the throwaway standalone
-// compile from tripping the opportunity-association check; the REAL check runs in
-// editCommitBody against the whole workflow graph.
-export function compileStep(node, ctx) {
+// Compile an IR action node into the subgraph the edit ops splice in. A linear step
+// compiles to exactly one template; a CONTAINER (find_opportunity with onFound/onNotFound,
+// if_else, workflow_split, the multipath waits…) compiles to an entry node plus its
+// branch entries and their children.
+//
+// Reusing compile() — the same function build.mjs runs — is what makes an edit-inserted
+// container byte-identical to a freshly-built one. Anything hand-rolled here would drift
+// from the compiler's hard-won container shapes (the None node, the enriched conditions,
+// the transitions' __branchKey__) the moment either side changed.
+//
+// assocGuaranteed keeps the throwaway standalone compile from tripping the
+// opportunity-association check; the REAL check runs in editCommitBody against the
+// whole workflow graph.
+export function compileSubgraph(node, ctx) {
   const out = compile(
     { name: '_edit', triggers: [], graph: [{ ...node, ref: '_edit_step', kind: node.kind ?? 'action', assocGuaranteed: true }] },
     ctx,
   );
   const tpls = out.autoSaveBody.workflowData.templates;
-  if (tpls.length !== 1)
-    throw new Error(`edit-add supports a single LINEAR step; '${node.type}' compiled to ${tpls.length} templates (containers/multipath are not supported in edit-add yet)`);
-  const step = tpls[0];
-  // the edit op re-wires graph position; drop the standalone values
-  delete step.order; delete step.next; delete step.parentKey; delete step.parent;
-  return step;
+  // The compiled scope's head: the only node the flattener left unparented.
+  const head = tpls.find((t) => (t.parentKey === null || t.parentKey === undefined) && t.parent == null) ?? tpls[0];
+  const isContainer = Array.isArray(head.next);
+  const entry = { ...head };
+  // the edit op re-wires graph POSITION; drop the standalone values. A container's
+  // next[] is not position — it's the branch wiring, and it stays.
+  delete entry.order; delete entry.parentKey; delete entry.parent;
+  if (!isContainer) delete entry.next;
+  if (!isContainer && tpls.length !== 1)
+    throw new Error(`edit-add: '${node.type}' compiled to ${tpls.length} templates but its entry has no branch array — unsupported shape`);
+  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer };
+}
+
+// Back-compat: compile a step known to be LINEAR. Container types now have a real path
+// (compileSubgraph + the subgraph splices), so reaching this with one is a caller bug.
+export function compileStep(node, ctx) {
+  const sub = compileSubgraph(node, ctx);
+  if (sub.isContainer)
+    throw new Error(`compileStep: '${node.type}' is a container — use compileSubgraph() and a subgraph splice`);
+  return sub.entry;
 }
 
 const empty = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
@@ -121,9 +144,24 @@ export function normalizeDiff(d) {
 // idGen mints new branch/step ids for addBranch.
 export function applyOp(templates, op, { ctx, idGen }) {
   switch (op.op) {
-    case 'appendStep': return appendStep(templates, compileStep(op.step, ctx));
-    case 'insertAfter': return insertAfter(templates, compileStep(op.step, ctx), op.afterId);
-    case 'appendToBranch': return appendToBranch(templates, op.branchEntryId, compileStep(op.step, ctx));
+    // The three add ops each take EITHER a linear step or a container subgraph; the
+    // compile decides which, so callers write the same op either way.
+    case 'appendStep': {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer ? appendSubgraph(templates, sub) : appendStep(templates, sub.entry);
+    }
+    case 'insertAfter': {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer
+        ? insertSubgraphAfter(templates, sub, op.afterId, op.attachTailTo)
+        : insertAfter(templates, sub.entry, op.afterId);
+    }
+    case 'appendToBranch': {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer
+        ? appendSubgraphToBranch(templates, op.branchEntryId, sub)
+        : appendToBranch(templates, op.branchEntryId, sub.entry);
+    }
     case 'deleteStep': return deleteStep(templates, op.stepId);
     case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {});
     case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);

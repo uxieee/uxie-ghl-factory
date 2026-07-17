@@ -214,7 +214,8 @@ It GETs the live workflow, applies the ops to `workflowData.templates`, and comm
 the **plain `PUT /workflow/{loc}/{wid}`** (NOT `/auto-save` — that 422s on an existing
 workflow). `--dry-run` computes + prints the diff without sending the PUT. The edit-spec is
 `{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`
-(each takes a linear `step: {type,name,attributes}` compiled from IR), `deleteStep`,
+(each takes a `step: {type,name,attributes}` compiled from IR — a linear step **or a
+container**, see "Adding containers" below), `deleteStep`,
 `modifyStep` (`attrPatch`), `moveStep`, `addBranch` (`{containerId,name,conditions}`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
 (`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
@@ -238,8 +239,44 @@ the ruled-out notification-recipient workarounds.
 
 Adding an `internal_update_opportunity` this way triggers the `OPP_UNASSOCIATED` guard
 (pass `--assume-associated` only if ALL the workflow's triggers are opportunity-based).
-v1 edit-add is linear steps only (containers compile to >1 template — use `addBranch` for
-new branches). Pure core: `engine/edit-driver.mjs` + `engine/edit.mjs` (see their tests).
+Pure core: `engine/edit-driver.mjs` + `engine/edit.mjs` (see their tests).
+
+### Adding containers (multipath) to an existing workflow
+
+`appendStep` / `insertAfter` / `appendToBranch` each accept a **container** — a
+`find_opportunity` with `onFound`/`onNotFound`, an `if_else`, a `workflow_split`, a
+multipath wait. The step compiles to a whole subgraph (entry + branch entries + their
+children) via the same `compile()` that `build.mjs` runs, so an edit-inserted container is
+structurally identical to a freshly built one (`engine/edit-multipath.test.mjs` asserts
+that round-trip).
+
+This is what lets **opportunity logic be added to an existing workflow**. Any opportunity
+write needs a `find_opportunity` above it — otherwise it skips at runtime with *"Please use
+Opportunity trigger/find opportunity action to get the opportunity"*. Before this, the only
+way to get one was to build a new satellite workflow; that constraint shaped several live
+accounts into 07b/07c/07d micro-workflow chains. It no longer applies.
+
+```json
+{ "ops": [
+  { "op": "insertAfter", "afterId": "abc",
+    "step": { "type": "find_opportunity", "name": "Find Opportunity",
+              "find": { "filters": [{ "field": "pipeline_id", "value": "PIPE" }], "sorting": "latest" },
+              "onFound": [], "onNotFound": [] },
+    "attachTailTo": "predefined_Opportunity Found" }
+] }
+```
+
+**`attachTailTo` is required** on `insertAfter` when a container lands mid-chain and has
+more than one branch. A container is terminal in its scope, so the steps that followed the
+anchor are **re-scoped onto one branch** — pointers only, nothing is copied. Name the
+branch by display name (`"Opportunity Found"`), stable branch key
+(`"predefined_Opportunity Found"` — survives a rename), or branch id. It is never guessed:
+on `find_opportunity` the tail belongs on Found ~always, and "~always" is exactly the
+default that silently reroutes live contacts in the exception case. It's unnecessary when
+nothing follows the anchor, or when the container has a single branch.
+
+A container is terminal in its scope, so `insertAfter <containerId>` and `appendStep` onto
+a container tail are both refused — append to one of its **branches** instead.
 
 ### Editing TRIGGERS on an existing workflow
 

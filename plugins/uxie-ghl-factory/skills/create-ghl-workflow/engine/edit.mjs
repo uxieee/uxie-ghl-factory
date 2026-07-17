@@ -84,6 +84,12 @@ const emptyDiff = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: []
 export function insertAfter(templates, newStep, afterId) {
   const anchor = templates.find((t) => t.id === afterId);
   if (!anchor) return { templates, diff: emptyDiff() };
+  // A container's `next` is its BRANCH ARRAY, not a chain pointer. Overwriting it with
+  // the new step's id silently orphans every branch and everything under them — the
+  // workflow round-trips clean and loses half its graph. A container is terminal in its
+  // scope: there is no "after" it to insert into, only a branch to append to.
+  if (Array.isArray(anchor.next))
+    throw new Error(`insertAfter: '${anchor.name ?? afterId}' is a container — it is terminal in its scope, and inserting after it would orphan its branches. Use appendToBranch with one of its branch ids instead.`);
   const step = { ...newStep, next: (typeof anchor.next === 'string' ? anchor.next : null), parentKey: anchor.id, order: 0 };
   if (anchor.parent != null) step.parent = anchor.parent; // same scope as the anchor
   const out = templates.map((t) => (t.id === afterId ? { ...t, next: step.id } : t));
@@ -128,32 +134,175 @@ export function disableStepsByType(templates, type, disabled) {
   return setDisabledWhere(templates, (t) => t.type === type, disabled);
 }
 
-// Append newStep to the tail of a BRANCH scope (the steps whose parent === branchEntryId).
-// Handles an empty branch (wire the branch-entry's next) and a non-empty branch (find its
-// tail and chain on). `branchEntryId` is the branch-entry step id (nodeType branch-yes/no,
-// or a transition step for finder/split containers).
+// Append newStep to the tail of a BRANCH scope. `branchEntryId` is the branch-entry step
+// id (nodeType branch-yes/branch-no, or a transition step for finder/split containers).
+//
+// Branch membership is derived by WALKING the scope's `next` chain (scopeChain), not by
+// filtering on `parent === branchEntryId`. The `parent` field is not reliable enough to
+// decide this: the compiler sets it on seven of its eight container types but NOT on a
+// nested if_else, and edit-mode runs on harvested workflows whose shape we don't control.
+// When the filter missed a node, this fell through to the "empty branch" path and
+// overwrote the branch-entry's `next` — silently orphaning the real branch content
+// (which, carrying no id in deletedSteps, then rode along in templates[] as dead data).
+// The next-chain is the graph's actual source of truth, so walk that.
 export function appendToBranch(templates, branchEntryId, newStep) {
-  const entry = templates.find((t) => t.id === branchEntryId);
-  if (!entry) return { templates, diff: emptyDiff() };
-  const byId = new Map(templates.map((t) => [t.id, t]));
-  const members = templates.filter((t) => t.parent === branchEntryId);
-  const step = { ...newStep, parent: branchEntryId, next: null, order: members.length };
-  if (members.length === 0) {
-    step.parentKey = branchEntryId;
-    const out = templates.map((t) => (t.id === branchEntryId ? { ...t, next: step.id } : t));
-    out.push(step);
-    return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [branchEntryId], deletedSteps: [] } };
-  }
-  const pointed = new Set(members.map((m) => m.next).filter((x) => typeof x === 'string'));
-  let cur = members.find((m) => !pointed.has(m.id)) ?? members[0];
+  const step = { ...newStep, next: null };
+  return appendSubgraphToBranch(templates, branchEntryId, { entry: step, templates: [step] });
+}
+
+// ---------------------------------------------------------------------------
+// Container/multipath splicing (edit-add of a subgraph, not a single step)
+//
+// A container type (find_opportunity, if_else, workflow_split, the multipath waits…)
+// compiles to a SUBGRAPH: an entry node whose `next` is an ARRAY of branch-entry ids,
+// plus those branch entries (transition / branch-yes / branch-no nodes) and whatever
+// the author hung under them. Splicing one in is not `insertAfter` with a fatter step:
+// the container is TERMINAL in its scope, so whatever used to follow the anchor has to
+// be RE-SCOPED onto one of the container's branches. Which branch is a semantic choice
+// the caller must make (`attachTailTo`) — guessing it silently reroutes live traffic.
+//
+// Everything here re-points pointers and never copies a node: duplicating a shared tail
+// is the defect that once produced ~60 dup templates and got rejected by GHL's publish
+// validator with a misleading "Wait for reply doesn't reference the step" error.
+// ---------------------------------------------------------------------------
+
+// Walk the TOP-LEVEL chain of one scope from `startId`, following scalar `next`.
+// Stops AT a container (array next) — a container is terminal in its scope; its
+// branch children live in their own scopes and are not part of this chain.
+function scopeChain(byId, startId) {
+  const out = [];
   const seen = new Set();
-  while (cur && typeof cur.next === 'string' && byId.get(cur.next)?.parent === branchEntryId && !seen.has(cur.id)) {
-    seen.add(cur.id); cur = byId.get(cur.next);
+  let cur = startId ? byId.get(startId) : null;
+  while (cur && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    out.push(cur);
+    if (Array.isArray(cur.next)) break;
+    cur = typeof cur.next === 'string' ? byId.get(cur.next) : null;
   }
-  step.parentKey = cur.id;
-  const out = templates.map((t) => (t.id === cur.id ? { ...t, next: step.id } : t));
-  out.push(step);
-  return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [cur.id], deletedSteps: [] } };
+  return out;
+}
+
+// The branches a compiled container offers a tail, in `next[]` order. Names come from
+// the branch-entry nodes; the stable `__branchKey__` (find_opportunity's
+// 'predefined_Opportunity Found') comes from the container's transitions[] and survives
+// rename/localization, so it's the durable way to name a branch.
+export function branchTargets(entry, templates) {
+  const ids = Array.isArray(entry.next) ? entry.next : [];
+  const trs = entry.attributes?.transitions ?? [];
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  return ids.map((id, i) => {
+    const node = byId.get(id);
+    const tr = trs.find((t) => t.id === id) ?? trs[i];
+    return { id, name: node?.name ?? tr?.name ?? null, key: tr?.meta?.__branchKey__ ?? null, nodeType: node?.nodeType ?? null };
+  });
+}
+
+// Resolve which branch a tail belongs on. Matches an explicit branch id, a
+// `__branchKey__`, or a display name. NEVER guesses between multiple branches: on
+// find_opportunity the tail belongs on "Opportunity Found" ~always, but "~always" is
+// exactly the kind of default that silently sends contacts down Not-Found in the
+// exception case. Ambiguity and absence are both errors.
+export function resolveBranchTarget(entry, templates, attachTailTo, opLabel = 'insertAfter') {
+  const targets = branchTargets(entry, templates);
+  const list = () => targets.map((t) => `'${t.name}'`).join(', ');
+  if (!targets.length) throw new Error(`${opLabel}: '${entry.type}' compiled with no branches to attach the following steps to`);
+  if (attachTailTo == null) {
+    if (targets.length === 1) return targets[0];
+    throw new Error(
+      `${opLabel}: '${entry.type}' has ${targets.length} branches and there are steps after '${entry.name ?? entry.id}' that must land on ONE of them — `
+      + `pass attachTailTo (options: ${list()}). For find_opportunity that is almost always 'Opportunity Found'.`);
+  }
+  const hits = targets.filter((t) => t.id === attachTailTo || t.key === attachTailTo || t.name === attachTailTo);
+  if (!hits.length) throw new Error(`${opLabel}: no branch '${attachTailTo}' on '${entry.type}' (options: ${list()})`);
+  if (hits.length > 1) throw new Error(`${opLabel}: '${attachTailTo}' matches ${hits.length} branches on '${entry.type}' — pass an explicit branch id (${hits.map((h) => h.id).join(', ')})`);
+  return hits[0];
+}
+
+// Re-scope an existing chain (`tailId` and everything after it in its old scope) onto
+// the end of `branchEntryId`'s scope. Pointers only — the nodes keep their ids and are
+// never cloned. Their `parent` moves to the branch scope and `order` is renumbered to
+// continue the branch's existing chain, which is what flattenGraph would have emitted
+// had the author built this shape fresh.
+function reScopeTailOntoBranch(templates, branchEntryId, tailId, modified) {
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const branchEntry = byId.get(branchEntryId);
+  const existing = scopeChain(byId, typeof branchEntry.next === 'string' ? branchEntry.next : null);
+  const last = existing[existing.length - 1] ?? null;
+  if (last && Array.isArray(last.next))
+    throw new Error(
+      `insertAfter: branch '${branchEntry.name ?? branchEntryId}' already ends in the container '${last.name ?? last.id}', which is terminal in its scope — `
+      + `the following steps cannot chain after it. Attach them to a branch of that inner container instead.`);
+  const patch = new Map();
+  const anchorId = last ? last.id : branchEntryId;
+  patch.set(anchorId, { next: tailId });
+  modified.add(anchorId);
+  let order = existing.length;
+  scopeChain(byId, tailId).forEach((n, i) => {
+    const p = { ...(patch.get(n.id) ?? {}), parent: branchEntryId, order: order++ };
+    if (i === 0) p.parentKey = anchorId;
+    patch.set(n.id, p);
+    modified.add(n.id);
+  });
+  return templates.map((t) => (patch.has(t.id) ? { ...t, ...patch.get(t.id) } : t));
+}
+
+// Merge a compiled subgraph's nodes in after re-seating its entry into `position`.
+function spliceSubgraph(templates, sub, anchorId, position) {
+  const entry = { ...sub.entry, ...position };
+  if (position.parent == null) delete entry.parent;
+  const rest = sub.templates.filter((t) => t.id !== sub.entry.id);
+  const out = [
+    ...templates.map((t) => (anchorId && t.id === anchorId ? { ...t, next: entry.id } : t)),
+    entry, ...rest,
+  ];
+  return { out, entry, created: [entry.id, ...rest.map((t) => t.id)] };
+}
+
+// Insert a CONTAINER subgraph immediately after `afterId`, re-scoping whatever followed
+// the anchor onto the container's `attachTailTo` branch.
+export function insertSubgraphAfter(templates, sub, afterId, attachTailTo) {
+  const anchor = templates.find((t) => t.id === afterId);
+  if (!anchor) return { templates, diff: emptyDiff() };
+  if (Array.isArray(anchor.next))
+    throw new Error(`insertAfter: '${anchor.name ?? afterId}' is a container — it is terminal in its scope. Use appendToBranch with one of its branch ids instead.`);
+  const tailId = typeof anchor.next === 'string' ? anchor.next : null;
+  const { out, entry, created } = spliceSubgraph(templates, sub, afterId, {
+    parentKey: afterId, order: (anchor.order ?? 0) + 1, parent: anchor.parent ?? null,
+  });
+  const modified = new Set([afterId]);
+  const templatesOut = tailId
+    ? reScopeTailOntoBranch(out, resolveBranchTarget(entry, out, attachTailTo, 'insertAfter').id, tailId, modified)
+    : out;
+  return { templates: templatesOut, diff: { createdSteps: created, modifiedSteps: [...modified], deletedSteps: [] } };
+}
+
+// Append a CONTAINER subgraph to the end of the root chain. Nothing follows the root
+// tail by definition, so there is no tail to re-scope and attachTailTo is moot.
+export function appendSubgraph(templates, sub) {
+  const tail = rootTail(templates);
+  if (tail && Array.isArray(tail.next))
+    throw new Error(`appendStep: the workflow's last step '${tail.name ?? tail.id}' is a container and is terminal in its scope. Use appendToBranch with one of its branch ids instead.`);
+  const { out, created } = spliceSubgraph(templates, sub, tail?.id ?? null, {
+    parentKey: tail ? tail.id : null, order: tail ? (tail.order ?? 0) + 1 : 0, parent: null,
+  });
+  return { templates: out, diff: { createdSteps: created, modifiedSteps: tail ? [tail.id] : [], deletedSteps: [] } };
+}
+
+// Append a CONTAINER subgraph to the tail of a branch scope. Again nothing follows a
+// scope's tail, so there is no tail to re-scope.
+export function appendSubgraphToBranch(templates, branchEntryId, sub) {
+  const branchEntry = templates.find((t) => t.id === branchEntryId);
+  if (!branchEntry) return { templates, diff: emptyDiff() };
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const existing = scopeChain(byId, typeof branchEntry.next === 'string' ? branchEntry.next : null);
+  const last = existing[existing.length - 1] ?? null;
+  if (last && Array.isArray(last.next))
+    throw new Error(`appendToBranch: branch '${branchEntry.name ?? branchEntryId}' already ends in the container '${last.name ?? last.id}', which is terminal in its scope. Append to one of ITS branches instead.`);
+  const anchorId = last ? last.id : branchEntryId;
+  const { out, created } = spliceSubgraph(templates, sub, anchorId, {
+    parent: branchEntryId, parentKey: anchorId, order: existing.length,
+  });
+  return { templates: out, diff: { createdSteps: created, modifiedSteps: [anchorId], deletedSteps: [] } };
 }
 
 // Move an existing step to sit immediately AFTER `afterId` (reorder). Detaches it from
@@ -164,6 +313,14 @@ export function moveStep(templates, stepId, afterId) {
   const step = templates.find((t) => t.id === stepId);
   const anchor = templates.find((t) => t.id === afterId);
   if (!step || !anchor || stepId === afterId || anchor.next === stepId) return { templates, diff: emptyDiff() };
+  // Same trap as insertAfter: a container's `next` is its BRANCH ARRAY. Moving a step
+  // "after" one would overwrite that array with a scalar id and orphan every branch —
+  // silently, since the orphans carry no id in deletedSteps and just ride along in
+  // templates[] as dead data. A container is terminal in its scope.
+  if (Array.isArray(anchor.next))
+    throw new Error(`moveStep: '${anchor.name ?? afterId}' is a container — it is terminal in its scope, and moving a step after it would orphan its branches. Move the step into one of its branches instead.`);
+  if (Array.isArray(step.next))
+    throw new Error(`moveStep: '${step.name ?? stepId}' is a container — moving a whole container subgraph is not supported (its branch children would keep pointing into the old scope). Rebuild it at the new position instead.`);
   const oldPred = templates.find((t) => t.next === stepId);
   const stepOldNext = typeof step.next === 'string' ? step.next : null;
   const anchorOldNext = typeof anchor.next === 'string' ? anchor.next : null;
