@@ -46,7 +46,7 @@ export async function fetchEntities(gw) {
     calendars: (cl.calendars || []).map((c) => ({ id: c.id || c._id, name: c.name })),
     users: (us.users || us || []).map((u) => ({ id: u.id || u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, name: u.name })),
     forms: (fm.forms || []).map((f) => ({ id: f.id || f._id, name: f.name })),
-    customFields: (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey })),
+    customFields: (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType })),
     agents,
   };
 }
@@ -120,7 +120,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   let built;
   try {
     built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog,
-      warn: (msg) => report.warnings.push(msg) });
+      customFields: entities.customFields, warn: (msg) => report.warnings.push(msg) });
   } catch (e) {
     if (e?.name === 'IRError') { report.aborted = `compile rejected (${e.code}): ${e.message}`; return report; }
     throw e;
