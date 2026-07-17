@@ -2,7 +2,7 @@
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
-import { checkOppFieldShape } from './opp-shapes.mjs';
+import { checkOppFieldShape, STANDARD_OPP_FIELDS, OPP_SHAPES } from './opp-shapes.mjs';
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
@@ -12,7 +12,7 @@ function attributesFor(node, ctx) {
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {});
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
-  if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {}, node.ref);
+  if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
   // Generic path: the author supplies intent attributes; the compiler fills the
   // two structural fields the corpus shows on this type but a human never hand-writes:
   //   - attributes.type  (mirrors the step type — present on ~all linear action types)
@@ -107,7 +107,31 @@ const UPDATE_OPP_AUTHOR_KEYS = new Set([
 ]);
 const UPDATE_OPP_ALIASES = { pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_id: 'pipelineId', monetaryValue: 'value' };
 
-function updateOpportunityAttributes(a, ref) {
+// Resolve one updates[] entry to a compiled oppField, classifying its filterField:
+//   standard opp field  -> attested shape (omitted valueFieldType resolves from the table)
+//   known custom field  -> row 2: warn, pass through (shape join is §7b, still blocked)
+//   genuinely unknown    -> row 3: throw (a claim about the engine's own knowledge, safe)
+function resolveOppUpdateField(u, ref, ctx) {
+  const ff = u.field;
+  if (STANDARD_OPP_FIELDS.has(ff)) {
+    const vft = u.valueFieldType ?? OPP_SHAPES.fields[ff].valueFieldType.allowed[0];
+    const f = oppField(ff, u.value, u.dataType, vft);   // dataType omitted unless authored
+    checkOppFieldShape(f, { ref, warn: ctx?.warn });
+    return f;
+  }
+  const cf = ctx?.customFields?.find((c) => c.id === ff || c.fieldKey === ff);
+  if (cf) {
+    ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' custom field '${ff}' shape not validated `
+      + `(contact->opp dataType join pending, spec §7b) — emitted as authored`);
+    return oppField(ff, u.value, u.dataType, u.valueFieldType ?? 'string');
+  }
+  throw new IRError('OPP_FIELD_UNKNOWN',
+    `update_opportunity '${ref}': filterField '${ff}' is neither a standard opportunity field `
+    + `(${[...STANDARD_OPP_FIELDS].join(', ')}) nor a custom field in this account. `
+    + `Pass explicit dataType/valueFieldType, or check the field id.`);
+}
+
+function updateOpportunityAttributes(a, ref, ctx) {
   const bad = Object.keys(a).filter((k) => !UPDATE_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError('UNKNOWN_ATTR',
@@ -118,7 +142,7 @@ function updateOpportunityAttributes(a, ref) {
       }. Author keys: ${[...UPDATE_OPP_AUTHOR_KEYS].join(', ')}. NOTE the asymmetry — you author 'stageId', `
       + `which compiles to the filterField 'pipelineStageId'; 'pipelineId' is the same on both sides. `
       + `An ignored key compiles to a step that saves, round-trips clean, and no-ops at runtime.`);
-  const f = (a.updates ?? []).map((u) => oppField(u.field, u.value, u.dataType ?? 'SINGLE_OPTIONS', u.valueFieldType ?? 'select'));
+  const f = (a.updates ?? []).map((u) => resolveOppUpdateField(u, ref, ctx));
   if (!f.length) {
     if (a.pipelineId != null) f.push(oppField('pipelineId', a.pipelineId, 'SINGLE_OPTIONS', 'select'));
     if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
@@ -126,6 +150,7 @@ function updateOpportunityAttributes(a, ref) {
     if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
     if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
     if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'number'));
+    for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   }
   if (!f.length)
     throw new IRError('EMPTY_STEP',
