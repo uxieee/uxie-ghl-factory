@@ -24,9 +24,12 @@ test('compileStep: a linear action compiles to a single catalog-shaped template'
   assert.equal('next' in s, false);
 });
 
-test('compileStep: a multipath/container type is rejected (edit-add is linear-only v1)', () => {
+// Containers are no longer rejected outright (see edit-multipath.test.mjs) — they route
+// to compileSubgraph + a subgraph splice. compileStep is the LINEAR-only entry point, so
+// handing it a container is a caller routing bug and still throws.
+test('compileStep: a container type is redirected to the subgraph path, not silently mis-spliced', () => {
   assert.throws(() => compileStep({ type: 'conversationai_ai_splitter', name: 'X', attributes: { description: 'y' }, branches: [{ name: 'a', then: [] }] }, ctx()),
-    /single LINEAR step/);
+    /is a container/);
 });
 
 test('applyOps: appendStep wires onto the tail and emits the right diff', () => {
