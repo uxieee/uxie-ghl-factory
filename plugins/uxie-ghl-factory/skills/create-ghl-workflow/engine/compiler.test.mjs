@@ -637,3 +637,13 @@ test('compile: opportunity-stage if_else condition gets the correct stored shape
   // opportunities conditions do NOT carry the contact_detail-only __customFieldType__
   assert.ok(!('__customFieldType__' in cond));
 });
+
+test('email sender: ctx.senderDefault overrides the location fallback when the node omits from_*', () => {
+  const ir = { triggers: [{ type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'e', type: 'email', name: 'Mail', attributes: { subject: 'Hi', html: '<p>x</p>' } }] };
+  const built = compile(ir, { ...ctx(),
+    senderDefault: { from_name: '{{ custom_values.sender_name }}', from_email: '{{ custom_values.sender_email }}' } });
+  const email = built.autoSaveBody.workflowData.templates.find((t) => t.type === 'email');
+  assert.equal(email.attributes.from_name, '{{ custom_values.sender_name }}');
+  assert.equal(email.attributes.from_email, '{{ custom_values.sender_email }}');
+});

@@ -6,11 +6,11 @@ import { checkOppFieldShape, STANDARD_OPP_FIELDS, OPP_SHAPES } from './opp-shape
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
-  if (node.type === 'email') return emailAttributes(node);
+  if (node.type === 'email') return emailAttributes(node, ctx);
   if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {});
   if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
-  if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {});
+  if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {}, ctx);
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
   if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
   // Generic path: the author supplies intent attributes; the compiler fills the
@@ -195,7 +195,7 @@ function asUserArray(v) {
   if (v == null || v === '') return [];
   return Array.isArray(v) ? v : [v];
 }
-function internalNotificationAttributes(a) {
+function internalNotificationAttributes(a, ctx) {
   const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null)
     ?? NOTIFICATION_CHANNELS.find((c) => c in a) ?? 'email';
   const b = a[channel] ?? {};
@@ -203,8 +203,8 @@ function internalNotificationAttributes(a) {
   const wantsUsers = userType === 'user';
   if (channel === 'email') {
     return { type: 'email', email: {
-      from_name: b.from_name ?? '{{location.name}}',
-      from_email: b.from_email ?? '{{location.email}}',
+      from_name: b.from_name ?? ctx?.senderDefault?.from_name ?? '{{location.name}}',
+      from_email: b.from_email ?? ctx?.senderDefault?.from_email ?? '{{location.email}}',
       userType,
       subject: b.subject ?? '',
       html: b.html ?? '',
@@ -313,15 +313,15 @@ function waitAttributes(node) {
 // a bare {subject,html} email shows an error until these are present). Handles both the
 // inline-HTML path and the template path. For template mode the `template_id` must already
 // exist (created via POST /emails/builder by the orchestrator) — a non-existent id errors.
-function emailAttributes(node) {
+function emailAttributes(node, ctx) {
   const a = node.attributes ?? {};
   const base = {
     trackingOptions: a.trackingOptions ?? { hasTrackingLinks: true, hasUtmTracking: true, hasTags: false },
     conditions: a.conditions ?? [],
     subject: a.subject ?? '',
     preHeader: a.preHeader ?? '',
-    from_name: a.from_name ?? '{{location.name}}',
-    from_email: a.from_email ?? '{{location.email}}',
+    from_name: a.from_name ?? ctx?.senderDefault?.from_name ?? '{{location.name}}',
+    from_email: a.from_email ?? ctx?.senderDefault?.from_email ?? '{{location.email}}',
     templateCreationMode: a.templateCreationMode ?? 'existing',
     syncEnabled: a.syncEnabled ?? false,
     attachments: a.attachments ?? [],
