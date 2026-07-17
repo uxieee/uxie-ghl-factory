@@ -116,6 +116,19 @@ export function lintConditionShape(c) {
       + `(camelCase) on conditionType:"${OPP_STAGE_TYPE}". This shape publishes clean but the branch never `
       + `evaluates. Author it as { conditionType:"${OPP_STAGE_TYPE}", stage:"<name or id>" }.`);
   }
+  if (typeof c.conditionType !== 'string' || c.conditionType === '') {
+    const leaked = ['field', 'operator', 'value'].filter((k) => k in c);
+    if (leaked.length)
+      throw new IRError('COND_SHAPE',
+        `if_else condition carries trigger-filter keys [${leaked.join(', ')}] and no conditionType. `
+        + `That is the TRIGGER filter vocabulary — on an if_else it compiles to a dead branch `
+        + `(every contact falls to else). Author a tag gate as `
+        + `{ conditionType: 'contact_detail', tag: '<tag>' }, a stage gate as `
+        + `{ conditionType: '${OPP_STAGE_TYPE}', stage: '<name or id>' }.`);
+    throw new IRError('COND_SHAPE',
+      `if_else condition has no conditionType — a condition must identify what it tests. `
+      + `Author it as { conditionType: 'contact_detail', tag: '<tag>' } or another documented intent shape.`);
+  }
   return c;
 }
 

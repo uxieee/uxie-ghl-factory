@@ -185,7 +185,7 @@ test('if_else: inserting the container re-scopes the tail onto a named branch, w
   const ifElse = {
     kind: 'if_else', type: 'if_else', name: 'Deposit paid?',
     branches: [
-      { ref: 'b1', name: 'Paid', conditions: [{ field: 'contact.tags', operator: 'contains', value: 'deposit-paid' }], then: [] },
+      { ref: 'b1', name: 'Paid', conditions: [{ conditionType: 'contact_detail', tag: 'deposit-paid' }], then: [] },
       { ref: 'b2', name: 'Not paid', else: true, then: [] },
     ],
   };
@@ -213,6 +213,16 @@ test('if_else: inserting the container re-scopes the tail onto a named branch, w
 
   const ids = templates.map((t) => t.id);
   assert.equal(ids.length, new Set(ids).size, 'no duplicate template ids');
+
+  // the compiled condition itself, not just the graph wiring — this is the assertion that
+  // would have caught Defect 1 (a {field,operator,value} condition compiling to
+  // conditionType:undefined, dropped by JSON.stringify, a dead branch every contact falls
+  // past into else). `container` above is already the sole condition-node in this test.
+  const cond = container.attributes.branches[0].segments[0].conditions[0];
+  assert.equal(cond.conditionType, 'contact_detail');
+  assert.equal(cond.conditionSubType, 'tags');
+  assert.equal(cond.conditionOperator, 'index-of-true');
+  assert.deepEqual(cond.conditionValue, ['deposit-paid']);
 });
 
 test('appendStep splices a container onto the root tail (no tail to re-scope)', () => {
@@ -348,7 +358,7 @@ test('a NESTED if_else carries parent = its scope owner, like every other contai
     onFound: [{
       kind: 'if_else', type: 'if_else', name: 'Nested check',
       branches: [
-        { ref: 'y', name: 'Yes', conditions: [{ field: 'contact.tags', operator: 'contains', value: 't' }], then: [] },
+        { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 't' }], then: [] },
         { ref: 'n', name: 'No', else: true, then: [] },
       ],
     }],
@@ -365,7 +375,7 @@ test('a NESTED if_else carries parent = its scope owner, like every other contai
   const rootIf = compileSubgraph({
     kind: 'if_else', type: 'if_else', name: 'Root check',
     branches: [
-      { ref: 'y', name: 'Yes', conditions: [{ field: 'contact.tags', operator: 'contains', value: 't' }], then: [] },
+      { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 't' }], then: [] },
       { ref: 'n', name: 'No', else: true, then: [] },
     ],
   }, ctx());
