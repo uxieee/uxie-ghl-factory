@@ -125,10 +125,20 @@ function resolveOppUpdateField(u, ref, ctx) {
       + `(contact->opp dataType join pending, spec §7b) — emitted as authored`);
     return oppField(ff, u.value, u.dataType, u.valueFieldType ?? 'string');
   }
-  throw new IRError('OPP_FIELD_UNKNOWN',
-    `update_opportunity '${ref}': filterField '${ff}' is neither a standard opportunity field `
-    + `(${[...STANDARD_OPP_FIELDS].join(', ')}) nor a custom field in this account. `
-    + `Pass explicit dataType/valueFieldType, or check the field id.`);
+  // Row 3 is a claim: "this field is genuinely unknown." The engine may only make that
+  // claim when it actually HAS the account's field list. Only throw when a customFields
+  // list WAS supplied (and the field isn't in it) — an empty array counts as a supplied
+  // list. With no list in this compile context (e.g. a non-orchestrate caller that didn't
+  // fetch fields), degrade to passthrough so a real custom field never hits a false throw.
+  if (Array.isArray(ctx?.customFields)) {
+    throw new IRError('OPP_FIELD_UNKNOWN',
+      `update_opportunity '${ref}': filterField '${ff}' is neither a standard opportunity field `
+      + `(${[...STANDARD_OPP_FIELDS].join(', ')}) nor a custom field in this account. `
+      + `Pass explicit dataType/valueFieldType, or check the field id.`);
+  }
+  ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' filterField '${ff}' not classified `
+    + `(no customFields list in this compile context) — emitted as authored`);
+  return oppField(ff, u.value, u.dataType, u.valueFieldType ?? 'string');
 }
 
 function updateOpportunityAttributes(a, ref, ctx) {
@@ -149,7 +159,7 @@ function updateOpportunityAttributes(a, ref, ctx) {
     if (a.status != null) f.push(oppField('status', a.status, 'SINGLE_OPTIONS', 'select'));
     if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
     if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
-    if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'number'));
+    if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'numerical'));
     for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   }
   if (!f.length)

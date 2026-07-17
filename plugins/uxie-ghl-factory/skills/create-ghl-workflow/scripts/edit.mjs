@@ -84,9 +84,26 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const call = async (m, p, b) => { await sleep(300); const r = await fetch(BASE + p, { method: m, headers: H(m !== 'GET'), body: b ? JSON.stringify(b) : undefined });
   const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch { j = txt; } return { status: r.status, ok: r.ok, json: j }; };
 
+// Best-effort custom-field fetch — mapped exactly like orchestrate()'s fetchEntities so the
+// compiler can classify an update_opportunity's custom filterFields. Without this the edit
+// path's ctx has NO customFields list, and a genuinely-mistyped field can't be caught (the
+// compiler degrades to passthrough rather than throwing) while a warn sink also can't
+// surface monetaryValue/shape notes. If the fetch fails, degrade gracefully (empty list) —
+// never let a field fetch break an edit.
+let customFields = [];
+try {
+  const cfr = await call('GET', `/locations/${LOC}/customFields`);
+  const cf = cfr.ok ? cfr.json : {};
+  customFields = (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType }));
+  if (!Array.isArray(customFields)) customFields = [];
+} catch { customFields = []; }
+
 // cid is left undefined on purpose (same as orchestrate()): the trigger envelope's
 // company_id then drops out of the JSON rather than carrying a placeholder string.
-const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuidV4, catalog: loadCatalog() };
+// warn sink collects compiler notes (shape/classification warnings) surfaced at the end.
+const warnings = [];
+const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuidV4, catalog: loadCatalog(),
+  customFields, warn: (msg) => warnings.push(msg) };
 
 const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
@@ -188,6 +205,7 @@ if (plan.length && !triggerFailed) {
   }
 }
 
+for (const w of warnings) console.warn('warn:', w);
 const back = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 console.log('steps now:', back?.workflowData?.templates?.length ?? '?', '| status:', back?.status);
 console.log('URL:', `https://app.gohighlevel.com/v2/location/${LOC}/automation/workflow/${WID}`);
