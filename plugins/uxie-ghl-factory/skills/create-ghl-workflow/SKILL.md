@@ -301,6 +301,17 @@ NOT yet proven: runtime execution down the Found branch (needs a real opportunit
 pipeline to enroll). The structure, the validator, and the builder are proven; the runtime
 path of the container's branches is not.
 
+**Nested containers carry `parent` (live-settled 2026-07-17).** A container nested inside
+another container's branch sets `parent` = its scope owner (the branch-entry / transition
+id). This engine used to omit it on `if_else` only — the one container type of eight that
+did — so engine-built nested `if_else` nodes lacked it while every UI-built one had it.
+Harvested from UI-built workflows: 6/6 nested condition-nodes had `parent === scope owner`.
+Fixed in v0.3.9 and live-proven (build → GHL persists `parent` → publish 200 → the builder
+renders the nested `if_else` inside the Found branch with its own branches and a separate
+"When none of the conditions are met" node). Pre-v0.3.9 engine-built workflows with a
+nested `if_else` are missing the field; they appear to run, so this is a fidelity fix, not
+a known runtime break — leave existing ones alone unless a runtime symptom points here.
+
 ### Editing TRIGGERS on an existing workflow
 
 Triggers live in a **separate document** from `workflowData.templates`, with their own CRUD

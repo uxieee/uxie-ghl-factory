@@ -506,16 +506,12 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // BEFORE the container went terminal and the contact hit end_of_workflow there,
       // never reaching the condition. The earlier 2026-07-15 patch only de-duplicated the
       // reused else id (next:[b1,b2,b2]) — it did NOT split out the None node.
-      // OPEN QUESTION (2026-07-17): a NESTED if_else container is the only one of the
-      // eight container types that does NOT get `parent = parentScopeId` set on its own
-      // entry (the others all do it explicitly before their push). It may be a genuine
-      // omission or it may match GHL — the live corpus has no nested-if_else capture to
-      // settle it, and changing an emitted shape on a hunch is how this engine has
-      // shipped green-but-broken workflows before. Left as-is deliberately.
-      // Edit-mode no longer depends on it either way: appendToBranch derives branch
-      // membership by walking the `next` chain (edit.mjs scopeChain), not by filtering
-      // on `parent`, so a missing parent can't orphan a subtree any more. Settle this
-      // with a live capture of a nested if_else before touching it.
+      // SETTLED 2026-07-17 by live capture: a nested if_else DOES carry
+      // `parent = parentScopeId`, same as the other seven container types. Harvested from
+      // UI-built workflows (e.g. "Ads Pixel - CRM Movement"): every nested condition-node
+      // had `parent === its scope owner`, 6/6. This engine used to omit it — the only
+      // container type that did — so engine-built nested if_else nodes (Francesca 07b/11/11b)
+      // are missing it while every UI-built one has it. Match the builder.
       const conditioned = n.branches.filter((b) => b.else !== true);
       const elseBranch = n.branches.find((b) => b.else === true);
       const conditionedIds = conditioned.map((b) => idForRef(refMap, ctx, b.ref));
@@ -523,7 +519,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       const noneId = elseBranch ? idForRef(refMap, ctx, elseBranch.ref) : ctx.idGen();
       const allBranchIds = [...conditionedIds, noneId];
       const noneName = elseBranch?.name ?? 'None';
-      templates.push(withStepDisabled(n, {
+      const ifElseContainer = {
         id, type: 'if_else', name: n.name, order: i,
         parentKey, next: allBranchIds, nodeType: 'condition-node',
         cat: 'conditions', comments: [],
@@ -543,7 +539,9 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           version: 2,
           noneBranchName: noneName,
         },
-      }));
+      };
+      if (parentScopeId !== null) ifElseContainer.parent = parentScopeId;
+      templates.push(withStepDisabled(n, ifElseContainer));
       // conditioned branch nodes (branch-yes): the editor needs the real non-empty
       // attributes shape here, NOT `{}` (an empty attributes made the node uneditable).
       conditioned.forEach((b, bi) => {

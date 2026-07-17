@@ -338,6 +338,40 @@ test('regression: insertAfter a container refuses instead of orphaning its branc
   ], { ctx: ctx(), idGen: makeSeededIdGen('z') }), /is a container.*orphan its branches/s);
 });
 
+test('a NESTED if_else carries parent = its scope owner, like every other container', () => {
+  // Live-settled 2026-07-17: harvested UI-built workflows put `parent` on every nested
+  // condition-node (6/6 in "Ads Pixel - CRM Movement", each === its scope owner). This
+  // engine was the only thing omitting it — the one container type of eight that did.
+  const sub = compileSubgraph({
+    type: 'find_opportunity', name: 'Finder',
+    find: { filters: [{ field: 'pipeline_id', value: PIPE }] },
+    onFound: [{
+      kind: 'if_else', type: 'if_else', name: 'Nested check',
+      branches: [
+        { ref: 'y', name: 'Yes', conditions: [{ field: 'contact.tags', operator: 'contains', value: 't' }], then: [] },
+        { ref: 'n', name: 'No', else: true, then: [] },
+      ],
+    }],
+    onNotFound: [],
+  }, ctx());
+
+  const foundTransition = sub.templates.find((t) => t.name === 'Opportunity Found');
+  const nested = sub.templates.find((t) => t.nodeType === 'condition-node');
+  assert.ok(nested, 'the nested if_else compiled');
+  assert.equal(nested.parent, foundTransition.id, 'nested if_else parent === its scope owner');
+  assert.equal(nested.parentKey, foundTransition.id);
+
+  // and a ROOT-scope if_else still carries NO parent (root scope has no owner)
+  const rootIf = compileSubgraph({
+    kind: 'if_else', type: 'if_else', name: 'Root check',
+    branches: [
+      { ref: 'y', name: 'Yes', conditions: [{ field: 'contact.tags', operator: 'contains', value: 't' }], then: [] },
+      { ref: 'n', name: 'No', else: true, then: [] },
+    ],
+  }, ctx());
+  assert.equal('parent' in rootIf.entry, false, 'root-scope if_else has no parent');
+});
+
 test('the opportunity invariant accepts an update that the inserted find_opportunity now covers', () => {
   // s2 updates an opportunity with nothing associating one — inserting find_opportunity
   // ABOVE it and landing it on Found is exactly the fix the invariant asks for.
