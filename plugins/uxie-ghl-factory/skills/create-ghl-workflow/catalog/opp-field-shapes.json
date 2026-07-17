@@ -1,0 +1,13 @@
+{
+  "_generated": "ghl-internal-api-research/samples/by-location @ 233a2ca (2026-05-18, predates engine 2026-07-10)",
+  "_method": "provenance-filtered: excluded updatedBy in {clone_workflow,snapshot}, originType in {duplicate-workflow,recipe}; support counted per (filterField,key) across accounts",
+  "_threshold": { "throw": 3, "warn": 2 },
+  "fields": {
+    "name":            { "valueFieldType": { "allowed": ["string"],   "n": 49, "accounts": 4 }, "dataType": { "allowed": ["TEXT"],           "n": 27, "accounts": 2 } },
+    "source":          { "valueFieldType": { "allowed": ["string"],   "n": 37, "accounts": 3 }, "dataType": { "allowed": ["TEXT"],           "n": 27, "accounts": 2 } },
+    "monetaryValue":   { "valueFieldType": { "allowed": ["numerical"],"n": 17, "accounts": 2 }, "dataType": { "allowed": ["NUMERICAL"],      "n": 17, "accounts": 2 } },
+    "status":          { "valueFieldType": { "allowed": ["select"],   "n": 66, "accounts": 4 }, "dataType": { "allowed": ["SINGLE_OPTIONS"], "n": 44, "accounts": 2 } },
+    "pipelineId":      { "valueFieldType": { "allowed": ["select"],   "n": 74, "accounts": 5 }, "dataType": { "allowed": ["SINGLE_OPTIONS"], "n": 34, "accounts": 3 } },
+    "pipelineStageId": { "valueFieldType": { "allowed": ["select"],   "n": 98, "accounts": 5 }, "dataType": { "allowed": ["SINGLE_OPTIONS"], "n": 45, "accounts": 3 } }
+  }
+}
