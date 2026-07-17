@@ -278,6 +278,29 @@ nothing follows the anchor, or when the container has a single branch.
 A container is terminal in its scope, so `insertAfter <containerId>` and `appendStep` onto
 a container tail are both refused — append to one of its **branches** instead.
 
+**Live-proven 2026-07-17** on GROM AU (throwaway canaries, since deleted, account verified
+clean). A linear `Head → Tail` workflow, then one `insertAfter` op splicing in a
+`find_opportunity` with `attachTailTo: "predefined_Opportunity Found"`:
+
+- commit `PUT 200`; GET back shows `Head → find_opportunity → [Found, Not Found]`, with the
+  pre-existing Tail step **re-scoped onto Found** (same id, `parent` = the Found
+  transition) and Not Found left null. No duplicate ids.
+- **`PUT status:'published'` → 200, status `published`** — GHL's publish validator accepts
+  the spliced graph, and the container survives it with both branches. (This is the gate
+  that once rejected a duplicated-subtree graph with a misleading "Wait for reply doesn't
+  reference the step".)
+- **The builder renders it and the step editor OPENS** — all five nodes draw, both branch
+  labels draw, and the `find_opportunity` editor shows its Pipeline resolved to the real
+  account pipeline. (Not the `internal_notification` "saves but won't open" class.)
+- **Round-trip proven against a live fresh build**: the same shape built by `build.mjs` in
+  one pass, fetched back, is **content-identical** to the edit-produced one (ids
+  normalised; only object key ORDER differs, a serialisation artifact GHL round-trips
+  either way).
+
+NOT yet proven: runtime execution down the Found branch (needs a real opportunity on the
+pipeline to enroll). The structure, the validator, and the builder are proven; the runtime
+path of the container's branches is not.
+
 ### Editing TRIGGERS on an existing workflow
 
 Triggers live in a **separate document** from `workflowData.templates`, with their own CRUD
