@@ -120,7 +120,8 @@ export async function orchestrate(ir, gw, opts = {}) {
   let built;
   try {
     built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog,
-      customFields: entities.customFields, warn: (msg) => report.warnings.push(msg) });
+      customFields: entities.customFields, warn: (msg) => report.warnings.push(msg),
+      senderDefault: opts.senderDefault });
   } catch (e) {
     if (e?.name === 'IRError') { report.aborted = `compile rejected (${e.code}): ${e.message}`; return report; }
     throw e;

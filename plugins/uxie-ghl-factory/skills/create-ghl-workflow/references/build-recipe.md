@@ -84,6 +84,16 @@ GET the workflow, then on the returned object:
 
 Optimistic locking: the `version` field increments on each write; a stale version can 409. Always start from a fresh GET before the publish PUT.
 
+### Email sender identity
+
+A new `email` step defaults `from_name`/`from_email` to `{{location.name}}` /
+`{{location.email}}`. Many accounts standardise the sender on custom values
+(e.g. `{{ custom_values.sender_name }}`). Set `attributes.from_name` /
+`attributes.from_email` per step, or pass `senderDefault` to `orchestrate()` to
+apply an account-wide default. The `{{location.*}}` fallback is a last resort and
+on an account whose sending domain is the custom-value address it sends from the
+wrong identity.
+
 ## 6. Opportunity actions — the find-or-create dependency
 
 `internal_update_opportunity` only acts on the opportunity **associated in the workflow
