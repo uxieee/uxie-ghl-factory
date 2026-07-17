@@ -72,7 +72,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // only compares SENT vs GOT — both were 8. `authored` is the only number tied to what the
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
-    authored: 0, compiled: 0, steps: 0,
+    authored: 0, compiled: 0, steps: 0, warnings: [],
     triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false, aborted: null };
 
   // 1. resolve names → ids
@@ -119,7 +119,8 @@ export async function orchestrate(ir, gw, opts = {}) {
   //    land in report.aborted like the other failure modes — not a raw throw.
   let built;
   try {
-    built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog });
+    built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog,
+      warn: (msg) => report.warnings.push(msg) });
   } catch (e) {
     if (e?.name === 'IRError') { report.aborted = `compile rejected (${e.code}): ${e.message}`; return report; }
     throw e;

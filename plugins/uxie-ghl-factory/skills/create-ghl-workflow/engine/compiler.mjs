@@ -2,6 +2,7 @@
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
+import { checkOppFieldShape } from './opp-shapes.mjs';
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
@@ -10,7 +11,7 @@ function attributesFor(node, ctx) {
   if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {});
-  if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {});
+  if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
   if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {}, node.ref);
   // Generic path: the author supplies intent attributes; the compiler fills the
   // two structural fields the corpus shows on this type but a human never hand-writes:
@@ -65,15 +66,18 @@ function checkAttrKeys(node, out, meta) {
 // The IR supplies resolved pipelineId + stageId (the orchestrator resolves names→ids via the
 // pipelines list, like tags/templates).
 function oppField(filterField, value, dataType, valueFieldType) {
-  return { __customInputs__: {}, dataType, filterField, value, valueFieldType };
+  const f = { __customInputs__: {}, filterField, value, valueFieldType };
+  if (dataType !== undefined) f.dataType = dataType;   // absence is legal; never inject a dialect
+  return f;
 }
-function createOpportunityAttributes(a) {
+function createOpportunityAttributes(a, ref, ctx) {
   const f = [];
   if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
   if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
   f.push(oppField('status', a.status ?? 'open', 'SINGLE_OPTIONS', 'select'));
   if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
-  if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'number'));
+  if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'numerical'));
+  for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   return { pipelineId: a.pipelineId, type: 'internal_create_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
 // update_opportunity fields come from EITHER an explicit updates[] (full control) or the
