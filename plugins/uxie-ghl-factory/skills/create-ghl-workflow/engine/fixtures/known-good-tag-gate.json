@@ -1,0 +1,9 @@
+{
+  "conditionType": "contact_detail",
+  "conditionSubType": "tags",
+  "conditionOperator": "index-of-true",
+  "conditionValue": ["deposit:paid-course"],
+  "ifElseNodeId": "",
+  "isWait": false,
+  "__customFieldType__": "standard"
+}
