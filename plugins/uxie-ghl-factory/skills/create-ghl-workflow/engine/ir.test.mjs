@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseIR, IRError, collectRefs } from './ir.mjs';
+import { parseIR, IRError, collectRefs, lintConditionShape } from './ir.mjs';
 
 const validIR = () => ({
   name: 'W', triggers: [{ ref: 't1', type: 'contact_tag', name: 'T', filters: [] }],
@@ -56,4 +56,23 @@ test('triggers: [] is legal (trigger-less workflow enrolled via add_to_workflow)
     { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'A', attributes: { tags: ['x'] } }] };
   const norm = parseIR(ir);
   assert.deepEqual(norm.triggers, []);
+});
+
+test('lintConditionShape: rejects a condition with no conditionType', () => {
+  assert.throws(
+    () => lintConditionShape({ conditionSubType: 'x', conditionOperator: '==', conditionValue: 'y' }),
+    (e) => e.code === 'COND_SHAPE' && /must identify what it tests/.test(e.message),
+  );
+});
+
+test('lintConditionShape: names the trigger-filter vocabulary when field/operator/value leak in', () => {
+  assert.throws(
+    () => lintConditionShape({ field: 'contact.tags', operator: 'contains', value: 'vip' }),
+    (e) => e.code === 'COND_SHAPE' && /trigger[- ]filter/i.test(e.message) && /conditionType: *'contact_detail', *tag:/.test(e.message),
+  );
+});
+
+test('lintConditionShape: a well-formed condition passes through unchanged', () => {
+  const c = { conditionType: 'contact_detail', conditionSubType: 'tags', conditionOperator: 'index-of-true', conditionValue: ['vip'] };
+  assert.deepEqual(lintConditionShape(c), c);
 });
