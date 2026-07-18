@@ -100,8 +100,11 @@ try {
 
 // cid is left undefined on purpose (same as orchestrate()): the trigger envelope's
 // company_id then drops out of the JSON rather than carrying a placeholder string.
-// warn sink collects compiler notes (shape/classification warnings) surfaced at the end.
+// warn sink collects compiler notes (shape/classification warnings). flushWarnings() prints
+// them, and MUST run on every exit path — including the early ones (dry-run, tag abort, PUT
+// fail) — or a shape/classification warning captured during compile is silently swallowed.
 const warnings = [];
+const flushWarnings = () => { for (const w of warnings) console.warn('warn:', w); };
 const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuidV4, catalog: loadCatalog(),
   customFields, warn: (msg) => warnings.push(msg) };
 
@@ -145,6 +148,7 @@ if (dryRun) {
     : `SKIPPED — workflow is '${fresh.status}'; triggers activate when you publish`);
   if (neededTags.length) console.log('tags referenced:', neededTags.join(', '),
     tagsToCreate.length ? `| WOULD CREATE: ${tagsToCreate.join(', ')}` : '| all exist');
+  flushWarnings();
   process.exit(0);
 }
 
@@ -153,14 +157,14 @@ console.log('\n=== EDIT REPORT ===');
 // Create missing tags FIRST — before the commit and before any trigger POST.
 for (const name of tagsToCreate) {
   const r = await call('POST', `/locations/${LOC}/tags`, { name });
-  if (!r.ok) { console.error(`ABORT: could not create tag '${name}' (${r.status}) — the edit would reference a tag that doesn't exist.`); process.exit(2); }
+  if (!r.ok) { console.error(`ABORT: could not create tag '${name}' (${r.status}) — the edit would reference a tag that doesn't exist.`); flushWarnings(); process.exit(2); }
 }
 if (tagsToCreate.length) console.log('created tags:', tagsToCreate.join(', '));
 if (stepOps.length) {
   const put = await call('PUT', `/workflow/${LOC}/${WID}`, body);
   console.log('PUT status:', put.status, put.ok ? 'OK' : 'FAIL');
   console.log('diff:', JSON.stringify(diff));
-  if (!put.ok) { console.log('body:', JSON.stringify(put.json).slice(0, 240)); process.exit(2); }
+  if (!put.ok) { console.log('body:', JSON.stringify(put.json).slice(0, 240)); flushWarnings(); process.exit(2); }
 }
 
 let triggerFailed = false;
@@ -205,7 +209,7 @@ if (plan.length && !triggerFailed) {
   }
 }
 
-for (const w of warnings) console.warn('warn:', w);
+flushWarnings();
 const back = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 console.log('steps now:', back?.workflowData?.templates?.length ?? '?', '| status:', back?.status);
 console.log('URL:', `https://app.gohighlevel.com/v2/location/${LOC}/automation/workflow/${WID}`);
