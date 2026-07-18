@@ -141,13 +141,13 @@ same family of trap as `opportunities-v3__update-pipeline` (reported live 2026-0
 - **Do NOT include `locationId` in the update body** — `update-calendar` rejects it with a
   `422` (the location is already addressed by the calendar id).
 
-Re-confirmed live 2026-07-17 (Francesca cohort-booking build) on a `class_booking` calendar:
+Re-confirmed live 2026-07-17 (a client account cohort-booking build) on a `class_booking` calendar:
 omitting fields reset `slotDuration`→30, `openHours`→`{}`, and `enableRecurring`→`false` in a
 single PUT. The trap is real across calendar types — always PUT the full config.
 
 ## Adjacent surface: `class_booking` calendars (group / cohort / multi-day)
 
-> Live-verified 2026-07-17 (Francesca course-cohort booking).
+> Live-verified 2026-07-17 (a client account course-cohort booking).
 
 A `class_booking` calendar is the shape to reach for when **many contacts book the same slot**
 (a cohort, class, workshop or group session) rather than one contact booking a private slot.
@@ -172,7 +172,7 @@ event. Even **live widget** bookings showed single Monday events in `get-calenda
 (reminders, no-show detection, day-2 attendance, "appointment on Tuesday" triggers) will find
 nothing on day 2 and silently no-op.
 
-**Recommended pattern** (shipped in Francesca as "Outcome 2"): model the cohort as the **Day-1
+**Recommended pattern** (shipped in a client account as "Outcome 2"): model the cohort as the **Day-1
 seat only** — the Monday held appointment *is* the cohort seat. Carry "two days, Mon + Tue,
 one place across both" in the **AI prompt and email/SMS copy**, never as a second calendar
 event. This makes the design independent of recurrence behaviour entirely.

@@ -209,17 +209,17 @@ test('compileVoiceAiAction: APPOINTMENT_BOOKING rejects missing calendarId', () 
 // GROUND TRUTH: factory-findings-2026-07-18/voice-multi-calendar-shape.json (live UI
 // multi-select save, network-sniffed PUT). Multi mode sends calendarId:null +
 // calendarActionType:'multiple' + calendarIds:[{id,triggerCondition}] + aiDescription
-// + optional fallbackCalendar/fallbackCalendarId. The two calendarIds strings below are
-// the exact triggerConditions from the capture.
+// + optional fallbackCalendar/fallbackCalendarId. The calendar ids + triggerConditions
+// below are neutral placeholders (the real capture was on a client account).
 const MULTI_CAL_INPUT = {
   calendarActionType: 'multiple',
   calendarIds: [
-    { id: 'SHVoCOKWiXBHBgluDEm6', triggerCondition: 'Booking the BioRePeel and microneedling treatment session or appointment' },
-    { id: 'tICTbR20mIua5ijoa5gJ', triggerCondition: 'Joining the Advanced Skin Specialist training course, the two-day cohort' },
+    { id: 'CALtreatmnt0000000001', triggerCondition: 'Booking a treatment session or appointment' },
+    { id: 'CALcohort00000000002', triggerCondition: 'Joining a two-day training course cohort' },
   ],
   aiDescription: 'Route treatment bookings to the treatment calendar and course enrolments to the course cohort calendar.',
   fallbackCalendar: true,
-  fallbackCalendarId: 'SHVoCOKWiXBHBgluDEm6',
+  fallbackCalendarId: 'CALtreatmnt0000000001',
 };
 
 test('compileVoiceAiAction: APPOINTMENT_BOOKING multi-calendar byte-matches voice-multi-calendar-shape.json', () => {
@@ -228,12 +228,12 @@ test('compileVoiceAiAction: APPOINTMENT_BOOKING multi-calendar byte-matches voic
   assert.deepEqual(body.actionParameters, {
     calendarId: null,
     calendarIds: [
-      { id: 'SHVoCOKWiXBHBgluDEm6', triggerCondition: 'Booking the BioRePeel and microneedling treatment session or appointment' },
-      { id: 'tICTbR20mIua5ijoa5gJ', triggerCondition: 'Joining the Advanced Skin Specialist training course, the two-day cohort' },
+      { id: 'CALtreatmnt0000000001', triggerCondition: 'Booking a treatment session or appointment' },
+      { id: 'CALcohort00000000002', triggerCondition: 'Joining a two-day training course cohort' },
     ],
     aiDescription: 'Route treatment bookings to the treatment calendar and course enrolments to the course cohort calendar.',
     fallbackCalendar: true,
-    fallbackCalendarId: 'SHVoCOKWiXBHBgluDEm6',
+    fallbackCalendarId: 'CALtreatmnt0000000001',
     calendarActionType: 'multiple',
     daysOfOfferingDates: 3,
     slotsPerDay: 3,

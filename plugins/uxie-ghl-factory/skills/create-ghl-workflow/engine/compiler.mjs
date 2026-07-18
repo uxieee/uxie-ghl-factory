@@ -68,7 +68,7 @@ function checkAttrKeys(node, out, meta) {
 // A numeric opp field (valueFieldType 'numerical', e.g. monetaryValue) must carry a
 // NUMBER on the wire, not a stringified one. The builder stores it in a numeric model
 // and silently drops a string: the field renders EMPTY and the next UI save blanks the
-// value (live 2026-07-18, Francesca — opportunity-monetaryvalue-plugin-bug.md). Runtime
+// value (live-verified 2026-07-18 on a client account). Runtime
 // coerced the string fine, so this was invisible until a node was reopened. A value that
 // is NOT a finite number (a {{merge-field}} token, an empty string) is left untouched —
 // there is no better shape for it and coercing would corrupt it (NaN / a spurious 0).
@@ -565,7 +565,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // `parent = parentScopeId`, same as the other seven container types. Harvested from
       // UI-built workflows (e.g. "Ads Pixel - CRM Movement"): every nested condition-node
       // had `parent === its scope owner`, 6/6. This engine used to omit it — the only
-      // container type that did — so engine-built nested if_else nodes (Francesca 07b/11/11b)
+      // container type that did — so engine-built nested if_else nodes (a client's 07b/11/11b)
       // are missing it while every UI-built one has it. Match the builder.
       const conditioned = n.branches.filter((b) => b.else !== true);
       const elseBranch = n.branches.find((b) => b.else === true);
