@@ -332,6 +332,17 @@ corpus-traced `buildTrigger` the create path uses:
 live trigger list — an ambiguous match is a hard error, never a silent pick. `modifyTrigger`
 PUTs the full merged object (unspecified fields carry over from the live trigger).
 
+> ⚠️ **For `contact_tag` / `pipeline_stage_updated`, prefer `deleteTrigger` + `addTrigger`
+> over `modifyTrigger`.** The live trigger-bucket subscription is keyed to the trigger's
+> server-side `_id`. `modifyTrigger` does an **in-place `PUT /workflow/{loc}/trigger/{tid}`
+> that re-seats the same `id`/`_id`** (`engine/edit-driver.mjs` → `planTriggerOps`), and an
+> in-place PUT is **never re-subscribed** — the trigger saves + reads back correct + shows
+> active but produces **0 organic enrolments**. Delete + add-fresh mints a **new `_id`** that
+> registers and fires. Verified live 2026-07-18 (both classes, API + UI). Full write-up +
+> the cosmetic `eq`-vs-`==` operator caveat: `references/build-recipe.md` §3 ("The trigger
+> `_id` registration trap"). This is a distinct mechanism from the 2026-07-16 inert-trigger
+> value-shape bug — same symptom, different cause — so drive-test either way.
+
 Two things the engine handles that a hand-rolled POST gets wrong:
 
 - **The full envelope is load-bearing.** A lean body (just type/name/conditions) saves and
