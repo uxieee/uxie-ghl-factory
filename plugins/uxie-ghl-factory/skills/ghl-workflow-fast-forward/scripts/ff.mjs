@@ -13,6 +13,7 @@
 // is a DRY RUN unless you also pass --confirm. `statusIds` are workflow-status ULIDs (from
 // details-by-step), NOT contactIds. See SKILL.md for the write gates.
 import fs from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 const IFRAME = 'https://client-app-automation-workflows.leadconnectorhq.com';
@@ -140,6 +141,9 @@ async function main(argv) {
   throw new Error(`unknown command '${cmd}' (expected peek | move)`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run as CLI when invoked directly. Compare via pathToFileURL so a plugin path containing
+// spaces (e.g. ".../Vibe Code/...") still matches — import.meta.url percent-encodes them,
+// a bare `file://${process.argv[1]}` does not, and the mismatch silently skips main().
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2)).catch((e) => { console.error(String(e.message || e)); process.exit(1); });
 }

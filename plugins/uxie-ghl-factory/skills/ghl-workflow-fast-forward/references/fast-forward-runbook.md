@@ -70,14 +70,19 @@ Body {
 - **Bulk (`--all`):** page `details-by-step` to collect every `_id` at the step, then move them.
   The `ff.mjs --all` path is a DRY RUN until `--confirm` is added.
 
-## Unproven edges — flag, don't assert
+## Proven (GROM AU, 2026-07-18)
 
-- **Selective move with >1 parked:** moving 1 of 3 parked and asserting the other 2 stay put is
-  untested. The endpoint takes an explicit id list, so it *should* be exact — but confirm on a
-  scratch workflow before relying on it against anything real.
+- **Selective move with >1 parked** ✅ — 3 parked, moved 1 by contactId, the other 2 stayed. The
+  moved contact's next step fired (proven by a tag it adds), so it's a real advance, not just a
+  pointer move.
+- **Bulk `--all`** ✅ and **pagination** ✅ (`allParked` with `pageSize=1` drained all 3).
+- The whole ladder (2 waits) driven to `end_of_workflow` in ~2 min.
+
+## Still unproven — flag, don't assert
+
 - **The UI "Select all N contacts" link** may post a different body (a flag rather than an id
   list). Only the ids-based body above was captured; `ff.mjs` builds the id list itself rather
-  than depending on that link.
+  than depending on that link, so this doesn't affect the script.
 
 ## Test loop (why this exists)
 
