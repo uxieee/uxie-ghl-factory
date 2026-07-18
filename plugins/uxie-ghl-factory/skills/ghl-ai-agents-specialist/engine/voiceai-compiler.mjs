@@ -272,7 +272,62 @@ const APPOINTMENT_BOOKING_PARAM_DEFAULTS = {
   fallbackTimezone: 'askUser',
 };
 
+// Multi-calendar (intent-based routing). GROUND TRUTH:
+// research/ai-agents-internal/captures/voice-multi-calendar-shape.json (live UI
+// multi-select save, 2026-07-18). Ticking a 2nd calendar flips the action single->multiple:
+// calendarId becomes null; calendarIds becomes an ARRAY OF OBJECTS {id, triggerCondition}
+// (one routing condition per calendar — NOT Conversation AI's flat id array); aiDescription
+// is the overall intent-routing text; fallbackCalendar/fallbackCalendarId pick the calendar
+// for the no-match case. The server echoes back a per-item `slug` (and the public
+// voice-ai-v3 MCP additionally demands a `name` per item) — the internal PUT this compiler
+// targets wants NEITHER, so each item is normalized to exactly {id, triggerCondition}.
+function normalizeCalendarItem(c, i) {
+  if (!c || typeof c !== 'object' || Array.isArray(c))
+    throw new IRError('SCHEMA', `APPOINTMENT_BOOKING calendarIds[${i}] must be an object { id, triggerCondition }, got: ${JSON.stringify(c)}`);
+  if (typeof c.id !== 'string' || c.id.length === 0)
+    throw new IRError('SCHEMA', `APPOINTMENT_BOOKING calendarIds[${i}].id is required (non-empty string)`);
+  if (typeof c.triggerCondition !== 'string' || c.triggerCondition.length === 0)
+    throw new IRError('SCHEMA', `APPOINTMENT_BOOKING calendarIds[${i}].triggerCondition is required (non-empty string, <=80 chars)`);
+  if (c.triggerCondition.length > 80)
+    throw new IRError('SCHEMA', `APPOINTMENT_BOOKING calendarIds[${i}].triggerCondition must be <=80 chars, got ${c.triggerCondition.length}`);
+  return { id: c.id, triggerCondition: c.triggerCondition };   // drop server-added slug/name
+}
+
+function buildMultiCalendarBooking(p) {
+  if (!Array.isArray(p.calendarIds) || p.calendarIds.length < 2)
+    throw new IRError('SCHEMA',
+      `APPOINTMENT_BOOKING multi-calendar (calendarActionType:'multiple') requires calendarIds: an array of >=2 { id, triggerCondition } items, got: ${JSON.stringify(p.calendarIds)}`);
+  const calendarIds = p.calendarIds.map(normalizeCalendarItem);
+  assertRequiredParam(p.aiDescription, 'aiDescription', 'APPOINTMENT_BOOKING');
+  if (p.aiDescription.length > 500)
+    throw new IRError('SCHEMA', `APPOINTMENT_BOOKING aiDescription must be <=500 chars, got ${p.aiDescription.length}`);
+  const fallbackCalendar = p.fallbackCalendar ?? false;
+  let fallbackCalendarId = p.fallbackCalendarId ?? null;
+  if (fallbackCalendar === true) {
+    assertRequiredParam(p.fallbackCalendarId, 'fallbackCalendarId', 'APPOINTMENT_BOOKING');
+    const ids = calendarIds.map((c) => c.id);
+    if (!ids.includes(p.fallbackCalendarId))
+      throw new IRError('SCHEMA',
+        `APPOINTMENT_BOOKING fallbackCalendarId '${p.fallbackCalendarId}' must be one of the calendarIds ids [${ids.join(', ')}]`);
+    fallbackCalendarId = p.fallbackCalendarId;
+  }
+  return {
+    ...APPOINTMENT_BOOKING_PARAM_DEFAULTS,
+    ...p,
+    calendarId: null,
+    calendarIds,
+    calendarActionType: 'multiple',
+    aiDescription: p.aiDescription,
+    fallbackCalendar,
+    fallbackCalendarId,
+  };
+}
+
 function buildAppointmentBookingParams(p) {
+  // Multi mode is signalled by calendarActionType:'multiple' OR simply a non-empty
+  // calendarIds array; single mode still gates on calendarId as before.
+  const isMulti = p.calendarActionType === 'multiple' || (Array.isArray(p.calendarIds) && p.calendarIds.length > 0);
+  if (isMulti) return buildMultiCalendarBooking(p);
   assertRequiredParam(p.calendarId, 'calendarId', 'APPOINTMENT_BOOKING');
   return { ...APPOINTMENT_BOOKING_PARAM_DEFAULTS, ...p };
 }

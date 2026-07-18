@@ -176,13 +176,33 @@ field(s) and merges the caller's `actionParameters` over any capture-grounded de
 - **`DATA_EXTRACTION`** ("Update contact field") — required: `contactFieldId`,
   `contactFieldKey`, `contactFieldDataType`. **Full shape + live-proof: see "DATA_EXTRACTION
   in depth" below.**
-- **`APPOINTMENT_BOOKING`** — required: `calendarId`. Booking/appointment-management
+- **`APPOINTMENT_BOOKING`** — **single mode** requires `calendarId`. Booking/appointment-management
   toggles (`daysOfOfferingDates`, `collectEmail`, `cancelEnabled`, `timezoneSelection`, ...)
   default to their captured values. Only one Appointment Booking action allowed per agent.
   Repointing `calendarId` via `voice-ai-v3__update-action` **preserves** the booking
   sub-fields (`calendarActionType`, `collectEmail`, reschedule/cancel flags) — it does not
   strip them, so you can safely move an agent between calendars without re-sending the whole
   booking config (live-verified 2026-07-17).
+  **Multi-calendar (intent-based routing) — VERIFIED 2026-07-18** (`voice-multi-calendar-shape.json`,
+  live UI multi-select save, network-sniffed PUT). Ticking a 2nd calendar in "Pick a Calendar"
+  flips the action single→multiple and adds a "User Intent Description" wizard step. The write shape:
+  - `calendarActionType: "multiple"` and `calendarId: null`.
+  - `calendarIds: [{ id, triggerCondition }, ...]` — an **array of objects** (one routing condition
+    per calendar, `triggerCondition` ≤80 chars), **not** Conversation AI's flat id array. `>=2` items.
+    The compiler normalizes each item to exactly `{id, triggerCondition}`: the server echoes back a
+    per-item `slug`, and the public `voice-ai-v3__update-action` additionally **400s** without a
+    `name` per item (`"Calendar name is required for each calendar"`) — the internal PUT wants neither,
+    so **do not send `slug`/`name`** on this path.
+  - `aiDescription`: overall intent-routing text, ≤500 chars (required in multi mode).
+  - `fallbackCalendar: true` + `fallbackCalendarId` (must be one of the `calendarIds` ids) for the
+    ambiguous/no-match case. Scheduling params (`daysOfOfferingDates`/`slotsPerDay`/`hoursBetweenSlots`)
+    and the `collect*`/cancel/reschedule/timezone defaults are preserved from single mode.
+  - **The write goes via `PUT /voice-ai/actions/{id}` with `actionParameters` as an OBJECT.**
+  - ⚠️ **PUBLIC-API READBACK GAP:** `voice-ai-v3__get-action` does **not** project
+    `calendarIds`/`calendarActionType`/`aiDescription`/`fallbackCalendarId` — after a multi-calendar
+    write it reads back only `{calendarId:null, daysOfOfferingDates, slotsPerDay, hoursBetweenSlots}`,
+    which looks empty/misleading. **Verify only** via the INTERNAL GET
+    (`services.leadconnectorhq.com/voice-ai/agents/{id}` → `appointmentBookingAction`) or the builder UI.
   **`class_booking` (group / cohort / multi-day) calendars — VOICE IS UNTESTED (open as of
   2026-07-17).** ConvAI is proven to accept and book one (Day 1 only), but **Voice AI has never
   been fired at a `class_booking` calendar** — nobody has checked whether

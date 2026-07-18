@@ -66,3 +66,71 @@ test("update_opportunity name-path monetaryValue emits valueFieldType 'numerical
   assert.ok(mv, 'monetaryValue field emitted');
   assert.equal(mv.valueFieldType, 'numerical');
 });
+
+// --- monetaryValue numeric-value fix (2026-07-18) --------------------------------
+// GROUND TRUTH: factory-findings-2026-07-18/opportunity-monetaryvalue-plugin-bug.md.
+// The builder stores monetaryValue as a NUMBER and won't load a stringified value into
+// its model — a create/update-opportunity node whose Opportunity Value was emitted as a
+// string ("180") renders EMPTY in the builder and a later UI save silently blanks it.
+// The builder-native shape is { value:180 (number), valueFieldType:'numerical',
+// dataType:'NUMERICAL' }. The engine used to emit String(a.value) — assert it now emits
+// a NUMBER across BOTH the create and update paths, and that string fields are untouched.
+const oppCreate = (attributes) => ({
+  triggers: [{ type: 'contact_tag', name: 'T', filters: [] }],
+  graph: [{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'Create',
+    attributes: { pipelineId: 'P', stageId: 'S', ...attributes } }],
+});
+const createFieldOf = (spec, ff) => {
+  const built = compile(spec, baseCtx());
+  const opp = built.autoSaveBody.workflowData.templates.find((t) => t.attributes?.__customInputFields__);
+  return opp.attributes.__customInputFields__.find((x) => x.filterField === ff);
+};
+
+test('create_opportunity monetaryValue compiles to the builder-native shape (numeric value + numerical + NUMERICAL)', () => {
+  const mv = createFieldOf(oppCreate({ name: 'Deal', value: 180 }), 'monetaryValue');
+  assert.ok(mv, 'monetaryValue field emitted');
+  assert.equal(mv.value, 180);
+  assert.equal(typeof mv.value, 'number');
+  assert.equal(mv.valueFieldType, 'numerical');
+  assert.equal(mv.dataType, 'NUMERICAL');
+});
+
+test('create_opportunity monetaryValue authored as a numeric STRING still emits a number', () => {
+  const mv = createFieldOf(oppCreate({ value: '2000' }), 'monetaryValue');
+  assert.equal(mv.value, 2000);
+  assert.equal(typeof mv.value, 'number');
+  assert.equal(mv.valueFieldType, 'numerical');
+});
+
+test('create_opportunity name (string field) keeps string value + dataType TEXT, never coerced', () => {
+  const nm = createFieldOf(oppCreate({ name: '2024 Deal', value: 180 }), 'name');
+  assert.equal(nm.value, '2024 Deal');
+  assert.equal(typeof nm.value, 'string');
+  assert.equal(nm.valueFieldType, 'string');
+  assert.equal(nm.dataType, 'TEXT');
+});
+
+test('update_opportunity name-path monetaryValue emits a NUMBER + NUMERICAL, not a string', () => {
+  const spec = {
+    triggers: [{ type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'u', kind: 'action', type: 'update_opportunity', name: 'Upd', assocGuaranteed: true, attributes: { value: '2000' } }],
+  };
+  const mv = fieldOf(compile(spec, baseCtx()), 'monetaryValue');
+  assert.equal(mv.value, 2000);
+  assert.equal(typeof mv.value, 'number');
+  assert.equal(mv.valueFieldType, 'numerical');
+  assert.equal(mv.dataType, 'NUMERICAL');
+});
+
+test('update_opportunity updates[] monetaryValue coerces a string value to a number', () => {
+  const mv = fieldOf(compile(oppUpdate([{ field: 'monetaryValue', value: '2000' }]), baseCtx()), 'monetaryValue');
+  assert.equal(mv.value, 2000);
+  assert.equal(typeof mv.value, 'number');
+  assert.equal(mv.valueFieldType, 'numerical');
+});
+
+test('monetaryValue authored as a merge-field token is NOT coerced (survives as a string)', () => {
+  const mv = fieldOf(compile(oppUpdate([{ field: 'monetaryValue', value: '{{contact.deal_value}}' }]), baseCtx()), 'monetaryValue');
+  assert.equal(mv.value, '{{contact.deal_value}}');
+  assert.equal(typeof mv.value, 'string');
+});
