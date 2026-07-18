@@ -35,7 +35,12 @@ export async function fetchEntities(gw) {
     g(`/calendars/?locationId=${loc}`),
     g(`/users/?locationId=${loc}`),
     g(`/forms/?locationId=${loc}&limit=100`),
-    g(`/locations/${loc}/customFields`),
+    // model=all: the plain /customFields endpoint returns CONTACT fields only, so an
+    // update_opportunity referencing an OPPORTUNITY custom field false-threw OPP_FIELD_UNKNOWN
+    // (live-caught on GROM AU 2026-07-18). The search endpoint returns every model's custom
+    // fields; includeStandards=false keeps it to genuine custom fields (standard opp fields
+    // like name/status are matched by STANDARD_OPP_FIELDS before the custom lookup).
+    g(`/locations/${loc}/customFields/search?parentId=&skip=0&limit=10000&documentType=field&model=all&query=&includeStandards=false`),
     g(`/voice-ai/agents?locationId=${loc}`),               // best-effort (may 404)
     g(`/ai-employees/agents?locationId=${loc}`),           // best-effort (may 404)
   ]);
@@ -46,7 +51,7 @@ export async function fetchEntities(gw) {
     calendars: (cl.calendars || []).map((c) => ({ id: c.id || c._id, name: c.name })),
     users: (us.users || us || []).map((u) => ({ id: u.id || u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, name: u.name })),
     forms: (fm.forms || []).map((f) => ({ id: f.id || f._id, name: f.name })),
-    customFields: (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType })),
+    customFields: (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model })),
     agents,
   };
 }

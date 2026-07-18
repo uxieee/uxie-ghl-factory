@@ -92,9 +92,11 @@ const call = async (m, p, b) => { await sleep(300); const r = await fetch(BASE +
 // never let a field fetch break an edit.
 let customFields = [];
 try {
-  const cfr = await call('GET', `/locations/${LOC}/customFields`);
+  // search + model=all: the plain /customFields endpoint is CONTACT-only, so an edit that
+  // touches an OPPORTUNITY custom field false-threw OPP_FIELD_UNKNOWN (live-caught 2026-07-18).
+  const cfr = await call('GET', `/locations/${LOC}/customFields/search?parentId=&skip=0&limit=10000&documentType=field&model=all&query=&includeStandards=false`);
   const cf = cfr.ok ? cfr.json : {};
-  customFields = (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType }));
+  customFields = (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model }));
   if (!Array.isArray(customFields)) customFields = [];
 } catch { customFields = []; }
 

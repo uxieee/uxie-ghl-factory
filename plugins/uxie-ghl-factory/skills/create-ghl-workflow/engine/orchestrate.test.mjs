@@ -128,6 +128,16 @@ const emailIR = (extra = {}) => ({ name: 'W', ...extra,
 const savedEmail = (calls) => calls.find((c) => c.method === 'PUT' && c.path.includes('/auto-save'))
   .body.workflowData.templates.find((t) => t.type === 'email');
 
+test('orchestrate fetches custom fields across ALL models (opportunity fields must be visible)', async () => {
+  // Live-caught 2026-07-18: the plain /customFields endpoint returns CONTACT fields only,
+  // so update_opportunity referencing an OPPORTUNITY custom field false-threw OPP_FIELD_UNKNOWN.
+  const { gw, calls } = mockGateway();
+  await orchestrate(tagIR(), gw);
+  const cfGet = calls.find((c) => c.method === 'GET' && c.path.includes('/customFields'));
+  assert.ok(cfGet, 'fetches custom fields');
+  assert.match(cfGet.path, /model=all/, 'must request model=all — the contact-only endpoint false-throws on opportunity custom fields');
+});
+
 test('orchestrate applies a top-level ir.senderDefault to email steps (§5 reachable via IR)', async () => {
   const { gw, calls } = mockGateway();
   await orchestrate(emailIR({ senderDefault: { from_name: '{{ custom_values.sender_name }}', from_email: '{{ custom_values.sender_email }}' } }), gw);
