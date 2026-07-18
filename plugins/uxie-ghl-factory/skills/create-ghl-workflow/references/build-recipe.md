@@ -84,15 +84,20 @@ GET the workflow, then on the returned object:
 
 Optimistic locking: the `version` field increments on each write; a stale version can 409. Always start from a fresh GET before the publish PUT.
 
-### Email sender identity
+## Email sender identity
 
 A new `email` step defaults `from_name`/`from_email` to `{{location.name}}` /
 `{{location.email}}`. Many accounts standardise the sender on custom values
-(e.g. `{{ custom_values.sender_name }}`). Set `attributes.from_name` /
-`attributes.from_email` per step, or pass `senderDefault` to `orchestrate()` to
-apply an account-wide default. The `{{location.*}}` fallback is a last resort and
-on an account whose sending domain is the custom-value address it sends from the
-wrong identity.
+(e.g. `{{ custom_values.sender_name }}`). Three ways to override, in precedence order:
+
+1. **Per step** — set `attributes.from_name` / `attributes.from_email` on the email node.
+2. **Per build, declaratively** — put a top-level `senderDefault: { from_name, from_email }`
+   on the IR. `orchestrate()` applies it to every email step that omits its own sender.
+3. **Per build, programmatically** — pass `{ senderDefault }` in `orchestrate()`'s opts
+   (wins over the IR-level value).
+
+The `{{location.*}}` fallback is a last resort: on an account whose sending domain is the
+custom-value address, an un-overridden step sends from the wrong identity.
 
 ## 6. Opportunity actions — the find-or-create dependency
 

@@ -119,3 +119,32 @@ test('orchestrate builds a trigger-less workflow with zero trigger POSTs', async
   assert.equal(calls.some((c) => c.method === 'POST' && c.path.includes('/trigger')), false);
   assert.equal(report.triggers.posted, 0);
 });
+
+// §5 reachability: the sender default must be usable from the normal build path, not only
+// programmatically. An email step is extracted from the auto-save PUT body the mock records.
+const emailIR = (extra = {}) => ({ name: 'W', ...extra,
+  triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+  graph: [{ ref: 'e', kind: 'action', type: 'email', name: 'Mail', attributes: { subject: 'Hi', html: '<p>x</p>' } }] });
+const savedEmail = (calls) => calls.find((c) => c.method === 'PUT' && c.path.includes('/auto-save'))
+  .body.workflowData.templates.find((t) => t.type === 'email');
+
+test('orchestrate applies a top-level ir.senderDefault to email steps (§5 reachable via IR)', async () => {
+  const { gw, calls } = mockGateway();
+  await orchestrate(emailIR({ senderDefault: { from_name: '{{ custom_values.sender_name }}', from_email: '{{ custom_values.sender_email }}' } }), gw);
+  const email = savedEmail(calls);
+  assert.equal(email.attributes.from_name, '{{ custom_values.sender_name }}');
+  assert.equal(email.attributes.from_email, '{{ custom_values.sender_email }}');
+});
+
+test('orchestrate: opts.senderDefault wins over ir.senderDefault', async () => {
+  const { gw, calls } = mockGateway();
+  await orchestrate(emailIR({ senderDefault: { from_name: 'FROM_IR', from_email: 'ir@x' } }), gw,
+    { senderDefault: { from_name: 'FROM_OPTS', from_email: 'opts@x' } });
+  assert.equal(savedEmail(calls).attributes.from_name, 'FROM_OPTS');
+});
+
+test('orchestrate: no senderDefault anywhere falls back to {{location.*}}', async () => {
+  const { gw, calls } = mockGateway();
+  await orchestrate(emailIR(), gw);
+  assert.equal(savedEmail(calls).attributes.from_name, '{{location.name}}');
+});

@@ -121,7 +121,10 @@ export async function orchestrate(ir, gw, opts = {}) {
   try {
     built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog,
       customFields: entities.customFields, warn: (msg) => report.warnings.push(msg),
-      senderDefault: opts.senderDefault });
+      // §5: an account-wide email sender default. Reachable two ways — programmatically via
+      // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
+      // parseIR passes through). Without either, email steps fall back to {{location.*}}.
+      senderDefault: opts.senderDefault ?? ir.senderDefault });
   } catch (e) {
     if (e?.name === 'IRError') { report.aborted = `compile rejected (${e.code}): ${e.message}`; return report; }
     throw e;
