@@ -31,8 +31,10 @@ What is ESTABLISHED:
   **different value** (`sniffs/FIELDS_GLOSSARY.json`: `parent` appears on 2,949 live
   step-top-levels, `parentKey` on 3,674). The engine emits `parent` only for steps inside a
   branch scope, never for a root-level linear step.
-- `parent` is **NOT** the DAG edge — `parentKey` is (per the glossary). So `parent` is not
-  simply "the previous step's id", and setting it to that is an invention.
+- `parent` is **NOT** the builder's structural edge — `parentKey` is the inbound back-pointer
+  in the builder's tree model. So `parent` is not simply "the previous step's id", and setting
+  it to that is an invention. (Note the runtime distinction below: the *runtime* walks `next`,
+  not `parentKey` — see "`next` is the runtime edge, `parentKey` is builder hygiene".)
 
 What is NOT established (and why this is still open):
 - **What `parent` actually points to for a root-level linear step.** The derived glossary has
@@ -91,11 +93,34 @@ Verified live 2026-07-16 (workflow 07e). `distributed: {}` is required and alway
                   "status_type": "confirmed" } }
 ```
 
-`status_type` is `confirmed` | `cancelled`. **Which appointment it acts on is implicit**: in an
-appointment-triggered workflow it is the TRIGGERING appointment; entered any other way (e.g.
-`payment_received`) GHL acts on *the most recent appointment the contact is carrying*. There is
-no field to target a specific one — if the contact can hold several, confirm "most recent" is
-the one you mean.
+`status_type` is `confirmed` | `cancelled`. **Which appointment it acts on is implicit** and
+there is no field to target a specific one:
+
+- In an **appointment-triggered** workflow it is the TRIGGERING appointment — unambiguous, safe.
+- Entered any other way (e.g. `payment_received`, a tag), GHL acts on the appointment with the
+  **LATEST START TIME** the contact is carrying — **NOT** most-recently-created, and **NOT** the
+  paid product's own appointment.
+
+> ⚠️ **"Most recent" = latest `startTime`.** Proven by controlled A/B (two real £300 payments,
+> one variable, 2026-07-17f): when a contact held a course seat AND a treatment appointment,
+> the native action confirmed whichever had the later start — silently confirming the WRONG
+> appointment when they were ordered against creation order. Single-appointment test contacts
+> MASK this; it survived several sessions that way. Blast radius on the miss: the intended
+> workflow never enrolled (0 log rows — a payer got total silence), the wrong ladder fired, and
+> the real seat sat `new` forever.
+
+**House pattern — whenever a contact can hold >1 appointment**, do NOT rely on the native
+action's implicit pick. Either:
+
+1. Make the workflow **appointment-triggered** (then the action targets the triggering appt), or
+2. Target explicitly via a `custom_code` step: GET `/contacts/{contactId}/appointments`, filter
+   to the right `calendarId`(s) and drop `cancelled`, pick the appointment you actually mean,
+   then `PUT /calendars/events/appointments/{id}` with `{ appointmentStatus, toNotify }`. See
+   the networked `custom_code` example in `catalog/step-examples/custom_code.json`.
+
+**An API `PUT /calendars/events/appointments/{id}` DOES fire GHL's appointment-status triggers**
+(verified live), so swapping the native action for the `custom_code` targeting pattern does not
+break any downstream status-triggered ladders.
 
 ### Reschedule detection — there is NO native reschedule trigger or status
 
@@ -180,6 +205,47 @@ arrives as a wall of text. For blank-line spacing use an explicit spacer paragra
 signature line in its own `<p>` (name, title, company as three separate paragraphs),
 again separated by `<p>&nbsp;</p>` where you want visible gaps.
 
+### `custom_code` — the sandbox has NO `fetch`; HTTP goes through `customRequest`
+
+The catalog's base example (`catalog/step-examples/custom_code.json`) is pure-compute (it
+mints an id) and teaches none of the networking surface. Ground truth, self-reported live from
+inside the sandbox (2026-07-17f):
+
+```
+typeof fetch    → "undefined"      typeof axios   → "undefined"
+typeof require  → "undefined"      typeof customRequest → "object"
+Object.keys(customRequest) → "get,post,put,delete,patch,head,options"
+```
+
+- **`custom_code` runs on the `premium-actions-worker` → it is a PREMIUM action, billed per
+  execution.** Weigh that on high-volume paths; a step that runs on every enrollment costs.
+- **HTTP is `customRequest.<method>`, NOT `fetch`/`axios`.** And its signature is **not**
+  axios-style. This is the trap:
+
+  | Call | Result |
+  |---|---|
+  | `customRequest.get(url, { headers })` | ✅ normal |
+  | `customRequest.put(url, body, { headers })` | 🔴 **silently drops the config** → `401 {"isAxiosError":true,...,"message":"version header was not found."}` — reads like an auth bug, is actually a signature bug |
+  | `customRequest.put(url, { headers, data })` | ✅ **correct** — config object carries both `headers` and `data` |
+
+  Verified by a 4-variant probe in one run: only `put(url, { headers, data })` (variant B)
+  returned 200. Read the response body as `(r && r.data) ? r.data : r`.
+- **`attributes.output` must be a hand-populated SAMPLE object** (the shape the code returns).
+  An empty `output` **blocks publish**. It's a placeholder, not runtime data — the real values
+  are whatever the code returns at execution.
+- Typical run cost: `processTime ~877ms`, `memoryUsage ~2.1MB`.
+
+```js
+// customRequest, not fetch. inputData carries the values you wired in.
+const base = 'https://services.leadconnectorhq.com';
+const H = { Authorization: 'Bearer ' + inputData.pit, Version: '2021-04-15', Accept: 'application/json' };
+const r = await customRequest.get(base + '/contacts/' + inputData.contactId + '/appointments', { headers: H });
+const body = (r && r.data) ? r.data : r;
+// ...pick the target appointment...
+await customRequest.put(base + '/calendars/events/appointments/' + target.id,
+  { headers: H, data: { appointmentStatus: 'confirmed', toNotify: false } });   // note: {headers, data}
+```
+
 ## Verifying a built step — GET, not the editor panel
 
 The "editor panel won't open" symptom is a *human-clicking* diagnostic. Via **browser
@@ -193,3 +259,26 @@ canvas. Only a human manually clicking the node is a valid panel test.
 ## Linking multiple steps
 
 `parentKey` = previous step id (null at root) · `next` = next step id (null at end) · `order` increments per step. For `if_else` branches, harvest a real branched workflow and mirror its `parent`/`sibling`/`nodeType` graph — those fields ARE used inside branches (the toxic-field rule is about linear action steps that shouldn't carry them).
+
+### `next` is the runtime edge, `parentKey` is builder hygiene
+
+**Corrected 2026-07-17f (was: "`parentKey` IS the DAG edge").** Two edge fields, two jobs:
+
+- **`next`** is what GHL's **runtime** follows step to step. This is the load-bearing edge.
+- **`parentKey`** is the **builder's** inbound back-pointer — it renders the canvas tree and
+  the validator reads it, but the runtime does not walk it.
+
+Proven live: a chase was driven straight through **four steps whose `parentKey` pointed at a
+deleted step** (dangling) — SMS `success`, wait, email `success`, wait — to `end_of_workflow`.
+Every step executed. A dangling or wrong `parentKey` is therefore **builder hygiene, not graph
+corruption**: it does not stop contacts moving, but it makes the graph unreadable and the
+validator may not stay forgiving, so keep it clean.
+
+Practical consequences:
+- The engine edit ops (`deleteStep`, `insertAfter`) keep `parentKey` truthful (= the step's
+  real inbound `next` source) so a round-trip matches a fresh build. `editCommitBody` fails
+  closed on a **dangling** `parentKey` among the steps an edit touched, and the build
+  round-trip verifier reports any dangling `parentKey` it sees on the GET-back.
+- Residue from older edits (a `parentKey` pointing at a since-deleted step) is repairable with
+  the **`repairParentKeys`** edit op — it re-points each orphan at its true inbound source
+  (`scripts/edit.mjs`). It's a hygiene pass, not an urgent runtime fix.

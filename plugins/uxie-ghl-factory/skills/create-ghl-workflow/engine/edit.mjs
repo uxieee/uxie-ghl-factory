@@ -66,14 +66,67 @@ export function appendStep(templates, newStep) {
 }
 
 // Delete a step by id, rewiring its predecessor's next to the deleted step's next.
+//
+// `parentKey` matters here. GHL's RUNTIME walks `next` (proven live 2026-07-17f: a chase
+// was driven straight through four dangling-parentKey steps and every one executed), so a
+// stale parentKey does not corrupt execution — but it IS builder hygiene the validator may
+// stop tolerating, and a parentKey pointing at a deleted id makes the graph unreadable.
+// Rewiring only `next` (the old behavior) left the victim's successor pointing its
+// parentKey at the now-gone victim — the origin of the "residue" dangling parentKeys seen
+// in client workflows. Re-point that orphan at the victim's own inbound source (pred), or
+// null if the victim was the head, and mark it modified so GHL re-persists the change.
 export function deleteStep(templates, stepId) {
   const victim = templates.find((t) => t.id === stepId);
-  if (!victim) return { templates, diff: { createdSteps: [], modifiedSteps: [], deletedSteps: [] } };
+  if (!victim) return { templates, diff: emptyDiff() };
   const pred = templates.find((t) => t.next === stepId);
+  const newParent = pred ? pred.id : null;
+  const modified = new Set(pred ? [pred.id] : []);
   const out = templates
     .filter((t) => t.id !== stepId)
-    .map((t) => (pred && t.id === pred.id ? { ...t, next: victim.next ?? null } : t));
-  return { templates: out, diff: { createdSteps: [], modifiedSteps: pred ? [pred.id] : [], deletedSteps: [stepId] } };
+    .map((t) => {
+      let n = t;
+      if (pred && n.id === pred.id) n = { ...n, next: victim.next ?? null };
+      if (n.parentKey === stepId) { n = { ...n, parentKey: newParent }; modified.add(n.id); }
+      return n;
+    });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [stepId] } };
+}
+
+// Scan for DANGLING parentKeys: a step whose parentKey references an id that isn't in the
+// graph (usually a step deleted by an op that only rewired `next`). Returns [{id, name,
+// parentKey}]. A parentKey that points at a real-but-not-inbound step is stale-not-dangling
+// and is NOT reported here — only broken references, the class the round-trip verifier
+// should fail on the way it fails on duplicate ids.
+export function danglingParentKeys(templates) {
+  const ids = new Set(templates.map((t) => t.id));
+  return templates
+    .filter((t) => t.parentKey != null && !ids.has(t.parentKey))
+    .map((t) => ({ id: t.id, name: t.name ?? null, parentKey: t.parentKey }));
+}
+
+// Repair dangling parentKeys in place: re-point each orphan at its true inbound `next`
+// source. This is the graph-truth repair the reference fix-parentkeys.mjs did by hand.
+// An orphan with exactly one inbound edge is repaired to that source; zero inbound (it is
+// now the head) becomes null; >1 inbound is AMBIGUOUS and left untouched (reported in the
+// returned `ambiguous` list) — guessing a parent for a step two edges point at would be an
+// invention, and the graph still runs via `next` regardless.
+export function repairParentKeys(templates) {
+  const ids = new Set(templates.map((t) => t.id));
+  const inbound = new Map();
+  for (const t of templates) {
+    const nexts = Array.isArray(t.next) ? t.next : (typeof t.next === 'string' ? [t.next] : []);
+    for (const n of nexts) { if (!inbound.has(n)) inbound.set(n, []); inbound.get(n).push(t.id); }
+  }
+  const modified = [];
+  const ambiguous = [];
+  const out = templates.map((t) => {
+    if (t.parentKey == null || ids.has(t.parentKey)) return t;
+    const ins = inbound.get(t.id) ?? [];
+    if (ins.length > 1) { ambiguous.push({ id: t.id, name: t.name ?? null, inbound: ins }); return t; }
+    modified.push(t.id);
+    return { ...t, parentKey: ins.length === 1 ? ins[0] : null };
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, ambiguous };
 }
 
 const emptyDiff = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
@@ -90,11 +143,21 @@ export function insertAfter(templates, newStep, afterId) {
   // scope: there is no "after" it to insert into, only a branch to append to.
   if (Array.isArray(anchor.next))
     throw new Error(`insertAfter: '${anchor.name ?? afterId}' is a container — it is terminal in its scope, and inserting after it would orphan its branches. Use appendToBranch with one of its branch ids instead.`);
-  const step = { ...newStep, next: (typeof anchor.next === 'string' ? anchor.next : null), parentKey: anchor.id, order: 0 };
+  const oldNext = (typeof anchor.next === 'string' ? anchor.next : null);
+  const step = { ...newStep, next: oldNext, parentKey: anchor.id, order: 0 };
   if (anchor.parent != null) step.parent = anchor.parent; // same scope as the anchor
-  const out = templates.map((t) => (t.id === afterId ? { ...t, next: step.id } : t));
+  const modified = new Set([anchor.id]);
+  const out = templates.map((t) => {
+    if (t.id === afterId) return { ...t, next: step.id };
+    // The displaced successor's inbound edge is now the new step — keep its parentKey
+    // truthful so the round-trip matches a fresh build (parentKey = immediate predecessor
+    // for a linear step). Leaving it pointing at the anchor is stale, not dangling, but a
+    // deliberately-wrong parentKey is exactly the hygiene the compiler never emits.
+    if (oldNext && t.id === oldNext) { modified.add(t.id); return { ...t, parentKey: step.id }; }
+    return t;
+  });
   out.push(step);
-  return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [anchor.id], deletedSteps: [] } };
+  return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [...modified], deletedSteps: [] } };
 }
 
 // Modify an existing step's attributes in place (shallow-merge the patch). Emits the
@@ -474,6 +537,22 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   if (opts.assumeAssociated !== true
       && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  // Fail CLOSED on a parentKey that references a deleted/nonexistent step, the way the
+  // round-trip verifier fails on duplicate ids. Scope it to steps THIS edit created or
+  // modified so a legacy workflow's pre-existing residue doesn't brick unrelated edits —
+  // and so the repairParentKeys op (which modifies exactly the orphans) can still run to
+  // clean it. Runtime walks `next`, so this is builder hygiene, not a live corruptor
+  // (finding 2026-07-17f) — but the builder/validator may not stay forgiving, and a
+  // dangling parentKey makes a graph unreadable. Pass allowDanglingParentKeys to override.
+  if (opts.allowDanglingParentKeys !== true) {
+    const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+    const bad = danglingParentKeys(newTemplates).filter((d) => touched.has(d.id));
+    if (bad.length)
+      throw new IRError('DANGLING_PARENTKEY',
+        `edit left ${bad.length} step(s) with a parentKey pointing at a missing step: `
+        + bad.map((d) => `'${d.name ?? d.id}' → ${d.parentKey}`).join(', ')
+        + `. Add a repairParentKeys op, or pass allowDanglingParentKeys:true to commit anyway.`);
+  }
   return {
     ...fresh,
     updatedBy: uid,

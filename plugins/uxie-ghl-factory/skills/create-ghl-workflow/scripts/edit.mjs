@@ -33,6 +33,11 @@
 //   { "op":"moveStep",        "stepId":"<id>", "afterId":"<id>" }
 //   { "op":"addBranch",       "containerId":"<id>", "name":"...", "conditions":[...] }
 //   { "op":"deleteContainer", "containerId":"<id>" }
+//   { "op":"repairParentKeys" }   # re-point every DANGLING parentKey (one that references a
+//     deleted step) at its true inbound `next` source — the graph-truth repair for the
+//     "residue" dangling parentKeys legacy edits left behind. Runtime walks `next` so this
+//     is builder hygiene, not a runtime fix; the commit itself fails closed on any dangling
+//     parentKey a step op leaves in the steps it touched (override: --allow-dangling-parentkeys).
 //
 // TRIGGER ops (triggers live in a SEPARATE document with their own CRUD endpoints — they
 // are applied after the step commit, not through workflowData.templates):

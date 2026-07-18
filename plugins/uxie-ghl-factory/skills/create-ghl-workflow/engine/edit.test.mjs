@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as edit from './edit.mjs';
 
-const { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch, deleteContainer } = edit;
+const { appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep, addBranch, deleteContainer,
+  danglingParentKeys, repairParentKeys, editCommitBody } = edit;
 
 let _n = 0;
 const seqId = () => `gen${++_n}`;
@@ -23,11 +24,19 @@ test('appendStep wires onto the tail and diffs correctly', () => {
   assert.deepEqual(diff, { createdSteps: ['sNew'], modifiedSteps: ['s3'], deletedSteps: [] });
 });
 
-test('deleteStep removes and rewires the predecessor', () => {
+test('deleteStep removes and rewires the predecessor (and re-points the orphan parentKey)', () => {
   const { templates, diff } = deleteStep(chain(), 's2');
   assert.equal(templates.find((t) => t.id === 's2'), undefined);
   assert.equal(templates.find((t) => t.id === 's1').next, 's3');   // s1 now skips to s3
-  assert.deepEqual(diff, { createdSteps: [], modifiedSteps: ['s1'], deletedSteps: ['s2'] });
+  assert.equal(templates.find((t) => t.id === 's3').parentKey, 's1'); // orphan re-pointed at pred, not left dangling on s2
+  assert.deepEqual(diff, { createdSteps: [], modifiedSteps: ['s1', 's3'], deletedSteps: ['s2'] });
+  assert.equal(danglingParentKeys(templates).length, 0);
+});
+
+test('deleteStep of the head re-points the new head parentKey to null', () => {
+  const { templates } = deleteStep(chain(), 's1');   // s1 is head (parentKey null); s2 becomes head
+  assert.equal(templates.find((t) => t.id === 's2').parentKey, null);
+  assert.equal(danglingParentKeys(templates).length, 0);
 });
 
 test('deleteStep on the tail leaves predecessor.next null', () => {
@@ -47,7 +56,8 @@ test('insertAfter drops a step mid-chain and rewires', () => {
   assert.equal(s1.next, 'sMid');           // s1 → new
   assert.equal(mid.next, 's2');            // new → s2 (s1's old next)
   assert.equal(mid.parentKey, 's1');
-  assert.deepEqual(diff, { createdSteps: ['sMid'], modifiedSteps: ['s1'], deletedSteps: [] });
+  assert.equal(templates.find((t) => t.id === 's2').parentKey, 'sMid'); // displaced successor re-points at the new step
+  assert.deepEqual(diff, { createdSteps: ['sMid'], modifiedSteps: ['s1', 's2'], deletedSteps: [] });
 });
 
 test('modifyStep patches attributes in place', () => {
@@ -207,4 +217,69 @@ test('addBranch emits enriched conditions + non-empty branch-yes attributes', ()
   const newEntry = templates.find((t) => t.id === 'gen1');
   assert.deepEqual(newEntry.attributes, { if: false, conditionName: 'Condition', operator: 'and', branches: [] });
   assert.equal(newEntry.cat, 'conditions');
+});
+
+// --- dangling parentKey (finding 2026-07-17f #4/#12) ---------------------------------
+
+// A chain with a hand-injected dangling parentKey: s3 points at 'ghost' (not in the graph).
+const withDangling = () => [
+  { id: 's1', type: 'add_contact_tag', name: 'A', next: 's2', parentKey: null, order: 0, attributes: {} },
+  { id: 's2', type: 'sms', name: 'B', next: 's3', parentKey: 's1', order: 1, attributes: {} },
+  { id: 's3', type: 'add_contact_tag', name: 'C', next: null, parentKey: 'ghost', order: 2, attributes: {} },
+];
+
+test('danglingParentKeys detects a parentKey pointing at a missing step', () => {
+  const bad = danglingParentKeys(withDangling());
+  assert.equal(bad.length, 1);
+  assert.deepEqual(bad[0], { id: 's3', name: 'C', parentKey: 'ghost' });
+  assert.equal(danglingParentKeys(chain()).length, 0); // a clean chain has none
+});
+
+test('repairParentKeys re-points a dangling parentKey at its true inbound source', () => {
+  const { templates, diff } = repairParentKeys(withDangling());
+  assert.equal(templates.find((t) => t.id === 's3').parentKey, 's2'); // s2.next === s3
+  assert.deepEqual(diff, { createdSteps: [], modifiedSteps: ['s3'], deletedSteps: [] });
+  assert.equal(danglingParentKeys(templates).length, 0);
+});
+
+test('repairParentKeys nulls an orphan with no inbound edge and flags ambiguous ones', () => {
+  // orphan with zero inbound → head → null
+  const zero = [{ id: 'x', type: 'sms', name: 'X', next: null, parentKey: 'ghost', order: 0, attributes: {} }];
+  const r0 = repairParentKeys(zero);
+  assert.equal(r0.templates[0].parentKey, null);
+  // orphan with two inbound edges → ambiguous, left untouched
+  const two = [
+    { id: 'a', type: 'sms', name: 'A', next: 'z', parentKey: null, order: 0, attributes: {} },
+    { id: 'b', type: 'sms', name: 'B', next: 'z', parentKey: null, order: 1, attributes: {} },
+    { id: 'z', type: 'sms', name: 'Z', next: null, parentKey: 'ghost', order: 2, attributes: {} },
+  ];
+  const r2 = repairParentKeys(two);
+  assert.equal(r2.templates.find((t) => t.id === 'z').parentKey, 'ghost'); // untouched
+  assert.equal(r2.ambiguous.length, 1);
+  assert.equal(r2.ambiguous[0].id, 'z');
+});
+
+test('editCommitBody fails closed on a dangling parentKey among touched steps', () => {
+  const fresh = { status: 'draft', version: 1, workflowData: { templates: withDangling() } };
+  // s3 is dangling and is claimed as modified → must throw
+  assert.throws(
+    () => editCommitBody(fresh, withDangling(), { createdSteps: [], modifiedSteps: ['s3'], deletedSteps: [] }, 'uid'),
+    (err) => err.code === 'DANGLING_PARENTKEY',
+  );
+  // pre-existing residue on an UNtouched step does not block an unrelated edit
+  assert.doesNotThrow(
+    () => editCommitBody(fresh, withDangling(), { createdSteps: [], modifiedSteps: ['s1'], deletedSteps: [] }, 'uid'),
+  );
+  // explicit override commits anyway
+  assert.doesNotThrow(
+    () => editCommitBody(fresh, withDangling(), { createdSteps: [], modifiedSteps: ['s3'], deletedSteps: [] }, 'uid', { allowDanglingParentKeys: true }),
+  );
+});
+
+test('a repairParentKeys op commits cleanly through editCommitBody', async () => {
+  const { applyOps } = await import('./edit-driver.mjs');
+  const { templates, diff } = applyOps(withDangling(), [{ op: 'repairParentKeys' }], { ctx: {}, idGen: () => 'x' });
+  assert.equal(danglingParentKeys(templates).length, 0);
+  const fresh = { status: 'draft', version: 1, workflowData: { templates } };
+  assert.doesNotThrow(() => editCommitBody(fresh, templates, diff, 'uid'));
 });

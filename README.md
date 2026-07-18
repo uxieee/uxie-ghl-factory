@@ -45,6 +45,8 @@ The plugin is built in layers: **knowledge** the agent reasons with → **capabi
 | `ghl-orientation` | Knowledge | The object model, terminology, and which API surface can do what — the fluency every other skill assumes |
 | `create-ghl-workflow` | Capability | Compiles a clean IR into a real workflow via the builder's internal API — each supported step reverse-engineered + test-locked (draft-only) |
 | `get-ghl-workflow-json` | Capability | Read-only export/inspection of a workflow's raw JSON |
+| `get-ghl-workflow-logs` | Capability | Read-only runtime — execution logs, enrollment history, per-step occupancy |
+| `ghl-workflow-fast-forward` | Capability | Moves contacts parked at a wait step to the next step (builder's "Action statistics → move to next step") — turns a multi-day chase-ladder test into minutes; **write** skill, gated |
 | `ghl-funnels-pages` | Capability | Build funnels & pages, inject full-bleed custom HTML, set tracking code + SEO |
 | `ghl-workflow-specialist` | Specialist | Senior automation architect — full trigger/action catalog (28 triggers / 66 steps from real production workflows), patterns + anti-patterns; delegates the build to `create-ghl-workflow` |
 | `ghl-pipeline-specialist` | Specialist | Stage design (stages are *states*), opportunity hygiene, pipeline↔automation interplay — public-API only, ToS-clean |

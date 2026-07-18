@@ -22,6 +22,7 @@ import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
+import { danglingParentKeys } from './edit.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -172,6 +173,14 @@ export async function orchestrate(ir, gw, opts = {}) {
   if (got.length !== sent.workflowData.templates.length)
     report.verify.issues.push({ stepCountMismatch: { sent: sent.workflowData.templates.length, got: got.length },
       note: 'GHL did not persist every step that was sent — the workflow is INCOMPLETE.' });
+  // Fail on a parentKey referencing a step that isn't in the graph, the way we fail on a
+  // step-count mismatch. GHL's runtime walks `next` so a dangling parentKey does not break
+  // execution (finding 2026-07-17f) — but it makes the builder graph unreadable and the
+  // validator may not stay forgiving, so surface it rather than let it round-trip silently.
+  const dangling = danglingParentKeys(got);
+  if (dangling.length)
+    report.verify.issues.push({ danglingParentKeys: dangling,
+      note: 'step(s) point parentKey at a missing step — builder hygiene, not a runtime break (runtime walks `next`). Repair with the repairParentKeys edit op.' });
   for (const gt of got) {
     const st = sentById.get(gt.id); if (!st) continue;
     const dropped = Object.keys(st.attributes || {}).filter((k) => !(k in (gt.attributes || {})) && k !== 'template_id');
