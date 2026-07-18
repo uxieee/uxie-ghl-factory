@@ -85,17 +85,26 @@ GHL_TOK_FILE=… node ff.mjs <LOC> <WID> move <STEP_ID> --all --confirm        #
 Without `--confirm`, a `--all` move prints what WOULD move and stops (dry run). `move` with an
 explicit `--contact`/`--status` performs the move.
 
-## Known-unproven edges (from the harvest session, 2026-07-17f)
+## Live-proven (GROM AU, 2026-07-18)
 
-Flag these; don't claim them proven:
+Drove a 3-contact / 2-wait canary end to end via this skill's `ff.mjs`, tags proving each step
+actually fired (not just a pointer move):
 
-- **Selective move with >1 parked** (3 parked, move 1, assert the other 2 stay) — the ids-based
-  path is captured and proven for the single case; the multi-parked selective case is untested.
-- **The UI "Select all N contacts" link** may post a different body shape (a flag rather than an
-  id list). Only the ids-based path was captured. The script's `--all` paginates
-  `details-by-step` and moves by collected ids rather than relying on that link.
-- **Pagination.** `details-by-step` defaults to a small page (`limit=11` in the harvested call),
-  so a busy step needs paging to move everyone; `--all` handles this by looping until drained.
+- **`count-per-step` / `details-by-step` / `requeue-stuck-statuses`** all work with the iframe
+  JWT. `details-by-step` `_id`s are workflow-status ULIDs, distinct from `contactId`.
+- **Selective move with >1 parked** ✅ — 3 parked at a wait, moved ONLY one (by contactId); it
+  alone advanced (its next step fired) and the other two stayed put.
+- **Bulk `--all`** ✅ — moved the remaining two; both advanced. The `--all` dry-run guard (no
+  `--confirm`) correctly moved nothing and reported `wouldMove`.
+- **Pagination** ✅ — `allParked` with `pageSize=1` drained all 3 rows across pages.
+- Full ladder driven to `end_of_workflow` in ~2 min (both waits fast-forwarded).
+
+## Still not proven — flag, don't assert
+
+- **The UI "Select all N contacts" link** may post a different body (a flag rather than an id
+  list). The script deliberately builds the id list itself (`allParked` → `requeue`) rather than
+  relying on that link, so this is untested and doesn't matter for the script — but if you ever
+  reverse-engineer that link, capture its body separately.
 
 ## Resources
 
