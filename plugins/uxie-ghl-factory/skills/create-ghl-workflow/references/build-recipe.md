@@ -147,6 +147,18 @@ Notes:
   opp-trigger path's branch `"assocGuaranteed": true`.
 - `assocGuaranteed` is IR-only; the compiler never emits it to GHL.
 
+> **Numeric opportunity fields must be emitted as NUMBERS, not stringified.** The builder
+> stores `monetaryValue` (Opportunity Value) in a numeric model: a `__customInputFields__`
+> entry must be `{ "filterField": "monetaryValue", "value": 180, "valueFieldType":
+> "numerical", "dataType": "NUMERICAL" }` — `value` a real number, not `"180"`. GHL's runtime
+> coerces a string fine (so live opps still get the value), which is exactly why the bug hid:
+> a node emitted as `{ value:"180", valueFieldType:"string" }` (or even `"numerical"` with a
+> string value) **renders EMPTY in the builder** and the next UI-save silently blanks the
+> value. The compiler now coerces any `valueFieldType:"numerical"` field to a finite number;
+> a `{{merge-field}}` token or empty string is left untouched (no better shape exists). String
+> fields (`name`, `source`) stay strings with `dataType:"TEXT"`. Ground truth:
+> `factory-findings-2026-07-18/opportunity-monetaryvalue-plugin-bug.md`.
+
 ### `allowBackward` — the silent [skipped] trap
 
 > **Any stage move that can run BACKWARD needs `allowBackward: true`, or it silently does

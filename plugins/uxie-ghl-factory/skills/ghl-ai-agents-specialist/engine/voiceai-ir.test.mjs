@@ -111,6 +111,26 @@ test('unverified action type passes through (not rejected)', () => {
   assert.equal(out.actions[0].actionType, 'MCP');
 });
 
+test('multi-calendar APPOINTMENT_BOOKING action passes IR (no calendarId demanded at the IR level)', () => {
+  // Per-type actionParameters validation lives in voiceai-compiler.mjs, not the IR —
+  // the IR only requires actionType + name + an object actionParameters. The multi shape
+  // (calendarActionType:'multiple' + calendarIds:[{id,triggerCondition}], no calendarId)
+  // must round-trip through parseVoiceAiIR untouched. Ground truth: voice-multi-calendar-shape.json.
+  const ir = validIR();
+  ir.actions = [{
+    actionType: 'APPOINTMENT_BOOKING',
+    name: 'Book',
+    actionParameters: {
+      calendarActionType: 'multiple',
+      calendarIds: [{ id: 'a', triggerCondition: 'treatment' }, { id: 'b', triggerCondition: 'course' }],
+      aiDescription: 'Route treatment vs course.',
+    },
+  }];
+  const out = parseVoiceAiIR(ir);
+  assert.equal(out.actions[0].actionParameters.calendarActionType, 'multiple');
+  assert.equal('calendarId' in out.actions[0].actionParameters, false);
+});
+
 test('voice section: non-object rejected', () => {
   const ir = validIR(); ir.voice = 'loud';
   assert.throws(() => parseVoiceAiIR(ir), (e) => e instanceof IRError && e.code === 'SCHEMA');

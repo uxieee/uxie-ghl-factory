@@ -65,8 +65,24 @@ function checkAttrKeys(node, out, meta) {
 // (live-verified shape). Each field = {filterField, value, dataType, valueFieldType, __customInputs__}.
 // The IR supplies resolved pipelineId + stageId (the orchestrator resolves names→ids via the
 // pipelines list, like tags/templates).
+// A numeric opp field (valueFieldType 'numerical', e.g. monetaryValue) must carry a
+// NUMBER on the wire, not a stringified one. The builder stores it in a numeric model
+// and silently drops a string: the field renders EMPTY and the next UI save blanks the
+// value (live 2026-07-18, Francesca — opportunity-monetaryvalue-plugin-bug.md). Runtime
+// coerced the string fine, so this was invisible until a node was reopened. A value that
+// is NOT a finite number (a {{merge-field}} token, an empty string) is left untouched —
+// there is no better shape for it and coercing would corrupt it (NaN / a spurious 0).
+function coerceOppValue(value, valueFieldType) {
+  if (valueFieldType !== 'numerical') return value;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return value;
+}
 function oppField(filterField, value, dataType, valueFieldType) {
-  const f = { __customInputs__: {}, filterField, value, valueFieldType };
+  const f = { __customInputs__: {}, filterField, value: coerceOppValue(value, valueFieldType), valueFieldType };
   if (dataType !== undefined) f.dataType = dataType;   // absence is legal; never inject a dialect
   return f;
 }
@@ -76,7 +92,7 @@ function createOpportunityAttributes(a, ref, ctx) {
   if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
   f.push(oppField('status', a.status ?? 'open', 'SINGLE_OPTIONS', 'select'));
   if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
-  if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'numerical'));
+  if (a.value != null) f.push(oppField('monetaryValue', a.value, 'NUMERICAL', 'numerical'));
   for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   return { pipelineId: a.pipelineId, type: 'internal_create_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
@@ -159,7 +175,7 @@ function updateOpportunityAttributes(a, ref, ctx) {
     if (a.status != null) f.push(oppField('status', a.status, 'SINGLE_OPTIONS', 'select'));
     if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
     if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
-    if (a.value != null) f.push(oppField('monetaryValue', String(a.value), 'NUMERICAL', 'numerical'));
+    if (a.value != null) f.push(oppField('monetaryValue', a.value, 'NUMERICAL', 'numerical'));
     for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   }
   if (!f.length)

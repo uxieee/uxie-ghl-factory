@@ -205,6 +205,125 @@ test('compileVoiceAiAction: APPOINTMENT_BOOKING rejects missing calendarId', () 
   );
 });
 
+// APPOINTMENT_BOOKING — native multi-calendar (intent-based routing).
+// GROUND TRUTH: factory-findings-2026-07-18/voice-multi-calendar-shape.json (live UI
+// multi-select save, network-sniffed PUT). Multi mode sends calendarId:null +
+// calendarActionType:'multiple' + calendarIds:[{id,triggerCondition}] + aiDescription
+// + optional fallbackCalendar/fallbackCalendarId. The two calendarIds strings below are
+// the exact triggerConditions from the capture.
+const MULTI_CAL_INPUT = {
+  calendarActionType: 'multiple',
+  calendarIds: [
+    { id: 'SHVoCOKWiXBHBgluDEm6', triggerCondition: 'Booking the BioRePeel and microneedling treatment session or appointment' },
+    { id: 'tICTbR20mIua5ijoa5gJ', triggerCondition: 'Joining the Advanced Skin Specialist training course, the two-day cohort' },
+  ],
+  aiDescription: 'Route treatment bookings to the treatment calendar and course enrolments to the course cohort calendar.',
+  fallbackCalendar: true,
+  fallbackCalendarId: 'SHVoCOKWiXBHBgluDEm6',
+};
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi-calendar byte-matches voice-multi-calendar-shape.json', () => {
+  const action = { actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: MULTI_CAL_INPUT };
+  const { body } = compileVoiceAiAction(action, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters, {
+    calendarId: null,
+    calendarIds: [
+      { id: 'SHVoCOKWiXBHBgluDEm6', triggerCondition: 'Booking the BioRePeel and microneedling treatment session or appointment' },
+      { id: 'tICTbR20mIua5ijoa5gJ', triggerCondition: 'Joining the Advanced Skin Specialist training course, the two-day cohort' },
+    ],
+    aiDescription: 'Route treatment bookings to the treatment calendar and course enrolments to the course cohort calendar.',
+    fallbackCalendar: true,
+    fallbackCalendarId: 'SHVoCOKWiXBHBgluDEm6',
+    calendarActionType: 'multiple',
+    daysOfOfferingDates: 3,
+    slotsPerDay: 3,
+    hoursBetweenSlots: 3,
+    collectName: false,
+    collectEmail: true,
+    collectAddress: false,
+    collectAdditionalNotes: false,
+    collectPhoneNumber: false,
+    onlyShareBookingLink: false,
+    respectCalendarAutoConfirm: false,
+    cancelEnabled: false,
+    rescheduleEnabled: false,
+    timezoneSelection: 'userAgent',
+    fallbackTimezone: 'askUser',
+  });
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi mode is entered by a non-empty calendarIds array even without calendarActionType', () => {
+  const p = { ...MULTI_CAL_INPUT };
+  delete p.calendarActionType;
+  const { body } = compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.equal(body.actionParameters.calendarActionType, 'multiple');
+  assert.equal(body.actionParameters.calendarId, null);
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi does NOT require calendarId', () => {
+  assert.doesNotThrow(() =>
+    compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: MULTI_CAL_INPUT }, { agentId: AGENT_ID, locationId: LOCATION_ID }));
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi strips the server-added slug/name from each calendarIds item', () => {
+  const p = {
+    ...MULTI_CAL_INPUT,
+    calendarIds: MULTI_CAL_INPUT.calendarIds.map((c, i) => ({ ...c, slug: `slug_${i}`, name: `Name ${i}` })),
+  };
+  const { body } = compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.deepEqual(body.actionParameters.calendarIds, MULTI_CAL_INPUT.calendarIds);
+  for (const c of body.actionParameters.calendarIds) assert.deepEqual(Object.keys(c), ['id', 'triggerCondition']);
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi rejects fewer than 2 calendars', () => {
+  const p = { calendarActionType: 'multiple', calendarIds: [MULTI_CAL_INPUT.calendarIds[0]], aiDescription: 'x' };
+  assert.throws(() => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi rejects an empty or missing triggerCondition', () => {
+  const p = { calendarActionType: 'multiple', aiDescription: 'x', calendarIds: [{ id: 'a', triggerCondition: '' }, { id: 'b', triggerCondition: 'ok' }] };
+  assert.throws(() => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi rejects a triggerCondition over 80 chars', () => {
+  const p = { calendarActionType: 'multiple', aiDescription: 'x', calendarIds: [{ id: 'a', triggerCondition: 'y'.repeat(81) }, { id: 'b', triggerCondition: 'ok' }] };
+  assert.throws(() => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi rejects a missing aiDescription', () => {
+  const p = { calendarActionType: 'multiple', calendarIds: MULTI_CAL_INPUT.calendarIds };
+  assert.throws(() => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi rejects an aiDescription over 500 chars', () => {
+  const p = { calendarActionType: 'multiple', calendarIds: MULTI_CAL_INPUT.calendarIds, aiDescription: 'z'.repeat(501) };
+  assert.throws(() => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi rejects fallbackCalendar:true with no fallbackCalendarId', () => {
+  const p = { ...MULTI_CAL_INPUT }; delete p.fallbackCalendarId;
+  assert.throws(() => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi rejects a fallbackCalendarId not among the calendarIds', () => {
+  const p = { ...MULTI_CAL_INPUT, fallbackCalendarId: 'NOT_IN_LIST' };
+  assert.throws(() => compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { locationId: LOCATION_ID }),
+    (e) => e instanceof IRError && e.code === 'SCHEMA');
+});
+
+test('compileVoiceAiAction: APPOINTMENT_BOOKING multi without fallback leaves fallbackCalendar:false', () => {
+  const p = { calendarActionType: 'multiple', calendarIds: MULTI_CAL_INPUT.calendarIds, aiDescription: 'Route bookings.' };
+  const { body } = compileVoiceAiAction({ actionType: 'APPOINTMENT_BOOKING', name: 'Book', actionParameters: p }, { agentId: AGENT_ID, locationId: LOCATION_ID });
+  assert.equal(body.actionParameters.fallbackCalendar, false);
+  assert.equal(body.actionParameters.fallbackCalendarId, null);
+});
+
 // CAP
 test('compileVoiceAiAction: CAP matches voiceai-actions-all.json shape', () => {
   const action = {
