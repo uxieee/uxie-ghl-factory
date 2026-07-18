@@ -91,7 +91,7 @@ not cite them as evidence the engine works.
 yet live-proven" banner, but the project record says all four compilers — including Voice AI
 and Agent Studio agent create + full-replace update — were live-create-proven on GROM AU on
 2026-07-11 (objects verified then deleted, so no capture survives). The banner is likely
-stale, but Francesca has been **checked and ruled out** as evidence (public MCP only). Only a
+stale, but a client account has been **checked and ruled out** as evidence (public MCP only). Only a
 fresh throwaway live-fire through the internal compiler will settle it. Until then: keep the
 throwaway-validation discipline for a first agent create/full-replace build, and tell the user
 it is unconfirmed rather than promising either way. See `references/voice-ai.md` §Status. ConvAI now has

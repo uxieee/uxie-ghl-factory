@@ -10,15 +10,15 @@
 
 ⚠️ **Read the distinction below before claiming anything is proven — it is the whole point.**
 
-**API SHAPES: live-proven.** Against a real account (Francesca, `SJRURxzgbPTVBNLhqEZi`,
-2026-07-17): `DATA_EXTRACTION` action creation (201 ×6 on real contact fields),
+**API SHAPES: live-proven.** Against a real client account (2026-07-17):
+`DATA_EXTRACTION` action creation (201 ×6 on real contact fields),
 `APPOINTMENT_BOOKING` `calendarId` repointing via `update-action`, `patch-agent` (`voiceId`,
 `sendPostCallNotificationTo`), and the voices catalog read.
 
-**THE ENGINE: still not exercised by any of that.** Every Francesca call went through the
+**THE ENGINE: still not exercised by any of that.** Every one of those calls went through the
 **public `voice-ai-v3` MCP**, *not* through this skill's `voiceai-compiler.mjs` → internal
 API path. So those results prove the **shapes are right**; they do **not** prove the compiler
-emits them correctly end-to-end. Do not cite Francesca as evidence the engine works.
+emits them correctly end-to-end. Do not cite a client account as evidence the engine works.
 
 ⚠️ **Unreconciled — agent create + full-replace update via the engine.** The project record
 says the engine's Voice AI agent create + full-replace update **was live-create-proven on
@@ -26,7 +26,7 @@ GROM AU (`wdzEoUZnXO9tB3PPzcot`) 2026-07-11** (engine → internal API → real 
 → **deleted**), alongside the other three compilers. But this doc has always said "NOT yet
 live-proven", and the identical boilerplate still sits in `agent-studio.md` — so the banner is
 *probably* stale, yet nothing survives to confirm it. **Checked and ruled out as evidence:**
-Francesca (2026-07-17) — public MCP only, never touches the internal compiler; don't re-check
+a client account (2026-07-17) — public MCP only, never touches the internal compiler; don't re-check
 it. The only things that would settle this are the deleted GROM-AU objects or a **fresh
 throwaway live-fire through the internal compiler**.
 
@@ -131,7 +131,7 @@ compiler's.
 
 ## Picking a voice (voices ARE programmatically listable)
 
-> Verified live 2026-07-17 (Francesca). Supersedes the older assumption that `voiceId` was a
+> Verified live 2026-07-17 (a client account). Supersedes the older assumption that `voiceId` was a
 > UI-only pick — you do **not** need to open the builder to choose a voice.
 
 ```
@@ -221,7 +221,7 @@ field(s) and merges the caller's `actionParameters` over any capture-grounded de
 
 ### ⚠️ `actionParameters` MUST be an OBJECT, never a JSON string
 
-> Live-verified 2026-07-17 (Francesca). Applies to **both** `voice-ai-v3__create-action` and
+> Live-verified 2026-07-17 (a client account). Applies to **both** `voice-ai-v3__create-action` and
 > `voice-ai-v3__update-action`.
 
 Passing `actionParameters` as a JSON **string** fails with a misleading HTTP 400:
