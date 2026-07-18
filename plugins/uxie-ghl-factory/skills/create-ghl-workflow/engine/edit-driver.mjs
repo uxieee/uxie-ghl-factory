@@ -4,7 +4,7 @@
 import {
   appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep,
   addBranch, deleteContainer, setStepDisabled, disableStepsByType,
-  appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch,
+  appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
 
@@ -163,6 +163,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
         : appendToBranch(templates, op.branchEntryId, sub.entry);
     }
     case 'deleteStep': return deleteStep(templates, op.stepId);
+    case 'repairParentKeys': { const { templates: t, diff } = repairParentKeys(templates); return { templates: t, diff }; }
     case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {});
     case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);
     case 'disableStepsByType': return disableStepsByType(templates, op.type, op.disabled);

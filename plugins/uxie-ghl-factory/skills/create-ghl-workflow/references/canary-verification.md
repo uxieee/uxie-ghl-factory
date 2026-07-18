@@ -76,6 +76,14 @@ GET /workflows/logs/v2?locationId=<LOC>&workflowId=<WID>&contactId=<CID>
 | 8 | **Backward stage move** | `Stage -> <earlier stage>` logs **`[success]`** and the opp actually moved. | `[skipped]`, silently. |
 | 9 | Notification | Fires, and the recipient receives it. | (was already OK) |
 
+> **You do NOT have to wait real time to verify past a wait.** Waits ARE fast-forwardable
+> (2026-07-17f): the builder's "Action statistics → move to next step" control moves a parked
+> contact straight to the next step. Verify assertion #7 (the contact is parked AT the wait),
+> then use the **`ghl-workflow-fast-forward`** skill to push the synthetic contact past each
+> wait and drive the whole ladder to `end_of_workflow` in minutes. Caveat: fast-forward moves
+> to the next step, it does NOT evaluate the wait's window/condition — so #7 (that it paused at
+> all) still has to be checked the real way; only the *duration* is skippable.
+
 ## Assertion — item 6, human-only
 
 Open the canary in the real builder and **click the `internal_notification` step**.

@@ -1,17 +1,25 @@
 {
+  "_note": "custom_code NETWORKED example — verified live 2026-07-17f. The sandbox has NO fetch/axios/require; HTTP goes through the `customRequest` object (keys: get,post,put,delete,patch,head,options). Its signature is NOT axios-style: customRequest.get(url,{headers}) is normal, but customRequest.put(url, body, {headers}) SILENTLY DROPS the config → 401 'version header was not found' (looks like auth, is really signature). Correct: customRequest.put(url, {headers, data}). Read the body as (r && r.data) ? r.data : r. custom_code runs on premium-actions-worker → it is a PREMIUM/billed action. `attributes.output` MUST be a hand-populated sample object or PUBLISH BLOCKS — it is a placeholder shape, not runtime data. This example targets the contact's latest-start appointment on a given calendar and confirms it (the house pattern for update_appointment_status when a contact can hold >1 appointment — see references/step-shapes.md). A PUT to /calendars/events/appointments/{id} DOES fire GHL's appointment-status triggers.",
   "id": "<uuid-001>",
   "stepIndex": 3,
   "parent": "<uuid-002>",
   "order": 0,
   "attributes": {
-    "code": "  return {\n    message_id: Date.now().toString(36) + \"-\" + Math.random().toString(36).slice(2, 10) +\n  Math.random().toString(36).slice(2, 10)\n  };",
     "language": "javascript",
-    "inputData": {},
+    "inputData": {
+      "contactId": "{{contact.id}}",
+      "calendarIds": "<calendarId-a>,<calendarId-b>",
+      "pit": "<private-integration-token>"
+    },
+    "code": "const base = 'https://services.leadconnectorhq.com';\nconst H = { Authorization: 'Bearer ' + inputData.pit, Version: '2021-04-15', Accept: 'application/json' };\nconst out = {};\ntry {\n  const cals = String(inputData.calendarIds).split(',');\n  const r = await customRequest.get(base + '/contacts/' + inputData.contactId + '/appointments', { headers: H });\n  const body = (r && r.data) ? r.data : r;\n  const events = (body && body.events) || [];\n  const cands = events\n    .filter((e) => cals.indexOf(String(e.calendarId)) > -1 && e.appointmentStatus !== 'cancelled')\n    .sort((a, b) => new Date(String(a.startTime).replace(' ', 'T')) - new Date(String(b.startTime).replace(' ', 'T')));\n  const target = cands[cands.length - 1]; // latest start time — matches GHL's own 'most recent' rule\n  out.candidates = String(cands.length);\n  out.targetId = target ? target.id : 'none';\n  if (target && target.appointmentStatus !== 'confirmed') {\n    // customRequest.put takes (url, { headers, data }) — NOT axios (url, data, config)\n    await customRequest.put(base + '/calendars/events/appointments/' + target.id,\n      { headers: H, data: { appointmentStatus: 'confirmed', toNotify: false } });\n    out.confirmed = 'yes';\n  } else {\n    out.confirmed = target ? 'already' : 'no-target';\n  }\n} catch (e) {\n  out.err = String((e && e.message) || JSON.stringify(e)).slice(0, 200);\n}\nreturn out;",
     "output": {
-      "message_id": "mojhwk94-0j4urt6nh0lvu32i"
+      "candidates": "1",
+      "targetId": "abc123",
+      "confirmed": "yes",
+      "err": ""
     }
   },
-  "name": "mint message_id (UUID)",
+  "name": "Confirm latest appointment (by calendar)",
   "type": "custom_code",
   "next": "<uuid-003>",
   "parentKey": "<uuid-002>"
