@@ -1,8 +1,8 @@
 # Capabilities index — every step & trigger the engine can build
 
 > GENERATED from `engine/catalog.data.json` — do not hand-edit.
-> Regenerate: `node engine/query-catalog.mjs --md > references/capabilities.md`
-> Look one type up (full shape card): `node engine/query-catalog.mjs <term>`
+> Regenerate: `node scripts/query-catalog-cli.mjs --md > references/capabilities.md`
+> Look one type up (full shape card): `node scripts/query-catalog-cli.mjs <term>`
 
 **316 step types / 59 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
 

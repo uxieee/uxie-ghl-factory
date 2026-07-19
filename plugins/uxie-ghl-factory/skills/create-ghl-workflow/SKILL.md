@@ -38,14 +38,14 @@ steps — use `scripts/edit.mjs`, see "Editing an existing workflow" below.)
 ## Know what you can build — check before you say "can't"
 
 The catalog is **complete**: 316 step types / 59 trigger types (the live-proven subset
-is flagged ✅ in the index; `query-catalog.mjs` prints the current counts). If you're about to tell the user a step or trigger
+is flagged ✅ in the index; `scripts/query-catalog-cli.mjs` prints the current counts). If you're about to tell the user a step or trigger
 "isn't supported", or about to fake a native action with a webhook/custom-code
 workaround, **check the catalog first** — your recall of GHL's action list is
 incomplete; the catalog is the truth:
 
 ```
-node engine/query-catalog.mjs <term>    # e.g. "notification", "opportunity", "reply"
-node engine/query-catalog.mjs           # coverage summary
+node scripts/query-catalog-cli.mjs <term>    # e.g. "notification", "opportunity", "reply"
+node scripts/query-catalog-cli.mjs           # coverage summary
 ```
 
 Full scannable index (every type, with attribute keys and trigger filter fields):
@@ -223,7 +223,7 @@ an opp-stage branch.
 - **Attribute keys are validated** on verified-live types: an invented key (e.g.
   `message` instead of `body` on `sms`) fails compile with `ATTR_KEY` instead of
   saving a step that renders blank. Check the type's real keys with
-  `node engine/query-catalog.mjs <type>`.
+  `node scripts/query-catalog-cli.mjs <type>`.
 
 ### The engine fails LOUD rather than silently dropping intent
 
@@ -251,7 +251,7 @@ authored` is normal — containers add transition/None steps. A round-trip is on
 next to `authored`; on its own it merely proves the server echoed what was sent.
 - **Coverage:** 316 step types / 59 trigger types are catalogued (the live-proven
   subset is flagged ✅). Full index: `references/capabilities.md`; per-type lookup:
-  `node engine/query-catalog.mjs <term>`; live counts: `node engine/query-catalog.mjs`.
+  `node scripts/query-catalog-cli.mjs <term>`; live counts: `node scripts/query-catalog-cli.mjs`.
 
 ## Editing an existing workflow (not a fresh create)
 
@@ -530,7 +530,7 @@ The orchestrator prints exactly what it did. Check it:
 - `scripts/build.mjs` — **the entry point.** IR → verified draft, deps handled.
 - `engine/` — IR parser, compiler, catalog, resolver, orchestrator (+ tests).
 - `references/capabilities.md` — generated index of ALL 316 step / 59 trigger types
-  with attribute keys and filter fields; `engine/query-catalog.mjs` searches it.
+  with attribute keys and filter fields; `scripts/query-catalog-cli.mjs` searches it.
 - `references/build-recipe.md` / `references/step-shapes.md` — endpoint/payload truth
   and the mirror-don't-invent doctrine (background; the engine already applies them).
 - `references/discovery.md` — how to look up / create a missing account dependency

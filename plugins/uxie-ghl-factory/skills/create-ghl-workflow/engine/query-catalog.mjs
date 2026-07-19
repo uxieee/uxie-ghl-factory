@@ -3,12 +3,12 @@
 // claiming a step/trigger type doesn't exist or working around a "missing" action.
 //
 // CLI:
-//   node engine/query-catalog.mjs               summary (counts by tier + section)
-//   node engine/query-catalog.mjs <term…>       search steps + triggers by type/name/section
-//   node engine/query-catalog.mjs --md          full capabilities index (markdown) to stdout
+//   node scripts/query-catalog-cli.mjs               summary (counts by tier + section)
+//   node scripts/query-catalog-cli.mjs <term…>       search steps + triggers by type/name/section
+//   node scripts/query-catalog-cli.mjs --md          full capabilities index (markdown) to stdout
 //
 // Regenerate the committed index after gen-catalog runs:
-//   node engine/query-catalog.mjs --md > references/capabilities.md
+//   node scripts/query-catalog-cli.mjs --md > references/capabilities.md
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
 
 export function loadData() {
@@ -75,7 +75,7 @@ export function summary(d) {
   return [
     `${d.stepCount} step types (${byTier('verified-live')} verified-live, ${byTier('bundle-derived')} bundle-derived, ${byTier('live-schema')} marketplace live-schema) · ${d.triggerCount} trigger types`,
     `step sections: ${Object.entries(sections).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}:${v}`).join('  ')}`,
-    `search: node engine/query-catalog.mjs <term>   full index: references/capabilities.md`,
+    `search: node scripts/query-catalog-cli.mjs <term>   full index: references/capabilities.md`,
   ].join('\n');
 }
 
@@ -88,8 +88,8 @@ export function renderMarkdown(d) {
   out.push('# Capabilities index — every step & trigger the engine can build');
   out.push('');
   out.push('> GENERATED from `engine/catalog.data.json` — do not hand-edit.');
-  out.push('> Regenerate: `node engine/query-catalog.mjs --md > references/capabilities.md`');
-  out.push('> Look one type up (full shape card): `node engine/query-catalog.mjs <term>`');
+  out.push('> Regenerate: `node scripts/query-catalog-cli.mjs --md > references/capabilities.md`');
+  out.push('> Look one type up (full shape card): `node scripts/query-catalog-cli.mjs <term>`');
   out.push('');
   out.push(`**${d.stepCount} step types / ${d.triggerCount} trigger types.** ` +
     'This index — not your recall of "what GHL supports" — is the capability truth. ' +

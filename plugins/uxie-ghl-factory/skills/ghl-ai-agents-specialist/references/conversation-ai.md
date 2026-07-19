@@ -194,7 +194,7 @@ scope"). **A flow bot's logic IS a workflow.** Creating a `FLOW_BUILDER_BOT` and
 
 **The 9 Conversation-AI node keys** (all `type: conversationai_*`, `workflowsActionType: "INTERNAL"`,
 `attributes: { ...fields, type, __customInputs__: {} }`) — captured in the `create-ghl-workflow`
-engine's catalog (`node engine/query-catalog.mjs conversationai`):
+engine's catalog (`node scripts/query-catalog-cli.mjs conversationai`):
 
 | UI name | action key | shape |
 |---|---|---|
