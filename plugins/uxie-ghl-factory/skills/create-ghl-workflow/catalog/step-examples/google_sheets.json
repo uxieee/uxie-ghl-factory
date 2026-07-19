@@ -9,8 +9,8 @@
       "name": "Create Spreadsheet Row"
     },
     "account": {
-      "id": "114917792102524452475",
-      "name": "michael@scale50.com",
+      "id": "109876543210987654321",
+      "name": "sheets-owner@example.com",
       "idType": "altId"
     },
     "drive": {
@@ -18,8 +18,8 @@
       "name": "My Drive"
     },
     "spreadsheet": {
-      "id": "1RdWyyhNRmohwn14Qr69GAoCWt5DvuTU1LO_Cs8wq8pI",
-      "name": "Peter V Leads"
+      "id": "1AbCdEfGhIjKlMnOpQrStUvWxYz0123456789AbCdEf",
+      "name": "Lead Capture"
     },
     "sheet": {
       "id": "0",
