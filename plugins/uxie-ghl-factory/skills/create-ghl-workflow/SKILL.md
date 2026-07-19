@@ -126,14 +126,31 @@ conditionValue         : "2"           <- a STRING, not a number
 In the UI the control only appears **after** an operator (Is / Is not) is selected, which is
 the other half of why it reads as unsupported.
 
-Comparator vocabulary — `today`, `tomorrow`, `yesterday`, `on`, `between`, `after`,
-`before`, `inTheNext`, `inTheLast`, `afterDate`, `beforeDate`. **Provenance matters here:**
-only `inTheNext` + `days` is corpus-proven (support = 1 — a sweep of 78 workflows across two
-accounts found exactly one relative-date condition in the wild). The rest of the list is
-read from GHL's own builder bundle, corroborated by the builder's legacy-condition migration
-function, which emits `afterDate`/`beforeDate`/`on` into this same field. Treat anything
-other than `inTheNext`/`days` as **unproven** — verify against a UI-built step before
-shipping it to a client. A wrong value compiles clean and mis-routes silently.
+**Comparator vocabulary — all 11 LIVE-PROVEN on `appointment`/`startTime` (2026-07-19).**
+Method: one probe workflow with a branch per comparator, then read what the BUILDER
+RENDERS. A value the builder cannot resolve renders no label, so a correct human label is
+proof the value is the canonical one.
+
+| stored `conditionValueOperator` | builder renders | value it takes |
+|---|---|---|
+| `today` / `tomorrow` / `yesterday` | "is today" / "is tomorrow" / "is yesterday" | **none** — omit `conditionValue` |
+| `on` | `is On "2026-08-01"` | a date |
+| `between` | `is between "2026-08-01"` | a date (range form NOT characterized) |
+| `after` / `before` | `is After` / `is Before "2026-08-01"` | a date |
+| `inTheNext` / `inTheLast` | `is In the Next` / `is In the Last "2"` | count (STRING) + `conditionValueUnit` |
+| `afterDate` / `beforeDate` | `is After date` / `is Before date "2026-08-01"` | a date |
+
+Only `inTheNext` + `days` also has corpus support (a sweep of 78 workflows across two
+accounts found exactly one relative-date condition in the wild — so the wild is no guide
+here; the probe is).
+
+Two caveats that survive the proof:
+- **`between` and `after` are NOT in the UI's dropdown** for this subtype, yet the backend
+  accepts them and the builder renders them. Treat them as real-but-unofficial; `between`
+  with a single date renders, but its range form was not worked out.
+- Proven for `conditionSubType: startTime` only. `afterDate`/`beforeDate` also appear in the
+  builder's legacy-condition migration path, which is **`contact_detail`-only** — do not
+  assume the whole table transfers to other condition types unprobed.
 
 ⚠️ A neighbouring smart-list enum in the same bundle uses **single-letter** units (`d`, `w`,
 `M`, `y`). That is a DIFFERENT vocabulary — the live workflow condition stores the full word

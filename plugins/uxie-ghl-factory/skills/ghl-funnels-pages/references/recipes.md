@@ -24,13 +24,14 @@ this file must first pass both gates in
 
 > ⚠️ **`autosave` saves a DRAFT — it does not publish.** Every write recipe here
 > lands on the draft and is served by the `/preview/{pageId}` URL, while the
-> **public URL keeps serving the previous content**. Publishing is a separate
-> UI-only step. See "Draft vs published" below before reporting any page live.
+> **public URL keeps serving the previous content**. Publishing is a SEPARATE
+> call — recipe 7. See "Draft vs published" below before reporting any page live.
 
 ## 0. Draft vs published — read before reporting a page shipped
 
 `POST /funnels/builder/autosave/{pageId}` returns `201` and writes the **draft**.
-That is the full extent of what every write recipe in this file does.
+That is the full extent of what every write recipe in this file does *except*
+recipe 7.
 
 - `https://<funnel-domain>/preview/{pageId}` → serves your new content immediately.
 - `https://<funnel-domain>/<funnel-path>/<page-path>` (the **public** URL) →
@@ -39,15 +40,71 @@ That is the full extent of what every write recipe in this file does.
 This is a genuine publish gate, **not CDN cache**: the public URL was polled with
 cache-busted requests for 4+ minutes and never changed (observed live 2026-07-21).
 
-**Publishing requires clicking Publish in the page builder UI.** No API publish
-step for funnel pages is proven — `SKILL.md` scopes publishing out as untested,
-and that scoping is what these recipes rely on.
+Confirmed at the data layer 2026-07-19: an `autosave` creates a version stamped
+**`pageType: "draft"`** (visible via `GET /funnels/builder/get-versions?pageId=`).
+Publishing flips that same version to **`pageType: "live"`**.
 
 **Therefore:** a `201` from `autosave` plus a green `/preview/` check means *"the
 draft is correct"*, NOT *"the customer sees it"*. Verifying only the preview URL
 is how a push gets reported as succeeded while the customer still sees the old
-page. When you finish a write, say which of the two is true and tell the user
-the Publish click is still needed.
+page. Finish the job with recipe 7, or say plainly that publishing is outstanding.
+
+---
+
+## 7. Publish a page (draft → live)
+
+**Purpose:** make the saved draft the version the public URL serves. This is the
+API equivalent of the builder's Publish action.
+
+**Status: live-proven 2026-07-19** (GROM AU, throwaway funnel, since deleted).
+Found by reading the page-builder bundle
+(`page-builder.leadconnectorhq.com` → `FunnelServices.publishVersion`), then
+executing the full sequence.
+
+**Sequence — publishing targets a VERSION, not a page:**
+
+1. `POST /funnels/builder/autosave/{pageId}` (recipe 4) → creates a version.
+2. `GET /funnels/builder/get-versions?pageId={pageId}` → array of
+   `{version_id, page_download_path, page_download_url, updated_at, updated_by,
+   userName, integrations, pageType}`. `pageType` is `"draft"` or `"live"`.
+   Take the `version_id` you want live (newest first after a save).
+3. `POST /funnels/builder/publish-version`
+   ```json
+   { "pageId": "<pageId>", "versionId": "<version_id>", "userId": "<uid>" }
+   ```
+   `→ 201 { "status": true }`
+
+`userId` is the acting user's id (the JWT's `authClassId`; it is also what comes
+back as `updated_by` on the version). It is **required** — omitting it 422s.
+
+**Verification:** re-`GET /funnels/builder/get-versions?pageId=` and confirm that
+`version_id` now reads `pageType: "live"`. The page doc
+(`GET /funnels/page/{pageId}`) mirrors it under `versionHistory[].pageType`.
+
+**Known limits:**
+- Proven at the DATA layer: the version flips `draft → live` and the page doc
+  agrees. The probe funnel had **no domain attached**, so serving-from-the-public-URL
+  was NOT separately confirmed. Verify the public URL on a funnel that has a domain
+  before telling a client the page is live.
+- Related endpoints on the same service, seen in the bundle but NOT exercised:
+  `POST /funnels/builder/restore-version` (same `{pageId, versionId, userId}` shape)
+  and `POST /funnels/builder/delete-version-history-data`.
+
+---
+
+## 8. Delete a funnel
+
+**Endpoint:** `POST /funnels/funnel/delete`
+```json
+{ "funnelId": "<id>", "locationId": "<loc>", "userId": "<uid>" }
+```
+`→ 201 { "domains": [], "paths": [] }`; the funnel disappears from
+`/funnels/funnel/list`.
+
+`userId` is **required** (omitting it returns `422 "userId should not be empty"`).
+There is no `DELETE` verb on this resource — `DELETE /funnels/funnel/{id}` and
+`DELETE /funnels/funnel/delete/{id}` both 404. Live-proven 2026-07-19 on the
+throwaway probe funnel.
 
 IDs: `LOC` = locationId. `funnelId` = returned by funnel creation. `pageId`
 = server-assigned when a step is created. `step.id` = a **client**-generated

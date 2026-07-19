@@ -25,14 +25,19 @@ verification GET.
 ## Scope
 IN: funnels, pages/steps, full-bleed HTML injection, tracking code, SEO settings.
 OUT: pipelines (public API — use the ghl MCP server), workflow wiring
-(use create-ghl-workflow), publishing/domain attachment (untested — refuse and say why).
+(use create-ghl-workflow), domain attachment (untested — refuse and say why).
 
-⚠️ Because publishing is OUT: every write here saves a **DRAFT**. `autosave` → `201`
+⚠️ **Draft vs live.** Every content write here saves a **DRAFT**: `autosave` → `201`
 means the draft took and `/preview/{pageId}` serves it, while the **public URL keeps
-serving the old page** until a human clicks Publish in the builder UI (confirmed live —
-not CDN cache). Never report a page as shipped off a `201` or a green preview check.
-Say which of draft/public you verified, and name the Publish click as a remaining step.
-See recipes.md §0.
+serving the old page**. Publishing is a SEPARATE call — `POST /funnels/builder/publish-version`
+with `{pageId, versionId, userId}` (recipe 7, live-proven 2026-07-19: it flips the
+version `pageType` from `draft` to `live`). Publishing targets a **version**, so read
+`get-versions` first.
+
+Never report a page as shipped off a `201` or a green preview check alone. State which
+of draft/live you actually verified. Note recipe 7 is proven at the data layer only —
+the probe funnel had no domain, so confirm the public URL on a domained funnel before
+telling a client it is live.
 
 ## Recipes
 See references/recipes.md. Never call an endpoint not documented there.
