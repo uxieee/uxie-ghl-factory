@@ -10,8 +10,15 @@
 //   { "op":"appendStep",      "step": {type,name,attributes} }        # linear step OR container
 //   { "op":"insertAfter",     "afterId":"<id>", "step": {...}, "attachTailTo":"<branch>" }
 //   { "op":"appendToBranch",  "branchEntryId":"<id>", "step": {...} }
+//   { "op":"insertBefore",    "beforeId":"<id>", "step": {...}, "attachTailTo":"<branch>" }
 //
-// The three add ops take EITHER a linear step or a CONTAINER (find_opportunity with
+// insertBefore is the only op that can put a step FIRST. Mid-chain it is exactly
+// insertAfter(predecessor); on the workflow's HEAD it is a true prepend, and if the new
+// step is a container the ENTIRE existing workflow becomes the displaced tail and must be
+// re-scoped onto one named branch — attachTailTo is required and never guessed, because
+// here a wrong branch reroutes 100% of the workflow's traffic.
+//
+// The four add ops take EITHER a linear step or a CONTAINER (find_opportunity with
 // onFound/onNotFound, if_else, workflow_split, the multipath waits…). A container
 // compiles to a whole subgraph — entry + branch entries + their children — and the
 // splice wires the lot in. This is what lets opportunity logic be added to an EXISTING
@@ -64,9 +71,14 @@ import { collectOpTags, missingTags } from '../engine/tags.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const [LOC, WID, specPath] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const assumeAssociated = process.argv.includes('--assume-associated');
+// Both overrides were documented in the header but only one was ever parsed, so
+// --allow-dangling-parentkeys silently did nothing and its guard could not be overridden
+// from the CLI at all. Parse every override the commit body accepts.
+const allowDanglingParentKeys = process.argv.includes('--allow-dangling-parentkeys');
+const deadBranchAcknowledged = process.argv.includes('--ack-dead-branch');
 const dryRun = process.argv.includes('--dry-run');
 if (!LOC || !WID || !specPath) {
-  console.error('usage: node edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--dry-run]');
+  console.error('usage: node edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--allow-dangling-parentkeys] [--ack-dead-branch] [--dry-run]');
   process.exit(1);
 }
 
@@ -125,7 +137,7 @@ const listTriggers = async () => {
 };
 
 const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4 });
-const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated });
+const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged });
 const plan = triggerOps.length
   ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
   : [];

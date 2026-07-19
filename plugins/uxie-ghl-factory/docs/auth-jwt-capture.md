@@ -107,13 +107,15 @@ The current JWT payload (decode locally, e.g. via jwt.io — it decodes client-s
 
 ## 5. Migration history
 
-- **2026-07:** GHL migrated the internal builder API's auth header from `token-id` (a Firebase-issued JWT) to `Authorization: Bearer <JWT>` (a LeadConnector-issued JWT with different claims — see §3). Requests using the old `token-id` header now return `401` unconditionally.
-- Any skill, runbook, or doc still teaching a `token-id` header is stale and must be corrected to reference this file instead of carrying its own copy.
+- **2026-07:** GHL migrated the **workflow-builder** API's auth header from `token-id` (a Firebase-issued JWT) to `Authorization: Bearer <JWT>` (a LeadConnector-issued JWT with different claims — see §3). Requests to `/workflow/...` using the old `token-id` header now return `401`.
+- **The migration was surface-by-surface, NOT account-wide.** `token-id` is still the live scheme on other surfaces — the AI services (§7) and `/funnels/*` (§9). An earlier revision of this section read "requests using the old `token-id` header now return `401` unconditionally", which is false and was the direct cause of the `ghl-funnels-pages` recipes teaching `Bearer` for funnel endpoints that do not accept it. **Never generalize an auth observation from one surface to the whole internal API — determine the scheme per surface, from a real request.**
+- Any skill, runbook, or doc teaching a `token-id` header **for the workflow API** is stale and must be corrected to reference this file instead of carrying its own copy. `token-id` on the surfaces in §7/§9 is correct and must not be "fixed".
 
 ## 6. Scope of use
 
 - **`get-ghl-workflow-json`** (export) — read-only `GET` calls only. Uses this doc's §1–§4 in full; never issues writes.
-- **`create-ghl-workflow`** and **`ghl-funnels-pages`** — issue writes (`POST`/`PUT`/`PATCH`) against the internal API. They use this doc's §1–§4 for auth *and* must additionally satisfy `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md` (owned-account check + one-time ToS disclosure) before any write executes.
+- **`create-ghl-workflow`** — issues writes (`POST`/`PUT`/`PATCH`) against the workflow-builder API. Uses this doc's §1–§4 for auth *and* must additionally satisfy `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md` (owned-account check + one-time ToS disclosure) before any write executes.
+- **`ghl-funnels-pages`** — issues writes against `/funnels/*`, which authenticates with **`token-id`**, NOT `Bearer` — see §9. Capture procedure differs too (§9.2). Write rails still apply.
 - **`ghl-ai-agents-specialist`** — issues writes against the **AI internal services** (Conversation AI, Voice AI, Agent Studio, Knowledge Base). Those use a DIFFERENT header — see §7. Write rails (`${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`) still apply.
 - **`ghl-memberships`** — issues writes against the **Memberships / client-portal** surface. Auth is §1 **plus a `sourceid` header**, and the member-facing rail uses a different token class entirely — see §8. Write rails still apply.
 - No other plugin component should embed JWT header formats, capture steps, or UID/CID derivation — they point here instead.
@@ -206,3 +208,53 @@ before the OTP is verified** — a failed signup leaves a password-less user, af
 
 ⚠️ **Deleting a contact does NOT invalidate an active portal session.** Combined with the 24 h TTL, contact
 deletion is not a safe offboarding control.
+
+## 9. Funnels/pages auth (`token-id`) — NOT Bearer
+
+`/funnels/*` on `backend.leadconnectorhq.com` does **not** accept the §1 `Authorization: Bearer`
+token. It authenticates with the older **`token-id`** header, which is still live on this surface
+(the 2026-07 migration was workflow-builder-only — see §5).
+
+This was mis-documented: `ghl-funnels-pages/references/recipes.md` taught "Bearer JWT" on every
+funnel endpoint and pointed here, where only §1 existed. Found live 2026-07-21 while building
+against a real account.
+
+### 9.1 Header set
+
+Verified against `GET /funnels/funnel/list`, `GET /funnels/builder/page/data`,
+`POST /funnels/builder/autosave/{pageId}`:
+
+```
+token-id: <JWT>
+channel:  APP
+source:   WEB_USER
+version:  2021-07-28
+accept:   application/json
+```
+
+Note the `version` value is **`2021-07-28`** — different from the AI services' value in §7. Version
+strings are per-surface; copy the one off a real request, do not carry one over.
+
+These responses carry `access-control-allow-origin: *`, so once the token is held the surface can be
+driven from a plain shell — no browser CORS constraint. That matters for uploading a large HTML file,
+which is impractical to push through an in-page `fetch`.
+
+### 9.2 Capture procedure (hook BEFORE navigating)
+
+The §2 procedure (read headers off an already-fired request) is unreliable here, because the funnels
+area is reached by SPA navigation and a direct deep link to
+`/v2/location/<loc>/funnels-websites/...` returns **404 server-side** — you cannot land on it directly
+to generate the request.
+
+Instead, install the hook first, then navigate **within** the app:
+
+1. Land on any authenticated `app.gohighlevel.com` page.
+2. Hook both transports before the call happens — `window.fetch` and
+   `XMLHttpRequest.prototype.setRequestHeader` — stashing captured headers on a global.
+3. Navigate to the funnels area **by clicking through the SPA**, never by URL.
+4. Read the stashed `token-id`.
+
+⚠️ **`location.reload()` wipes the hook.** So does any full page load. If you reload, re-install the
+hook and navigate again — a capture attempt after a reload silently returns nothing.
+
+Same lifetime discipline as §4: short-lived, never stored, re-capture on `401`.

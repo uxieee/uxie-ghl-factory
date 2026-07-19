@@ -10,9 +10,44 @@ Source: `ghl-workflow-api-docs/docs/superpowers/specs/2026-07-11-pipelines-funne
 `page-trackingcode.mjs`, `seo.mjs` (probed via `probe.mjs`). Every payload
 below is copied from those two sources — nothing invented.
 
+> ⚠️ **Auth: `/funnels/*` uses `token-id`, NOT `Authorization: Bearer`.** Every
+> recipe below previously said "Bearer JWT"; that was wrong and the endpoints
+> reject it. The 2026-07 migration to `Bearer` was **workflow-builder-only** —
+> funnels still run the older scheme. Corrected 2026-07-21 after a live build.
+
 Auth headers on every call: see `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`
-(§1) — the current header format, not any older scheme. Every write in this
-file must first pass both gates in `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`.
+**§9** (funnels rail — `token-id` + `channel`/`source`/`version`/`accept`, and a
+capture procedure that must hook `fetch`/`XHR` *before* SPA navigation). §1 of
+that doc is the **workflow-builder** rail and does not apply here. Every write in
+this file must first pass both gates in
+`${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`.
+
+> ⚠️ **`autosave` saves a DRAFT — it does not publish.** Every write recipe here
+> lands on the draft and is served by the `/preview/{pageId}` URL, while the
+> **public URL keeps serving the previous content**. Publishing is a separate
+> UI-only step. See "Draft vs published" below before reporting any page live.
+
+## 0. Draft vs published — read before reporting a page shipped
+
+`POST /funnels/builder/autosave/{pageId}` returns `201` and writes the **draft**.
+That is the full extent of what every write recipe in this file does.
+
+- `https://<funnel-domain>/preview/{pageId}` → serves your new content immediately.
+- `https://<funnel-domain>/<funnel-path>/<page-path>` (the **public** URL) →
+  keeps serving the OLD content.
+
+This is a genuine publish gate, **not CDN cache**: the public URL was polled with
+cache-busted requests for 4+ minutes and never changed (observed live 2026-07-21).
+
+**Publishing requires clicking Publish in the page builder UI.** No API publish
+step for funnel pages is proven — `SKILL.md` scopes publishing out as untested,
+and that scoping is what these recipes rely on.
+
+**Therefore:** a `201` from `autosave` plus a green `/preview/` check means *"the
+draft is correct"*, NOT *"the customer sees it"*. Verifying only the preview URL
+is how a push gets reported as succeeded while the customer still sees the old
+page. When you finish a write, say which of the two is true and tell the user
+the Publish click is still needed.
 
 IDs: `LOC` = locationId. `funnelId` = returned by funnel creation. `pageId`
 = server-assigned when a step is created. `step.id` = a **client**-generated
@@ -95,7 +130,7 @@ code, SEO re-render) is a **full-replacement** save — you must read the
 current `pageData` first, mutate only the piece you care about, and save the
 whole thing back. These GETs are also the recon/verification reads.
 
-**Endpoints (all read-only, Bearer JWT):**
+**Endpoints (all read-only; `token-id` auth per §9, not Bearer):**
 - `GET /funnels/funnel/list?locationId=&type=funnel&category=all&offset=&limit=` — list funnels (recon).
 - `GET /funnels/funnel/fetch/{funnelId}?locationId=` — funnel doc: `_id, name, steps[], trackingCodeHead, trackingCodeBody, url, domainId, globalSectionsUrl, orderFormVersion, ...`.
 - `GET /funnels/page/{pageId}` — page metadata: name, url, funnelId, stepId, `meta` (SEO), `pageDataUrl`/`pageDataDownloadUrl`, versions. **Content is NOT inline here.**
@@ -142,7 +177,11 @@ nested under row → col in a real page tree):
                      "customCode": <count of customCode elements>, "popup": false } }
 ```
 `→ 201 { pageDataUrl, pageDataDownloadUrl }`. GHL persists to Firestore +
-Firebase Storage and re-renders the preview server-side.
+Firebase Storage and re-renders the **preview** server-side.
+
+> ⚠️ **This is a DRAFT save.** The `201` means the draft took, not that the page
+> is live — the public URL still serves the old content until someone clicks
+> Publish in the builder UI. See §0.
 
 **Full-bleed CSS zeroing** (apply to every section before the same
 `autosave` call — either at build time, or as a retrofit on an existing
@@ -165,6 +204,10 @@ known-good page's structure).
 `https://<funnel-domain>/preview/{pageId}?z=<cache-bust>`, and confirm (a)
 your HTML/marker is present in the response, and (b) the section/content
 elements measure `0,0` padding (i.e. edge-to-edge).
+
+This verifies the **draft only**. To report on what the customer sees, fetch the
+**public** URL too and state the result explicitly — an unchanged public URL is
+expected here, not a failure (§0).
 
 **Known limits:**
 - Proven end-to-end for a page whose entire body is a single `c-custom-code`
@@ -257,20 +300,25 @@ injected markers are present in `<head>` and before `</body>` respectively
 **Purpose:** set a page's SEO title/description/keywords/image/author/language.
 
 **Status: proven live by the source investigation, but excluded from the
-normal single-Bearer-JWT flow this skill otherwise relies on.** Include this
-recipe only with that caveat surfaced to the user before attempting it.
+single-token flow this skill otherwise relies on.** Include this recipe only
+with that caveat surfaced to the user before attempting it.
+
+> Note: the 2026-07-21 auth correction (funnels are `token-id`, not Bearer)
+> does **not** dissolve this recipe's problem — it renames one of the two
+> tokens. SEO still needs a genuinely different credential class.
 
 **Why it's different:** SEO metadata lives on the page's Firestore doc
 (`funnel_pages/{pageId}.meta`), not in `pageData`. The `builder/autosave`
-endpoint (Bearer JWT, same as every other recipe here) **ignores a
+endpoint (`token-id`, same as every other recipe here) **ignores a
 top-level `meta` key** — verified twice in the source investigation. There
-is no pure-Bearer REST endpoint for SEO; GHL's own builder writes `meta`
+is no `token-id` REST endpoint for SEO; GHL's own builder writes `meta`
 directly to Firestore using a **separate Firebase ID token** (obtained via a
 `signInWithCustomToken` exchange during the builder's page load, itself
 minted by `POST /oauth/users/{uid}/sessions/token`). **This plugin's
-canonical auth doc (`${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`) only
-documents capturing the Bearer JWT — it does not document capturing this
-second Firebase token.** That gap is the reason this recipe is experimental
+canonical auth doc (`${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`)
+documents the workflow Bearer rail (§1), the AI `token-id` rail (§7), the
+memberships rails (§8) and the funnels `token-id` rail (§9) — but not this
+Firebase ID token.** That gap is the reason this recipe is experimental
 here rather than a first-class recipe: don't attempt it without first
 extending the auth capture procedure (and getting that reviewed), and never
 improvise a token format in its place.
@@ -282,8 +330,8 @@ auth step above):**
    `(default)`, document `funnel_pages/{pageId}`, field mask `meta`), body
    `{"fields":{"meta":{"mapValue":{"fields":{"title":{...},"description":{...},"keywords":{...},"imageUrl":{...},"author":{...},"language":{...},"canonicalMeta":{...},"customMeta":{...}}}}}}`
    — authenticated with the Firebase ID token described above (not the
-   canonical Bearer JWT).
-2. Trigger a normal `POST /funnels/builder/autosave/{pageId}` (Bearer JWT,
+   funnels `token-id`).
+2. Trigger a normal `POST /funnels/builder/autosave/{pageId}` (`token-id`,
    current `pageData` unchanged) to force GHL to re-render the preview,
    which reads `meta` fresh at render time.
 
