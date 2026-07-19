@@ -530,7 +530,15 @@ export function expandCondition(c, ctx) {
     nestedDropdownTypes: n.nestedDropdownTypes ?? IFELSE_NESTED_DROPDOWN_TYPES,
     allowIsOperatorTypes: n.allowIsOperatorTypes ?? IFELSE_ALLOW_IS_OPERATOR_TYPES,
   };
-  if (n.conditionType === 'contact_detail') out.__customFieldType__ = n.__customFieldType__ ?? 'standard';
+  // `appointment` joins contact_detail here on LIVE evidence: the UI-built relative-date
+  // condition (workflow 07g, captured 2026-07-19) carries __customFieldType__:'standard'
+  // even though it is not a custom field. Engine-built conditions lacked it — the same
+  // fidelity gap class as the nested-if_else `parent` bug (v0.3.9), where UI-built nodes
+  // all carried a key the compiler omitted and the compiler turned out to be the wrong one.
+  // SUPPORT = 1 (one condition in the wild across 78 swept workflows); scoped to the two
+  // types actually observed rather than emitted for every type on a corpus this thin.
+  if (n.conditionType === 'contact_detail' || n.conditionType === 'appointment')
+    out.__customFieldType__ = n.__customFieldType__ ?? 'standard';
   // carry any extra author-specified keys through untouched (forward-compat)
   for (const k of Object.keys(n)) if (!(k in out)) out[k] = n[k];
   return out;

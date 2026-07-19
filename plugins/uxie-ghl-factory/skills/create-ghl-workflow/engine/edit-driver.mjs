@@ -5,6 +5,7 @@ import {
   appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep,
   addBranch, deleteContainer, setStepDisabled, disableStepsByType,
   appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
+  insertBefore, insertSubgraphBefore, prependStep,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
 
@@ -155,6 +156,12 @@ export function applyOp(templates, op, { ctx, idGen }) {
       return sub.isContainer
         ? insertSubgraphAfter(templates, sub, op.afterId, op.attachTailTo)
         : insertAfter(templates, sub.entry, op.afterId);
+    }
+    case 'insertBefore': {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer
+        ? insertSubgraphBefore(templates, sub, op.beforeId, op.attachTailTo)
+        : insertBefore(templates, sub.entry, op.beforeId);
     }
     case 'appendToBranch': {
       const sub = compileSubgraph(op.step, ctx);

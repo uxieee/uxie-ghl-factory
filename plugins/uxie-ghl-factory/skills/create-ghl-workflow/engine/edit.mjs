@@ -310,14 +310,22 @@ function reScopeTailOntoBranch(templates, branchEntryId, tailId, modified) {
 }
 
 // Merge a compiled subgraph's nodes in after re-seating its entry into `position`.
-function spliceSubgraph(templates, sub, anchorId, position) {
+//
+// `prepend` puts the subgraph at the FRONT of templates[] instead of the back. That is not
+// cosmetic: the BUILDER RESOLVES THE ROOT BY ARRAY POSITION, not by parentKey. Every
+// UI-built workflow has its head at templates[0] (verified against a UI-built container
+// workflow, 2026-07-19), and compileSubgraph's own head lookup falls back to `tpls[0]`.
+// Appending a new HEAD therefore produced a graph that was correct by every pointer check
+// — right parentKey, right branches, no orphans, clean round-trip, publish 200 — but whose
+// container the canvas silently refused to render, showing the old head as the first step.
+// Caught only by opening the builder on a live canary; the unit tests passed because they
+// find the head by predicate rather than by position.
+function spliceSubgraph(templates, sub, anchorId, position, prepend = false) {
   const entry = { ...sub.entry, ...position };
   if (position.parent == null) delete entry.parent;
   const rest = sub.templates.filter((t) => t.id !== sub.entry.id);
-  const out = [
-    ...templates.map((t) => (anchorId && t.id === anchorId ? { ...t, next: entry.id } : t)),
-    entry, ...rest,
-  ];
+  const existing = templates.map((t) => (anchorId && t.id === anchorId ? { ...t, next: entry.id } : t));
+  const out = prepend ? [entry, ...rest, ...existing] : [...existing, entry, ...rest];
   return { out, entry, created: [entry.id, ...rest.map((t) => t.id)] };
 }
 
@@ -366,6 +374,94 @@ export function appendSubgraphToBranch(templates, branchEntryId, sub) {
     parent: branchEntryId, parentKey: anchorId, order: existing.length,
   });
   return { templates: out, diff: { createdSteps: created, modifiedSteps: [anchorId], deletedSteps: [] } };
+}
+
+// ---------------------------------------------------------------------------
+// Prepend / insertBefore
+//
+// Every other add op takes an anchor to sit AFTER, so nothing could become step 1 of an
+// existing workflow — a real gap (adding a gate in front of a published workflow had to
+// be done by hand in the UI). Two distinct cases hide behind one caller-facing op:
+//
+//   - `beforeId` has an inbound `next` → this is just insertAfter(that predecessor).
+//     One code path, so mid-chain insertBefore inherits every guard insertAfter has.
+//   - `beforeId` is the ROOT HEAD → a genuine prepend: the new step takes over as head.
+//     For a CONTAINER that means the entire existing workflow becomes the tail and must
+//     be re-scoped onto ONE branch. Same `attachTailTo` contract as insertAfter, but the
+//     stakes are maximal: here the "tail" is 100% of the workflow's traffic, so a guess
+//     would reroute everything. Ambiguity stays an error.
+// ---------------------------------------------------------------------------
+
+// Who points AT `id`. A container reaches its branch entries through its `next` ARRAY —
+// that is structural wiring, not a chain edge, so it is reported separately and refused.
+function inboundOf(templates, id) {
+  const viaBranch = templates.find((t) => Array.isArray(t.next) && t.next.includes(id));
+  if (viaBranch) return { pred: viaBranch, viaBranchArray: true };
+  return { pred: templates.find((t) => t.next === id) ?? null, viaBranchArray: false };
+}
+
+function rootHead(templates) {
+  return templates.find((t) => (t.parentKey === null || t.parentKey === undefined) && t.parent == null) ?? null;
+}
+
+function refuseBranchEntry(entry, beforeId, opLabel) {
+  throw new Error(
+    `${opLabel}: '${entry.name ?? beforeId}' is a BRANCH ENTRY of '${entry.name ?? ''}' — its position is structural `
+    + `(the container's next[] is the branch wiring, not a chain), so nothing can be spliced in front of it. `
+    + `Use appendToBranch to add steps INSIDE the branch instead.`);
+}
+
+// Make a plain step the new head of the root chain. The old head re-parents onto it and
+// the whole root scope is renumbered, which is what flattenGraph would have emitted had
+// the author built this shape fresh.
+export function prependStep(templates, newStep, head = null) {
+  const target = head ?? rootHead(templates);
+  if (!target)
+    throw new Error('prependStep: cannot locate the workflow head step (parentKey null, no parent) — refusing to guess which step is first.');
+  const step = { ...newStep, next: target.id, parentKey: null, order: 0 };
+  delete step.parent;
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const modified = new Set([target.id]);
+  const order = new Map();
+  scopeChain(byId, target.id).forEach((n, i) => { order.set(n.id, i + 1); modified.add(n.id); });
+  const out = templates.map((t) => {
+    let n = t;
+    if (n.id === target.id) n = { ...n, parentKey: step.id };
+    if (order.has(n.id)) n = { ...n, order: order.get(n.id) };
+    return n;
+  });
+  out.unshift(step);
+  return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [...modified], deletedSteps: [] } };
+}
+
+// Insert a plain step immediately BEFORE `beforeId`.
+export function insertBefore(templates, newStep, beforeId) {
+  const target = templates.find((t) => t.id === beforeId);
+  if (!target) return { templates, diff: emptyDiff() };
+  const { pred, viaBranchArray } = inboundOf(templates, beforeId);
+  if (viaBranchArray) refuseBranchEntry(target, beforeId, 'insertBefore');
+  if (pred) return insertAfter(templates, newStep, pred.id);
+  return prependStep(templates, newStep, target);
+}
+
+// Insert a CONTAINER subgraph immediately BEFORE `beforeId`, re-scoping what it displaces
+// onto the container's `attachTailTo` branch.
+export function insertSubgraphBefore(templates, sub, beforeId, attachTailTo) {
+  const target = templates.find((t) => t.id === beforeId);
+  if (!target) return { templates, diff: emptyDiff() };
+  const { pred, viaBranchArray } = inboundOf(templates, beforeId);
+  if (viaBranchArray) refuseBranchEntry(target, beforeId, 'insertBefore');
+  if (pred) return insertSubgraphAfter(templates, sub, pred.id, attachTailTo);
+  if (target.parent != null)
+    throw new Error(`insertBefore: '${target.name ?? beforeId}' has no inbound edge but sits in a branch scope — the graph is malformed; repair it before editing.`);
+  // Root prepend: the container becomes the head and the WHOLE existing chain is the tail.
+  // prepend:true is REQUIRED — the new head must land at templates[0] or the builder will
+  // not render it (see spliceSubgraph).
+  const { out, entry, created } = spliceSubgraph(templates, sub, null, { parentKey: null, order: 0, parent: null }, true);
+  const modified = new Set();
+  const branch = resolveBranchTarget(entry, out, attachTailTo, 'insertBefore');
+  const templatesOut = reScopeTailOntoBranch(out, branch.id, beforeId, modified);
+  return { templates: templatesOut, diff: { createdSteps: created, modifiedSteps: [...modified], deletedSteps: [] } };
 }
 
 // Move an existing step to sit immediately AFTER `afterId` (reorder). Detaches it from
@@ -518,6 +614,53 @@ export function checkOpportunityAssociationTemplates(templates, rootAssoc = fals
   walkChain(head.id, rootAssoc);
 }
 
+// Dead-branch risk: THIS edit created a container that took over an existing chain, and
+// one of its branches carries those pre-existing steps while a SIBLING terminates
+// immediately at END. That is a near-miss shape seen live — an if_else spliced in front of
+// a release workflow put the whole existing chain on one branch and sent the other
+// straight to END, so the normal path would never release anything. It is invisible in a
+// diff (the branch is simply empty) and only readable off the canvas.
+//
+// Deliberately NARROW. It cannot know which branch is semantically "normal", so it does
+// not try — it reports the choice the author actually made and makes them confirm it.
+// Scoped to created containers that DISPLACED something, so:
+//   - a fresh build never fires (nothing pre-existing on any branch);
+//   - a container appended at a tail never fires (no chain displaced, empty branches are
+//     the expected starting state);
+//   - a legacy workflow's own asymmetric branches never fire (not created by this edit).
+//
+// One more exemption, and the reason for it: a branch carrying a PREDEFINED
+// `__branchKey__` (find_opportunity's 'predefined_Opportunity Found', and the other
+// finder/booking containers) is one whose meaning GHL defines, not the author. The tail
+// belongs on Found ~always — resolveBranchTarget says so in as many words — and its
+// Not-Found sibling dead-ending is the idiomatic shape, not a near-miss. Only
+// AUTHOR-NAMED branches (if_else, workflow_split) are genuinely symmetric, and those are
+// exactly where the routing choice is invisible without opening the canvas. Firing on the
+// idiomatic case too would train the author to pass the override reflexively, which is
+// how a fail-closed guard stops being one.
+export function deadBranchRisk(templates, diff) {
+  const created = new Set(diff.createdSteps ?? []);
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const risks = [];
+  for (const t of templates) {
+    if (!created.has(t.id) || !Array.isArray(t.next)) continue;
+    const targets = branchTargets(t, templates);
+    const predefined = new Set(targets.filter((x) => x.key != null).map((x) => x.id));
+    const branches = t.next.map((id) => byId.get(id)).filter(Boolean);
+    const ended = branches.filter((b) => b.next == null);
+    const carrying = branches.filter((b) => typeof b.next === 'string'
+      && !predefined.has(b.id)
+      && scopeChain(byId, b.next).some((n) => !created.has(n.id)));
+    if (ended.length && carrying.length)
+      risks.push({
+        containerId: t.id, name: t.name ?? t.id,
+        carrying: carrying.map((b) => b.name ?? b.id),
+        deadEnded: ended.map((b) => b.name ?? b.id),
+      });
+  }
+  return risks;
+}
+
 // Build the COMMIT body for an edit. Edits must go through the plain PUT
 // /workflow/{loc}/{wid} (the commit path, same as publish) — NOT /auto-save. An
 // auto-save on a freshly-built workflow 422s "previous changes were not committed"
@@ -552,6 +695,20 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         `edit left ${bad.length} step(s) with a parentKey pointing at a missing step: `
         + bad.map((d) => `'${d.name ?? d.id}' → ${d.parentKey}`).join(', ')
         + `. Add a repairParentKeys op, or pass allowDanglingParentKeys:true to commit anyway.`);
+  }
+  // Fail CLOSED on a container this edit spliced in that routes the displaced chain down
+  // one branch and a sibling straight to END. The author names the branch, so this is not
+  // second-guessing them — it is surfacing a routing decision that is otherwise only
+  // visible by opening the canvas. Pass deadBranchAcknowledged once it has been read.
+  if (opts.deadBranchAcknowledged !== true) {
+    const risks = deadBranchRisk(newTemplates, diff);
+    if (risks.length)
+      throw new IRError('DEAD_BRANCH',
+        risks.map((r) =>
+          `'${r.name}' routes the workflow's existing steps down ${r.carrying.map((b) => `'${b}'`).join(', ')} `
+          + `while ${r.deadEnded.map((b) => `'${b}'`).join(', ')} ${r.deadEnded.length > 1 ? 'terminate' : 'terminates'} immediately at END`).join('; ')
+        + `. Contacts taking the terminating branch reach the end of the workflow and nothing downstream runs. `
+        + `Confirm that is intended (or attach steps to it / re-run with a different attachTailTo), then pass deadBranchAcknowledged:true.`);
   }
   return {
     ...fresh,

@@ -110,6 +110,41 @@ GHL shape per type (a hand-crafted shape compiles clean but MATCHES WRONGLY at r
 | Custom field (number/date) | …add `conditionOperator: "=="` | `conditionOperator: ==` (no lowercasing) |
 | Trigger identity | `{ conditionType: trigger, conditionValue: "<triggerId>" }` | `conditionOperator: ==` |
 | Appointment was rescheduled | `{ conditionType: appointment, conditionSubType: appointmentRescheduled, conditionOperator: is, conditionValue: "true" }` | as authored (`conditionValue` is the STRING `"true"`, not a boolean) |
+| Appointment start date, RELATIVE | `{ conditionType: appointment, conditionSubType: startTime, conditionOperator: "!=", conditionValue: "2", conditionValueOperator: inTheNext, conditionValueUnit: days }` | as authored + `__customFieldType__: "standard"` (see below) |
+
+**`if_else` DOES support relative dates — the comparator is NOT in `conditionOperator`.**
+This is the single easiest thing to misread in the whole condition model. `conditionOperator`
+carries only the Is/Is-not half (`==` / `!=`), so a reader sees a plain `!=` and concludes
+there is no relative support. The comparator lives in **two extra fields**:
+
+```
+conditionValueOperator : inTheNext     <- the actual comparator
+conditionValueUnit     : days
+conditionValue         : "2"           <- a STRING, not a number
+```
+
+In the UI the control only appears **after** an operator (Is / Is not) is selected, which is
+the other half of why it reads as unsupported.
+
+Comparator vocabulary — `today`, `tomorrow`, `yesterday`, `on`, `between`, `after`,
+`before`, `inTheNext`, `inTheLast`, `afterDate`, `beforeDate`. **Provenance matters here:**
+only `inTheNext` + `days` is corpus-proven (support = 1 — a sweep of 78 workflows across two
+accounts found exactly one relative-date condition in the wild). The rest of the list is
+read from GHL's own builder bundle, corroborated by the builder's legacy-condition migration
+function, which emits `afterDate`/`beforeDate`/`on` into this same field. Treat anything
+other than `inTheNext`/`days` as **unproven** — verify against a UI-built step before
+shipping it to a client. A wrong value compiles clean and mis-routes silently.
+
+⚠️ A neighbouring smart-list enum in the same bundle uses **single-letter** units (`d`, `w`,
+`M`, `y`). That is a DIFFERENT vocabulary — the live workflow condition stores the full word
+`"days"`. Do not cross them.
+
+**Granularity contrast:** `if_else` relative dates only go down to **days**. The *wait* step
+goes down to hours ("Until a scheduled date/time → Appointment → Before N hours"). If you
+need sub-day appointment timing, it has to be a wait step, not a condition.
+
+Ground truth for the shape: `engine/relative-date-condition.test.mjs` asserts the compiler
+reproduces a live UI-built condition field-for-field (captured 2026-07-19, read-only).
 
 **Reschedule detection — GHL has NO native "rescheduled" trigger or status.** The only way
 to catch a reschedule is the two-part pattern: trigger on the `appointment` event with **no
@@ -207,13 +242,14 @@ next to `authored`; on its own it merely proves the server echoed what was sent.
 on a workflow that already exists, use the edit CLI:
 
 ```
-node scripts/edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--dry-run]
+node scripts/edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--allow-dangling-parentkeys] [--ack-dead-branch] [--dry-run]
 ```
 
 It GETs the live workflow, applies the ops to `workflowData.templates`, and commits via
 the **plain `PUT /workflow/{loc}/{wid}`** (NOT `/auto-save` — that 422s on an existing
 workflow). `--dry-run` computes + prints the diff without sending the PUT. The edit-spec is
-`{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`
+`{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`,
+`insertBefore`
 (each takes a `step: {type,name,attributes}` compiled from IR — a linear step **or a
 container**, see "Adding containers" below), `deleteStep`,
 `modifyStep` (`attrPatch`), `moveStep`, `addBranch` (`{containerId,name,conditions}`),
@@ -241,9 +277,57 @@ Adding an `internal_update_opportunity` this way triggers the `OPP_UNASSOCIATED`
 (pass `--assume-associated` only if ALL the workflow's triggers are opportunity-based).
 Pure core: `engine/edit-driver.mjs` + `engine/edit.mjs` (see their tests).
 
+### Putting a step FIRST (`insertBefore`)
+
+Every other add op needs an anchor to sit *after*, so nothing could become step 1 of an
+existing workflow — adding a gate in front of a published workflow meant rebuilding it by
+hand in the UI. `insertBefore` closes that:
+
+```json
+{ "ops": [
+  { "op": "insertBefore", "beforeId": "<head-step-id>",
+    "step": { "kind": "if_else", "type": "if_else", "name": "Eligible?",
+              "branches": [ { "ref": "y", "name": "Eligible", "conditions": [ … ], "then": [] },
+                            { "ref": "n", "name": "None", "else": true, "then": [] } ] },
+    "attachTailTo": "Eligible" }
+] }
+```
+
+Two cases behind one op:
+- **Mid-chain** — exactly `insertAfter(predecessor)`, so it inherits every guard that path
+  has. One code path, not two.
+- **On the head** — a true prepend. For a plain step the old head just re-parents. For a
+  **container**, the *entire existing workflow* becomes the displaced tail and must be
+  re-scoped onto one branch, so `attachTailTo` is **required and never guessed** — this is
+  the `insertAfter` trap at maximum stakes, since the wrong branch reroutes 100% of the
+  workflow's traffic rather than some suffix of it.
+
+Inserting before a **branch entry** is refused: a container's `next[]` is structural branch
+wiring, not a chain, so nothing can be spliced in front of it. Use `appendToBranch` to add
+steps inside the branch.
+
+### The dead-branch guard (`DEAD_BRANCH`)
+
+`editCommitBody` fails closed when this edit splices in a container that sends the
+displaced chain down one branch while a **sibling terminates immediately at END**. Live
+near-miss this exists for: an `if_else` inserted into a release workflow put the whole
+existing chain on one branch and pointed the other straight at END — so the normal path
+would never release anything. Nothing in the diff shows it (the branch is simply empty);
+it is only visible by opening the canvas.
+
+The guard cannot know which branch is semantically "normal" and does not try — it names the
+branch that took the chain and the one going to END, and makes you confirm. Pass
+`--ack-dead-branch` (`deadBranchAcknowledged: true`) once you have read it.
+
+Deliberately narrow, so it stays worth heeding: it never fires on a fresh build, on a
+container appended at a tail (empty branches are the expected starting state), on a legacy
+workflow's own asymmetric branches, or when the chain landed on a **predefined**
+`__branchKey__` branch — `find_opportunity`'s Not-Found sibling dead-ending is idiomatic,
+not a near-miss, and firing there would train you to pass the override reflexively.
+
 ### Adding containers (multipath) to an existing workflow
 
-`appendStep` / `insertAfter` / `appendToBranch` each accept a **container** — a
+`appendStep` / `insertAfter` / `appendToBranch` / `insertBefore` each accept a **container** — a
 `find_opportunity` with `onFound`/`onNotFound`, an `if_else`, a `workflow_split`, a
 multipath wait. The step compiles to a whole subgraph (entry + branch entries + their
 children) via the same `compile()` that `build.mjs` runs, so an edit-inserted container is
@@ -421,6 +505,7 @@ The orchestrator prints exactly what it did. Check it:
 - About to `--publish` without the user's explicit OK → stop.
 - Got a 401 → JWT expired; re-capture and resume.
 - About to add `update_opportunity` with no opp trigger, no prior `create_opportunity`, and outside a `find_opportunity` Found branch → the update will silently do nothing at runtime; build find-or-create first.
+- Got `DEAD_BRANCH` on a commit → do NOT reflexively pass `--ack-dead-branch`. Read which branch took the existing chain and which one now ends at END, and confirm that is the routing you meant. This guard exists because the inverse shipped once and the normal path silently released nothing.
 - Adding an opportunity step via EDIT-MODE → `editCommitBody` now throws `OPP_UNASSOCIATED` when the edit CREATES an unassociated `internal_update_opportunity`; pass `assumeAssociated: true` only after verifying ALL the workflow's triggers are opportunity-based. Still unchecked: moving an existing update out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation that skips `editCommitBody` — verify those yourself.
 
 ## Resources
