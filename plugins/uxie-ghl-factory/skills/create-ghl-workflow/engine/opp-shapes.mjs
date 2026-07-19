@@ -1,10 +1,7 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import OPP_SHAPES from '../catalog/opp-field-shapes.json' with { type: 'json' };
 import { IRError } from './ir.mjs';
 
-export const OPP_SHAPES = JSON.parse(
-  readFileSync(fileURLToPath(new URL('../catalog/opp-field-shapes.json', import.meta.url)), 'utf8'),
-);
+export { OPP_SHAPES };
 export const STANDARD_OPP_FIELDS = new Set(Object.keys(OPP_SHAPES.fields));
 
 // Validate ONE compiled oppField {filterField, value, valueFieldType, dataType?} against

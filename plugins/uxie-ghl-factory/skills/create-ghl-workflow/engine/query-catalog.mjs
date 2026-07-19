@@ -9,13 +9,10 @@
 //
 // Regenerate the committed index after gen-catalog runs:
 //   node engine/query-catalog.mjs --md > references/capabilities.md
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
 
-const HERE = dirname(fileURLToPath(import.meta.url));
 export function loadData() {
-  return JSON.parse(readFileSync(resolve(HERE, 'catalog.data.json'), 'utf8'));
+  return CATALOG_DATA;
 }
 
 // IR authoring sugar for container types (SKILL.md "Node kinds"). Everything else
@@ -145,26 +142,4 @@ export function renderMarkdown(d) {
   }
   out.push('');
   return out.join('\n');
-}
-
-const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isMain) {
-  const d = loadData();
-  const args = process.argv.slice(2);
-  if (args[0] === '--md') {
-    process.stdout.write(renderMarkdown(d));
-  } else if (args.length === 0) {
-    console.log(summary(d));
-  } else {
-    const hits = searchCatalog(d, args.join(' '));
-    if (!hits.length) {
-      console.log(`no catalog match for "${args.join(' ')}" — try a shorter term. ` +
-        'A miss here does NOT prove GHL lacks it: harvest a live example (scripts/harvest-step.js) and extend the catalog.');
-    } else if (hits.length > 15) {
-      console.log(`${hits.length} matches (showing names — narrow the term for full cards):`);
-      for (const e of hits) console.log(`  ${e.kind === 'trigger' ? 'trigger' : 'step   '} ${e.type} (${e.section ?? e.category ?? 'other'})`);
-    } else {
-      console.log(hits.map(renderCard).join('\n\n'));
-    }
-  }
 }
