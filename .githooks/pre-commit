@@ -1,0 +1,5 @@
+#!/bin/sh
+# Privacy gate — this repo is PUBLIC and is built from live GoHighLevel account
+# harvests, so real client data gets copied in verbatim. Enable with:
+#     git config core.hooksPath .githooks
+exec node scripts/check-privacy.mjs --staged
