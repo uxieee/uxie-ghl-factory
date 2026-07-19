@@ -10,15 +10,10 @@
 //   catalog.filterModel(triggerType) -> recovered filter-row schema | undefined
 //   catalog.stepCapabilities() -> universal author/edit capabilities for all steps
 //   catalog.allSteps() / catalog.allTriggers() -> type[]  (for coverage reporting)
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-let DATA;
 function data() {
-  if (!DATA) DATA = JSON.parse(readFileSync(resolve(HERE, 'catalog.data.json'), 'utf8'));
-  return DATA;
+  return CATALOG_DATA;
 }
 
 // Map a trigger type to its recovered filter model. The generator keys filter
