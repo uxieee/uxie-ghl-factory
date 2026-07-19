@@ -11,16 +11,17 @@
 // In the UI the control only renders AFTER an operator (Is / Is not) is picked, which is
 // the other half of why it reads as "no relative support".
 //
-// GROUND TRUTH (live, read-only, 2026-07-19): location SJRURxzgbPTVBNLhqEZi, workflow
-// fb0e0e34-4a01-4786-ae43-43c14c567ba7 ("07g Course Auto-Release Unpaid Seat"), container
-// 85461afa-ef49-4c51-bb16-fb48e6f358aa ("Late booking?"), branch "Normal booking" —
-// "Start date is not In the Next 2 Days". LIVE_CONDITION below is that object verbatim.
+// GROUND TRUTH (live, read-only, 2026-07-19): a UI-built if_else in a real sub-account,
+// gating on "Appointment start date is not In the Next 2 Days". LIVE_CONDITION below is
+// that stored object verbatim, with account-identifying ids replaced by synthetic ones
+// (only __conditionId is per-instance, so nothing about the shape is lost).
 //
-// SUPPORT = 1. A sweep of all 78 workflows across GROM Digital AU + the client account
-// found exactly ONE relative-date condition in the wild: this one. Per the compiled-shape
-// discipline (count support per field, never over-fit a thin corpus), the only shape
-// asserted here is the one actually observed. The wider comparator enum is recorded in
-// SKILL.md with its provenance and is deliberately NOT asserted as engine behavior.
+// SUPPORT: a sweep of all 78 workflows across GROM Digital AU + the client account found
+// exactly ONE relative-date condition in the wild (this one), so the corpus proves only
+// inTheNext/days. The remaining ten comparators were then PROBED live (2026-07-19): one
+// throwaway workflow with a branch per comparator, read back through the BUILDER. A value
+// the builder cannot resolve renders no label, so a correct human label ("is In the Last
+// \"3\"") is proof the stored value is canonical. All 11 resolved. See RELATIVE_OPERATORS.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { expandCondition, IFELSE_NESTED_DROPDOWN_TYPES, IFELSE_ALLOW_IS_OPERATOR_TYPES } from './compiler.mjs';
@@ -34,7 +35,7 @@ const LIVE_CONDITION = {
   conditionValue: '2',
   conditionValueOperator: 'inTheNext',
   conditionValueUnit: 'days',
-  __conditionId: '74b33502-3a61-44cd-bc83-99d336ef17f6',
+  __conditionId: '00000000-0000-4000-8000-000000000001',
   ifElseNodeId: '',
   __customFieldType__: 'standard',
   isWait: false,
@@ -74,6 +75,32 @@ test('conditionValue stays a STRING — the live shape stores "2", not 2', () =>
   }, ctx());
   assert.equal(typeof got.conditionValue, 'string');
   assert.equal(got.conditionValue, '2');
+});
+
+// The 11 comparators, each with the value shape the live probe confirmed the builder
+// resolves. `null` = takes no conditionValue at all (today/tomorrow/yesterday rendered
+// correctly with the key absent — do NOT send an empty string).
+export const RELATIVE_OPERATORS = {
+  today: null, tomorrow: null, yesterday: null,
+  on: 'date', between: 'date', after: 'date', before: 'date',
+  inTheNext: 'count+unit', inTheLast: 'count+unit',
+  afterDate: 'date', beforeDate: 'date',
+};
+
+test('every probed comparator survives compilation unchanged', () => {
+  for (const [op, kind] of Object.entries(RELATIVE_OPERATORS)) {
+    const authored = {
+      conditionType: 'appointment', conditionSubType: 'startTime', conditionOperator: '==',
+      conditionValueOperator: op,
+      ...(kind === 'date' ? { conditionValue: '2026-08-01' } : {}),
+      ...(kind === 'count+unit' ? { conditionValue: '2', conditionValueUnit: 'days' } : {}),
+    };
+    const got = expandCondition(authored, ctx());
+    assert.equal(got.conditionValueOperator, op, `${op} must survive`);
+    if (kind === null)
+      assert.equal(got.conditionValue, undefined, `${op} takes no value — sending one is not the proven shape`);
+    if (kind === 'count+unit') assert.equal(got.conditionValueUnit, 'days');
+  }
 });
 
 test('a relative-date condition is NOT mistaken for a contact_detail field condition', () => {
