@@ -1,0 +1,93 @@
+{
+  "locationId": "<YOUR_LOCATION_ID>",
+  "course": {
+    "title": "Franchisee Launchpad",
+    "description": "Your onboarding portal — from signed agreement to opening day."
+  },
+  "theme": {
+    "name": "Franchisor House Theme",
+    "templateId": "NeoClassic",
+    "brandColor": "#0B6B53",
+    "heroTitleColor": "#FFFFFF",
+    "instructor": {
+      "name": "Franchise Support Team",
+      "title": "Onboarding",
+      "bio": "We are here to get your location open on time."
+    }
+  },
+  "offer": { "type": "free", "publish": true },
+  "credential": { "title": "Franchisee Onboarding Certificate", "type": "certificate" },
+
+  "chapters": [
+    {
+      "title": "Module 1 — Welcome & Brand Standards",
+      "dripDays": 0,
+      "lessons": [
+        {
+          "title": "Welcome to the Family",
+          "text": "<h2>Welcome aboard.</h2><p>This portal walks you from <strong>signed agreement</strong> to <strong>opening day</strong>. Work through each module in order — later modules unlock as you go.</p><ul><li>Module 1 — brand standards</li><li>Module 2 — compliance documents</li><li>Module 3 — final check</li></ul>"
+        },
+        {
+          "title": "Your Brand Standards",
+          "text": "<p>Read the attached brand standards <em>before</em> ordering any signage. Signage ordered off-standard is not reimbursable.</p>",
+          "files": ["./media/brand-standards.pdf"]
+        },
+        {
+          "title": "Brand Walkthrough (hosted video)",
+          "text": "<p>A short walkthrough hosted outside GHL.</p>",
+          "embed": { "iframe": "<iframe src=\"https://player.vimeo.com/video/76979871\" width=\"640\" height=\"360\" frameborder=\"0\" allowfullscreen></iframe>" }
+        }
+      ]
+    },
+    {
+      "title": "Module 2 — Compliance & Documents",
+      "dripDays": 3,
+      "lessons": [
+        {
+          "title": "What We Need From You",
+          "text": "<p>Upload the documents below so legal can clear your opening date. Both are required.</p>"
+        },
+        { "type": "assignment", "title": "Upload your Business Licence", "text": "<p>PDF or photo. Must show the expiry date.</p>" },
+        { "type": "assignment", "title": "Upload your Certificate of Insurance", "text": "<p>Minimum coverage is in the franchise agreement, schedule C.</p>" }
+      ]
+    },
+    {
+      "title": "Module 3 — Final Check",
+      "dripDays": 7,
+      "lessons": [
+        {
+          "type": "quiz",
+          "title": "Compliance Check",
+          "text": "<p>Five minutes. You can retake it.</p>",
+          "questions": [
+            {
+              "title": "Before ordering signage, you must:",
+              "questionType": "single",
+              "explanation": "Off-standard signage is not reimbursable.",
+              "options": [
+                { "statement": "Order whatever matches your landlord's rules" },
+                { "statement": "Read the brand standards first", "isCorrect": true },
+                { "statement": "Wait until opening week" }
+              ]
+            },
+            {
+              "title": "Which documents must you upload before opening? (select all)",
+              "questionType": "multiple",
+              "explanation": "Both are required before legal will clear your opening date.",
+              "options": [
+                { "statement": "Business Licence", "isCorrect": true },
+                { "statement": "Personal tax return" },
+                { "statement": "Certificate of Insurance", "isCorrect": true }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "You're Ready to Open",
+          "text": "<p>Nice work. Your onboarding certificate is attached to this lesson.</p>",
+          "awardCredential": true
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 ## What this is
 
-`ghl` is a plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts in **Claude Code** or **Codex**. It bundles a hosted MCP server covering GHL's public API (1,207 actions across 83 categories), plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), and funnel/page building — built against GHL's undocumented internal API, with explicit safety gates around that surface.
+`ghl` is a plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts in **Claude Code** or **Codex**. It bundles a hosted MCP server covering GHL's public API (1,207 actions across 83 categories), plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), funnel/page building, and memberships/course building — built against GHL's undocumented internal API, with explicit safety gates around that surface.
 
 > **Codex note:** Codex plugins load **skills only** — not slash commands or subagents — so in Codex the `/uxie-ghl-factory:*` commands and the multi-agent `/uxie-ghl-factory:audit` are unavailable; invoke the skills directly instead, and configure the MCP server yourself. See [Install](#install) and [Using in Codex](#using-in-codex).
 
@@ -13,6 +13,7 @@
 | Skill | `get-ghl-workflow-logs` | Read-only capture of a workflow's runtime — execution logs, enrollment history, per-step contact counts — from the internal builder API |
 | Skill | `create-ghl-workflow` | Creates/edits GHL workflows via the internal builder API (draft-only; publish path untested) |
 | Skill | `ghl-funnels-pages` | Builds funnels/pages, custom HTML, tracking, and SEO via the internal API |
+| Skill | `ghl-memberships` | Builds courses/membership portals via the internal API — lessons (text/video/audio/PDF/embed), quizzes with questions, assignments, offers, themes, credentials, enrollment, progress, submissions, communities. Ships a spec→course compiler and a **live conformance suite** (21/0/4) |
 | Skill | `ghl-orientation` | GHL object model, terminology, and public-vs-internal API guidance for agents new to GHL |
 | Skill | `ghl-workflow-specialist` | Designs and builds GHL workflows/automations — recons, blueprints, gets approval, then builds via `create-ghl-workflow` (draft-only) |
 | Skill | `ghl-pipeline-specialist` | Designs, builds, or diagnoses GHL pipelines and stages via the public-API v3 pipeline actions (ToS-clean) |
@@ -28,6 +29,7 @@
 | Command | `/uxie-ghl-factory:export-workflow` | Runs `get-ghl-workflow-json` for a given workflow |
 | Command | `/uxie-ghl-factory:build-workflow` | Runs `ghl-workflow-specialist` for a given ask (draft-only) |
 | Command | `/uxie-ghl-factory:build-funnel` | Runs `ghl-funnels-pages` for a given ask |
+| Command | `/uxie-ghl-factory:build-course` | Runs `ghl-memberships` for a given ask |
 | Command | `/uxie-ghl-factory:pipeline` | Runs `ghl-pipeline-specialist` for a given ask |
 | Command | `/uxie-ghl-factory:audit` | Runs a whole-account, **read-only** audit — dispatches `surface-auditor` across **every GHL surface** (8 deep-catalog + baseline coverage of the rest) and `finding-verifier` per finding, producing a Mermaid system map and an impact-ranked report |
 
@@ -73,7 +75,7 @@ Without it, the skills that only *reason* about GHL still load, but anything tha
 ## Prerequisites
 
 - **Node.js ≥18** (required by the plugin tooling).
-- **Playwright MCP server**, for internal-API features only (`get-ghl-workflow-json`, `get-ghl-workflow-logs`, `create-ghl-workflow`, `ghl-funnels-pages`). Without it, those skills degrade — the public-API MCP and `ghl-orientation` still work fully.
+- **Playwright MCP server**, for internal-API features only (`get-ghl-workflow-json`, `get-ghl-workflow-logs`, `create-ghl-workflow`, `ghl-funnels-pages`, `ghl-memberships`). Without it, those skills degrade — the public-API MCP and `ghl-orientation` still work fully.
 - **A GHL account with admin access** to whichever sub-account(s) you point this at. Write-capable skills verify admin access to the target `locationId` before writing (see write-rails, below) — the plugin will refuse and explain rather than write to an account you don't administer.
 
 ## The two API worlds
@@ -81,7 +83,7 @@ Without it, the skills that only *reason* about GHL still load, but anything tha
 GHL exposes two very different surfaces, and this plugin treats them differently on purpose:
 
 - **Public API** — official, documented, stable, in-Terms-of-Service. This is what the bundled `ghl` MCP server talks to. It covers contacts, pipelines (fully writable), calendars, conversations, and most day-to-day GHL operations. `ghl-orientation` and `/uxie-ghl-factory:brief` work entirely through this surface.
-- **Internal API** — undocumented, off-Terms-of-Service, and can change or break without notice. This is what `get-ghl-workflow-json` (read-only export), `get-ghl-workflow-logs` (read-only runtime capture), `create-ghl-workflow` (write, draft-only — never publishes), and `ghl-funnels-pages` (write) use, because the public API has no workflow-builder or funnel-builder endpoints at all.
+- **Internal API** — undocumented, off-Terms-of-Service, and can change or break without notice. This is what `get-ghl-workflow-json` (read-only export), `get-ghl-workflow-logs` (read-only runtime capture), `create-ghl-workflow` (write, draft-only — never publishes), `ghl-funnels-pages` (write), and `ghl-memberships` (write) use, because the public API has no workflow-builder or funnel-builder endpoints at all.
 
 This isn't hypothetical: GHL's internal-API auth already migrated once (2026-07, from a `token-id` header to `Authorization: Bearer`), and every skill that had captured the old scheme broke outright. The plugin is designed to fail safe when that happens again — write skills stop on a `401` instead of retry-looping, auth details live in one canonical doc (`docs/auth-jwt-capture.md`) so a future migration is a one-file fix, and every internal-API write passes an owned-account check plus a one-time Terms-of-Service disclosure (`docs/write-rails.md`) before it touches anything.
 
