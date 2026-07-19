@@ -371,14 +371,14 @@ test('goto emits targetNodeId, next null, lean envelope', () => {
 test('voice_ai_outbound_call: attributes + workflowsActionType INTERNAL (live-verified shape)', () => {
   const ir = { name: 'V', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
     { ref: 'v', kind: 'action', type: 'voice_ai_outbound_call', name: 'Voice AI outbound call',
-      attributes: { agentId: '6a2632febba50b0bbd1031d2', fromPhoneNumber: '+61481610656' } },
+      attributes: { agentId: '6a2632febba50b0bbd1031d2', fromPhoneNumber: '+61400000000' } },
   ] };
   const { autoSaveBody } = compile(ir, ctx());
   const t = autoSaveBody.workflowData.templates[0];
   assert.equal(t.type, 'voice_ai_outbound_call');
   assert.equal(t.workflowsActionType, 'INTERNAL');
   assert.equal(t.attributes.agentId, '6a2632febba50b0bbd1031d2');
-  assert.equal(t.attributes.fromPhoneNumber, '+61481610656');
+  assert.equal(t.attributes.fromPhoneNumber, '+61400000000');
   assert.equal(t.attributes.type, 'voice_ai_outbound_call');
   assert.equal(t.attributes.outboundGuidelines, '');
   assert.deepEqual(t.attributes.__customInputs__, {});
@@ -386,7 +386,7 @@ test('voice_ai_outbound_call: attributes + workflowsActionType INTERNAL (live-ve
 
 test('voice_ai_outbound_call: missing agentId or fromPhoneNumber rejected', () => {
   const missingAgent = { name: 'V', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [
-    { ref: 'v', kind: 'action', type: 'voice_ai_outbound_call', name: 'Voice AI outbound call', attributes: { fromPhoneNumber: '+61481610656' } },
+    { ref: 'v', kind: 'action', type: 'voice_ai_outbound_call', name: 'Voice AI outbound call', attributes: { fromPhoneNumber: '+61400000000' } },
   ] };
   assert.throws(() => compile(missingAgent, ctx()), (e) => e.code === 'MISSING_FIELD');
   const missingPhone = { name: 'V', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }], graph: [

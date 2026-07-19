@@ -4,7 +4,7 @@
   "attributes": {
     "type": "sms",
     "sms": {
-      "body": "{{contact.first_name}} has replied to your message in Scale50.\n\n\nthe message was: {{message.subject}}",
+      "body": "{{contact.first_name}} has replied to your message in {{location.name}}.\n\n\nthe message was: {{message.subject}}",
       "userType": "assign",
       "attachments": []
     }

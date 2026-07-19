@@ -3,8 +3,8 @@
   "order": 0,
   "attributes": {
     "html": "<br/>",
-    "from_name": "Colin Sprake",
-    "from_email": "colin@localhandymangroup.com",
+    "from_name": "Jordan Example",
+    "from_email": "sender@example.com",
     "subject": "test",
     "attachments": []
   },

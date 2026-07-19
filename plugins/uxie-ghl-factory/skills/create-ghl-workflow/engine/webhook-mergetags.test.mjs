@@ -4,9 +4,9 @@ import { webhookMergeTags, mergeTag, contactFieldsFromWebhook } from './webhook-
 
 const sample = {
   dealRefId: 'RRXR-XYHK98', event: 'completed',
-  signers: { originatingAgent: { name: 'Craig Flood', email: 'hello@craigflood.com' },
-             receivingAgent: { email: 'xander@xanderroque.com' } },
-  lead: { email: 'xanderjohnrazonroque+recurlead@gmail.com', firstName: 'Rita', lastName: 'RecurLead' },
+  signers: { originatingAgent: { name: 'Alex Agent', email: 'agent@example.com' },
+             receivingAgent: { email: 'receiver@example.com' } },
+  lead: { email: 'lead@example.com', firstName: 'Rita', lastName: 'RecurLead' },
   headers: { host: 'services.leadconnectorhq.com', 'x-signature': 'abc' },
 };
 
