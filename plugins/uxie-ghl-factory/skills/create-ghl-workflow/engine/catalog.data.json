@@ -6763,7 +6763,7 @@
    ],
    "marketplace": true,
    "display_name": "Call with Voice AI",
-   "note": "live-verified 2026-07-11 (SK Skin / GROM); needs outbound-enabled + KYC location to publish"
+   "note": "live-verified 2026-07-11 (Client Clinic / GROM); needs outbound-enabled + KYC location to publish"
   },
   "whatsapp_24h_window": {
    "type": "whatsapp_24h_window",
