@@ -289,3 +289,40 @@ Three separate bugs stood between "create works" and "the tool works", each foun
 
 Remaining on this surface: Agent Studio's post-create step (400) and its unconfirmed SSE
 behavior, and ConvAI's post-create verification. `raw_request` still cannot reach the AI host.
+
+### Follow-up (cont.): ConvAI proven; Agent Studio partially resolved
+
+**ConvAI is now fully live-proven** (2026-07-21): `create_convai_agent` → `ok: true`,
+`verified: true`, zero mismatches, canary deleted. No code change was needed beyond the
+mismatch/unverified split above — its "failure" was the same false-mismatch class. Note a
+write/read key asymmetry worth knowing: the create body uses `employeeName`, the read
+returns `name`.
+
+**Agent Studio — what is now established.** The endpoint **is genuinely SSE**, previously
+unconfirmed. Driven directly:
+
+- `POST /agent-studio/super-agents/build` → **200**, `content-type: text/event-stream`
+- Event sequence: `conversation_started`, `generating`, 748 × `output_delta`,
+  `config_partial` ×10, `conversation_complete` ×2, `config_update` ×2, then the two
+  terminal events **`agent_saved`** `{id}` and **`done`** `{agentId, durationMs: 16553, mode}`
+- The follow-up `PUT /agent-studio/super-agent/agents/{id}` → **200**, config applied
+  (name and systemPrompt verified on read-back)
+
+So the full Studio chain works when driven directly, and the driver's terminal-event
+expectations (`agent_saved` / `done`) match reality.
+
+**Unresolved:** through the MCP tool the same call returned `SSE_INCOMPLETE`. The gateway's
+SSE parser was then replayed against the exact observed stream shape (including the leading
+`: connected` comment) and parsed it correctly, extracting `done` — so this is **not** a
+parser defect. The run happened with a token-id ~4 minutes from expiry, and **no agent was
+created** (account swept and confirmed), which is consistent with the stream genuinely
+terminating early. Recorded as unexplained rather than guessed; needs one clean re-run on a
+fresh credential.
+
+Worth stating plainly: on that run the guard behaved **correctly** — a truncated stream was
+refused rather than reported as a successful creation, and nothing was left on the account.
+
+**Also unresolved:** `create_studio_agent` requires **both** `systemPrompt` (IR validation)
+and `buildPrompt` (the SSE build message). Supplying only one fails with a message naming the
+other, which reads as contradictory. The two-field requirement should be documented in the
+tool description or reconciled into one field.
