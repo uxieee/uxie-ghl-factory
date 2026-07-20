@@ -141,6 +141,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       trace('request_error', { errorName: error?.name ?? 'Error' });
       throw error;
     }
+    trace('response', { status: res.status, ok: res.ok });
     if (!res.ok) {
       const text = await res.text();
       let json; try { json = JSON.parse(text); } catch { json = text; }
@@ -150,7 +151,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       throw error;
     }
     const contentType = res.headers?.get?.('content-type') ?? res.headers?.['content-type'] ?? '';
-    trace('response', { status: res.status, contentType, ok: res.ok });
+    trace('sse_headers', { status: res.status, contentType });
     if (!/\btext\/event-stream\b/i.test(contentType) || !res.body?.getReader) {
       throw sseError(CODES.SSE_EXPECTED, 'Agent Studio build did not return an SSE response',
         'Do not treat this as a successful agent creation. Inspect the response shape before retrying.');
