@@ -3,6 +3,7 @@
 // { status, ok, json } — the exact contract engine/orchestrate.mjs expects,
 // so engines drop in with no adapter.
 import { readCredentials, requireAiCredentials } from './auth.mjs';
+import { CODES } from './errors.mjs';
 
 export const BASE = 'https://backend.leadconnectorhq.com';
 const IFRAME = 'https://client-app-automation-workflows.leadconnectorhq.com';
@@ -41,7 +42,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     return h;
   };
 
-  const call = async (method, path, body, baseOrOptions = BASE) => {
+  const request = async (method, path, body, baseOrOptions = BASE) => {
     const options = typeof baseOrOptions === 'string'
       ? { base: baseOrOptions }
       : (baseOrOptions ?? {});
@@ -66,10 +67,91 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       headers: requestHeaders,
       body: body === undefined ? undefined : (signedUpload ? body : JSON.stringify(body)),
     });
+    return res;
+  };
+
+  const call = async (method, path, body, baseOrOptions = BASE) => {
+    const res = await request(method, path, body, baseOrOptions);
     const text = await res.text();
     let json; try { json = JSON.parse(text); } catch { json = text; }
     return { status: res.status, ok: res.ok, json };
   };
 
-  return { call, loc, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
+  const sseError = (code, detail, remediation) => {
+    const error = new Error(detail);
+    error.code = code;
+    error.detail = detail;
+    error.remediation = remediation;
+    return error;
+  };
+
+  const parseEvent = (frame) => {
+    const fields = frame.replace(/\r/g, '').split('\n');
+    let event = 'message';
+    const data = [];
+    for (const line of fields) {
+      if (line.startsWith('event:')) event = line.slice(6).trim();
+      if (line.startsWith('data:')) data.push(line.slice(5).trimStart());
+    }
+    const raw = data.join('\n');
+    let payload = raw;
+    try { payload = JSON.parse(raw); } catch { /* keep non-JSON event data intact */ }
+    return { event, data: payload };
+  };
+
+  // Consume an SSE response through the same auth/throttle chokepoint as call().
+  // A closed stream is not success on its own: one of terminalEvents must arrive.
+  const stream = async (method, path, body, baseOrOptions = BASE) => {
+    const supplied = typeof baseOrOptions === 'string' ? { base: baseOrOptions } : (baseOrOptions ?? {});
+    const terminalEvents = new Set(supplied.terminalEvents ?? ['done', 'agent_saved']);
+    const res = await request(method, path, body, {
+      ...supplied,
+      headers: { accept: 'text/event-stream', ...(supplied.headers ?? {}) },
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      let json; try { json = JSON.parse(text); } catch { json = text; }
+      const error = sseError(`HTTP_${res.status}`, 'SSE endpoint returned an unsuccessful HTTP response',
+        'Inspect the upstream response, correct the request or credentials, then retry.');
+      error.gatewayResponse = { status: res.status, json };
+      throw error;
+    }
+    const contentType = res.headers?.get?.('content-type') ?? res.headers?.['content-type'] ?? '';
+    if (!/\btext\/event-stream\b/i.test(contentType) || !res.body?.getReader) {
+      throw sseError(CODES.SSE_EXPECTED, 'Agent Studio build did not return an SSE response',
+        'Do not treat this as a successful agent creation. Inspect the response shape before retrying.');
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    const events = [];
+    let buffer = '';
+    let terminal = null;
+    const consumeFrames = () => {
+      const frames = buffer.split(/\n\n/);
+      buffer = frames.pop();
+      for (const frame of frames) {
+        if (!frame.trim()) continue;
+        const parsed = parseEvent(frame);
+        events.push(parsed);
+        if (terminalEvents.has(parsed.event)) terminal = parsed;
+      }
+    };
+    while (true) {
+      const { done, value } = await reader.read();
+      if (value) { buffer += decoder.decode(value, { stream: !done }); consumeFrames(); }
+      if (done) break;
+    }
+    if (buffer.trim()) {
+      const parsed = parseEvent(buffer);
+      events.push(parsed);
+      if (terminalEvents.has(parsed.event)) terminal = parsed;
+    }
+    if (!terminal) {
+      throw sseError(CODES.SSE_INCOMPLETE, 'SSE stream ended without a terminal success event',
+        'Do not treat this as a successful agent creation. Inspect the account for a partial draft before retrying.');
+    }
+    return { status: res.status, ok: res.ok, events, terminal };
+  };
+
+  return { call, stream, loc, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
 }

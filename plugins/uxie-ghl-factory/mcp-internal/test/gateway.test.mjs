@@ -17,6 +17,18 @@ const stubFetch = (calls, res = { status: 200, ok: true, body: '{"a":1}' }) => a
   calls.push({ url, init });
   return { status: res.status, ok: res.ok, text: async () => res.body };
 };
+const sseResponse = (chunks, { status = 200, ok = true, contentType = 'text/event-stream' } = {}) => ({
+  status,
+  ok,
+  headers: { get: (name) => name.toLowerCase() === 'content-type' ? contentType : null },
+  body: new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) controller.enqueue(new TextEncoder().encode(chunk));
+      controller.close();
+    },
+  }),
+  text: async () => chunks.join(''),
+});
 
 test('GET sends read headers, no body, and returns {status,ok,json}', async () => {
   const calls = [];
@@ -164,4 +176,30 @@ test('signed storage uploads are raw and unauthenticated only on the GCS PUT rai
     gw.call('PUT', '/anything', bytes, { base: 'https://example.test', signedUpload: true }),
     /signedUpload.*storage\.googleapis\.com/,
   );
+});
+
+test('SSE stream returns accumulated events and its terminal success event', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async (url, init) => {
+    calls.push({ url, init });
+    return sseResponse(['event: config_partial\ndata: {"name":"draft"}\n\n', 'event: agent_saved\ndata: {"agentId":"agent-1"}\n\n']);
+  } });
+  const result = await gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }, { base: 'https://services.leadconnectorhq.com' });
+  assert.equal(result.events.length, 2);
+  assert.deepEqual(result.terminal, { event: 'agent_saved', data: { agentId: 'agent-1' } });
+  assert.equal(calls[0].init.headers.accept, 'text/event-stream');
+});
+
+test('truncated SSE stream fails instead of reporting an empty success', async () => {
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
+    sseResponse(['event: config_partial\ndata: {"name":"draft"}\n\n'])
+  ) });
+  await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }), (e) => e.code === 'SSE_INCOMPLETE');
+});
+
+test('non-SSE response on an SSE endpoint fails loudly', async () => {
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
+    sseResponse(['{"agentId":"agent-1"}'], { contentType: 'application/json' })
+  ) });
+  await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }), (e) => e.code === 'SSE_EXPECTED');
 });
