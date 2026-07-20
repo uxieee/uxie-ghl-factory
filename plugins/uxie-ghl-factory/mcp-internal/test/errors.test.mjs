@@ -27,3 +27,36 @@ test('fromHttp never leaks a bearer token from the body', () => {
   const f = fromHttp(400, { echo: 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.abc.def' });
   assert.ok(!/eyJ/.test(JSON.stringify(f)));
 });
+
+test('fromHttp scrubs opaque credentials under secret keys before stringifying a structured body', () => {
+  const tokenId = 'opaque-token-id-value-123';
+  const apiKey = 'opaque-api-key-value-456';
+  const result = fromHttp(400, { error: { tokenId, nested: { apiKey } } });
+
+  assert.doesNotMatch(JSON.stringify(result), /opaque-(?:token-id|api-key)-value/);
+  assert.match(result.detail, /<redacted>/);
+});
+
+test('ok recursively scrubs a JWT-looking value returned by a read endpoint', () => {
+  const token = 'eyJhbGciOiJIUzI1NiJ9.abc.def';
+  const result = ok({ nested: [{ authorization: `Bearer ${token}` }], [token]: true });
+  assert.equal(result.data.nested[0].authorization, '<redacted>');
+  assert.deepEqual(Object.keys(result.data).sort(), ['<redacted>', 'nested']);
+  assert.doesNotMatch(JSON.stringify(result), /eyJ/);
+});
+
+test('success and failure contracts scrub token-id labels and secret-key scalar values', () => {
+  const tokenId = 'tid-live-secret-123456789';
+  const success = ok({
+    tokenId,
+    note: `token-id: ${tokenId}`,
+    nested: { authorization: tokenId, tokenId: { present: true } },
+  });
+  const failure = fail(CODES.VALIDATION_FAILED, `token_id=${tokenId}`, `replace token-id: ${tokenId}`);
+
+  assert.equal(success.data.tokenId, '<redacted>');
+  assert.equal(success.data.note, 'token-id: <redacted>');
+  assert.equal(success.data.nested.authorization, '<redacted>');
+  assert.deepEqual(success.data.nested.tokenId, { present: true });
+  assert.doesNotMatch(JSON.stringify({ success, failure }), /tid-live-secret/);
+});

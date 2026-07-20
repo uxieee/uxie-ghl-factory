@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { orchestrate } from './orchestrate.mjs';
+import { fetchEntities, orchestrate } from './orchestrate.mjs';
 
 // Mock gateway: records calls, returns canned responses keyed by method+path prefix.
 function mockGateway({ tags = [], pipelines = [], calendars = [], users = [], forms = [] } = {}) {
@@ -136,6 +136,43 @@ test('orchestrate fetches custom fields across ALL models (opportunity fields mu
   const cfGet = calls.find((c) => c.method === 'GET' && c.path.includes('/customFields'));
   assert.ok(cfGet, 'fetches custom fields');
   assert.match(cfGet.path, /model=all/, 'must request model=all — the contact-only endpoint false-throws on opportunity custom fields');
+});
+
+test('fetchEntities degrades malformed and failed endpoint payloads to empty arrays', async () => {
+  const call = async (_method, path) => {
+    if (path.includes('/opportunities/pipelines')) return { ok: true, json: { pipelines: {} } };
+    if (path.includes('/calendars/')) return { ok: false, json: { calendars: [{ id: 'must-not-leak' }] } };
+    if (path.includes('/users/')) return { ok: true, json: { users: [null, 'wrong type'] } };
+    if (path.includes('/forms/')) return { ok: true, json: { forms: [null] } };
+    if (path.includes('/customFields/')) return { ok: true, json: { message: 'no custom fields array' } };
+    if (path.includes('/voice-ai/')) throw new Error('best-effort endpoint down');
+    return { ok: true, json: { agents: null } };
+  };
+
+  assert.deepEqual(await fetchEntities({ call, loc: 'LOC' }), {
+    pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
+  });
+});
+
+test('fetchEntities URL-encodes hostile location ids in every request', async () => {
+  const calls = [];
+  const locationId = 'L /?&=#';
+  await fetchEntities({
+    loc: locationId,
+    call: async (method, path) => {
+      calls.push({ method, path });
+      return { ok: false, json: {} };
+    },
+  });
+
+  const queryValue = new URLSearchParams({ locationId }).toString();
+  const pathValue = encodeURIComponent(locationId);
+  assert.equal(calls.length, 7);
+  for (const { method, path } of calls) {
+    assert.equal(method, 'GET');
+    if (path.includes('/customFields/search')) assert.match(path, new RegExp(`^/locations/${pathValue}/customFields/search\\?`));
+    else assert.ok(path.includes(queryValue), `location query was not encoded: ${path}`);
+  }
 });
 
 test('orchestrate applies a top-level ir.senderDefault to email steps (§5 reachable via IR)', async () => {
