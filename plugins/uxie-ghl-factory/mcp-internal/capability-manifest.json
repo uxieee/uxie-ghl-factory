@@ -73,5 +73,155 @@
     "tool": "list_account_entities",
     "method": "GET",
     "path": "/ai-employees/agents"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/opportunities/pipelines"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/calendars/"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/users/"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/forms/"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/customFields/search"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/voice-ai/agents"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/ai-employees/agents"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/emails/builder"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/emails/builder/data"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/tags"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/locations/{loc}/tags"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/{wid}/auto-save"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/customFields/search"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/tags"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "POST",
+    "path": "/locations/{loc}/tags"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/trigger/{tid}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "DELETE",
+    "path": "/workflow/{loc}/trigger/{tid}"
+  },
+  {
+    "tool": "publish_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "publish_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "publish_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "fast_forward_contacts",
+    "method": "GET",
+    "path": "/workflows/status/search/count-per-step"
+  },
+  {
+    "tool": "fast_forward_contacts",
+    "method": "GET",
+    "path": "/workflows/status/search/details-by-step"
+  },
+  {
+    "tool": "fast_forward_contacts",
+    "method": "POST",
+    "path": "/workflow/{loc}/{wid}/requeue-stuck-statuses/{stepId}"
   }
 ]

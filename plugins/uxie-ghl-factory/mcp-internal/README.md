@@ -4,8 +4,11 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: read-only surface (Plan 2 of 4). Live-proven on GROM AU 2026-07-20.**
-Workflow write tools, fast-forward, memberships and AI agents land in Plans 3–4.
+**Status: Plan 3 internal surface.** Read operations retain the historical GROM AU
+live proof below. Confirmation-gated workflow, fast-forward, and raw-request writes
+are unit-tested and registration/boot-proven only; they have not been live-called.
+Task 5 remains human-gated and has not been run. Membership and AI-agent tools are
+not implemented yet.
 
 ## Credential model
 
@@ -28,7 +31,7 @@ claude mcp add ghl-internal -e GHL_TOK_FILE="/abs/path/to/tok.txt" -- node /abs/
 
 ## Tools
 
-| Tool | Reads |
+| Tool | Operations |
 |---|---|
 | `set_token_file` / `auth_status` | — (credential state; claims only, never the token) |
 | `list_workflows` | `GET /workflow/{loc}/list` |
@@ -36,7 +39,11 @@ claude mcp add ghl-internal -e GHL_TOK_FILE="/abs/path/to/tok.txt" -- node /abs/
 | `export_workflow` | workflow body + triggers + sticky notes |
 | `get_workflow_logs` | executions, per-step counts, enrollment roster |
 | `list_account_entities` | pipelines, calendars, users, forms, custom fields, AI agents |
-| `raw_request` | escape hatch — **GET only** in this build |
+| `build_workflow` | draft creation and verification; never publishes |
+| `edit_workflow` | read-only preview; writes require `confirm: true` and never publish |
+| `publish_workflow` | read-only publish preview; publishing requires `confirm: true` |
+| `fast_forward_contacts` | read-only parked-enrollment preview; selective requeue only with `confirm: true` |
+| `raw_request` | GET escape hatch; non-GET methods require `confirm: true` and return partial-progress evidence |
 
 ## Error contract
 
@@ -51,14 +58,17 @@ machine-branchable:
 | `VERSION_CONFLICT` | upstream 409 — re-read for the current `version` |
 | `RATE_LIMITED` | upstream 429 |
 | `CONFIRM_REQUIRED` | a gated operation needs `confirm: true` |
+| `PREVIEW_STALE` | fast-forward preview token is missing or no longer matches fresh parked state |
 | `ENGINE_ABORT` | engine threw — usually a spec or dependency problem |
 | `HTTP_<n>` | any other upstream status |
 
-## Live proof ledger — EXECUTED vs OBSERVED
+## Historical live proof ledger — EXECUTED vs OBSERVED
 
 Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Workflow: *AU Magic Link Provisioner*
 (`6efef18a…`), published, 116 total enrolled. Date: **2026-07-20**. Driven through a real
 MCP stdio session (`initialize` → `tools/call`), not unit tests. Read-only; nothing mutated.
+This ledger predates the confirmation-gated Task 4 write additions; those additions were
+unit-tested only and were not live-called.
 
 | # | Executed | Observed |
 |---|---|---|

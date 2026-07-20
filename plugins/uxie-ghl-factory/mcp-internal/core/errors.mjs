@@ -6,6 +6,7 @@ export const CODES = Object.freeze({
   TOKEN_MISSING: 'TOKEN_MISSING',
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
   CONFIRM_REQUIRED: 'CONFIRM_REQUIRED',
+  PREVIEW_STALE: 'PREVIEW_STALE',
   UNRESOLVED_DEPS: 'UNRESOLVED_DEPS',
   VERSION_CONFLICT: 'VERSION_CONFLICT',
   VALIDATION_FAILED: 'VALIDATION_FAILED',
@@ -15,20 +16,39 @@ export const CODES = Object.freeze({
 
 const TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 const TOKENISH_SCAN = /\bey[A-Za-z0-9._-]{20,}/;
-const LABELED_SECRET = /\b(token[-_ ]?id|access[-_ ]?token|authorization|jwt|api[-_ ]?key|client[-_ ]?secret|password|credentials?)\s*([:=])\s*(?:Bearer\s+)?([^\s,;]+)/gi;
-const LABELED_SECRET_SCAN = /\b(?:token[-_ ]?id|access[-_ ]?token|authorization|jwt|api[-_ ]?key|client[-_ ]?secret|password|credentials?)\s*[:=]\s*(?:Bearer\s+)?[^\s,;]+/i;
+const SECRET_LABEL = '(?:token(?:[-_ ]?id)?|(?:access|refresh|auth|id|oauth|csrf|xsrf)[-_ ]?token|authorization|proxy[-_ ]?authorization|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|secret[-_ ]?access[-_ ]?key|access[-_ ]?key|private[-_ ]?key|signing[-_ ]?key|password|credentials?|cookies?|set[-_ ]?cookie|session(?:[-_ ]?(?:id|token|key|secret|cookie|credentials?))?)';
+const LABELED_SECRET = new RegExp(`\\b(${SECRET_LABEL})\\s*([:=/])\\s*(?:Bearer\\s+)?([^\\s,;&#/]+)`, 'gi');
+const LABELED_SECRET_SCAN = new RegExp(`\\b${SECRET_LABEL}\\s*[:=/]\\s*(?:Bearer\\s+)?[^\\s,;&#/]+`, 'i');
 const BEARER_SECRET = /\bBearer\s+[A-Za-z0-9._-]{8,}/gi;
 const BEARER_SECRET_SCAN = /\bBearer\s+[A-Za-z0-9._-]{8,}/i;
-const SECRET_KEY = /^(?:token[-_ ]?id|access[-_ ]?token|authorization|jwt|bearer|api[-_ ]?key|client[-_ ]?secret|password|credentials?)$/i;
+const SECRET_KEYS = new Set([
+  'token', 'tokenid', 'accesstoken', 'refreshtoken', 'authtoken', 'idtoken', 'oauthtoken',
+  'csrftoken', 'xsrftoken', 'authorization', 'proxyauthorization', 'jwt', 'bearer',
+  'apikey', 'apisecret', 'clientsecret', 'secretaccesskey', 'accesskey', 'privatekey',
+  'signingkey', 'password', 'credential', 'credentials', 'cookie', 'cookies', 'setcookie',
+  'session', 'sessionid', 'sessiontoken', 'sessionkey', 'sessionsecret', 'sessioncookie',
+  'sessioncredential', 'sessioncredentials',
+]);
+const isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, '').toLowerCase());
 
-const scrub = (s) => s == null ? s : String(s)
-  .replace(TOKENISH, '<redacted>')
-  .replace(LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`)
-  .replace(BEARER_SECRET, 'Bearer <redacted>');
+const scrub = (s) => {
+  if (s == null) return s;
+  const text = String(s);
+  try {
+    const structured = JSON.parse(text);
+    if (structured && typeof structured === 'object') return JSON.stringify(scrubSecrets(structured));
+  } catch {
+    // Non-JSON error text is handled by the credential-pattern scrub below.
+  }
+  return text
+    .replace(TOKENISH, '<redacted>')
+    .replace(LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`)
+    .replace(BEARER_SECRET, 'Bearer <redacted>');
+};
 
 export function containsSecrets(value, key = '') {
+  if (isSecretKey(key)) return true;
   if (value == null) return false;
-  if (typeof value !== 'object' && SECRET_KEY.test(key)) return true;
   if (typeof value === 'string') {
     return TOKENISH_SCAN.test(value) || LABELED_SECRET_SCAN.test(value) || BEARER_SECRET_SCAN.test(value);
   }
@@ -50,7 +70,7 @@ export function scrubSecrets(value) {
   if (value && typeof value === 'object') {
     return Object.fromEntries(Object.entries(value).map(([key, item]) => [
       scrub(key),
-      item != null && typeof item !== 'object' && SECRET_KEY.test(key) ? '<redacted>' : scrubSecrets(item),
+      isSecretKey(key) ? '<redacted>' : scrubSecrets(item),
     ]));
   }
   return value;

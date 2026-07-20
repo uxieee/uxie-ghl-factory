@@ -66,3 +66,68 @@ test('move all walks 50-row details-by-step pages through totalCount before requ
   assert.deepEqual(calls.filter((call) => call.method === 'GET').map((call) => call.path.match(/[?&]skip=(\d+)/)[1]), ['0', '50']);
   assert.deepEqual(calls.at(-1).body.statusIds, rows.map((row) => row._id));
 });
+
+test('HTTP failures still throw for CLI callers while preserving the structured gateway response', async () => {
+  const gatewayResponse = { status: 429, ok: false, json: { message: 'slow down' } };
+  const gw = {
+    loc: 'LOC_1',
+    uid: 'USER_1',
+    call: async () => gatewayResponse,
+  };
+
+  await assert.rejects(
+    () => makeFF({ gw }).parkedAt('WID_1', 'STEP_1'),
+    (error) => {
+      assert.match(error.message, /GET .*429.*slow down/);
+      assert.deepEqual(error.gatewayResponse, gatewayResponse);
+      return true;
+    },
+  );
+});
+
+test('allParked follows totalCount across short intermediate pages and advances by actual rows', async () => {
+  const rows = Array.from({ length: 75 }, (_, index) => ({
+    _id: `STATUS_${index + 1}`,
+    contactId: `CONTACT_${index + 1}`,
+  }));
+  const skips = [];
+  const gw = {
+    loc: 'LOC_1',
+    uid: 'USER_1',
+    call: async (_method, path) => {
+      const query = new URLSearchParams(path.split('?')[1]);
+      const skip = Number(query.get('skip'));
+      skips.push(skip);
+      return { status: 200, ok: true, json: { totalCount: rows.length, rows: rows.slice(skip, skip + 25) } };
+    },
+  };
+
+  const result = await makeFF({ gw }).allParked('WID_1', 'STEP_1');
+  assert.equal(result.length, 75);
+  assert.deepEqual(skips, [0, 25, 50]);
+});
+
+test('allParked fails explicitly when pagination makes no progress before totalCount', async () => {
+  const firstPage = Array.from({ length: 25 }, (_, index) => ({ _id: `STATUS_${index + 1}` }));
+  const skips = [];
+  const gw = {
+    loc: 'LOC_1',
+    uid: 'USER_1',
+    call: async (_method, path) => {
+      const query = new URLSearchParams(path.split('?')[1]);
+      const skip = Number(query.get('skip'));
+      skips.push(skip);
+      return {
+        status: 200,
+        ok: true,
+        json: { totalCount: 75, rows: skip === 0 ? firstPage : [] },
+      };
+    },
+  };
+
+  await assert.rejects(
+    () => makeFF({ gw }).allParked('WID_1', 'STEP_1'),
+    /pagination stalled.*25.*75/i,
+  );
+  assert.deepEqual(skips, [0, 25]);
+});
