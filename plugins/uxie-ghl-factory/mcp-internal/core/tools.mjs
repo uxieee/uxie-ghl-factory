@@ -5,6 +5,15 @@ import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
+import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
+import {
+  applyOps,
+  partitionOps,
+  planTriggerOps,
+} from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
+import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
+import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
+import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
 
 const DOCS_CATALOG = '/Volumes/Xander SSD/Vibe Code/Misc/ghl-workflow-api-docs/catalog/tool-descriptions.json';
 let CATALOG = {};
@@ -61,6 +70,275 @@ function buildWorkflowData(report, locationId) {
       : null,
     publicationNote: 'Draft-only operation: nothing was published.',
   }).data;
+}
+
+const recordsFrom = (payload, ...keys) => {
+  if (Array.isArray(payload)) return payload;
+  for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
+  return [];
+};
+
+const workflowPath = (locationId, workflowId) => (
+  `/workflow/${encodeURIComponent(locationId)}/${encodeURIComponent(workflowId)}`
+);
+
+async function getWorkflow(gw, locationId, workflowId) {
+  return gw.call('GET', `${workflowPath(locationId, workflowId)}?includeScheduledPauseInfo=true`);
+}
+
+async function listWorkflowTriggers(gw, locationId, workflowId) {
+  const query = new URLSearchParams({ workflowId });
+  const response = await gw.call(
+    'GET',
+    `/workflow/${encodeURIComponent(locationId)}/trigger?${query}`,
+  );
+  return { response, triggers: recordsFrom(response.json, 'triggers', 'data') };
+}
+
+function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate) {
+  const beforeIds = new Set(beforeTemplates.map((step) => step.id));
+  const afterIds = new Set(templates.map((step) => step.id));
+  return {
+    opsApplied: ops.map((op) => op?.op ?? null),
+    stepCount: { before: beforeTemplates.length, after: templates.length },
+    idsAdded: [...afterIds].filter((id) => !beforeIds.has(id)),
+    idsRemoved: [...beforeIds].filter((id) => !afterIds.has(id)),
+    diff,
+    triggerChanges: triggerPlan.map(({ op, method, path, triggerId }) => ({ op, method, path, ...(triggerId ? { triggerId } : {}) })),
+    requiresPublish: triggerPlan.length > 0,
+    publishInstruction: triggerPlan.length
+      ? 'Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.'
+      : null,
+    tagsReferenced: neededTags,
+    tagsToCreate,
+  };
+}
+
+function expectedSubsetMismatches(expected, actual, path = '') {
+  if (Array.isArray(expected)) {
+    if (!Array.isArray(actual)) return [{ path, expected, actual }];
+    return expected.flatMap((value, index) => (
+      index < actual.length
+        ? expectedSubsetMismatches(value, actual[index], `${path}[${index}]`)
+        : [{ path: `${path}[${index}]`, expected: value, actual: undefined }]
+    ));
+  }
+  if (expected && typeof expected === 'object') {
+    if (!actual || typeof actual !== 'object' || Array.isArray(actual)) {
+      return [{ path, expected, actual }];
+    }
+    return Object.entries(expected).flatMap(([key, value]) => {
+      const childPath = path ? `${path}.${key}` : key;
+      if (!Object.hasOwn(actual, key)) return [{ path: childPath, expected: value, actual: undefined }];
+      return expectedSubsetMismatches(value, actual[key], childPath);
+    });
+  }
+  return Object.is(expected, actual) ? [] : [{ path, expected, actual }];
+}
+
+const triggerIdOf = (trigger) => trigger?.id ?? trigger?._id ?? null;
+
+function returnedResourceId(response) {
+  const id = response?.json?.id
+    ?? response?.json?._id
+    ?? response?.json?.data?.id
+    ?? response?.json?.data?._id
+    ?? null;
+  return typeof id === 'string' && id.trim().length > 0 ? id.trim() : null;
+}
+
+function triggerSemanticExpectation(body = {}) {
+  const keys = [
+    'workflowId', 'type', 'masterType', 'name', 'conditions', 'actions',
+    'schedule_config', 'convTriggerBotId',
+  ];
+  return Object.fromEntries(keys
+    .filter((key) => Object.hasOwn(body, key))
+    .map((key) => [key, body[key]]));
+}
+
+function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = []) {
+  const usableId = (trigger) => {
+    const id = triggerIdOf(trigger);
+    return typeof id === 'string' && id.trim().length > 0 ? id.trim() : null;
+  };
+  const countIds = (triggers) => {
+    const counts = new Map();
+    for (const trigger of triggers) {
+      const id = usableId(trigger);
+      if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return counts;
+  };
+  const beforeIdCounts = countIds(beforeTriggers);
+  const actualIdOccurrences = new Map();
+  const newlyObservedIndexes = new Set();
+  actualTriggers.forEach((trigger, index) => {
+    const id = usableId(trigger);
+    if (!id) return;
+    const occurrence = (actualIdOccurrences.get(id) ?? 0) + 1;
+    actualIdOccurrences.set(id, occurrence);
+    if (occurrence > (beforeIdCounts.get(id) ?? 0)) newlyObservedIndexes.add(index);
+  });
+  const actualById = new Map(actualTriggers
+    .map((trigger) => [usableId(trigger), trigger])
+    .filter(([id]) => typeof id === 'string' && id.length > 0));
+  const consumedAddIndexes = new Set();
+  const checks = expectations.map(({ request, returnedId }) => {
+    if (request.op === 'deleteTrigger') {
+      const persisted = !actualById.has(request.triggerId);
+      return { op: request.op, triggerId: request.triggerId, persisted, mismatches: [] };
+    }
+
+    const expected = triggerSemanticExpectation(request.body);
+    let actual;
+    let matchSource = null;
+    if (request.op === 'modifyTrigger') {
+      actual = actualById.get(request.triggerId);
+      matchSource = actual ? 'triggerId' : null;
+    } else if (returnedId) {
+      const index = actualTriggers.findIndex((candidate, candidateIndex) => (
+        !consumedAddIndexes.has(candidateIndex) && usableId(candidate) === returnedId
+      ));
+      if (index >= 0) {
+        actual = actualTriggers[index];
+        consumedAddIndexes.add(index);
+        matchSource = 'returnedId';
+      }
+    } else {
+      const index = actualTriggers.findIndex((candidate, candidateIndex) => (
+        newlyObservedIndexes.has(candidateIndex)
+        && !consumedAddIndexes.has(candidateIndex)
+        && expectedSubsetMismatches(expected, candidate).length === 0
+      ));
+      if (index >= 0) {
+        actual = actualTriggers[index];
+        consumedAddIndexes.add(index);
+        matchSource = 'newlyObserved';
+      }
+    }
+    const mismatches = actual ? expectedSubsetMismatches(expected, actual) : [];
+    return {
+      op: request.op,
+      triggerId: request.triggerId ?? returnedId ?? triggerIdOf(actual),
+      matchSource,
+      persisted: Boolean(actual) && mismatches.length === 0,
+      mismatches,
+    };
+  });
+  return { roundTrip: checks.every((check) => check.persisted), checks };
+}
+
+function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
+  const expectedById = new Map(expectedTemplates.map((step) => [step.id, step]));
+  const gotById = new Map(gotTemplates.map((step) => [step.id, step]));
+  const expectedIds = new Set(expectedById.keys());
+  const beforeIds = new Set(beforeTemplates.map((step) => step.id));
+  const missingExpectedIds = [...expectedIds].filter((id) => !gotById.has(id));
+  const removedStillPresent = [...beforeIds].filter((id) => !expectedIds.has(id) && gotById.has(id));
+  const duplicateIds = gotTemplates
+    .map((step) => step.id)
+    .filter((id, index, ids) => ids.indexOf(id) !== index);
+  const mismatchedGraphIds = [];
+  const droppedAttributes = [];
+  const valueMismatches = [];
+
+  for (const [id, expected] of expectedById) {
+    const got = gotById.get(id);
+    if (!got) continue;
+    const graphKeys = ['next', 'parentKey', 'parent', 'order'];
+    if (graphKeys.some((key) => JSON.stringify(got[key]) !== JSON.stringify(expected[key]))) {
+      mismatchedGraphIds.push(id);
+    }
+    const dropped = Object.keys(expected.attributes ?? {})
+      .filter((key) => !(key in (got.attributes ?? {})));
+    if (dropped.length) droppedAttributes.push({ id, dropped });
+    for (const mismatch of expectedSubsetMismatches(expected, got)) {
+      valueMismatches.push({ id, ...mismatch });
+    }
+  }
+
+  const stepCountMatch = gotTemplates.length === expectedTemplates.length;
+  const roundTrip = stepCountMatch
+    && missingExpectedIds.length === 0
+    && removedStillPresent.length === 0
+    && duplicateIds.length === 0
+    && mismatchedGraphIds.length === 0
+    && droppedAttributes.length === 0
+    && valueMismatches.length === 0;
+  return {
+    roundTrip,
+    stepCountMatch,
+    missingExpectedIds,
+    removedStillPresent,
+    duplicateIds: [...new Set(duplicateIds)],
+    mismatchedGraphIds,
+    droppedAttributes,
+    valueMismatches,
+  };
+}
+
+const withFailureData = (failure, data) => ({ ...failure, data: ok(data).data });
+
+function fromThrown(error) {
+  if (error?.code && error?.remediation) {
+    return fail(error.code, error.detail ?? error.message, error.remediation);
+  }
+  return fail(
+    CODES.ENGINE_ABORT,
+    error?.message ?? String(error),
+    'Gateway transport failed before an HTTP result was available; inspect account state before retrying.',
+  );
+}
+
+async function safeGatewayCall(invoke) {
+  try {
+    return { value: await invoke(), threw: false, failure: null };
+  } catch (error) {
+    return { value: null, threw: true, failure: fromThrown(error) };
+  }
+}
+
+function urgentPartialFailure(failure, data, publishedStateVerified = false) {
+  const urgency = publishedStateVerified
+    ? 'URGENT: account state changed. A published state was verified, but inspect the workflow and runtime logs before retrying.'
+    : 'URGENT: account state may be partially changed. Inspect the workflow immediately; if it is draft, republish it before relying on triggers.';
+  return withFailureData({
+    ...failure,
+    remediation: `${urgency} ${failure.remediation ?? ''}`.trim(),
+  }, data);
+}
+
+function editWriteFailure(failure, data) {
+  return withFailureData({
+    ...failure,
+    remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true only after the intended configuration is verified. ${failure.remediation ?? ''}`.trim(),
+  }, data);
+}
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.keys(value).sort()
+        .filter((key) => value[key] !== undefined)
+        .map((key) => [key, canonicalize(value[key])]),
+    );
+  }
+  return value;
+}
+
+function boundEditIdGen(locationId, workflowId, version, ops, occupiedIds) {
+  const base = makeDeterministicIdGen(JSON.stringify(canonicalize({
+    locationId, workflowId, version, ops,
+  })));
+  const occupied = new Set(occupiedIds);
+  return () => {
+    let id;
+    do { id = base(); } while (occupied.has(id));
+    occupied.add(id);
+    return id;
+  };
 }
 
 // Run a handler body, mapping AuthError/engine throws onto the error contract.
@@ -332,6 +610,337 @@ export const TOOLS = [
         ),
         data,
       };
+    }, args),
+  },
+  {
+    name: 'edit_workflow',
+    description: 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine (proof: engine source). Confirmed step edits use only the plain workflow PUT and are round-trip verified.',
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      ops: z.array(z.object({}).passthrough()),
+      assumeAssociated: z.boolean().default(false),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'GET', path: '/locations/{loc}/tags' },
+      { method: 'POST', path: '/locations/{loc}/tags' },
+      { method: 'PUT', path: '/workflow/{loc}/{wid}' },
+      { method: 'POST', path: '/workflow/{loc}/trigger' },
+      { method: 'PUT', path: '/workflow/{loc}/trigger/{tid}' },
+      { method: 'DELETE', path: '/workflow/{loc}/trigger/{tid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (!Array.isArray(args.ops) || args.ops.length === 0) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          'edit_workflow requires at least one operation in ops',
+          'Pass the ordered edit operations to preview, then repeat with confirm:true to write them.',
+        );
+      }
+
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const locationPath = encodeURIComponent(args.locationId);
+      const warnings = [];
+
+      // This is best-effort in the canonical CLI too: custom fields improve compiler
+      // classification, but an unavailable field index must not brick unrelated edits.
+      const customFieldQuery = new URLSearchParams({
+        parentId: '', skip: '0', limit: '10000', documentType: 'field', model: 'all',
+        query: '', includeStandards: 'false',
+      });
+      let customFields;
+      const customFieldResponse = await gw.call(
+        'GET',
+        `/locations/${locationPath}/customFields/search?${customFieldQuery}`,
+      );
+      const customFieldRecords = Array.isArray(customFieldResponse.json)
+        ? customFieldResponse.json
+        : customFieldResponse.json?.customFields;
+      const hasValidCustomFieldList = customFieldResponse.ok
+        && Array.isArray(customFieldRecords)
+        && customFieldRecords.every((field) => (
+          field !== null
+          && typeof field === 'object'
+          && !Array.isArray(field)
+          && typeof (field.id ?? field._id) === 'string'
+          && (field.id ?? field._id).trim().length > 0
+        ));
+      if (hasValidCustomFieldList) {
+        customFields = customFieldRecords.map((field) => ({
+          id: field.id ?? field._id,
+          name: field.name,
+          fieldKey: field.fieldKey,
+          dataType: field.dataType,
+          model: field.model,
+        }));
+      }
+
+      const initialResponse = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!initialResponse.ok) return fromHttp(initialResponse.status, initialResponse.json);
+      const fresh = initialResponse.json;
+      const beforeTemplates = fresh?.workflowData?.templates;
+      if (!Array.isArray(beforeTemplates)) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          'workflow GET did not return workflowData.templates',
+          'Confirm the workflow id and retry; no edit was written.',
+        );
+      }
+
+      const idGen = boundEditIdGen(
+        args.locationId,
+        args.workflowId,
+        fresh.version,
+        args.ops,
+        beforeTemplates.map((step) => step.id),
+      );
+      const ctx = {
+        loc: args.locationId,
+        cid: undefined,
+        uid: gw.uid,
+        companyAge: 0,
+        idGen,
+        catalog: loadCatalog(),
+        ...(customFields !== undefined ? { customFields } : {}),
+        warn: (message) => warnings.push(message),
+      };
+      const { stepOps, triggerOps } = partitionOps(args.ops);
+      let existingTriggers = [];
+      if (triggerOps.length) {
+        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+        if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
+        existingTriggers = listed.triggers;
+      }
+
+      const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
+        assumeAssociated: args.assumeAssociated === true,
+      });
+      const triggerPlan = planTriggerOps(triggerOps, {
+        ctx,
+        wid: args.workflowId,
+        uid: gw.uid,
+        existing: existingTriggers,
+      });
+
+      const neededTags = collectOpTags(args.ops);
+      let tagsToCreate = [];
+      if (neededTags.length) {
+        const tagResponse = await gw.call('GET', `/locations/${locationPath}/tags`);
+        if (!tagResponse.ok) return fromHttp(tagResponse.status, tagResponse.json);
+        const existingNames = recordsFrom(tagResponse.json, 'tags').map((tag) => tag.name);
+        tagsToCreate = missingTags(neededTags, existingNames);
+      }
+      const preview = editPreview(
+        args.ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate,
+      );
+
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            'Edit preview is ready; no writes were sent.',
+            'Review data.preview, then repeat the same request with confirm:true to commit.',
+          ),
+          { preview, warnings },
+        );
+      }
+
+      const partialProgress = {
+        writes: [],
+        tags: { planned: tagsToCreate.length, created: [] },
+        stepCommitted: false,
+        triggerWrites: { planned: triggerPlan.length, applied: 0 },
+        verification: {
+          attempted: false,
+          completed: false,
+          roundTrip: null,
+          workflowStatus: null,
+          triggers: {
+            attempted: false,
+            completed: false,
+            roundTrip: null,
+            checks: [],
+          },
+        },
+      };
+      const attemptWrite = async (phase, invoke) => {
+        const outcome = {
+          phase,
+          attempted: true,
+          acknowledged: false,
+          ambiguous: false,
+        };
+        partialProgress.writes.push(outcome);
+        const result = await safeGatewayCall(invoke);
+        if (result.threw) outcome.ambiguous = true;
+        else if (result.value?.ok) outcome.acknowledged = true;
+        return { ...result, outcome };
+      };
+      const partialFailure = (failure, failurePhase, note, extraData = {}) => {
+        partialProgress.failurePhase = failurePhase;
+        return editWriteFailure(failure, {
+          preview,
+          createdTags: partialProgress.tags.created,
+          triggerChangesApplied: partialProgress.triggerWrites.applied,
+          warnings,
+          partialProgress,
+          note,
+          ...extraData,
+        });
+      };
+
+      for (const name of tagsToCreate) {
+        const createdCall = await attemptWrite(
+          'tag_create',
+          () => gw.call('POST', `/locations/${locationPath}/tags`, { name }),
+        );
+        if (createdCall.threw || !createdCall.value.ok) {
+          return partialFailure(
+            createdCall.threw
+              ? createdCall.failure
+              : fromHttp(createdCall.value.status, createdCall.value.json),
+            'tag_create',
+            'Tag pre-creation was attempted; earlier tags in this request may already exist.',
+          );
+        }
+        partialProgress.tags.created.push(name);
+      }
+
+      if (stepOps.length) {
+        const committedCall = await attemptWrite(
+          'step_commit',
+          () => gw.call(
+            'PUT',
+            workflowPath(args.locationId, args.workflowId),
+            commitBody,
+          ),
+        );
+        if (committedCall.threw || !committedCall.value.ok) {
+          return partialFailure(
+            committedCall.threw
+              ? committedCall.failure
+              : fromHttp(committedCall.value.status, committedCall.value.json),
+            'step_commit',
+            'The workflow PUT was attempted but not acknowledged; tag dependencies may already have been created.',
+          );
+        }
+        partialProgress.stepCommitted = true;
+      }
+
+      const triggerExpectations = [];
+      for (const request of triggerPlan) {
+        const responseCall = await attemptWrite(
+          'trigger_write',
+          () => gw.call(request.method, request.path, request.body),
+        );
+        if (responseCall.threw || !responseCall.value.ok) {
+          return partialFailure(
+            responseCall.threw
+              ? responseCall.failure
+              : fromHttp(responseCall.value.status, responseCall.value.json),
+            'trigger_write',
+            'Earlier tag, step, or trigger writes may already be committed; inspect before retrying.',
+          );
+        }
+        partialProgress.triggerWrites.applied++;
+        triggerExpectations.push({ request, returnedId: returnedResourceId(responseCall.value) });
+      }
+
+      if (triggerExpectations.length) {
+        partialProgress.verification.triggers.attempted = true;
+        const triggerRoundTripCall = await safeGatewayCall(
+          () => listWorkflowTriggers(gw, args.locationId, args.workflowId),
+        );
+        if (triggerRoundTripCall.threw || !triggerRoundTripCall.value.response.ok) {
+          return partialFailure(
+            triggerRoundTripCall.threw
+              ? triggerRoundTripCall.failure
+              : fromHttp(
+                triggerRoundTripCall.value.response.status,
+                triggerRoundTripCall.value.response.json,
+              ),
+            'trigger_round_trip_get',
+            'Trigger writes were acknowledged, but their persisted state could not be re-read.',
+            { requiresPublish: false, publishInstruction: null },
+          );
+        }
+        const triggerVerify = verifyTriggerRoundTrip(
+          triggerExpectations,
+          triggerRoundTripCall.value.triggers,
+          existingTriggers,
+        );
+        partialProgress.verification.triggers.completed = true;
+        partialProgress.verification.triggers.roundTrip = triggerVerify.roundTrip;
+        partialProgress.verification.triggers.checks = triggerVerify.checks;
+        if (!triggerVerify.roundTrip) {
+          return partialFailure(
+            fail(
+              CODES.ENGINE_ABORT,
+              'One or more acknowledged trigger writes did not persist on round-trip verification.',
+              'Inspect data.partialProgress.verification.triggers and the live trigger list before retrying.',
+            ),
+            'trigger_round_trip_verify',
+            'Trigger configuration is unverified, so this edit must not be published.',
+            { requiresPublish: false, publishInstruction: null },
+          );
+        }
+      }
+
+      partialProgress.verification.attempted = true;
+      const roundTripCall = await safeGatewayCall(
+        () => getWorkflow(gw, args.locationId, args.workflowId),
+      );
+      if (roundTripCall.threw || !roundTripCall.value.ok) {
+        return partialFailure(
+          roundTripCall.threw
+            ? roundTripCall.failure
+            : fromHttp(roundTripCall.value.status, roundTripCall.value.json),
+          'edit_round_trip_get',
+          'One or more writes succeeded, but final graph verification could not be completed.',
+        );
+      }
+      const roundTripResponse = roundTripCall.value;
+      const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
+      const verify = verifyEditRoundTrip(templates, beforeTemplates, gotTemplates);
+      partialProgress.verification.completed = true;
+      partialProgress.verification.roundTrip = verify.roundTrip;
+      partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
+      const data = {
+        workflowId: args.workflowId,
+        status: roundTripResponse.json?.status,
+        stepCount: { before: beforeTemplates.length, after: gotTemplates.length },
+        idsAdded: preview.idsAdded,
+        idsRemoved: preview.idsRemoved,
+        diff,
+        createdTags: partialProgress.tags.created,
+        triggerChangesApplied: partialProgress.triggerWrites.applied,
+        requiresPublish: triggerPlan.length > 0,
+        publishInstruction: triggerPlan.length
+          ? 'Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.'
+          : null,
+        verify,
+        warnings,
+        partialProgress,
+        builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
+        runtimeProofNote: 'edit_workflow never publishes. After confirmed publish_workflow, only added_to_workflow in runtime logs proves that a trigger fired.',
+      };
+
+      if (!verify.roundTrip) {
+        return editWriteFailure(
+          fail(
+            CODES.ENGINE_ABORT,
+            'Workflow PUT returned but the edited graph did not round-trip cleanly.',
+            'Inspect data.verify and the workflow canvas before making further edits.',
+          ),
+          data,
+        );
+      }
+      return ok(data);
     }, args),
   },
   {
