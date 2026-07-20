@@ -10,7 +10,15 @@ export function makeCliMembershipsGateway({ token, loc, uid, fetchImpl = fetch }
     const options = typeof baseOrOptions === 'string'
       ? { base: baseOrOptions }
       : (baseOrOptions ?? {});
-    const headers = options.unauthenticated
+    const signedUpload = options.signedUpload === true;
+    if (signedUpload && (
+      method !== 'PUT'
+      || new URL(options.base ?? BACKEND).origin !== 'https://storage.googleapis.com'
+      || !(Buffer.isBuffer(body) || ArrayBuffer.isView(body))
+    )) {
+      throw new Error('signedUpload requires a raw binary PUT to https://storage.googleapis.com');
+    }
+    const headers = signedUpload
       ? {}
       : {
           channel: 'APP',
@@ -24,15 +32,15 @@ export function makeCliMembershipsGateway({ token, loc, uid, fetchImpl = fetch }
       if (name === 'authorization' || name === 'token-id') continue;
       headers[name] = value;
     }
-    if (!options.unauthenticated) headers.authorization = `Bearer ${token}`;
-    if (body !== undefined && !options.rawBody && headers['content-type'] === undefined) {
+    if (!signedUpload) headers.authorization = `Bearer ${token}`;
+    if (body !== undefined && !signedUpload && headers['content-type'] === undefined) {
       headers['content-type'] = 'application/json';
     }
 
     const response = await fetchImpl((options.base ?? BACKEND) + path, {
       method,
       headers,
-      body: body === undefined ? undefined : (options.rawBody ? body : JSON.stringify(body)),
+      body: body === undefined ? undefined : (signedUpload ? body : JSON.stringify(body)),
     });
     const text = await response.text();
     let json;

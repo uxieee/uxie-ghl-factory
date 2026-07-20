@@ -39,16 +39,30 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       ? { base: baseOrOptions }
       : (baseOrOptions ?? {});
     const base = options.base ?? BASE;
+    const signedUpload = options.signedUpload === true;
+    if (signedUpload && (
+      method !== 'PUT'
+      || new URL(base).origin !== 'https://storage.googleapis.com'
+      || !(Buffer.isBuffer(body) || ArrayBuffer.isView(body))
+    )) {
+      throw new Error('signedUpload requires a raw binary PUT to https://storage.googleapis.com');
+    }
     await sleepImpl(THROTTLE_MS + Math.floor(randomImpl() * JITTER_MS));
+    const requestHeaders = signedUpload
+      ? Object.fromEntries(Object.entries(options.headers ?? {})
+          .filter(([name, value]) => value !== undefined && value !== null
+            && !['authorization', 'token-id'].includes(name.toLowerCase()))
+          .map(([name, value]) => [name.toLowerCase(), value]))
+      : headers(method !== 'GET', options.headers);
     const res = await fetchImpl(base + path, {
       method,
-      headers: headers(method !== 'GET', options.headers),
-      body: body === undefined ? undefined : JSON.stringify(body),
+      headers: requestHeaders,
+      body: body === undefined ? undefined : (signedUpload ? body : JSON.stringify(body)),
     });
     const text = await res.text();
     let json; try { json = JSON.parse(text); } catch { json = text; }
     return { status: res.status, ok: res.ok, json };
   };
 
-  return { call, loc, uid: creds.uid };
+  return { call, loc, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
 }
