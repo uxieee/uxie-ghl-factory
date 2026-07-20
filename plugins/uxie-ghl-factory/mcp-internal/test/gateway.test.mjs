@@ -7,9 +7,10 @@ import { makeGateway } from '../core/gateway.mjs';
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwt = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
-function fixture() {
+const tokenId = `eyJhbGciOiJIUzI1NiJ9.${b64({ iss: 'securetoken.google.com/highlevel-backend', role: 'admin', type: 'agency', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
+function fixture({ bearer = jwt, token = tokenId } = {}) {
   const p = join(mkdtempSync(join(tmpdir(), 'gw-')), 'tok.txt');
-  writeFileSync(p, `Bearer ${jwt}\ntoken-id: tid-9\n`);
+  writeFileSync(p, `Bearer ${bearer}\n${token ? `token-id: ${token}\n` : ''}`);
   return p;
 }
 const stubFetch = (calls, res = { status: 200, ok: true, body: '{"a":1}' }) => async (url, init) => {
@@ -42,12 +43,36 @@ test('writes add content-type plus the iframe origin/referer', async () => {
   assert.equal(calls[0].init.body, '{"x":1}');
 });
 
-test('token-id rail swaps the auth header', async () => {
+test('AI rail sends both Bearer and token-id together', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  await gw.call('GET', '/voice-ai/agents');
+  assert.equal(calls[0].init.headers['token-id'], tokenId);
+  assert.equal(calls[0].init.headers.authorization, `Bearer ${jwt}`);
+});
+
+test('legacy token-id rail still sends token-id only', async () => {
   const calls = [];
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'token-id', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
-  await gw.call('GET', '/voice-ai/agents');
-  assert.equal(calls[0].init.headers['token-id'], 'tid-9');
+  await gw.call('GET', '/funnels');
+  assert.equal(calls[0].init.headers['token-id'], tokenId);
   assert.equal(calls[0].init.headers.authorization, undefined);
+});
+
+test('AI rail rejects a missing token-id before network access', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture({ token: null }), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  await assert.rejects(gw.call('GET', '/voice-ai/agents'), (e) => e.code === 'TOKEN_ID_MISSING' && /AI credential capture path/.test(e.remediation));
+  assert.equal(calls.length, 0);
+});
+
+test('AI rail distinguishes an expired token-id from an expired Bearer JWT', async () => {
+  const expired = `eyJhbGciOiJIUzI1NiJ9.${b64({ iss: 'securetoken.google.com/highlevel-backend', exp: Math.floor(Date.now() / 1000) - 10 })}.sig`;
+  const tokenExpired = makeGateway({ tokenFile: fixture({ token: expired }), loc: 'L', rail: 'ai', fetchImpl: stubFetch([]), sleepImpl: async () => {} });
+  await assert.rejects(tokenExpired.call('GET', '/voice-ai/agents'), (e) => e.code === 'TOKEN_ID_EXPIRED');
+  const jwtExpired = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp: Math.floor(Date.now() / 1000) - 10 })}.sig`;
+  const bearerExpired = makeGateway({ tokenFile: fixture({ bearer: jwtExpired }), loc: 'L', rail: 'ai', fetchImpl: stubFetch([]), sleepImpl: async () => {} });
+  await assert.rejects(bearerExpired.call('GET', '/voice-ai/agents'), (e) => e.code === 'TOKEN_EXPIRED');
 });
 
 test('throttles every call with base delay plus jitter', async () => {
