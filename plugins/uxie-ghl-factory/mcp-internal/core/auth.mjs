@@ -59,13 +59,19 @@ export function authStatus(state) {
       try { tokenId = { present: true, ...safeTokenIdClaims(c.tokenId) }; }
       catch { tokenId = { present: true, issuer: null, role: null, scope: null, exp: null, secondsRemaining: null, note: 'token-id claims could not be decoded; re-capture with the AI credential capture path.' }; }
     }
+    // Field names deliberately avoid the credential-key denylist in errors.mjs
+    // (`jwt`, `tokenid`, …), which scrubs a whole subtree under such a name. These
+    // hold CLAIMS ABOUT the credentials, never the credentials — but named `jwt` /
+    // `tokenId` they came back as "<redacted>", so auth_status could no longer tell
+    // you whether your token was about to expire (live-caught 2026-07-21).
     return {
-      tokenFile: state.tokenFile, jwt: { present: true, ...s },
-      tokenId,
+      tokenFile: state.tokenFile,
+      jwtClaims: { present: true, ...s },
+      tokenIdClaims: tokenId,
       engine: state.engineVersion ?? 'unknown',
     };
   } catch (e) {
-    return { tokenFile: state.tokenFile, jwt: { present: false }, error: { code: e.code, detail: e.detail, remediation: e.remediation }, engine: state.engineVersion ?? 'unknown' };
+    return { tokenFile: state.tokenFile, jwtClaims: { present: false }, error: { code: e.code, detail: e.detail, remediation: e.remediation }, engine: state.engineVersion ?? 'unknown' };
   }
 }
 

@@ -4,6 +4,7 @@ import { writeFileSync, mkdtempSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { authStatus, readCredentials, safeClaims, secondsRemaining } from '../core/auth.mjs';
+import { ok } from '../core/errors.mjs';
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwtWith = (claims) => `eyJhbGciOiJIUzI1NiJ9.${b64(claims)}.sig`;
@@ -56,12 +57,30 @@ test('auth status reports token-id claims only, never its value', () => {
   const jwt = jwtWith({ authClassId: 'u', exp: future });
   const tokenId = jwtWith({ iss: 'securetoken.google.com/highlevel-backend', role: 'admin', type: 'agency', exp: future });
   const status = authStatus({ tokenFile: fixture(`Bearer ${jwt}\ntoken-id: ${tokenId}\n`) });
-  assert.equal(status.tokenId.present, true);
-  assert.equal(status.tokenId.issuer, 'securetoken.google.com/highlevel-backend');
-  assert.equal(status.tokenId.role, 'admin');
-  assert.equal(status.tokenId.scope, 'agency');
-  assert.equal(status.tokenId.exp, future);
+  assert.equal(status.tokenIdClaims.present, true);
+  assert.equal(status.tokenIdClaims.issuer, 'securetoken.google.com/highlevel-backend');
+  assert.equal(status.tokenIdClaims.role, 'admin');
+  assert.equal(status.tokenIdClaims.scope, 'agency');
+  assert.equal(status.tokenIdClaims.exp, future);
   assert.equal(JSON.stringify(status).includes(tokenId), false);
+});
+
+// The regression that made this rename necessary: the claims are returned through the
+// tool contract, which scrubs any secret-NAMED key's whole subtree. Named `jwt`/`tokenId`
+// they came back as "<redacted>" and auth_status could no longer show expiry at all
+// (live-caught 2026-07-21). Assert the claims SURVIVE the contract boundary — while the
+// credentials themselves still do not.
+test('auth status claims survive the contract scrubber, credentials still do not', () => {
+  const jwt = jwtWith({ authClassId: 'u', exp: future });
+  const tokenId = jwtWith({ iss: 'securetoken.google.com/highlevel-backend', role: 'admin', type: 'agency', exp: future });
+  const status = authStatus({ tokenFile: fixture(`Bearer ${jwt}\ntoken-id: ${tokenId}\n`) });
+  const contract = ok(status);
+  assert.equal(contract.data.jwtClaims.present, true, 'jwt claims must not be blanked');
+  assert.ok(typeof contract.data.jwtClaims.secondsRemaining === 'number', 'expiry must remain visible');
+  assert.equal(contract.data.tokenIdClaims.role, 'admin', 'token-id claims must not be blanked');
+  const serialized = JSON.stringify(contract);
+  assert.equal(serialized.includes(jwt), false, 'jwt value must never appear');
+  assert.equal(serialized.includes(tokenId), false, 'token-id value must never appear');
 });
 
 test('re-reads the file each call so mid-session recapture is picked up', () => {

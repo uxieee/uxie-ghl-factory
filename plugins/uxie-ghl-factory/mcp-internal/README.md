@@ -198,3 +198,64 @@ Live-verified both directions: the typo spec is refused before anything is creat
 correct spec builds with `verification.problems = 0` and renders in the UI.
 
 Everything above was read off actual tool output and real screenshots. Nothing is expected-value.
+
+## Live proof ledger — AI agent tools (Plan 5, Task 6)
+
+Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Date: **2026-07-21**. Real MCP stdio session
+using the dual-credential AI rail. All canaries **deleted afterwards**, verified against raw
+response bodies.
+
+**This run answers a question open in this project since July: does VoiceAI / Agent Studio
+agent-create actually work? It does.** Memory said proven, the skill docs said not. The truth
+is that **create succeeds in all three products** and the **follow-up configuration step** is
+what fails — a much narrower problem than "create is unproven".
+
+| # | Executed | Observed |
+|---|---|---|
+| 1 | `auth_status` | Both credentials reported as claims — jwt `uid`/`secondsRemaining`, token-id `issuer`/`role: admin`/`scope: agency`/`secondsRemaining`. No raw token anywhere (regex-checked). |
+| 2 | `create_convai_agent` **without** confirm | `CONFIRM_REQUIRED` + compiled plan (`POST /ai-employees/employees`, payload field list). No write. |
+| 3 | `create_convai_agent` with confirm | Tool returned `AGENT_VERIFICATION_FAILED` — but the agent **was created** (`T6-convai-canary`, 19:28:17Z). Post-create verification is what failed. |
+| 4 | `create_voiceai_agent` with confirm | Tool returned `HTTP_422` — the agent **was created** (`6a5e76ed…`). `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` 422s, so the agent keeps GHL's default name ("My Agent 916"). |
+| 5 | `create_studio_agent` with confirm | Tool returned `HTTP_400` — the agent **was created** (`7e7751c5…`, 19:30:20Z). A later step 400s. SSE behavior therefore still unconfirmed. |
+| 6 | Cleanup | All three canaries deleted (ConvAI 200, VoiceAI 204 ×2, Studio 200), each re-read to confirm. Pre-existing agents left untouched: *Finn*, *Booking Finn*, *Marketing Agency*, *My Agent 811* (2026-06-17), studio agent from 2026-06-29. |
+
+### Status change
+
+`create_voiceai_agent` and `create_studio_agent` were labelled **NOT live-proven**. Their
+**create** paths are now live-proven; their **configure/verify** follow-ups are proven
+*broken*. Tool descriptions and the skill status table must say exactly that — not "proven",
+not "unproven".
+
+### Defects found and fixed by this run
+
+**1. `auth_status` was unusable.** It returned `"jwt": "<redacted>"`. The recursive scrubber
+blanks the whole subtree under any secret-*named* key (`jwt`, `tokenid`), so the claims —
+including expiry — were destroyed. You could not tell whether your token was about to expire.
+
+The first fix (redact only primitives under a secret key) was **wrong** and three existing
+tests correctly caught it: `{credentials:{value:"sk_live_…"}}` would then leak, because that
+value is neither JWT-shaped nor under a secret-named key. Fixed instead by renaming the
+fields to `jwtClaims` / `tokenIdClaims` — the scrubber stays strict, the metadata survives.
+A test now asserts the claims survive the *contract boundary* while the credentials do not.
+
+**2. Misleading remediation on spec rejections.** A compiler/validator error (`mode must be
+one of …`) reported *"Gateway transport failed before an HTTP result was available; inspect
+account state before retrying"* — sending the caller to hunt account state for what was a
+typo, when nothing had been sent. Spec rejections now say *"rejected before any request was
+sent — nothing was created."*
+
+### Known gap
+
+`raw_request` has **no `base` parameter**, so it cannot reach
+`services.leadconnectorhq.com`. Its `VALIDATION_FAILED` on an AI path is *our own guard*, not
+GHL — which during this run briefly looked like "the agent is gone" when the agent was very
+much still there. Cleanup had to bypass the server. Worth closing.
+
+### Method note
+
+A throwaway verification script reported **"ConvAI agents: 0"** while the canary existed —
+a wrong key guess in the script's own parsing. It was caught only by re-checking the **raw
+response body**. Object-shape guesses are exactly as unreliable in verification code as in
+engine code; assert against raw payloads when confirming cleanup.
+
+Everything above was read off actual tool output and raw API responses. Nothing is expected-value.

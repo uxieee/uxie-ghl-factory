@@ -6,7 +6,14 @@
 > the public `voice-ai-v3` API reaches only a fraction of it (basic CRUD + call logs).
 > Underlying voice provider is **Retell** (`provider: "RETELL"`, not IR-settable).
 
-**Status: built + unit-tested (119 tests across the engine). The ENGINE is NOT live-proven.**
+**Status (updated 2026-07-21): the engine's CREATE is live-proven; its full-replace UPDATE is
+proven BROKEN.** On GROM AU via the `uxie-ghl-internal-mcp` AI rail, `voiceai-compiler.mjs`
+created a real agent (`6a5e76ed…`, deleted after). `POST /voice-ai/agents` takes only
+`{locationId}` and returns an id; the follow-up
+`PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` returned **422**, so the agent kept
+GHL's default name ("My Agent 916"). A failed create call therefore leaves a **real,
+unnamed agent** behind — clean up after failures. Evidence: `mcp-internal/README.md`
+§"Live proof ledger — AI agent tools".
 
 ⚠️ **Read the distinction below before claiming anything is proven — it is the whole point.**
 
