@@ -16,6 +16,8 @@ import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
 import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
+import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
+import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
 
 const DOCS_CATALOG = '/Volumes/Xander SSD/Vibe Code/Misc/ghl-workflow-api-docs/catalog/tool-descriptions.json';
 let CATALOG = {};
@@ -78,6 +80,44 @@ const recordsFrom = (payload, ...keys) => {
   if (Array.isArray(payload)) return payload;
   for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
   return [];
+};
+
+const finiteCount = (record, numberKeys, arrayKeys) => {
+  for (const key of numberKeys) {
+    const value = Number(record?.[key]);
+    if (Number.isFinite(value) && value >= 0) return value;
+  }
+  for (const key of arrayKeys) if (Array.isArray(record?.[key])) return record[key].length;
+  return null;
+};
+
+const summarizeCourse = (course) => ({
+  id: course?._id ?? course?.id ?? null,
+  title: course?.title ?? course?.name ?? null,
+  status: course?.status ?? course?.visibility ?? null,
+  counts: {
+    chapters: finiteCount(course, ['categoriesCount', 'categoryCount', 'chaptersCount', 'chapterCount'], ['categories', 'chapters']),
+    lessons: finiteCount(course, ['postsCount', 'postCount', 'lessonsCount', 'lessonCount'], ['posts', 'lessons']),
+    offers: finiteCount(course, ['offersCount', 'offerCount'], ['offers']),
+  },
+});
+
+const countCourseTree = (payload) => {
+  const roots = recordsFrom(payload, 'categories', 'data', 'rows');
+  const seen = new WeakSet();
+  let chapters = 0;
+  let lessons = 0;
+  const visit = (category) => {
+    if (!category || typeof category !== 'object' || seen.has(category)) return;
+    seen.add(category);
+    chapters++;
+    lessons += recordsFrom(category?.posts, 'posts', 'lessons', 'data').length;
+    for (const child of recordsFrom(category?.children, 'categories', 'children', 'subCategories')) visit(child);
+    for (const child of recordsFrom(category?.subCategories, 'categories', 'children', 'subCategories')) visit(child);
+    for (const child of recordsFrom(category?.categories, 'categories', 'children', 'subCategories')) visit(child);
+  };
+  for (const root of roots) visit(root);
+  return { chapters, lessons };
 };
 
 const workflowPath = (locationId, workflowId) => (
@@ -671,6 +711,135 @@ export const TOOLS = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       return ok(await fetchEntities(gw));
+    }, args),
+  },
+  {
+    name: 'list_courses',
+    description: describe('list_courses', 'List course summaries (proof: engine source).'),
+    inputSchema: schema({ locationId: z.string() }),
+    capabilities: [
+      { method: 'GET', path: '/membership/locations/{loc}/products?doNotIncludeOffers=true&sendCustomizations=true' },
+      { method: 'GET', path: '/membership/locations/{loc}/categories?product_id={productId}&posts=true' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const api = new GhlMembershipsApi({ gw });
+      const payload = await api.listProducts();
+      const rows = recordsFrom(payload, 'products', 'data', 'rows');
+      const courses = [];
+      for (const row of rows) {
+        const summary = summarizeCourse(row);
+        if (summary.id && (summary.counts.chapters === null || summary.counts.lessons === null)) {
+          const treeCounts = countCourseTree(await api.getTree(summary.id));
+          summary.counts.chapters ??= treeCounts.chapters;
+          summary.counts.lessons ??= treeCounts.lessons;
+        }
+        courses.push(summary);
+      }
+      return ok({
+        count: courses.length,
+        courses,
+        note: 'Summary only; full course bodies are intentionally omitted.',
+      });
+    }, args),
+  },
+  {
+    name: 'build_course',
+    description: `${describe('build_course', 'Build and verify a GHL Memberships course (proof: engine source).')} The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
+    inputSchema: schema({
+      locationId: z.string(),
+      spec: z.object({}).passthrough(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'POST', path: '/membership/locations/{loc}/products' },
+      { method: 'POST', path: '/membership/locations/{loc}/categories' },
+      { method: 'POST', path: '/membership/locations/{loc}/posts' },
+      { method: 'PUT', path: '/membership/locations/{loc}/posts/{postId}' },
+      { method: 'GET', path: '/membership/locations/{loc}/posts/{postId}' },
+      { method: 'POST', path: '/assets-drm/assets/signed-url/upload' },
+      { method: 'POST', path: '/assets-drm/assets' },
+      { method: 'POST', path: '/membership/locations/{loc}/videos' },
+      { method: 'POST', path: '/membership/locations/{loc}/media/signed-url' },
+      { method: 'POST', path: '/membership/locations/{loc}/posts/material' },
+      { method: 'POST', path: '/membership/locations/{loc}/offers' },
+      { method: 'POST', path: '/membership/locations/{loc}/assessments/quiz' },
+      { method: 'POST', path: '/membership/locations/{loc}/assessments/assignment' },
+      { method: 'POST', path: '/courses/locations/{loc}/product-themes/{productId}/' },
+      { method: 'GET', path: '/courses/locations/{loc}/product-themes/{productId}/theme/{themeId}' },
+      { method: 'PUT', path: '/courses/locations/{loc}/product-themes/{productId}/theme/{themeId}' },
+      { method: 'PUT', path: '/membership/locations/{loc}/products/apply-theme/{productId}?template_id={templateId}' },
+      { method: 'POST', path: '/membership/smart-list/attach-offer-user' },
+      { method: 'GET', path: '/membership/locations/{loc}/offers/{offerId}' },
+      { method: 'PUT', path: '/membership/locations/{loc}/offers/{offerId}' },
+      { method: 'GET', path: '/membership/locations/{loc}/products/user-progress/{productId}?pageLimit={pageLimit}&pageNumber={pageNumber}&email={email}' },
+      { method: 'GET', path: '/membership/locations/{loc}/assessments/quiz/{postId}' },
+      { method: 'GET', path: '/membership/locations/{loc}/assessments/quiz/questions/{quizId}' },
+      { method: 'POST', path: '/membership/locations/{loc}/assessments/quiz/questions' },
+      { method: 'GET', path: '/membership/locations/{loc}/assessments/assignment/{postId}' },
+      { method: 'POST', path: '/certificates/locations/{loc}/templates' },
+      { method: 'POST', path: '/membership/locations/{loc}/certificate-attachments' },
+      { method: 'GET', path: '/membership/locations/{loc}/certificate-attachments/products/{productId}?skip={skip}&limit={limit}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const courseSpec = { ...args.spec, locationId: args.locationId };
+      const preview = previewCourseSpec(courseSpec, { requireAbsoluteMediaPaths: true });
+      if (!preview.valid) {
+        return withFailureData(
+          fail(
+            CODES.VALIDATION_FAILED,
+            `Course spec invalid: ${preview.errors.join('; ')}`,
+            'Correct the spec using skills/ghl-memberships/references/course-spec.md, then request a fresh preview.',
+          ),
+          { preview },
+        );
+      }
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            'Course build preview is ready; no account call or write was made.',
+            'Review data.preview, then repeat the same locationId and spec with confirm:true to build.',
+          ),
+          { preview },
+        );
+      }
+
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const report = await buildCourse({
+        gw,
+        spec: courseSpec,
+        requireAbsoluteMediaPaths: true,
+      });
+      const data = {
+        preview,
+        created: report.built,
+        verification: report.verification,
+        failurePhase: report.failurePhase,
+        writeOutcomeAmbiguous: report.writeOutcomeAmbiguous,
+        uiVerificationPath: `Memberships > Courses > Products > "${courseSpec.course.title}"`,
+        cleanup: {
+          productId: report.built.productId ?? null,
+          offerId: report.built.offerId ?? null,
+          credentialTemplateId: report.built.credentialTemplateId ?? null,
+          note: 'Deleting the product does not cascade to its offer or credential template; remove those separately when cleaning up.',
+        },
+      };
+      if (report.ok) return ok(data);
+
+      const failure = report.error
+        ? fromThrown(report.error)
+        : fail(
+            CODES.ENGINE_ABORT,
+            report.failurePhase === 'verification'
+              ? `Course objects were created but ${report.verification.problems} verification check(s) failed.`
+              : `Course build stopped during ${report.failurePhase}.`,
+            'Inspect the partial object ids and verification evidence before retrying.',
+          );
+      return withFailureData({
+        ...failure,
+        remediation: `URGENT: the course may be partially built. Inspect data.created and data.cleanup, remove unintended objects, and re-preview before retrying. ${failure.remediation ?? ''}`.trim(),
+      }, data);
     }, args),
   },
   {

@@ -36,8 +36,7 @@ test('CLI gateway supports the engine raw signed-upload rail without app auth', 
   await gw.call('PUT', '/signed/path?signature=x', bytes, {
     base: 'https://storage.googleapis.com',
     headers: { 'content-type': 'video/mp4' },
-    rawBody: true,
-    unauthenticated: true,
+    signedUpload: true,
   });
 
   assert.equal(gw.capabilities.unauthenticatedRawUpload, true);

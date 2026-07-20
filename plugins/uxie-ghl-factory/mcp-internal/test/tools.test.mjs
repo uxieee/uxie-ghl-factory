@@ -25,6 +25,7 @@ test('read tools declare only GET capabilities', () => {
     'export_workflow',
     'get_workflow_logs',
     'list_account_entities',
+    'list_courses',
     'raw_request',
   ]);
   for (const t of TOOLS.filter((candidate) => readTools.has(candidate.name))) for (const c of t.capabilities) {

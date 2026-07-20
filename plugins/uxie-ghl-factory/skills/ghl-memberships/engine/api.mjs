@@ -241,8 +241,7 @@ export class GhlMembershipsApi {
     const response = await this.gw.call('PUT', path, bytes, {
       base,
       headers: { 'content-type': contentType },
-      rawBody: true,
-      unauthenticated: true,
+      signedUpload: true,
     });
     if (!response.ok) {
       const detail = typeof response.json === 'string' ? response.json : JSON.stringify(response.json);

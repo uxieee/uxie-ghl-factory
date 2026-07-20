@@ -75,6 +75,156 @@
     "path": "/ai-employees/agents"
   },
   {
+    "tool": "list_courses",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/products?doNotIncludeOffers=true&sendCustomizations=true"
+  },
+  {
+    "tool": "list_courses",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/categories?product_id={productId}&posts=true"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/products"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/categories"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/posts"
+  },
+  {
+    "tool": "build_course",
+    "method": "PUT",
+    "path": "/membership/locations/{loc}/posts/{postId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/posts/{postId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/assets-drm/assets/signed-url/upload"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/assets-drm/assets"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/videos"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/media/signed-url"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/posts/material"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/offers"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/assessments/quiz"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/assessments/assignment"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/courses/locations/{loc}/product-themes/{productId}/"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/courses/locations/{loc}/product-themes/{productId}/theme/{themeId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "PUT",
+    "path": "/courses/locations/{loc}/product-themes/{productId}/theme/{themeId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "PUT",
+    "path": "/membership/locations/{loc}/products/apply-theme/{productId}?template_id={templateId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/smart-list/attach-offer-user"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/offers/{offerId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "PUT",
+    "path": "/membership/locations/{loc}/offers/{offerId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/products/user-progress/{productId}?pageLimit={pageLimit}&pageNumber={pageNumber}&email={email}"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/assessments/quiz/{postId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/assessments/quiz/questions/{quizId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/assessments/quiz/questions"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/assessments/assignment/{postId}"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/certificates/locations/{loc}/templates"
+  },
+  {
+    "tool": "build_course",
+    "method": "POST",
+    "path": "/membership/locations/{loc}/certificate-attachments"
+  },
+  {
+    "tool": "build_course",
+    "method": "GET",
+    "path": "/membership/locations/{loc}/certificate-attachments/products/{productId}?skip={skip}&limit={limit}"
+  },
+  {
     "tool": "build_workflow",
     "method": "GET",
     "path": "/opportunities/pipelines"

@@ -4,10 +4,13 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: Plan 3 complete and LIVE-PROVEN on GROM AU (2026-07-21).** Read tools and the
+**Status: Plan 3 complete and LIVE-PROVEN on GROM AU (2026-07-21).** Its read tools and the
 confirm-gated write tools (`build_workflow`, `edit_workflow`, `publish_workflow`,
 `fast_forward_contacts`, non-GET `raw_request`) have all been driven against a real
-account through a real MCP session. Membership and AI-agent tools are not implemented yet.
+account through a real MCP session. Plan 4 Tasks 1–3 add `list_courses` and the
+confirm-gated `build_course`; both are implemented and locally verified, but **neither MCP
+tool has been live-proven yet**. Plan 4 Task 4 remains human-gated. AI-agent tools are not
+implemented yet.
 
 ## Credential model
 
@@ -38,6 +41,8 @@ claude mcp add ghl-internal -e GHL_TOK_FILE="/abs/path/to/tok.txt" -- node /abs/
 | `export_workflow` | workflow body + triggers + sticky notes |
 | `get_workflow_logs` | executions, per-step counts, enrollment roster |
 | `list_account_entities` | pipelines, calendars, users, forms, custom fields, AI agents |
+| `list_courses` | course summaries with status and available chapter/lesson/offer counts |
+| `build_course` | no-call validation preview; confirmed course build with created IDs, verification and cleanup evidence |
 | `build_workflow` | draft creation and verification; never publishes |
 | `edit_workflow` | read-only preview; writes require `confirm: true` and never publish |
 | `publish_workflow` | read-only publish preview; publishing requires `confirm: true` |
