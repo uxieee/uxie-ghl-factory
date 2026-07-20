@@ -1021,6 +1021,34 @@ export function compile(ir, ctx) {
       `round-trip for an incomplete workflow. Usually this means a node carries a child scope ` +
       `(onFound/onEvent/…) that its type has no container handler for.`);
 
+  // STEP_TYPE_UNKNOWN — fail closed on a type the catalog has never seen.
+  //
+  // LIVE-CAUGHT 2026-07-21 (GROM AU): `send_internal_notification` (the real slug is
+  // `internal_notification`) compiled clean, built, round-tripped, and reported
+  // warnings:[] — but the builder rendered a bare box with no action icon and its step
+  // editor would NOT open. The catalog is complete (316 step types), so an unrecognised
+  // type is an authoring error, not a gap. Silently shipping it produces exactly the
+  // failure this engine exists to prevent: a workflow that saves and does nothing.
+  //
+  // Escape hatch, deliberately explicit: opts.allowUnknownStepTypes — for the documented
+  // "harvest a live example and extend the catalog" path, where the author KNOWS the type
+  // is real and the catalog is behind.
+  if (!ctx.allowUnknownStepTypes) {
+    const unknown = [...new Set(templates.filter((t) => !ctx.catalog.step(t.type)).map((t) => t.type))];
+    if (unknown.length) {
+      const known = ctx.catalog.allSteps();
+      const near = (bad) => known.filter((k) => k.includes(bad) || bad.includes(k)).slice(0, 3);
+      throw new Error(`STEP_TYPE_UNKNOWN: ${unknown.map((u) => {
+        const suggestions = near(u);
+        return `'${u}'${suggestions.length ? ` — did you mean ${suggestions.map((s) => `'${s}'`).join(' / ')}?` : ''}`;
+      }).join('; ')}. These types are not in the catalog, so the builder will not recognise them: ` +
+        `the step saves, renders without its action icon, and its editor will not open. ` +
+        `Search the catalog (node scripts/query-catalog-cli.mjs <term>) for the real slug. ` +
+        `If you have verified the type IS real and the catalog is behind, harvest an example ` +
+        `and pass allowUnknownStepTypes to override this guard deliberately.`);
+    }
+  }
+
   // situational injection (catalog-gated); parent/sibling/nodeType already set structurally
   let stepIndex = 0;
   for (const t of templates) {

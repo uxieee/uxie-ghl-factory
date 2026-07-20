@@ -4,11 +4,10 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: Plan 3 internal surface.** Read operations retain the historical GROM AU
-live proof below. Confirmation-gated workflow, fast-forward, and raw-request writes
-are unit-tested and registration/boot-proven only; they have not been live-called.
-Task 5 remains human-gated and has not been run. Membership and AI-agent tools are
-not implemented yet.
+**Status: Plan 3 complete and LIVE-PROVEN on GROM AU (2026-07-21).** Read tools and the
+confirm-gated write tools (`build_workflow`, `edit_workflow`, `publish_workflow`,
+`fast_forward_contacts`, non-GET `raw_request`) have all been driven against a real
+account through a real MCP session. Membership and AI-agent tools are not implemented yet.
 
 ## Credential model
 
@@ -92,3 +91,58 @@ stubbed. Green tests, wrong behavior. Accessor corrected to normalize any of
 and re-verified live: `stickyNotes isArray: true`, `triggers isArray: true`.
 
 Everything above was read off actual tool output. Nothing in this ledger is expected-value.
+
+## Live proof ledger — write tools (Task 5)
+
+Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Date: **2026-07-21**. Driven through a real
+MCP stdio session. All writes on throwaway canaries, **all deleted afterwards** (verified
+by re-read → 404, plus a tag sweep → none remaining).
+
+| # | Executed | Observed |
+|---|---|---|
+| 1 | `build_workflow` (canary draft) | `ok=true`; `authored=compiled=steps=1` (integrity MATCH); `createdTags=["task5-canary","task5-a"]`; `published=false`. |
+| 2 | `edit_workflow` **without** `confirm` | `CONFIRM_REQUIRED`; preview `stepCount {before:1, after:2}`. `export_workflow` then showed **1 step — nothing written** ✓ |
+| 3 | `edit_workflow` with `confirm:true` | `ok=true`; export showed **2 steps** — edit landed. |
+| 4 | `publish_workflow` without confirm → with confirm | `CONFIRM_REQUIRED`, then `ok=true`. Status `draft→published`, version `3→4`, **triggers still present and `active:true`** (the v0.3.4 downgrade regression did **not** reproduce). |
+| 5 | `fast_forward_contacts` (preview) | `CONFIRM_REQUIRED` — "preview is ready; no write was sent." |
+| 6 | `raw_request` POST without confirm | `CONFIRM_REQUIRED` — refused **before any network call** (proven by running with an absent token file: a tool that reached the network would have failed `TOKEN_MISSING` instead). |
+| 7 | Cleanup | Canary DELETE → 200; re-read → `HTTP_404`. All `task5-*` tags deleted; final sweep: **0 tags, 0 workflows remaining**. |
+| 8 | Builder UI check | Correct-type canary renders **with its action icon** and its **step editor opens** (Internal notification: Action Name, Type, From Name/Email, To User Type). |
+
+### Defect found and fixed by this run — `STEP_TYPE_UNKNOWN`
+
+Authoring `send_internal_notification` (the real slug is **`internal_notification`**)
+compiled clean, built, round-tripped, and reported `warnings: []` with a MATCHING
+authored/compiled/steps count — but in the builder the node rendered as **a bare box with
+no action icon, and its step editor would not open**. A control click on a UI-built
+`internal_notification` step in the same account opened its editor normally, proving the
+defect was ours and not a browser artifact.
+
+Root cause: `compile()` looked the type up with `ctx.catalog.step(t.type)` and simply
+skipped when it was missing — an unrecognised type was never rejected. The catalog is
+complete (316 step types), so an unknown type is an authoring error.
+
+Fix: `compile()` now throws `STEP_TYPE_UNKNOWN`, naming the offending type and suggesting
+the nearest catalog slug, with an explicit `allowUnknownStepTypes` override for the
+documented "harvest a live example and extend the catalog" path. Four regression tests
+added to `engine/silent-failure.test.mjs`. Verified live: the bad type is now refused
+(`ENGINE_ABORT` / `STEP_TYPE_UNKNOWN: 'send_internal_notification' — did you mean
+'internal_notification'?`), and the correct type builds, renders and opens.
+
+### Open defect found by this run — authored `email.to` is silently dropped
+
+Authoring `internal_notification` with `attributes.email.to = "test@example.com"`
+persisted as:
+
+```json
+{"type":"email","email":{"from_name":"{{location.name}}","from_email":"{{location.email}}",
+ "userType":"custom_email","subject":"canary","html":"","attachments":[]}}
+```
+
+No `to` key at all, and no warning. The builder's "To Custom Email" field was empty. The
+UI-built control step **does** carry `to`, so this is a legitimate key the engine
+discards — the same silent-drop class as the bug above. **Not fixed** (it needs a focused
+pass over the `internal_notification` attribute mapping against
+`references/step-shapes.md`); recorded here so it is not rediscovered as a mystery.
+
+Everything above was read off actual tool output and real screenshots. Nothing is expected-value.
