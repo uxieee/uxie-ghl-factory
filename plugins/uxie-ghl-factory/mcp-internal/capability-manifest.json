@@ -1,5 +1,55 @@
 [
   {
+    "tool": "create_convai_agent",
+    "method": "POST",
+    "path": "/ai-employees/employees"
+  },
+  {
+    "tool": "create_convai_agent",
+    "method": "POST",
+    "path": "/ai-employees/actions"
+  },
+  {
+    "tool": "create_convai_agent",
+    "method": "GET",
+    "path": "/ai-employees/employees/{agentId}"
+  },
+  {
+    "tool": "create_voiceai_agent",
+    "method": "POST",
+    "path": "/voice-ai/agents"
+  },
+  {
+    "tool": "create_voiceai_agent",
+    "method": "PUT",
+    "path": "/voice-ai/agents/{agentId}?publishAgent=true&mode=update"
+  },
+  {
+    "tool": "create_voiceai_agent",
+    "method": "POST",
+    "path": "/voice-ai/actions"
+  },
+  {
+    "tool": "create_voiceai_agent",
+    "method": "GET",
+    "path": "/voice-ai/agents/{agentId}"
+  },
+  {
+    "tool": "create_studio_agent",
+    "method": "SSE",
+    "path": "/agent-studio/super-agents/build"
+  },
+  {
+    "tool": "create_studio_agent",
+    "method": "PUT",
+    "path": "/agent-studio/super-agent/agents/{agentId}"
+  },
+  {
+    "tool": "create_studio_agent",
+    "method": "GET",
+    "path": "/agent-studio/super-agent/agents/{agentId}"
+  },
+  {
     "tool": "list_workflows",
     "method": "GET",
     "path": "/workflow/{loc}/list"

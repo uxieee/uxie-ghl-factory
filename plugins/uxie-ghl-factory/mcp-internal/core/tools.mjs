@@ -18,6 +18,10 @@ import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/eng
 import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
 import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
 import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
+import { compileConvaiAgent } from '../../skills/ghl-ai-agents-specialist/engine/convai-compiler.mjs';
+import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../skills/ghl-ai-agents-specialist/engine/voiceai-compiler.mjs';
+import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../skills/ghl-ai-agents-specialist/engine/studio-compiler.mjs';
+import { executeAgentPlan } from '../../skills/ghl-ai-agents-specialist/engine/driver.mjs';
 
 const DOCS_CATALOG = '/Volumes/Xander SSD/Vibe Code/Misc/ghl-workflow-api-docs/catalog/tool-descriptions.json';
 let CATALOG = {};
@@ -57,6 +61,43 @@ function validateRegisteredArgs(tool, args) {
   }
   return null;
 }
+
+const payloadSummary = (body) => {
+  if (body === undefined) return { kind: 'none' };
+  if (Array.isArray(body)) return { kind: 'array', items: body.length };
+  if (body && typeof body === 'object') return { kind: 'object', fields: Object.keys(body).sort() };
+  return { kind: typeof body };
+};
+
+const descriptorPreview = (descriptor) => ({
+  method: descriptor.method,
+  path: descriptor.path,
+  payload: payloadSummary(descriptor.body),
+});
+
+function compileAiAgentPlan(kind, args) {
+  if (kind === 'convai') {
+    const compiled = compileConvaiAgent(args.spec, { locationId: args.locationId });
+    // The create wire calls the name employeeName; the read representation calls it name.
+    const { employeeName, ...rest } = compiled.create.body;
+    return { ...compiled, verifyExpected: { ...rest, name: employeeName } };
+  }
+  if (kind === 'voiceai') {
+    const compiled = compileVoiceAiAgent(args.spec, { locationId: args.locationId });
+    const update = compileVoiceAiUpdate(args.spec, { agentId: '{agentId}', locationId: args.locationId });
+    return { ...compiled, followUps: [update], verifyExpected: update.body };
+  }
+  const create = compileSuperAgentCreate(args.spec, { locationId: args.locationId, companyId: args.companyId });
+  const update = compileSuperAgentUpdate(args.spec, { agentId: '{agentId}', locationId: args.locationId });
+  return { create, actions: [], followUps: [update], verifyExpected: { config: update.body.config } };
+}
+
+const aiPlanPreview = (plan) => ({
+  create: descriptorPreview(plan.create),
+  followUps: (plan.followUps ?? []).map(descriptorPreview),
+  actions: (plan.actions ?? []).map(descriptorPreview),
+  verification: { method: 'GET', path: 'provider-specific agent read by created id' },
+});
 
 function buildWorkflowData(report, locationId) {
   const counts = [report.authored, report.compiled, report.steps];
@@ -544,6 +585,76 @@ export const TOOLS = [
     inputSchema: schema({}),
     capabilities: [],
     handler: async (args, deps) => guard(async () => ok(authStatus(deps?.state ?? {})), args),
+  },
+  {
+    name: 'create_convai_agent',
+    description: `${describe('create_convai_agent', 'Create Conversation AI agent — proof: live-roundtrip (2026-07-11); risk: write')}. Confirmation-gated: preview compiles a no-write plan.`,
+    inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
+    capabilities: [
+      { method: 'POST', path: '/ai-employees/employees' },
+      { method: 'POST', path: '/ai-employees/actions' },
+      { method: 'GET', path: '/ai-employees/employees/{agentId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const plan = compileAiAgentPlan('convai', args);
+      const preview = aiPlanPreview(plan);
+      if (args.confirm !== true) return withFailureData(fail(
+        CODES.CONFIRM_REQUIRED,
+        'Conversation AI agent preview is ready; no gateway call or write was made.',
+        'Review data.preview, then repeat the same locationId and spec with confirm:true to create.',
+      ), { preview });
+      const report = await executeAgentPlan({ plan, gw: deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }) });
+      const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
+      return report.ok ? ok(data) : withFailureData(fail(report.code, 'Conversation AI creation did not complete and verify.',
+        'Inspect data.created and data.verification before retrying; remove any unintended canary agent manually.'), data);
+    }, args),
+  },
+  {
+    name: 'create_voiceai_agent',
+    description: `${describe('create_voiceai_agent', 'Create Voice AI agent — proof: documented; risk: write')}. NOT live-proven: first confirmed use must be a throwaway validation run. Confirmation-gated: preview compiles a no-write plan.`,
+    inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
+    capabilities: [
+      { method: 'POST', path: '/voice-ai/agents' },
+      { method: 'PUT', path: '/voice-ai/agents/{agentId}?publishAgent=true&mode=update' },
+      { method: 'POST', path: '/voice-ai/actions' },
+      { method: 'GET', path: '/voice-ai/agents/{agentId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const plan = compileAiAgentPlan('voiceai', args);
+      const preview = aiPlanPreview(plan);
+      if (args.confirm !== true) return withFailureData(fail(
+        CODES.CONFIRM_REQUIRED,
+        'Voice AI agent preview is ready; no gateway call or write was made.',
+        'Review data.preview, then repeat the same locationId and spec with confirm:true for a throwaway validation run.',
+      ), { preview });
+      const report = await executeAgentPlan({ plan, gw: deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }) });
+      const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
+      return report.ok ? ok(data) : withFailureData(fail(report.code, 'Voice AI creation did not complete and verify.',
+        'This unproven path may have partially created a canary. Inspect data.created and clean it up before retrying.'), data);
+    }, args),
+  },
+  {
+    name: 'create_studio_agent',
+    description: `${describe('create_studio_agent', 'Create Agent Studio agent — proof: documented; risk: write')}. NOT live-proven: first confirmed use must be a throwaway validation run, including SSE behavior. Confirmation-gated: preview compiles a no-write plan.`,
+    inputSchema: schema({ locationId: z.string(), companyId: z.string().optional(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
+    capabilities: [
+      { method: 'SSE', path: '/agent-studio/super-agents/build' },
+      { method: 'PUT', path: '/agent-studio/super-agent/agents/{agentId}' },
+      { method: 'GET', path: '/agent-studio/super-agent/agents/{agentId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const plan = compileAiAgentPlan('studio', args);
+      const preview = aiPlanPreview(plan);
+      if (args.confirm !== true) return withFailureData(fail(
+        CODES.CONFIRM_REQUIRED,
+        'Agent Studio preview is ready; no gateway call or write was made.',
+        'Review data.preview, then repeat the same locationId, companyId, and spec with confirm:true for a throwaway validation run.',
+      ), { preview });
+      const report = await executeAgentPlan({ plan, gw: deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state }) });
+      const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
+      return report.ok ? ok(data) : withFailureData(fail(report.code, 'Agent Studio creation did not complete and verify.',
+        'This unproven SSE path may have partially created a canary. Inspect data.created and clean it up before retrying.'), data);
+    }, args),
   },
   {
     name: 'list_workflows',

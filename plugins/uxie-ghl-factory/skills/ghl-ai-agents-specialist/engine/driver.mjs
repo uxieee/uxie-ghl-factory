@@ -31,7 +31,7 @@ const threadAgentId = (descriptor, agentId) => {
   const body = { ...(descriptor?.body ?? {}) };
   if ('employeeId' in body) body.employeeId = agentId;
   if ('agentId' in body) body.agentId = agentId;
-  return { ...descriptor, body };
+  return { ...descriptor, path: descriptor.path.replaceAll('{agentId}', agentId), body };
 };
 
 const subsetMismatches = (actual, expected, path = '') => {
@@ -58,7 +58,7 @@ const failure = (code, phase, report, extra = {}) => ({
 // create/follow-up requests. It is compared as a recursive subset after a fresh GET.
 export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   const kind = kindFor(plan?.create);
-  const report = { kind, agentId: null, actionIds: [], actions: [], verification: null };
+  const report = { kind, agentId: null, actionIds: [], followUps: [], actions: [], verification: null };
   if (!gw?.call || !plan?.create || !kind) return failure('AGENT_PLAN_INVALID', 'validation', report);
 
   let created;
@@ -72,6 +72,20 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   if (!created.ok) return failure(`HTTP_${created.status}`, 'create', report, { createStatus: created.status });
   report.agentId = extractAgentId(kind, created);
   if (!report.agentId) return failure('AGENT_ID_MISSING', 'create', report);
+
+  for (let index = 0; index < (plan.followUps ?? []).length; index++) {
+    const followUp = threadAgentId(plan.followUps[index], report.agentId);
+    try {
+      const result = await gw.call(followUp.method, followUp.path, followUp.body, { base: AI_BASE });
+      const observed = { index, path: followUp.path, status: result.status };
+      report.followUps.push(observed);
+      if (!result.ok) return failure(`HTTP_${result.status}`, 'follow_up', report, { failedFollowUp: observed });
+    } catch (error) {
+      const observed = { index, path: followUp.path, status: null, code: error?.code ?? 'FOLLOW_UP_FAILED' };
+      report.followUps.push(observed);
+      return failure(observed.code, 'follow_up', report, { failedFollowUp: observed });
+    }
+  }
 
   for (let index = 0; index < (plan.actions ?? []).length; index++) {
     const action = threadAgentId(plan.actions[index], report.agentId);

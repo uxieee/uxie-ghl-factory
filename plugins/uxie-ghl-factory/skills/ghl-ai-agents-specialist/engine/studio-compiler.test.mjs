@@ -23,8 +23,8 @@ test('compileSuperAgentUpdate: full IR compiles to a full-replace PUT descriptor
   const { method, path, body, authHeader } = compileSuperAgentUpdate(ir, { agentId: AGENT_ID, locationId: LOCATION_ID });
   assert.equal(method, 'PUT');
   assert.equal(path, `/agent-studio/super-agent/agents/${AGENT_ID}`);
-  assert.equal(authHeader, 'token-id');
-  assert.equal(AUTH_HEADER, 'token-id');
+  assert.equal(authHeader, 'ai');
+  assert.equal(AUTH_HEADER, 'ai');
 
   // body shape: matches studio-update.json's captured request_body -- {locationId,
   // config} ONLY. No `id` key in the body (the agent id lives in the URL path only).
@@ -130,7 +130,7 @@ test('compileSuperAgentCreate: emits the build POST matching studio-create.json 
   );
   assert.equal(method, 'POST');
   assert.equal(path, '/agent-studio/super-agents/build');
-  assert.equal(authHeader, 'token-id');
+  assert.equal(authHeader, 'ai');
   assert.deepEqual(body, {
     message: 'TEST-CAP-STUDIO: a test agent for API research purposes only. Do not use in production.',
     locationId: LOCATION_ID,

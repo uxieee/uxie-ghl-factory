@@ -4,8 +4,8 @@
 // action,delete}.json + captures/voiceai-actions-all.json (the 6 additional action
 // types) for the ground truth this traces to. This module produces request
 // DESCRIPTORS ({method, path, body}) — it never makes a live call. Auth is
-// `token-id` (same header as ConvAI/KB, NOT `Authorization: Bearer`); the caller is
-// responsible for attaching the header value.
+// the gateway's `ai` rail (Bearer JWT plus Firebase token-id); the caller never
+// attaches credentials itself.
 //
 // ============================================================================
 // Merge semantics: FULL REPLACE (differs from Conversation AI's PUT, which merges)
@@ -38,7 +38,7 @@
 //     full-replace update endpoint creates.
 import { parseVoiceAiIR, IRError } from './voiceai-ir.mjs';
 
-export const AUTH_HEADER = 'token-id';
+export const AUTH_HEADER = 'ai';
 
 // Stable defaults: values that appear UNCHANGED across BOTH update captures
 // (voiceai-update-identity.json and voiceai-update-behavior-transcription-voice.json).

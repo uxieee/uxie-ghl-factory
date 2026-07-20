@@ -3,11 +3,10 @@
 // captures/convai-{create,update,action,kb}.json + captures/convai-actions-all.json
 // (the 6 additional action types) for the ground truth this traces to. This module
 // produces request DESCRIPTORS ({method, path, body}) — it never makes a live call.
-// Auth is `token-id` (NOT `Authorization: Bearer`) per the capture notes; the caller
-// is responsible for attaching the header value.
+// Auth uses the gateway's `ai` rail: Bearer JWT and Firebase token-id together.
 import { parseConvaiIR, parseConvaiPartialIR, IRError } from './convai-ir.mjs';
 
-export const AUTH_HEADER = 'token-id';
+export const AUTH_HEADER = 'ai';
 
 // Static defaults exactly as captured in convai-create.json's request_body (the "Start
 // from Scratch" preset) — used whenever the IR omits the corresponding optional field.
