@@ -944,6 +944,218 @@ export const TOOLS = [
     }, args),
   },
   {
+    name: 'publish_workflow',
+    description: 'Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope (proof: engine source). Publishing is round-trip verified but runtime firing still requires logs.',
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'PUT', path: '/workflow/{loc}/{wid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const currentResponse = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!currentResponse.ok) return fromHttp(currentResponse.status, currentResponse.json);
+      const current = currentResponse.json;
+      const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
+
+      const preview = {
+        current: { status: current?.status ?? null, version: current?.version ?? null },
+        changes: {
+          status: { from: current?.status ?? null, to: 'published' },
+          triggers: {
+            total: listed.triggers.length,
+            willActivate: listed.triggers.filter((trigger) => trigger.active !== true).length,
+          },
+          strips: ['autoSaveSession', 'autoSaveSessionId'].filter((key) => key in (current ?? {})),
+        },
+      };
+
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            'Publish preview is ready; no write was sent.',
+            'Review data.preview, then repeat the request with confirm:true to publish.',
+          ),
+          { preview },
+        );
+      }
+
+      const partialProgress = {
+        writes: [],
+        putAttempted: false,
+        putApplied: false,
+        putOutcome: null,
+        verification: { attempted: false, completed: false },
+      };
+      let publishedWithVersion = null;
+      const publishPartialFailure = (failure, failurePhase, note) => {
+        partialProgress.failurePhase = failurePhase;
+        const data = {
+          preview,
+          partialProgress,
+          publishedWithVersion,
+          note,
+        };
+        return partialProgress.writes.some(({ attempted }) => attempted)
+          ? urgentPartialFailure(
+            failure,
+            data,
+            partialProgress.verification.status === 'published',
+          )
+          : withFailureData(failure, data);
+      };
+      const attemptPublishWrite = async (invoke) => {
+        const outcome = {
+          phase: 'publish_put',
+          attempted: true,
+          acknowledged: false,
+          ambiguous: false,
+        };
+        partialProgress.writes.push(outcome);
+        partialProgress.putAttempted = true;
+        partialProgress.putOutcome = outcome;
+        const result = await safeGatewayCall(invoke);
+        if (result.threw) outcome.ambiguous = true;
+        else if (result.value?.ok) outcome.acknowledged = true;
+        return { ...result, outcome };
+      };
+
+      // Refresh trigger state first, then re-GET the workflow LAST so no account call
+      // can make its optimistic-concurrency version stale before the PUT.
+      const latestTriggersCall = await safeGatewayCall(
+        () => listWorkflowTriggers(gw, args.locationId, args.workflowId),
+      );
+      if (latestTriggersCall.threw || !latestTriggersCall.value.response.ok) {
+        return publishPartialFailure(
+          latestTriggersCall.threw
+            ? latestTriggersCall.failure
+            : fromHttp(latestTriggersCall.value.response.status, latestTriggersCall.value.response.json),
+          'publish_preflight_triggers',
+          'No write was attempted because the latest trigger envelope could not be read.',
+        );
+      }
+      const latestTriggers = latestTriggersCall.value;
+      const freshCall = await safeGatewayCall(
+        () => getWorkflow(gw, args.locationId, args.workflowId),
+      );
+      if (freshCall.threw || !freshCall.value.ok) {
+        return publishPartialFailure(
+          freshCall.threw
+            ? freshCall.failure
+            : fromHttp(freshCall.value.status, freshCall.value.json),
+          'publish_preflight_workflow_get',
+          'No write was attempted because the version-bearing workflow refresh failed.',
+        );
+      }
+      const freshResponse = freshCall.value;
+      const publishable = { ...freshResponse.json };
+      delete publishable.autoSaveSession;
+      delete publishable.autoSaveSessionId;
+      const activeTriggers = latestTriggers.triggers.map((trigger) => ({ ...trigger, active: true }));
+      const body = {
+        ...publishable,
+        status: 'published',
+        version: freshResponse.json.version,
+        triggersChanged: false,
+        oldTriggers: activeTriggers,
+        newTriggers: activeTriggers,
+        createdSteps: [],
+        modifiedSteps: [],
+        deletedSteps: [],
+      };
+      publishedWithVersion = body.version;
+      const publishedCall = await attemptPublishWrite(
+        () => gw.call(
+          'PUT',
+          workflowPath(args.locationId, args.workflowId),
+          body,
+        ),
+      );
+      if (publishedCall.threw || !publishedCall.value.ok) {
+        return publishPartialFailure(
+          publishedCall.threw
+            ? publishedCall.failure
+            : fromHttp(publishedCall.value.status, publishedCall.value.json),
+          'publish_put',
+          'The publish PUT was attempted but not acknowledged; its outcome may be ambiguous.',
+        );
+      }
+      partialProgress.putApplied = true;
+
+      partialProgress.verification.attempted = true;
+      const checkCall = await safeGatewayCall(
+        () => getWorkflow(gw, args.locationId, args.workflowId),
+      );
+      if (checkCall.threw || !checkCall.value.ok) {
+        return publishPartialFailure(
+          checkCall.threw
+            ? checkCall.failure
+            : fromHttp(checkCall.value.status, checkCall.value.json),
+          'publish_verify_workflow_get',
+          'The publish PUT was acknowledged, but its resulting workflow status could not be read.',
+        );
+      }
+      const checkResponse = checkCall.value;
+      partialProgress.verification.status = checkResponse.json?.status ?? null;
+      const checkedTriggersCall = await safeGatewayCall(
+        () => listWorkflowTriggers(gw, args.locationId, args.workflowId),
+      );
+      if (checkedTriggersCall.threw || !checkedTriggersCall.value.response.ok) {
+        return publishPartialFailure(
+          checkedTriggersCall.threw
+            ? checkedTriggersCall.failure
+            : fromHttp(checkedTriggersCall.value.response.status, checkedTriggersCall.value.response.json),
+          'publish_verify_triggers',
+          'The publish PUT was acknowledged, but resulting trigger state could not be read.',
+        );
+      }
+      const checkedTriggers = checkedTriggersCall.value;
+      const inactiveTriggers = checkedTriggers.triggers
+        .filter((trigger) => trigger.active !== true)
+        .map((trigger) => trigger.name ?? trigger.id ?? trigger._id);
+      const verify = {
+        roundTrip: checkResponse.json?.status === 'published' && inactiveTriggers.length === 0,
+        status: checkResponse.json?.status ?? null,
+        version: checkResponse.json?.version ?? null,
+        activeTriggers: checkedTriggers.triggers.length - inactiveTriggers.length,
+        totalTriggers: checkedTriggers.triggers.length,
+        inactiveTriggers,
+      };
+      partialProgress.verification.completed = true;
+      partialProgress.verification.roundTrip = verify.roundTrip;
+      partialProgress.verification.inactiveTriggers = inactiveTriggers;
+      const data = {
+        workflowId: args.workflowId,
+        previous: preview.current,
+        publishedWithVersion: body.version,
+        verify,
+        partialProgress,
+        builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
+        runtimeProofNote: 'active: true and a clean round trip are not proof that a trigger fires; only added_to_workflow in runtime logs proves firing.',
+      };
+      if (!verify.roundTrip) {
+        partialProgress.failurePhase = 'publish_verify_state';
+        return urgentPartialFailure(
+          fail(
+            CODES.ENGINE_ABORT,
+            'Publish PUT returned but the workflow did not round-trip as published with every trigger active.',
+            'Inspect the workflow and runtime logs before relying on it.',
+          ),
+          data,
+          verify.status === 'published',
+        );
+      }
+      return ok(data);
+    }, args),
+  },
+  {
     name: 'raw_request',
     description: 'Escape hatch for internal endpoints the typed tools do not cover. GET only in this version — writes ship with the confirmation-gated write tools.',
     inputSchema: schema({
