@@ -32,6 +32,7 @@ import { Assessments } from '../engine/assessments.mjs';
 import { Credentials } from '../engine/credentials.mjs';
 import { Communities } from '../engine/communities.mjs';
 import { loadToken, safeClaims } from '../engine/auth.mjs';
+import { makeCliMembershipsGateway } from './cli-gateway.mjs';
 
 const LOCATION = process.env.GHL_LOCATION || process.env.GHL_LOC;
 if (!LOCATION) {
@@ -66,7 +67,8 @@ async function main() {
     console.log('\n⚠️  Token has <5min left; the suite takes ~1min. Re-mint first.\n');
   }
 
-  const api = new GhlMembershipsApi({ token, locationId: LOCATION, userId: safeClaims(token).userId });
+  const gw = makeCliMembershipsGateway({ token, loc: LOCATION, uid: safeClaims(token).userId });
+  const api = new GhlMembershipsApi({ gw });
   const members = new Members(api);
   const assess = new Assessments(api);
   const creds = new Credentials(api);

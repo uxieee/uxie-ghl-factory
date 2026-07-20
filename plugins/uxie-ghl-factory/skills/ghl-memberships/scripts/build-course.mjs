@@ -24,6 +24,7 @@ import { GhlMembershipsApi } from '../engine/api.mjs';
 import { Assessments } from '../engine/assessments.mjs';
 import { Credentials } from '../engine/credentials.mjs';
 import { Members } from '../engine/members.mjs';
+import { makeCliMembershipsGateway } from './cli-gateway.mjs';
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
@@ -119,7 +120,8 @@ async function main() {
   console.log(`Token OK (user ${claims.userId}, ${secondsRemaining}s left)`);
 
   const locationId = spec.locationId || process.env.GHL_LOC;
-  const api = new GhlMembershipsApi({ token, locationId, userId: claims.userId });
+  const gw = makeCliMembershipsGateway({ token, loc: locationId, uid: claims.userId });
+  const api = new GhlMembershipsApi({ gw });
   const assess = new Assessments(api);
   const creds = new Credentials(api);
   const members = new Members(api);
@@ -340,7 +342,8 @@ async function main() {
 async function doDelete(productId) {
   if (!productId) { console.error('--delete needs a productId'); process.exit(1); }
   const { token, claims } = loadToken();
-  const api = new GhlMembershipsApi({ token, locationId: process.env.GHL_LOC, userId: claims.userId });
+  const gw = makeCliMembershipsGateway({ token, loc: process.env.GHL_LOC, uid: claims.userId });
+  const api = new GhlMembershipsApi({ gw });
   await api.deleteProduct(productId);
   const left = await api.listProducts();
   const gone = !left.some(p => p.id === productId);
