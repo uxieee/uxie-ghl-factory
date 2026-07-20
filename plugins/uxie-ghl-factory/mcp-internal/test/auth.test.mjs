@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { writeFileSync, mkdtempSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { readCredentials, safeClaims, secondsRemaining } from '../core/auth.mjs';
+import { authStatus, readCredentials, safeClaims, secondsRemaining } from '../core/auth.mjs';
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwtWith = (claims) => `eyJhbGciOiJIUzI1NiJ9.${b64(claims)}.sig`;
@@ -50,6 +50,18 @@ test('safeClaims never exposes the raw token', () => {
   assert.ok(!JSON.stringify(s).includes(jwt));
   assert.equal(s.uid, 'u');
   assert.ok(secondsRemaining(jwt) > 3500);
+});
+
+test('auth status reports token-id claims only, never its value', () => {
+  const jwt = jwtWith({ authClassId: 'u', exp: future });
+  const tokenId = jwtWith({ iss: 'securetoken.google.com/highlevel-backend', role: 'admin', type: 'agency', exp: future });
+  const status = authStatus({ tokenFile: fixture(`Bearer ${jwt}\ntoken-id: ${tokenId}\n`) });
+  assert.equal(status.tokenId.present, true);
+  assert.equal(status.tokenId.issuer, 'securetoken.google.com/highlevel-backend');
+  assert.equal(status.tokenId.role, 'admin');
+  assert.equal(status.tokenId.scope, 'agency');
+  assert.equal(status.tokenId.exp, future);
+  assert.equal(JSON.stringify(status).includes(tokenId), false);
 });
 
 test('re-reads the file each call so mid-session recapture is picked up', () => {
