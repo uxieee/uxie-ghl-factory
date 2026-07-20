@@ -14,6 +14,7 @@
 // details-by-step), NOT contactIds. See SKILL.md for the write gates.
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { makeFF as makeEngineFF } from '../engine/ff.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 const IFRAME = 'https://client-app-automation-workflows.leadconnectorhq.com';
@@ -37,69 +38,26 @@ function headers(tok, write) {
   };
 }
 
-// A GHL client bound to one location + token. Pure-ish: all I/O funnels through fetch.
-export function makeFF({ loc, tok = readToken() }) {
+// The shipped CLI owns its thin fetch adapter. Reusable workflow behavior lives in engine/ff.mjs.
+function makeCliGateway({ loc, tok = readToken() }) {
   const uid = uidFrom(tok);
   const call = async (method, path, body) => {
     const r = await fetch(BASE + path, {
       method, headers: headers(tok, method !== 'GET'), body: body ? JSON.stringify(body) : undefined,
     });
     const text = await r.text();
-    if (!r.ok) throw new Error(`${method} ${path} → ${r.status} ${text.slice(0, 200)}`);
-    try { return JSON.parse(text); } catch { return text; }
+    let json; try { json = JSON.parse(text); } catch { json = text; }
+    return { status: r.status, ok: r.ok, json };
   };
+  return { call, loc, uid };
+}
 
-  // Where is everyone right now? → [{ total, currentStepId }]
-  const countPerStep = (wid) =>
-    call('GET', `/workflows/status/search/count-per-step?workflowId=${wid}&locationId=${loc}`);
-
-  // Who is parked at one step? → { totalCount, rows:[{ _id (=statusId), contactId, currentStepId, executeOn }] }
-  const parkedAt = (wid, stepId, { skip = 0, limit = 50 } = {}) =>
-    call('GET', `/workflows/status/search/details-by-step?workflowId=${wid}&locationId=${loc}`
-      + `&skip=${skip}&limit=${limit}&currentStepId=${stepId}&showTotalCount=true`);
-
-  // Page through EVERY parked enrollment at a step (details-by-step caps the page size).
-  const allParked = async (wid, stepId, { pageSize = 50 } = {}) => {
-    const rows = [];
-    for (let skip = 0; ; skip += pageSize) {
-      const d = await parkedAt(wid, stepId, { skip, limit: pageSize });
-      const batch = d.rows || [];
-      rows.push(...batch);
-      const total = d.totalCount ?? rows.length;
-      if (batch.length < pageSize || rows.length >= total) break;
-    }
-    return rows;
-  };
-
-  // THE move. statusIds are the `_id`s from parkedAt — NOT contactIds.
-  const moveToNextStep = (wid, stepId, statusIds) =>
-    call('POST', `/workflow/${loc}/${wid}/requeue-stuck-statuses/${stepId}`, {
-      actionFrom: { userId: uid, channel: 'web_app', source: 'action_stats_page' },
-      statusIds,
-    });
-
-  // Resolve the status ULIDs to move for a step, then move them. `select` is one of:
-  //   { contactId }        → move the parked enrollment(s) for that one contact
-  //   { statusIds: [...] } → move exactly these workflow-status ULIDs
-  //   { all: true }        → move EVERY parked contact at the step (paginated)
-  async function move(wid, stepId, select) {
-    let ids;
-    if (select.statusIds) {
-      ids = select.statusIds;
-    } else if (select.contactId) {
-      const rows = await allParked(wid, stepId);
-      ids = rows.filter((r) => r.contactId === select.contactId).map((r) => r._id);
-    } else if (select.all) {
-      ids = (await allParked(wid, stepId)).map((r) => r._id);
-    } else {
-      throw new Error('move needs one of: { contactId }, { statusIds }, { all:true }');
-    }
-    if (!ids.length) return { moved: 0, note: 'nobody parked matched at that step', statusIds: [] };
-    const res = await moveToNextStep(wid, stepId, ids);
-    return { moved: ids.length, statusIds: ids, res };
-  }
-
-  return { loc, uid, countPerStep, parkedAt, allParked, moveToNextStep, move };
+// Compatibility boundary: this shipped module historically exported
+// makeFF({ loc, tok }). Keep that import API while also accepting the extracted
+// gateway shape for callers that adopted it during the refactor.
+export function makeFF(options = {}) {
+  if (options.gw) return makeEngineFF({ gw: options.gw });
+  return makeEngineFF({ gw: makeCliGateway(options) });
 }
 
 // ---- CLI ----------------------------------------------------------------------------
@@ -112,7 +70,7 @@ async function main(argv) {
     console.error('usage: ff.mjs <LOC> <WID> peek [stepId] | move <stepId> (--contact <cid> | --status <id,id> | --all --confirm)');
     process.exit(2);
   }
-  const ff = makeFF({ loc });
+  const ff = makeFF({ gw: makeCliGateway({ loc }) });
 
   if (cmd === 'peek') {
     const out = stepId ? await ff.allParked(wid, stepId) : await ff.countPerStep(wid);
