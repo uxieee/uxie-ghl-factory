@@ -221,16 +221,47 @@ function asUserArray(v) {
   if (v == null || v === '') return [];
   return Array.isArray(v) ? v : [v];
 }
+// Every key this handler is capable of emitting, per channel. Anything an author writes
+// that is NOT here gets dropped by the allowlist — so we warn instead of vanishing it.
+// This is the class fix for the `to` bug: the allowlist design is right (the editor binds
+// to an exact field set), but a silent drop is how a "clean build" ships a dead step.
+const NOTIFICATION_EMITTED_KEYS = {
+  email: ['from_name', 'from_email', 'to', 'userType', 'subject', 'html', 'attachments', 'selectedUser'],
+  sms: ['body', 'userType', 'attachments', 'selectedUser'],
+  notification: ['notificationType', 'body', 'title', 'redirectPage', 'userType', 'selectedUser'],
+  whatsapp: ['body', 'userType', 'selectedUser'],
+};
+
 function internalNotificationAttributes(a, ctx) {
   const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null)
     ?? NOTIFICATION_CHANNELS.find((c) => c in a) ?? 'email';
   const b = a[channel] ?? {};
+  const dropped = Object.keys(b).filter((k) => !NOTIFICATION_EMITTED_KEYS[channel].includes(k));
+  if (dropped.length) {
+    ctx?.warn?.(`NOTIFICATION_KEY_DROPPED: internal_notification (${channel}) — authored key(s) `
+      + `[${dropped.join(', ')}] are not emitted by this channel's shape and were discarded. `
+      + `Emitted keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(', ')}. If one of these IS real, `
+      + 'harvest a live example and extend the handler rather than assuming it shipped.');
+  }
   const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== '' ? 'user' : 'all');
   const wantsUsers = userType === 'user';
   if (channel === 'email') {
+    // `to` carries the recipient for the custom_email userType — LIVE-CAUGHT 2026-07-21
+    // (GROM AU): it was absent from this allowlist, so an authored `to` was silently
+    // dropped and the builder's "To Custom Email" field came up EMPTY (the notification
+    // would reach nobody). The 2026-07-15 corpus that seeded this handler happened to
+    // contain no custom_email example; a UI-built step in the same account carries
+    // `to: "{{inboundWebhookRequest.email}}"` alongside `userType: "custom_email"`.
+    const wantsTo = userType === 'custom_email' || b.to != null;
+    if (userType === 'custom_email' && (b.to == null || b.to === '')) {
+      throw new IRError('MISSING_FIELD',
+        "internal_notification with userType 'custom_email' requires attributes.email.to — "
+        + 'without it the builder shows an empty "To Custom Email" and the notification reaches nobody.');
+    }
     return { type: 'email', email: {
       from_name: b.from_name ?? ctx?.senderDefault?.from_name ?? '{{location.name}}',
       from_email: b.from_email ?? ctx?.senderDefault?.from_email ?? '{{location.email}}',
+      ...(wantsTo ? { to: b.to } : {}),
       userType,
       subject: b.subject ?? '',
       html: b.html ?? '',

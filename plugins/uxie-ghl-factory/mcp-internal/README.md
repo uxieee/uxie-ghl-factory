@@ -129,20 +129,27 @@ added to `engine/silent-failure.test.mjs`. Verified live: the bad type is now re
 (`ENGINE_ABORT` / `STEP_TYPE_UNKNOWN: 'send_internal_notification' — did you mean
 'internal_notification'?`), and the correct type builds, renders and opens.
 
-### Open defect found by this run — authored `email.to` is silently dropped
+### Second defect found and fixed — authored `email.to` was silently dropped
 
-Authoring `internal_notification` with `attributes.email.to = "test@example.com"`
-persisted as:
+Authoring `internal_notification` with `userType: "custom_email"` and
+`attributes.email.to` persisted with **no `to` key and no warning** — the builder's
+"To Custom Email" field came up empty, so the notification would have reached nobody.
+The UI-built control step in the same account carries `to`.
 
-```json
-{"type":"email","email":{"from_name":"{{location.name}}","from_email":"{{location.email}}",
- "userType":"custom_email","subject":"canary","html":"","attachments":[]}}
-```
+Root cause: `internalNotificationAttributes()` emits an explicit per-channel allowlist
+(correct — the editor binds to an exact field set), but `to` was missing from it. The
+2026-07-15 corpus that seeded the handler contained no `custom_email` example.
 
-No `to` key at all, and no warning. The builder's "To Custom Email" field was empty. The
-UI-built control step **does** carry `to`, so this is a legitimate key the engine
-discards — the same silent-drop class as the bug above. **Not fixed** (it needs a focused
-pass over the `internal_notification` attribute mapping against
-`references/step-shapes.md`); recorded here so it is not rediscovered as a mystery.
+Fix, in two parts:
+1. `to` is emitted when authored, and `userType: "custom_email"` **without** a `to` now
+   throws `MISSING_FIELD` rather than building a notification that reaches nobody.
+2. **Class fix:** any authored channel key the handler does not emit now raises
+   `NOTIFICATION_KEY_DROPPED` through `ctx.warn` instead of vanishing — so the next
+   unlisted key surfaces loudly instead of repeating this bug.
+
+Four regression tests added. Live-verified on GROM AU 2026-07-21: `custom_email` with no
+`to` is refused; with `to` it persists (`"to":"ops@example.com"`) and the builder's
+**"To Custom Email" field renders the address** (screenshot-confirmed) — the same field
+that was empty before the fix.
 
 Everything above was read off actual tool output and real screenshots. Nothing is expected-value.

@@ -250,3 +250,34 @@ test('allowUnknownStepTypes is an explicit, deliberate override', () => {
     { ...ctx(), allowUnknownStepTypes: true });
   assert.equal(built.autoSaveBody.workflowData.templates[0].type, 'not_a_real_type');
 });
+
+// ─── Item N+1: internal_notification silently dropped an authored `to` ────────────────
+// LIVE-CAUGHT 2026-07-21 (GROM AU). Authoring userType:'custom_email' with
+// email.to persisted WITHOUT a `to` key and with no warning; the builder's
+// "To Custom Email" field came up empty, so the notification would reach nobody.
+// A UI-built step in the same account carries `to` alongside userType custom_email.
+test('internal_notification emits an authored email.to', () => {
+  const t = templatesOf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'email', email: { userType: 'custom_email', to: 'ops@example.com', subject: 's' } } }]);
+  assert.equal(t[0].attributes.email.to, 'ops@example.com');
+});
+
+test("userType 'custom_email' without a `to` fails loudly, never builds a dead notification", () => {
+  throws([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'email', email: { userType: 'custom_email', subject: 's' } } }], 'MISSING_FIELD');
+});
+
+test('a non-custom_email notification still omits `to`', () => {
+  const t = templatesOf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'email', email: { userType: 'all', subject: 's' } } }]);
+  assert.equal('to' in t[0].attributes.email, false);
+});
+
+test('an unemitted notification key warns instead of vanishing silently', () => {
+  const warnings = [];
+  const c = { ...ctx(), warn: (m) => warnings.push(m) };
+  compile(wf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'sms', sms: { body: 'b', userType: 'all', bogusKey: 'x' } } }]), c);
+  assert.ok(warnings.some((w) => /NOTIFICATION_KEY_DROPPED/.test(w) && /bogusKey/.test(w)),
+    `expected a drop warning, got: ${JSON.stringify(warnings)}`);
+});
