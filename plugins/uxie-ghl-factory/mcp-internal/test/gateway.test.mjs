@@ -69,3 +69,53 @@ test('uid comes from the JWT claim', async () => {
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', fetchImpl: stubFetch([]), sleepImpl: async () => {} });
   assert.equal(gw.uid, 'u-1');
 });
+
+test('per-call headers merge sourceid and override member-rail defaults without dropping auth', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'LOC1', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  await gw.call('GET', '/communities/LOC1/groups', undefined, {
+    base: 'https://services.leadconnectorhq.com',
+    headers: {
+      sourceid: 'LOC1',
+      source: 'PORTAL_USER',
+      version: '2023-02-21',
+      authorization: undefined,
+    },
+  });
+  assert.equal(calls[0].url, 'https://services.leadconnectorhq.com/communities/LOC1/groups');
+  assert.equal(calls[0].init.headers.sourceid, 'LOC1');
+  assert.equal(calls[0].init.headers.source, 'PORTAL_USER');
+  assert.equal(calls[0].init.headers.version, '2023-02-21');
+  assert.equal(calls[0].init.headers.authorization, `Bearer ${jwt}`);
+});
+
+test('auth remains pinned across case-variant header overrides', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'LOC1', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  await gw.call('GET', '/products', undefined, {
+    headers: { Authorization: 'Bearer caller-controlled' },
+  });
+  assert.deepEqual(
+    Object.entries(calls[0].init.headers).filter(([key]) => key.toLowerCase() === 'authorization'),
+    [['authorization', `Bearer ${jwt}`]],
+  );
+});
+
+test('overridden calls still throttle and positional base remains compatible', async () => {
+  const calls = [];
+  const delays = [];
+  const gw = makeGateway({
+    tokenFile: fixture(),
+    loc: 'LOC1',
+    fetchImpl: stubFetch(calls),
+    sleepImpl: async (ms) => delays.push(ms),
+    randomImpl: () => 0,
+  });
+  await gw.call('GET', '/membership/locations/LOC1/products', undefined, {
+    base: 'https://backend.leadconnectorhq.com',
+    headers: { sourceid: 'LOC1' },
+  });
+  await gw.call('GET', '/workflow/LOC1/list', undefined, 'https://example.test');
+  assert.deepEqual(delays, [300, 300]);
+  assert.equal(calls[1].url, 'https://example.test/workflow/LOC1/list');
+});

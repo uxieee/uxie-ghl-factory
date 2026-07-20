@@ -14,23 +14,35 @@ const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random }) {
   const creds = readCredentials({ tokenFile });   // throws AuthError; tools map it
 
-  const headers = (isWrite) => {
+  const headers = (isWrite, overrides = {}) => {
     const h = { channel: 'APP', source: 'WEB_USER', version: '2021-07-28', accept: 'application/json, text/plain, */*' };
+    if (isWrite) { h['content-type'] = 'application/json'; h.origin = IFRAME; h.referer = `${IFRAME}/`; }
+    for (const [rawName, value] of Object.entries(overrides ?? {})) {
+      if (value === undefined || value === null) continue;
+      const name = rawName.toLowerCase();
+      if (name === 'authorization' || name === 'token-id') continue;
+      h[name] = value;
+    }
+    // Authentication is injected after caller overrides so it cannot be removed,
+    // shadowed with different casing, or swapped onto the other credential rail.
     if (rail === 'token-id') {
       if (!creds.tokenId) { const e = new Error('no token-id in capture file'); e.code = 'TOKEN_MISSING'; throw e; }
       h['token-id'] = creds.tokenId;
     } else {
       h.authorization = `Bearer ${creds.jwt}`;
     }
-    if (isWrite) { h['content-type'] = 'application/json'; h.origin = IFRAME; h.referer = `${IFRAME}/`; }
     return h;
   };
 
-  const call = async (method, path, body, base = BASE) => {
+  const call = async (method, path, body, baseOrOptions = BASE) => {
+    const options = typeof baseOrOptions === 'string'
+      ? { base: baseOrOptions }
+      : (baseOrOptions ?? {});
+    const base = options.base ?? BASE;
     await sleepImpl(THROTTLE_MS + Math.floor(randomImpl() * JITTER_MS));
     const res = await fetchImpl(base + path, {
       method,
-      headers: headers(method !== 'GET'),
+      headers: headers(method !== 'GET', options.headers),
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const text = await res.text();
