@@ -62,7 +62,8 @@ test('export_workflow bundles body, triggers and sticky notes', async () => {
   const gw = gwStub({
     '/workflow/L/w1?': { _id: 'w1', name: 'WF', workflowData: { templates: [] } },
     '/workflow/L/trigger': { triggers: [{ id: 't1' }] },
-    'sticky-notes-all': { notes: [{ id: 'n1' }] },
+    // live envelope (GROM AU 2026-07-20): { data, count, traceId } — not { notes }
+    'sticky-notes-all': { data: [{ id: 'n1' }], count: 1, traceId: 't' },
   });
   const result = await tool('export_workflow').handler(
     { locationId: 'L', workflowId: 'w1' },
@@ -80,7 +81,7 @@ test('export_workflow reports a supplemental-request failure instead of claiming
   const gw = gwStub({
     '/workflow/L/w1?': { _id: 'w1', name: 'WF' },
     '/workflow/L/trigger': { status: 503, ok: false, json: { message: 'trigger service unavailable' } },
-    'sticky-notes-all': { notes: [] },
+    'sticky-notes-all': { data: [], count: 0, traceId: 't' },
   });
   const result = await tool('export_workflow').handler(
     { locationId: 'L', workflowId: 'w1' },
