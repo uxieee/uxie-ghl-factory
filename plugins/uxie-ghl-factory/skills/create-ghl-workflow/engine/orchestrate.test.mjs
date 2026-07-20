@@ -29,6 +29,18 @@ function mockGateway({ tags = [], pipelines = [], calendars = [], users = [], fo
 const tagIR = () => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [{ field: 'tagsAdded', value: 'new-tag' }] }],
   graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['new-tag'] } }] });
 
+const inlineTemplateIR = () => ({
+  name: 'Template workflow',
+  triggers: [],
+  graph: [{
+    ref: 'email', kind: 'action', type: 'email', name: 'Email',
+    attributes: {
+      subject: 'Hello',
+      _template: { title: 'Shared email', html: '<p>Hello</p>', previewText: 'Hello' },
+    },
+  }],
+});
+
 test('orchestrate pre-creates missing tags BEFORE building (the friend bug)', async () => {
   const { gw, calls } = mockGateway({ tags: [] }); // account has no tags yet
   const report = await orchestrate(tagIR(), gw);
@@ -45,6 +57,62 @@ test('orchestrate does NOT recreate an existing tag', async () => {
   const { gw } = mockGateway({ tags: ['new-tag'] }); // already exists
   const report = await orchestrate(tagIR(), gw);
   assert.deepEqual(report.createdTags, []);
+});
+
+test('orchestrate fails closed on every known non-2xx dependency HTTP phase before workflow creation', async () => {
+  const credentialLookingBodyValue = 'eyJhbGciOiJIUzI1NiJ9.dependency-error-credential-fixture.signature';
+  const scenarios = [
+    {
+      phase: 'email_template_create', status: 422, spec: inlineTemplateIR(),
+      match: (method, path) => method === 'POST' && path === '/emails/builder',
+    },
+    {
+      phase: 'email_template_data_create', status: 503, spec: inlineTemplateIR(),
+      match: (method, path) => method === 'POST' && path === '/emails/builder/data',
+    },
+    {
+      phase: 'tag_list', status: 403, spec: tagIR(),
+      match: (method, path) => method === 'GET' && path === '/locations/LOC/tags',
+    },
+    {
+      phase: 'tag_create', status: 500, spec: tagIR(),
+      match: (method, path) => method === 'POST' && path === '/locations/LOC/tags',
+    },
+  ];
+
+  for (const scenario of scenarios) {
+    const { gw, calls } = mockGateway({ tags: [] });
+    const inner = gw.call;
+    gw.call = async (method, path, body) => {
+      if (scenario.phase === 'email_template_data_create'
+        && method === 'POST' && path === '/emails/builder') {
+        calls.push({ method, path, body });
+        return { status: 201, ok: true, json: { id: 'TEMPLATE_1' } };
+      }
+      if (scenario.match(method, path)) {
+        calls.push({ method, path, body });
+        return {
+          status: scenario.status,
+          ok: false,
+          json: { message: `${scenario.phase} rejected`, authorization: credentialLookingBodyValue },
+        };
+      }
+      return inner(method, path, body);
+    };
+
+    const report = await orchestrate(structuredClone(scenario.spec), gw);
+    assert.equal(report.failurePhase, scenario.phase, scenario.phase);
+    assert.match(report.aborted, /non-2xx|upstream/i, scenario.phase);
+    assert.equal(report.failureHttp.status, scenario.status, scenario.phase);
+    assert.equal(report.failureHttp.body.authorization, '<redacted>', scenario.phase);
+    assert.equal(JSON.stringify(report).includes(credentialLookingBodyValue), false, scenario.phase);
+    assert.equal(calls.some(({ method, path }) => (
+      method === 'POST' && path === '/workflow/LOC'
+    )), false, `${scenario.phase} must abort before workflow creation`);
+    if (scenario.phase === 'email_template_data_create') {
+      assert.deepEqual(report.createdTemplates, [{ title: 'Shared email', id: 'TEMPLATE_1' }]);
+    }
+  }
 });
 
 test('orchestrate ABORTS on a missing account dependency (unknown pipeline)', async () => {

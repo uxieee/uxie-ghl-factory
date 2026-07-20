@@ -26,6 +26,27 @@ import { danglingParentKeys } from './edit.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
+const UPSTREAM_SECRET_KEY = /(?:authorization|token|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|password|credentials?|cookies?|session)/i;
+const UPSTREAM_TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
+const UPSTREAM_BEARER = /\bBearer\s+[A-Za-z0-9._-]{8,}/gi;
+const UPSTREAM_LABELED_SECRET = /\b((?:authorization|token|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|password|credentials?|cookies?|session))\s*([:=])\s*(?:Bearer\s+)?([^\s,;&#/]+)/gi;
+function scrubUpstream(value, key = '') {
+  if (UPSTREAM_SECRET_KEY.test(String(key))) return '<redacted>';
+  if (typeof value === 'string') {
+    return value
+      .replace(UPSTREAM_TOKENISH, '<redacted>')
+      .replace(UPSTREAM_LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`)
+      .replace(UPSTREAM_BEARER, 'Bearer <redacted>');
+  }
+  if (Array.isArray(value)) return value.map((item) => scrubUpstream(item));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([childKey, item]) => (
+      [childKey, scrubUpstream(item, childKey)]
+    )));
+  }
+  return value;
+}
+
 // Fetch the account entities the resolver needs. Each is best-effort — a missing
 // endpoint degrades that resolver to "unresolvable", never throws.
 export async function fetchEntities(gw) {
@@ -90,7 +111,31 @@ export async function orchestrate(ir, gw, opts = {}) {
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
     authored: 0, compiled: 0, steps: 0, warnings: [],
-    triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false, aborted: null };
+    triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false,
+    aborted: null, failurePhase: null, failureHttp: null };
+  const callAt = async (failurePhase, method, path, body) => {
+    try {
+      return await call(method, path, body);
+    } catch (error) {
+      report.failurePhase = failurePhase;
+      report.aborted = `Gateway transport failed during ${failurePhase}: ${error?.message ?? String(error)}`;
+      return null;
+    }
+  };
+  const dependencyCallAt = async (failurePhase, method, path, body) => {
+    const response = await callAt(failurePhase, method, path, body);
+    if (!response) return null;
+    if (!response.ok) {
+      report.failurePhase = failurePhase;
+      report.failureHttp = {
+        status: response.status ?? null,
+        body: scrubUpstream(response.json ?? null),
+      };
+      report.aborted = `Upstream non-2xx during ${failurePhase}: HTTP ${response.status ?? 'unknown'}`;
+      return null;
+    }
+    return response;
+  };
 
   // 1. resolve names → ids
   const entities = await fetchEntities(gw);
@@ -102,6 +147,7 @@ export async function orchestrate(ir, gw, opts = {}) {
 
   // 2. ABORT on missing account-level deps (don't build something broken)
   if (unresolved.length && !opts.ignoreUnresolved) {
+    report.failurePhase = 'dependency_resolution';
     report.aborted = `Missing account dependencies: ${unresolved.map((u) => `${u.name} (${u.where})`).join('; ')}. `
       + `Create/rename these in the sub-account first, or pass ignoreUnresolved to build anyway.`;
     return report;
@@ -110,12 +156,14 @@ export async function orchestrate(ir, gw, opts = {}) {
   // 3a. pre-create inline email templates
   for (const n of collectEmailTemplates(ir)) {
     const spec = n.attributes._template;
-    const c = await call('POST', '/emails/builder', { locationId: loc, type: 'html', title: spec.title, name: spec.title, updatedBy: uid, isPlainText: false });
+    const c = await dependencyCallAt('email_template_create', 'POST', '/emails/builder', { locationId: loc, type: 'html', title: spec.title, name: spec.title, updatedBy: uid, isPlainText: false });
+    if (!c) return report;
     const tid = c.json?.id || c.json?._id;
     if (tid) {
-      await call('POST', '/emails/builder/data', { locationId: loc, templateId: tid, updatedBy: uid, html: spec.html, editorType: 'html', previewText: spec.previewText || '', isPlainText: false });
-      n.attributes.template_id = tid; n.attributes.templatesource = 'email-builder';
       report.createdTemplates.push({ title: spec.title, id: tid });
+      const data = await dependencyCallAt('email_template_data_create', 'POST', '/emails/builder/data', { locationId: loc, templateId: tid, updatedBy: uid, html: spec.html, editorType: 'html', previewText: spec.previewText || '', isPlainText: false });
+      if (!data) return report;
+      n.attributes.template_id = tid; n.attributes.templatesource = 'email-builder';
     }
     delete n.attributes._template;
   }
@@ -123,12 +171,14 @@ export async function orchestrate(ir, gw, opts = {}) {
   // 3b. pre-create tags referenced anywhere in the IR (THE fix for the missing-tags bug)
   const required = collectRequiredTags(ir);
   if (required.length) {
-    const tl = await call('GET', `/locations/${loc}/tags`);
+    const tl = await dependencyCallAt('tag_list', 'GET', `/locations/${loc}/tags`);
+    if (!tl) return report;
     const tagList = Array.isArray(tl.json) ? tl.json : (tl.json?.tags ?? []);
     const existing = tagList.map((t) => t.name);
     for (const name of missingTags(required, existing)) {
-      const r = await call('POST', `/locations/${loc}/tags`, { name });
-      if (r.ok) report.createdTags.push(name);
+      const r = await dependencyCallAt('tag_create', 'POST', `/locations/${loc}/tags`, { name });
+      if (!r) return report;
+      report.createdTags.push(name);
     }
   }
 
@@ -143,20 +193,26 @@ export async function orchestrate(ir, gw, opts = {}) {
       // parseIR passes through). Without either, email steps fall back to {{location.*}}.
       senderDefault: opts.senderDefault ?? ir.senderDefault });
   } catch (e) {
-    if (e?.name === 'IRError') { report.aborted = `compile rejected (${e.code}): ${e.message}`; return report; }
+    if (e?.name === 'IRError') {
+      report.failurePhase = 'compile';
+      report.aborted = `compile rejected (${e.code}): ${e.message}`;
+      return report;
+    }
     throw e;
   }
   report.authored = built.authored;
   report.compiled = built.compiled;
   const ph = built._wid;
-  const c = await call('POST', `/workflow/${loc}`, built.createBody);
+  const c = await callAt('workflow_create', 'POST', `/workflow/${loc}`, built.createBody);
+  if (!c) return report;
   const WID = c.json?.id || c.json?._id;
-  if (!WID) { report.aborted = `create failed: ${c.status}`; return report; }
+  if (!WID) { report.failurePhase = 'workflow_create'; report.aborted = `create failed: ${c.status}`; return report; }
   report.wid = WID;
   const swap = (o) => JSON.parse(JSON.stringify(o).split(ph).join(WID));
   const sent = swap(built.autoSaveBody);
-  const s = await call('PUT', `/workflow/${loc}/${WID}/auto-save`, sent);
-  if (!s.ok) { report.aborted = `auto-save failed: ${s.status}`; return report; }
+  const s = await callAt('workflow_auto_save', 'PUT', `/workflow/${loc}/${WID}/auto-save`, sent);
+  if (!s) return report;
+  if (!s.ok) { report.failurePhase = 'workflow_auto_save'; report.aborted = `auto-save failed: ${s.status}`; return report; }
   // Trigger POSTs right after auto-save intermittently 400 {"message":"Workflow
   // not found"} — the workflow doc hasn't settled server-side yet (observed live
   // 2026-07-13). Retry with backoff, and RECORD failures instead of dropping them.
@@ -165,7 +221,8 @@ export async function orchestrate(ir, gw, opts = {}) {
     let r;
     for (const delay of backoff) {
       if (delay) await new Promise((res) => setTimeout(res, delay));
-      r = await call('POST', `/workflow/${loc}/trigger`, tb);
+      r = await callAt('trigger_create', 'POST', `/workflow/${loc}/trigger`, tb);
+      if (!r) return report;
       if (r.ok) break;
     }
     if (r?.ok) report.triggers.posted++;
@@ -174,7 +231,8 @@ export async function orchestrate(ir, gw, opts = {}) {
   }
 
   // 5. round-trip verify
-  const back = await call('GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
+  const back = await callAt('workflow_verify_get', 'GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
+  if (!back) return report;
   const got = back.json?.workflowData?.templates || [];
   const sentById = new Map(sent.workflowData.templates.map((x) => [x.id, x]));
   report.steps = got.length;
@@ -207,16 +265,23 @@ export async function orchestrate(ir, gw, opts = {}) {
   if (opts.publish) {
     // NB: the bare GET /workflow/{loc}/{wid} 404s ("Not Found") — the workflow GET
     // REQUIRES the ?includeScheduledPauseInfo=true query param.
-    const fresh = (await call('GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`)).json;
-    const tr = (await call('GET', `/workflow/${loc}/trigger?workflowId=${WID}`)).json;
+    const freshResponse = await callAt('publish_workflow_get', 'GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
+    if (!freshResponse) return report;
+    const fresh = freshResponse.json;
+    const triggerResponse = await callAt('publish_trigger_get', 'GET', `/workflow/${loc}/trigger?workflowId=${WID}`);
+    if (!triggerResponse) return report;
+    const tr = triggerResponse.json;
     const triggers = (Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || [])).map((t) => ({ ...t, active: true }));
     // Send the CURRENT version (optimistic-concurrency check) — NOT version+1, which
     // 422s "version is outdated". The server bumps it internally on publish.
     const body = { ...fresh, status: 'published', version: fresh.version,
       triggersChanged: false, oldTriggers: triggers, newTriggers: triggers,
       modifiedSteps: [], deletedSteps: [], createdSteps: [] };
-    const pub = await call('PUT', `/workflow/${loc}/${WID}`, body);
-    const check = (await call('GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`)).json;
+    const pub = await callAt('publish_put', 'PUT', `/workflow/${loc}/${WID}`, body);
+    if (!pub) return report;
+    const checkResponse = await callAt('publish_verify_get', 'GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
+    if (!checkResponse) return report;
+    const check = checkResponse.json;
     report.published = pub.ok && (check?.status === 'published');
     if (!report.published) report.verify.issues.push({ publish: pub.status, status: check?.status, body: JSON.stringify(pub.json).slice(0, 160) });
   }

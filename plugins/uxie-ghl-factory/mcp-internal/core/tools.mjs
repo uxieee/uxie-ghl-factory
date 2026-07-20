@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
-import { fetchEntities } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
+import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 
 const DOCS_CATALOG = '/Volumes/Xander SSD/Vibe Code/Misc/ghl-workflow-api-docs/catalog/tool-descriptions.json';
 let CATALOG = {};
@@ -43,6 +43,24 @@ function validateRegisteredArgs(tool, args) {
     );
   }
   return null;
+}
+
+function buildWorkflowData(report, locationId) {
+  const counts = [report.authored, report.compiled, report.steps];
+  const mismatch = new Set(counts).size !== 1;
+  return ok({
+    ...report,
+    countIntegrity: {
+      mismatch,
+      warning: mismatch
+        ? `LOUD STEP-COUNT MISMATCH: authored=${report.authored}, compiled=${report.compiled}, persisted steps=${report.steps}. The draft may be incomplete.`
+        : 'authored, compiled, and persisted step counts match.',
+    },
+    builderUrl: report.wid
+      ? `https://app.gohighlevel.com/v2/location/${encodeURIComponent(locationId)}/automation/workflow/${encodeURIComponent(report.wid)}`
+      : null,
+    publicationNote: 'Draft-only operation: nothing was published.',
+  }).data;
 }
 
 // Run a handler body, mapping AuthError/engine throws onto the error contract.
@@ -253,6 +271,67 @@ export const TOOLS = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       return ok(await fetchEntities(gw));
+    }, args),
+  },
+  {
+    name: 'build_workflow',
+    description: 'Build and verify a new workflow draft through the canonical dependency-aware orchestrator (proof: engine source). This tool never publishes.',
+    inputSchema: schema({
+      locationId: z.string(),
+      spec: z.object({}).passthrough(),
+      ignoreUnresolved: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/opportunities/pipelines' },
+      { method: 'GET', path: '/calendars/' },
+      { method: 'GET', path: '/users/' },
+      { method: 'GET', path: '/forms/' },
+      { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'GET', path: '/voice-ai/agents' },
+      { method: 'GET', path: '/ai-employees/agents' },
+      { method: 'POST', path: '/emails/builder' },
+      { method: 'POST', path: '/emails/builder/data' },
+      { method: 'GET', path: '/locations/{loc}/tags' },
+      { method: 'POST', path: '/locations/{loc}/tags' },
+      { method: 'POST', path: '/workflow/{loc}' },
+      { method: 'PUT', path: '/workflow/{loc}/{wid}/auto-save' },
+      { method: 'POST', path: '/workflow/{loc}/trigger' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const report = await orchestrate(args.spec, gw, {
+        ignoreUnresolved: args.ignoreUnresolved ?? false,
+      });
+      const data = buildWorkflowData(report, args.locationId);
+      if (!report.aborted) return ok(data);
+
+      const unresolved = report.unresolved ?? [];
+      const dependencyAbort = report.aborted.startsWith('Missing account dependencies:');
+      const httpFailure = Number.isInteger(report.failureHttp?.status)
+        ? fromHttp(report.failureHttp.status, report.failureHttp.body)
+        : null;
+      const code = httpFailure?.code
+        ?? (dependencyAbort ? CODES.UNRESOLVED_DEPS : CODES.ENGINE_ABORT);
+      const observedResources = [
+        report.createdTags?.length ? `createdTags=${JSON.stringify(report.createdTags)}` : null,
+        report.createdTemplates?.length ? `createdTemplates=${JSON.stringify(report.createdTemplates)}` : null,
+        report.wid ? `workflowId=${report.wid}` : null,
+      ].filter(Boolean).join(', ');
+      const remediation = unresolved.length
+        ? 'Create or rename the unresolved account dependencies, or retry with ignoreUnresolved only if the draft may safely retain unresolved references.'
+        : observedResources
+          ? `Inspect the partial resources in data (${observedResources}) and the builder URL when present. Clean up any unintended draft resources before retrying.`
+          : 'Inspect data.failureHttp and the partial resource report, clean up any observed dependency resources, correct the upstream failure, then retry the draft build.';
+      return {
+        ...fail(
+          code,
+          httpFailure?.detail
+            ?? `Engine aborted: ${report.aborted}. Unresolved dependencies: ${JSON.stringify(unresolved)}`,
+          `${httpFailure?.remediation ?? ''} ${remediation}`.trim(),
+        ),
+        data,
+      };
     }, args),
   },
   {
