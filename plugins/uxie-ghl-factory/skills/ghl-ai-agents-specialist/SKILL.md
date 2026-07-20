@@ -76,7 +76,7 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 |---|---|
 | Conversation AI — create, read, delete, `humanHandOver` action | **Live-create-proven** (engine → internal API → real agent → verified → deleted) |
 | Knowledge Base — rich-text create | **Live-proven** |
-| Voice AI — agent create + full-replace update | **CREATE is live-proven (2026-07-21, GROM AU, via the MCP AI rail → real agent → deleted). The full-replace UPDATE is proven BROKEN: `PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` returns 422**, so the agent is created but keeps GHL's default name. `POST /voice-ai/agents` takes only `{locationId}` and returns an id. |
+| Voice AI — agent create + full-replace update | **FULLY LIVE-PROVEN end-to-end (2026-07-21, GROM AU): create → full-replace update → verified re-read, `agentName` persisted, agent deleted.** `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` then applies the config. Three bugs had to be fixed to get here — see `mcp-internal/README.md` §"Live proof ledger — AI agent tools". |
 | Agent Studio — Super Agent create (SSE build) + full-replace update | **CREATE is live-proven (2026-07-21, GROM AU → real agent → deleted); the step after it returns 400, so the agent is created unconfigured. SSE behavior remains unconfirmed** (the run never reached a terminal stream event). |
 
 ConvAI + KB rich-text are live-proven.

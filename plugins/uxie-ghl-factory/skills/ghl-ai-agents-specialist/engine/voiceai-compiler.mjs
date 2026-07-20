@@ -423,10 +423,28 @@ export function compileVoiceAiAgent(ir, { locationId } = {}) {
 // any field it omits is filled with the stable default from DEFAULTS above, which
 // will silently clobber a differing live value. Reconciling the IR with the
 // server's current document (via a prior GET) is the caller's responsibility.
+// Fields the API rejects as EMPTY STRINGS but accepts as ABSENT.
+// LIVE-CAUGHT 2026-07-21 (GROM AU): the full-replace PUT returned 422 with
+//   "Business name must be at least 1 characters long"
+//   "Welcome message must be at least 1 characters long" / "cannot be empty"
+//   "Timezone must be a valid timezone from the available timezones"
+// because DEFAULTS supplies '' for all three when the IR omits them — despite this
+// file's own note that instance data "is never defaulted here". Both fixes were tested
+// live: omitting the keys → 200, and supplying real values → 200. Omitting is chosen
+// because inventing a business name/timezone for someone's phone agent is worse than
+// leaving GHL's own default in place.
+//
+// This was THE reason Voice AI agent-create looked broken: create succeeded, this PUT
+// 422'd, and the agent was left on the account with GHL's default name ("My Agent NNN").
+const OMIT_WHEN_EMPTY = ['businessName', 'welcomeMessage', 'timezone'];
+
 export function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError('MISSING_FIELD', 'compileVoiceAiUpdate requires agentId');
   const norm = parseVoiceAiIR(fullIr);
   const body = buildUpdateBody(norm, { locationId });
+  for (const key of OMIT_WHEN_EMPTY) {
+    if (body[key] === '' || body[key] == null) delete body[key];
+  }
   return {
     method: 'PUT',
     path: `/voice-ai/agents/${agentId}?publishAgent=true&mode=update`,

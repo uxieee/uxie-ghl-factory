@@ -10,11 +10,19 @@ const kindFor = (create) => {
   return null;
 };
 
-const readPathFor = (kind, agentId) => ({
-  convai: `/ai-employees/employees/${agentId}`,
-  voiceai: `/voice-ai/agents/${agentId}`,
-  studio: `/agent-studio/super-agent/agents/${agentId}`,
-}[kind]);
+// The verification re-read MUST carry ?locationId= where the API requires it.
+// LIVE-CAUGHT 2026-07-21 (GROM AU): `GET /voice-ai/agents/{id}` without it returns 403
+// (with it: 200 — probed read-only against an existing agent). The driver reported that
+// 403 as the whole operation failing, when create had returned 201 and the update 200 —
+// i.e. a correct agent looked like a broken one because the CHECK was malformed.
+const readPathFor = (kind, agentId, locationId) => {
+  const loc = encodeURIComponent(locationId ?? '');
+  return {
+    convai: `/ai-employees/employees/${agentId}`,
+    voiceai: `/voice-ai/agents/${agentId}?locationId=${loc}`,
+    studio: `/agent-studio/super-agent/agents/${agentId}?locationId=${loc}`,
+  }[kind];
+};
 
 const responseId = (body) => body?.id ?? body?._id ?? body?.agentId ?? body?.data?.id ?? body?.data?._id ?? body?.data?.agentId ?? null;
 
@@ -32,6 +40,23 @@ const threadAgentId = (descriptor, agentId) => {
   if ('employeeId' in body) body.employeeId = agentId;
   if ('agentId' in body) body.agentId = agentId;
   return { ...descriptor, path: descriptor.path.replaceAll('{agentId}', agentId), body };
+};
+
+// Separates "the server disagrees with us" from "we cannot see this field here".
+// LIVE-CAUGHT 2026-07-21 (GROM AU): the Voice AI re-read returns voice/behavior settings
+// nested under `agentSettings`, not top-level, so a CORRECT agent reported 37 "mismatches"
+// — including fields the read never exposes flat. Reporting a false mismatch is worse than
+// reporting nothing: it tells the caller their agent is broken when it is fine. Fields the
+// read does not surface are now `unverified`, not `mismatched`.
+const partitionVerification = (actual, expected) => {
+  const mismatches = [];
+  const unverified = [];
+  for (const [key, value] of Object.entries(expected ?? {})) {
+    if (value === undefined) continue;
+    if (!actual || typeof actual !== 'object' || !(key in actual)) { unverified.push(key); continue; }
+    mismatches.push(...subsetMismatches(actual[key], value, key));
+  }
+  return { mismatches, unverified };
 };
 
 const subsetMismatches = (actual, expected, path = '') => {
@@ -103,13 +128,20 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   }
 
   let reread;
-  try { reread = await gw.call('GET', readPathFor(kind, report.agentId), undefined, { base: AI_BASE }); }
+  try { reread = await gw.call('GET', readPathFor(kind, report.agentId, gw.loc), undefined, { base: AI_BASE }); }
   catch (error) { return failure(error?.code ?? 'AGENT_VERIFY_FAILED', 'verify', report); }
   if (!reread.ok) return failure(`HTTP_${reread.status}`, 'verify', report, { verifyStatus: reread.status });
 
   const expected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
-  const mismatches = subsetMismatches(reread.json, expected);
-  report.verification = { path: readPathFor(kind, report.agentId), verified: mismatches.length === 0, mismatches };
+  const { mismatches, unverified } = partitionVerification(reread.json, expected);
+  report.verification = {
+    path: readPathFor(kind, report.agentId, gw.loc),
+    verified: mismatches.length === 0,
+    mismatches,
+    // Present in what we sent, absent from what the read exposes at this level — e.g. Voice
+    // AI nests voice/behavior settings under `agentSettings`. NOT evidence of a problem.
+    unverified,
+  };
   if (mismatches.length) return failure('AGENT_VERIFICATION_FAILED', 'verify', report);
   return { ok: true, ...report };
 }

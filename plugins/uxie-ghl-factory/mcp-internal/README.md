@@ -259,3 +259,33 @@ response body**. Object-shape guesses are exactly as unreliable in verification 
 engine code; assert against raw payloads when confirming cleanup.
 
 Everything above was read off actual tool output and raw API responses. Nothing is expected-value.
+
+### Follow-up (2026-07-21, same day): Voice AI now works end-to-end
+
+Chasing the three follow-up failures found above, `create_voiceai_agent` is now
+**fully live-proven**: create → full-replace update → verified re-read → `agentName`
+persisted → canary deleted. Final tool result: `ok: true`, `verified: true`, zero mismatches.
+
+Three separate bugs stood between "create works" and "the tool works", each found live:
+
+1. **422 on the full-replace PUT** — the compiler's `DEFAULTS` supplied `''` for
+   `businessName`, `welcomeMessage` and `timezone` (contradicting this file's own note that
+   instance data "is never defaulted here"). The API rejects those as empty
+   (*"must be at least 1 characters long"*, *"Timezone must be a valid timezone"*). Both
+   candidate fixes were tested live — omitting the keys → 200, supplying real values → 200.
+   **Omitting** was chosen: inventing a business name or timezone for someone's phone agent
+   is worse than leaving GHL's own default.
+
+2. **403 on the verification re-read** — the driver read `/voice-ai/agents/{id}` **without**
+   `?locationId=`. Probed read-only against an existing agent: with it → 200, without → 403.
+   So a correctly created and correctly named agent was reported as a failure *because the
+   check itself was malformed*.
+
+3. **37 false mismatches** — the re-read nests voice/behavior settings under `agentSettings`,
+   so a flat top-level comparison found none of them and called every one a mismatch.
+   Verification now distinguishes **`mismatches`** (the server disagrees) from
+   **`unverified`** (the field is not visible at this level). Reporting a false mismatch is
+   worse than reporting nothing: it tells the caller their working agent is broken.
+
+Remaining on this surface: Agent Studio's post-create step (400) and its unconfirmed SSE
+behavior, and ConvAI's post-create verification. `raw_request` still cannot reach the AI host.
