@@ -67,26 +67,25 @@ export class Communities {
   // ---------- member rail ----------
   /**
    * Build a member-scoped client. Requires a PORTAL token (authClass
-   * ClientPortalUser, ~24h TTL) obtained from a magic link — NOT the admin token.
+   * ClientPortalUser, ~24h TTL) in its injected gateway — NOT the admin gateway.
    */
-  asMember({ portalToken, groupId }) {
-    return new CommunitiesMember({ loc: this.loc, portalToken, groupId });
+  asMember({ gw, groupId }) {
+    return new CommunitiesMember({ gw, groupId });
   }
 }
 
 export class CommunitiesMember {
-  constructor({ loc, portalToken, groupId }) {
-    if (!portalToken) throw new Error('portalToken required (admin token will 401 here)');
-    this.loc = loc;
-    this.token = portalToken;
+  constructor({ gw, groupId }) {
+    if (!gw?.call) throw new Error('member gw.call required (use a PORTAL_USER token gateway)');
+    if (!gw.loc) throw new Error('member gw.loc required');
+    this.gw = gw;
+    this.loc = gw.loc;
     this.groupId = groupId;
   }
 
   /** The member header set. Using the ADMIN set here returns a misleading 401. */
   headers() {
     return {
-      authorization: `Bearer ${this.token}`,
-      channel: 'APP',
       source: 'PORTAL_USER',        // NOT WEB_USER
       version: '2023-02-21',        // NOT 2021-07-28
       'x-location-id': this.loc,
@@ -99,12 +98,18 @@ export class CommunitiesMember {
   }
 
   async req(method, url, body) {
-    const opts = { method, headers: this.headers() };
-    if (body !== undefined) opts.body = JSON.stringify(body);
-    const res = await fetch(url, opts);
-    const text = await res.text();
-    if (!res.ok) throw new Error(`${res.status} on ${method} ${url}\n${text.slice(0, 300)}`);
-    try { return JSON.parse(text); } catch { return text; }
+    const endpoint = new URL(url);
+    const response = await this.gw.call(method, `${endpoint.pathname}${endpoint.search}`, body, {
+      base: endpoint.origin,
+      headers: this.headers(),
+    });
+    if (!response.ok) {
+      const detail = typeof response.json === 'string' ? response.json : JSON.stringify(response.json);
+      const error = new Error(`${response.status} on ${method} ${url}\n${detail.slice(0, 300)}`);
+      error.gatewayResponse = response;
+      throw error;
+    }
+    return response.json;
   }
 
   channels(groupId = this.groupId) {

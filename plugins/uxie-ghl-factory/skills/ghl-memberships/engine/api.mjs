@@ -12,44 +12,37 @@ const execFileP = promisify(execFile);
 const BACKEND = 'https://backend.leadconnectorhq.com';
 
 export class GhlMembershipsApi {
-  constructor({ token, locationId, userId, log = console.log }) {
-    if (!token) throw new Error('token required');
-    if (!locationId) throw new Error('locationId required');
-    this.token = token;
-    this.loc = locationId;
-    this.userId = userId;
+  constructor({ gw, log = console.log }) {
+    if (!gw?.call) throw new Error('gw.call required');
+    if (!gw.loc) throw new Error('gw.loc required');
+    this.gw = gw;
+    this.loc = gw.loc;
+    this.userId = gw.uid;
     this.log = log;
-    this.M = `${BACKEND}/membership/locations/${locationId}`;
-    this.C = `${BACKEND}/courses/locations/${locationId}`;
+    this.M = `${BACKEND}/membership/locations/${this.loc}`;
+    this.C = `${BACKEND}/courses/locations/${this.loc}`;
     this.D = `${BACKEND}/assets-drm`;
   }
 
-  headers(extra) {
-    return {
-      authorization: `Bearer ${this.token}`,
-      channel: 'APP',
-      source: 'WEB_USER',
-      sourceid: this.loc,          // required — omitted in the day-1 capture doc
-      version: '2021-07-28',
-      accept: 'application/json, text/plain, */*',
-      'content-type': 'application/json',
-      ...extra,
-    };
-  }
-
   async req(method, url, body, { raw = false } = {}) {
-    const opts = { method, headers: this.headers() };
-    if (body !== undefined) opts.body = JSON.stringify(body);
-    const res = await fetch(url, opts);
-    const text = await res.text();
-    if (res.status === 401) {
-      throw new Error(`401 Unauthorized on ${method} ${url} — token expired or wrong sub-account. Re-mint (see lib/auth.mjs).`);
+    const { base, path } = splitEndpoint(url);
+    const response = await this.gw.call(method, path, body, {
+      base,
+      headers: { sourceid: this.loc }, // required — omitted in the day-1 capture doc
+    });
+    if (response.status === 401) {
+      const error = new Error(`401 Unauthorized on ${method} ${url} — token expired or wrong sub-account. Re-mint (see engine/auth.mjs).`);
+      error.gatewayResponse = response;
+      throw error;
     }
-    if (!res.ok) {
-      throw new Error(`${res.status} on ${method} ${url}\n${text.slice(0, 400)}`);
+    if (!response.ok) {
+      const detail = typeof response.json === 'string' ? response.json : JSON.stringify(response.json);
+      const error = new Error(`${response.status} on ${method} ${url}\n${detail.slice(0, 400)}`);
+      error.gatewayResponse = response;
+      throw error;
     }
-    if (raw) return text;
-    try { return JSON.parse(text); } catch { return text; }
+    if (raw && typeof response.json !== 'string') return JSON.stringify(response.json);
+    return response.json;
   }
 
   // ---------- product (course) ----------
@@ -152,6 +145,7 @@ export class GhlMembershipsApi {
 
   // ---------- media: video (4-step DRM rail) ----------
   async uploadVideo({ filePath, postId, title }) {
+    this.assertLocalMediaGateway();
     const bytes = await readFile(filePath);
     const name = basename(filePath);
     const durationInSeconds = await probeDuration(filePath);
@@ -159,7 +153,7 @@ export class GhlMembershipsApi {
     const signed = await this.req('POST', `${this.D}/assets/signed-url/upload`,
       { source: 'courses', entityId: this.loc, type: 'videos', mimeType: 'video/mp4' });
 
-    await putBytes(signed.signedUrl, bytes, 'video/mp4');
+    await this.putBytes(signed.signedUrl, bytes, 'video/mp4');
 
     const sourceEntityId = randomUUID();
     // gotcha: signed-url returns `path` WITHOUT a leading slash; this call wants one.
@@ -182,11 +176,12 @@ export class GhlMembershipsApi {
 
   // ---------- media: files (PDF etc) ----------
   async uploadMaterial({ filePath, postId, sequenceNo = 0, mimeType = 'application/pdf', type = 'pdf' }) {
+    this.assertLocalMediaGateway();
     const bytes = await readFile(filePath);
     const filename = basename(filePath);
     const signed = await this.req('POST', `${this.M}/media/signed-url`,
       { filename, folder: 'courses', type: mimeType });
-    await putBytes(signed.url, bytes, mimeType);
+    await this.putBytes(signed.url, bytes, mimeType);
     // server normalises unsignedUrl -> a /memberships/... path on read
     return this.req('POST', `${this.M}/posts/material`,
       { url: signed.unsignedUrl, type, title: filename, sequenceNo, postId });
@@ -229,12 +224,38 @@ export class GhlMembershipsApi {
     await this.req('PUT', `${this.M}/products/apply-theme/${productId}?template_id=${templateId}`, {});
     return { themeId };
   }
+
+  assertLocalMediaGateway() {
+    if (this.gw.capabilities?.unauthenticatedRawUpload === true) return;
+    const error = new Error(
+      'Local media upload is unavailable on this gateway. Use the shipped build-course CLI on a machine with filesystem access and ffprobe.',
+    );
+    error.code = 'LOCAL_MEDIA_UNAVAILABLE';
+    throw error;
+  }
+
+  /** Raw binary PUT to a signed GCS URL. The CLI gateway sends no app auth. */
+  async putBytes(signedUrl, bytes, contentType) {
+    this.assertLocalMediaGateway();
+    const { base, path } = splitEndpoint(signedUrl);
+    const response = await this.gw.call('PUT', path, bytes, {
+      base,
+      headers: { 'content-type': contentType },
+      rawBody: true,
+      unauthenticated: true,
+    });
+    if (!response.ok) {
+      const detail = typeof response.json === 'string' ? response.json : JSON.stringify(response.json);
+      const error = new Error(`GCS upload failed ${response.status}: ${detail.slice(0, 200)}`);
+      error.gatewayResponse = response;
+      throw error;
+    }
+  }
 }
 
-/** Raw binary PUT to a GCS signed URL. Signature is in the URL — send NO app auth. */
-async function putBytes(signedUrl, bytes, contentType) {
-  const res = await fetch(signedUrl, { method: 'PUT', headers: { 'content-type': contentType }, body: bytes });
-  if (!res.ok) throw new Error(`GCS upload failed ${res.status}: ${(await res.text()).slice(0, 200)}`);
+function splitEndpoint(value) {
+  const url = new URL(value, BACKEND);
+  return { base: url.origin, path: `${url.pathname}${url.search}` };
 }
 
 /** The DRM asset call requires durationInSeconds from the client. */
