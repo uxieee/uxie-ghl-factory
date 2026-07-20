@@ -158,3 +158,43 @@ Four regression tests added. Live-verified on GROM AU 2026-07-21: `custom_email`
 that was empty before the fix.
 
 Everything above was read off actual tool output and real screenshots. Nothing is expected-value.
+
+## Live proof ledger — memberships tools (Plan 4, Task 4)
+
+Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Date: **2026-07-21**. Real MCP stdio session.
+Canary courses created and **deleted afterwards** — final `list_courses` returns 0.
+
+| # | Executed | Observed |
+|---|---|---|
+| 1 | `list_courses` (before) | `ok=true`, `count=0`. |
+| 2 | `build_course` **without** `confirm` | `CONFIRM_REQUIRED` + preview (`wouldCreate`: 1 course, 1 chapter, 2 lessons, 1 offer; `estimatedSeconds: 16`). `list_courses` after → still **0 — nothing written** ✓ |
+| 3 | `build_course` with `confirm:true` (correct spec) | `ok=true`, `verification.problems = 0`. |
+| 4 | `list_courses` (after) | Course present with `counts {chapters:1, lessons:2}` — matches the spec. |
+| 5 | **Memberships UI check** | Product renders in *Your Products*; opening it shows **Chapter One (Published) → Lesson A, Lesson B**. Screenshot-confirmed. |
+| 6 | **Negative:** typo spec with `confirm:true` | `VALIDATION_FAILED` **at preview, before any object was created** — `unknown key "body" — did you mean "text"?` |
+| 7 | Cleanup | Both canaries deleted (one delete returned a transient upstream `503`; retried, `200`). Final sweep: **0 courses on the account** ✓ |
+
+### Defect found and fixed by this run — a preview that green-lit a broken spec
+
+The first live build used `body` instead of `text` for lesson content. The spec validator
+did not know the key, **ignored it**, and `previewCourseSpec` returned
+`valid: true, errors: []`. The build then created a course with **two empty lessons**, and
+the problem only surfaced in *post-build* verification — `ENGINE_ABORT: Course objects were
+created but 2 verification check(s) failed` — i.e. after the objects already existed on the
+account.
+
+That is worse than having no preview: the confirm gate actively told the caller it was safe
+to proceed. Same silent-acceptance class as Plan 3's `STEP_TYPE_UNKNOWN` and the dropped
+`email.to`.
+
+Fix: `validateCourseSpec` now rejects unknown keys at **every** level (spec, course,
+chapter, lesson, question) with a near-miss hint (`body` → `text`). The key lists are
+derived from what the engine actually reads, cross-checked against `course-spec.md` and
+`example-spec.json` — **not guessed**. A regression test validates the shipped
+`example-spec.json` to prove the guard does not over-reject; that test immediately caught
+an over-strict first draft (it had omitted the legitimate `awardCredential` key).
+
+Live-verified both directions: the typo spec is refused before anything is created, and a
+correct spec builds with `verification.problems = 0` and renders in the UI.
+
+Everything above was read off actual tool output and real screenshots. Nothing is expected-value.

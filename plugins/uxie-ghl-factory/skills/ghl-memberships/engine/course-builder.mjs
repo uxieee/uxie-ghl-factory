@@ -6,17 +6,55 @@ import { Members } from './members.mjs';
 
 const LESSON_TYPES = ['lesson', 'quiz', 'assignment'];
 
+// Known spec keys, per level. An unrecognised key is REJECTED at validation rather than
+// ignored — LIVE-CAUGHT 2026-07-21 (GROM AU): a spec whose lessons carried `body` instead
+// of `text` previewed as `valid: true, errors: []`, then built two lessons with EMPTY
+// bodies. The failure only surfaced in post-build verification, i.e. after the objects
+// already existed on the account. A preview that green-lights a broken spec is worse than
+// no preview: it is the confirm gate telling you it is safe to proceed.
+// Derived from what the engine ACTUALLY reads (grep of `lesson.` / `chapter.` / `spec.` /
+// `question.` across engine/*.mjs) cross-checked against references/course-spec.md and
+// example-spec.json — NOT guessed. Guessing here is worse than not guarding: a key the
+// engine honours but this list omits would be rejected as "unknown" and break valid specs.
+const KNOWN_KEYS = {
+  spec: ['locationId', 'course', 'theme', 'offer', 'credential', 'chapters', 'enroll'],
+  course: ['title', 'description'],
+  chapter: ['title', 'description', 'dripDays', 'lessons'],
+  // `awardCredential` is authored in the shipped example spec but is consumed indirectly,
+  // so a grep of `lesson.*` misses it — the example-spec regression test below is what
+  // catches an over-strict list. Do not narrow this without re-running that test.
+  lesson: ['title', 'text', 'type', 'video', 'audio', 'files', 'embed', 'questions',
+    'visibility', 'awardCredential'],
+  question: ['title', 'options', 'questionType', 'explanation'],
+};
+
+function checkKeys(obj, allowed, at, errors, hints = {}) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return;
+  for (const key of Object.keys(obj)) {
+    if (allowed.includes(key)) continue;
+    const hint = hints[key] ? ` — did you mean "${hints[key]}"?` : '';
+    errors.push(`${at} has unknown key "${key}"${hint}. Known keys: ${allowed.join(', ')}. `
+      + 'Unknown keys are not silently ignored: they would build an object missing that content.');
+  }
+}
+
+// Near-miss keys seen in the wild, mapped to what the author almost certainly meant.
+const LESSON_KEY_HINTS = { body: 'text', html: 'text', content: 'text', description: 'text' };
+
 export function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } = {}) {
   const errors = [];
   if (!spec || typeof spec !== 'object' || Array.isArray(spec)) {
     return ['spec must be an object'];
   }
+  checkKeys(spec, KNOWN_KEYS.spec, 'spec', errors);
+  checkKeys(spec.course, KNOWN_KEYS.course, 'spec.course', errors);
   if (!spec.course?.title) errors.push('course.title is required');
   if (!Array.isArray(spec.chapters) || !spec.chapters.length) {
     errors.push('chapters[] must be non-empty');
   }
 
   (spec.chapters || []).forEach((chapter, chapterIndex) => {
+    checkKeys(chapter, KNOWN_KEYS.chapter, `chapters[${chapterIndex}]`, errors);
     if (!chapter.title) errors.push(`chapters[${chapterIndex}].title is required`);
     if (chapter.lessons !== undefined && !Array.isArray(chapter.lessons)) {
       errors.push(`chapters[${chapterIndex}].lessons must be an array`);
@@ -24,6 +62,7 @@ export function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } =
     }
     (chapter.lessons || []).forEach((lesson, lessonIndex) => {
       const at = `chapters[${chapterIndex}].lessons[${lessonIndex}]`;
+      checkKeys(lesson, KNOWN_KEYS.lesson, at, errors, LESSON_KEY_HINTS);
       if (!lesson.title) errors.push(`${at}.title is required`);
       if (lesson.type && !LESSON_TYPES.includes(lesson.type)) {
         errors.push(`${at}.type must be ${LESSON_TYPES.join('|')} — content_type is a closed enum; embed/html/pdf/text are not lesson types`);
@@ -32,6 +71,7 @@ export function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } =
         if (!Array.isArray(lesson.questions)) errors.push(`${at}.questions must be an array`);
         else lesson.questions.forEach((question, questionIndex) => {
           const questionAt = `${at}.questions[${questionIndex}]`;
+          checkKeys(question, KNOWN_KEYS.question, questionAt, errors);
           if (!question.title) errors.push(`${questionAt}.title is required`);
           if (!Array.isArray(question.options) || question.options.length < 2) {
             errors.push(`${questionAt}.options needs >= 2 entries`);

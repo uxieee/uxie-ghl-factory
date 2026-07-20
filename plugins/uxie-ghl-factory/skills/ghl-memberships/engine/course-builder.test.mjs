@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { previewCourseSpec } from './course-builder.mjs';
+import { readFileSync } from 'node:fs';
+import { previewCourseSpec, validateCourseSpec } from './course-builder.mjs';
 
 test('course preview reports every object class without performing account access', () => {
   const preview = previewCourseSpec({
@@ -44,4 +45,28 @@ test('MCP preview rejects paid offers and non-absolute local media before writes
 
   assert.match(preview.errors.join('\n'), /Only "free" is proven/);
   assert.match(preview.errors.join('\n'), /absolute local path/);
+});
+
+// ─── Unknown spec keys must fail at PREVIEW, not after objects exist ──────────────────
+// LIVE-CAUGHT 2026-07-21 (GROM AU): lessons authored with `body` instead of `text`
+// previewed as valid:true/errors:[] and then built two lessons with EMPTY bodies; the
+// problem only surfaced in post-build verification, after the course existed.
+test('a lesson key typo is rejected at validation, with a hint', () => {
+  const errs = validateCourseSpec({ course: { title: 'x' },
+    chapters: [{ title: 'c', lessons: [{ title: 'l', body: '<p>x</p>' }] }] });
+  assert.ok(errs.some((e) => /unknown key "body"/.test(e)), 'must reject the typo');
+  assert.ok(errs.some((e) => /did you mean "text"/.test(e)), 'must hint the real key');
+});
+
+test('the shipped example spec still validates (guard does not over-reject)', () => {
+  const example = JSON.parse(readFileSync(new URL('../references/example-spec.json', import.meta.url), 'utf8'));
+  assert.deepEqual(validateCourseSpec(example), []);
+});
+
+test('unknown keys are caught at every level', () => {
+  const errs = validateCourseSpec({ course: { title: 'x', bogusCourse: 1 }, bogusTop: 1,
+    chapters: [{ title: 'c', bogusChapter: 1, lessons: [{ title: 'l', text: 't' }] }] });
+  for (const k of ['bogusTop', 'bogusCourse', 'bogusChapter']) {
+    assert.ok(errs.some((e) => e.includes(k)), `${k} not caught`);
+  }
 });
