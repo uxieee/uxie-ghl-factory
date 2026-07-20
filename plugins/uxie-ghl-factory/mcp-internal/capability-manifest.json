@@ -1,0 +1,7 @@
+[
+  {
+    "tool": "list_workflows",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  }
+]

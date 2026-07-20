@@ -1,0 +1,12 @@
+{
+  "name": "@uxieee/ghl-internal-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": { "ghl-internal-mcp": "./stdio.mjs" },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "manifest": "node scripts/gen-manifest.mjs"
+  },
+  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0" }
+}
