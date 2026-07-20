@@ -2,7 +2,7 @@
 // header discipline, throttling, and response normalization. `call` returns
 // { status, ok, json } — the exact contract engine/orchestrate.mjs expects,
 // so engines drop in with no adapter.
-import { readCredentials } from './auth.mjs';
+import { readCredentials, requireAiCredentials } from './auth.mjs';
 
 export const BASE = 'https://backend.leadconnectorhq.com';
 const IFRAME = 'https://client-app-automation-workflows.leadconnectorhq.com';
@@ -12,7 +12,9 @@ const JITTER_MS = 150;
 const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random }) {
-  const creds = readCredentials({ tokenFile });   // throws AuthError; tools map it
+  // Read expired credentials too: the AI rail must distinguish its independently
+  // expiring Bearer JWT and Firebase token-id before sending a request.
+  const creds = readCredentials({ tokenFile, allowExpired: true });   // throws AuthError; tools map it
 
   const headers = (isWrite, overrides = {}) => {
     const h = { channel: 'APP', source: 'WEB_USER', version: '2021-07-28', accept: 'application/json, text/plain, */*' };
@@ -25,10 +27,15 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     }
     // Authentication is injected after caller overrides so it cannot be removed,
     // shadowed with different casing, or swapped onto the other credential rail.
-    if (rail === 'token-id') {
+    if (rail === 'ai') {
+      requireAiCredentials(creds);
+      h.authorization = `Bearer ${creds.jwt}`;
+      h['token-id'] = creds.tokenId;
+    } else if (rail === 'token-id') {
       if (!creds.tokenId) { const e = new Error('no token-id in capture file'); e.code = 'TOKEN_MISSING'; throw e; }
       h['token-id'] = creds.tokenId;
     } else {
+      if (creds.secondsRemaining <= 0) { const e = new Error('JWT exp is in the past'); e.code = 'TOKEN_EXPIRED'; throw e; }
       h.authorization = `Bearer ${creds.jwt}`;
     }
     return h;
