@@ -8,5 +8,5 @@
     "test": "node --test \"test/**/*.test.mjs\"",
     "manifest": "node scripts/gen-manifest.mjs"
   },
-  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0" }
+  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0", "zod": "^4.0.0" }
 }
