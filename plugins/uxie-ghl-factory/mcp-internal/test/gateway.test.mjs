@@ -61,6 +61,15 @@ test('AI rail sends both Bearer and token-id together', async () => {
   await gw.call('GET', '/voice-ai/agents');
   assert.equal(calls[0].init.headers['token-id'], tokenId);
   assert.equal(calls[0].init.headers.authorization, `Bearer ${jwt}`);
+  assert.equal(calls[0].init.headers.referer, 'https://app.gohighlevel.com/');
+});
+
+test('AI writes use the app origin instead of the workflow-builder iframe', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  await gw.call('POST', '/ai-employees/employees', { locationId: 'L' }, { base: 'https://services.leadconnectorhq.com' });
+  assert.equal(calls[0].init.headers.origin, 'https://app.gohighlevel.com');
+  assert.equal(calls[0].init.headers.referer, 'https://app.gohighlevel.com/');
 });
 
 test('legacy token-id rail still sends token-id only', async () => {
