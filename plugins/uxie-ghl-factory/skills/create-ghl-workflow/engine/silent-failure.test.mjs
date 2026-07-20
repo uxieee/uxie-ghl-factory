@@ -214,3 +214,39 @@ test('known node-level keys on their proper containers still pass', () => {
     ],
   }]));
 });
+
+// ─── Item N: an unknown step TYPE built a step the builder cannot render or open ──────
+// LIVE-CAUGHT 2026-07-21 (GROM AU, MCP build_workflow). `send_internal_notification`
+// (real slug: `internal_notification`) compiled clean, built, round-tripped, and
+// reported warnings:[] — but in the builder the node rendered as a bare box with no
+// action icon, and its step editor would NOT open. Control test on a UI-built
+// internal_notification step in the same account opened its editor normally, proving
+// the defect was ours, not the browser.
+test('an unknown step type fails loudly (STEP_TYPE_UNKNOWN), never builds', () => {
+  assert.throws(
+    () => build([{ ref: 'a', kind: 'action', type: 'send_internal_notification', name: 'Notify', attributes: {} }]),
+    (e) => /STEP_TYPE_UNKNOWN/.test(e.message),
+    'unknown step type must abort the build',
+  );
+});
+
+test('STEP_TYPE_UNKNOWN suggests the real catalog slug when one is close', () => {
+  assert.throws(
+    () => build([{ ref: 'a', kind: 'action', type: 'send_internal_notification', name: 'N', attributes: {} }]),
+    (e) => /internal_notification/.test(e.message),
+    'the error must point at the real slug',
+  );
+});
+
+test('a known step type still compiles', () => {
+  const t = templatesOf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
+    attributes: { type: 'email', email: { subject: 's', to: 'x@y.z' } } }]);
+  assert.equal(t.length, 1);
+  assert.equal(t[0].type, 'internal_notification');
+});
+
+test('allowUnknownStepTypes is an explicit, deliberate override', () => {
+  const built = compile(wf([{ ref: 'a', kind: 'action', type: 'not_a_real_type', name: 'X', attributes: {} }]),
+    { ...ctx(), allowUnknownStepTypes: true });
+  assert.equal(built.autoSaveBody.workflowData.templates[0].type, 'not_a_real_type');
+});

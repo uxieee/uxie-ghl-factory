@@ -191,7 +191,10 @@ export async function orchestrate(ir, gw, opts = {}) {
       // §5: an account-wide email sender default. Reachable two ways — programmatically via
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
       // parseIR passes through). Without either, email steps fall back to {{location.*}}.
-      senderDefault: opts.senderDefault ?? ir.senderDefault });
+      senderDefault: opts.senderDefault ?? ir.senderDefault,
+      // Deliberate override for STEP_TYPE_UNKNOWN — see compiler.mjs. Off by default:
+      // an unrecognised type builds a step the builder cannot render or open.
+      allowUnknownStepTypes: opts.allowUnknownStepTypes });
   } catch (e) {
     if (e?.name === 'IRError') {
       report.failurePhase = 'compile';
