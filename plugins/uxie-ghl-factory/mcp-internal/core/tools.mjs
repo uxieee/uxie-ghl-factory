@@ -175,10 +175,19 @@ export const TOOLS = [
       if (!triggers.ok) return fromHttp(triggers.status, triggers.json);
       if (!notes.ok) return fromHttp(notes.status, notes.json);
 
+      // LIVE-VERIFIED envelopes (GROM AU 2026-07-20): sticky notes come back as
+      // { data: [], count: n, traceId } — NOT { notes: [] }. The old accessor fell
+      // through to the raw envelope object, so callers got a non-array. Unit tests
+      // missed it because they stubbed an invented shape. Always land on an array.
+      const asArray = (payload, ...keys) => {
+        if (Array.isArray(payload)) return payload;
+        for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
+        return [];
+      };
       return ok({
         workflow: body.json,
-        triggers: triggers.json?.triggers ?? triggers.json ?? [],
-        stickyNotes: notes.json?.notes ?? notes.json ?? [],
+        triggers: asArray(triggers.json, 'triggers', 'data'),
+        stickyNotes: asArray(notes.json, 'data', 'notes'),
       });
     }, args),
   },
