@@ -110,12 +110,37 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
   // Consume an SSE response through the same auth/throttle chokepoint as call().
   // A closed stream is not success on its own: one of terminalEvents must arrive.
   const stream = async (method, path, body, baseOrOptions = BASE) => {
+    // This is deliberately stderr-only: stdout is the MCP stdio transport.  It
+    // records protocol progress, never event payloads (which may contain prompts
+    // or generated content).  Enable for a single human-gated live diagnostic.
+    const diagnose = process.env.GHL_SSE_DIAGNOSTICS === '1';
+    const startedAt = Date.now();
+    let bytesReceived = 0;
+    let chunkCount = 0;
+    const lastEvents = [];
+    const trace = (phase, extra = {}) => {
+      if (!diagnose) return;
+      process.stderr.write(`[ghl-sse] ${JSON.stringify({
+        phase,
+        elapsedMs: Date.now() - startedAt,
+        bytesReceived,
+        chunkCount,
+        lastEvents,
+        ...extra,
+      })}\n`);
+    };
     const supplied = typeof baseOrOptions === 'string' ? { base: baseOrOptions } : (baseOrOptions ?? {});
     const terminalEvents = new Set(supplied.terminalEvents ?? ['done', 'agent_saved']);
-    const res = await request(method, path, body, {
-      ...supplied,
-      headers: { accept: 'text/event-stream', ...(supplied.headers ?? {}) },
-    });
+    let res;
+    try {
+      res = await request(method, path, body, {
+        ...supplied,
+        headers: { accept: 'text/event-stream', ...(supplied.headers ?? {}) },
+      });
+    } catch (error) {
+      trace('request_error', { errorName: error?.name ?? 'Error' });
+      throw error;
+    }
     if (!res.ok) {
       const text = await res.text();
       let json; try { json = JSON.parse(text); } catch { json = text; }
@@ -125,6 +150,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       throw error;
     }
     const contentType = res.headers?.get?.('content-type') ?? res.headers?.['content-type'] ?? '';
+    trace('response', { status: res.status, contentType, ok: res.ok });
     if (!/\btext\/event-stream\b/i.test(contentType) || !res.body?.getReader) {
       throw sseError(CODES.SSE_EXPECTED, 'Agent Studio build did not return an SSE response',
         'Do not treat this as a successful agent creation. Inspect the response shape before retrying.');
@@ -134,27 +160,47 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     const events = [];
     let buffer = '';
     let terminal = null;
+    const recordEvent = (parsed) => {
+      events.push(parsed);
+      lastEvents.push(parsed.event);
+      if (lastEvents.length > 32) lastEvents.shift();
+      if (terminalEvents.has(parsed.event)) terminal = parsed;
+    };
     const consumeFrames = () => {
-      const frames = buffer.split(/\n\n/);
+      // SSE permits CRLF, LF, or CR line endings.  The CRLF frame delimiter is
+      // "\r\n\r\n", which does not contain a literal "\n\n" subsequence.
+      const frames = buffer.split(/\r\n\r\n|\r\n\n|\n\r\n|\n\n|\r\r/);
       buffer = frames.pop();
       for (const frame of frames) {
         if (!frame.trim()) continue;
         const parsed = parseEvent(frame);
-        events.push(parsed);
-        if (terminalEvents.has(parsed.event)) terminal = parsed;
+        recordEvent(parsed);
       }
     };
-    while (true) {
-      const { done, value } = await reader.read();
-      if (value) { buffer += decoder.decode(value, { stream: !done }); consumeFrames(); }
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (value) {
+          bytesReceived += value.byteLength;
+          chunkCount++;
+          buffer += decoder.decode(value, { stream: !done });
+          consumeFrames();
+        }
+        if (done) break;
+      }
+    } catch (error) {
+      trace('reader_error', { status: res.status, errorName: error?.name ?? 'Error' });
+      throw error;
     }
+    buffer += decoder.decode();
+    consumeFrames();
     if (buffer.trim()) {
       const parsed = parseEvent(buffer);
-      events.push(parsed);
-      if (terminalEvents.has(parsed.event)) terminal = parsed;
+      recordEvent(parsed);
     }
+    trace('stream_closed', { status: res.status, terminalEvent: terminal?.event ?? null, pendingBytes: Buffer.byteLength(buffer) });
     if (!terminal) {
+      trace('incomplete', { status: res.status });
       throw sseError(CODES.SSE_INCOMPLETE, 'SSE stream ended without a terminal success event',
         'Do not treat this as a successful agent creation. Inspect the account for a partial draft before retrying.');
     }

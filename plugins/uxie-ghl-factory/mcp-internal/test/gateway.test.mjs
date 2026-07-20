@@ -30,6 +30,51 @@ const sseResponse = (chunks, { status = 200, ok = true, contentType = 'text/even
   text: async () => chunks.join(''),
 });
 
+const sseResponseBytes = (bytes, { status = 200, ok = true, contentType = 'text/event-stream' } = {}) => ({
+  status,
+  ok,
+  headers: { get: (name) => name.toLowerCase() === 'content-type' ? contentType : null },
+  body: new ReadableStream({
+    start(controller) {
+      for (const chunk of bytes) controller.enqueue(chunk);
+      controller.close();
+    },
+  }),
+  text: async () => new TextDecoder().decode(Buffer.concat(bytes.map((chunk) => Buffer.from(chunk)))),
+});
+
+const observedStudioStream = (newline = '\n', finalDelimiter = true) => {
+  const frame = (event, data) => `event: ${event}${newline}data: ${JSON.stringify(data)}${newline}${newline}`;
+  const deltas = Array.from({ length: 748 }, (_, index) => frame('output_delta', { index, delta: 'x' }));
+  const partials = Array.from({ length: 10 }, (_, index) => frame('config_partial', { index }));
+  const completes = Array.from({ length: 2 }, (_, index) => frame('conversation_complete', { index }));
+  const updates = Array.from({ length: 2 }, (_, index) => frame('config_update', { index }));
+  const terminal = `event: done${newline}data: {"agentId":"agent-sse","durationMs":16553,"mode":"fast"}${newline}`;
+  return [
+    `: connected${newline}${newline}`,
+    frame('conversation_started', { id: 'conversation-1' }),
+    frame('generating', { started: true }),
+    ...deltas,
+    ...partials,
+    ...completes,
+    ...updates,
+    frame('agent_saved', { id: 'agent-sse' }),
+    terminal + (finalDelimiter ? newline : ''),
+  ].join('');
+};
+
+const oneByteChunks = (text) => Array.from(new TextEncoder().encode(text), (byte) => Uint8Array.of(byte));
+const adversarialChunks = (text) => {
+  const bytes = new TextEncoder().encode(text);
+  const cuts = [1, 2, 7, 19, 64, 257, bytes.length - 29, bytes.length - 14, bytes.length - 2, bytes.length];
+  let start = 0;
+  return cuts.filter((cut) => cut > start && cut <= bytes.length).map((cut) => {
+    const chunk = bytes.slice(start, cut);
+    start = cut;
+    return chunk;
+  });
+};
+
 test('GET sends read headers, no body, and returns {status,ok,json}', async () => {
   const calls = [];
   const gw = makeGateway({ tokenFile: fixture(), loc: 'LOC1', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
@@ -204,6 +249,26 @@ test('truncated SSE stream fails instead of reporting an empty success', async (
     sseResponse(['event: config_partial\ndata: {"name":"draft"}\n\n'])
   ) });
   await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }), (e) => e.code === 'SSE_INCOMPLETE');
+});
+
+test('observed high-volume Studio SSE survives byte-by-byte chunks and a final done frame without its delimiter', async () => {
+  const stream = observedStudioStream('\n', false);
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
+    sseResponseBytes(oneByteChunks(stream))
+  ) });
+  const result = await gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' });
+  assert.equal(result.events.filter(({ event }) => event === 'output_delta').length, 748);
+  assert.deepEqual(result.terminal, { event: 'done', data: { agentId: 'agent-sse', durationMs: 16553, mode: 'fast' } });
+});
+
+test('observed Studio SSE accepts CRLF frame boundaries split inside the terminal event', async () => {
+  const stream = observedStudioStream('\r\n', false);
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
+    sseResponseBytes(adversarialChunks(stream))
+  ) });
+  const result = await gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' });
+  assert.equal(result.events.filter(({ event }) => event === 'output_delta').length, 748);
+  assert.deepEqual(result.terminal, { event: 'done', data: { agentId: 'agent-sse', durationMs: 16553, mode: 'fast' } });
 });
 
 test('non-SSE response on an SSE endpoint fails loudly', async () => {
