@@ -7,6 +7,7 @@ import { CODES } from './errors.mjs';
 
 export const BASE = 'https://backend.leadconnectorhq.com';
 const IFRAME = 'https://client-app-automation-workflows.leadconnectorhq.com';
+const APP = 'https://app.gohighlevel.com';
 const THROTTLE_MS = 300;   // established constant (scripts/edit.mjs)
 const JITTER_MS = 150;
 
@@ -19,7 +20,14 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
 
   const headers = (isWrite, overrides = {}) => {
     const h = { channel: 'APP', source: 'WEB_USER', version: '2021-07-28', accept: 'application/json, text/plain, */*' };
-    if (isWrite) { h['content-type'] = 'application/json'; h.origin = IFRAME; h.referer = `${IFRAME}/`; }
+    if (isWrite) {
+      h['content-type'] = 'application/json';
+      h.origin = rail === 'ai' ? APP : IFRAME;
+      h.referer = `${rail === 'ai' ? APP : IFRAME}/`;
+    } else if (rail === 'ai') {
+      // Live AI traffic originates from the application shell, not the workflow iframe.
+      h.referer = `${APP}/`;
+    }
     for (const [rawName, value] of Object.entries(overrides ?? {})) {
       if (value === undefined || value === null) continue;
       const name = rawName.toLowerCase();
