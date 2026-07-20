@@ -12,7 +12,7 @@
 // ConvAI compiler; the caller attaches the header value.
 import { IRError } from './convai-ir.mjs';
 
-export const AUTH_HEADER = 'token-id';
+export const AUTH_HEADER = 'ai';
 
 // Full validation for a rich-text KB doc. Required: knowledgeBaseId, title
 // (non-empty string), contentHtml (non-empty HTML string — the capture shows

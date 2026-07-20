@@ -2,9 +2,8 @@
 // /agent-studio/* payloads. See research/ai-agents-internal/agent-studio-internal.md
 // and captures/studio-{create,update,delete,session}.json for the ground truth this
 // traces to (ghl-workflow-api-docs repo). This module produces request DESCRIPTORS
-// ({method, path, body}) — it never makes a live call. Auth is `token-id` (same
-// header as ConvAI/Voice AI/KB, NOT `Authorization: Bearer`); the caller is
-// responsible for attaching the header value.
+// ({method, path, body}) — it never makes a live call. Auth is the gateway's `ai`
+// rail (Bearer JWT plus Firebase token-id); the caller owns no credential value.
 //
 // ============================================================================
 // Two entrypoints, because CREATE and UPDATE are fundamentally different shapes
@@ -34,7 +33,7 @@
 //     PartialIR counterpart) — same reasoning as voiceai-compiler.mjs.
 import { parseSuperAgentIR, IRError } from './studio-ir.mjs';
 
-export const AUTH_HEADER = 'token-id';
+export const AUTH_HEADER = 'ai';
 
 // NL-build `mode` — the only value ever observed live (studio-create.json's
 // request_body.mode). Not proven to be the only value the endpoint accepts, but the

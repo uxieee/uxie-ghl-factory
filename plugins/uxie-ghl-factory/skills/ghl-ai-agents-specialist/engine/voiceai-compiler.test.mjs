@@ -14,8 +14,8 @@ test('compileVoiceAiAgent: create body matches voiceai-create.json exactly ({ lo
   assert.equal(create.method, 'POST');
   assert.equal(create.path, '/voice-ai/agents');
   assert.deepEqual(create.body, { locationId: LOCATION_ID });
-  assert.equal(authHeader, 'token-id');
-  assert.equal(AUTH_HEADER, 'token-id');
+  assert.equal(authHeader, 'ai');
+  assert.equal(AUTH_HEADER, 'ai');
 });
 
 test('compileVoiceAiAgent: rejects invalid IR even though create body barely uses it (missing agentPrompt)', () => {
@@ -440,7 +440,7 @@ test('compileVoiceAiUpdate: full-replace body matches voiceai-update-identity.js
   const { method, path, body, authHeader } = compileVoiceAiUpdate(ir, { agentId: AGENT_ID, locationId: LOCATION_ID });
   assert.equal(method, 'PUT');
   assert.equal(path, `/voice-ai/agents/${AGENT_ID}?publishAgent=true&mode=update`);
-  assert.equal(authHeader, 'token-id');
+  assert.equal(authHeader, 'ai');
   assert.deepEqual(body, {
     agentName: 'TEST-CAP-VOICEAI',
     welcomeMessage: 'Hey, you have reached GROM Digital AU. How can I help you today?',

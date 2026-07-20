@@ -22,8 +22,8 @@ test('compileRichTextDoc: create body matches knowledge-base-richtext.json shape
   });
   assert.equal(statusPoll.method, 'GET');
   assert.equal(statusPoll.path, '/knowledge-base/rich-text/:id/status');
-  assert.equal(authHeader, 'token-id');
-  assert.equal(AUTH_HEADER, 'token-id');
+  assert.equal(authHeader, 'ai');
+  assert.equal(AUTH_HEADER, 'ai');
 });
 
 test('compileRichTextDoc: content is passed through as raw HTML, not transformed', () => {
@@ -66,7 +66,7 @@ test('compileRichTextDelete: builds delete descriptor', () => {
   const { method, path, authHeader } = compileRichTextDelete('V31wUySI8JZr4sytQCEL');
   assert.equal(method, 'DELETE');
   assert.equal(path, '/knowledge-base/rich-text/V31wUySI8JZr4sytQCEL');
-  assert.equal(authHeader, 'token-id');
+  assert.equal(authHeader, 'ai');
 });
 
 test('compileRichTextDelete: requires a non-empty id', () => {
@@ -85,8 +85,8 @@ test('compileKbTableUpload: upload descriptor matches knowledge-base-tables-file
   assert.equal(upload.path, `/knowledge-base/table/location/${LOCATION_ID}/kb/${KB_ID}/upload`);
   assert.equal(upload.contentType, 'multipart/form-data');
   assert.equal(upload.body.name, 'TEST-CAP-TABLE');
-  assert.equal(authHeader, 'token-id');
-  assert.equal(AUTH_HEADER, 'token-id');
+  assert.equal(authHeader, 'ai');
+  assert.equal(AUTH_HEADER, 'ai');
 });
 
 test('compileKbTableUpload: schema/selectColumns/parquetStatus/summary/delete descriptors use the :fileId placeholder', () => {
@@ -129,7 +129,7 @@ test('compileKbFileUpload: upload descriptor matches knowledge-base-tables-files
   assert.equal(status.path, '/knowledge-base/files/:fileId/status');
   assert.equal(del.method, 'DELETE');
   assert.equal(del.path, '/knowledge-base/files/:fileId');
-  assert.equal(authHeader, 'token-id');
+  assert.equal(authHeader, 'ai');
 });
 
 test('compileKbFileUpload: rejects missing knowledgeBaseId', () => {

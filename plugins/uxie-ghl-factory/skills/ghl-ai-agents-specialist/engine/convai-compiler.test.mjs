@@ -57,8 +57,8 @@ test('compileConvaiAgent: create body matches convai-create.json field-for-field
   assert.equal(b.isObjectiveBuilderEnabled, false);
   assert.equal(b.aiResponseLengthEnabled, false);
   assert.equal(b.responseLength, 'balanced');
-  assert.equal(authHeader, 'token-id');
-  assert.equal(AUTH_HEADER, 'token-id');
+  assert.equal(authHeader, 'ai');
+  assert.equal(AUTH_HEADER, 'ai');
 });
 
 test('compileConvaiAgent: defaults apply when wait/sleep/autoPilotMaxMessages omitted', () => {
@@ -377,7 +377,7 @@ test('compileConvaiUpdate: partial merge — only touched fields present in body
   assert.equal(method, 'PUT');
   assert.equal(path, '/ai-employees/employees/69udtYyGwTVOL9doSdfb');
   assert.deepEqual(body, { locationId: 'wdzEoUZnXO9tB3PPzcot', knowledgeBaseIds: ['tJdoJJkFGwqhsWKmHLEd'] });
-  assert.equal(authHeader, 'token-id');
+  assert.equal(authHeader, 'ai');
 });
 
 test('compileConvaiUpdate: name maps to wire field employeeName', () => {
