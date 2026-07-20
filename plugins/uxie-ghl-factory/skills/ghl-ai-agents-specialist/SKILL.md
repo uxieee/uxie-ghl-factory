@@ -76,24 +76,31 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 |---|---|
 | Conversation AI — create, read, delete, `humanHandOver` action | **Live-create-proven** (engine → internal API → real agent → verified → deleted) |
 | Knowledge Base — rich-text create | **Live-proven** |
-| Voice AI — agent create + full-replace update | **Engine-complete + unit-tested; agent create/update NOT yet live-proven** (several *action* + `patch-agent` paths ARE live-proven as of 2026-07-17) — `references/voice-ai.md` §Status has the proven/unproven split |
-| Agent Studio — Super Agent create (SSE build) + full-replace update | **Engine-complete + unit-tested; NOT yet live-proven** — `references/agent-studio.md` says treat the first real use as a small throwaway validation run |
+| Voice AI — agent create + full-replace update | **CREATE is live-proven (2026-07-21, GROM AU, via the MCP AI rail → real agent → deleted). The full-replace UPDATE is proven BROKEN: `PUT /voice-ai/agents/{id}?publishAgent=true&mode=update` returns 422**, so the agent is created but keeps GHL's default name. `POST /voice-ai/agents` takes only `{locationId}` and returns an id. |
+| Agent Studio — Super Agent create (SSE build) + full-replace update | **CREATE is live-proven (2026-07-21, GROM AU → real agent → deleted); the step after it returns 400, so the agent is created unconfigured. SSE behavior remains unconfirmed** (the run never reached a terminal stream event). |
 
 ConvAI + KB rich-text are live-proven.
 
-⚠️ **Voice AI: the API SHAPES are live-proven; the ENGINE is not.** Several Voice AI paths
-fired against a real account on 2026-07-17 (`DATA_EXTRACTION` creation, `APPOINTMENT_BOOKING`
-calendar repointing, `patch-agent`, voices read) — but **all via the public `voice-ai-v3` MCP,
-never through `voiceai-compiler.mjs`**. Those results prove the shapes, not the compiler. Do
-not cite them as evidence the engine works.
+⚠️ **Voice AI: the engine's CREATE is proven; its UPDATE is proven broken.** Superseded
+2026-07-21 — this section previously said the engine was unproven outright. Two distinct
+bodies of evidence, do not conflate them:
+- **Shapes** (2026-07-17): `DATA_EXTRACTION` creation, `APPOINTMENT_BOOKING` calendar
+  repointing, `patch-agent`, voices read — all via the **public `voice-ai-v3` MCP**, never
+  through `voiceai-compiler.mjs`. These prove the shapes, not the compiler.
+- **Engine** (2026-07-21): `voiceai-compiler.mjs` drove a real create through the internal
+  API and produced a real agent. Its full-replace PUT then 422'd. So the compiler's create
+  path works and its update path does not.
 
-⚠️ **Voice AI + Agent Studio agent-create status is UNRECONCILED.** These docs carry a "NOT
-yet live-proven" banner, but the project record says all four compilers — including Voice AI
-and Agent Studio agent create + full-replace update — were live-create-proven on GROM AU on
-2026-07-11 (objects verified then deleted, so no capture survives). The banner is likely
-stale, but a client account has been **checked and ruled out** as evidence (public MCP only). Only a
-fresh throwaway live-fire through the internal compiler will settle it. Until then: keep the
-throwaway-validation discipline for a first agent create/full-replace build, and tell the user
+✅ **RESOLVED 2026-07-21 — the agent-create question is settled.** A throwaway live-fire
+through the internal compilers (via the `uxie-ghl-internal-mcp` AI rail) on GROM AU created a
+real agent in **all three** products, then deleted them. Evidence: `mcp-internal/README.md`
+§"Live proof ledger — AI agent tools".
+
+The old contradiction (memory said proven, this banner said not) resolves as **both partly
+right**: **create works everywhere**; the **follow-up configuration step fails** in Voice AI
+(422 on the full-replace PUT) and Agent Studio (400), and ConvAI's post-create *verification*
+failed. So an agent-create call leaves a REAL, UNCONFIGURED agent on the account — it does not
+no-op, and it does not roll back. Clean up after failures.
 it is unconfirmed rather than promising either way. See `references/voice-ai.md` §Status. ConvAI now has
 verified (not passthrough) support for all 7 captured action types (`humanHandOver` +
 `appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,

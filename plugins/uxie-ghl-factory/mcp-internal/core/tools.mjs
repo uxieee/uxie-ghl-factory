@@ -370,10 +370,20 @@ function fromThrown(error) {
   if (error?.code && error?.remediation) {
     return fail(error.code, error.detail ?? error.message, error.remediation);
   }
+  // Not every throw is a transport failure. A compiler/validator rejecting a spec throws
+  // BEFORE anything is sent — telling that caller to "inspect account state" sends them
+  // hunting the account for what is actually a typo in their spec (live-caught 2026-07-21:
+  // a missing `mode` on a ConvAI spec reported as a gateway transport failure).
+  const message = error?.message ?? String(error);
+  const isSpecRejection = error?.name === 'IRError'
+    || /^[A-Z_]+:/.test(message)
+    || /\bmust be one of\b|\bis required\b|\bunknown key\b|\binvalid\b/i.test(message);
   return fail(
     CODES.ENGINE_ABORT,
-    error?.message ?? String(error),
-    'Gateway transport failed before an HTTP result was available; inspect account state before retrying.',
+    message,
+    isSpecRejection
+      ? 'The spec was rejected before any request was sent — nothing was created. Fix the spec and retry.'
+      : 'Gateway transport failed before an HTTP result was available; inspect account state before retrying.',
   );
 }
 

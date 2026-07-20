@@ -74,6 +74,11 @@ export function scrubSecrets(value) {
   if (value && typeof value === 'object') {
     return Object.fromEntries(Object.entries(value).map(([key, item]) => [
       scrub(key),
+      // Deliberately scrubs the WHOLE subtree under a secret-named key, not just
+      // primitives. A nested credential need not be JWT-shaped (`{credentials:{value:
+      // "sk_live_…"}}`), so recursing would leak it. Callers wanting to expose metadata
+      // ABOUT a credential must name the field something that is not itself a credential
+      // name — see authStatus's `jwtClaims` / `tokenIdClaims`.
       isSecretKey(key) ? '<redacted>' : scrubSecrets(item),
     ]));
   }
