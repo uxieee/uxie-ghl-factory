@@ -108,7 +108,7 @@ The current JWT payload (decode locally, e.g. via jwt.io — it decodes client-s
 ## 5. Migration history
 
 - **2026-07:** GHL migrated the **workflow-builder** API's auth header from `token-id` (a Firebase-issued JWT) to `Authorization: Bearer <JWT>` (a LeadConnector-issued JWT with different claims — see §3). Requests to `/workflow/...` using the old `token-id` header now return `401`.
-- **The migration was surface-by-surface, NOT account-wide.** `token-id` is still the live scheme on other surfaces — the AI services (§7) and `/funnels/*` (§9). An earlier revision of this section read "requests using the old `token-id` header now return `401` unconditionally", which is false and was the direct cause of the `ghl-funnels-pages` recipes teaching `Bearer` for funnel endpoints that do not accept it. **Never generalize an auth observation from one surface to the whole internal API — determine the scheme per surface, from a real request.**
+- **The migration was surface-by-surface, NOT account-wide.** `/funnels/*` still uses `token-id`; AI services (§7) use **both** the Bearer JWT and a separate `token-id`. An earlier revision of this section read "requests using the old `token-id` header now return `401` unconditionally", which is false and was the direct cause of the `ghl-funnels-pages` recipes teaching `Bearer` for funnel endpoints that do not accept it. **Never generalize an auth observation from one surface to the whole internal API — determine the scheme per surface, from a real request.**
 - Any skill, runbook, or doc teaching a `token-id` header **for the workflow API** is stale and must be corrected to reference this file instead of carrying its own copy. `token-id` on the surfaces in §7/§9 is correct and must not be "fixed".
 
 ## 6. Scope of use
@@ -116,33 +116,49 @@ The current JWT payload (decode locally, e.g. via jwt.io — it decodes client-s
 - **`get-ghl-workflow-json`** (export) — read-only `GET` calls only. Uses this doc's §1–§4 in full; never issues writes.
 - **`create-ghl-workflow`** — issues writes (`POST`/`PUT`/`PATCH`) against the workflow-builder API. Uses this doc's §1–§4 for auth *and* must additionally satisfy `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md` (owned-account check + one-time ToS disclosure) before any write executes.
 - **`ghl-funnels-pages`** — issues writes against `/funnels/*`, which authenticates with **`token-id`**, NOT `Bearer` — see §9. Capture procedure differs too (§9.2). Write rails still apply.
-- **`ghl-ai-agents-specialist`** — issues writes against the **AI internal services** (Conversation AI, Voice AI, Agent Studio, Knowledge Base). Those use a DIFFERENT header — see §7. Write rails (`${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`) still apply.
+- **`ghl-ai-agents-specialist`** — issues writes against the **AI internal services** (Conversation AI, Voice AI, Agent Studio, Knowledge Base). Those require a separate dual-credential pair — see §7. Write rails (`${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`) still apply.
 - **`ghl-memberships`** — issues writes against the **Memberships / client-portal** surface. Auth is §1 **plus a `sourceid` header**, and the member-facing rail uses a different token class entirely — see §8. Write rails still apply.
 - No other plugin component should embed JWT header formats, capture steps, or UID/CID derivation — they point here instead.
 
-## 7. AI-services auth (`token-id`) — SERVICE-DEPENDENT
+## 7. AI-services auth (Bearer + `token-id`) — SERVICE-DEPENDENT
 
 The internal auth scheme is **not uniform**. §1–§4 above cover the **workflow-builder** surface
 (`backend.leadconnectorhq.com/workflow/...`, `workflows-marketplace/...`), which uses
-`Authorization: Bearer <JWT>`. But the **AI services** on `services.leadconnectorhq.com` —
-`ai-employees` (Conversation AI), `voice-ai`, `agent-studio`, `knowledge-base` — authenticate with a
-**`token-id`** header instead, carrying a Google securetoken RS256 JWT
-(`iss: securetoken.google.com/highlevel-backend`; claims `user_id`, `company_id`, `role`, `locations[]`).
-Sending a `Bearer` token to these services, or a `token-id` to the workflow API, fails.
+`Authorization: Bearer <LeadConnector JWT>`. But the **AI services** on
+`services.leadconnectorhq.com` — `ai-employees` (Conversation AI), `voice-ai`, `agent-studio`, and
+`knowledge-base` — require that Bearer JWT **and** a separate `token-id` header on the same request.
+The latter is a Google securetoken RS256 JWT (`iss: securetoken.google.com/highlevel-backend`) with
+`role: admin`, `type: agency`, and `locations[]`. It is broader than the location-scoped workflow JWT,
+so treat it as the more sensitive credential. The two tokens have similar (~60 minute) but independent
+expiry times; re-capture the pair if either expires.
 
-**Capture procedure (token-id):**
-1. Have an authenticated `app.gohighlevel.com` browser session (Playwright MCP). Navigate into the
-   sub-account (deep links 404 — click through from `/`; the AI area is under "AI Agents").
-2. Trigger any authenticated AI call — e.g. open the Conversation AI / Voice AI / Agent Studio list,
-   which fires a `GET services.leadconnectorhq.com/ai-employees/...` (or `/voice-ai/...`, `/agent-studio/...`).
-3. Read that request's headers via `browser_network_request` and copy the **`token-id`** value. Also
-   present and worth replaying: `channel: APP`, `source: WEB_USER`, `version: <date>`, `content-type: application/json`.
-4. **Never store the token.** It is a ~1 hr session JWT; capture a fresh one each session (a stale one
-   returns `401 … E003`). Re-capture from a fresh authenticated request on expiry.
+**AI capture procedure (dual header, file-only):**
+1. Have an authenticated `app.gohighlevel.com` browser session. Navigate into the relevant sub-account
+   by clicking through from `/` (deep links can 404), then open **AI Agents**. Unlike §2, the required
+   referer is `https://app.gohighlevel.com/`; the workflow capture procedure's rejection of that referer
+   applies only to workflow-builder credentials.
+2. Inspect an authenticated request to `services.leadconnectorhq.com`. The live-verified anchor is:
+   `GET /agent-studio/agents?locationId=…&agencyId=…&productId=agent_studio`.
+3. Confirm its request headers include **both** `authorization: Bearer …` and `token-id: …`. Capture
+   them as one pair from the same request; do not combine a `token-id` with a Bearer token from a
+   different session or origin.
+4. Write the pair directly to the configured token file with owner-only permissions. The file format is:
+   ```text
+   authorization: Bearer <LeadConnector JWT>
+   token-id: <Firebase securetoken JWT>
+   ```
+   The capture action writes the file and prints **nothing**: do not paste, echo, log, return, or put a
+   header dump in a transcript. Any helper or diagnostic must reuse
+   `mcp-internal/core/errors.mjs` `containsSecrets`/scrubber, whose JWT-shape matcher is
+   `/\bey[A-Za-z0-9._-]{20,}/g`; never substitute a header-name-based redactor.
+5. `auth_status` is safe to use after capture: it reports presence and decoded claims only. For
+   `token-id` that means issuer, role, scope/type, and expiry — never its value. If either credential
+   expires or the gateway reports `TOKEN_ID_MISSING`/`TOKEN_ID_EXPIRED`, repeat this AI capture path.
 
-**Executing a write:** run the compiled request descriptor from the engine
-(`ghl-ai-agents-specialist/engine/*-compiler.mjs` emit `{method, path, body, authHeader:'token-id'}`),
-POST/PUT to `https://services.leadconnectorhq.com<path>` with the `token-id` header + the headers above.
+**Executing a write:** use the compiled request plan through the internal gateway's `ai` rail. It POSTs
+or PUTs to `https://services.leadconnectorhq.com<path>` with both credentials, plus the standard
+`channel`, `source`, `version`, and content-type headers. Conversation AI PUT **merges**; Voice AI and
+Agent Studio PUT **full-replace** (GET → mutate whole doc → PUT).
 Conversation AI PUT **merges**; Voice AI and Agent Studio PUT **full-replace** (GET → mutate whole doc → PUT).
 KB rich-text (`POST /knowledge-base/rich-text/`) processes async — poll `.../:id/status` until `trained`.
 
