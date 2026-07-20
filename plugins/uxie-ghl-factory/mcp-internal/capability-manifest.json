@@ -3,5 +3,75 @@
     "tool": "list_workflows",
     "method": "GET",
     "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "get_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "export_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "export_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "export_workflow",
+    "method": "GET",
+    "path": "/workflows/sticky-notes-all"
+  },
+  {
+    "tool": "get_workflow_logs",
+    "method": "GET",
+    "path": "/workflows/logs/v2"
+  },
+  {
+    "tool": "get_workflow_logs",
+    "method": "GET",
+    "path": "/workflows/status/search/count-per-step"
+  },
+  {
+    "tool": "get_workflow_logs",
+    "method": "GET",
+    "path": "/workflows/status/search/workflow-with-filter"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/opportunities/pipelines"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/calendars/"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/users/"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/forms/"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/locations/{loc}/customFields/search"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/voice-ai/agents"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
+    "path": "/ai-employees/agents"
   }
 ]

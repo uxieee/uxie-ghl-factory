@@ -39,3 +39,32 @@ test('auth errors are returned as the error contract, never thrown', async () =>
   assert.equal(res.ok, false);
   assert.equal(res.code, 'TOKEN_MISSING');
 });
+
+test('set_token_file rejects a pasted JWT without echoing it or changing the state', async () => {
+  const state = { tokenFile: '/existing/tok.txt' };
+  const secret = 'eyJhbGciOiJIUzI1NiJ9.abcdefghijklmnopqrstuvwxyz.signature';
+  const tool = TOOLS.find((candidate) => candidate.name === 'set_token_file');
+  const result = await tool.handler({ path: secret }, { state });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'TOKEN_MISSING');
+  assert.doesNotMatch(JSON.stringify(result), /eyJ/);
+  assert.equal(state.tokenFile, '/existing/tok.txt');
+});
+
+test('set_token_file and auth_status reject token-id credentials in direct-call arguments', async () => {
+  const secret = 'tid-live-secret-123456789';
+  const state = { tokenFile: '/existing/tok.txt' };
+  const setTokenFile = TOOLS.find((candidate) => candidate.name === 'set_token_file');
+  const authStatus = TOOLS.find((candidate) => candidate.name === 'auth_status');
+
+  const setResult = await setTokenFile.handler({ path: `token-id: ${secret}` }, { state });
+  const authResult = await authStatus.handler({ extra: { tokenId: secret } }, { state });
+
+  assert.equal(setResult.ok, false);
+  assert.equal(setResult.code, 'TOKEN_MISSING');
+  assert.equal(authResult.ok, false);
+  assert.equal(authResult.code, 'VALIDATION_FAILED');
+  assert.equal(state.tokenFile, '/existing/tok.txt');
+  assert.doesNotMatch(JSON.stringify({ setResult, authResult }), /tid-live-secret/);
+});

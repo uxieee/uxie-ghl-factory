@@ -31,28 +31,39 @@ const BASE = 'https://backend.leadconnectorhq.com';
 export async function fetchEntities(gw) {
   const { call, loc } = gw;
   const g = async (p) => { try { const r = await call('GET', p); return r.ok ? r.json : {}; } catch { return {}; } };
+  const arrayFrom = (...values) => values.find(Array.isArray) ?? [];
+  const recordsFrom = (...values) => arrayFrom(...values)
+    .filter((value) => value && typeof value === 'object' && !Array.isArray(value));
+  const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
+  const locationPath = encodeURIComponent(String(loc));
   const [pl, cl, us, fm, cf, agS, agC] = await Promise.all([
-    g(`/opportunities/pipelines?locationId=${loc}`),
-    g(`/calendars/?locationId=${loc}`),
-    g(`/users/?locationId=${loc}`),
-    g(`/forms/?locationId=${loc}&limit=100`),
+    g(`/opportunities/pipelines?${locationQuery()}`),
+    g(`/calendars/?${locationQuery()}`),
+    g(`/users/?${locationQuery()}`),
+    g(`/forms/?${locationQuery({ limit: '100' })}`),
     // model=all: the plain /customFields endpoint returns CONTACT fields only, so an
     // update_opportunity referencing an OPPORTUNITY custom field false-threw OPP_FIELD_UNKNOWN
     // (live-caught on GROM AU 2026-07-18). The search endpoint returns every model's custom
     // fields; includeStandards=false keeps it to genuine custom fields (standard opp fields
     // like name/status are matched by STANDARD_OPP_FIELDS before the custom lookup).
-    g(`/locations/${loc}/customFields/search?parentId=&skip=0&limit=10000&documentType=field&model=all&query=&includeStandards=false`),
-    g(`/voice-ai/agents?locationId=${loc}`),               // best-effort (may 404)
-    g(`/ai-employees/agents?locationId=${loc}`),           // best-effort (may 404)
+    g(`/locations/${locationPath}/customFields/search?${new URLSearchParams({
+      parentId: '', skip: '0', limit: '10000', documentType: 'field',
+      model: 'all', query: '', includeStandards: 'false',
+    })}`),
+    g(`/voice-ai/agents?${locationQuery()}`),               // best-effort (may 404)
+    g(`/ai-employees/agents?${locationQuery()}`),           // best-effort (may 404)
   ]);
-  const agents = [...(agS.agents || agS.data || []), ...(agC.agents || agC.data || [])]
+  const agents = [...recordsFrom(agS?.agents, agS?.data, agS), ...recordsFrom(agC?.agents, agC?.data, agC)]
     .map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
   return {
-    pipelines: (pl.pipelines || []).map((p) => ({ id: p.id || p._id, name: p.name, stages: (p.stages || []).map((s) => ({ id: s.id, name: s.name })) })),
-    calendars: (cl.calendars || []).map((c) => ({ id: c.id || c._id, name: c.name })),
-    users: (us.users || us || []).map((u) => ({ id: u.id || u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, name: u.name })),
-    forms: (fm.forms || []).map((f) => ({ id: f.id || f._id, name: f.name })),
-    customFields: (cf.customFields || cf || []).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model })),
+    pipelines: recordsFrom(pl?.pipelines, pl).map((p) => ({
+      id: p.id || p._id, name: p.name,
+      stages: recordsFrom(p.stages).map((s) => ({ id: s.id, name: s.name })),
+    })),
+    calendars: recordsFrom(cl?.calendars, cl).map((c) => ({ id: c.id || c._id, name: c.name })),
+    users: recordsFrom(us?.users, us).map((u) => ({ id: u.id || u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, name: u.name })),
+    forms: recordsFrom(fm?.forms, fm).map((f) => ({ id: f.id || f._id, name: f.name })),
+    customFields: recordsFrom(cf?.customFields, cf).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model })),
     agents,
   };
 }

@@ -7,12 +7,25 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { TOOLS, registerTools } from '../core/tools.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+const b64 = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
+
+function validTokenFile() {
+  const dir = mkdtempSync(join(tmpdir(), 'ghl-registration-'));
+  const path = join(dir, 'tok.txt');
+  const jwt = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
+  writeFileSync(path, `Authorization: Bearer ${jwt}\ntoken-id: tid-fixture\n`);
+  return { path, jwt };
+}
 
 test('every tool registers against a real McpServer without throwing', () => {
   const server = new McpServer({ name: 'test', version: '0.0.0' });
@@ -28,6 +41,70 @@ test('each tool registers individually — names the offender if one fails', () 
       () => registerTools(server, { state: {}, makeGw: () => {} }, [t]),
       `tool "${t.name}" failed to register`,
     );
+  }
+});
+
+test('real MCP tools/list publishes every tool with an SDK-generated object schema', async () => {
+  const server = new McpServer({ name: 'test-server', version: '0.0.0' });
+  const client = new Client({ name: 'test-client', version: '0.0.0' });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  registerTools(server, { state: {}, makeGw: () => { throw new Error('unused'); } });
+
+  await server.connect(serverTransport);
+  await client.connect(clientTransport);
+  try {
+    const listed = await client.listTools();
+    assert.deepEqual(
+      listed.tools.map((candidate) => candidate.name).sort(),
+      TOOLS.map((candidate) => candidate.name).sort(),
+    );
+    for (const candidate of listed.tools) {
+      assert.equal(candidate.inputSchema.type, 'object', `${candidate.name} schema type`);
+      assert.ok(candidate.inputSchema.properties, `${candidate.name} schema properties`);
+      assert.notEqual(candidate.inputSchema.additionalProperties, false,
+        `${candidate.name} must let the sanitized handler reject unknown keys`);
+    }
+  } finally {
+    await client.close();
+  }
+});
+
+test('real MCP tools/call sanitizes secret unknown keys and rejects all unknown fields before state mutation', async () => {
+  const server = new McpServer({ name: 'test-server', version: '0.0.0' });
+  const client = new Client({ name: 'test-client', version: '0.0.0' });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  const state = { tokenFile: '/existing/tok.txt' };
+  registerTools(server, { state, makeGw: () => { throw new Error('unused'); } });
+
+  await server.connect(serverTransport);
+  await client.connect(clientTransport);
+  try {
+    const { path, jwt } = validTokenFile();
+    const tokenIdKey = 'token-id: opaque-token-id-value-123';
+    const cases = [
+      { label: 'JWT property key', args: { path, [jwt]: true }, secret: jwt, code: 'TOKEN_MISSING' },
+      { label: 'token-id-like property key', args: { path, [tokenIdKey]: true }, secret: tokenIdKey, code: 'TOKEN_MISSING' },
+      { label: 'ordinary unknown field', args: { path, surprise: 'harmless' }, secret: 'surprise', code: 'VALIDATION_FAILED' },
+    ];
+
+    for (const scenario of cases) {
+      const result = await client.callTool({ name: 'set_token_file', arguments: scenario.args });
+      assert.notEqual(result.isError, true, `${scenario.label} became a protocol validation error`);
+      const contract = JSON.parse(result.content[0].text);
+      assert.equal(contract.ok, false, scenario.label);
+      assert.equal(contract.code, scenario.code, scenario.label);
+      assert.ok(!JSON.stringify(result).includes(scenario.secret), `${scenario.label} leaked`);
+      assert.equal(state.tokenFile, '/existing/tok.txt', `${scenario.label} mutated state`);
+    }
+
+    const knownFieldTypeError = await client.callTool({
+      name: 'set_token_file',
+      arguments: { path: 123 },
+    });
+    assert.equal(knownFieldTypeError.isError, true, 'known-field validation must remain SDK-backed');
+    assert.equal(state.tokenFile, '/existing/tok.txt');
+  } finally {
+    await client.close();
   }
 });
 
