@@ -7,7 +7,9 @@ export function makeFF({ gw }) {
     const result = await call(method, path, body);
     if (!result.ok) {
       const detail = typeof result.json === 'string' ? result.json : JSON.stringify(result.json);
-      throw new Error(`${method} ${path} → ${result.status} ${detail.slice(0, 200)}`);
+      const error = new Error(`${method} ${path} → ${result.status} ${detail.slice(0, 200)}`);
+      error.gatewayResponse = result;
+      throw error;
     }
     return result.json;
   };
@@ -24,12 +26,20 @@ export function makeFF({ gw }) {
   // LIVE-PROVEN: details-by-step pages at 50 and must be walked to totalCount.
   const allParked = async (wid, stepId, { pageSize = 50 } = {}) => {
     const rows = [];
-    for (let skip = 0; ; skip += pageSize) {
+    let skip = 0;
+    for (;;) {
       const detail = await parkedAt(wid, stepId, { skip, limit: pageSize });
-      const batch = detail.rows || [];
+      const batch = Array.isArray(detail.rows) ? detail.rows : [];
       rows.push(...batch);
-      const total = detail.totalCount ?? rows.length;
-      if (batch.length < pageSize || rows.length >= total) break;
+      const reportedTotal = Number(detail.totalCount);
+      const total = Number.isFinite(reportedTotal) && reportedTotal >= 0
+        ? reportedTotal
+        : rows.length;
+      if (rows.length >= total) break;
+      if (batch.length === 0) {
+        throw new Error(`details-by-step pagination stalled at ${rows.length} of ${total} rows`);
+      }
+      skip += batch.length;
     }
     return rows;
   };

@@ -1,6 +1,7 @@
 // Transport-blind tool definitions. Descriptions are pulled from the docs
 // repo's generated catalog so proof status and risk reach the agent verbatim.
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
@@ -14,6 +15,7 @@ import {
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
+import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
 
 const DOCS_CATALOG = '/Volumes/Xander SSD/Vibe Code/Misc/ghl-workflow-api-docs/catalog/tool-descriptions.json';
 let CATALOG = {};
@@ -281,6 +283,9 @@ function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
 const withFailureData = (failure, data) => ({ ...failure, data: ok(data).data });
 
 function fromThrown(error) {
+  if (error?.gatewayResponse) {
+    return fromHttp(error.gatewayResponse.status, error.gatewayResponse.json);
+  }
   if (error?.code && error?.remediation) {
     return fail(error.code, error.detail ?? error.message, error.remediation);
   }
@@ -293,9 +298,9 @@ function fromThrown(error) {
 
 async function safeGatewayCall(invoke) {
   try {
-    return { value: await invoke(), threw: false, failure: null };
+    return { value: await invoke(), threw: false, failure: null, error: null };
   } catch (error) {
-    return { value: null, threw: true, failure: fromThrown(error) };
+    return { value: null, threw: true, failure: fromThrown(error), error };
   }
 }
 
@@ -314,6 +319,29 @@ function editWriteFailure(failure, data) {
     ...failure,
     remediation: `URGENT: the edit may be partially applied. Inspect the workflow and re-run a read-only edit preview before retrying. If trigger changes landed, invoke publish_workflow with confirm:true only after the intended configuration is verified. ${failure.remediation ?? ''}`.trim(),
   }, data);
+}
+
+function rawWriteFailure(failure, data, { ambiguous = false } = {}) {
+  const warning = ambiguous
+    ? 'URGENT: the raw request outcome is ambiguous because transport failed after the write was attempted. Inspect the target resource before retrying.'
+    : 'URGENT: the raw request reached upstream but was not accepted. Inspect the target resource and endpoint response before retrying.';
+  return withFailureData({
+    ...failure,
+    remediation: warning,
+  }, data);
+}
+
+function fastForwardAmbiguousFailure(failure, data, rows) {
+  const statusIds = rows.map((row) => row._id);
+  const contactIds = [...new Set(rows.map((row) => row.contactId).filter(Boolean))];
+  return withFailureData(
+    fail(
+      failure.code,
+      failure.detail,
+      `URGENT: the fast-forward outcome is ambiguous after attempting status IDs [${statusIds.join(', ')}] for contact enrollments [${contactIds.join(', ')}]. Inspect the parked roster and runtime logs before retrying; the next workflow actions may already have fired.`,
+    ),
+    data,
+  );
 }
 
 function canonicalize(value) {
@@ -341,6 +369,101 @@ function boundEditIdGen(locationId, workflowId, version, ops, occupiedIds) {
   };
 }
 
+function fastForwardSelector(args = {}) {
+  const provided = ['contactId', 'statusIds', 'all']
+    .filter((key) => args[key] !== undefined);
+  if (provided.length !== 1) return null;
+  const contactId = typeof args.contactId === 'string' && args.contactId.trim().length > 0;
+  const statusIds = Array.isArray(args.statusIds)
+    && args.statusIds.length > 0
+    && args.statusIds.every((id) => typeof id === 'string' && id.trim().length > 0);
+  const all = args.all === true;
+  if (Number(contactId) + Number(statusIds) + Number(all) !== 1) return null;
+  if (contactId) return { contactId: args.contactId.trim() };
+  if (statusIds) {
+    return {
+      statusIds: [...new Set(args.statusIds.map((id) => id.trim()))],
+    };
+  }
+  return { all: true };
+}
+
+function dedupeParkedRows(rows) {
+  const seen = new Set();
+  return rows.filter((row) => {
+    if (seen.has(row?._id)) return false;
+    seen.add(row?._id);
+    return true;
+  });
+}
+
+function malformedParkedEnvelope(rows) {
+  for (const [index, row] of rows.entries()) {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      return `row ${index} is not an object`;
+    }
+    if (typeof row._id !== 'string' || row._id.trim().length === 0) {
+      return `row ${index} has no nonempty workflow-status _id`;
+    }
+  }
+  return null;
+}
+
+function selectParkedRows(rows, selector) {
+  const uniqueRows = dedupeParkedRows(rows);
+  if (selector.contactId) return uniqueRows.filter((row) => row.contactId === selector.contactId);
+  if (selector.statusIds) {
+    const byStatusId = new Map(uniqueRows.map((row) => [row._id, row]));
+    return selector.statusIds.map((id) => byStatusId.get(id)).filter(Boolean);
+  }
+  return uniqueRows;
+}
+
+function malformedSelectedParkedRows(rows) {
+  for (const [index, row] of rows.entries()) {
+    if (typeof row.contactId !== 'string' || row.contactId.trim().length === 0) {
+      return `selected row ${index} has no nonempty contactId`;
+    }
+  }
+  return null;
+}
+
+function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) {
+  const sample = rows.slice(0, 10);
+  const statusIds = rows.map((row) => row._id);
+  const canonicalRows = rows
+    .map((row) => ({ statusId: row._id, contactId: row.contactId ?? null }))
+    .sort((left, right) => (
+      String(left.statusId).localeCompare(String(right.statusId))
+      || String(left.contactId).localeCompare(String(right.contactId))
+    ));
+  const previewToken = createHash('sha256')
+    .update(JSON.stringify(canonicalize({
+      locationId,
+      workflowId,
+      stepId,
+      selector,
+      rows: canonicalRows,
+    })))
+    .digest('hex');
+  return {
+    count: rows.length,
+    statusIds,
+    previewToken,
+    samples: {
+      statusIds: sample.map((row) => row._id),
+      contactIds: sample.map((row) => row.contactId),
+    },
+  };
+}
+
+const HTTP_METHOD_TOKEN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+function normalizeHttpMethod(method) {
+  if (typeof method !== 'string') return null;
+  const normalized = method.trim();
+  return normalized && HTTP_METHOD_TOKEN.test(normalized) ? normalized.toUpperCase() : null;
+}
+
 // Run a handler body, mapping AuthError/engine throws onto the error contract.
 export async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED } = {}) {
   try {
@@ -350,8 +473,7 @@ export async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED
     return await fn();
   }
   catch (e) {
-    if (e?.code && e?.remediation) return fail(e.code, e.detail ?? e.message, e.remediation);
-    return fail(CODES.ENGINE_ABORT, e?.message ?? String(e), 'Engine threw — inspect detail; this is usually a spec or dependency problem.');
+    return fromThrown(e);
   }
 }
 
@@ -1156,27 +1278,205 @@ export const TOOLS = [
     }, args),
   },
   {
-    name: 'raw_request',
-    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET only in this version — writes ship with the confirmation-gated write tools.',
+    name: 'fast_forward_contacts',
+    description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step (proof: engine source).'),
     inputSchema: schema({
       locationId: z.string(),
-      method: z.literal('GET'),
-      path: z.string().startsWith('/').describe('Internal path beginning with / — the gateway adds the base URL'),
+      workflowId: z.string(),
+      stepId: z.string(),
+      contactId: z.string().optional(),
+      statusIds: z.array(z.string()).optional(),
+      all: z.boolean().optional(),
+      previewToken: z.string().optional(),
+      confirm: z.boolean().default(false),
     }),
-    capabilities: [],
+    capabilities: [
+      { method: 'GET', path: '/workflows/status/search/count-per-step' },
+      { method: 'GET', path: '/workflows/status/search/details-by-step' },
+      { method: 'POST', path: '/workflow/{loc}/{wid}/requeue-stuck-statuses/{stepId}' },
+    ],
     handler: async (args, deps) => guard(async () => {
-      if (args.method !== 'GET') {
+      const selector = fastForwardSelector(args);
+      if (!selector) {
         return fail(
-          CODES.CONFIRM_REQUIRED,
-          `raw_request is GET-only in this build (asked for ${args.method})`,
-          'Write support ships with the workflow write tools; use a typed tool or wait for that release.',
+          CODES.VALIDATION_FAILED,
+          'fast_forward_contacts requires exactly one selector: a nonempty contactId, a nonempty statusIds array, or all:true',
+          'Pass exactly one valid selector, preview without confirm, then repeat with confirm:true to move it.',
         );
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const response = await gw.call('GET', args.path);
-      return response.ok
-        ? ok({ status: response.status, json: response.json })
-        : fromHttp(response.status, response.json);
+      const ff = makeFF({ gw });
+      // Confirmation is a compare-and-write boundary: always resolve the current
+      // parked roster immediately before deciding whether a POST is still safe.
+      const parked = await ff.allParked(args.workflowId, args.stepId);
+      const envelopeProblem = malformedParkedEnvelope(parked);
+      if (envelopeProblem) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `Malformed parked-enrollment response: ${envelopeProblem}.`,
+          'No preview or write was produced. Re-read the parked roster after the upstream response is repaired.',
+        );
+      }
+      const selectedRows = selectParkedRows(parked, selector);
+      const selectedProblem = malformedSelectedParkedRows(selectedRows);
+      if (selectedProblem) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `Malformed selected parked-enrollment response: ${selectedProblem}.`,
+          'No preview or write was produced. Re-read the parked roster after the upstream response is repaired.',
+        );
+      }
+      const preview = fastForwardPreview(selectedRows, selector, args);
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            'Fast-forward preview is ready; no write was sent.',
+            'Review data.preview, then repeat the same selector with confirm:true to move these enrollments.',
+          ),
+          { preview },
+        );
+      }
+
+      if (typeof args.previewToken !== 'string' || args.previewToken !== preview.previewToken) {
+        return withFailureData(
+          fail(
+            CODES.PREVIEW_STALE,
+            'Fast-forward confirmation was refused because its preview token is missing or no longer matches the current parked roster.',
+            'Review data.preview, then reconfirm with its fresh previewToken. No write was sent.',
+          ),
+          { preview },
+        );
+      }
+
+      const statusIds = preview.statusIds;
+      const partialProgress = {
+        write: {
+          phase: 'requeue',
+          attempted: false,
+          acknowledged: false,
+          ambiguous: false,
+        },
+      };
+      if (statusIds.length === 0) {
+        return ok({
+          moved: 0,
+          statusIds: [],
+          statusIdsAttempted: [],
+          statusIdsMoved: [],
+          partialProgress,
+          note: 'Nobody parked matched that selector at this step; no write was sent.',
+        });
+      }
+
+      partialProgress.write.attempted = true;
+      const requeueCall = await safeGatewayCall(
+        () => ff.moveToNextStep(args.workflowId, args.stepId, statusIds),
+      );
+      if (requeueCall.threw) {
+        if (requeueCall.error?.gatewayResponse) {
+          return withFailureData(requeueCall.failure, {
+            moved: 0,
+            statusIds: [],
+            statusIdsAttempted: statusIds,
+            statusIdsMoved: [],
+            partialProgress,
+            note: 'The requeue POST received a known upstream rejection and did not acknowledge a move.',
+          });
+        }
+        partialProgress.write.ambiguous = true;
+        return fastForwardAmbiguousFailure(requeueCall.failure, {
+          moved: null,
+          statusIds: null,
+          statusIdsAttempted: statusIds,
+          statusIdsMoved: null,
+          partialProgress,
+          note: 'The requeue POST was attempted but not acknowledged; its outcome is ambiguous.',
+        }, selectedRows);
+      }
+      partialProgress.write.acknowledged = true;
+      return ok({
+        moved: statusIds.length,
+        statusIds,
+        statusIdsAttempted: statusIds,
+        statusIdsMoved: statusIds,
+        partialProgress,
+        upstream: requeueCall.value,
+      });
+    }, args),
+  },
+  {
+    name: 'raw_request',
+    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes.',
+    inputSchema: schema({
+      locationId: z.string(),
+      method: z.string().trim().regex(HTTP_METHOD_TOKEN).transform((method) => method.toUpperCase()),
+      path: z.string().startsWith('/').describe('Internal path beginning with / — the gateway adds the base URL'),
+      body: z.unknown().optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [],
+    handler: async (args, deps) => guard(async () => {
+      const method = normalizeHttpMethod(args.method);
+      if (!method) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          'raw_request method must be a syntactically valid HTTP method token',
+          'Pass one HTTP method token without whitespace or header/path content.',
+        );
+      }
+      if (method !== 'GET' && args.confirm !== true) {
+        return withFailureData(
+          fail(
+            CODES.CONFIRM_REQUIRED,
+            'Raw write preview is ready; no gateway call was sent.',
+            'Review data.preview, then repeat the same request with confirm:true to send it.',
+          ),
+          { preview: { method, path: args.path, ...(args.body === undefined ? {} : { body: args.body }) } },
+        );
+      }
+
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      if (method === 'GET') {
+        const response = await gw.call('GET', args.path);
+        return response.ok
+          ? ok({ status: response.status, json: response.json })
+          : fromHttp(response.status, response.json);
+      }
+
+      const partialProgress = {
+        write: {
+          phase: 'raw_request',
+          attempted: true,
+          acknowledged: false,
+          ambiguous: false,
+        },
+      };
+      const writeCall = await safeGatewayCall(
+        () => gw.call(method, args.path, args.body),
+      );
+      if (writeCall.threw) {
+        partialProgress.write.ambiguous = true;
+        return rawWriteFailure(writeCall.failure, {
+          partialProgress,
+          note: 'The raw write was attempted but not acknowledged; its outcome is ambiguous.',
+        }, { ambiguous: true });
+      }
+      if (!writeCall.value.ok) {
+        return rawWriteFailure(
+          fromHttp(writeCall.value.status, writeCall.value.json),
+          {
+            partialProgress,
+            note: 'The raw write reached the upstream service but was not accepted.',
+          },
+        );
+      }
+      partialProgress.write.acknowledged = true;
+      return ok({
+        status: writeCall.value.status,
+        json: writeCall.value.json,
+        partialProgress,
+      });
     }, args),
   },
 ];
