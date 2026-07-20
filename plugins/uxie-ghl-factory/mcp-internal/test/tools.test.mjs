@@ -13,14 +13,22 @@ test('every tool has a name, description, schema, handler and declared capabilit
   }
 });
 
-test('descriptions come from the docs-repo generated catalog, carrying proof labels', () => {
+test('capability-bearing descriptions carry proof labels', () => {
   const withRows = TOOLS.filter(t => t.capabilities.length > 0);
   for (const t of withRows) assert.match(t.description, /proof:/, `${t.name} carries a proof label`);
 });
 
-test('no read-plan tool declares a non-GET capability', () => {
-  for (const t of TOOLS) for (const c of t.capabilities) {
-    assert.equal(c.method, 'GET', `${t.name} declares ${c.method} — writes belong to Plan 3`);
+test('read tools declare only GET capabilities', () => {
+  const readTools = new Set([
+    'list_workflows',
+    'get_workflow',
+    'export_workflow',
+    'get_workflow_logs',
+    'list_account_entities',
+    'raw_request',
+  ]);
+  for (const t of TOOLS.filter((candidate) => readTools.has(candidate.name))) for (const c of t.capabilities) {
+    assert.equal(c.method, 'GET', `${t.name} declares ${c.method}`);
   }
 });
 
