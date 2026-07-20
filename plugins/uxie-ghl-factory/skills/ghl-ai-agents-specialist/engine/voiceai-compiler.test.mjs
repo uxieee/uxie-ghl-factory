@@ -616,3 +616,25 @@ test('compileVoiceAiUpdate: rejects invalid IR (bad denoisingMode) even in full-
   assert.throws(() => compileVoiceAiUpdate(ir, { agentId: AGENT_ID, locationId: LOCATION_ID }),
     (e) => e.code === 'BAD_DENOISING_MODE');
 });
+
+// ─── Empty-string fields the API rejects (live-caught 2026-07-21, GROM AU) ────────────
+// The full-replace PUT 422'd on businessName / welcomeMessage / timezone being '' —
+// the single reason Voice AI agent-create appeared broken: create succeeded, this PUT
+// failed, and a real unnamed agent was left on the account. Live-tested: omitting → 200.
+test('compileVoiceAiUpdate omits businessName/welcomeMessage/timezone when empty', () => {
+  const { body } = compileVoiceAiUpdate(
+    { agentName: 'A', agentPrompt: 'P' }, { agentId: 'x', locationId: 'L' });
+  for (const key of ['businessName', 'welcomeMessage', 'timezone']) {
+    assert.equal(key in body, false, `${key} must be omitted, not sent as ''`);
+  }
+});
+
+test('compileVoiceAiUpdate keeps those fields when the IR supplies real values', () => {
+  const { body } = compileVoiceAiUpdate(
+    { agentName: 'A', agentPrompt: 'P', businessName: 'Canary Co',
+      welcomeMessage: 'Hi there.', timezone: 'Australia/Sydney' },
+    { agentId: 'x', locationId: 'L' });
+  assert.equal(body.businessName, 'Canary Co');
+  assert.equal(body.welcomeMessage, 'Hi there.');
+  assert.equal(body.timezone, 'Australia/Sydney');
+});
