@@ -25,10 +25,10 @@ test('all AI create tools preview compiled plans without constructing a gateway 
   assert.equal(gatewayConstructed, false);
 });
 
-test('AI create descriptions disclose proof status without overstating unproven creates', () => {
+test('AI create descriptions disclose proof status honestly (all three live-proven 2026-07-21)', () => {
   assert.match(tool('create_convai_agent').description, /live-roundtrip/i);
-  assert.match(tool('create_voiceai_agent').description, /NOT live-proven/i);
-  assert.match(tool('create_studio_agent').description, /NOT live-proven/i);
+  assert.match(tool('create_voiceai_agent').description, /live-proven end-to-end/i);
+  assert.match(tool('create_studio_agent').description, /live-proven end-to-end/i);
 });
 
 // Studio verification must assert ONLY identity fields (name, systemPrompt), never the
@@ -49,4 +49,28 @@ test('studio verifyExpected is narrowed to identity fields, not AI-owned config'
   assert.equal('actions' in plan.verifyExpected.config, false, 'must not assert a non-persisted actions key');
   // The follow-up PUT still sends the FULL config — we just do not verify what we did not author.
   assert.ok(plan.followUps[0].body.config, 'follow-up still carries the full config');
+});
+
+// Studio must accept EITHER buildPrompt or systemPrompt alone — requiring both, with an
+// error naming the omitted one, read as contradictory (2026-07-21). Both roles preserved
+// when both are supplied.
+test('studio compiles from buildPrompt alone (systemPrompt derived)', () => {
+  const plan = compileAiAgentPlan('studio', { locationId: 'L', companyId: 'A',
+    spec: { name: 'S', buildPrompt: 'Build a greeter.' } });
+  assert.ok(plan.create.body.message.includes('Build a greeter.'));
+  assert.equal(plan.verifyExpected.config.systemPrompt, 'Build a greeter.');
+});
+
+test('studio compiles from systemPrompt alone (buildPrompt derived)', () => {
+  const plan = compileAiAgentPlan('studio', { locationId: 'L', companyId: 'A',
+    spec: { name: 'S', systemPrompt: 'You are a greeter.' } });
+  assert.ok(plan.create.body.message.includes('You are a greeter.'));
+  assert.equal(plan.verifyExpected.config.systemPrompt, 'You are a greeter.');
+});
+
+test('studio keeps both distinct when both supplied', () => {
+  const plan = compileAiAgentPlan('studio', { locationId: 'L', companyId: 'A',
+    spec: { name: 'S', buildPrompt: 'Build a greeter.', systemPrompt: 'You are a greeter.' } });
+  assert.ok(plan.create.body.message.includes('Build a greeter.'));
+  assert.equal(plan.verifyExpected.config.systemPrompt, 'You are a greeter.');
 });
