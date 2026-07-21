@@ -46,14 +46,14 @@ surface provides both in one shot).
 4. **Confirm by claims only:** decode each JWT's payload and report issuer / role / type / exp /
    seconds-remaining. Never the token. (Valid AI `token-id`: `iss` =
    `securetoken.google.com/highlevel-backend`, `role: admin`.)
-5. **Probe token scoping (resolves the workflow-vs-AI question live).** With the captured
-   Bearer, do ONE read-only call to the workflow surface via the server's `list_workflows`
-   (or `raw_request` GET to `backend.leadconnectorhq.com`). 
-   - **200** → this Bearer covers workflow + AI; done.
-   - **401/403** → the workflow tools need a token scoped to the workflow-builder iframe. Tell
-     the user, then also navigate the browser to a workflow-builder view, capture that Bearer
-     the same leak-safe way, and record the finding (the credential file / gateway may need to
-     carry a second, workflow-scoped Bearer — flag it, don't silently ship a half-working set).
+5. **Probe token scoping.** The Bearer captured from the AI surface has been live-proven
+   (GROM AU, 2026-07-21) to ALSO authenticate the workflow/backend surface — one capture
+   covers AI *and* workflow tools. Confirm it still holds with ONE read-only `list_workflows`
+   (or `raw_request` GET to `backend.leadconnectorhq.com`):
+   - **200** → expected; this single credential set covers every tool family. Done.
+   - **401/403** (not observed to date) → the workflow tools would need a token scoped to the
+     workflow-builder iframe. Tell the user, capture that Bearer the same leak-safe way, and
+     record the finding — do NOT silently ship a half-working set.
 6. **Verify end-to-end:** call `auth_status` (claims only), then one real read tool
    (`list_workflows`) and confirm `ok`. Report a short pass/fail.
 
