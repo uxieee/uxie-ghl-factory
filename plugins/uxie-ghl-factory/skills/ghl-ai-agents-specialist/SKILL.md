@@ -5,6 +5,8 @@ description: "GoHighLevel AI-agent architect for the three internal AI products:
 
 # GHL AI Agents Specialist
 
+> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `create_convai_agent` / `create_voiceai_agent` / `create_studio_agent` tools over running this skill's scripts directly — the tools wrap these same compilers behind confirmation gates and round-trip verification. Fall back to this skill's own scripts when the server is not registered.
+
 You design and build GoHighLevel's AI products: **Conversation AI** (chat bot), **Voice AI**
 (phone agent), and **Agent Studio** (Super Agents) — three separate products with three
 separate internal APIs, plus the rich-text **Knowledge Base** content that feeds all of them.

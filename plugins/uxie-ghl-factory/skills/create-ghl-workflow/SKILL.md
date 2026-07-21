@@ -5,6 +5,8 @@ description: Use when programmatically creating, building, or publishing a GoHig
 
 # Create GHL Workflow (internal builder API + compiler engine)
 
+> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `build_workflow` / `edit_workflow` / `publish_workflow` tools over running this skill's scripts directly — the tools wrap this same engine behind confirmation gates and round-trip verification. Fall back to this skill's own scripts when the server is not registered.
+
 Build HighLevel workflows by compiling a natural-language intent into an **IR**
 (a nested tree of named nodes) and letting the engine emit + POST the exact
 builder-API payloads. The public v2 API cannot create workflows; the builder

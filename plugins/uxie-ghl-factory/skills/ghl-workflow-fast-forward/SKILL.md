@@ -5,6 +5,8 @@ description: Fast-forward contacts parked at a GoHighLevel / HighLevel workflow 
 
 # Fast-forward a GHL workflow wait
 
+> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `fast_forward_contacts` tool over running this skill's scripts directly — the tool wraps this same engine behind a confirmation gate and preview. Fall back to this skill's own scripts when the server is not registered.
+
 The builder can move a contact sitting at a wait step straight to the next step — the UI path
 is: click the wait step → its contact-count badge → **Action statistics** → tick the contacts →
 the running-person icon → **Move all**. That control posts to an internal endpoint, so it can be

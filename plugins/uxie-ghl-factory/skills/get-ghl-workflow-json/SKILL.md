@@ -5,6 +5,8 @@ description: Capture, export, and validate GoHighLevel / HighLevel workflow JSON
 
 # Get GHL Workflow JSON
 
+> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its read tools (`export_workflow`, `get_workflow`, `list_workflows`) over running this skill's scripts directly. Fall back to this skill's own scripts when the server is not registered.
+
 Capture the raw JSON behind a HighLevel workflow builder view, preserve it on disk, and validate that the capture is structurally useful. This is a narrow extraction skill, not a full audit skill.
 
 ## Boundaries
