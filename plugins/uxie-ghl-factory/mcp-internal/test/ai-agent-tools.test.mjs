@@ -26,9 +26,11 @@ test('all AI create tools preview compiled plans without constructing a gateway 
 });
 
 test('AI create descriptions disclose proof status honestly (all three live-proven 2026-07-21)', () => {
-  assert.match(tool('create_convai_agent').description, /live-roundtrip/i);
-  assert.match(tool('create_voiceai_agent').description, /live-proven end-to-end/i);
-  assert.match(tool('create_studio_agent').description, /live-proven end-to-end/i);
+  // All three AI create rows are now live-runtime in the matrix (proven end-to-end).
+  for (const name of ['create_convai_agent', 'create_voiceai_agent', 'create_studio_agent']) {
+    assert.match(tool(name).description, /live-runtime|live-proven/i, name);
+    assert.doesNotMatch(tool(name).description, /NOT live-proven/i, name);
+  }
 });
 
 // Studio verification must assert ONLY identity fields (name, systemPrompt), never the
