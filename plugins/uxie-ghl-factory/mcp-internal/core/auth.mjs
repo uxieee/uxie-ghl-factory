@@ -2,9 +2,14 @@
 // capture runbook) — never in a tool argument, never in model context. Read
 // fresh on every call so re-capturing mid-session just works.
 import { readFileSync, existsSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { CODES } from './errors.mjs';
 
-export const DEFAULT_TOKEN_FILE = '.playwright-mcp/tok.txt';
+// Absolute + stable so the auto-registered server and the capture flow agree on ONE path,
+// and it survives plugin updates (never under the plugin cache root). Overridable via the
+// GHL_TOK_FILE env or the set_token_file tool.
+export const DEFAULT_TOKEN_FILE = join(homedir(), '.uxie-ghl-internal-mcp', 'tok.txt');
 
 export class AuthError extends Error {
   constructor(code, detail, remediation) { super(detail); this.code = code; this.detail = detail; this.remediation = remediation; }

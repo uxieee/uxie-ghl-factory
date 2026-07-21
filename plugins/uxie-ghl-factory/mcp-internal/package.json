@@ -3,10 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "bin": { "ghl-internal-mcp": "./stdio.mjs" },
+  "bin": {
+    "ghl-internal-mcp": "./stdio.mjs"
+  },
   "scripts": {
+    "build": "node scripts/build.mjs",
     "test": "node --test \"test/**/*.test.mjs\"",
     "manifest": "node scripts/gen-manifest.mjs"
   },
-  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0", "zod": "^4.0.0" }
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
 }
