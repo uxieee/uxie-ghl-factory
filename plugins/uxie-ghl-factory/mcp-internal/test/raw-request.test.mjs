@@ -230,3 +230,36 @@ test('raw write remediations stay endpoint-specific even for workflow-shaped HTT
   assert.match(result.remediation, /raw request|target resource|endpoint/i);
   assert.doesNotMatch(result.remediation, /workflow|draft|republish|triggers/i);
 });
+
+// host:'ai' must switch BOTH the base and the auth rail — the AI host 401s a Bearer-only
+// call. Before this, AI-host endpoints were unreachable through raw_request (its guard
+// rejected them), which during live cleanup looked like "object gone" when it still existed.
+test('raw_request host:"ai" routes to the AI base on the AI rail', async () => {
+  const seen = { railArg: undefined, callOpts: undefined };
+  const deps = {
+    state: { tokenFile: '/fixture/token.txt' },
+    makeGw: (args) => {
+      seen.railArg = args.rail;
+      return { loc: 'LOC', uid: 'U', call: async (_m, _p, _b, opts) => { seen.callOpts = opts; return { status: 200, ok: true, json: { ok: true } }; } };
+    },
+  };
+  const r = await rawRequestTool().handler(
+    { locationId: 'LOC', method: 'GET', path: '/voice-ai/agents/x', host: 'ai' }, deps);
+  assert.equal(r.ok, true);
+  assert.equal(seen.railArg, 'ai', 'AI host must use the ai rail (token-id)');
+  assert.equal(seen.callOpts?.base, 'https://services.leadconnectorhq.com');
+});
+
+test('raw_request default host stays on the workflow backend and Bearer rail', async () => {
+  const seen = { railArg: 'UNSET', callOpts: 'UNSET' };
+  const deps = {
+    state: { tokenFile: '/fixture/token.txt' },
+    makeGw: (args) => {
+      seen.railArg = args.rail;
+      return { loc: 'LOC', uid: 'U', call: async (_m, _p, _b, opts) => { seen.callOpts = opts; return { status: 200, ok: true, json: {} }; } };
+    },
+  };
+  await rawRequestTool().handler({ locationId: 'LOC', method: 'GET', path: '/workflow/LOC/list' }, deps);
+  assert.equal(seen.railArg, undefined, 'default must not force a rail (gateway default = jwt)');
+  assert.equal(seen.callOpts, undefined, 'default must not pass a base override');
+});
