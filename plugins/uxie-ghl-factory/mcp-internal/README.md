@@ -16,37 +16,40 @@ re-proven live through the real server before shipping (see the 0.8.0 re-proof n
 
 ## Credential model
 
-Credentials live in a **file on your machine**, written by the Playwright capture
-runbook (`docs/auth-jwt-capture.md`). They are never accepted as a tool argument,
-never logged, and never echoed in a response or error.
+Credentials live in a **file on your machine**, written by the agent-driven capture flow
+(`/uxie-ghl-factory:connect`, which builds on `docs/auth-jwt-capture.md`). They are never
+accepted as a tool argument, never logged, and never echoed in a response or error.
 
-- Point the server at the file with `GHL_TOK_FILE=<path>` or the `set_token_file` tool
-  (a **path**, never a token — a JWT-looking value is rejected without echoing it back).
+- Default location: **`~/.uxie-ghl-internal-mcp/tok.txt`** (`DEFAULT_TOKEN_FILE`). Override
+  with `GHL_TOK_FILE=<path>` or the `set_token_file` tool (a **path**, never a token — a
+  JWT-looking value is rejected without echoing it back).
 - The file is re-read **on every call**, so re-capturing mid-session works with no restart.
-- JWTs last ~1 hour. On expiry you get `TOKEN_EXPIRED` naming the runbook to re-run.
-- The token is scoped to the workflow-builder iframe origin. A token captured from a
-  request whose `referer` is `app.gohighlevel.com` is unscoped and 401s on every call.
+- JWTs last ~1 hour. On expiry you get `TOKEN_EXPIRED` — re-run `/uxie-ghl-factory:connect`.
+- Capture is from the **AI Agents surface** (`app.gohighlevel.com`), which yields a Bearer
+  **and** the `token-id` the AI tools need. **Live-proven (GROM AU, 2026-07-21):** that same
+  Bearer also authenticates the workflow/backend surface (`list_workflows` → 45 workflows),
+  so one capture covers every tool family — no separately-scoped workflow token needed.
 
-## Install
+## Install / registration
 
-This server ships **inside** the `uxie-ghl-factory` plugin — a plugin checkout already
-has the code. It is **opt-in**: it is not auto-registered, because it needs a captured
-JWT (see Credential model) that does not exist until you run the capture runbook.
+This server ships **inside** the `uxie-ghl-factory` plugin as a **self-contained bundle**
+(`dist/server.mjs`, deps included), so it boots with just `node` — **no `npm install`**.
 
-One-time setup, from this directory:
+- **Claude Code:** it is **registered automatically** via the plugin's `.mcp.json` (as
+  `uxie-ghl-internal-mcp`). Nothing to add by hand. Run `/uxie-ghl-factory:connect` once to
+  authorize it; token-less, it is registered and healthy but tools return `TOKEN_MISSING`.
+- **Other stdio clients** (Codex, Cursor, Desktop): register it yourself, pointing at the
+  bundled entry — e.g. `node <plugin>/mcp-internal/dist/server.mjs`. No env is required; the
+  server defaults to `~/.uxie-ghl-internal-mcp/tok.txt`. Codex example for `~/.codex/config.toml`:
+  ```toml
+  [mcp_servers.uxie-ghl-internal-mcp]
+  command = "node"
+  args = ["<plugin>/mcp-internal/dist/server.mjs"]
+  ```
 
-```bash
-# 1. Install the two runtime deps (@modelcontextprotocol/sdk, zod). node_modules is
-#    gitignored; package-lock.json is committed, so this is deterministic.
-npm install
-
-# 2. Capture a token to a file (see the get-ghl-workflow-json capture runbook), then
-#    register the server, pointing GHL_TOK_FILE at that file:
-claude mcp add ghl-internal -e GHL_TOK_FILE="/abs/path/to/tok.txt" -- node "$(pwd)/stdio.mjs"
-```
-
-Works in any stdio MCP client (Claude Code, Codex, Cursor, Desktop) — swap `claude mcp add`
-for that client's registration command, same `node <path>/stdio.mjs` invocation.
+**Developing on the server?** `stdio.mjs` + `core/` are the source; `dist/server.mjs` is the
+shipped bundle. After changing source, run `npm install` (dev deps) then `npm run build`, and
+commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 
 ## Tools
 

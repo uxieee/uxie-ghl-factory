@@ -33,17 +33,15 @@ Run these in order; report a pass/fail table at the end.
 5. VERSION SKEW: if the Worker exposes a catalog version, compare with the
    plugin's expected catalog and report drift; if the endpoint doesn't exist
    yet, say the check is unavailable in this Worker version.
-6. OPTIONAL — internal API: ask whether they want internal-API features now;
-   if yes, walk ${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md §2 once,
-   including the ToS disclosure from ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md.
-6b. OPTIONAL — internal-API MCP server: the internal-API capabilities (workflow
-    build/edit/publish, funnel/membership/AI-agent building, fast-forward) are also
-    available as a local stdio MCP server at ${CLAUDE_PLUGIN_ROOT}/mcp-internal/ — an
-    alternative to driving the skills' scripts. It is OPT-IN and never auto-started
-    (it needs a captured JWT). If they want it, walk
-    ${CLAUDE_PLUGIN_ROOT}/mcp-internal/README.md "Install" (one-time `npm install`
-    there, then `claude mcp add ghl-internal -e GHL_TOK_FILE=<path> -- node
-    ${CLAUDE_PLUGIN_ROOT}/mcp-internal/stdio.mjs`). The credential model is the same
-    file-based JWT as the skills; nothing new to trust beyond what step 6 covered.
+6. INTERNAL-API MCP SERVER: the `uxie-ghl-internal-mcp` server (workflow
+   build/edit/publish, funnel/membership/AI-agent building, fast-forward — 17 tools)
+   is **registered automatically** with the plugin (bundled `.mcp.json`); it needs no
+   `npm install` and nothing to add by hand. Confirm it shows as a healthy registered
+   server. The one thing it needs is a credential — before its tools work, run
+   `/uxie-ghl-factory:connect` (the agent opens a browser, the user logs into GHL, the
+   agent captures the token). Present the ToS disclosure from
+   ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md once before the first internal-API write.
+   (Codex has no auto-registration or slash commands — point Codex users to
+   ${CLAUDE_PLUGIN_ROOT}/mcp-internal/README.md to configure it in ~/.codex/config.toml.)
 7. POINT FORWARD: suggest /uxie-ghl-factory:brief for their first client, and the
    ghl-orientation skill for agents new to GHL.
