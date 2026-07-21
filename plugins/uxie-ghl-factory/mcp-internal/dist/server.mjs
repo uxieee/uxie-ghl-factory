@@ -5,6 +5,14 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __esm = (fn, res, err) => function __init() {
+  if (err) throw err[0];
+  try {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  } catch (e) {
+    throw err = [e], e;
+  }
+};
 var __commonJS = (cb, mod) => function __require() {
   try {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
@@ -33,10 +41,401 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// <define:__TOOL_CATALOG__>
+var define_TOOL_CATALOG_default;
+var init_define_TOOL_CATALOG = __esm({
+  "<define:__TOOL_CATALOG__>"() {
+    define_TOOL_CATALOG_default = {
+      build_workflow: {
+        description: "Build workflow \u2014 proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-11); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-07-17)",
+        proofFloor: "live-roundtrip (2026-07-11)",
+        proofRows: [
+          "entities-tags-list",
+          "triggers-create"
+        ],
+        proofFloorRows: [
+          "workflow-build-verify",
+          "workflow-create",
+          "workflow-update"
+        ],
+        riskRows: [
+          "triggers-create",
+          "workflow-create",
+          "workflow-update"
+        ],
+        rows: [
+          "entities-tags-list",
+          "triggers-create",
+          "workflow-build-verify",
+          "workflow-create",
+          "workflow-update"
+        ]
+      },
+      get_workflow: {
+        description: "Get workflow \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "workflow-read"
+        ],
+        proofFloorRows: [
+          "workflow-read"
+        ],
+        riskRows: [
+          "workflow-read"
+        ],
+        rows: [
+          "workflow-read"
+        ]
+      },
+      export_workflow: {
+        description: "Export workflow \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ],
+        proofFloorRows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ],
+        riskRows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ],
+        rows: [
+          "triggers-list",
+          "workflow-export-read",
+          "workflow-sticky-notes-list"
+        ]
+      },
+      edit_workflow: {
+        description: "Edit workflow \u2014 proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-17); risk: destructive",
+        risk: "destructive",
+        proof: "live-runtime (2026-07-17)",
+        proofFloor: "live-roundtrip (2026-07-17)",
+        proofRows: [
+          "triggers-create-for-edit"
+        ],
+        proofFloorRows: [
+          "triggers-delete",
+          "triggers-list-for-edit",
+          "triggers-update",
+          "workflow-edit",
+          "workflow-edit-read"
+        ],
+        riskRows: [
+          "triggers-delete"
+        ],
+        rows: [
+          "triggers-create-for-edit",
+          "triggers-delete",
+          "triggers-list-for-edit",
+          "triggers-update",
+          "workflow-edit",
+          "workflow-edit-read"
+        ]
+      },
+      publish_workflow: {
+        description: "Publish workflow \u2014 proof: live-runtime (2026-07-11), floor: documented; risk: destructive",
+        risk: "destructive",
+        proof: "live-runtime (2026-07-11)",
+        proofFloor: "documented",
+        proofRows: [
+          "workflow-publish"
+        ],
+        proofFloorRows: [
+          "triggers-list-for-publish"
+        ],
+        riskRows: [
+          "workflow-publish"
+        ],
+        rows: [
+          "triggers-list-for-publish",
+          "workflow-publish",
+          "workflow-publish-read"
+        ]
+      },
+      list_workflows: {
+        description: "List workflows \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "workflow-list"
+        ],
+        proofFloorRows: [
+          "workflow-list"
+        ],
+        riskRows: [
+          "workflow-list"
+        ],
+        rows: [
+          "workflow-list"
+        ]
+      },
+      get_workflow_logs: {
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-07-15); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-07-15)",
+        proofFloor: "live-runtime (2026-07-15)",
+        proofRows: [
+          "logs-count-per-step",
+          "logs-enrollment-history",
+          "logs-list-v2"
+        ],
+        proofFloorRows: [
+          "logs-count-per-step",
+          "logs-enrollment-history",
+          "logs-list-v2"
+        ],
+        riskRows: [
+          "logs-count-per-step",
+          "logs-enrollment-history",
+          "logs-list-v2"
+        ],
+        rows: [
+          "logs-count-per-step",
+          "logs-enrollment-history",
+          "logs-list-v2"
+        ]
+      },
+      fast_forward_contacts: {
+        description: "Fast-forward contacts \u2014 proof: live-runtime (2026-07-18); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-07-18)",
+        proofFloor: "live-runtime (2026-07-18)",
+        proofRows: [
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
+        ],
+        proofFloorRows: [
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
+        ],
+        riskRows: [
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
+        ],
+        rows: [
+          "fast-forward-count-per-step",
+          "fast-forward-details-by-step",
+          "fast-forward-requeue-statuses"
+        ]
+      },
+      list_account_entities: {
+        description: "List account entities \u2014 proof: live-runtime (2026-07-18), floor: documented; risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-07-18)",
+        proofFloor: "documented",
+        proofRows: [
+          "entities-custom-fields-search"
+        ],
+        proofFloorRows: [
+          "entities-ai-employees-agents-list",
+          "entities-voice-ai-agents-list"
+        ],
+        riskRows: [
+          "entities-ai-employees-agents-list",
+          "entities-calendars-list",
+          "entities-custom-fields-search",
+          "entities-forms-list",
+          "entities-pipelines-list",
+          "entities-users-list",
+          "entities-voice-ai-agents-list"
+        ],
+        rows: [
+          "entities-ai-employees-agents-list",
+          "entities-calendars-list",
+          "entities-custom-fields-search",
+          "entities-forms-list",
+          "entities-pipelines-list",
+          "entities-users-list",
+          "entities-voice-ai-agents-list"
+        ]
+      },
+      build_course: {
+        description: "Build course \u2014 proof: live-runtime (2026-07-19), floor: documented; risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-07-19)",
+        proofFloor: "documented",
+        proofRows: [
+          "memberships-assessment-assignment-create",
+          "memberships-assessment-quiz-create",
+          "memberships-assignment-read-by-post",
+          "memberships-category-create",
+          "memberships-credential-template-create",
+          "memberships-offer-create",
+          "memberships-offer-grant",
+          "memberships-offer-publish",
+          "memberships-offer-read",
+          "memberships-post-create",
+          "memberships-product-create",
+          "memberships-product-progress-read",
+          "memberships-quiz-questions-create",
+          "memberships-quiz-questions-list",
+          "memberships-quiz-read-by-post"
+        ],
+        proofFloorRows: [
+          "memberships-credential-attachment-create",
+          "memberships-credential-attachments-list",
+          "memberships-material-attach",
+          "memberships-material-upload-url-create",
+          "memberships-post-read",
+          "memberships-post-update-embed",
+          "memberships-theme-apply",
+          "memberships-theme-create",
+          "memberships-theme-read",
+          "memberships-theme-update",
+          "memberships-video-asset-create",
+          "memberships-video-register",
+          "memberships-video-upload-url-create"
+        ],
+        riskRows: [
+          "memberships-assessment-assignment-create",
+          "memberships-assessment-quiz-create",
+          "memberships-category-create",
+          "memberships-credential-attachment-create",
+          "memberships-credential-template-create",
+          "memberships-material-attach",
+          "memberships-material-upload-url-create",
+          "memberships-offer-create",
+          "memberships-offer-grant",
+          "memberships-offer-publish",
+          "memberships-post-create",
+          "memberships-post-update-embed",
+          "memberships-product-create",
+          "memberships-quiz-questions-create",
+          "memberships-theme-apply",
+          "memberships-theme-create",
+          "memberships-theme-update",
+          "memberships-video-asset-create",
+          "memberships-video-register",
+          "memberships-video-upload-url-create"
+        ],
+        rows: [
+          "memberships-assessment-assignment-create",
+          "memberships-assessment-quiz-create",
+          "memberships-assignment-read-by-post",
+          "memberships-category-create",
+          "memberships-credential-attachment-create",
+          "memberships-credential-attachments-list",
+          "memberships-credential-template-create",
+          "memberships-material-attach",
+          "memberships-material-upload-url-create",
+          "memberships-offer-create",
+          "memberships-offer-grant",
+          "memberships-offer-publish",
+          "memberships-offer-read",
+          "memberships-post-create",
+          "memberships-post-read",
+          "memberships-post-update-embed",
+          "memberships-product-create",
+          "memberships-product-progress-read",
+          "memberships-quiz-questions-create",
+          "memberships-quiz-questions-list",
+          "memberships-quiz-read-by-post",
+          "memberships-theme-apply",
+          "memberships-theme-create",
+          "memberships-theme-read",
+          "memberships-theme-update",
+          "memberships-video-asset-create",
+          "memberships-video-register",
+          "memberships-video-upload-url-create"
+        ]
+      },
+      list_courses: {
+        description: "List courses \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "memberships-products-list"
+        ],
+        proofFloorRows: [
+          "memberships-products-list"
+        ],
+        riskRows: [
+          "memberships-products-list"
+        ],
+        rows: [
+          "memberships-products-list"
+        ]
+      },
+      create_convai_agent: {
+        description: "Create Conversation AI agent \u2014 proof: live-runtime (2026-07-21); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-07-21)",
+        proofFloor: "live-runtime (2026-07-21)",
+        proofRows: [
+          "ai-convai-agent-create"
+        ],
+        proofFloorRows: [
+          "ai-convai-agent-create"
+        ],
+        riskRows: [
+          "ai-convai-agent-create"
+        ],
+        rows: [
+          "ai-convai-agent-create"
+        ]
+      },
+      create_voiceai_agent: {
+        description: "Create Voice AI agent \u2014 proof: live-runtime (2026-07-21); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-07-21)",
+        proofFloor: "live-runtime (2026-07-21)",
+        proofRows: [
+          "ai-voiceai-agent-create"
+        ],
+        proofFloorRows: [
+          "ai-voiceai-agent-create"
+        ],
+        riskRows: [
+          "ai-voiceai-agent-create"
+        ],
+        rows: [
+          "ai-voiceai-agent-create"
+        ]
+      },
+      create_studio_agent: {
+        description: "Create Agent Studio agent \u2014 proof: live-runtime (2026-07-21); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-07-21)",
+        proofFloor: "live-runtime (2026-07-21)",
+        proofRows: [
+          "ai-studio-agent-build"
+        ],
+        proofFloorRows: [
+          "ai-studio-agent-build"
+        ],
+        riskRows: [
+          "ai-studio-agent-build"
+        ],
+        rows: [
+          "ai-studio-agent-build"
+        ]
+      }
+    };
+  }
+});
+
 // node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
   "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
     var _CodeOrName = class {
@@ -191,6 +590,7 @@ var require_code = __commonJS({
 var require_scope = __commonJS({
   "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
     var code_1 = require_code();
@@ -336,6 +736,7 @@ var require_scope = __commonJS({
 var require_codegen = __commonJS({
   "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
     var code_1 = require_code();
@@ -1056,6 +1457,7 @@ var require_codegen = __commonJS({
 var require_util = __commonJS({
   "node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
     var codegen_1 = require_codegen();
@@ -1223,6 +1625,7 @@ var require_util = __commonJS({
 var require_names = __commonJS({
   "node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var names = {
@@ -1262,6 +1665,7 @@ var require_names = __commonJS({
 var require_errors = __commonJS({
   "node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
     var codegen_1 = require_codegen();
@@ -1384,6 +1788,7 @@ var require_errors = __commonJS({
 var require_boolSchema = __commonJS({
   "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
     var errors_1 = require_errors();
@@ -1435,6 +1840,7 @@ var require_boolSchema = __commonJS({
 var require_rules = __commonJS({
   "node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRules = exports.isJSONType = void 0;
     var _jsonTypes = ["string", "number", "integer", "boolean", "null", "object", "array"];
@@ -1466,6 +1872,7 @@ var require_rules = __commonJS({
 var require_applicability = __commonJS({
   "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
     function schemaHasRulesForType({ schema: schema2, self }, type) {
@@ -1489,6 +1896,7 @@ var require_applicability = __commonJS({
 var require_dataType = __commonJS({
   "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
     var rules_1 = require_rules();
@@ -1673,6 +2081,7 @@ var require_dataType = __commonJS({
 var require_defaults = __commonJS({
   "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assignDefaults = void 0;
     var codegen_1 = require_codegen();
@@ -1710,6 +2119,7 @@ var require_defaults = __commonJS({
 var require_code2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
     var codegen_1 = require_codegen();
@@ -1843,6 +2253,7 @@ var require_code2 = __commonJS({
 var require_keyword = __commonJS({
   "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
     var codegen_1 = require_codegen();
@@ -1961,6 +2372,7 @@ var require_keyword = __commonJS({
 var require_subschema = __commonJS({
   "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
     var codegen_1 = require_codegen();
@@ -2044,6 +2456,7 @@ var require_subschema = __commonJS({
 var require_fast_deep_equal = __commonJS({
   "node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
+    init_define_TOOL_CATALOG();
     module.exports = function equal(a, b) {
       if (a === b) return true;
       if (a && b && typeof a == "object" && typeof b == "object") {
@@ -2079,6 +2492,7 @@ var require_fast_deep_equal = __commonJS({
 var require_json_schema_traverse = __commonJS({
   "node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
+    init_define_TOOL_CATALOG();
     var traverse = module.exports = function(schema2, opts, cb) {
       if (typeof opts == "function") {
         cb = opts;
@@ -2167,6 +2581,7 @@ var require_json_schema_traverse = __commonJS({
 var require_resolve = __commonJS({
   "node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
     var util_1 = require_util();
@@ -2323,6 +2738,7 @@ var require_resolve = __commonJS({
 var require_validate = __commonJS({
   "node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
     var boolSchema_1 = require_boolSchema();
@@ -2831,6 +3247,7 @@ var require_validate = __commonJS({
 var require_validation_error = __commonJS({
   "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var ValidationError = class extends Error {
       constructor(errors) {
@@ -2847,6 +3264,7 @@ var require_validation_error = __commonJS({
 var require_ref_error = __commonJS({
   "node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var resolve_1 = require_resolve();
     var MissingRefError = class extends Error {
@@ -2864,6 +3282,7 @@ var require_ref_error = __commonJS({
 var require_compile = __commonJS({
   "node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
     var codegen_1 = require_codegen();
@@ -2984,7 +3403,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve3.call(this, root, ref);
+      let _sch = resolve4.call(this, root, ref);
       if (_sch === void 0) {
         const schema2 = (_a3 = root.localRefs) === null || _a3 === void 0 ? void 0 : _a3[ref];
         const { schemaId } = this.opts;
@@ -3011,7 +3430,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve3(root, ref) {
+    function resolve4(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3107,6 +3526,7 @@ var require_data = __commonJS({
 var require_utils = __commonJS({
   "node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
+    init_define_TOOL_CATALOG();
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
     var isHexPair = RegExp.prototype.test.bind(/^[\da-f]{2}$/iu);
@@ -3420,6 +3840,7 @@ var require_utils = __commonJS({
 var require_schemes = __commonJS({
   "node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
+    init_define_TOOL_CATALOG();
     var { isUUID } = require_utils();
     var URN_REG = /([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-.:;=@]|%[\da-f]{2})+)/iu;
     var supportedSchemeNames = (
@@ -3630,6 +4051,7 @@ var require_schemes = __commonJS({
 var require_fast_uri = __commonJS({
   "node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
+    init_define_TOOL_CATALOG();
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, escapePreservingEscapes, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
     function normalize(uri, options) {
@@ -3642,7 +4064,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve3(baseURI, relativeURI, options) {
+    function resolve4(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse3(baseURI, schemelessOptions), parse3(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -3906,7 +4328,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve: resolve3,
+      resolve: resolve4,
       resolveComponent,
       equal,
       serialize,
@@ -3922,6 +4344,7 @@ var require_fast_uri = __commonJS({
 var require_uri = __commonJS({
   "node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var uri = require_fast_uri();
     uri.code = 'require("ajv/dist/runtime/uri").default';
@@ -3933,6 +4356,7 @@ var require_uri = __commonJS({
 var require_core = __commonJS({
   "node_modules/ajv/dist/core.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
     var validate_1 = require_validate();
@@ -4544,6 +4968,7 @@ var require_core = __commonJS({
 var require_id = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var def = {
       keyword: "id",
@@ -4559,6 +4984,7 @@ var require_id = __commonJS({
 var require_ref = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.callRef = exports.getValidate = void 0;
     var ref_error_1 = require_ref_error();
@@ -4681,6 +5107,7 @@ var require_ref = __commonJS({
 var require_core2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var id_1 = require_id();
     var ref_1 = require_ref();
@@ -4702,6 +5129,7 @@ var require_core2 = __commonJS({
 var require_limitNumber = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var ops = codegen_1.operators;
@@ -4734,6 +5162,7 @@ var require_limitNumber = __commonJS({
 var require_multipleOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var error51 = {
@@ -4762,6 +5191,7 @@ var require_multipleOf = __commonJS({
 var require_ucs2length = __commonJS({
   "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     function ucs2length(str) {
       const len = str.length;
@@ -4788,6 +5218,7 @@ var require_ucs2length = __commonJS({
 var require_limitLength = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -4820,6 +5251,7 @@ var require_limitLength = __commonJS({
 var require_pattern = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
     var util_1 = require_util();
@@ -4857,6 +5289,7 @@ var require_pattern = __commonJS({
 var require_limitProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var error51 = {
@@ -4886,6 +5319,7 @@ var require_limitProperties = __commonJS({
 var require_required = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
     var codegen_1 = require_codegen();
@@ -4968,6 +5402,7 @@ var require_required = __commonJS({
 var require_limitItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var error51 = {
@@ -4997,6 +5432,7 @@ var require_limitItems = __commonJS({
 var require_equal = __commonJS({
   "node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
     equal.code = 'require("ajv/dist/runtime/equal").default';
@@ -5008,6 +5444,7 @@ var require_equal = __commonJS({
 var require_uniqueItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var dataType_1 = require_dataType();
     var codegen_1 = require_codegen();
@@ -5075,6 +5512,7 @@ var require_uniqueItems = __commonJS({
 var require_const = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -5104,6 +5542,7 @@ var require_const = __commonJS({
 var require_enum = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -5153,6 +5592,7 @@ var require_enum = __commonJS({
 var require_validation = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var limitNumber_1 = require_limitNumber();
     var multipleOf_1 = require_multipleOf();
@@ -5191,6 +5631,7 @@ var require_validation = __commonJS({
 var require_additionalItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateAdditionalItems = void 0;
     var codegen_1 = require_codegen();
@@ -5244,6 +5685,7 @@ var require_additionalItems = __commonJS({
 var require_items = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateTuple = void 0;
     var codegen_1 = require_codegen();
@@ -5301,6 +5743,7 @@ var require_items = __commonJS({
 var require_prefixItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var items_1 = require_items();
     var def = {
@@ -5318,6 +5761,7 @@ var require_prefixItems = __commonJS({
 var require_items2020 = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -5353,6 +5797,7 @@ var require_items2020 = __commonJS({
 var require_contains = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -5447,6 +5892,7 @@ var require_contains = __commonJS({
 var require_dependencies = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
     var codegen_1 = require_codegen();
@@ -5541,6 +5987,7 @@ var require_dependencies = __commonJS({
 var require_propertyNames = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -5584,6 +6031,7 @@ var require_propertyNames = __commonJS({
 var require_additionalProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
     var codegen_1 = require_codegen();
@@ -5690,6 +6138,7 @@ var require_additionalProperties = __commonJS({
 var require_properties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var validate_1 = require_validate();
     var code_1 = require_code2();
@@ -5748,6 +6197,7 @@ var require_properties = __commonJS({
 var require_patternProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
     var codegen_1 = require_codegen();
@@ -5822,6 +6272,7 @@ var require_patternProperties = __commonJS({
 var require_not = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
     var def = {
@@ -5853,6 +6304,7 @@ var require_not = __commonJS({
 var require_anyOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
     var def = {
@@ -5870,6 +6322,7 @@ var require_anyOf = __commonJS({
 var require_oneOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -5928,6 +6381,7 @@ var require_oneOf = __commonJS({
 var require_allOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
     var def = {
@@ -5955,6 +6409,7 @@ var require_allOf = __commonJS({
 var require_if = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var util_1 = require_util();
@@ -6024,6 +6479,7 @@ var require_if = __commonJS({
 var require_thenElse = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
     var def = {
@@ -6042,6 +6498,7 @@ var require_thenElse = __commonJS({
 var require_applicator = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var additionalItems_1 = require_additionalItems();
     var prefixItems_1 = require_prefixItems();
@@ -6090,6 +6547,7 @@ var require_applicator = __commonJS({
 var require_format = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var error51 = {
@@ -6180,6 +6638,7 @@ var require_format = __commonJS({
 var require_format2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
     var format = [format_1.default];
@@ -6191,6 +6650,7 @@ var require_format2 = __commonJS({
 var require_metadata = __commonJS({
   "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.contentVocabulary = exports.metadataVocabulary = void 0;
     exports.metadataVocabulary = [
@@ -6214,6 +6674,7 @@ var require_metadata = __commonJS({
 var require_draft7 = __commonJS({
   "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var core_1 = require_core2();
     var validation_1 = require_validation();
@@ -6236,6 +6697,7 @@ var require_draft7 = __commonJS({
 var require_types = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiscrError = void 0;
     var DiscrError;
@@ -6250,6 +6712,7 @@ var require_types = __commonJS({
 var require_discriminator = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
     var types_1 = require_types();
@@ -6512,6 +6975,7 @@ var require_json_schema_draft_07 = __commonJS({
 var require_ajv = __commonJS({
   "node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = exports.Ajv = void 0;
     var core_1 = require_core();
@@ -6582,6 +7046,7 @@ var require_ajv = __commonJS({
 var require_formats = __commonJS({
   "node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatNames = exports.fastFormats = exports.fullFormats = void 0;
     function fmtDef(validate, compare) {
@@ -6785,6 +7250,7 @@ var require_formats = __commonJS({
 var require_limit = __commonJS({
   "node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatLimitDefinition = void 0;
     var ajv_1 = require_ajv();
@@ -6857,6 +7323,7 @@ var require_limit = __commonJS({
 var require_dist = __commonJS({
   "node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
+    init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var formats_1 = require_formats();
     var limit_1 = require_limit();
@@ -6895,7 +7362,32 @@ var require_dist = __commonJS({
   }
 });
 
+// stdio.mjs
+init_define_TOOL_CATALOG();
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+init_define_TOOL_CATALOG();
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+init_define_TOOL_CATALOG();
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+init_define_TOOL_CATALOG();
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod/v3/errors.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod/v3/locales/en.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod/v3/ZodError.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v3/helpers/util.js
+init_define_TOOL_CATALOG();
 var util;
 (function(util2) {
   util2.assertEqual = (_) => {
@@ -7253,6 +7745,7 @@ function getErrorMap() {
 }
 
 // node_modules/zod/v3/helpers/parseUtil.js
+init_define_TOOL_CATALOG();
 var makeIssue = (params) => {
   const { data: data2, path, errorMaps, issueData } = params;
   const fullPath = [...path, ...issueData.path || []];
@@ -7361,7 +7854,11 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
+// node_modules/zod/v3/types.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v3/helpers/errorUtil.js
+init_define_TOOL_CATALOG();
 var errorUtil;
 (function(errorUtil2) {
   errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
@@ -10771,6 +11268,9 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
+// node_modules/zod/v4/mini/external.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
@@ -11049,8 +11549,10 @@ __export(core_exports2, {
   util: () => util_exports,
   version: () => version
 });
+init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/core.js
+init_define_TOOL_CATALOG();
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
   status: "aborted"
@@ -11127,6 +11629,12 @@ function config(newConfig) {
   return globalConfig;
 }
 
+// node_modules/zod/v4/core/parse.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod/v4/core/errors.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
@@ -11194,6 +11702,7 @@ __export(util_exports, {
   uint8ArrayToHex: () => uint8ArrayToHex,
   unwrapMessage: () => unwrapMessage
 });
+init_define_TOOL_CATALOG();
 function assertEqual(val) {
   return val;
 }
@@ -12050,6 +12559,12 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
+// node_modules/zod/v4/core/schemas.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod/v4/core/checks.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
@@ -12113,6 +12628,7 @@ __export(regexes_exports, {
   uuid7: () => uuid7,
   xid: () => xid
 });
+init_define_TOOL_CATALOG();
 var cuid = /^[cC][0-9a-z]{6,}$/;
 var cuid2 = /^[0-9a-z]+$/;
 var ulid = /^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/;
@@ -12758,6 +13274,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
 });
 
 // node_modules/zod/v4/core/doc.js
+init_define_TOOL_CATALOG();
 var Doc = class {
   constructor(args = []) {
     this.content = [];
@@ -12794,6 +13311,7 @@ var Doc = class {
 };
 
 // node_modules/zod/v4/core/versions.js
+init_define_TOOL_CATALOG();
 var version = {
   major: 4,
   minor: 4,
@@ -14949,8 +15467,10 @@ __export(locales_exports, {
   zhCN: () => zh_CN_default,
   zhTW: () => zh_TW_default
 });
+init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/ar.js
+init_define_TOOL_CATALOG();
 var error = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0641", verb: "\u0623\u0646 \u064A\u062D\u0648\u064A" },
@@ -15058,6 +15578,7 @@ function ar_default() {
 }
 
 // node_modules/zod/v4/locales/az.js
+init_define_TOOL_CATALOG();
 var error2 = () => {
   const Sizable = {
     string: { unit: "simvol", verb: "olmal\u0131d\u0131r" },
@@ -15164,6 +15685,7 @@ function az_default() {
 }
 
 // node_modules/zod/v4/locales/be.js
+init_define_TOOL_CATALOG();
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -15321,6 +15843,7 @@ function be_default() {
 }
 
 // node_modules/zod/v4/locales/bg.js
+init_define_TOOL_CATALOG();
 var error4 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0430", verb: "\u0434\u0430 \u0441\u044A\u0434\u044A\u0440\u0436\u0430" },
@@ -15442,6 +15965,7 @@ function bg_default() {
 }
 
 // node_modules/zod/v4/locales/ca.js
+init_define_TOOL_CATALOG();
 var error5 = () => {
   const Sizable = {
     string: { unit: "car\xE0cters", verb: "contenir" },
@@ -15551,6 +16075,7 @@ function ca_default() {
 }
 
 // node_modules/zod/v4/locales/cs.js
+init_define_TOOL_CATALOG();
 var error6 = () => {
   const Sizable = {
     string: { unit: "znak\u016F", verb: "m\xEDt" },
@@ -15663,6 +16188,7 @@ function cs_default() {
 }
 
 // node_modules/zod/v4/locales/da.js
+init_define_TOOL_CATALOG();
 var error7 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "havde" },
@@ -15779,6 +16305,7 @@ function da_default() {
 }
 
 // node_modules/zod/v4/locales/de.js
+init_define_TOOL_CATALOG();
 var error8 = () => {
   const Sizable = {
     string: { unit: "Zeichen", verb: "zu haben" },
@@ -15888,6 +16415,7 @@ function de_default() {
 }
 
 // node_modules/zod/v4/locales/el.js
+init_define_TOOL_CATALOG();
 var error9 = () => {
   const Sizable = {
     string: { unit: "\u03C7\u03B1\u03C1\u03B1\u03BA\u03C4\u03AE\u03C1\u03B5\u03C2", verb: "\u03BD\u03B1 \u03AD\u03C7\u03B5\u03B9" },
@@ -15998,6 +16526,7 @@ function el_default() {
 }
 
 // node_modules/zod/v4/locales/en.js
+init_define_TOOL_CATALOG();
 var error10 = () => {
   const Sizable = {
     string: { unit: "characters", verb: "to have" },
@@ -16111,6 +16640,7 @@ function en_default2() {
 }
 
 // node_modules/zod/v4/locales/eo.js
+init_define_TOOL_CATALOG();
 var error11 = () => {
   const Sizable = {
     string: { unit: "karaktrojn", verb: "havi" },
@@ -16221,6 +16751,7 @@ function eo_default() {
 }
 
 // node_modules/zod/v4/locales/es.js
+init_define_TOOL_CATALOG();
 var error12 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "tener" },
@@ -16354,6 +16885,7 @@ function es_default() {
 }
 
 // node_modules/zod/v4/locales/fa.js
+init_define_TOOL_CATALOG();
 var error13 = () => {
   const Sizable = {
     string: { unit: "\u06A9\u0627\u0631\u0627\u06A9\u062A\u0631", verb: "\u062F\u0627\u0634\u062A\u0647 \u0628\u0627\u0634\u062F" },
@@ -16469,6 +17001,7 @@ function fa_default() {
 }
 
 // node_modules/zod/v4/locales/fi.js
+init_define_TOOL_CATALOG();
 var error14 = () => {
   const Sizable = {
     string: { unit: "merkki\xE4", subject: "merkkijonon" },
@@ -16582,6 +17115,7 @@ function fi_default() {
 }
 
 // node_modules/zod/v4/locales/fr.js
+init_define_TOOL_CATALOG();
 var error15 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -16708,6 +17242,7 @@ function fr_default() {
 }
 
 // node_modules/zod/v4/locales/fr-CA.js
+init_define_TOOL_CATALOG();
 var error16 = () => {
   const Sizable = {
     string: { unit: "caract\xE8res", verb: "avoir" },
@@ -16816,6 +17351,7 @@ function fr_CA_default() {
 }
 
 // node_modules/zod/v4/locales/he.js
+init_define_TOOL_CATALOG();
 var error17 = () => {
   const TypeNames = {
     string: { label: "\u05DE\u05D7\u05E8\u05D5\u05D6\u05EA", gender: "f" },
@@ -17011,6 +17547,7 @@ function he_default() {
 }
 
 // node_modules/zod/v4/locales/hr.js
+init_define_TOOL_CATALOG();
 var error18 = () => {
   const Sizable = {
     string: { unit: "znakova", verb: "imati" },
@@ -17134,6 +17671,7 @@ function hr_default() {
 }
 
 // node_modules/zod/v4/locales/hu.js
+init_define_TOOL_CATALOG();
 var error19 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "legyen" },
@@ -17243,6 +17781,7 @@ function hu_default() {
 }
 
 // node_modules/zod/v4/locales/hy.js
+init_define_TOOL_CATALOG();
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
 }
@@ -17391,6 +17930,7 @@ function hy_default() {
 }
 
 // node_modules/zod/v4/locales/id.js
+init_define_TOOL_CATALOG();
 var error21 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "memiliki" },
@@ -17498,6 +18038,7 @@ function id_default() {
 }
 
 // node_modules/zod/v4/locales/is.js
+init_define_TOOL_CATALOG();
 var error22 = () => {
   const Sizable = {
     string: { unit: "stafi", verb: "a\xF0 hafa" },
@@ -17608,6 +18149,7 @@ function is_default() {
 }
 
 // node_modules/zod/v4/locales/it.js
+init_define_TOOL_CATALOG();
 var error23 = () => {
   const Sizable = {
     string: { unit: "caratteri", verb: "avere" },
@@ -17717,6 +18259,7 @@ function it_default() {
 }
 
 // node_modules/zod/v4/locales/ja.js
+init_define_TOOL_CATALOG();
 var error24 = () => {
   const Sizable = {
     string: { unit: "\u6587\u5B57", verb: "\u3067\u3042\u308B" },
@@ -17825,6 +18368,7 @@ function ja_default() {
 }
 
 // node_modules/zod/v4/locales/ka.js
+init_define_TOOL_CATALOG();
 var error25 = () => {
   const Sizable = {
     string: { unit: "\u10E1\u10D8\u10DB\u10D1\u10DD\u10DA\u10DD", verb: "\u10E3\u10DC\u10D3\u10D0 \u10E8\u10D4\u10D8\u10EA\u10D0\u10D5\u10D3\u10D4\u10E1" },
@@ -17937,7 +18481,11 @@ function ka_default() {
   };
 }
 
+// node_modules/zod/v4/locales/kh.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v4/locales/km.js
+init_define_TOOL_CATALOG();
 var error26 = () => {
   const Sizable = {
     string: { unit: "\u178F\u17BD\u17A2\u1780\u17D2\u179F\u179A", verb: "\u1782\u17BD\u179A\u1798\u17B6\u1793" },
@@ -18054,6 +18602,7 @@ function kh_default() {
 }
 
 // node_modules/zod/v4/locales/ko.js
+init_define_TOOL_CATALOG();
 var error27 = () => {
   const Sizable = {
     string: { unit: "\uBB38\uC790", verb: "to have" },
@@ -18166,6 +18715,7 @@ function ko_default() {
 }
 
 // node_modules/zod/v4/locales/lt.js
+init_define_TOOL_CATALOG();
 var capitalizeFirstCharacter = (text) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
 };
@@ -18370,6 +18920,7 @@ function lt_default() {
 }
 
 // node_modules/zod/v4/locales/mk.js
+init_define_TOOL_CATALOG();
 var error29 = () => {
   const Sizable = {
     string: { unit: "\u0437\u043D\u0430\u0446\u0438", verb: "\u0434\u0430 \u0438\u043C\u0430\u0430\u0442" },
@@ -18480,6 +19031,7 @@ function mk_default() {
 }
 
 // node_modules/zod/v4/locales/ms.js
+init_define_TOOL_CATALOG();
 var error30 = () => {
   const Sizable = {
     string: { unit: "aksara", verb: "mempunyai" },
@@ -18588,6 +19140,7 @@ function ms_default() {
 }
 
 // node_modules/zod/v4/locales/nl.js
+init_define_TOOL_CATALOG();
 var error31 = () => {
   const Sizable = {
     string: { unit: "tekens", verb: "heeft" },
@@ -18699,6 +19252,7 @@ function nl_default() {
 }
 
 // node_modules/zod/v4/locales/no.js
+init_define_TOOL_CATALOG();
 var error32 = () => {
   const Sizable = {
     string: { unit: "tegn", verb: "\xE5 ha" },
@@ -18808,6 +19362,7 @@ function no_default() {
 }
 
 // node_modules/zod/v4/locales/ota.js
+init_define_TOOL_CATALOG();
 var error33 = () => {
   const Sizable = {
     string: { unit: "harf", verb: "olmal\u0131d\u0131r" },
@@ -18918,6 +19473,7 @@ function ota_default() {
 }
 
 // node_modules/zod/v4/locales/ps.js
+init_define_TOOL_CATALOG();
 var error34 = () => {
   const Sizable = {
     string: { unit: "\u062A\u0648\u06A9\u064A", verb: "\u0648\u0644\u0631\u064A" },
@@ -19033,6 +19589,7 @@ function ps_default() {
 }
 
 // node_modules/zod/v4/locales/pl.js
+init_define_TOOL_CATALOG();
 var error35 = () => {
   const Sizable = {
     string: { unit: "znak\xF3w", verb: "mie\u0107" },
@@ -19143,6 +19700,7 @@ function pl_default() {
 }
 
 // node_modules/zod/v4/locales/pt.js
+init_define_TOOL_CATALOG();
 var error36 = () => {
   const Sizable = {
     string: { unit: "caracteres", verb: "ter" },
@@ -19252,6 +19810,7 @@ function pt_default() {
 }
 
 // node_modules/zod/v4/locales/ro.js
+init_define_TOOL_CATALOG();
 var error37 = () => {
   const Sizable = {
     string: { unit: "caractere", verb: "s\u0103 aib\u0103" },
@@ -19372,6 +19931,7 @@ function ro_default() {
 }
 
 // node_modules/zod/v4/locales/ru.js
+init_define_TOOL_CATALOG();
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
   const lastDigit = absCount % 10;
@@ -19529,6 +20089,7 @@ function ru_default() {
 }
 
 // node_modules/zod/v4/locales/sl.js
+init_define_TOOL_CATALOG();
 var error39 = () => {
   const Sizable = {
     string: { unit: "znakov", verb: "imeti" },
@@ -19639,6 +20200,7 @@ function sl_default() {
 }
 
 // node_modules/zod/v4/locales/sv.js
+init_define_TOOL_CATALOG();
 var error40 = () => {
   const Sizable = {
     string: { unit: "tecken", verb: "att ha" },
@@ -19750,6 +20312,7 @@ function sv_default() {
 }
 
 // node_modules/zod/v4/locales/ta.js
+init_define_TOOL_CATALOG();
 var error41 = () => {
   const Sizable = {
     string: { unit: "\u0B8E\u0BB4\u0BC1\u0BA4\u0BCD\u0BA4\u0BC1\u0B95\u0BCD\u0B95\u0BB3\u0BCD", verb: "\u0B95\u0BCA\u0BA3\u0BCD\u0B9F\u0BBF\u0BB0\u0BC1\u0B95\u0BCD\u0B95 \u0BB5\u0BC7\u0BA3\u0BCD\u0B9F\u0BC1\u0BAE\u0BCD" },
@@ -19861,6 +20424,7 @@ function ta_default() {
 }
 
 // node_modules/zod/v4/locales/th.js
+init_define_TOOL_CATALOG();
 var error42 = () => {
   const Sizable = {
     string: { unit: "\u0E15\u0E31\u0E27\u0E2D\u0E31\u0E01\u0E29\u0E23", verb: "\u0E04\u0E27\u0E23\u0E21\u0E35" },
@@ -19972,6 +20536,7 @@ function th_default() {
 }
 
 // node_modules/zod/v4/locales/tr.js
+init_define_TOOL_CATALOG();
 var error43 = () => {
   const Sizable = {
     string: { unit: "karakter", verb: "olmal\u0131" },
@@ -20077,7 +20642,11 @@ function tr_default() {
   };
 }
 
+// node_modules/zod/v4/locales/ua.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v4/locales/uk.js
+init_define_TOOL_CATALOG();
 var error44 = () => {
   const Sizable = {
     string: { unit: "\u0441\u0438\u043C\u0432\u043E\u043B\u0456\u0432", verb: "\u043C\u0430\u0442\u0438\u043C\u0435" },
@@ -20192,6 +20761,7 @@ function ua_default() {
 }
 
 // node_modules/zod/v4/locales/ur.js
+init_define_TOOL_CATALOG();
 var error45 = () => {
   const Sizable = {
     string: { unit: "\u062D\u0631\u0648\u0641", verb: "\u06C1\u0648\u0646\u0627" },
@@ -20303,6 +20873,7 @@ function ur_default() {
 }
 
 // node_modules/zod/v4/locales/uz.js
+init_define_TOOL_CATALOG();
 var error46 = () => {
   const Sizable = {
     string: { unit: "belgi", verb: "bo\u2018lishi kerak" },
@@ -20414,6 +20985,7 @@ function uz_default() {
 }
 
 // node_modules/zod/v4/locales/vi.js
+init_define_TOOL_CATALOG();
 var error47 = () => {
   const Sizable = {
     string: { unit: "k\xFD t\u1EF1", verb: "c\xF3" },
@@ -20523,6 +21095,7 @@ function vi_default() {
 }
 
 // node_modules/zod/v4/locales/zh-CN.js
+init_define_TOOL_CATALOG();
 var error48 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u7B26", verb: "\u5305\u542B" },
@@ -20633,6 +21206,7 @@ function zh_CN_default() {
 }
 
 // node_modules/zod/v4/locales/zh-TW.js
+init_define_TOOL_CATALOG();
 var error49 = () => {
   const Sizable = {
     string: { unit: "\u5B57\u5143", verb: "\u64C1\u6709" },
@@ -20741,6 +21315,7 @@ function zh_TW_default() {
 }
 
 // node_modules/zod/v4/locales/yo.js
+init_define_TOOL_CATALOG();
 var error50 = () => {
   const Sizable = {
     string: { unit: "\xE0mi", verb: "n\xED" },
@@ -20849,6 +21424,7 @@ function yo_default() {
 }
 
 // node_modules/zod/v4/core/registries.js
+init_define_TOOL_CATALOG();
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
 var $input = /* @__PURE__ */ Symbol("ZodInput");
@@ -20899,6 +21475,7 @@ function registry() {
 var globalRegistry = globalThis.__zod_globalRegistry;
 
 // node_modules/zod/v4/core/api.js
+init_define_TOOL_CATALOG();
 // @__NO_SIDE_EFFECTS__
 function _string(Class2, params) {
   return new Class2({
@@ -21938,6 +22515,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
 }
 
 // node_modules/zod/v4/core/to-json-schema.js
+init_define_TOOL_CATALOG();
 function initializeContext(params) {
   let target = params?.target ?? "draft-2020-12";
   if (target === "draft-4")
@@ -22297,6 +22875,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
 };
 
 // node_modules/zod/v4/core/json-schema-processors.js
+init_define_TOOL_CATALOG();
 var formatMap = {
   guid: "uuid",
   url: "uri",
@@ -22841,6 +23420,7 @@ function toJSONSchema(input, params) {
 }
 
 // node_modules/zod/v4/core/json-schema-generator.js
+init_define_TOOL_CATALOG();
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
   get metadataRegistry() {
@@ -22917,8 +23497,13 @@ var JSONSchemaGenerator = class {
 
 // node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
+init_define_TOOL_CATALOG();
+
+// node_modules/zod/v4/mini/parse.js
+init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/schemas.js
+init_define_TOOL_CATALOG();
 var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   if (!inst._zod)
     throw new Error("Uninitialized schema in ZodMiniType.");
@@ -23107,6 +23692,9 @@ function getLiteralValue(schema2) {
     return directValue;
   return void 0;
 }
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/external.js
 var external_exports = {};
@@ -23350,6 +23938,7 @@ __export(external_exports, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
@@ -23521,6 +24110,7 @@ __export(schemas_exports2, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
@@ -23555,6 +24145,7 @@ __export(checks_exports2, {
   trim: () => _trim,
   uppercase: () => _uppercase
 });
+init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
@@ -23568,6 +24159,7 @@ __export(iso_exports2, {
   duration: () => duration2,
   time: () => time2
 });
+init_define_TOOL_CATALOG();
 var ZodISODateTime = /* @__PURE__ */ $constructor("ZodISODateTime", (inst, def) => {
   $ZodISODateTime.init(inst, def);
   ZodStringFormat.init(inst, def);
@@ -23597,7 +24189,11 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
+// node_modules/zod/v4/classic/parse.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod/v4/classic/errors.js
+init_define_TOOL_CATALOG();
 var initializer2 = (inst, issues) => {
   $ZodError.init(inst, issues);
   inst.name = "ZodError";
@@ -24942,6 +25538,7 @@ function preprocess(fn, schema2) {
 }
 
 // node_modules/zod/v4/classic/compat.js
+init_define_TOOL_CATALOG();
 var ZodIssueCode2 = {
   invalid_type: "invalid_type",
   too_big: "too_big",
@@ -24968,6 +25565,7 @@ var ZodFirstPartyTypeKind2;
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
 // node_modules/zod/v4/classic/from-json-schema.js
+init_define_TOOL_CATALOG();
 var z = {
   ...schemas_exports2,
   ...checks_exports2,
@@ -25456,6 +26054,7 @@ __export(coerce_exports2, {
   number: () => number3,
   string: () => string3
 });
+init_define_TOOL_CATALOG();
 function string3(params) {
   return _coercedString(ZodString2, params);
 }
@@ -27007,11 +27606,19 @@ var UrlElicitationRequiredError = class extends McpError {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+init_define_TOOL_CATALOG();
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod-to-json-schema/dist/esm/index.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod-to-json-schema/dist/esm/Options.js
+init_define_TOOL_CATALOG();
 var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
 var defaultOptions = {
   name: void 0,
@@ -27046,6 +27653,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/Refs.js
+init_define_TOOL_CATALOG();
 var getRefs = (options) => {
   const _options = getDefaultOptions(options);
   const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
@@ -27067,6 +27675,7 @@ var getRefs = (options) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+init_define_TOOL_CATALOG();
 function addErrorMessage(res, key, errorMessage, refs) {
   if (!refs?.errorMessages)
     return;
@@ -27083,6 +27692,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+init_define_TOOL_CATALOG();
 var getRelativePath = (pathA, pathB) => {
   let i = 0;
   for (; i < pathA.length && i < pathB.length; i++) {
@@ -27092,7 +27702,14 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
 };
 
+// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+init_define_TOOL_CATALOG();
 function parseAnyDef(refs) {
   if (refs.target !== "openAi") {
     return {};
@@ -27109,6 +27726,7 @@ function parseAnyDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+init_define_TOOL_CATALOG();
 function parseArrayDef(def, refs) {
   const res = {
     type: "array"
@@ -27133,6 +27751,7 @@ function parseArrayDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+init_define_TOOL_CATALOG();
 function parseBigintDef(def, refs) {
   const res = {
     type: "integer",
@@ -27179,6 +27798,7 @@ function parseBigintDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+init_define_TOOL_CATALOG();
 function parseBooleanDef() {
   return {
     type: "boolean"
@@ -27186,16 +27806,19 @@ function parseBooleanDef() {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+init_define_TOOL_CATALOG();
 function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+init_define_TOOL_CATALOG();
 var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+init_define_TOOL_CATALOG();
 function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
   if (Array.isArray(strategy)) {
@@ -27255,6 +27878,7 @@ var integerDateParser = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+init_define_TOOL_CATALOG();
 function parseDefaultDef(_def, refs) {
   return {
     ...parseDef(_def.innerType._def, refs),
@@ -27263,11 +27887,13 @@ function parseDefaultDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+init_define_TOOL_CATALOG();
 function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+init_define_TOOL_CATALOG();
 function parseEnumDef(def) {
   return {
     type: "string",
@@ -27276,6 +27902,7 @@ function parseEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+init_define_TOOL_CATALOG();
 var isJsonSchema7AllOfType = (type) => {
   if ("type" in type && type.type === "string")
     return false;
@@ -27318,6 +27945,7 @@ function parseIntersectionDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+init_define_TOOL_CATALOG();
 function parseLiteralDef(def, refs) {
   const parsedType2 = typeof def.value;
   if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string") {
@@ -27337,7 +27965,14 @@ function parseLiteralDef(def, refs) {
   };
 }
 
+// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+init_define_TOOL_CATALOG();
+
+// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+init_define_TOOL_CATALOG();
 var emojiRegex2 = void 0;
 var zodPatterns = {
   /**
@@ -27740,6 +28375,7 @@ function parseMapDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+init_define_TOOL_CATALOG();
 function parseNativeEnumDef(def) {
   const object3 = def.values;
   const actualKeys = Object.keys(def.values).filter((key) => {
@@ -27754,6 +28390,7 @@ function parseNativeEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+init_define_TOOL_CATALOG();
 function parseNeverDef(refs) {
   return refs.target === "openAi" ? void 0 : {
     not: parseAnyDef({
@@ -27764,6 +28401,7 @@ function parseNeverDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+init_define_TOOL_CATALOG();
 function parseNullDef(refs) {
   return refs.target === "openApi3" ? {
     enum: ["null"],
@@ -27773,7 +28411,11 @@ function parseNullDef(refs) {
   };
 }
 
+// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+init_define_TOOL_CATALOG();
 var primitiveMappings = {
   ZodString: "string",
   ZodNumber: "number",
@@ -27874,6 +28516,7 @@ function parseNullableDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+init_define_TOOL_CATALOG();
 function parseNumberDef(def, refs) {
   const res = {
     type: "number"
@@ -27923,6 +28566,7 @@ function parseNumberDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+init_define_TOOL_CATALOG();
 function parseObjectDef(def, refs) {
   const forceOptionalIntoNullable = refs.target === "openAi";
   const result = {
@@ -27993,6 +28637,7 @@ function safeIsOptional(schema2) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+init_define_TOOL_CATALOG();
 var parseOptionalDef = (def, refs) => {
   if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
     return parseDef(def.innerType._def, refs);
@@ -28012,6 +28657,7 @@ var parseOptionalDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+init_define_TOOL_CATALOG();
 var parsePipelineDef = (def, refs) => {
   if (refs.pipeStrategy === "input") {
     return parseDef(def.in._def, refs);
@@ -28032,11 +28678,13 @@ var parsePipelineDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+init_define_TOOL_CATALOG();
 function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+init_define_TOOL_CATALOG();
 function parseSetDef(def, refs) {
   const items = parseDef(def.valueType._def, {
     ...refs,
@@ -28057,6 +28705,7 @@ function parseSetDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+init_define_TOOL_CATALOG();
 function parseTupleDef(def, refs) {
   if (def.rest) {
     return {
@@ -28085,6 +28734,7 @@ function parseTupleDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+init_define_TOOL_CATALOG();
 function parseUndefinedDef(refs) {
   return {
     not: parseAnyDef(refs)
@@ -28092,11 +28742,13 @@ function parseUndefinedDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+init_define_TOOL_CATALOG();
 function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+init_define_TOOL_CATALOG();
 var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
@@ -28233,7 +28885,11 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
+// node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+init_define_TOOL_CATALOG();
+
 // node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+init_define_TOOL_CATALOG();
 var zodToJsonSchema = (schema2, options) => {
   const refs = getRefs(options);
   let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name2, schema3]) => ({
@@ -28837,7 +29493,7 @@ var Protocol = class {
           return;
         }
         const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
+        await new Promise((resolve4) => setTimeout(resolve4, pollInterval));
         options?.signal?.throwIfAborted();
       }
     } catch (error51) {
@@ -28854,7 +29510,7 @@ var Protocol = class {
    */
   request(request, resultSchema, options) {
     const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       const earlyReject = (error51) => {
         reject(error51);
       };
@@ -28932,7 +29588,7 @@ var Protocol = class {
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
-            resolve3(parseResult.data);
+            resolve4(parseResult.data);
           }
         } catch (error51) {
           reject(error51);
@@ -29193,12 +29849,12 @@ var Protocol = class {
       }
     } catch {
     }
-    return new Promise((resolve3, reject) => {
+    return new Promise((resolve4, reject) => {
       if (signal.aborted) {
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
         return;
       }
-      const timeoutId = setTimeout(resolve3, interval);
+      const timeoutId = setTimeout(resolve4, interval);
       signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -29292,6 +29948,7 @@ function mergeCapabilities(base, additional) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+init_define_TOOL_CATALOG();
 var import_ajv = __toESM(require_ajv(), 1);
 var import_ajv_formats = __toESM(require_dist(), 1);
 function createDefaultAjvInstance() {
@@ -29360,6 +30017,7 @@ var AjvJsonSchemaValidator = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+init_define_TOOL_CATALOG();
 var ExperimentalServerTasks = class {
   constructor(_server) {
     this._server = _server;
@@ -29573,6 +30231,7 @@ var ExperimentalServerTasks = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+init_define_TOOL_CATALOG();
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
     throw new Error(`${entityName} does not support task creation (required for ${method})`);
@@ -29988,6 +30647,7 @@ var Server = class extends Protocol {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+init_define_TOOL_CATALOG();
 var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema2) {
   return !!schema2 && typeof schema2 === "object" && COMPLETABLE_SYMBOL in schema2;
@@ -30001,7 +30661,11 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
+// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+init_define_TOOL_CATALOG();
+
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+init_define_TOOL_CATALOG();
 var TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 function validateToolName(name) {
   const warnings = [];
@@ -30060,6 +30724,7 @@ function validateAndWarnToolName(name) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+init_define_TOOL_CATALOG();
 var ExperimentalMcpServerTasks = class {
   constructor(_mcpServer) {
     this._mcpServer = _mcpServer;
@@ -30073,6 +30738,9 @@ var ExperimentalMcpServerTasks = class {
     return mcpServerInternal._createRegisteredTool(name, config2.title, config2.description, config2.inputSchema, config2.outputSchema, config2.annotations, execution, config2._meta, handler);
   }
 };
+
+// node_modules/zod/index.js
+init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
@@ -30298,7 +30966,7 @@ var McpServer = class {
     let task = createTaskResult.task;
     const pollInterval = task.pollInterval ?? 5e3;
     while (task.status !== "completed" && task.status !== "failed" && task.status !== "cancelled") {
-      await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
+      await new Promise((resolve4) => setTimeout(resolve4, pollInterval));
       const updatedTask = await extra.taskStore.getTask(taskId);
       if (!updatedTask) {
         throw new McpError(ErrorCode.InternalError, `Task ${taskId} not found during polling`);
@@ -30867,9 +31535,11 @@ var EMPTY_COMPLETION_RESULT = {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+init_define_TOOL_CATALOG();
 var ReadBuffer = class {
   append(chunk) {
     this._buffer = this._buffer ? Buffer.concat([this._buffer, chunk]) : chunk;
@@ -30947,26 +31617,29 @@ var StdioServerTransport = class {
     this.onclose?.();
   }
   send(message) {
-    return new Promise((resolve3) => {
+    return new Promise((resolve4) => {
       const json2 = serializeMessage(message);
       if (this._stdout.write(json2)) {
-        resolve3();
+        resolve4();
       } else {
-        this._stdout.once("drain", resolve3);
+        this._stdout.once("drain", resolve4);
       }
     });
   }
 };
 
 // stdio.mjs
-import { fileURLToPath } from "node:url";
-import { dirname, resolve as resolve2 } from "node:path";
+import { fileURLToPath as fileURLToPath2 } from "node:url";
+import { dirname as dirname2, resolve as resolve3 } from "node:path";
 
 // core/tools.mjs
-import { readFileSync as readFileSync2 } from "node:fs";
+init_define_TOOL_CATALOG();
+import { fileURLToPath } from "node:url";
+import { dirname, resolve as resolve2 } from "node:path";
 import { createHash as createHash2 } from "node:crypto";
 
 // core/errors.mjs
+init_define_TOOL_CATALOG();
 var CODES = Object.freeze({
   TOKEN_MISSING: "TOKEN_MISSING",
   TOKEN_EXPIRED: "TOKEN_EXPIRED",
@@ -31087,6 +31760,7 @@ function fromHttp(status, body) {
 }
 
 // core/auth.mjs
+init_define_TOOL_CATALOG();
 import { readFileSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -31181,7 +31855,14 @@ function requireAiCredentials(creds) {
   return tokenIdClaims;
 }
 
+// ../skills/create-ghl-workflow/engine/orchestrate.mjs
+init_define_TOOL_CATALOG();
+
+// ../skills/create-ghl-workflow/engine/compiler.mjs
+init_define_TOOL_CATALOG();
+
 // ../skills/create-ghl-workflow/engine/ir.mjs
+init_define_TOOL_CATALOG();
 var IRError = class extends Error {
   constructor(code, message) {
     super(message);
@@ -31402,6 +32083,9 @@ function checkOpportunityAssociation(norm2, oppTriggerTypes) {
   };
   walk2(norm2.graph, rootAssoc);
 }
+
+// ../skills/create-ghl-workflow/engine/opp-shapes.mjs
+init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/catalog/opp-field-shapes.json
 var opp_field_shapes_default = {
@@ -32427,6 +33111,7 @@ function compile(ir, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/idgen.mjs
+init_define_TOOL_CATALOG();
 import { createHash, randomUUID } from "node:crypto";
 function makeUuidV4() {
   return randomUUID();
@@ -32442,6 +33127,9 @@ function makeDeterministicIdGen(seed) {
     return `${hex3.slice(0, 8)}-${hex3.slice(8, 12)}-${hex3.slice(12, 16)}-${hex3.slice(16, 20)}-${hex3.slice(20)}`;
   };
 }
+
+// ../skills/create-ghl-workflow/engine/catalog.mjs
+init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/catalog.data.json
 var catalog_data_default = {
@@ -40991,6 +41679,7 @@ function loadCatalog() {
 }
 
 // ../skills/create-ghl-workflow/engine/tags.mjs
+init_define_TOOL_CATALOG();
 function collectRequiredTags(ir) {
   const byLower = /* @__PURE__ */ new Map();
   const add = (name) => {
@@ -41050,6 +41739,7 @@ function missingTags(requiredNames, existingNames) {
 }
 
 // ../skills/create-ghl-workflow/engine/resolve.mjs
+init_define_TOOL_CATALOG();
 var norm = (s) => String(s ?? "").trim().toLowerCase();
 var STANDARD_CONTACT_FIELDS = /* @__PURE__ */ new Set([
   "phone",
@@ -41195,6 +41885,7 @@ function resolveIR(ir, r) {
 }
 
 // ../skills/create-ghl-workflow/engine/edit.mjs
+init_define_TOOL_CATALOG();
 function rootTail(templates) {
   const byId = new Map(templates.map((t) => [t.id, t]));
   let cur = templates.find((t) => t.parentKey === null || t.parentKey === void 0);
@@ -41952,6 +42643,7 @@ async function orchestrate(ir, gw, opts = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/edit-driver.mjs
+init_define_TOOL_CATALOG();
 var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger"]);
 function partitionOps(ops) {
   const stepOps = [], triggerOps = [];
@@ -42104,6 +42796,7 @@ function applyOps(templates, ops, { ctx, idGen }) {
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
+init_define_TOOL_CATALOG();
 function makeFF({ gw }) {
   const { call, loc, uid } = gw;
   const callJson = async (method, path, body) => {
@@ -42159,6 +42852,7 @@ function makeFF({ gw }) {
 }
 
 // ../skills/ghl-memberships/engine/api.mjs
+init_define_TOOL_CATALOG();
 import { readFile } from "node:fs/promises";
 import { randomUUID as randomUUID2 } from "node:crypto";
 import { basename } from "node:path";
@@ -42471,9 +43165,11 @@ async function probeDuration(filePath) {
 }
 
 // ../skills/ghl-memberships/engine/course-builder.mjs
+init_define_TOOL_CATALOG();
 import { isAbsolute, resolve } from "node:path";
 
 // ../skills/ghl-memberships/engine/assessments.mjs
+init_define_TOOL_CATALOG();
 var BACKEND2 = "https://backend.leadconnectorhq.com";
 var SERVICES = "https://services.leadconnectorhq.com";
 var Assessments = class {
@@ -42567,6 +43263,7 @@ var Assessments = class {
 };
 
 // ../skills/ghl-memberships/engine/credentials.mjs
+init_define_TOOL_CATALOG();
 var BACKEND3 = "https://backend.leadconnectorhq.com";
 var Credentials = class {
   constructor(api) {
@@ -42719,6 +43416,7 @@ function isoEndOfToday() {
 }
 
 // ../skills/ghl-memberships/engine/members.mjs
+init_define_TOOL_CATALOG();
 var BACKEND4 = "https://backend.leadconnectorhq.com";
 var SERVICES2 = "https://services.leadconnectorhq.com";
 var Members = class {
@@ -43308,7 +44006,11 @@ async function buildCourse({
   }
 }
 
+// ../skills/ghl-ai-agents-specialist/engine/convai-compiler.mjs
+init_define_TOOL_CATALOG();
+
 // ../skills/ghl-ai-agents-specialist/engine/convai-ir.mjs
+init_define_TOOL_CATALOG();
 var IRError2 = class extends Error {
   constructor(code, message) {
     super(message);
@@ -43605,7 +44307,11 @@ function compileConvaiAgent(ir, { locationId } = {}) {
   return { create, actions, authHeader: AUTH_HEADER };
 }
 
+// ../skills/ghl-ai-agents-specialist/engine/voiceai-compiler.mjs
+init_define_TOOL_CATALOG();
+
 // ../skills/ghl-ai-agents-specialist/engine/voiceai-ir.mjs
+init_define_TOOL_CATALOG();
 var DENOISING_MODES = ["noise-cancellation"];
 var STT_MODES = ["accurate", "fast", "custom"];
 var WELCOME_MESSAGE_MODES = ["ai_custom"];
@@ -44052,7 +44758,11 @@ function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
   };
 }
 
+// ../skills/ghl-ai-agents-specialist/engine/studio-compiler.mjs
+init_define_TOOL_CATALOG();
+
 // ../skills/ghl-ai-agents-specialist/engine/studio-ir.mjs
+init_define_TOOL_CATALOG();
 var DEFAULT_MODEL = "anthropic/claude-sonnet-4-6";
 var TOOLS = ["web_search", "image_generation", "kb_search"];
 function assertNonEmptyString3(v, field) {
@@ -44188,6 +44898,7 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
 }
 
 // ../skills/ghl-ai-agents-specialist/engine/driver.mjs
+init_define_TOOL_CATALOG();
 var AI_BASE = "https://services.leadconnectorhq.com";
 var kindFor = (create) => {
   if (create?.path === "/ai-employees/employees") return "convai";
@@ -44348,13 +45059,14 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
 }
 
 // core/tools.mjs
-var DOCS_CATALOG = "/Volumes/Xander SSD/Vibe Code/Misc/ghl-workflow-api-docs/catalog/tool-descriptions.json";
-var CATALOG = {};
-try {
-  CATALOG = JSON.parse(readFileSync2(DOCS_CATALOG, "utf8"));
-} catch {
-  CATALOG = {};
-}
+var HERE = dirname(fileURLToPath(import.meta.url));
+var CATALOG = true ? define_TOOL_CATALOG_default : (() => {
+  try {
+    return JSON.parse(readFileSync(resolve2(HERE, "../tool-descriptions.json"), "utf8"));
+  } catch {
+    return {};
+  }
+})();
 var describe3 = (tool, fallback) => CATALOG[tool]?.description ?? fallback;
 var SCHEMA_KEYS = /* @__PURE__ */ new WeakMap();
 var schema = (shape) => {
@@ -45982,6 +46694,7 @@ function registerTools(server2, deps, tools = TOOLS2) {
 }
 
 // core/gateway.mjs
+init_define_TOOL_CATALOG();
 var BASE = "https://backend.leadconnectorhq.com";
 var IFRAME = "https://client-app-automation-workflows.leadconnectorhq.com";
 var APP = "https://app.gohighlevel.com";
@@ -46216,10 +46929,10 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
 }
 
 // stdio.mjs
-var HERE = dirname(fileURLToPath(import.meta.url));
+var HERE2 = dirname2(fileURLToPath2(import.meta.url));
 var pkgVersion = true ? "0.1.0" : (() => {
   try {
-    return JSON.parse(readFileSync(resolve2(HERE, "package.json"), "utf8")).version;
+    return JSON.parse(readFileSync(resolve3(HERE2, "package.json"), "utf8")).version;
   } catch {
     return "0.0.0-dev";
   }

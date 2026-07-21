@@ -1,6 +1,8 @@
-// Transport-blind tool definitions. Descriptions are pulled from the docs
-// repo's generated catalog so proof status and risk reach the agent verbatim.
+// Transport-blind tool definitions. Descriptions are pulled from the generated
+// tool-description catalog so proof status and risk reach the agent verbatim.
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
@@ -23,9 +25,17 @@ import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../skills/ghl-ai-a
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../skills/ghl-ai-agents-specialist/engine/studio-compiler.mjs';
 import { executeAgentPlan } from '../../skills/ghl-ai-agents-specialist/engine/driver.mjs';
 
-const DOCS_CATALOG = '/Volumes/Xander SSD/Vibe Code/Misc/ghl-workflow-api-docs/catalog/tool-descriptions.json';
-let CATALOG = {};
-try { CATALOG = JSON.parse(readFileSync(DOCS_CATALOG, 'utf8')); } catch { CATALOG = {}; }
+// In the bundle the catalog is inlined via esbuild --define (__HAS_CATALOG__/__TOOL_CATALOG__,
+// see scripts/esbuild-config.mjs), so descriptions work on a user's machine with no external
+// file. The un-bundled dev entry reads the co-located committed copy; either way, a missing
+// catalog degrades gracefully to each tool's hardcoded fallback string.
+const HERE = dirname(fileURLToPath(import.meta.url));
+const CATALOG = typeof __HAS_CATALOG__ !== 'undefined'
+  ? __TOOL_CATALOG__
+  : (() => {
+      try { return JSON.parse(readFileSync(resolve(HERE, '../tool-descriptions.json'), 'utf8')); }
+      catch { return {}; }
+    })();
 const describe = (tool, fallback) => CATALOG[tool]?.description ?? fallback;
 
 const SCHEMA_KEYS = new WeakMap();
