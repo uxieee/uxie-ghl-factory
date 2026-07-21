@@ -18,7 +18,15 @@ const staged = process.argv.includes('--staged');
 const listCmd = staged
   ? ['diff', '--cached', '--name-only', '--diff-filter=ACM', '-z']
   : ['ls-files', '-z'];
-const files = execFileSync('git', listCmd, { encoding: 'utf8' }).split('\0').filter(Boolean);
+// Generated build artifacts are NOT scanned: they are bundled third-party code (minified
+// deps carry arbitrary long numeric constants — e.g. int64/uint64 bounds — that trip the
+// "long opaque account id" rule). Their authored source (mcp-internal/core, stdio.mjs) is
+// tracked and scanned on its own, so nothing that could actually leak is skipped.
+const SKIP_PATHS = [/(^|\/)mcp-internal\/dist\//];
+const files = execFileSync('git', listCmd, { encoding: 'utf8' })
+  .split('\0')
+  .filter(Boolean)
+  .filter((f) => !SKIP_PATHS.some((re) => re.test(f)));
 
 // Substrings that are FINE — placeholders, reserved domains, our own identifiers.
 const ALLOW = [
