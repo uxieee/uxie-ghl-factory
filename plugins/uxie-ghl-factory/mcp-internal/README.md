@@ -4,13 +4,15 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: Plan 3 complete and LIVE-PROVEN on GROM AU (2026-07-21).** Its read tools and the
-confirm-gated write tools (`build_workflow`, `edit_workflow`, `publish_workflow`,
-`fast_forward_contacts`, non-GET `raw_request`) have all been driven against a real
-account through a real MCP session. Plan 4 Tasks 1–3 add `list_courses` and the
-confirm-gated `build_course`; both are implemented and locally verified, but **neither MCP
-tool has been live-proven yet**. Plan 4 Task 4 remains human-gated. AI-agent tools are not
-implemented yet.
+**Status: shipped in `uxie-ghl-factory` 0.8.0 — all 17 tools LIVE-PROVEN on GROM AU (2026-07-21).**
+Every tool has been driven against a real account through a real MCP stdio session — see the
+per-tool ledgers below: the read tools; the confirm-gated workflow writes (`build_workflow`,
+`edit_workflow`, `publish_workflow`, `fast_forward_contacts`, non-GET `raw_request`); the
+memberships tools (`list_courses`, `build_course`); and all three AI-agent create tools
+(`create_convai_agent`, `create_voiceai_agent`, `create_studio_agent`). The 2026-07-21
+code-review fix set — agent-verification hardening (D1/D2/D3), server-core credential-leak and
+error-classification fixes (SC1–SC4), and the membership sub-object key guard (MF2) — was
+re-proven live through the real server before shipping (see the 0.8.0 re-proof note below).
 
 ## Credential model
 
@@ -367,3 +369,20 @@ mismatches, canary deleted. Two things had to be settled, both via a live diagno
 Studio). Remaining on the surface: `create_studio_agent`'s dual `systemPrompt`+`buildPrompt`
 requirement should be reconciled or documented in the tool description. (`raw_request` now
 reaches the AI host via `host:"ai"` — live-proven 2026-07-21.)
+
+## Live proof ledger — 0.8.0 code-review re-proof (2026-07-21)
+
+Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Driven through a real MCP stdio session on a
+freshly captured credential pair. The review fix set changed the AI-agent verification logic
+(D1 nested-key classification, D2 SSE-id recovery, D3 confirmed-key requirement), so per this
+project's "green tests ≠ live" rule those two write paths were re-driven end-to-end, not just
+unit-tested.
+
+| Tool | EXECUTED | OBSERVED |
+|---|---|---|
+| `create_studio_agent` | SSE build → follow-up PUT → GET re-read | `ok:true, verified:true`; confirmed `config.name`, `config.systemPrompt`; 0 mismatches; agent id extracted from the SSE stream (D2 path). **Deleted afterwards** (`200 {success:true}`). |
+| `create_voiceai_agent` | POST create → full-replace PUT → GET re-read | `ok:true, verified:true`; 21 top-level keys confirmed; the 37 `agentSettings`-nested fields correctly bucketed as `unverified`, **not** false mismatches (D1). **Deleted afterwards** (`204`). |
+
+Cleanup was verified against the raw list bodies of both surfaces — neither canary id
+remained, and the pre-existing agents were left untouched. Regression tests were added for
+each fix (server 152→159, ai-agents 182→186, memberships 12→13).
