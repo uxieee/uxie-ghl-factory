@@ -1706,12 +1706,17 @@ export const TOOLS = [
   },
   {
     name: 'raw_request',
-    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes.',
+    description: 'Escape hatch for internal endpoints the typed tools do not cover. GET remains read-only; non-GET requests require confirm:true and report ambiguous transport outcomes. host:"ai" targets services.leadconnectorhq.com on the dual-credential AI rail (Bearer + token-id); default "workflow" hits backend.leadconnectorhq.com on the Bearer rail.',
     inputSchema: schema({
       locationId: z.string(),
       method: z.string().trim().regex(HTTP_METHOD_TOKEN).transform((method) => method.toUpperCase()),
       path: z.string().startsWith('/').describe('Internal path beginning with / — the gateway adds the base URL'),
       body: z.unknown().optional(),
+      // Which internal host + auth rail. Without this, AI-host endpoints
+      // (services.leadconnectorhq.com, needs token-id too) were unreachable through this
+      // tool — its own guard rejected them, which during cleanup looked like "gone" when
+      // the object was still there (live-caught 2026-07-21).
+      host: z.enum(['workflow', 'ai']).default('workflow'),
       confirm: z.boolean().default(false),
     }),
     capabilities: [],
@@ -1735,9 +1740,13 @@ export const TOOLS = [
         );
       }
 
-      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      // host:'ai' switches BOTH the base and the auth rail together — the AI host rejects
+      // a Bearer-only call, so a base override without the rail would just 401.
+      const onAi = args.host === 'ai';
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state, ...(onAi ? { rail: 'ai' } : {}) });
+      const callOpts = onAi ? { base: 'https://services.leadconnectorhq.com' } : undefined;
       if (method === 'GET') {
-        const response = await gw.call('GET', args.path);
+        const response = await gw.call('GET', args.path, undefined, callOpts);
         return response.ok
           ? ok({ status: response.status, json: response.json })
           : fromHttp(response.status, response.json);
@@ -1752,7 +1761,7 @@ export const TOOLS = [
         },
       };
       const writeCall = await safeGatewayCall(
-        () => gw.call(method, args.path, args.body),
+        () => gw.call(method, args.path, args.body, callOpts),
       );
       if (writeCall.threw) {
         partialProgress.write.ambiguous = true;

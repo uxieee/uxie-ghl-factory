@@ -349,6 +349,6 @@ mismatches, canary deleted. Two things had to be settled, both via a live diagno
    pretend to verify what the AI produced.
 
 **All three AI create tools are now live-proven end-to-end** (ConvAI, Voice AI, Agent
-Studio). Remaining on the surface: `raw_request` still cannot reach the AI host (no `base`
-parameter), and `create_studio_agent`'s dual `systemPrompt`+`buildPrompt` requirement should
-be reconciled or documented in the tool description.
+Studio). Remaining on the surface: `create_studio_agent`'s dual `systemPrompt`+`buildPrompt`
+requirement should be reconciled or documented in the tool description. (`raw_request` now
+reaches the AI host via `host:"ai"` — live-proven 2026-07-21.)
