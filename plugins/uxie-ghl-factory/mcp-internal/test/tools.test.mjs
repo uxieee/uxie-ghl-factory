@@ -49,6 +49,48 @@ test('auth errors are returned as the error contract, never thrown', async () =>
   assert.equal(res.code, 'TOKEN_MISSING');
 });
 
+test('SC1: a coded credential throw WITH remediation keeps its code; one without falls back to ENGINE_ABORT', async () => {
+  const tool = TOOLS.find((t) => t.name === 'list_workflows');
+  const withRemediation = await tool.handler({ locationId: 'L' }, {
+    state: {},
+    makeGw: () => { const e = new Error('JWT exp is in the past'); e.code = 'TOKEN_EXPIRED'; e.remediation = 're-capture'; throw e; },
+  });
+  assert.equal(withRemediation.code, 'TOKEN_EXPIRED');
+  // Same code, no remediation, non-spec message -> the old misclassification path. This is
+  // exactly why the gateway throws now carry a remediation (review SC1).
+  const withoutRemediation = await tool.handler({ locationId: 'L' }, {
+    state: {},
+    makeGw: () => { const e = new Error('JWT exp is in the past'); e.code = 'TOKEN_EXPIRED'; throw e; },
+  });
+  assert.equal(withoutRemediation.code, 'ENGINE_ABORT');
+});
+
+test('SC2: enum-like status/host fields parse any string so the SDK never echoes an invalid value', () => {
+  const listWf = TOOLS.find((t) => t.name === 'list_workflows');
+  const raw = TOOLS.find((t) => t.name === 'raw_request');
+  const jwtish = 'eyJhbGciOiJIUzI1NiJ9.payloadpayloadpayloadpayload.sig';
+  assert.doesNotThrow(() => listWf.inputSchema.parse({ locationId: 'L', status: jwtish }));
+  assert.doesNotThrow(() => raw.inputSchema.parse({ locationId: 'L', method: 'GET', path: '/x', host: jwtish }));
+});
+
+test('SC2: an invalid status/host is rejected in-handler without echoing the value', async () => {
+  const listWf = TOOLS.find((t) => t.name === 'list_workflows');
+  const raw = TOOLS.find((t) => t.name === 'raw_request');
+  const deps = { state: {}, makeGw: () => { throw new Error('gateway must not be constructed'); } };
+  const jwtish = 'eyJhbGciOiJIUzI1NiJ9.payloadpayloadpayloadpayload.sig';
+
+  for (const bad of ['archived', jwtish]) {
+    const s = await listWf.handler({ locationId: 'L', status: bad }, deps);
+    assert.equal(s.ok, false);
+    assert.equal(s.code, 'VALIDATION_FAILED');
+    assert.doesNotMatch(JSON.stringify(s), /archived|eyJ|payloadpayload/);
+    const h = await raw.handler({ locationId: 'L', method: 'GET', path: '/x', host: bad }, deps);
+    assert.equal(h.ok, false);
+    assert.equal(h.code, 'VALIDATION_FAILED');
+    assert.doesNotMatch(JSON.stringify(h), /archived|eyJ|payloadpayload/);
+  }
+});
+
 test('set_token_file rejects a pasted JWT without echoing it or changing the state', async () => {
   const state = { tokenFile: '/existing/tok.txt' };
   const secret = 'eyJhbGciOiJIUzI1NiJ9.abcdefghijklmnopqrstuvwxyz.signature';

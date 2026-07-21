@@ -690,13 +690,20 @@ export const TOOLS = [
     description: describe('list_workflows', 'List workflows in a location.'),
     inputSchema: schema({
       locationId: z.string(),
-      status: z.enum(['published', 'draft']).optional(),
+      // Modeled as a free string, not z.enum: the SDK's invalid_enum_value error echoes the
+      // received value BEFORE our scrubber runs, so a credential passed here would leak. We
+      // validate the allowed set inside the handler, downstream of the secret scrub (SC2).
+      status: z.string().optional(),
       search: z.string().optional(),
       limit: z.number().default(100),
       offset: z.number().default(0),
     }),
     capabilities: [{ method: 'GET', path: '/workflow/{loc}/list' }],
     handler: async (args, deps) => guard(async () => {
+      if (args.status !== undefined && !['published', 'draft'].includes(args.status)) {
+        return fail(CODES.VALIDATION_FAILED, 'status must be "published" or "draft" (value withheld)',
+          'Pass status:"published" or status:"draft", or omit it.');
+      }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const q = new URLSearchParams({
         type: 'workflow', limit: String(args.limit ?? 100), offset: String(args.offset ?? 0),
@@ -1726,11 +1733,21 @@ export const TOOLS = [
       // (services.leadconnectorhq.com, needs token-id too) were unreachable through this
       // tool — its own guard rejected them, which during cleanup looked like "gone" when
       // the object was still there (live-caught 2026-07-21).
-      host: z.enum(['workflow', 'ai']).default('workflow'),
+      // Modeled as a free string, not z.enum: the SDK's invalid_enum_value error echoes the
+      // received value before our scrubber runs, so a credential passed here would leak. We
+      // validate the allowed set inside the handler, downstream of the secret scrub (SC2).
+      host: z.string().default('workflow'),
       confirm: z.boolean().default(false),
     }),
     capabilities: [],
     handler: async (args, deps) => guard(async () => {
+      // Default in-handler (not only via zod) so a direct call with host omitted still
+      // resolves to the workflow rail; then validate the set downstream of the secret scrub.
+      const host = args.host ?? 'workflow';
+      if (!['workflow', 'ai'].includes(host)) {
+        return fail(CODES.VALIDATION_FAILED, 'host must be "workflow" or "ai" (value withheld)',
+          'Pass host:"workflow" (default) or host:"ai", or omit it.');
+      }
       const method = normalizeHttpMethod(args.method);
       if (!method) {
         return fail(
@@ -1752,7 +1769,7 @@ export const TOOLS = [
 
       // host:'ai' switches BOTH the base and the auth rail together — the AI host rejects
       // a Bearer-only call, so a base override without the rail would just 401.
-      const onAi = args.host === 'ai';
+      const onAi = host === 'ai';
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state, ...(onAi ? { rail: 'ai' } : {}) });
       const callOpts = onAi ? { base: 'https://services.leadconnectorhq.com' } : undefined;
       if (method === 'GET') {
