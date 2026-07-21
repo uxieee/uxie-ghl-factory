@@ -36,5 +36,14 @@ Run these in order; report a pass/fail table at the end.
 6. OPTIONAL — internal API: ask whether they want internal-API features now;
    if yes, walk ${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md §2 once,
    including the ToS disclosure from ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md.
+6b. OPTIONAL — internal-API MCP server: the internal-API capabilities (workflow
+    build/edit/publish, funnel/membership/AI-agent building, fast-forward) are also
+    available as a local stdio MCP server at ${CLAUDE_PLUGIN_ROOT}/mcp-internal/ — an
+    alternative to driving the skills' scripts. It is OPT-IN and never auto-started
+    (it needs a captured JWT). If they want it, walk
+    ${CLAUDE_PLUGIN_ROOT}/mcp-internal/README.md "Install" (one-time `npm install`
+    there, then `claude mcp add ghl-internal -e GHL_TOK_FILE=<path> -- node
+    ${CLAUDE_PLUGIN_ROOT}/mcp-internal/stdio.mjs`). The credential model is the same
+    file-based JWT as the skills; nothing new to trust beyond what step 6 covered.
 7. POINT FORWARD: suggest /uxie-ghl-factory:brief for their first client, and the
    ghl-orientation skill for agents new to GHL.

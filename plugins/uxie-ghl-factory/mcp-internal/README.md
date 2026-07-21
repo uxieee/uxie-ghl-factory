@@ -27,9 +27,24 @@ never logged, and never echoed in a response or error.
 
 ## Install
 
+This server ships **inside** the `uxie-ghl-factory` plugin — a plugin checkout already
+has the code. It is **opt-in**: it is not auto-registered, because it needs a captured
+JWT (see Credential model) that does not exist until you run the capture runbook.
+
+One-time setup, from this directory:
+
 ```bash
-claude mcp add ghl-internal -e GHL_TOK_FILE="/abs/path/to/tok.txt" -- node /abs/path/to/mcp-internal/stdio.mjs
+# 1. Install the two runtime deps (@modelcontextprotocol/sdk, zod). node_modules is
+#    gitignored; package-lock.json is committed, so this is deterministic.
+npm install
+
+# 2. Capture a token to a file (see the get-ghl-workflow-json capture runbook), then
+#    register the server, pointing GHL_TOK_FILE at that file:
+claude mcp add ghl-internal -e GHL_TOK_FILE="/abs/path/to/tok.txt" -- node "$(pwd)/stdio.mjs"
 ```
+
+Works in any stdio MCP client (Claude Code, Codex, Cursor, Desktop) — swap `claude mcp add`
+for that client's registration command, same `node <path>/stdio.mjs` invocation.
 
 ## Tools
 
