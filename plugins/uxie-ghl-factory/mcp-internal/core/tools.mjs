@@ -87,8 +87,18 @@ export function compileAiAgentPlan(kind, args) {
     const update = compileVoiceAiUpdate(args.spec, { agentId: '{agentId}', locationId: args.locationId });
     return { ...compiled, followUps: [update], verifyExpected: update.body };
   }
-  const create = compileSuperAgentCreate(args.spec, { locationId: args.locationId, companyId: args.companyId });
-  const update = compileSuperAgentUpdate(args.spec, { agentId: '{agentId}', locationId: args.locationId });
+  // Two genuinely distinct roles: `buildPrompt` is the free-text instruction the AI
+  // builds the agent from (SSE); `systemPrompt` is the exact prompt the follow-up PUT
+  // overwrites with. But requiring BOTH — with an error naming whichever you omitted —
+  // read as contradictory (live-caught 2026-07-21). Accept EITHER and derive the missing
+  // one, so a single field just works; supplying both keeps their distinct roles.
+  const studioSpec = {
+    ...args.spec,
+    buildPrompt: args.spec?.buildPrompt ?? args.spec?.systemPrompt,
+    systemPrompt: args.spec?.systemPrompt ?? args.spec?.buildPrompt,
+  };
+  const create = compileSuperAgentCreate(studioSpec, { locationId: args.locationId, companyId: args.companyId });
+  const update = compileSuperAgentUpdate(studioSpec, { agentId: '{agentId}', locationId: args.locationId });
   // Verify ONLY the identity fields we deterministically set and that round-trip:
   // name + systemPrompt. LIVE-CAUGHT 2026-07-21 (GROM AU): verifying the WHOLE
   // update config produced false `config.triggers` / `config.actions` mismatches,
@@ -630,7 +640,7 @@ export const TOOLS = [
   },
   {
     name: 'create_voiceai_agent',
-    description: `${describe('create_voiceai_agent', 'Create Voice AI agent — proof: documented; risk: write')}. NOT live-proven: first confirmed use must be a throwaway validation run. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_voiceai_agent', 'Create Voice AI agent — proof: documented; risk: write')}. Live-proven end-to-end on GROM AU 2026-07-21 (create → full-replace update → verified). Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'POST', path: '/voice-ai/agents' },
@@ -654,7 +664,7 @@ export const TOOLS = [
   },
   {
     name: 'create_studio_agent',
-    description: `${describe('create_studio_agent', 'Create Agent Studio agent — proof: documented; risk: write')}. NOT live-proven: first confirmed use must be a throwaway validation run, including SSE behavior. Confirmation-gated: preview compiles a no-write plan.`,
+    description: `${describe('create_studio_agent', 'Create Agent Studio agent — proof: documented; risk: write')}. Live-proven end-to-end on GROM AU 2026-07-21 (SSE build → follow-up PUT → verified). Provide buildPrompt (the AI build instruction) and/or systemPrompt (the exact runtime prompt) — either alone works; both keeps their distinct roles. Confirmation-gated: preview compiles a no-write plan.`,
     inputSchema: schema({ locationId: z.string(), companyId: z.string().optional(), spec: z.object({}).passthrough(), confirm: z.boolean().default(false) }),
     capabilities: [
       { method: 'SSE', path: '/agent-studio/super-agents/build' },
