@@ -5,6 +5,8 @@ description: Build and operate GoHighLevel Memberships via the internal API — 
 
 # GHL Memberships Builder
 
+> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `build_course` / `list_courses` tools over running this skill's scripts directly — the tools wrap this same engine behind confirmation gates and post-build verification. Fall back to this skill's own scripts when the server is not registered.
+
 Writes to a GHL account via the undocumented internal Memberships API.
 
 ## Before any write

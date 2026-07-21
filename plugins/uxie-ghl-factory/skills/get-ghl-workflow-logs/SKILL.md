@@ -5,6 +5,8 @@ description: Read the RUNTIME of a GoHighLevel / HighLevel workflow — its exec
 
 # Get GHL Workflow Logs
 
+> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `get_workflow_logs` tool over running this skill's scripts directly. Fall back to this skill's own scripts when the server is not registered.
+
 Capture the *runtime* behind a HighLevel workflow — the execution trace, the enrollment records, and the live per-step occupancy — and turn it into evidence the user can act on. Where `get-ghl-workflow-json` answers "how is this workflow built," this skill answers "what happened when contacts ran through it."
 
 This is a narrow, read-only extraction-and-interpretation skill, not a full audit. It gets the runtime data onto disk and explains what it means. A whole-account audit is `/uxie-ghl-factory:audit`.
