@@ -1,0 +1,383 @@
+{
+  "build_workflow": {
+    "description": "Build workflow — proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-11); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-07-17)",
+    "proofFloor": "live-roundtrip (2026-07-11)",
+    "proofRows": [
+      "entities-tags-list",
+      "triggers-create"
+    ],
+    "proofFloorRows": [
+      "workflow-build-verify",
+      "workflow-create",
+      "workflow-update"
+    ],
+    "riskRows": [
+      "triggers-create",
+      "workflow-create",
+      "workflow-update"
+    ],
+    "rows": [
+      "entities-tags-list",
+      "triggers-create",
+      "workflow-build-verify",
+      "workflow-create",
+      "workflow-update"
+    ]
+  },
+  "get_workflow": {
+    "description": "Get workflow — proof: documented; risk: read",
+    "risk": "read",
+    "proof": "documented",
+    "proofFloor": "documented",
+    "proofRows": [
+      "workflow-read"
+    ],
+    "proofFloorRows": [
+      "workflow-read"
+    ],
+    "riskRows": [
+      "workflow-read"
+    ],
+    "rows": [
+      "workflow-read"
+    ]
+  },
+  "export_workflow": {
+    "description": "Export workflow — proof: documented; risk: read",
+    "risk": "read",
+    "proof": "documented",
+    "proofFloor": "documented",
+    "proofRows": [
+      "triggers-list",
+      "workflow-export-read",
+      "workflow-sticky-notes-list"
+    ],
+    "proofFloorRows": [
+      "triggers-list",
+      "workflow-export-read",
+      "workflow-sticky-notes-list"
+    ],
+    "riskRows": [
+      "triggers-list",
+      "workflow-export-read",
+      "workflow-sticky-notes-list"
+    ],
+    "rows": [
+      "triggers-list",
+      "workflow-export-read",
+      "workflow-sticky-notes-list"
+    ]
+  },
+  "edit_workflow": {
+    "description": "Edit workflow — proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-17); risk: destructive",
+    "risk": "destructive",
+    "proof": "live-runtime (2026-07-17)",
+    "proofFloor": "live-roundtrip (2026-07-17)",
+    "proofRows": [
+      "triggers-create-for-edit"
+    ],
+    "proofFloorRows": [
+      "triggers-delete",
+      "triggers-list-for-edit",
+      "triggers-update",
+      "workflow-edit",
+      "workflow-edit-read"
+    ],
+    "riskRows": [
+      "triggers-delete"
+    ],
+    "rows": [
+      "triggers-create-for-edit",
+      "triggers-delete",
+      "triggers-list-for-edit",
+      "triggers-update",
+      "workflow-edit",
+      "workflow-edit-read"
+    ]
+  },
+  "publish_workflow": {
+    "description": "Publish workflow — proof: live-runtime (2026-07-11), floor: documented; risk: destructive",
+    "risk": "destructive",
+    "proof": "live-runtime (2026-07-11)",
+    "proofFloor": "documented",
+    "proofRows": [
+      "workflow-publish"
+    ],
+    "proofFloorRows": [
+      "triggers-list-for-publish"
+    ],
+    "riskRows": [
+      "workflow-publish"
+    ],
+    "rows": [
+      "triggers-list-for-publish",
+      "workflow-publish",
+      "workflow-publish-read"
+    ]
+  },
+  "list_workflows": {
+    "description": "List workflows — proof: documented; risk: read",
+    "risk": "read",
+    "proof": "documented",
+    "proofFloor": "documented",
+    "proofRows": [
+      "workflow-list"
+    ],
+    "proofFloorRows": [
+      "workflow-list"
+    ],
+    "riskRows": [
+      "workflow-list"
+    ],
+    "rows": [
+      "workflow-list"
+    ]
+  },
+  "get_workflow_logs": {
+    "description": "Get workflow logs — proof: live-runtime (2026-07-15); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-07-15)",
+    "proofFloor": "live-runtime (2026-07-15)",
+    "proofRows": [
+      "logs-count-per-step",
+      "logs-enrollment-history",
+      "logs-list-v2"
+    ],
+    "proofFloorRows": [
+      "logs-count-per-step",
+      "logs-enrollment-history",
+      "logs-list-v2"
+    ],
+    "riskRows": [
+      "logs-count-per-step",
+      "logs-enrollment-history",
+      "logs-list-v2"
+    ],
+    "rows": [
+      "logs-count-per-step",
+      "logs-enrollment-history",
+      "logs-list-v2"
+    ]
+  },
+  "fast_forward_contacts": {
+    "description": "Fast-forward contacts — proof: live-runtime (2026-07-18); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-07-18)",
+    "proofFloor": "live-runtime (2026-07-18)",
+    "proofRows": [
+      "fast-forward-count-per-step",
+      "fast-forward-details-by-step",
+      "fast-forward-requeue-statuses"
+    ],
+    "proofFloorRows": [
+      "fast-forward-count-per-step",
+      "fast-forward-details-by-step",
+      "fast-forward-requeue-statuses"
+    ],
+    "riskRows": [
+      "fast-forward-count-per-step",
+      "fast-forward-details-by-step",
+      "fast-forward-requeue-statuses"
+    ],
+    "rows": [
+      "fast-forward-count-per-step",
+      "fast-forward-details-by-step",
+      "fast-forward-requeue-statuses"
+    ]
+  },
+  "list_account_entities": {
+    "description": "List account entities — proof: live-runtime (2026-07-18), floor: documented; risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-07-18)",
+    "proofFloor": "documented",
+    "proofRows": [
+      "entities-custom-fields-search"
+    ],
+    "proofFloorRows": [
+      "entities-ai-employees-agents-list",
+      "entities-voice-ai-agents-list"
+    ],
+    "riskRows": [
+      "entities-ai-employees-agents-list",
+      "entities-calendars-list",
+      "entities-custom-fields-search",
+      "entities-forms-list",
+      "entities-pipelines-list",
+      "entities-users-list",
+      "entities-voice-ai-agents-list"
+    ],
+    "rows": [
+      "entities-ai-employees-agents-list",
+      "entities-calendars-list",
+      "entities-custom-fields-search",
+      "entities-forms-list",
+      "entities-pipelines-list",
+      "entities-users-list",
+      "entities-voice-ai-agents-list"
+    ]
+  },
+  "build_course": {
+    "description": "Build course — proof: live-runtime (2026-07-19), floor: documented; risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-07-19)",
+    "proofFloor": "documented",
+    "proofRows": [
+      "memberships-assessment-assignment-create",
+      "memberships-assessment-quiz-create",
+      "memberships-assignment-read-by-post",
+      "memberships-category-create",
+      "memberships-credential-template-create",
+      "memberships-offer-create",
+      "memberships-offer-grant",
+      "memberships-offer-publish",
+      "memberships-offer-read",
+      "memberships-post-create",
+      "memberships-product-create",
+      "memberships-product-progress-read",
+      "memberships-quiz-questions-create",
+      "memberships-quiz-questions-list",
+      "memberships-quiz-read-by-post"
+    ],
+    "proofFloorRows": [
+      "memberships-credential-attachment-create",
+      "memberships-credential-attachments-list",
+      "memberships-material-attach",
+      "memberships-material-upload-url-create",
+      "memberships-post-read",
+      "memberships-post-update-embed",
+      "memberships-theme-apply",
+      "memberships-theme-create",
+      "memberships-theme-read",
+      "memberships-theme-update",
+      "memberships-video-asset-create",
+      "memberships-video-register",
+      "memberships-video-upload-url-create"
+    ],
+    "riskRows": [
+      "memberships-assessment-assignment-create",
+      "memberships-assessment-quiz-create",
+      "memberships-category-create",
+      "memberships-credential-attachment-create",
+      "memberships-credential-template-create",
+      "memberships-material-attach",
+      "memberships-material-upload-url-create",
+      "memberships-offer-create",
+      "memberships-offer-grant",
+      "memberships-offer-publish",
+      "memberships-post-create",
+      "memberships-post-update-embed",
+      "memberships-product-create",
+      "memberships-quiz-questions-create",
+      "memberships-theme-apply",
+      "memberships-theme-create",
+      "memberships-theme-update",
+      "memberships-video-asset-create",
+      "memberships-video-register",
+      "memberships-video-upload-url-create"
+    ],
+    "rows": [
+      "memberships-assessment-assignment-create",
+      "memberships-assessment-quiz-create",
+      "memberships-assignment-read-by-post",
+      "memberships-category-create",
+      "memberships-credential-attachment-create",
+      "memberships-credential-attachments-list",
+      "memberships-credential-template-create",
+      "memberships-material-attach",
+      "memberships-material-upload-url-create",
+      "memberships-offer-create",
+      "memberships-offer-grant",
+      "memberships-offer-publish",
+      "memberships-offer-read",
+      "memberships-post-create",
+      "memberships-post-read",
+      "memberships-post-update-embed",
+      "memberships-product-create",
+      "memberships-product-progress-read",
+      "memberships-quiz-questions-create",
+      "memberships-quiz-questions-list",
+      "memberships-quiz-read-by-post",
+      "memberships-theme-apply",
+      "memberships-theme-create",
+      "memberships-theme-read",
+      "memberships-theme-update",
+      "memberships-video-asset-create",
+      "memberships-video-register",
+      "memberships-video-upload-url-create"
+    ]
+  },
+  "list_courses": {
+    "description": "List courses — proof: documented; risk: read",
+    "risk": "read",
+    "proof": "documented",
+    "proofFloor": "documented",
+    "proofRows": [
+      "memberships-products-list"
+    ],
+    "proofFloorRows": [
+      "memberships-products-list"
+    ],
+    "riskRows": [
+      "memberships-products-list"
+    ],
+    "rows": [
+      "memberships-products-list"
+    ]
+  },
+  "create_convai_agent": {
+    "description": "Create Conversation AI agent — proof: live-runtime (2026-07-21); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-07-21)",
+    "proofFloor": "live-runtime (2026-07-21)",
+    "proofRows": [
+      "ai-convai-agent-create"
+    ],
+    "proofFloorRows": [
+      "ai-convai-agent-create"
+    ],
+    "riskRows": [
+      "ai-convai-agent-create"
+    ],
+    "rows": [
+      "ai-convai-agent-create"
+    ]
+  },
+  "create_voiceai_agent": {
+    "description": "Create Voice AI agent — proof: live-runtime (2026-07-21); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-07-21)",
+    "proofFloor": "live-runtime (2026-07-21)",
+    "proofRows": [
+      "ai-voiceai-agent-create"
+    ],
+    "proofFloorRows": [
+      "ai-voiceai-agent-create"
+    ],
+    "riskRows": [
+      "ai-voiceai-agent-create"
+    ],
+    "rows": [
+      "ai-voiceai-agent-create"
+    ]
+  },
+  "create_studio_agent": {
+    "description": "Create Agent Studio agent — proof: live-runtime (2026-07-21); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-07-21)",
+    "proofFloor": "live-runtime (2026-07-21)",
+    "proofRows": [
+      "ai-studio-agent-build"
+    ],
+    "proofFloorRows": [
+      "ai-studio-agent-build"
+    ],
+    "riskRows": [
+      "ai-studio-agent-build"
+    ],
+    "rows": [
+      "ai-studio-agent-build"
+    ]
+  }
+}

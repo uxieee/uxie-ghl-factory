@@ -4,13 +4,10 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { build } from 'esbuild';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
 import { TOOLS } from '../core/tools.mjs';
+import { buildOptions, OUTFILE } from '../scripts/esbuild-config.mjs';
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const root = resolve(HERE, '..');
-const distServer = resolve(root, 'dist/server.mjs');
+const distServer = OUTFILE;
 
 // The whole point of the committed bundle is that it boots on a user's machine with just
 // `node` — no `npm install`. This spawns the ACTUAL committed dist and drives it over stdio.
@@ -35,16 +32,7 @@ test('committed dist/server.mjs boots over stdio and registers every tool', asyn
 // A stale committed dist would ship old behavior while the source looks fixed — this
 // project's "green tests != live" trap, at the packaging layer. Rebuild in-memory and diff.
 test('committed dist/server.mjs is in sync with source (rebuild-and-diff)', async () => {
-  const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
-  const result = await build({
-    entryPoints: [resolve(root, 'stdio.mjs')],
-    bundle: true,
-    platform: 'node',
-    format: 'esm',
-    define: { __MCP_VERSION__: JSON.stringify(pkg.version) },
-    write: false,
-    logLevel: 'silent',
-  });
+  const result = await build(buildOptions({ write: false, logLevel: 'silent' }));
   const fresh = result.outputFiles[0].text;
   const committed = readFileSync(distServer, 'utf8');
   assert.equal(fresh, committed, 'dist/server.mjs is stale — run `npm run build` and commit dist/');
