@@ -26,6 +26,15 @@ const KNOWN_KEYS = {
   lesson: ['title', 'text', 'type', 'video', 'audio', 'files', 'embed', 'questions',
     'visibility', 'awardCredential'],
   question: ['title', 'options', 'questionType', 'explanation'],
+  // Sub-object keys, derived the same way (grep of engine reads cross-checked against
+  // references/course-spec.md + example-spec.json). Without these, the same silent-typo
+  // class this guard exists to stop still slips through the sub-objects — e.g.
+  // `theme.brandColour` would no-op with no error (review MF2). `offer` also honours
+  // `title`/`currency`, read by the engine though absent from the doc example.
+  offer: ['type', 'title', 'currency', 'publish'],
+  theme: ['name', 'templateId', 'brandColor', 'heroTitleColor', 'instructor'],
+  instructor: ['name', 'title', 'bio'],
+  credential: ['title', 'type'],
 };
 
 function checkKeys(obj, allowed, at, errors, hints = {}) {
@@ -40,6 +49,7 @@ function checkKeys(obj, allowed, at, errors, hints = {}) {
 
 // Near-miss keys seen in the wild, mapped to what the author almost certainly meant.
 const LESSON_KEY_HINTS = { body: 'text', html: 'text', content: 'text', description: 'text' };
+const THEME_KEY_HINTS = { brandColour: 'brandColor', color: 'brandColor', accentColor: 'brandColor' };
 
 export function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } = {}) {
   const errors = [];
@@ -102,6 +112,12 @@ export function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } =
       }
     });
   });
+
+  // Sub-object key guards (MF2). `offer: null` means "no offer" and checkKeys skips non-objects.
+  checkKeys(spec.offer, KNOWN_KEYS.offer, 'spec.offer', errors);
+  checkKeys(spec.theme, KNOWN_KEYS.theme, 'spec.theme', errors, THEME_KEY_HINTS);
+  checkKeys(spec.theme?.instructor, KNOWN_KEYS.instructor, 'spec.theme.instructor', errors);
+  checkKeys(spec.credential, KNOWN_KEYS.credential, 'spec.credential', errors);
 
   const offerType = spec.offer?.type;
   if (offerType && !['free', 'one_time', 'recurring'].includes(offerType)) {

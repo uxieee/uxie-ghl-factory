@@ -1,4 +1,6 @@
 const BACKEND = 'https://backend.leadconnectorhq.com';
+// GCS signed-upload targets: path-style OR virtual-hosted <bucket>.storage.googleapis.com.
+const GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
 
 // The shipped CLIs own this thin transport adapter. Reusable memberships
 // behavior lives in engine/*.mjs and only talks through gw.call.
@@ -10,13 +12,21 @@ export function makeCliMembershipsGateway({ token, loc, uid, fetchImpl = fetch }
     const options = typeof baseOrOptions === 'string'
       ? { base: baseOrOptions }
       : (baseOrOptions ?? {});
+    const base = options.base ?? BACKEND;
     const signedUpload = options.signedUpload === true;
-    if (signedUpload && (
-      method !== 'PUT'
-      || new URL(options.base ?? BACKEND).origin !== 'https://storage.googleapis.com'
-      || !(Buffer.isBuffer(body) || ArrayBuffer.isView(body))
-    )) {
-      throw new Error('signedUpload requires a raw binary PUT to https://storage.googleapis.com');
+    // Validate the RESOLVED destination (base+path), accepting both path-style and
+    // virtual-hosted <bucket>.storage.googleapis.com signed URLs (review SC4/MF1).
+    let signedTarget = null;
+    if (signedUpload) {
+      let okTarget = method === 'PUT' && (Buffer.isBuffer(body) || ArrayBuffer.isView(body));
+      try {
+        const resolved = new URL(path, base);
+        okTarget = okTarget && resolved.protocol === 'https:' && GCS_HOST_RE.test(resolved.hostname);
+        signedTarget = resolved.href;
+      } catch { okTarget = false; }
+      if (!okTarget) {
+        throw new Error('signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL');
+      }
     }
     const headers = signedUpload
       ? {}
@@ -37,7 +47,7 @@ export function makeCliMembershipsGateway({ token, loc, uid, fetchImpl = fetch }
       headers['content-type'] = 'application/json';
     }
 
-    const response = await fetchImpl((options.base ?? BACKEND) + path, {
+    const response = await fetchImpl(signedTarget ?? (base + path), {
       method,
       headers,
       body: body === undefined ? undefined : (signedUpload ? body : JSON.stringify(body)),

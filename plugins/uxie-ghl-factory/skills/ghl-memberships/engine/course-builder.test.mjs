@@ -70,3 +70,20 @@ test('unknown keys are caught at every level', () => {
     assert.ok(errs.some((e) => e.includes(k)), `${k} not caught`);
   }
 });
+
+test('MF2: unknown keys in offer/theme/credential/instructor sub-objects are rejected', () => {
+  const errs = validateCourseSpec({
+    course: { title: 'x' },
+    chapters: [{ title: 'c', lessons: [{ title: 'l', text: 't' }] }],
+    offer: { type: 'free', bogusOffer: 1 },
+    theme: { name: 'T', brandColour: '#000', instructor: { name: 'A', bogusInstructor: 1 } },
+    credential: { title: 'Cert', bogusCredential: 1 },
+  });
+  for (const [scope, key] of [['spec.offer', 'bogusOffer'], ['spec.credential', 'bogusCredential'],
+    ['spec.theme.instructor', 'bogusInstructor']]) {
+    assert.ok(errs.some((e) => e.includes(scope) && e.includes(key)), `${scope}.${key} not caught`);
+  }
+  // British-spelling near-miss for a theme key is caught AND hinted to the real key.
+  assert.ok(errs.some((e) => /unknown key "brandColour"/.test(e) && /did you mean "brandColor"/.test(e)),
+    'theme.brandColour typo must be caught and hinted');
+});
