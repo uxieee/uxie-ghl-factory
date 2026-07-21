@@ -58,3 +58,80 @@ test('preserves the created agent and ids for completed actions when a later act
   assert.deepEqual(result.actionIds, ['action-1', 'action-2', 'action-3']);
   assert.deepEqual(result.actions.at(-1), { index: 3, path: '/voice-ai/actions', status: 422, id: null });
 });
+
+test('D1: a nested authored key absent from the re-read is unverified, not a mismatch', async () => {
+  const gw = {
+    call: async (method, path) => {
+      if (path === '/ai-employees/employees') return callResponse({ id: 'conv-1' }, 201);
+      if (path === '/ai-employees/employees/conv-1') return callResponse({ config: { name: 'X' } });
+      throw new Error(`unexpected ${method} ${path}`);
+    },
+  };
+  const result = await executeAgentPlan({
+    gw,
+    plan: { create: { method: 'POST', path: '/ai-employees/employees', body: {} } },
+    verifyExpected: { config: { name: 'X', systemPrompt: 'Y' } },
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.verification.verified, true);
+  assert.deepEqual(result.verification.confirmed, ['config.name']);
+  assert.deepEqual(result.verification.unverified, ['config.systemPrompt']);
+  assert.deepEqual(result.verification.mismatches, []);
+});
+
+test('D3: created but re-read confirms nothing is inconclusive, not a success', async () => {
+  const gw = {
+    call: async (method, path) => {
+      if (path === '/ai-employees/employees') return callResponse({ id: 'conv-1' }, 201);
+      if (path === '/ai-employees/employees/conv-1') return callResponse({ unrelated: true });
+      throw new Error(`unexpected ${method} ${path}`);
+    },
+  };
+  const result = await executeAgentPlan({
+    gw,
+    plan: { create: { method: 'POST', path: '/ai-employees/employees', body: {} } },
+    verifyExpected: { name: 'X', systemPrompt: 'Y' },
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'AGENT_VERIFY_INCONCLUSIVE');
+  assert.equal(result.agentId, 'conv-1');
+  assert.equal(result.verification.verified, false);
+  assert.deepEqual(result.verification.confirmed, []);
+});
+
+test('D2: recovers the Studio id from agent_saved when the terminal done frame omits it', () => {
+  const response = {
+    terminal: { event: 'done', data: { durationMs: 16553, mode: 'build' } },
+    events: [
+      { event: 'conversation_started', data: { conversationId: 'c-1' } },
+      { event: 'agent_saved', data: { id: 'studio-42' } },
+      { event: 'done', data: { durationMs: 16553, mode: 'build' } },
+    ],
+  };
+  assert.equal(extractAgentId('studio', response), 'studio-42');
+});
+
+test('D2: AGENT_ID_MISSING reports a payload-free event map for cleanup', async () => {
+  const gw = {
+    call: async () => callResponse({}, 200),
+    stream: async () => ({
+      status: 200,
+      ok: true,
+      terminal: { event: 'done', data: {} },
+      events: [
+        { event: 'output_delta', data: 'a generated prompt fragment that must not leak' },
+        { event: 'done', data: { mode: 'build' } },
+      ],
+    }),
+  };
+  const result = await executeAgentPlan({
+    gw,
+    plan: { create: { method: 'POST', path: '/agent-studio/super-agents/build', body: {} } },
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'AGENT_ID_MISSING');
+  assert.deepEqual(result.events, [
+    { event: 'output_delta', id: null },
+    { event: 'done', id: null },
+  ]);
+});
