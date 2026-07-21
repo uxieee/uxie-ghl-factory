@@ -326,3 +326,29 @@ refused rather than reported as a successful creation, and nothing was left on t
 and `buildPrompt` (the SSE build message). Supplying only one fails with a message naming the
 other, which reads as contradictory. The two-field requirement should be documented in the
 tool description or reconciled into one field.
+
+### Follow-up (cont.): Agent Studio now works end-to-end — SSE mystery resolved
+
+`create_studio_agent` is now **fully live-proven**: `ok: true`, `verified: true`, zero
+mismatches, canary deleted. Two things had to be settled, both via a live diagnostic:
+
+1. **The `SSE_INCOMPLETE` was a CRLF/chunking parser bug (fixed, commit `289efd3`).** The
+   real stream arrives as ~757 small chunks over ~16.5s with `\r\n\r\n` frame separators;
+   `split(/\n\n/)` never split CRLF frames, so the terminal `done` was never seen. An
+   opt-in payload-free diagnostic (`GHL_SSE_DIAGNOSTICS=1`, stderr only) confirmed the fixed
+   parser now reaches `terminalEvent: "done"` on the real 47950-byte / 757-chunk stream.
+   (Codex ranked an upstream timeout first; the live log disproved that — the stream closed
+   normally *with* its terminal event once framing was fixed.)
+
+2. **Then a false verification mismatch on `config.triggers` / `config.actions`.** A Studio
+   agent is built by the AI from `buildPrompt`, so the server keeps AI-generated triggers
+   (the IR expects `[]`, the agent legitimately has one) and stores no `actions` key at all.
+   Verifying the whole config asserted fields we never authored. Fixed: Studio verification
+   now checks only the identity fields we deterministically set and that round-trip —
+   `name` and `systemPrompt`. The follow-up PUT still sends the full config; we just don't
+   pretend to verify what the AI produced.
+
+**All three AI create tools are now live-proven end-to-end** (ConvAI, Voice AI, Agent
+Studio). Remaining on the surface: `raw_request` still cannot reach the AI host (no `base`
+parameter), and `create_studio_agent`'s dual `systemPrompt`+`buildPrompt` requirement should
+be reconciled or documented in the tool description.

@@ -75,7 +75,7 @@ const descriptorPreview = (descriptor) => ({
   payload: payloadSummary(descriptor.body),
 });
 
-function compileAiAgentPlan(kind, args) {
+export function compileAiAgentPlan(kind, args) {
   if (kind === 'convai') {
     const compiled = compileConvaiAgent(args.spec, { locationId: args.locationId });
     // The create wire calls the name employeeName; the read representation calls it name.
@@ -89,7 +89,16 @@ function compileAiAgentPlan(kind, args) {
   }
   const create = compileSuperAgentCreate(args.spec, { locationId: args.locationId, companyId: args.companyId });
   const update = compileSuperAgentUpdate(args.spec, { agentId: '{agentId}', locationId: args.locationId });
-  return { create, actions: [], followUps: [update], verifyExpected: { config: update.body.config } };
+  // Verify ONLY the identity fields we deterministically set and that round-trip:
+  // name + systemPrompt. LIVE-CAUGHT 2026-07-21 (GROM AU): verifying the WHOLE
+  // update config produced false `config.triggers` / `config.actions` mismatches,
+  // because a Studio agent is built by the AI from `buildPrompt` — the server keeps
+  // the AI-generated triggers (expected [] from the IR, persisted 1) and does not
+  // store an `actions` key at all (expected []). Those fields are AI/server-owned,
+  // not ours to assert. The follow-up PUT still sends the full config; we just don't
+  // pretend to verify what we did not author.
+  const { name, systemPrompt } = update.body.config ?? {};
+  return { create, actions: [], followUps: [update], verifyExpected: { config: { name, systemPrompt } } };
 }
 
 const aiPlanPreview = (plan) => ({
