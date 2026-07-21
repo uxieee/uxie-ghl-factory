@@ -30,3 +30,23 @@ test('AI create descriptions disclose proof status without overstating unproven 
   assert.match(tool('create_voiceai_agent').description, /NOT live-proven/i);
   assert.match(tool('create_studio_agent').description, /NOT live-proven/i);
 });
+
+// Studio verification must assert ONLY identity fields (name, systemPrompt), never the
+// AI-generated triggers/actions. LIVE-CAUGHT 2026-07-21 (GROM AU): a Studio agent is built
+// by the AI from `buildPrompt`, so the server keeps AI-generated triggers (expected [],
+// persisted 1) and stores no `actions` key — verifying the whole config produced false
+// `config.triggers`/`config.actions` mismatches on a correctly created agent.
+import { compileAiAgentPlan } from '../core/tools.mjs';
+
+test('studio verifyExpected is narrowed to identity fields, not AI-owned config', () => {
+  const plan = compileAiAgentPlan('studio', {
+    locationId: 'L', companyId: 'A',
+    spec: { name: 'S', systemPrompt: 'You are a canary.', buildPrompt: 'Build a greeter.' },
+  });
+  assert.deepEqual(Object.keys(plan.verifyExpected.config).sort(), ['name', 'systemPrompt']);
+  assert.equal(plan.verifyExpected.config.name, 'S');
+  assert.equal('triggers' in plan.verifyExpected.config, false, 'must not assert AI-generated triggers');
+  assert.equal('actions' in plan.verifyExpected.config, false, 'must not assert a non-persisted actions key');
+  // The follow-up PUT still sends the FULL config — we just do not verify what we did not author.
+  assert.ok(plan.followUps[0].body.config, 'follow-up still carries the full config');
+});
