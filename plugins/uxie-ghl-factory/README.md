@@ -2,16 +2,19 @@
 
 ## What this is
 
-`ghl` is a plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts in **Claude Code** or **Codex**. It bundles a hosted MCP server covering GHL's public API (1,207 actions across 83 categories), plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), funnel/page building, and memberships/course building — built against GHL's undocumented internal API, with explicit safety gates around that surface.
+`ghl` is a plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts in **Claude Code** or **Codex**. It bundles a hosted MCP server covering GHL's public API (1,207 actions across 83 categories), plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), funnel/page building, memberships/course building, AI-agent building, and fast-forwarding test enrollments — built against GHL's undocumented internal API, with explicit safety gates around that surface. Those internal-API engines are also available as an **opt-in local MCP server** (`ghl-internal`), so an agent can call them as confirmation-gated tools instead of running the skills' scripts — see [Internal-API MCP server](#internal-api-mcp-server-opt-in).
 
 > **Codex note:** Codex plugins load **skills only** — not slash commands or subagents — so in Codex the `/uxie-ghl-factory:*` commands and the multi-agent `/uxie-ghl-factory:audit` are unavailable; invoke the skills directly instead, and configure the MCP server yourself. See [Install](#install) and [Using in Codex](#using-in-codex).
 
 | Component | Name | What it does |
 |---|---|---|
 | MCP server | `ghl` | Public GHL API v2/v3 — search/execute across 1,207 actions (contacts, pipelines, calendars, conversations, etc.) |
+| MCP server (opt-in) | `ghl-internal` | GHL **internal** API — 17 stdio tools that execute the internal-API engines (build/edit/publish workflows, fast-forward, memberships, AI agents) behind confirmation gates and round-trip verification. Ships inside the plugin; set up per [`mcp-internal/README.md`](mcp-internal/README.md) |
 | Skill | `get-ghl-workflow-json` | Read-only export of a workflow's raw JSON from the internal builder API |
 | Skill | `get-ghl-workflow-logs` | Read-only capture of a workflow's runtime — execution logs, enrollment history, per-step contact counts — from the internal builder API |
+| Skill | `ghl-workflow-fast-forward` | Fast-forwards contacts parked at a workflow WAIT step to the next step via the internal API — drives multi-day wait ladders to completion in minutes for end-to-end testing (write) |
 | Skill | `create-ghl-workflow` | Creates/edits GHL workflows via the internal builder API (draft-only; publish path untested) |
+| Skill | `ghl-ai-agents-specialist` | Designs and builds GHL's three internal AI products — Conversation AI (chat), Voice AI (phone), Agent Studio (super agents) — plus rich-text Knowledge Base content, via the internal API (write) |
 | Skill | `ghl-funnels-pages` | Builds funnels/pages, custom HTML, tracking, and SEO via the internal API |
 | Skill | `ghl-memberships` | Builds courses/membership portals via the internal API — lessons (text/video/audio/PDF/embed), quizzes with questions, assignments, offers, themes, credentials, enrollment, progress, submissions, communities. Ships a spec→course compiler and a **live conformance suite** (21/0/4) |
 | Skill | `ghl-orientation` | GHL object model, terminology, and public-vs-internal API guidance for agents new to GHL |
@@ -72,10 +75,24 @@ X-GHL-Token = "YOUR_GHL_PRIVATE_INTEGRATION_TOKEN"
 
 Without it, the skills that only *reason* about GHL still load, but anything that *calls* the API needs this server. (Self-hosting the Worker? Point `url` at your own deployment — see [Trust model](#trust-model).)
 
+## Internal-API MCP server (opt-in)
+
+The internal-API engines that power the workflow, memberships, and AI-agent skills are also exposed as a **local stdio MCP server** (`ghl-internal`) — 17 tools that let an agent *execute* those engines directly, with the same confirmation gates and round-trip verification the skills use. It is **opt-in and not auto-registered**: it needs its runtime deps installed and a captured credential, neither of which a plugin can provide for you.
+
+One-time setup, from the plugin's `mcp-internal/` directory:
+
+```bash
+npm install                                  # installs @modelcontextprotocol/sdk and zod
+# capture a token to a file (see docs/auth-jwt-capture.md), then register:
+claude mcp add ghl-internal -e GHL_TOK_FILE="/abs/path/to/tok.txt" -- node "$(pwd)/stdio.mjs"
+```
+
+Any stdio MCP client works (Claude Code, Codex, Cursor, Desktop) — swap in that client's registration command; `/uxie-ghl-factory:setup` step 6b walks through it. Once registered, the wrapped skills prefer these tools automatically and fall back to their own scripts when the server isn't present. The full tool list, credential model, and per-tool live-proof ledger are in [`mcp-internal/README.md`](mcp-internal/README.md). The same token expiry applies as the skills: JWTs last ~1 hour, and on expiry a tool returns `TOKEN_EXPIRED` naming the capture runbook to re-run.
+
 ## Prerequisites
 
 - **Node.js ≥18** (required by the plugin tooling).
-- **Playwright MCP server**, for internal-API features only (`get-ghl-workflow-json`, `get-ghl-workflow-logs`, `create-ghl-workflow`, `ghl-funnels-pages`, `ghl-memberships`). Without it, those skills degrade — the public-API MCP and `ghl-orientation` still work fully.
+- **Playwright MCP server**, for internal-API features only (`get-ghl-workflow-json`, `get-ghl-workflow-logs`, `create-ghl-workflow`, `ghl-workflow-fast-forward`, `ghl-funnels-pages`, `ghl-memberships`, `ghl-ai-agents-specialist`, and the opt-in `ghl-internal` MCP server) — it captures the internal-API JWT. Without it, those skills degrade — the public-API MCP and `ghl-orientation` still work fully.
 - **A GHL account with admin access** to whichever sub-account(s) you point this at. Write-capable skills verify admin access to the target `locationId` before writing (see write-rails, below) — the plugin will refuse and explain rather than write to an account you don't administer.
 
 ## The two API worlds
@@ -83,7 +100,7 @@ Without it, the skills that only *reason* about GHL still load, but anything tha
 GHL exposes two very different surfaces, and this plugin treats them differently on purpose:
 
 - **Public API** — official, documented, stable, in-Terms-of-Service. This is what the bundled `ghl` MCP server talks to. It covers contacts, pipelines (fully writable), calendars, conversations, and most day-to-day GHL operations. `ghl-orientation` and `/uxie-ghl-factory:brief` work entirely through this surface.
-- **Internal API** — undocumented, off-Terms-of-Service, and can change or break without notice. This is what `get-ghl-workflow-json` (read-only export), `get-ghl-workflow-logs` (read-only runtime capture), `create-ghl-workflow` (write, draft-only — never publishes), `ghl-funnels-pages` (write), and `ghl-memberships` (write) use, because the public API has no workflow-builder or funnel-builder endpoints at all.
+- **Internal API** — undocumented, off-Terms-of-Service, and can change or break without notice. This is what `get-ghl-workflow-json` (read-only export), `get-ghl-workflow-logs` (read-only runtime capture), `create-ghl-workflow` (write, draft-only — never publishes), `ghl-workflow-fast-forward` (write), `ghl-funnels-pages` (write), `ghl-memberships` (write), and `ghl-ai-agents-specialist` (write) use, because the public API has no workflow-builder, funnel-builder, membership, or AI-agent endpoints at all. The opt-in `ghl-internal` MCP server executes these same engines as tools (see [Internal-API MCP server](#internal-api-mcp-server-opt-in)).
 
 This isn't hypothetical: GHL's internal-API auth already migrated once (2026-07, from a `token-id` header to `Authorization: Bearer`), and every skill that had captured the old scheme broke outright. The plugin is designed to fail safe when that happens again — write skills stop on a `401` instead of retry-looping, auth details live in one canonical doc (`docs/auth-jwt-capture.md`) so a future migration is a one-file fix, and every internal-API write passes an owned-account check plus a one-time Terms-of-Service disclosure (`docs/write-rails.md`) before it touches anything.
 
