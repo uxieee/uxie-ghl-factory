@@ -8,8 +8,22 @@ import { CODES } from './errors.mjs';
 export const BASE = 'https://backend.leadconnectorhq.com';
 const IFRAME = 'https://client-app-automation-workflows.leadconnectorhq.com';
 const APP = 'https://app.gohighlevel.com';
+// The one host the agency-admin `token-id` (Firebase, broader scope than the location
+// JWT) may be attached to. Asserted per request so an `ai`-rail call to any other base
+// cannot leak it (review SC3).
+const AI_HOST = 'https://services.leadconnectorhq.com';
+// Google Cloud Storage signed-upload targets: path-style (storage.googleapis.com) OR
+// virtual-hosted style (<bucket>.storage.googleapis.com). Both are valid destinations for
+// a GHL-issued signed URL, and neither ever receives GHL auth (review SC4/MF1).
+const GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
 const THROTTLE_MS = 300;   // established constant (scripts/edit.mjs)
 const JITTER_MS = 150;
+
+// Attached to request-time credential throws so tools.mjs#fromThrown recognizes them as
+// auth failures (code + remediation) and tells the caller to RE-CAPTURE — not the generic
+// "gateway transport failed, inspect account state", which sends them hunting the account
+// for a problem that is really just an expired/absent token (review SC1).
+const RECAPTURE = 'Re-capture the credential per the capture runbook, then retry (no restart needed).';
 
 const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -18,7 +32,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
   // expiring Bearer JWT and Firebase token-id before sending a request.
   const creds = readCredentials({ tokenFile, allowExpired: true });   // throws AuthError; tools map it
 
-  const headers = (isWrite, overrides = {}) => {
+  const headers = (isWrite, overrides = {}, base = BASE) => {
     const h = { channel: 'APP', source: 'WEB_USER', version: '2021-07-28', accept: 'application/json, text/plain, */*' };
     if (isWrite) {
       h['content-type'] = 'application/json';
@@ -37,14 +51,23 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     // Authentication is injected after caller overrides so it cannot be removed,
     // shadowed with different casing, or swapped onto the other credential rail.
     if (rail === 'ai') {
+      // SC3: never attach the agency-admin token-id to anything but the AI host.
+      let origin;
+      try { origin = new URL(base).origin; } catch { origin = null; }
+      if (origin !== AI_HOST) {
+        const e = new Error(`ai rail may only target ${AI_HOST}, not ${origin ?? base}`);
+        e.code = 'AI_RAIL_HOST_INVALID';
+        e.remediation = 'The AI credential rail attaches an agency-admin token-id; route AI calls to the AI host only.';
+        throw e;
+      }
       requireAiCredentials(creds);
       h.authorization = `Bearer ${creds.jwt}`;
       h['token-id'] = creds.tokenId;
     } else if (rail === 'token-id') {
-      if (!creds.tokenId) { const e = new Error('no token-id in capture file'); e.code = 'TOKEN_MISSING'; throw e; }
+      if (!creds.tokenId) { const e = new Error('no token-id in capture file'); e.code = 'TOKEN_MISSING'; e.remediation = RECAPTURE; throw e; }
       h['token-id'] = creds.tokenId;
     } else {
-      if (creds.secondsRemaining <= 0) { const e = new Error('JWT exp is in the past'); e.code = 'TOKEN_EXPIRED'; throw e; }
+      if (creds.secondsRemaining <= 0) { const e = new Error('JWT exp is in the past'); e.code = 'TOKEN_EXPIRED'; e.remediation = RECAPTURE; throw e; }
       h.authorization = `Bearer ${creds.jwt}`;
     }
     return h;
@@ -56,12 +79,21 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       : (baseOrOptions ?? {});
     const base = options.base ?? BASE;
     const signedUpload = options.signedUpload === true;
-    if (signedUpload && (
-      method !== 'PUT'
-      || new URL(base).origin !== 'https://storage.googleapis.com'
-      || !(Buffer.isBuffer(body) || ArrayBuffer.isView(body))
-    )) {
-      throw new Error('signedUpload requires a raw binary PUT to https://storage.googleapis.com');
+    // Validate the RESOLVED destination, not `base` alone: the fetch target is base+path,
+    // so a non-`/` or traversing path could otherwise escape a base-only origin check
+    // (review SC4/MF1). Resolving with `new URL(path, base)` also accepts both path-style
+    // and virtual-hosted <bucket>.storage.googleapis.com signed URLs.
+    let signedTarget = null;
+    if (signedUpload) {
+      let ok = method === 'PUT' && (Buffer.isBuffer(body) || ArrayBuffer.isView(body));
+      try {
+        const resolved = new URL(path, base);
+        ok = ok && resolved.protocol === 'https:' && GCS_HOST_RE.test(resolved.hostname);
+        signedTarget = resolved.href;
+      } catch { ok = false; }
+      if (!ok) {
+        throw new Error('signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL');
+      }
     }
     await sleepImpl(THROTTLE_MS + Math.floor(randomImpl() * JITTER_MS));
     const requestHeaders = signedUpload
@@ -69,8 +101,8 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
           .filter(([name, value]) => value !== undefined && value !== null
             && !['authorization', 'token-id'].includes(name.toLowerCase()))
           .map(([name, value]) => [name.toLowerCase(), value]))
-      : headers(method !== 'GET', options.headers);
-    const res = await fetchImpl(base + path, {
+      : headers(method !== 'GET', options.headers, base);
+    const res = await fetchImpl(signedTarget ?? (base + path), {
       method,
       headers: requestHeaders,
       body: body === undefined ? undefined : (signedUpload ? body : JSON.stringify(body)),

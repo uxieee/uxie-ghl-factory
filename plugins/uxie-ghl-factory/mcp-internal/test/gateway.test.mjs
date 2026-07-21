@@ -103,7 +103,7 @@ test('writes add content-type plus the iframe origin/referer', async () => {
 test('AI rail sends both Bearer and token-id together', async () => {
   const calls = [];
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
-  await gw.call('GET', '/voice-ai/agents');
+  await gw.call('GET', '/voice-ai/agents', undefined, { base: 'https://services.leadconnectorhq.com' });
   assert.equal(calls[0].init.headers['token-id'], tokenId);
   assert.equal(calls[0].init.headers.authorization, `Bearer ${jwt}`);
   assert.equal(calls[0].init.headers.referer, 'https://app.gohighlevel.com/');
@@ -128,17 +128,17 @@ test('legacy token-id rail still sends token-id only', async () => {
 test('AI rail rejects a missing token-id before network access', async () => {
   const calls = [];
   const gw = makeGateway({ tokenFile: fixture({ token: null }), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
-  await assert.rejects(gw.call('GET', '/voice-ai/agents'), (e) => e.code === 'TOKEN_ID_MISSING' && /AI credential capture path/.test(e.remediation));
+  await assert.rejects(gw.call('GET', '/voice-ai/agents', undefined, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'TOKEN_ID_MISSING' && /AI credential capture path/.test(e.remediation));
   assert.equal(calls.length, 0);
 });
 
 test('AI rail distinguishes an expired token-id from an expired Bearer JWT', async () => {
   const expired = `eyJhbGciOiJIUzI1NiJ9.${b64({ iss: 'securetoken.google.com/highlevel-backend', exp: Math.floor(Date.now() / 1000) - 10 })}.sig`;
   const tokenExpired = makeGateway({ tokenFile: fixture({ token: expired }), loc: 'L', rail: 'ai', fetchImpl: stubFetch([]), sleepImpl: async () => {} });
-  await assert.rejects(tokenExpired.call('GET', '/voice-ai/agents'), (e) => e.code === 'TOKEN_ID_EXPIRED');
+  await assert.rejects(tokenExpired.call('GET', '/voice-ai/agents', undefined, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'TOKEN_ID_EXPIRED');
   const jwtExpired = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp: Math.floor(Date.now() / 1000) - 10 })}.sig`;
   const bearerExpired = makeGateway({ tokenFile: fixture({ bearer: jwtExpired }), loc: 'L', rail: 'ai', fetchImpl: stubFetch([]), sleepImpl: async () => {} });
-  await assert.rejects(bearerExpired.call('GET', '/voice-ai/agents'), (e) => e.code === 'TOKEN_EXPIRED');
+  await assert.rejects(bearerExpired.call('GET', '/voice-ai/agents', undefined, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'TOKEN_EXPIRED');
 });
 
 test('throttles every call with base delay plus jitter', async () => {
@@ -232,6 +232,59 @@ test('signed storage uploads are raw and unauthenticated only on the GCS PUT rai
   );
 });
 
+test('SC4/MF1: signed upload accepts a virtual-hosted bucket host and PUTs the resolved URL', async () => {
+  const calls = [];
+  const bytes = Buffer.from('media');
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+
+  await gw.call('PUT', '/object?signature=x', bytes, {
+    base: 'https://my-bucket.storage.googleapis.com',
+    headers: { 'content-type': 'video/mp4' },
+    signedUpload: true,
+  });
+  assert.equal(calls[0].url, 'https://my-bucket.storage.googleapis.com/object?signature=x');
+  assert.equal(calls[0].init.headers.authorization, undefined);
+  assert.equal(calls[0].init.headers['token-id'], undefined);
+
+  // A host that merely GLUES the GCS domain onto another label must still be refused —
+  // the allowlist is anchored at a subdomain boundary, not a substring match.
+  await assert.rejects(
+    gw.call('PUT', '/x', bytes, { base: 'https://evil-storage.googleapis.com', signedUpload: true }),
+    /signedUpload.*storage\.googleapis\.com/,
+  );
+  await assert.rejects(
+    gw.call('PUT', '/x', bytes, { base: 'https://storage.googleapis.com.evil.test', signedUpload: true }),
+    /signedUpload.*storage\.googleapis\.com/,
+  );
+});
+
+test('SC3: the ai rail refuses a non-AI base and never attaches token-id or calls fetch', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  await assert.rejects(
+    gw.call('GET', '/voice-ai/agents', undefined, { base: 'https://backend.leadconnectorhq.com' }),
+    (e) => e.code === 'AI_RAIL_HOST_INVALID',
+  );
+  assert.equal(calls.length, 0);
+});
+
+test('SC1: an expired Bearer JWT throw carries its code AND a re-capture remediation', async () => {
+  const jwtExpired = `eyJhbGciOiJIUzI1NiJ9.${b64({ authClassId: 'u-1', exp: Math.floor(Date.now() / 1000) - 10 })}.sig`;
+  const gw = makeGateway({ tokenFile: fixture({ bearer: jwtExpired }), loc: 'L', fetchImpl: stubFetch([]), sleepImpl: async () => {} });
+  await assert.rejects(
+    gw.call('GET', '/workflow/L/list'),
+    (e) => e.code === 'TOKEN_EXPIRED' && typeof e.remediation === 'string' && e.remediation.length > 0,
+  );
+});
+
+test('SC1: a token-id rail missing its token-id throws with a code AND remediation', async () => {
+  const gw = makeGateway({ tokenFile: fixture({ token: null }), loc: 'L', rail: 'token-id', fetchImpl: stubFetch([]), sleepImpl: async () => {} });
+  await assert.rejects(
+    gw.call('GET', '/funnels'),
+    (e) => e.code === 'TOKEN_MISSING' && typeof e.remediation === 'string' && e.remediation.length > 0,
+  );
+});
+
 test('SSE stream returns accumulated events and its terminal success event', async () => {
   const calls = [];
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async (url, init) => {
@@ -248,7 +301,7 @@ test('truncated SSE stream fails instead of reporting an empty success', async (
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
     sseResponse(['event: config_partial\ndata: {"name":"draft"}\n\n'])
   ) });
-  await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }), (e) => e.code === 'SSE_INCOMPLETE');
+  await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'SSE_INCOMPLETE');
 });
 
 test('observed high-volume Studio SSE survives byte-by-byte chunks and a final done frame without its delimiter', async () => {
@@ -256,7 +309,7 @@ test('observed high-volume Studio SSE survives byte-by-byte chunks and a final d
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
     sseResponseBytes(oneByteChunks(stream))
   ) });
-  const result = await gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' });
+  const result = await gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }, { base: 'https://services.leadconnectorhq.com' });
   assert.equal(result.events.filter(({ event }) => event === 'output_delta').length, 748);
   assert.deepEqual(result.terminal, { event: 'done', data: { agentId: 'agent-sse', durationMs: 16553, mode: 'fast' } });
 });
@@ -266,7 +319,7 @@ test('observed Studio SSE accepts CRLF frame boundaries split inside the termina
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
     sseResponseBytes(adversarialChunks(stream))
   ) });
-  const result = await gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' });
+  const result = await gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }, { base: 'https://services.leadconnectorhq.com' });
   assert.equal(result.events.filter(({ event }) => event === 'output_delta').length, 748);
   assert.deepEqual(result.terminal, { event: 'done', data: { agentId: 'agent-sse', durationMs: 16553, mode: 'fast' } });
 });
@@ -275,5 +328,5 @@ test('non-SSE response on an SSE endpoint fails loudly', async () => {
   const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', sleepImpl: async () => {}, fetchImpl: async () => (
     sseResponse(['{"agentId":"agent-1"}'], { contentType: 'application/json' })
   ) });
-  await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }), (e) => e.code === 'SSE_EXPECTED');
+  await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'SSE_EXPECTED');
 });
