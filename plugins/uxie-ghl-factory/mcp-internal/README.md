@@ -35,16 +35,24 @@ accepted as a tool argument, never logged, and never echoed in a response or err
 This server ships **inside** the `uxie-ghl-factory` plugin as a **self-contained bundle**
 (`dist/server.mjs`, deps included), so it boots with just `node` — **no `npm install`**.
 
-- **Claude Code:** it is **registered automatically** via the plugin's `.mcp.json` (as
-  `uxie-ghl-internal-mcp`). Nothing to add by hand. Run `/uxie-ghl-factory:connect` once to
-  authorize it; token-less, it is registered and healthy but tools return `TOKEN_MISSING`.
-- **Other stdio clients** (Codex, Cursor, Desktop): register it yourself, pointing at the
-  bundled entry — e.g. `node <plugin>/mcp-internal/dist/server.mjs`. No env is required; the
-  server defaults to `~/.uxie-ghl-internal-mcp/tok.txt`. Codex example for `~/.codex/config.toml`:
+It is registered **per-project, not globally** — a plugin `.mcp.json` would load it in every
+folder against one credential, which is wrong when you operate multiple GHL accounts across
+different folders. Instead:
+
+- **Claude Code:** run `/uxie-ghl-factory:connect` in the folder you want it. It registers a
+  project-scoped server (`claude mcp add --scope local`) pointing at a stable launcher
+  (`~/.uxie-ghl-internal-mcp/launch.mjs`, which resolves the newest installed plugin build so
+  version updates don't break the path), captures that account's token to a project-local file
+  (`.ghl/uxie-ghl-internal-mcp-tok.txt`, gitignored), and sets `GHL_TOK_FILE` to it. Each folder
+  gets its own server + account. First registration triggers a one-time workspace-trust prompt.
+- **Other stdio clients** (Codex, Cursor, Desktop): register it yourself per project, pointing at
+  the stable launcher (or the versioned bundle directly) and setting `GHL_TOK_FILE`:
   ```toml
+  # ~/.codex/config.toml
   [mcp_servers.uxie-ghl-internal-mcp]
   command = "node"
-  args = ["<plugin>/mcp-internal/dist/server.mjs"]
+  args = ["<home>/.uxie-ghl-internal-mcp/launch.mjs"]
+  env = { GHL_TOK_FILE = "<project>/.ghl/uxie-ghl-internal-mcp-tok.txt" }
   ```
 
 **Developing on the server?** `stdio.mjs` + `core/` are the source; `dist/server.mjs` is the
