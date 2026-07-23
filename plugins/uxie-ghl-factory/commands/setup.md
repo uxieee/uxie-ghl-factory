@@ -4,16 +4,30 @@ description: First-run setup for the ghl plugin — prerequisites, GHL API token
 
 # /uxie-ghl-factory:setup
 
-Run these in order; report a pass/fail table at the end.
+This plugin registers **no global MCP servers** — both the public `ghl` server and the
+internal `uxie-ghl-internal-mcp` server are set up **per-project**, so multiple GHL accounts
+across different folders don't collide on one credential. Run these in order; report a
+pass/fail table at the end.
 
 1. PREREQUISITES: node --version (need ≥18); check a Playwright MCP server
    is available (needed only for internal-API skills — if absent, say which
    features degrade: workflow export/creation, funnel building).
-2. TOKEN: check env GHL_PIT is set. If not, walk the user through creating
-   a Private Integration Token in GHL (Settings → Private Integrations,
-   scopes: read everything, write only what they'll use) and how to persist
-   the env var for their shell/session, then have them restart or /mcp reconnect.
-3. TRUST NOTE (verbatim): "By default, this plugin routes your GHL requests
+2. TOKEN: get this account's Private Integration Token. If it's not already set/known,
+   walk the user through creating one in GHL (Settings → Private Integrations, scopes:
+   read everything, write only what they'll use). Because tokens are per-sub-account, each
+   client folder uses its OWN token.
+3. PUBLIC `ghl` MCP SERVER (per-project): if this folder doesn't already have a public GHL
+   MCP server (`claude mcp list`; the user may already run their own), register one scoped
+   to this folder with that account's token:
+   ```bash
+   claude mcp add --transport http --scope local \
+     -H "X-GHL-Token: $GHL_PIT" \
+     ghl "${GHL_MCP_URL:-https://ghl-mcp-server.xanderjohnrazonroque.workers.dev/mcp}"
+   ```
+   (`$GHL_PIT` is expanded by the shell — the token is not echoed. `--scope local` keeps it
+   private to this folder.) First registration in a folder triggers a one-time
+   workspace-trust prompt. If the user already runs their own public GHL MCP here, skip this.
+4. TRUST NOTE (verbatim): "By default, this plugin routes your GHL requests
    through the plugin author's Cloudflare Worker, and that means trusting
    the author on two separate things, not just one:
    - Credential forwarding: your GHL Private Integration Token is sent
