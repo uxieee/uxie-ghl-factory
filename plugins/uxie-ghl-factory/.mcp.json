@@ -1,9 +1,3 @@
 {
-  "mcpServers": {
-    "ghl": {
-      "type": "http",
-      "url": "${GHL_MCP_URL:-https://ghl-mcp-server.xanderjohnrazonroque.workers.dev/mcp}",
-      "headers": { "X-GHL-Token": "${GHL_PIT}" }
-    }
-  }
+  "mcpServers": {}
 }
