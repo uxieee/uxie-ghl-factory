@@ -1,6 +1,6 @@
 {
   "name": "uxie-ghl-factory",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "GoHighLevel toolkit skills: workflow export/creation, funnel & page building, memberships/course building, account audits, and GHL domain expertise. The GHL MCP server is configured separately (see README).",
   "author": {
     "name": "Xander Roque",
