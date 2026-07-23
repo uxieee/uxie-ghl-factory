@@ -34,14 +34,13 @@ Run these in order; report a pass/fail table at the end.
    plugin's expected catalog and report drift; if the endpoint doesn't exist
    yet, say the check is unavailable in this Worker version.
 6. INTERNAL-API MCP SERVER: the `uxie-ghl-internal-mcp` server (workflow
-   build/edit/publish, funnel/membership/AI-agent building, fast-forward — 17 tools)
-   is **registered automatically** with the plugin (bundled `.mcp.json`); it needs no
-   `npm install` and nothing to add by hand. Confirm it shows as a healthy registered
-   server. The one thing it needs is a credential — before its tools work, run
-   `/uxie-ghl-factory:connect` (the agent opens a browser, the user logs into GHL, the
-   agent captures the token). Present the ToS disclosure from
-   ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md once before the first internal-API write.
-   (Codex has no auto-registration or slash commands — point Codex users to
-   ${CLAUDE_PLUGIN_ROOT}/mcp-internal/README.md to configure it in ~/.codex/config.toml.)
+   build/edit/publish, funnel/membership/AI-agent building, fast-forward — 17 tools) is
+   **per-project, not global** — you add it to each GHL folder you work in. In the folder
+   you want it, run `/uxie-ghl-factory:connect`: it registers a project-scoped server
+   (its own account token per folder), then the agent opens a browser, the user logs into
+   GHL, and it captures the token. First time in a folder, accept the workspace-trust
+   prompt. Present the ToS disclosure from ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md once
+   before the first internal-API write. (Codex has no slash commands — point Codex users
+   to ${CLAUDE_PLUGIN_ROOT}/mcp-internal/README.md to configure it in ~/.codex/config.toml.)
 7. POINT FORWARD: suggest /uxie-ghl-factory:brief for their first client, and the
    ghl-orientation skill for agents new to GHL.

@@ -31773,8 +31773,8 @@ var AuthError = class extends Error {
     this.remediation = remediation;
   }
 };
-var RECAPTURE = "Re-capture the JWT per the get-ghl-workflow-json capture runbook, then retry (no restart needed).";
-var AI_RECAPTURE = "Re-capture both the Bearer JWT and token-id with the AI credential capture path in docs/auth-jwt-capture.md, then retry (no restart needed).";
+var RECAPTURE = "Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token to this project), then retry. No restart needed.";
+var AI_RECAPTURE = "Run /uxie-ghl-factory:connect to re-authorize (it captures both the Bearer JWT and token-id), then retry. No restart needed.";
 function decode3(jwt2) {
   try {
     return JSON.parse(Buffer.from(jwt2.split(".")[1], "base64url").toString());
@@ -31802,7 +31802,7 @@ function readCredentials({ tokenFile, allowExpired = false }) {
     throw new AuthError(
       CODES.TOKEN_MISSING,
       `no token file at ${tokenFile ?? "(unset)"}`,
-      `Run the capture runbook to write ${DEFAULT_TOKEN_FILE}, then call set_token_file with its path.`
+      "Run /uxie-ghl-factory:connect to authorize this project (the agent captures the token for you). No restart needed."
     );
   }
   const raw = readFileSync(tokenFile, "utf8");
@@ -46702,7 +46702,7 @@ var AI_HOST = "https://services.leadconnectorhq.com";
 var GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
 var THROTTLE_MS = 300;
 var JITTER_MS = 150;
-var RECAPTURE2 = "Re-capture the credential per the capture runbook, then retry (no restart needed).";
+var RECAPTURE2 = "Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token), then retry. No restart needed.";
 var defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random }) {
   const creds = readCredentials({ tokenFile, allowExpired: true });

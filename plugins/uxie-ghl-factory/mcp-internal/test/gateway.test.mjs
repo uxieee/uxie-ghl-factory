@@ -128,7 +128,7 @@ test('legacy token-id rail still sends token-id only', async () => {
 test('AI rail rejects a missing token-id before network access', async () => {
   const calls = [];
   const gw = makeGateway({ tokenFile: fixture({ token: null }), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
-  await assert.rejects(gw.call('GET', '/voice-ai/agents', undefined, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'TOKEN_ID_MISSING' && /AI credential capture path/.test(e.remediation));
+  await assert.rejects(gw.call('GET', '/voice-ai/agents', undefined, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'TOKEN_ID_MISSING' && /connect/.test(e.remediation));
   assert.equal(calls.length, 0);
 });
 
