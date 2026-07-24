@@ -24,6 +24,7 @@ test('read tools declare only GET capabilities', () => {
     'get_workflow',
     'export_workflow',
     'get_workflow_logs',
+    'get_contacts_at_step',
     'list_account_entities',
     'list_courses',
     'raw_request',

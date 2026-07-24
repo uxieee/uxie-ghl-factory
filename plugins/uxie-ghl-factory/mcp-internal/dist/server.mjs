@@ -183,29 +183,51 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_logs: {
-        description: "Get workflow logs \u2014 proof: live-runtime (2026-07-15); risk: read",
+        description: "Get workflow logs \u2014 filters contactId/eventType/fromDate/toDate, walks the enrollment roster to completion (allEnrollments) and can attach opt-in enrollment totals \u2014 proof: live-runtime (2026-07-24); risk: read",
         risk: "read",
-        proof: "live-runtime (2026-07-15)",
-        proofFloor: "live-runtime (2026-07-15)",
+        proof: "live-runtime (2026-07-24)",
+        proofFloor: "live-runtime (2026-07-24)",
         proofRows: [
           "logs-count-per-step",
           "logs-enrollment-history",
-          "logs-list-v2"
+          "logs-list-v2",
+          "workflow-enrollment-stats-cache"
         ],
         proofFloorRows: [
           "logs-count-per-step",
           "logs-enrollment-history",
-          "logs-list-v2"
+          "logs-list-v2",
+          "workflow-enrollment-stats-cache"
         ],
         riskRows: [
           "logs-count-per-step",
           "logs-enrollment-history",
-          "logs-list-v2"
+          "logs-list-v2",
+          "workflow-enrollment-stats-cache"
         ],
         rows: [
           "logs-count-per-step",
           "logs-enrollment-history",
-          "logs-list-v2"
+          "logs-list-v2",
+          "workflow-enrollment-stats-cache"
+        ]
+      },
+      get_contacts_at_step: {
+        description: "List contacts at step \u2014 the contacts parked at / processed by one workflow step (details-by-step), paginated to the full total \u2014 proof: live-runtime (2026-07-18); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-07-18)",
+        proofFloor: "live-runtime (2026-07-18)",
+        proofRows: [
+          "logs-details-by-step"
+        ],
+        proofFloorRows: [
+          "logs-details-by-step"
+        ],
+        riskRows: [
+          "logs-details-by-step"
+        ],
+        rows: [
+          "logs-details-by-step"
         ]
       },
       fast_forward_contacts: {
@@ -45741,38 +45763,158 @@ var TOOLS2 = [
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
-      limit: external_exports.number().int().positive().default(20)
+      limit: external_exports.number().int().positive().default(20),
+      // Optional runtime-corpus filters — forwarded to BOTH /logs/v2 and the
+      // enrollment roster (both accept them per 11-runtime-logs.md §1/§4).
+      contactId: external_exports.string().optional(),
+      fromDate: external_exports.number().int().nonnegative().optional(),
+      toDate: external_exports.number().int().nonnegative().optional(),
+      eventType: external_exports.string().optional(),
+      // Walk the enrollment roster to completion via the action=next cursor
+      // instead of returning only page one. Bounded by maxEnrollmentPages.
+      allEnrollments: external_exports.boolean().default(false),
+      maxEnrollmentPages: external_exports.number().int().positive().default(50),
+      // Opt-in enrollment totals ({ total, finished }) from the cache endpoint.
+      enrollmentTotals: external_exports.boolean().default(false)
     }),
     capabilities: [
       { method: "GET", path: "/workflows/logs/v2" },
       { method: "GET", path: "/workflows/status/search/count-per-step" },
-      { method: "GET", path: "/workflows/status/search/workflow-with-filter" }
+      { method: "GET", path: "/workflows/status/search/workflow-with-filter" },
+      { method: "GET", path: "/workflows/status/search/enroll-stats-cache" },
+      { method: "GET", path: "/workflows/status/enroll-stats" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const limit = args.limit ?? 20;
-      const baseQuery = new URLSearchParams({
-        workflowId: args.workflowId,
-        locationId: args.locationId
-      });
-      const logsQuery = new URLSearchParams(baseQuery);
+      const base = { workflowId: args.workflowId, locationId: args.locationId };
+      const filters = {};
+      if (typeof args.contactId === "string" && args.contactId.length) filters.contactId = args.contactId;
+      if (Number.isFinite(args.fromDate)) filters.fromDate = String(args.fromDate);
+      if (Number.isFinite(args.toDate)) filters.toDate = String(args.toDate);
+      if (typeof args.eventType === "string" && args.eventType.length) filters.eventType = args.eventType;
+      const withFilters = (params) => {
+        const q = new URLSearchParams(params);
+        for (const [key, value] of Object.entries(filters)) q.set(key, value);
+        return q;
+      };
+      const logsQuery = withFilters(base);
       logsQuery.set("limit", String(limit));
-      const enrollmentQuery = new URLSearchParams(baseQuery);
-      enrollmentQuery.set("action", "first");
-      enrollmentQuery.set("limit", String(limit));
-      const [logs, counts, enrolled] = await Promise.all([
+      const [logs, counts] = await Promise.all([
         gw.call("GET", `/workflows/logs/v2?${logsQuery}`),
-        gw.call("GET", `/workflows/status/search/count-per-step?${baseQuery}`),
-        gw.call("GET", `/workflows/status/search/workflow-with-filter?${enrollmentQuery}`)
+        gw.call("GET", `/workflows/status/search/count-per-step?${new URLSearchParams(base)}`)
       ]);
       if (!logs.ok) return fromHttp(logs.status, logs.json);
       if (!counts.ok) return fromHttp(counts.status, counts.json);
-      if (!enrolled.ok) return fromHttp(enrolled.status, enrolled.json);
+      const rosterOf = (json2) => json2?.rows ?? json2?.statuses ?? (Array.isArray(json2) ? json2 : []);
+      const enrollments = [];
+      let action = "first";
+      let cursor = null;
+      let pages = 0;
+      let enrollmentsComplete = true;
+      let rateLimited = false;
+      for (; ; ) {
+        const q = withFilters(base);
+        q.set("action", action);
+        q.set("limit", String(limit));
+        if (cursor?.referenceId) q.set("referenceId", cursor.referenceId);
+        if (cursor?.referenceCreatedAt) q.set("referenceCreatedAt", String(cursor.referenceCreatedAt));
+        if (cursor?.referenceSid) q.set("referenceSid", cursor.referenceSid);
+        const page = await gw.call("GET", `/workflows/status/search/workflow-with-filter?${q}`);
+        if (!page.ok) return fromHttp(page.status, page.json);
+        const batch = rosterOf(page.json);
+        enrollments.push(...batch);
+        pages += 1;
+        if (page.json?.isLocationRateLimited) {
+          rateLimited = true;
+          enrollmentsComplete = false;
+          break;
+        }
+        if (!args.allEnrollments) break;
+        if (batch.length < limit) break;
+        if (pages >= args.maxEnrollmentPages) {
+          enrollmentsComplete = false;
+          break;
+        }
+        const last = batch[batch.length - 1];
+        const next = {
+          referenceId: last?._id ?? last?.id,
+          referenceCreatedAt: last?.createdAt,
+          referenceSid: last?.sid
+        };
+        if (!next.referenceId && !next.referenceSid) {
+          enrollmentsComplete = false;
+          break;
+        }
+        cursor = next;
+        action = "next";
+      }
+      let enrollmentStats = null;
+      if (args.enrollmentTotals) {
+        const cacheQ = `workflowIds[]=${encodeURIComponent(args.workflowId)}&locationId=${encodeURIComponent(args.locationId)}`;
+        let statsRes = await gw.call("GET", `/workflows/status/search/enroll-stats-cache?${cacheQ}`);
+        let source = statsRes.ok ? "enroll-stats-cache" : null;
+        if (!statsRes.ok) {
+          statsRes = await gw.call("GET", `/workflows/status/enroll-stats?${new URLSearchParams(base)}`);
+          source = statsRes.ok ? "enroll-stats" : null;
+        }
+        if (statsRes.ok) {
+          const payload = statsRes.json;
+          const arr = Array.isArray(payload) ? payload : payload?.stats ?? payload?.data ?? (payload ? [payload] : []);
+          const mine = arr.find((stat) => stat?.workflowId === args.workflowId) ?? arr[0] ?? null;
+          if (mine) enrollmentStats = { ...mine, source, proof: "live-runtime (2026-07-24)" };
+        }
+      }
       return ok({
         logs: logs.json?.logs ?? logs.json ?? [],
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
-        enrollments: enrolled.json?.rows ?? enrolled.json?.statuses ?? enrolled.json ?? [],
+        enrollments,
+        // Only meaningful when the caller asked for the full walk; undefined keeps
+        // the single-page response shape unchanged for existing callers.
+        ...args.allEnrollments ? { enrollmentsComplete, enrollmentPages: pages } : {},
+        ...rateLimited ? { rateLimited: true } : {},
+        ...enrollmentStats ? { enrollmentStats } : {},
         note: "added_to_workflow in logs is the ONLY proof a trigger fired."
+      });
+    }, args)
+  },
+  {
+    name: "get_contacts_at_step",
+    description: describe3(
+      "get_contacts_at_step",
+      "List the contacts parked at / processed by one workflow step, paginated to the full total."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      stepId: external_exports.string(),
+      // Walk details-by-step to totalCount (default) or return a single page.
+      all: external_exports.boolean().default(true),
+      skip: external_exports.number().int().nonnegative().default(0),
+      limit: external_exports.number().int().positive().default(50)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflows/status/search/details-by-step" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const ff = makeFF({ gw });
+      if (args.all !== false) {
+        const contacts = await ff.allParked(args.workflowId, args.stepId, { pageSize: args.limit ?? 50 });
+        return ok({ stepId: args.stepId, contacts, total: contacts.length, complete: true });
+      }
+      const page = await ff.parkedAt(args.workflowId, args.stepId, {
+        skip: args.skip ?? 0,
+        limit: args.limit ?? 50
+      });
+      const rows = Array.isArray(page?.rows) ? page.rows : [];
+      const reported = Number(page?.totalCount);
+      const total = Number.isFinite(reported) && reported >= 0 ? reported : rows.length;
+      return ok({
+        stepId: args.stepId,
+        contacts: rows,
+        total,
+        complete: (args.skip ?? 0) + rows.length >= total
       });
     }, args)
   },
