@@ -136,29 +136,51 @@
     ]
   },
   "get_workflow_logs": {
-    "description": "Get workflow logs — proof: live-runtime (2026-07-15); risk: read",
+    "description": "Get workflow logs — filters contactId/eventType/fromDate/toDate, walks the enrollment roster to completion (allEnrollments) and can attach opt-in enrollment totals — proof: live-runtime (2026-07-24); risk: read",
     "risk": "read",
-    "proof": "live-runtime (2026-07-15)",
-    "proofFloor": "live-runtime (2026-07-15)",
+    "proof": "live-runtime (2026-07-24)",
+    "proofFloor": "live-runtime (2026-07-24)",
     "proofRows": [
       "logs-count-per-step",
       "logs-enrollment-history",
-      "logs-list-v2"
+      "logs-list-v2",
+      "workflow-enrollment-stats-cache"
     ],
     "proofFloorRows": [
       "logs-count-per-step",
       "logs-enrollment-history",
-      "logs-list-v2"
+      "logs-list-v2",
+      "workflow-enrollment-stats-cache"
     ],
     "riskRows": [
       "logs-count-per-step",
       "logs-enrollment-history",
-      "logs-list-v2"
+      "logs-list-v2",
+      "workflow-enrollment-stats-cache"
     ],
     "rows": [
       "logs-count-per-step",
       "logs-enrollment-history",
-      "logs-list-v2"
+      "logs-list-v2",
+      "workflow-enrollment-stats-cache"
+    ]
+  },
+  "get_contacts_at_step": {
+    "description": "List contacts at step — the contacts parked at / processed by one workflow step (details-by-step), paginated to the full total — proof: live-runtime (2026-07-18); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-07-18)",
+    "proofFloor": "live-runtime (2026-07-18)",
+    "proofRows": [
+      "logs-details-by-step"
+    ],
+    "proofFloorRows": [
+      "logs-details-by-step"
+    ],
+    "riskRows": [
+      "logs-details-by-step"
+    ],
+    "rows": [
+      "logs-details-by-step"
     ]
   },
   "fast_forward_contacts": {

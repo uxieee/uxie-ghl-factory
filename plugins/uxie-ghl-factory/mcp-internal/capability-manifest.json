@@ -90,6 +90,21 @@
     "path": "/workflows/status/search/workflow-with-filter"
   },
   {
+    "tool": "get_workflow_logs",
+    "method": "GET",
+    "path": "/workflows/status/search/enroll-stats-cache"
+  },
+  {
+    "tool": "get_workflow_logs",
+    "method": "GET",
+    "path": "/workflows/status/enroll-stats"
+  },
+  {
+    "tool": "get_contacts_at_step",
+    "method": "GET",
+    "path": "/workflows/status/search/details-by-step"
+  },
+  {
     "tool": "list_account_entities",
     "method": "GET",
     "path": "/opportunities/pipelines"

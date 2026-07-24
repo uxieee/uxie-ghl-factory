@@ -125,6 +125,142 @@ test('get_workflow_logs reports any failed component instead of returning incomp
   assert.equal(result.code, 'HTTP_500');
 });
 
+test('get_workflow_logs forwards contact/date/event filters to both logs and the roster', async () => {
+  const gw = gwStub({
+    'logs/v2': { logs: [] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { rows: [] },
+  });
+  await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', contactId: 'c9', fromDate: 100, toDate: 200, eventType: 'email' },
+    deps(gw),
+  );
+
+  const logsCall = gw.calls.find((c) => c.path.includes('logs/v2')).path;
+  const rosterCall = gw.calls.find((c) => c.path.includes('workflow-with-filter')).path;
+  for (const path of [logsCall, rosterCall]) {
+    assert.match(path, /contactId=c9/, `filter missing on ${path}`);
+    assert.match(path, /fromDate=100/, `fromDate missing on ${path}`);
+    assert.match(path, /toDate=200/, `toDate missing on ${path}`);
+    assert.match(path, /eventType=email/, `eventType missing on ${path}`);
+  }
+});
+
+test('get_workflow_logs walks the enrollment roster to completion when allEnrollments is set', async () => {
+  // Two full pages then a short page; the cursor must advance on _id.
+  const pages = [
+    { rows: [{ _id: 'a' }, { _id: 'b' }] },
+    { rows: [{ _id: 'c' }, { _id: 'd' }] },
+    { rows: [{ _id: 'e' }] },
+  ];
+  let hit = 0;
+  const gw = {
+    calls: [], loc: 'L', uid: 'u',
+    call: async (method, path) => {
+      gw.calls.push({ method, path });
+      if (path.includes('logs/v2')) return { status: 200, ok: true, json: { logs: [] } };
+      if (path.includes('count-per-step')) return { status: 200, ok: true, json: { counts: [] } };
+      if (path.includes('workflow-with-filter')) {
+        // action=first has no referenceId; every subsequent page must carry one.
+        if (hit > 0) assert.match(path, /referenceId=/, 'next page must carry a cursor');
+        return { status: 200, ok: true, json: pages[hit++] };
+      }
+      return { status: 404, ok: false, json: {} };
+    },
+  };
+  const result = await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', limit: 2, allEnrollments: true },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(result.data.enrollments.length, 5);
+  assert.equal(result.data.enrollmentsComplete, true);
+  assert.equal(result.data.enrollmentPages, 3);
+});
+
+test('get_workflow_logs flags an incomplete roster when the account is rate limited', async () => {
+  const gw = gwStub({
+    'logs/v2': { logs: [] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { rows: [{ _id: 'a' }, { _id: 'b' }], isLocationRateLimited: true },
+  });
+  const result = await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', limit: 2, allEnrollments: true },
+    deps(gw),
+  );
+
+  assert.equal(result.data.enrollmentsComplete, false);
+  assert.equal(result.data.rateLimited, true);
+});
+
+test('get_workflow_logs attaches opt-in enrollment totals without failing on a stats miss', async () => {
+  const gw = gwStub({
+    'logs/v2': { logs: [] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { rows: [] },
+    'enroll-stats-cache': [{ workflowId: 'w1', total: 42, finished: 7 }],
+  });
+  const result = await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', enrollmentTotals: true },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(result.data.enrollmentStats.total, 42);
+  assert.equal(result.data.enrollmentStats.finished, 7);
+  assert.equal(result.data.enrollmentStats.source, 'enroll-stats-cache');
+  assert.equal(result.data.enrollmentStats.proof, 'live-runtime (2026-07-24)');
+});
+
+test('get_workflow_logs stays backward-compatible: no filters, no total, single roster page', async () => {
+  const gw = gwStub({
+    'logs/v2': { logs: [{ id: 'l1' }] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { rows: [{ _id: 'a' }] },
+  });
+  const result = await tool('get_workflow_logs').handler({ locationId: 'L', workflowId: 'w1' }, deps(gw));
+
+  assert.equal(result.ok, true);
+  assert.equal(gw.calls.length, 3, 'default path must not call stats or extra roster pages');
+  assert.equal(result.data.enrollmentsComplete, undefined, 'single-page shape unchanged for existing callers');
+});
+
+test('get_contacts_at_step walks details-by-step to the reported total', async () => {
+  const gw = {
+    calls: [], loc: 'L', uid: 'u',
+    call: async (method, path) => {
+      gw.calls.push({ method, path });
+      const skip = Number(new URL(`http://x${path}`).searchParams.get('skip'));
+      const rows = skip === 0
+        ? [{ _id: 's1', contactId: 'c1' }, { _id: 's2', contactId: 'c2' }]
+        : [{ _id: 's3', contactId: 'c3' }];
+      return { status: 200, ok: true, json: { totalCount: 3, rows } };
+    },
+  };
+  const result = await tool('get_contacts_at_step').handler(
+    { locationId: 'L', workflowId: 'w1', stepId: 'step9', limit: 2 },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(result.data.total, 3);
+  assert.equal(result.data.contacts.length, 3);
+  assert.equal(result.data.complete, true);
+  assert.ok(gw.calls.every((c) => c.path.includes('currentStepId=step9')));
+});
+
+test('get_contacts_at_step surfaces an upstream failure as the error contract', async () => {
+  const gw = gwStub({ 'details-by-step': { status: 500, ok: false, json: { message: 'nope' } } });
+  const result = await tool('get_contacts_at_step').handler(
+    { locationId: 'L', workflowId: 'w1', stepId: 's1' },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'HTTP_500');
+});
+
 test('list_account_entities reuses the canonical best-effort entity sweep', async () => {
   const gw = gwStub({
     '/opportunities/pipelines': { pipelines: [{ id: 'p1', name: 'Pipeline', stages: [] }] },
