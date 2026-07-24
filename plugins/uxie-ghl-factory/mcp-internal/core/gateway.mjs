@@ -18,6 +18,50 @@ const AI_HOST = 'https://services.leadconnectorhq.com';
 const GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
 const THROTTLE_MS = 300;   // established constant (scripts/edit.mjs)
 const JITTER_MS = 150;
+// Retry-After's two legal forms (RFC 9110 §10.2.3). Parsed by SHAPE before Date.parse,
+// because V8 happily reads `-5` as a bare year and `1e3` as a year too — both would land
+// in the past and clamp to 0, emitting the exact "retry immediately" value this reader
+// exists to never produce. Anything not matching delta-seconds or one of the three
+// historical HTTP-date shapes is `null` (unknown), not `0` (go now).
+const DELTA_SECONDS = /^\d+$/;
+const IMF_FIXDATE = /^[A-Za-z]{3}, \d{2} [A-Za-z]{3} \d{4} \d{2}:\d{2}:\d{2} GMT$/;
+// The letters BEFORE the literal `day` are the weekday stem, and the stems are 3-6 long:
+// Sun/Mon/Fri (3), Tues (4), Thurs/Satur (5), Wednes (6). Requiring 6-9 letters ahead of
+// `day` therefore matched `Wednesday` and NOTHING ELSE — the other six weekday names fell
+// through to `null` (unknown delay) even though Date.parse reads them perfectly, so six
+// days out of seven a legal RFC 850 Retry-After was silently discarded.
+const RFC850_DATE = /^[A-Za-z]{3,6}day, \d{2}-[A-Za-z]{3}-\d{2} \d{2}:\d{2}:\d{2} GMT$/;
+// asctime is the ONE HTTP-date shape that carries no zone token. RFC 9110 §5.6.7 still
+// defines it as GMT, but `Date.parse` has no way to know that and reads it as LOCAL time —
+// so the same header yields a different delay in every deployment timezone, and in a
+// timezone ahead of GMT it lands in the past and clamps to 0: the exact "retry
+// immediately" value this reader exists to never produce. Parsed field-by-field into
+// Date.UTC instead, so the result is timezone-independent.
+const ASCTIME_DATE = /^[A-Za-z]{3} ([A-Za-z]{3}) ([ \d]\d) (\d{2}):(\d{2}):(\d{2}) (\d{4})$/;
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const parseAsctimeGmt = (text) => {
+  const match = ASCTIME_DATE.exec(text);
+  if (!match) return NaN;
+  const [, monthName, dayText, hour, minute, second, year] = match;
+  const month = MONTHS.indexOf(monthName);
+  if (month < 0) return NaN;
+  const day = Number(dayText);
+  const at = Date.UTC(Number(year), month, day, Number(hour), Number(minute), Number(second));
+  // Date.UTC silently ROLLS OVER out-of-range fields (`Feb 31` becomes March 3, `25:00`
+  // becomes the next day), which would turn a malformed header into a confident delay.
+  // Round-tripping the parsed instant is the cheapest way to reject that outright.
+  const check = new Date(at);
+  const valid = check.getUTCFullYear() === Number(year)
+    && check.getUTCMonth() === month
+    && check.getUTCDate() === day
+    && check.getUTCHours() === Number(hour)
+    && check.getUTCMinutes() === Number(minute)
+    && check.getUTCSeconds() === Number(second);
+  return valid ? at : NaN;
+};
+// A checkpoint consumer may sleep on this value, so a server claiming a delay measured
+// in millennia is clamped to a day rather than parking the run past any human horizon.
+const MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 
 // Attached to request-time credential throws so tools.mjs#fromThrown recognizes them as
 // auth failures (code + remediation) and tells the caller to RE-CAPTURE — not the generic
@@ -27,7 +71,14 @@ const RECAPTURE = 'Run /uxie-ghl-factory:connect to re-authorize (the agent re-c
 
 const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random }) {
+// `throttleMs`/`jitterMs` default to the established constants, so every existing caller
+// keeps the exact 300-450ms per-call pacing it has today. They exist for ONE caller: the
+// audit rail, where a process-wide limiter already owns pacing and a second per-gateway
+// sleep would double every read's cost for no extra politeness.
+//
+// Task 5's audit stdio MUST construct its audit gateways with `throttleMs: 0, jitterMs: 0`
+// — the shared makeAuditLimiter is the single pacing authority on that rail.
+export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
   // Read expired credentials too: the AI rail must distinguish its independently
   // expiring Bearer JWT and Firebase token-id before sending a request.
   const creds = readCredentials({ tokenFile, allowExpired: true });   // throws AuthError; tools map it
@@ -95,7 +146,11 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
         throw new Error('signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL');
       }
     }
-    await sleepImpl(THROTTLE_MS + Math.floor(randomImpl() * JITTER_MS));
+    // Skipped entirely rather than slept for 0ms: a disabled throttle must cost no
+    // scheduling turn at all, so a test can prove the audit rail pays the shared
+    // limiter once instead of twice.
+    const delayMs = Math.max(0, throttleMs) + Math.floor(randomImpl() * Math.max(0, jitterMs));
+    if (delayMs > 0) await sleepImpl(delayMs);
     const requestHeaders = signedUpload
       ? Object.fromEntries(Object.entries(options.headers ?? {})
           .filter(([name, value]) => value !== undefined && value !== null
@@ -115,6 +170,58 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     const text = await res.text();
     let json; try { json = JSON.parse(text); } catch { json = text; }
     return { status: res.status, ok: res.ok, json };
+  };
+
+  // Header access is duck-typed because the stubs in test/ hand back a plain object
+  // while a real Response exposes a Headers instance. The plain-object branch matches
+  // case-insensitively for the same reason Headers does: HTTP field names are
+  // case-insensitive, and a capture written as `Retry-After` must not read as absent.
+  const headerValue = (res, name) => {
+    if (typeof res?.headers?.get === 'function') return res.headers.get(name) ?? null;
+    const bag = res?.headers;
+    if (!bag || typeof bag !== 'object') return null;
+    const wanted = String(name).toLowerCase();
+    for (const [key, value] of Object.entries(bag)) {
+      if (String(key).toLowerCase() !== wanted) continue;
+      return value === undefined || value === null ? null : value;
+    }
+    return null;
+  };
+
+  // Retry-After is either delta-seconds or an HTTP-date. The date form is measured
+  // against the INJECTED clock, not Date.now(), so a checkpoint/resume decision is
+  // reproducible in tests and does not drift with wall time between capture and use.
+  // An unparseable header is null rather than 0: pretending "retry immediately" is
+  // exactly the silent retry the audit rail must not perform.
+  const readRetryAfterMs = (res, capturedAt) => {
+    const raw = headerValue(res, 'retry-after');
+    if (raw === null || raw === undefined) return null;
+    const text = String(raw).trim();
+    if (text === '') return null;
+    if (DELTA_SECONDS.test(text)) return Math.min(Number(text) * 1000, MAX_RETRY_AFTER_MS);
+    // Shape first, parse second. Date.parse is deliberately permissive and would
+    // otherwise accept bare-year garbage as a date far in the past.
+    //
+    // asctime never reaches Date.parse: it is the only shape with no zone token, so
+    // Date.parse would read it as local time (see parseAsctimeGmt). The other two shapes
+    // end in a literal `GMT`, so their parse is already zone-independent.
+    let at;
+    if (ASCTIME_DATE.test(text)) at = parseAsctimeGmt(text);
+    else if (IMF_FIXDATE.test(text) || RFC850_DATE.test(text)) at = Date.parse(text);
+    else return null;
+    if (Number.isNaN(at)) return null;
+    return Math.min(Math.max(0, at - capturedAt), MAX_RETRY_AFTER_MS);
+  };
+
+  // A SEPARATE reader, deliberately not folded into `call`: engine/orchestrate.mjs
+  // and every existing tool branch on the exact { status, ok, json } shape, and a
+  // widened success object there would change behaviour far outside the audit rail.
+  const callWithMeta = async (method, path, body, baseOrOptions = BASE) => {
+    const res = await request(method, path, body, baseOrOptions);
+    const capturedAt = nowImpl();
+    const text = await res.text();
+    let json; try { json = JSON.parse(text); } catch { json = text; }
+    return { status: res.status, ok: res.ok, json, retryAfterMs: readRetryAfterMs(res, capturedAt), capturedAt };
   };
 
   const sseError = (code, detail, remediation) => {
@@ -240,5 +347,10 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     return { status: res.status, ok: res.ok, events, terminal };
   };
 
-  return { call, stream, loc, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
+  // `rail` is exposed so a composer can ASSERT which credential rail a gateway carries
+  // instead of trusting the slot it was handed in on. The audit rail needs this: a
+  // jwt-rail gateway asked for a services capability would send the location Bearer to
+  // the AI host with no token-id, and an ai-rail gateway asked for a backend capability
+  // throws AI_RAIL_HOST_INVALID outside the audit error taxonomy.
+  return { call, callWithMeta, stream, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
 }

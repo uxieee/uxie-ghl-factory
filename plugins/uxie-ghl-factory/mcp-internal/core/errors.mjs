@@ -16,6 +16,65 @@ export const CODES = Object.freeze({
   VALIDATION_FAILED: 'VALIDATION_FAILED',
   RATE_LIMITED: 'RATE_LIMITED',
   ENGINE_ABORT: 'ENGINE_ABORT',
+
+  // Audit-rail policy codes. They are separate from the codes above because an
+  // audit caller must be able to tell "the account refused me" (RATE_LIMITED,
+  // TOKEN_EXPIRED) apart from "my own request was never allowed to leave" — the
+  // latter is a policy bug to fix, never a reason to retry or to report a
+  // successful-but-empty read.
+  UNKNOWN_CAPABILITY: 'UNKNOWN_CAPABILITY',
+  UNKNOWN_CAPABILITY_HOST: 'UNKNOWN_CAPABILITY_HOST',
+  AMBIGUOUS_CAPABILITY: 'AMBIGUOUS_CAPABILITY',
+  CAPABILITY_TRACE_MISMATCH: 'CAPABILITY_TRACE_MISMATCH',
+  UNAPPROVED_METHOD: 'UNAPPROVED_METHOD',
+  ABSOLUTE_PATH_REJECTED: 'ABSOLUTE_PATH_REJECTED',
+  MISSING_PATH_BINDING: 'MISSING_PATH_BINDING',
+  INVALID_PATH_BINDING: 'INVALID_PATH_BINDING',
+  UNKNOWN_QUERY_KEY: 'UNKNOWN_QUERY_KEY',
+  MISSING_QUERY_KEY: 'MISSING_QUERY_KEY',
+  DUPLICATE_QUERY_KEY: 'DUPLICATE_QUERY_KEY',
+  FIXED_QUERY_VALUE_MISMATCH: 'FIXED_QUERY_VALUE_MISMATCH',
+  DISALLOWED_QUERY_VALUE: 'DISALLOWED_QUERY_VALUE',
+  QUERY_BOUND_VIOLATION: 'QUERY_BOUND_VIOLATION',
+  BINDING_MISMATCH: 'BINDING_MISMATCH',
+  LOCATION_BINDING_MISMATCH: 'LOCATION_BINDING_MISMATCH',
+  LOCATION_RATE_LIMITED: 'LOCATION_RATE_LIMITED',
+  CIRCUIT_OPEN: 'CIRCUIT_OPEN',
+  // The audit circuit is SCOPED ('process' plus one scope per credential rail), so a
+  // mistyped scope must be loud: silently accepting it would register a latch nothing
+  // ever checks, and the run would sail on through a dead credential.
+  INVALID_CIRCUIT_SCOPE: 'INVALID_CIRCUIT_SCOPE',
+
+  // Construction-time audit-rail faults. They are separate from the request-time
+  // codes above because they mean the PROCESS is wired wrong: no request could
+  // ever have been legal, so there is nothing to checkpoint and resume.
+  AUDIT_RAIL_MISMATCH: 'AUDIT_RAIL_MISMATCH',
+  MISSING_AUTH_RAIL: 'MISSING_AUTH_RAIL',
+  INVALID_AUDIT_LOCATION: 'INVALID_AUDIT_LOCATION',
+
+  // Response-side fail-closed classes. Each one exists so an unusable response is
+  // recorded as its own kind of failure rather than collapsing into "empty read":
+  // a challenge page, an identity conflict, a rejected credential, and a transport
+  // fault demand four different operator responses.
+  INVALID_RESPONSE_BODY: 'INVALID_RESPONSE_BODY',
+  IDENTITY_CONFLICT: 'IDENTITY_CONFLICT',
+  AUTH_REJECTED: 'AUTH_REJECTED',
+  TRANSPORT_FAILED: 'TRANSPORT_FAILED',
+
+  // Identity-inspection INCOMPLETENESS classes. A conflict (above) says "this response
+  // provably belongs to someone else"; these three say "I could not prove it belongs to
+  // me", which is a different operator action but the SAME verdict: not a read.
+  //
+  // They exist as separate codes because the audit rail's whole value is the distinction
+  // between "checked and clean" and "not checked". Collapsing them into one code, or into
+  // a silent pass, is how a bounded walker turns an unverified page into evidence.
+  IDENTITY_INSPECTION_CAPPED: 'IDENTITY_INSPECTION_CAPPED',   // record budget exhausted
+  IDENTITY_DEPTH_CAPPED: 'IDENTITY_DEPTH_CAPPED',             // walk refused to descend further
+  IDENTITY_UNREADABLE: 'IDENTITY_UNREADABLE',                 // identity field carried a shape we cannot compare
+  // A response object that THROWS while being inspected (a getter, a hostile proxy).
+  // Without this the throw escaped callCapability uncoded, so a caller branching on
+  // `.code` saw a generic Error and could not tell it apart from a bug in its own handler.
+  IDENTITY_INSPECTION_FAILED: 'IDENTITY_INSPECTION_FAILED',
 });
 
 const TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;

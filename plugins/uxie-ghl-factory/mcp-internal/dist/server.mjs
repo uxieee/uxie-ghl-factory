@@ -31681,7 +31681,65 @@ var CODES = Object.freeze({
   VERSION_CONFLICT: "VERSION_CONFLICT",
   VALIDATION_FAILED: "VALIDATION_FAILED",
   RATE_LIMITED: "RATE_LIMITED",
-  ENGINE_ABORT: "ENGINE_ABORT"
+  ENGINE_ABORT: "ENGINE_ABORT",
+  // Audit-rail policy codes. They are separate from the codes above because an
+  // audit caller must be able to tell "the account refused me" (RATE_LIMITED,
+  // TOKEN_EXPIRED) apart from "my own request was never allowed to leave" — the
+  // latter is a policy bug to fix, never a reason to retry or to report a
+  // successful-but-empty read.
+  UNKNOWN_CAPABILITY: "UNKNOWN_CAPABILITY",
+  UNKNOWN_CAPABILITY_HOST: "UNKNOWN_CAPABILITY_HOST",
+  AMBIGUOUS_CAPABILITY: "AMBIGUOUS_CAPABILITY",
+  CAPABILITY_TRACE_MISMATCH: "CAPABILITY_TRACE_MISMATCH",
+  UNAPPROVED_METHOD: "UNAPPROVED_METHOD",
+  ABSOLUTE_PATH_REJECTED: "ABSOLUTE_PATH_REJECTED",
+  MISSING_PATH_BINDING: "MISSING_PATH_BINDING",
+  INVALID_PATH_BINDING: "INVALID_PATH_BINDING",
+  UNKNOWN_QUERY_KEY: "UNKNOWN_QUERY_KEY",
+  MISSING_QUERY_KEY: "MISSING_QUERY_KEY",
+  DUPLICATE_QUERY_KEY: "DUPLICATE_QUERY_KEY",
+  FIXED_QUERY_VALUE_MISMATCH: "FIXED_QUERY_VALUE_MISMATCH",
+  DISALLOWED_QUERY_VALUE: "DISALLOWED_QUERY_VALUE",
+  QUERY_BOUND_VIOLATION: "QUERY_BOUND_VIOLATION",
+  BINDING_MISMATCH: "BINDING_MISMATCH",
+  LOCATION_BINDING_MISMATCH: "LOCATION_BINDING_MISMATCH",
+  LOCATION_RATE_LIMITED: "LOCATION_RATE_LIMITED",
+  CIRCUIT_OPEN: "CIRCUIT_OPEN",
+  // The audit circuit is SCOPED ('process' plus one scope per credential rail), so a
+  // mistyped scope must be loud: silently accepting it would register a latch nothing
+  // ever checks, and the run would sail on through a dead credential.
+  INVALID_CIRCUIT_SCOPE: "INVALID_CIRCUIT_SCOPE",
+  // Construction-time audit-rail faults. They are separate from the request-time
+  // codes above because they mean the PROCESS is wired wrong: no request could
+  // ever have been legal, so there is nothing to checkpoint and resume.
+  AUDIT_RAIL_MISMATCH: "AUDIT_RAIL_MISMATCH",
+  MISSING_AUTH_RAIL: "MISSING_AUTH_RAIL",
+  INVALID_AUDIT_LOCATION: "INVALID_AUDIT_LOCATION",
+  // Response-side fail-closed classes. Each one exists so an unusable response is
+  // recorded as its own kind of failure rather than collapsing into "empty read":
+  // a challenge page, an identity conflict, a rejected credential, and a transport
+  // fault demand four different operator responses.
+  INVALID_RESPONSE_BODY: "INVALID_RESPONSE_BODY",
+  IDENTITY_CONFLICT: "IDENTITY_CONFLICT",
+  AUTH_REJECTED: "AUTH_REJECTED",
+  TRANSPORT_FAILED: "TRANSPORT_FAILED",
+  // Identity-inspection INCOMPLETENESS classes. A conflict (above) says "this response
+  // provably belongs to someone else"; these three say "I could not prove it belongs to
+  // me", which is a different operator action but the SAME verdict: not a read.
+  //
+  // They exist as separate codes because the audit rail's whole value is the distinction
+  // between "checked and clean" and "not checked". Collapsing them into one code, or into
+  // a silent pass, is how a bounded walker turns an unverified page into evidence.
+  IDENTITY_INSPECTION_CAPPED: "IDENTITY_INSPECTION_CAPPED",
+  // record budget exhausted
+  IDENTITY_DEPTH_CAPPED: "IDENTITY_DEPTH_CAPPED",
+  // walk refused to descend further
+  IDENTITY_UNREADABLE: "IDENTITY_UNREADABLE",
+  // identity field carried a shape we cannot compare
+  // A response object that THROWS while being inspected (a getter, a hostile proxy).
+  // Without this the throw escaped callCapability uncoded, so a caller branching on
+  // `.code` saw a generic Error and could not tell it apart from a bug in its own handler.
+  IDENTITY_INSPECTION_FAILED: "IDENTITY_INSPECTION_FAILED"
 });
 var TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 var TOKENISH_SCAN = /\bey[A-Za-z0-9._-]{20,}/;
@@ -46850,9 +46908,27 @@ var AI_HOST = "https://services.leadconnectorhq.com";
 var GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
 var THROTTLE_MS = 300;
 var JITTER_MS = 150;
+var DELTA_SECONDS = /^\d+$/;
+var IMF_FIXDATE = /^[A-Za-z]{3}, \d{2} [A-Za-z]{3} \d{4} \d{2}:\d{2}:\d{2} GMT$/;
+var RFC850_DATE = /^[A-Za-z]{3,6}day, \d{2}-[A-Za-z]{3}-\d{2} \d{2}:\d{2}:\d{2} GMT$/;
+var ASCTIME_DATE = /^[A-Za-z]{3} ([A-Za-z]{3}) ([ \d]\d) (\d{2}):(\d{2}):(\d{2}) (\d{4})$/;
+var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var parseAsctimeGmt = (text) => {
+  const match = ASCTIME_DATE.exec(text);
+  if (!match) return NaN;
+  const [, monthName, dayText, hour, minute, second, year] = match;
+  const month = MONTHS.indexOf(monthName);
+  if (month < 0) return NaN;
+  const day = Number(dayText);
+  const at = Date.UTC(Number(year), month, day, Number(hour), Number(minute), Number(second));
+  const check2 = new Date(at);
+  const valid = check2.getUTCFullYear() === Number(year) && check2.getUTCMonth() === month && check2.getUTCDate() === day && check2.getUTCHours() === Number(hour) && check2.getUTCMinutes() === Number(minute) && check2.getUTCSeconds() === Number(second);
+  return valid ? at : NaN;
+};
+var MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
 var RECAPTURE2 = "Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token), then retry. No restart needed.";
 var defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
-function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random }) {
+function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
   const creds = readCredentials({ tokenFile, allowExpired: true });
   const headers = (isWrite, overrides = {}, base = BASE) => {
     const h = { channel: "APP", source: "WEB_USER", version: "2021-07-28", accept: "application/json, text/plain, */*" };
@@ -46922,7 +46998,8 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
         throw new Error("signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL");
       }
     }
-    await sleepImpl(THROTTLE_MS + Math.floor(randomImpl() * JITTER_MS));
+    const delayMs = Math.max(0, throttleMs) + Math.floor(randomImpl() * Math.max(0, jitterMs));
+    if (delayMs > 0) await sleepImpl(delayMs);
     const requestHeaders = signedUpload ? Object.fromEntries(Object.entries(options.headers ?? {}).filter(([name, value]) => value !== void 0 && value !== null && !["authorization", "token-id"].includes(name.toLowerCase())).map(([name, value]) => [name.toLowerCase(), value])) : headers(method !== "GET", options.headers, base);
     const res = await fetchImpl(signedTarget ?? base + path, {
       method,
@@ -46941,6 +47018,42 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
       json2 = text;
     }
     return { status: res.status, ok: res.ok, json: json2 };
+  };
+  const headerValue = (res, name) => {
+    if (typeof res?.headers?.get === "function") return res.headers.get(name) ?? null;
+    const bag = res?.headers;
+    if (!bag || typeof bag !== "object") return null;
+    const wanted = String(name).toLowerCase();
+    for (const [key, value] of Object.entries(bag)) {
+      if (String(key).toLowerCase() !== wanted) continue;
+      return value === void 0 || value === null ? null : value;
+    }
+    return null;
+  };
+  const readRetryAfterMs = (res, capturedAt) => {
+    const raw = headerValue(res, "retry-after");
+    if (raw === null || raw === void 0) return null;
+    const text = String(raw).trim();
+    if (text === "") return null;
+    if (DELTA_SECONDS.test(text)) return Math.min(Number(text) * 1e3, MAX_RETRY_AFTER_MS);
+    let at;
+    if (ASCTIME_DATE.test(text)) at = parseAsctimeGmt(text);
+    else if (IMF_FIXDATE.test(text) || RFC850_DATE.test(text)) at = Date.parse(text);
+    else return null;
+    if (Number.isNaN(at)) return null;
+    return Math.min(Math.max(0, at - capturedAt), MAX_RETRY_AFTER_MS);
+  };
+  const callWithMeta = async (method, path, body, baseOrOptions = BASE) => {
+    const res = await request(method, path, body, baseOrOptions);
+    const capturedAt = nowImpl();
+    const text = await res.text();
+    let json2;
+    try {
+      json2 = JSON.parse(text);
+    } catch {
+      json2 = text;
+    }
+    return { status: res.status, ok: res.ok, json: json2, retryAfterMs: readRetryAfterMs(res, capturedAt), capturedAt };
   };
   const sseError = (code, detail, remediation) => {
     const error51 = new Error(detail);
@@ -47073,7 +47186,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     }
     return { status: res.status, ok: res.ok, events, terminal };
   };
-  return { call, stream, loc, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
+  return { call, callWithMeta, stream, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
 }
 
 // stdio.mjs
