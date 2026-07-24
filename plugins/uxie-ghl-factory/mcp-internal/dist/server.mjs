@@ -47,25 +47,31 @@ var init_define_TOOL_CATALOG = __esm({
   "<define:__TOOL_CATALOG__>"() {
     define_TOOL_CATALOG_default = {
       build_workflow: {
-        description: "Build workflow \u2014 proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-11); risk: write",
+        description: "Build workflow \u2014 proof: live-runtime (2026-07-17), floor: documented; risk: write",
         risk: "write",
         proof: "live-runtime (2026-07-17)",
-        proofFloor: "live-roundtrip (2026-07-11)",
+        proofFloor: "documented",
         proofRows: [
+          "entities-tags-create",
           "entities-tags-list",
           "triggers-create"
         ],
         proofFloorRows: [
-          "workflow-build-verify",
-          "workflow-create",
-          "workflow-update"
+          "entities-email-builder-create",
+          "entities-email-builder-data"
         ],
         riskRows: [
+          "entities-email-builder-create",
+          "entities-email-builder-data",
+          "entities-tags-create",
           "triggers-create",
           "workflow-create",
           "workflow-update"
         ],
         rows: [
+          "entities-email-builder-create",
+          "entities-email-builder-data",
+          "entities-tags-create",
           "entities-tags-list",
           "triggers-create",
           "workflow-build-verify",
@@ -183,7 +189,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_logs: {
-        description: "Get workflow logs \u2014 filters contactId/eventType/fromDate/toDate, walks the enrollment roster to completion (allEnrollments) and can attach opt-in enrollment totals \u2014 proof: live-runtime (2026-07-24); risk: read",
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-07-24); risk: read",
         risk: "read",
         proof: "live-runtime (2026-07-24)",
         proofFloor: "live-runtime (2026-07-24)",
@@ -213,7 +219,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_contacts_at_step: {
-        description: "List contacts at step \u2014 the contacts parked at / processed by one workflow step (details-by-step), paginated to the full total \u2014 proof: live-runtime (2026-07-18); risk: read",
+        description: "List contacts at step \u2014 proof: live-runtime (2026-07-18); risk: read",
         risk: "read",
         proof: "live-runtime (2026-07-18)",
         proofFloor: "live-runtime (2026-07-18)",

@@ -1,24 +1,30 @@
 {
   "build_workflow": {
-    "description": "Build workflow — proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-11); risk: write",
+    "description": "Build workflow — proof: live-runtime (2026-07-17), floor: documented; risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-07-17)",
-    "proofFloor": "live-roundtrip (2026-07-11)",
+    "proofFloor": "documented",
     "proofRows": [
+      "entities-tags-create",
       "entities-tags-list",
       "triggers-create"
     ],
     "proofFloorRows": [
-      "workflow-build-verify",
-      "workflow-create",
-      "workflow-update"
+      "entities-email-builder-create",
+      "entities-email-builder-data"
     ],
     "riskRows": [
+      "entities-email-builder-create",
+      "entities-email-builder-data",
+      "entities-tags-create",
       "triggers-create",
       "workflow-create",
       "workflow-update"
     ],
     "rows": [
+      "entities-email-builder-create",
+      "entities-email-builder-data",
+      "entities-tags-create",
       "entities-tags-list",
       "triggers-create",
       "workflow-build-verify",
@@ -136,7 +142,7 @@
     ]
   },
   "get_workflow_logs": {
-    "description": "Get workflow logs — filters contactId/eventType/fromDate/toDate, walks the enrollment roster to completion (allEnrollments) and can attach opt-in enrollment totals — proof: live-runtime (2026-07-24); risk: read",
+    "description": "Get workflow logs — proof: live-runtime (2026-07-24); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-07-24)",
     "proofFloor": "live-runtime (2026-07-24)",
@@ -166,7 +172,7 @@
     ]
   },
   "get_contacts_at_step": {
-    "description": "List contacts at step — the contacts parked at / processed by one workflow step (details-by-step), paginated to the full total — proof: live-runtime (2026-07-18); risk: read",
+    "description": "List contacts at step — proof: live-runtime (2026-07-18); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-07-18)",
     "proofFloor": "live-runtime (2026-07-18)",
