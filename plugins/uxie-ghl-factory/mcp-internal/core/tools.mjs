@@ -10,6 +10,12 @@ import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
+import {
+  getAiConfigurationBundle,
+  listWorkflowsComplete,
+  validateAiBundleInput,
+  validateRosterInput,
+} from './audit-configuration.mjs';
 import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
 import {
@@ -1030,6 +1036,101 @@ export const TOOLS = [
         circuit: deps.auditCircuit ?? pacing.circuit,
       });
       return ok(await collectWorkflowRuntimeWindow({ auditGateway, input: args }));
+    }, args),
+  },
+  {
+    name: 'list_workflows_complete',
+    description: describe(
+      'list_workflows_complete',
+      'Walk the workflow roster to a reconciled terminal proof — proof: external-receipt-required; risk: read. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      // Bounded HERE as well as in the composite: the descriptor's own limit bound is 100,
+      // and a schema that admitted more would hand the composite a budget its own validator
+      // would then refuse — two copies of one rule disagreeing.
+      pageSize: z.number().int().min(1).max(100).default(100),
+      maxPages: z.number().int().min(1).max(1000).default(100),
+    }),
+    capabilities: [
+      // NOTE FOR TASK 5. This row's path template is `{loc}` — the placeholder vocabulary the
+      // whole capability manifest has always used — while the audit DESCRIPTOR for the same
+      // route (`workflow_roster_list` in core/audit-capabilities.mjs) spells its
+      // `normalizedPath` `/workflow/{locationId}/list`. They address one route. Task 5's rule
+      // "a descriptor and its capability row differ => fail" therefore needs an explicit
+      // NORMALIZATION step before the comparison (map the descriptor's binding names onto the
+      // manifest's placeholders, or vice versa), or it will fail every audit capability that
+      // carries a path binding at all. This is the first row where the two vocabularies meet.
+      { method: 'GET', path: '/workflow/{loc}/list' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      // Validated BEFORE the gateway is constructed, for the same reason the runtime window
+      // is: building one first spends a credential read for a request that was never legal.
+      const config = validateRosterInput(args ?? {});
+      if (typeof deps?.makeGw !== 'function') {
+        return fail(CODES.ENGINE_ABORT, 'the roster composite was invoked without a gateway factory',
+          'Register the tool with { state, makeGw } dependencies before calling it.');
+      }
+      // Only the rail this composite actually reads. The roster capability is backend/jwt,
+      // and constructing an AI rail it never calls would widen the credential surface of a
+      // read that has no business touching it.
+      const backend = deps.makeGw({ loc: config.locationId, rail: 'jwt', state: deps.state, throttleMs: 0, jitterMs: 0 });
+      const pacing = processAuditPacing();
+      const auditGateway = makeAuditGateway({
+        gateways: { backend },
+        locationId: config.locationId,
+        limiter: deps.auditLimiter ?? pacing.limiter,
+        circuit: deps.auditCircuit ?? pacing.circuit,
+      });
+      return ok(await listWorkflowsComplete({ auditGateway, input: args }));
+    }, args),
+  },
+  {
+    name: 'get_ai_configuration_bundle',
+    description: describe(
+      'get_ai_configuration_bundle',
+      'Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail — proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Live canary required before Full audit.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      // Optional because a missing agency context is a real operating condition, answered
+      // per component by AI_COMPANY_CONTEXT_UNAVAILABLE with zero reads. There is
+      // deliberately NO surface selector: callers cannot omit a surface, so there must be no
+      // field through which they could try.
+      companyId: z.string().optional(),
+      maxPages: z.number().int().min(1).max(1000).default(100),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/ai-employees/agents' },
+      { method: 'GET', path: '/ai-employees/employees/{agentId}' },
+      // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
+      // list_account_entities reads: a different capability with a different receipt.
+      { method: 'GET', path: '/voice-ai/agents/simple' },
+      { method: 'GET', path: '/voice-ai/agents/{agentId}' },
+      { method: 'GET', path: '/agent-studio/agents/agents-with-folders' },
+      { method: 'GET', path: '/agent-studio/super-agent/agents/{agentId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const config = validateAiBundleInput(args ?? {});
+      if (typeof deps?.makeGw !== 'function') {
+        return fail(CODES.ENGINE_ABORT, 'the AI configuration bundle was invoked without a gateway factory',
+          'Register the tool with { state, makeGw } dependencies before calling it.');
+      }
+      // ONLY the ai rail, for the same reason the roster builds only jwt: ALL SIX of this
+      // bundle's capabilities declare `authRail:'ai'`, and `makeGateway` reads credentials at
+      // construction, so a backend gateway this composite can never call would widen the
+      // credential surface of a read that has no business touching it. (It also cannot help:
+      // an absent slot fails closed at call time with MISSING_AUTH_RAIL, and no capability
+      // here would ever reach that slot to trigger it.)
+      const ai = deps.makeGw({ loc: config.locationId, rail: 'ai', state: deps.state, throttleMs: 0, jitterMs: 0 });
+      const pacing = processAuditPacing();
+      const auditGateway = makeAuditGateway({
+        gateways: { ai },
+        locationId: config.locationId,
+        limiter: deps.auditLimiter ?? pacing.limiter,
+        circuit: deps.auditCircuit ?? pacing.circuit,
+      });
+      return ok(await getAiConfigurationBundle({ auditGateway, input: args }));
     }, args),
   },
   {

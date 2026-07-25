@@ -1,0 +1,1008 @@
+{
+  "_file": "Scenarios for getAiConfigurationBundle's three-surface discovery-plus-detail sweep (Task 4, plan lines 527 and 541-552). See README.md in this folder for the upstream model, the single-shot-vs-paginated split, and the tombstone grading table.",
+  "_totalNote": "declaredTotal on an agent_studio component is a FIXTURE INPUT, never computed from the rows the stub is about to serve. Same rule, same reason, as workflow-roster.json: an oracle the fixture supplies but production cannot is worse than no oracle.",
+  "_alwaysThreeNote": "EVERY scenario expects all three components in the result, whatever happened to any of them. Callers cannot omit a surface (plan line 541), so a component that failed, that was inapplicable, or that could not be attempted at all still appears — with complete:false and items:null. A component missing from `components` is the one shape this contract may never produce.",
+  "scenarios": {
+    "all-three-products": {
+      "planBullet": "discovery plus detail for all three products (plan line 527)",
+      "why": "The base case, and the only place the full capability sequence and every emitted query are pinned. Three products share one id shape and one auth rail, so a composite that read the right rows through the wrong route would still return a plausible bundle - and the receipt would then claim reads that never happened.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": {
+          "discovery": [ { "rows": [ { "_id": "ce-1", "name": "Chat Bot" }, { "_id": "ce-2", "name": "Booking Bot" } ] } ]
+        },
+        "voice_ai": {
+          "discovery": [ { "rows": [ { "_id": "va-1", "name": "Inbound", "isDeleted": false, "agentStatus": "ACTIVE" } ] } ]
+        },
+        "agent_studio": {
+          "declaredTotal": 2,
+          "discovery": [ { "rows": [ { "_id": "as-1", "name": "Super A" }, { "_id": "as-2", "name": "Super B" } ] } ]
+        }
+      },
+      "expect": {
+        "capabilitySequence": [
+          "conversation_ai_agent_discovery",
+          "conversation_ai_agent_detail",
+          "conversation_ai_agent_detail",
+          "voice_ai_agent_discovery",
+          "voice_ai_agent_detail",
+          "agent_studio_agent_discovery",
+          "agent_studio_agent_detail",
+          "agent_studio_agent_detail"
+        ],
+        "studioPages": [1],
+        "components": {
+          "conversation_ai": { "applicable": true, "complete": true, "itemCount": 2, "detailDenominator": 2, "detailsRead": 2, "pagesFetched": 1, "errorCodes": [] },
+          "voice_ai": { "applicable": true, "complete": true, "itemCount": 1, "detailDenominator": 1, "detailsRead": 1, "pagesFetched": 1, "errorCodes": [] },
+          "agent_studio": { "applicable": true, "complete": true, "itemCount": 2, "detailDenominator": 2, "detailsRead": 2, "pagesFetched": 1, "errorCodes": [] }
+        },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "agent-studio-multiple-pages": {
+      "planBullet": "multiple pages (plan line 527)",
+      "why": "Agent Studio is the ONLY paginated discovery route - the other two descriptors declare locationId as their sole query key. Proves the walk pages by page NUMBER at the pinned pageSize of 100 and fetches a detail for every id on every page, not only the first.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 140,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-p1-" } },
+            { "generate": { "count": 40, "idPrefix": "as-p2-" } }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": {
+          "conversation_ai_agent_discovery": 1,
+          "conversation_ai_agent_detail": 0,
+          "voice_ai_agent_discovery": 1,
+          "voice_ai_agent_detail": 0,
+          "agent_studio_agent_discovery": 2,
+          "agent_studio_agent_detail": 140
+        },
+        "studioPages": [1, 2],
+        "components": {
+          "conversation_ai": { "applicable": false, "complete": true, "itemCount": 0, "pagesFetched": 1 },
+          "voice_ai": { "applicable": false, "complete": true, "itemCount": 0, "pagesFetched": 1 },
+          "agent_studio": { "applicable": true, "complete": true, "itemCount": 140, "detailDenominator": 140, "detailsRead": 140, "pagesFetched": 2, "totalHistory": [ 140, 140 ], "errorCodes": [] }
+        },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "one-failed-component-403": {
+      "planBullet": "one failed component; a 403 is complete:false and never an empty array (plan lines 527, 550)",
+      "why": "A 403 latches NOTHING on the Task 2 circuit precisely so per-component incompleteness is reachable. This is the scenario that proves the other two surfaces stay readable and the run still refuses to publish as complete - the whole reason the 403 latch scope was reversed deliberately.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [ { "_id": "ce-1" } ] } ] },
+        "voice_ai": { "discovery": [ { "gateway": { "ok": false, "status": 403, "failureClass": "AUTH_REJECTED" }, "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 1, "discovery": [ { "rows": [ { "_id": "as-1" } ] } ] }
+      },
+      "expect": {
+        "capabilityCounts": {
+          "conversation_ai_agent_discovery": 1,
+          "conversation_ai_agent_detail": 1,
+          "voice_ai_agent_discovery": 1,
+          "voice_ai_agent_detail": 0,
+          "agent_studio_agent_discovery": 1,
+          "agent_studio_agent_detail": 1
+        },
+        "components": {
+          "conversation_ai": { "applicable": true, "complete": true, "itemCount": 1, "detailsRead": 1 },
+          "voice_ai": { "applicable": "unknown", "complete": false, "itemsNull": true, "pagesFetched": 0, "errorCodes": ["AUTH_REJECTED"] },
+          "agent_studio": { "applicable": true, "complete": true, "itemCount": 1, "detailsRead": 1 }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_READ_FAILED"]
+      }
+    },
+
+    "discovery-404": {
+      "planBullet": "a 404 is complete:false and never an empty array (plan line 550)",
+      "why": "A 404 on a discovery route is the single most dangerous status this bundle can meet: an unprovisioned product and a moved endpoint return the same thing, and list_account_entities' `catch { return {} }` turns both into `agents: []`. That empty array is what an auditor would read as 'this account has no Conversation AI'.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "gateway": { "ok": false, "status": 404, "failureClass": "HTTP_404" }, "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "components": {
+          "conversation_ai": { "applicable": "unknown", "complete": false, "itemsNull": true, "pagesFetched": 0, "errorCodes": ["HTTP_404"] },
+          "voice_ai": { "applicable": false, "complete": true, "itemCount": 0 },
+          "agent_studio": { "applicable": false, "complete": true, "itemCount": 0 }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_READ_FAILED"]
+      }
+    },
+
+    "malformed-discovery-success": {
+      "planBullet": "malformed success payloads (plan line 527); a malformed success is complete:false, never an empty array (plan line 550)",
+      "why": "A 200 carrying an envelope this rail cannot read is the quietest failure available: the gateway says ok:true, so a composite that reached for `json.agents ?? []` publishes a confident empty surface. Unreadable is not empty, and this scenario is the one that fails if that distinction is ever softened.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "body": { "unexpectedEnvelope": true, "count": 4 } } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "conversation_ai_agent_discovery": 1, "conversation_ai_agent_detail": 0 },
+        "components": {
+          "conversation_ai": { "applicable": "unknown", "complete": false, "itemsNull": true, "errorCodes": ["AI_DISCOVERY_UNREADABLE"] },
+          "voice_ai": { "applicable": false, "complete": true, "itemCount": 0 },
+          "agent_studio": { "applicable": false, "complete": true, "itemCount": 0 }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_UNREADABLE"]
+      }
+    },
+
+    "malformed-detail-success": {
+      "planBullet": "malformed success payloads (plan line 527)",
+      "why": "The detail half of the same defect. A 200 whose body carries no readable agent record cannot prove the discovery row's configuration was captured, so the row stays in items with detail:null and the component may not claim completeness - even though every route answered 200.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": {
+          "discovery": [ { "rows": [ { "_id": "va-1" }, { "_id": "va-2" } ] } ],
+          "details": { "va-2": { "body": { "not": "an agent record" } } }
+        },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 2 },
+        "components": {
+          "voice_ai": { "applicable": true, "complete": false, "itemCount": 2, "detailDenominator": 2, "detailsRead": 1, "errorCodes": ["AI_DETAIL_UNREADABLE"] },
+          "conversation_ai": { "complete": true },
+          "agent_studio": { "complete": true }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DETAIL_UNREADABLE"]
+      }
+    },
+
+    "list-id-with-missing-detail": {
+      "planBullet": "a list ID with a missing detail (plan line 527); a missing detail is complete:false (plan line 550)",
+      "why": "Discovery proves the agent exists; a 404 on its own detail route proves only that this rail could not read it. Publishing the surface as complete on the strength of the other agents' details would claim coverage of a configuration nobody ever fetched - and plan line 552 is explicit that proof of a list route is not proof of an unexercised detail route.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": {
+          "discovery": [ { "rows": [ { "_id": "ce-1" }, { "_id": "ce-2" }, { "_id": "ce-3" } ] } ],
+          "details": { "ce-2": { "gateway": { "ok": false, "status": 404, "failureClass": "HTTP_404" } } }
+        },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "conversation_ai_agent_discovery": 1, "conversation_ai_agent_detail": 3 },
+        "components": {
+          "conversation_ai": { "applicable": true, "complete": false, "itemCount": 3, "detailDenominator": 3, "detailsRead": 2, "errorCodes": ["HTTP_404"] },
+          "voice_ai": { "complete": true },
+          "agent_studio": { "complete": true }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DETAIL_READ_FAILED"]
+      }
+    },
+
+    "wrong-location-detail": {
+      "planBullet": "a wrong-location detail (plan line 527)",
+      "why": "The gateway proves this record belongs to another location and returns ok:false with IDENTITY_CONFLICT. Merging the payload anyway would publish another account's agent configuration under this location id - the single worst artifact this rail can produce, and the reason quarantine outranks every other verdict.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 2,
+          "discovery": [ { "rows": [ { "_id": "as-1" }, { "_id": "as-2" } ] } ],
+          "details": {
+            "as-2": {
+              "gateway": {
+                "ok": false,
+                "status": 200,
+                "failureClass": "IDENTITY_CONFLICT",
+                "quarantined": true,
+                "identity": { "conflicts": [{ "field": "locationId", "expected": "LOC1", "actual": "OTHER" }] }
+              }
+            }
+          }
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 1, "agent_studio_agent_detail": 2 },
+        "components": {
+          "agent_studio": { "applicable": true, "complete": false, "itemCount": 2, "detailDenominator": 2, "detailsRead": 1, "errorCodes": ["IDENTITY_CONFLICT"] },
+          "conversation_ai": { "complete": true },
+          "voice_ai": { "complete": true }
+        },
+        "quarantined": true,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["IDENTITY_CONFLICT_QUARANTINE"]
+      }
+    },
+
+    "missing-company-context": {
+      "planBullet": "a missing companyId where required (plan line 527); unavailable required company context makes that component incomplete (plan line 550)",
+      "why": "agent_studio_agent_discovery binds agencyId to the typed companyId, so without one there is no legal request to make. The bundle refuses LOCALLY and records the gap: issuing the read anyway would turn a missing input into a thrown policy exception out of a read composite, which is the same verdict with a crash attached. The other two surfaces need no company context and must still be read.",
+      "input": { "maxPages": 100 },
+      "omitCompanyId": true,
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [ { "_id": "ce-1" } ] } ] },
+        "voice_ai": { "discovery": [ { "rows": [ { "_id": "va-1" } ] } ] },
+        "agent_studio": { "declaredTotal": 3, "discovery": [ { "rows": [ { "_id": "as-1" } ] } ] }
+      },
+      "expect": {
+        "capabilityCounts": {
+          "conversation_ai_agent_discovery": 1,
+          "conversation_ai_agent_detail": 1,
+          "voice_ai_agent_discovery": 1,
+          "voice_ai_agent_detail": 1,
+          "agent_studio_agent_discovery": 0,
+          "agent_studio_agent_detail": 0
+        },
+        "components": {
+          "conversation_ai": { "applicable": true, "complete": true, "itemCount": 1 },
+          "voice_ai": { "applicable": true, "complete": true, "itemCount": 1 },
+          "agent_studio": { "applicable": "unknown", "complete": false, "itemsNull": true, "pagesFetched": 0, "errorCodes": ["AI_COMPANY_CONTEXT_UNAVAILABLE"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_COMPANY_CONTEXT_UNAVAILABLE"]
+      }
+    },
+
+    "empty-but-terminal-component": {
+      "planBullet": "a genuinely empty but terminal component (plan line 527); an empty surface is complete only after a terminal, schema-valid discovery response (plan line 550)",
+      "why": "This is the ONLY shape in which an empty surface may be published as complete, and it is one status code away from the 403/404/malformed scenarios that may not. If this scenario and `discovery-404` ever produce the same artifact, the bundle has lost the distinction it exists for.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": {
+          "conversation_ai_agent_discovery": 1,
+          "conversation_ai_agent_detail": 0,
+          "voice_ai_agent_discovery": 1,
+          "voice_ai_agent_detail": 0,
+          "agent_studio_agent_discovery": 1,
+          "agent_studio_agent_detail": 0
+        },
+        "components": {
+          "conversation_ai": { "applicable": false, "complete": true, "itemCount": 0, "detailDenominator": 0, "detailsRead": 0 },
+          "voice_ai": { "applicable": false, "complete": true, "itemCount": 0, "detailDenominator": 0, "detailsRead": 0 },
+          "agent_studio": { "applicable": false, "complete": true, "itemCount": 0, "detailDenominator": 0, "detailsRead": 0 }
+        },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "voice-confirmed-tombstone": {
+      "planBullet": "a Voice row with isDeleted:true plus agentStatus:'INACTIVE' (plan lines 527, 548)",
+      "why": "The exact tombstone. Retained as discovery evidence, excluded from the applicable-detail denominator, and given NO detail call - because that detail route is forbidden for a soft-deleted agent and calling it would spend a 403 on a row the rail already knows about. The live sibling in the same page proves the exclusion is per-row and not per-component.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": {
+          "discovery": [ { "rows": [
+            { "_id": "va-live", "name": "Inbound", "isDeleted": false, "agentStatus": "ACTIVE" },
+            { "_id": "va-dead", "name": "Retired", "isDeleted": true, "agentStatus": "INACTIVE" }
+          ] } ]
+        },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 1 },
+        "voiceDetailAgentIds": ["va-live"],
+        "components": {
+          "voice_ai": {
+            "applicable": true,
+            "complete": true,
+            "itemCount": 2,
+            "detailDenominator": 1,
+            "detailsRead": 1,
+            "tombstoneIds": ["va-dead"],
+            "errorCodes": []
+          }
+        },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "voice-deleted-but-active": {
+      "planBullet": "a row with only ONE deletion signal remains unknown and keeps the component incomplete (plan lines 527, 548)",
+      "why": "The named edge. `{isDeleted:true, agentStatus:'ACTIVE'}` is the shape most likely to be mistaken for a tombstone by a composite that tests either signal instead of both. It still gets its detail call - and because a half-signalled row can legitimately 403 there, this is exactly the case the Task 2 decision to let 403 latch NOTHING was made for.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [ { "_id": "va-half", "isDeleted": true, "agentStatus": "ACTIVE" } ] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 1 },
+        "voiceDetailAgentIds": ["va-half"],
+        "components": {
+          "voice_ai": { "applicable": true, "complete": false, "itemCount": 1, "detailDenominator": 1, "detailsRead": 1, "tombstoneIds": [] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DELETION_SIGNAL_AMBIGUOUS"]
+      }
+    },
+
+    "voice-live-but-inactive": {
+      "planBullet": "a row with only ONE deletion signal remains unknown and keeps the component incomplete (plan lines 527, 548)",
+      "why": "The mirror image of voice-deleted-but-active, and the one a composite testing `agentStatus === 'INACTIVE'` alone would wrongly tombstone. An inactive agent that is not deleted is an ordinary paused agent whose configuration the auditor still needs; skipping its detail would silently drop a live configuration from the bundle.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [ { "_id": "va-paused", "isDeleted": false, "agentStatus": "INACTIVE" } ] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 1 },
+        "voiceDetailAgentIds": ["va-paused"],
+        "components": {
+          "voice_ai": { "applicable": true, "complete": false, "itemCount": 1, "detailsRead": 1, "tombstoneIds": [] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DELETION_SIGNAL_AMBIGUOUS"]
+      }
+    },
+
+    "voice-deletion-fields-missing": {
+      "planBullet": "missing deletion fields do not qualify and keep the component incomplete (plan lines 527, 548)",
+      "why": "Absence of the SECOND field is not agreement with the first. `{isDeleted:true}` with no agentStatus, and `{agentStatus:'INACTIVE'}` with no isDeleted, are each one unreadable field away from being a tombstone - and a composite using `??` defaults would silently supply the missing half and skip a real agent's detail.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [
+          { "_id": "va-no-status", "isDeleted": true },
+          { "_id": "va-no-flag", "agentStatus": "INACTIVE" }
+        ] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 2 },
+        "voiceDetailAgentIds": ["va-no-status", "va-no-flag"],
+        "components": {
+          "voice_ai": { "applicable": true, "complete": false, "itemCount": 2, "detailDenominator": 2, "detailsRead": 2, "tombstoneIds": [] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DELETION_SIGNAL_AMBIGUOUS"]
+      }
+    },
+
+    "voice-deletion-flag-not-boolean": {
+      "planBullet": "conflicting deletion fields do not qualify (plan lines 527, 548) - the rule requires a SCHEMA-VALID row",
+      "why": "`isDeleted:'true'` is a string, not the boolean the rule names, and `agentStatus:'inactive'` is not the literal 'INACTIVE'. Both are one loose comparison (== or a toLowerCase) away from qualifying as tombstones, and each such slip silently drops a live agent's configuration from the bundle while reporting the surface as complete.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [
+          { "_id": "va-string-flag", "isDeleted": "true", "agentStatus": "INACTIVE" },
+          { "_id": "va-lower-status", "isDeleted": true, "agentStatus": "inactive" }
+        ] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 2 },
+        "voiceDetailAgentIds": ["va-string-flag", "va-lower-status"],
+        "components": {
+          "voice_ai": { "applicable": true, "complete": false, "itemCount": 2, "detailDenominator": 2, "detailsRead": 2, "tombstoneIds": [] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DELETION_SIGNAL_AMBIGUOUS"]
+      }
+    },
+
+    "voice-row-with-no-deletion-fields": {
+      "planBullet": "the tombstone rule at its edges (plan line 548) - the NEGATIVE edge",
+      "why": "The most important scenario in this file and the easiest to leave out. Most real rows carry NEITHER deletion field. If an absent field counted as an unknown deletion signal, every ordinary agent would make its component incomplete and Voice AI would be permanently unreadable - a fail-closed rule that closes on everything is indistinguishable from a broken rail.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [ { "_id": "va-plain", "name": "Ordinary" } ] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 1 },
+        "voiceDetailAgentIds": ["va-plain"],
+        "components": {
+          "voice_ai": { "applicable": true, "complete": true, "itemCount": 1, "detailDenominator": 1, "detailsRead": 1, "tombstoneIds": [], "errorCodes": [] }
+        },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "tombstone-only-surface": {
+      "planBullet": "the tombstone is excluded from the applicable-detail denominator (plan line 548)",
+      "why": "A surface whose every row is a confirmed tombstone has a denominator of zero and issues no detail call at all - yet it is NOT the same artifact as an empty surface, because the rows are retained as discovery evidence. Collapsing the two would erase the fact that this account once had Voice agents.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [
+          { "_id": "va-d1", "isDeleted": true, "agentStatus": "INACTIVE" },
+          { "_id": "va-d2", "isDeleted": true, "agentStatus": "INACTIVE" }
+        ] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_discovery": 1, "voice_ai_agent_detail": 0 },
+        "components": {
+          "voice_ai": { "applicable": true, "complete": true, "itemCount": 2, "detailDenominator": 0, "detailsRead": 0, "tombstoneIds": ["va-d1", "va-d2"], "errorCodes": [] }
+        },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "ambiguous-rows-on-two-components": {
+      "planBullet": "warning objects keep the uniform key set and one aggregated code on TWO components may not share a counter",
+      "why": "Task 3's aggregation key is `code::component`, but every call site there passed the same component, so the component half was unreachable and untested. This bundle has three components, and an aggregated code firing on two of them must produce TWO objects with independent occurrence counts - otherwise an auditor reading `occurrences: 3` cannot tell one badly-shaped surface from three.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [
+          { "_id": "ce-a", "isDeleted": true, "agentStatus": "ACTIVE" },
+          { "_id": "ce-b", "isDeleted": true, "agentStatus": "ACTIVE" }
+        ] } ] },
+        "voice_ai": { "discovery": [ { "rows": [ { "_id": "va-a", "isDeleted": true, "agentStatus": "ACTIVE" } ] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": {
+          "conversation_ai_agent_detail": 2,
+          "voice_ai_agent_detail": 1,
+          "agent_studio_agent_detail": 0
+        },
+        "components": {
+          "conversation_ai": { "complete": false, "itemCount": 2, "detailsRead": 2 },
+          "voice_ai": { "complete": false, "itemCount": 1, "detailsRead": 1 },
+          "agent_studio": { "complete": true, "itemCount": 0 }
+        },
+        "warningOccurrences": {
+          "AI_DELETION_SIGNAL_AMBIGUOUS::conversation_ai": 2,
+          "AI_DELETION_SIGNAL_AMBIGUOUS::voice_ai": 1
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DELETION_SIGNAL_AMBIGUOUS"]
+      }
+    },
+
+    "discovery-rate-limited": {
+      "planBullet": "a rate limit is complete:false, never an empty array (plan line 550)",
+      "why": "A 429 means the account asked this run to back off, so whatever the sweep held at that moment is provably less than the whole surface. The retry hint is preserved for the checkpoint and the run may never publish as complete - and unlike a 403 this is an account-level fact, so the Task 2 circuit latches the PROCESS behind it.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "gateway": { "ok": false, "status": 429, "failureClass": "RATE_LIMITED", "retryAfterMs": 3000 }, "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "components": {
+          "conversation_ai": { "applicable": "unknown", "complete": false, "itemsNull": true, "errorCodes": ["RATE_LIMITED"] }
+        },
+        "rateLimited": true,
+        "retryAfterMs": 3000,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["RATE_LIMITED"]
+      }
+    },
+
+    "detail-rate-limited": {
+      "planBullet": "a rate limit on a DETAIL read is complete:false (plan line 550)",
+      "why": "The throttle can land on any read, and the detail loop is where most of them are. A composite that only checked discovery for a throttle would publish a partially-detailed surface as complete because every page it did read came back 200.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": {
+          "discovery": [ { "rows": [ { "_id": "va-1" }, { "_id": "va-2" } ] } ],
+          "details": { "va-2": { "gateway": { "ok": false, "status": 429, "failureClass": "RATE_LIMITED", "retryAfterMs": 1500 } } }
+        },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "voice_ai_agent_detail": 2 },
+        "components": {
+          "voice_ai": { "applicable": true, "complete": false, "itemCount": 2, "detailDenominator": 2, "detailsRead": 1, "errorCodes": ["RATE_LIMITED"] }
+        },
+        "rateLimited": true,
+        "retryAfterMs": 1500,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["RATE_LIMITED"]
+      }
+    },
+
+    "agent-studio-pagination-failure": {
+      "planBullet": "a pagination failure makes that component incomplete (plan line 550)",
+      "why": "Page one succeeded and page two did not, so the surface holds SOME agents and provably not all of them. The rows already read are retained as evidence, no detail call is issued for ids that were never discovered, and the component refuses to publish - the shape a naive `for await (page)` loop turns into a confident partial list. REVISED (adversarial review, applicability finding): this scenario used to pin `applicable: true` on a walk that never finished. `applicable` is a claim about the ACCOUNT, and only a reconciled enumeration can support one; a half-read surface says nothing about whether the product is provisioned, so it is now 'unknown'. The retained rows are unaffected - evidence and applicability are different questions.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 140,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-p1-" } },
+            { "gateway": { "ok": false, "status": 500, "failureClass": "HTTP_500" }, "rows": [] }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 100 },
+        "studioPages": [1, 2],
+        "components": {
+          "agent_studio": { "applicable": "unknown", "complete": false, "itemCount": 100, "detailDenominator": 100, "detailsRead": 100, "pagesFetched": 1, "errorCodes": ["HTTP_500"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_READ_FAILED"]
+      }
+    },
+
+    "agent-studio-page-budget-exhaustion": {
+      "planBullet": "page-budget exhaustion makes that component incomplete (plan lines 527, 550)",
+      "why": "The budget is the only thing between a pathological account and an unbounded sweep, so hitting it must be a stated incompleteness rather than a quiet stop. Checked BEFORE the read, so the third page is never requested. REVISED (adversarial review, applicability finding): `applicable` was `true` here on a walk that stopped 100 agents short of its own declared total. A budget-exhausted enumeration cannot answer whether the product is provisioned, so it is 'unknown'.",
+      "input": { "maxPages": 2 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 300,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-p1-" } },
+            { "generate": { "count": 100, "idPrefix": "as-p2-" } },
+            { "generate": { "count": 100, "idPrefix": "as-p3-" } }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 200 },
+        "studioPages": [1, 2],
+        "components": {
+          "agent_studio": { "applicable": "unknown", "complete": false, "itemCount": 200, "pagesFetched": 2, "pagesExhausted": true, "errorCodes": ["AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED"]
+      }
+    },
+
+    "agent-studio-zero-unique-progress": {
+      "planBullet": "a pagination failure makes that component incomplete (plan line 550)",
+      "why": "A backend that ignores the page parameter re-serves page one forever. Every page is full so a short-page terminal test never fires, and without a unique-progress check the sweep would spend its whole budget and then blame the budget for a defect that is not a budget defect. REVISED (adversarial review, applicability finding): `applicable` was `true` on a walk whose own diagnosis is that its page parameter does not advance. It cannot know what it did not reach, so it is 'unknown'. The identical re-serve is still NOT reported as a duplicate-id conflict - it is byte-identical, and the roster has always treated an identical re-serve as an ordinary artifact of paging a live collection.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 300,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-loop-" } },
+            { "generate": { "count": 100, "idPrefix": "as-loop-" } }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 100 },
+        "studioPages": [1, 2],
+        "components": {
+          "agent_studio": { "applicable": "unknown", "complete": false, "itemCount": 100, "pagesFetched": 2, "errorCodes": ["AI_DISCOVERY_NO_UNIQUE_PROGRESS"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_NO_UNIQUE_PROGRESS"]
+      }
+    },
+
+    "discovery-row-without-id": {
+      "planBullet": "malformed success payloads (plan line 527)",
+      "why": "A discovery row with no id can never be detail-read, so its configuration is unreachable by construction. Dropping it silently would shrink the denominator until the component reconciled; retaining it without a warning would claim a detail that was never possible.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [
+          { "_id": "ce-ok", "name": "fine" },
+          { "name": "no id at all" },
+          "not-an-object"
+        ] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "conversation_ai_agent_discovery": 1, "conversation_ai_agent_detail": 1 },
+        "components": {
+          "conversation_ai": { "applicable": true, "complete": false, "itemCount": 3, "detailDenominator": 3, "detailsRead": 1, "errorCodes": ["AI_DISCOVERY_ROW_ID_MISSING", "AI_DISCOVERY_ROW_MALFORMED"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_ROW_ID_MISSING", "AI_DISCOVERY_ROW_MALFORMED"]
+      }
+    },
+
+    "agent-studio-short-page-below-total": {
+      "planBullet": "an empty surface is complete ONLY after a terminal, schema-valid discovery response (plan line 550)",
+      "why": "The classic silent undercount: the upstream simply stops returning rows before its own declared total is reached. A short page is terminal on its own ONLY when no total was reported; once a total IS present it must reconcile, and this scenario is the one that fails if that conjunction is ever loosened. It also fixes the check ORDER: budget exhaustion and zero-unique-progress are walk faults reported on their own, and the total reconciliation runs only for a walk that claimed a short-page terminal. REVISED (adversarial review, applicability finding): `applicable` was `true` on a walk that had just contradicted the upstream's own count of its collection. A read that disagrees with itself supports no claim about the account, so it is 'unknown'.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 260,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-s1-" } },
+            { "generate": { "count": 40, "idPrefix": "as-s2-" } }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 140 },
+        "studioPages": [1, 2],
+        "components": {
+          "agent_studio": { "applicable": "unknown", "complete": false, "itemCount": 140, "detailDenominator": 140, "detailsRead": 140, "pagesFetched": 2, "totalHistory": [ 260, 260 ], "errorCodes": ["AI_DISCOVERY_TOTAL_MISMATCH"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_TOTAL_MISMATCH"]
+      }
+    },
+
+    "identity-inspection-incomplete": {
+      "planBullet": "an identity check that could not be COMPLETED is complete:false, never empty (plan line 550, Task 2 carry-forward item 6)",
+      "why": "IDENTITY_INSPECTION_CAPPED and IDENTITY_DEPTH_CAPPED return ok:false with a 200 status and a full-looking body. A composite branching on `status === 200` instead of on `ok` would read the payload the gateway just refused to vouch for.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": {
+          "discovery": [ { "gateway": { "ok": false, "status": 200, "failureClass": "IDENTITY_INSPECTION_CAPPED", "identity": { "inspectionCapped": true } }, "rows": [ { "_id": "ce-1" } ] } ]
+        },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "conversation_ai_agent_discovery": 1, "conversation_ai_agent_detail": 0 },
+        "components": {
+          "conversation_ai": { "applicable": "unknown", "complete": false, "itemsNull": true, "errorCodes": ["IDENTITY_INSPECTION_CAPPED"] }
+        },
+        "inspectionIncomplete": true,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["IDENTITY_INSPECTION_INCOMPLETE"]
+      }
+    },
+
+    "agent-studio-total-disappears-mid-walk": {
+      "planBullet": "a pagination/enumeration failure makes that component incomplete (plan line 550)",
+      "why": "PROBED DEFECT 1 of the adversarial review, reproduced exactly: page 1 announces total:500, page 2 is short and reports NO total at all. The walk kept no history of the totals it had been given and reconciled against only the terminal page's copy, so the absent total on page 2 reconciled vacuously and 101 agents published as the COMPLETE, APPLICABLE surface with zero warnings after discovery had said 500. An absent total is legal on this walk only when it was absent from the WHOLE walk - that is the documented asymmetry with the roster - and a retracted terminal proof is not a weaker proof but none.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 500,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-td1-" } },
+            { "generate": { "count": 1, "idPrefix": "as-td2-" }, "omitTotal": true }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 101 },
+        "studioPages": [ 1, 2 ],
+        "components": {
+          "agent_studio": {
+            "applicable": "unknown",
+            "complete": false,
+            "itemCount": 101,
+            "detailDenominator": 101,
+            "detailsRead": 101,
+            "pagesFetched": 2,
+            "totalHistory": [ 500, null ],
+            "errorCodes": [ "AI_DISCOVERY_TOTAL_DISAPPEARED" ]
+          }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": [ "AI_DISCOVERY_TOTAL_DISAPPEARED" ]
+      }
+    },
+
+    "agent-studio-total-disappears-after-a-reconcilable-count": {
+      "planBullet": "a pagination/enumeration failure makes that component incomplete (plan line 550)",
+      "why": "The scenario above fails closed even for a walk that merely LATCHES the first total, because 101 rows disagree with 500 either way. This one does not: the latched total is 101 and the walk ends holding exactly 101 rows, so the count reconciles and ONLY the present-then-absent guard can refuse it. Delete that guard and this scenario publishes complete:true - which is why it exists as well as, not instead of, the probed shape.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 101,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-tr1-" } },
+            { "generate": { "count": 1, "idPrefix": "as-tr2-" }, "omitTotal": true }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 101 },
+        "components": {
+          "agent_studio": {
+            "applicable": "unknown",
+            "complete": false,
+            "itemCount": 101,
+            "detailsRead": 101,
+            "pagesFetched": 2,
+            "totalHistory": [ 101, null ],
+            "errorCodes": [ "AI_DISCOVERY_TOTAL_DISAPPEARED" ]
+          }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": [ "AI_DISCOVERY_TOTAL_DISAPPEARED" ]
+      }
+    },
+
+    "agent-studio-total-changes-mid-walk": {
+      "planBullet": "a pagination/enumeration failure makes that component incomplete (plan line 550)",
+      "why": "PROBED DEFECT 2 of the adversarial review, reproduced exactly: page 1 reports total:200 and page 2 reports total:150. Reconciling against the terminal page alone made the second number retroactively true and published the surface as complete. The reported total IS the terminal proof, so a total that moves mid-walk leaves no fixed target - the roster's ROSTER_TOTAL_CHANGED has refused exactly this since it shipped, and the AI walk merely never looked. The code is TOTAL_CHANGED rather than TOTAL_MISMATCH: the walk never reached a terminal, so it is not reporting an undercount, it is reporting that there is nothing left to count against.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 200,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-tc1-" } },
+            { "generate": { "count": 1, "idPrefix": "as-tc2-" }, "total": 150 }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 101 },
+        "studioPages": [ 1, 2 ],
+        "components": {
+          "agent_studio": {
+            "applicable": "unknown",
+            "complete": false,
+            "itemCount": 101,
+            "detailDenominator": 101,
+            "detailsRead": 101,
+            "pagesFetched": 2,
+            "totalHistory": [ 200, 150 ],
+            "errorCodes": [ "AI_DISCOVERY_TOTAL_CHANGED" ]
+          }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": [ "AI_DISCOVERY_TOTAL_CHANGED" ]
+      }
+    },
+
+    "agent-studio-total-changes-but-the-count-still-agrees": {
+      "planBullet": "a pagination/enumeration failure makes that component incomplete (plan line 550)",
+      "why": "The mirror of the reconcilable-count scenario, for the CHANGE guard rather than the retraction guard. The walk latches 101, ends holding 101 rows, and is then told the total is 500. Every count-based check agrees; only the observation that the number MOVED can refuse it. Without the change guard this publishes complete:true and applicable:true over an upstream that has just contradicted its own count of its own collection.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 101,
+          "discovery": [
+            { "generate": { "count": 100, "idPrefix": "as-ta1-" } },
+            { "generate": { "count": 1, "idPrefix": "as-ta2-" }, "total": 500 }
+          ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 2, "agent_studio_agent_detail": 101 },
+        "components": {
+          "agent_studio": {
+            "applicable": "unknown",
+            "complete": false,
+            "itemCount": 101,
+            "detailsRead": 101,
+            "pagesFetched": 2,
+            "totalHistory": [ 101, 500 ],
+            "errorCodes": [ "AI_DISCOVERY_TOTAL_CHANGED" ]
+          }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": [ "AI_DISCOVERY_TOTAL_CHANGED" ]
+      }
+    },
+
+    "detail-answers-for-another-agent": {
+      "planBullet": "the detail route verifies response identity (plan Step 3.3, plan lines 541-552)",
+      "why": "THE CRITICAL FINDING OF THE ADVERSARIAL REVIEW, on all three products at once. A detail read used to be accepted on the strength of carrying SOME id: discovery finds one agent, the route answers with another, and the bundle published the WRONG agent's configuration with complete:true, detailsRead:1 and zero warnings. The gateway cannot cover it - its identity check compares a body field literally named `agentId`, and these bodies carry _id/id, so it has nothing to compare and passes. Each product uses a different envelope so the check cannot be implemented for the bare shape alone: voice_ai answers bare, conversation_ai answers through the nested `agent` envelope, agent_studio through `data`.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": {
+          "discovery": [ { "rows": [ { "_id": "ce-1" } ] } ],
+          "details": { "ce-1": { "body": { "agent": { "_id": "c9", "locationId": "LOC1", "name": "Somebody else" } } } }
+        },
+        "voice_ai": {
+          "discovery": [ { "rows": [ { "_id": "b1" } ] } ],
+          "details": { "b1": { "body": { "_id": "b2", "locationId": "LOC1", "name": "Somebody else" } } }
+        },
+        "agent_studio": {
+          "declaredTotal": 1,
+          "discovery": [ { "rows": [ { "_id": "as-1" } ] } ],
+          "details": { "as-1": { "body": { "data": { "_id": "as-9", "locationId": "LOC1", "name": "Somebody else" } } } }
+        }
+      },
+      "expect": {
+        "capabilityCounts": {
+          "conversation_ai_agent_detail": 1,
+          "voice_ai_agent_detail": 1,
+          "agent_studio_agent_detail": 1
+        },
+        "components": {
+          "conversation_ai": { "applicable": true, "complete": false, "itemCount": 1, "detailDenominator": 1, "detailsRead": 0, "errorCodes": ["AI_DETAIL_IDENTITY_MISMATCH"] },
+          "voice_ai": { "applicable": true, "complete": false, "itemCount": 1, "detailDenominator": 1, "detailsRead": 0, "errorCodes": ["AI_DETAIL_IDENTITY_MISMATCH"] },
+          "agent_studio": { "applicable": true, "complete": false, "itemCount": 1, "detailDenominator": 1, "detailsRead": 0, "errorCodes": ["AI_DETAIL_IDENTITY_MISMATCH"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DETAIL_IDENTITY_MISMATCH"]
+      }
+    },
+
+    "single-shot-discovery-reports-a-larger-total": {
+      "planBullet": "a pagination/enumeration failure makes that component incomplete (plan line 550)",
+      "why": "The two single-shot discovery routes used to DISCARD a reported total entirely - the total was read below an early `if (!surface.paginated) break;`. Three rows against a reported fifty published complete:true with 47 agents missed and not one warning. There is no page parameter to follow on those routes, but a contradiction is still a contradiction, and the roster has refused to publish without reconciling a total since it shipped. Whether GHL emits `total` on these envelopes at all is UNVERIFIED and is on the Task 7 canary list; if it does not, this branch never fires.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": {
+          "declaredTotal": 50,
+          "discovery": [ { "rows": [ { "_id": "ce-1" }, { "_id": "ce-2" }, { "_id": "ce-3" } ] } ]
+        },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "conversation_ai_agent_discovery": 1, "conversation_ai_agent_detail": 3 },
+        "components": {
+          "conversation_ai": { "applicable": "unknown", "complete": false, "itemCount": 3, "detailDenominator": 3, "detailsRead": 3, "totalHistory": [ 50 ], "errorCodes": ["AI_DISCOVERY_TOTAL_MISMATCH"] },
+          "voice_ai": { "applicable": false, "complete": true, "itemCount": 0 },
+          "agent_studio": { "applicable": false, "complete": true, "itemCount": 0 }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_TOTAL_MISMATCH"]
+      }
+    },
+
+    "discovery-contradicts-itself-with-no-rows": {
+      "planBullet": "an empty surface is complete ONLY after a terminal, schema-valid discovery response (plan line 550); UNKNOWN applicability forces Partial (plan line 552)",
+      "why": "The applicability finding, in its purest shape: `{agents: [], total: 5}`. `applicable` used to be set from `items.length > 0` BEFORE completeness was known, so this published `{applicable:false, complete:false, items:[]}` - the sentence 'this account has no Agent Studio agents' over evidence saying five exist, in exactly the empty-array shape the suite's own blanket invariant forbids. Reachable in production and, before this scenario, unreachable in the corpus, so the invariant never fired.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": { "declaredTotal": 5, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 1, "agent_studio_agent_detail": 0 },
+        "components": {
+          "agent_studio": { "applicable": "unknown", "complete": false, "itemsNull": true, "detailDenominator": 0, "detailsRead": 0, "pagesFetched": 1, "errorCodes": ["AI_DISCOVERY_TOTAL_MISMATCH"] }
+        },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_TOTAL_MISMATCH"]
+      }
+    },
+
+    "duplicate-discovery-id-tombstone-shadows-live": {
+      "planBullet": "a malformed/contradictory discovery response makes that component incomplete (plan lines 527, 550)",
+      "why": "Discovery used to collapse two rows sharing an id into whichever arrived first - silently, while the roster has warned on exactly this shape since it shipped. Here the first row is a confirmed Voice tombstone and the second is a LIVE agent under the same id: the old walk kept the tombstone, reported detailDenominator 0, issued no detail call and published complete:true, classifying a live agent out of the audit. Both rows are now retained (the roster's rule: one of them is wrong and this rail cannot tell which), so the live row keeps its place in the denominator and gets its detail call.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": {
+          "discovery": [ { "rows": [
+            { "_id": "b1", "isDeleted": true, "agentStatus": "INACTIVE" },
+            { "_id": "b1", "name": "Live agent" }
+          ] } ]
+        },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "voiceDetailAgentIds": ["b1"],
+        "components": {
+          "voice_ai": {
+            "applicable": true, "complete": false, "itemCount": 2, "detailDenominator": 1, "detailsRead": 1,
+            "tombstoneIds": ["b1"], "errorCodes": ["AI_DISCOVERY_DUPLICATE_ID_CONFLICT"]
+          }
+        },
+        "warningOccurrences": { "AI_DISCOVERY_DUPLICATE_ID_CONFLICT::voice_ai": 1 },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_DUPLICATE_ID_CONFLICT"]
+      }
+    },
+
+    "duplicate-discovery-id-two-live-rows": {
+      "planBullet": "a malformed/contradictory discovery response makes that component incomplete (plan lines 527, 550)",
+      "why": "The same collapse without any tombstone involved: two live Agent Studio agents sharing an id. One of the two configurations was simply dropped from the bundle and the surface reported complete. The conflicting row is retained but is NOT counted as unique progress and NOT counted toward the reported total - it is not a new agent, it is a second contradictory account of one, which is why declaredTotal is 1 here and the walk still reconciles.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": { "discovery": [ { "rows": [] } ] },
+        "agent_studio": {
+          "declaredTotal": 1,
+          "discovery": [ { "rows": [
+            { "_id": "as-1", "name": "First" },
+            { "_id": "as-1", "name": "Second" }
+          ] } ]
+        }
+      },
+      "expect": {
+        "capabilityCounts": { "agent_studio_agent_discovery": 1, "agent_studio_agent_detail": 2 },
+        "components": {
+          "agent_studio": {
+            "applicable": true, "complete": false, "itemCount": 2, "detailDenominator": 2, "detailsRead": 2,
+            "errorCodes": ["AI_DISCOVERY_DUPLICATE_ID_CONFLICT"]
+          }
+        },
+        "warningOccurrences": { "AI_DISCOVERY_DUPLICATE_ID_CONFLICT::agent_studio": 1 },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["AI_DISCOVERY_DUPLICATE_ID_CONFLICT"]
+      }
+    },
+
+    "bson-wrapped-discovery-ids": {
+      "planBullet": "discovery plus detail for every discovered ID (plan line 527, step 2)",
+      "why": "`{_id:{$oid:'...'}}` is a shape core/audit-gateway.mjs explicitly names as REAL and readable. Unwrapped by String() it becomes '[object Object]' for EVERY row: the second agent is deduped away as a repeat of the first, and the one surviving detail call addresses /voice-ai/agents/%5Bobject%20Object%5D. Two agents in, two agents out, two distinct detail calls - that is the whole assertion.",
+      "input": { "maxPages": 100 },
+      "components": {
+        "conversation_ai": { "discovery": [ { "rows": [] } ] },
+        "voice_ai": {
+          "discovery": [ { "rows": [ { "_id": { "$oid": "b1" } }, { "_id": { "$oid": "b2" } } ] } ],
+          "details": {
+            "b1": { "body": { "_id": { "$oid": "b1" }, "locationId": "LOC1", "name": "First" } },
+            "b2": { "body": { "_id": "b2", "locationId": "LOC1", "name": "Second" } }
+          }
+        },
+        "agent_studio": { "declaredTotal": 0, "discovery": [ { "rows": [] } ] }
+      },
+      "expect": {
+        "voiceDetailAgentIds": ["b1", "b2"],
+        "components": {
+          "voice_ai": { "applicable": true, "complete": true, "itemCount": 2, "detailDenominator": 2, "detailsRead": 2, "errorCodes": [] }
+        },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    }
+  }
+}
