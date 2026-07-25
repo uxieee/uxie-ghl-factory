@@ -262,6 +262,72 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-enrollment-stats-cache",
           "workflow-read",
           "workflow-sticky-notes-list"
+        ],
+        undocumentedCapabilities: [
+          {
+            path: "/workflows/status/enroll-stats",
+            reason: "This tool reads nine routes and only eight of them are cited above; no catalog entry cites a row for the enroll-stats summary. Recorded rather than invented, for the reason given on get_ai_configuration_bundle."
+          }
+        ]
+      },
+      list_workflows_complete: {
+        description: "Walk the whole workflow roster to a reconciled terminal proof \u2014 proof: external-receipt-required; risk: read. The offset walk records every page, applied query, unique-progress step and reported total, and publishes only when the unique count equals a STABLE reported total. A failed page, a conflicting duplicate, a moving total, a stalled offset or an exhausted page budget is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit.",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "workflow-list"
+        ],
+        proofFloorRows: [
+          "workflow-list"
+        ],
+        riskRows: [
+          "workflow-list"
+        ],
+        rows: [
+          "workflow-list"
+        ],
+        undocumentedCapabilities: []
+      },
+      get_ai_configuration_bundle: {
+        description: "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Live canary required before Full audit.",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "entities-ai-employees-agents-list"
+        ],
+        proofFloorRows: [
+          "entities-ai-employees-agents-list"
+        ],
+        riskRows: [
+          "entities-ai-employees-agents-list"
+        ],
+        rows: [
+          "entities-ai-employees-agents-list"
+        ],
+        _rowsNote: "This entry used to also cite `entities-voice-ai-agents-list`, which is the row for list_account_entities's BARE /voice-ai/agents \u2014 precisely the legacy route core/audit-configuration.mjs goes out of its way to disavow. This bundle reads /voice-ai/agents/simple, a different capability with a different receipt, so the citation was removed rather than corrected: the matrix that defines row ids is not in this repository (the README defines none, and a repo-wide grep finds row ids only in this file), so there is no id to correct it to and inventing one would mint documentation provenance that does not exist.",
+        undocumentedCapabilities: [
+          {
+            path: "/voice-ai/agents/simple",
+            reason: "New to the audit descriptor set and cited by no existing catalog entry. The docs capability matrix that defines row ids is not in this repository, so no row id may be invented for it."
+          },
+          {
+            path: "/voice-ai/agents/{agentId}",
+            reason: "The Voice AI per-agent detail route. No catalog entry cites a row for it; see above."
+          },
+          {
+            path: "/ai-employees/employees/{agentId}",
+            reason: "The Conversation AI per-agent detail route. No catalog entry cites a row for it; see above."
+          },
+          {
+            path: "/agent-studio/agents/agents-with-folders",
+            reason: "New to the audit descriptor set and cited by no existing catalog entry; see above."
+          },
+          {
+            path: "/agent-studio/super-agent/agents/{agentId}",
+            reason: "The Agent Studio per-agent detail route. No catalog entry cites a row for it; see above."
+          }
         ]
       },
       get_contacts_at_step: {
@@ -31710,7 +31776,7 @@ import { dirname as dirname2, resolve as resolve3 } from "node:path";
 init_define_TOOL_CATALOG();
 import { fileURLToPath } from "node:url";
 import { dirname, resolve as resolve2 } from "node:path";
-import { createHash as createHash3 } from "node:crypto";
+import { createHash as createHash4 } from "node:crypto";
 
 // core/errors.mjs
 init_define_TOOL_CATALOG();
@@ -31761,6 +31827,12 @@ var CODES = Object.freeze({
   // an inverted or malformed window would otherwise reach the wire, return SOMETHING, and
   // have that something recorded as evidence for a window nobody actually asked for.
   INVALID_RUNTIME_WINDOW: "INVALID_RUNTIME_WINDOW",
+  // The account-surface composites' OWN input fault, separate from INVALID_RUNTIME_WINDOW
+  // for the same reason that one is separate from VALIDATION_FAILED: a caller must be able
+  // to tell "the roster/bundle request I made was never legal" apart from any upstream
+  // refusal. A page budget or a location that never bound is a caller-side fix, never a
+  // reason to retry and never an empty surface.
+  INVALID_AUDIT_CONFIGURATION_INPUT: "INVALID_AUDIT_CONFIGURATION_INPUT",
   // Construction-time audit-rail faults. They are separate from the request-time
   // codes above because they mean the PROCESS is wired wrong: no request could
   // ever have been legal, so there is nothing to checkpoint and resume.
@@ -33482,14 +33554,14 @@ async function collectWorkflowRuntimeWindow({ auditGateway, input } = {}) {
   const warn = (code, component, detail) => {
     warnings.push({ code, component, detail, occurrences: 1, detailSamples: [detail] });
   };
-  const WARNING_DETAIL_SAMPLES = 3;
+  const WARNING_DETAIL_SAMPLES2 = 3;
   const aggregatedWarnings = /* @__PURE__ */ new Map();
   const warnAggregated = (code, component, detail) => {
     const key = `${code}::${component}`;
     const existing = aggregatedWarnings.get(key);
     if (existing) {
       existing.occurrences += 1;
-      if (existing.detailSamples.length < WARNING_DETAIL_SAMPLES && !existing.detailSamples.includes(detail)) {
+      if (existing.detailSamples.length < WARNING_DETAIL_SAMPLES2 && !existing.detailSamples.includes(detail)) {
         existing.detailSamples.push(detail);
       }
       return;
@@ -34079,6 +34151,1066 @@ function pickStats(json2, workflowId) {
   if (!Number.isFinite(total)) return null;
   const finished = Number(mine.finished);
   return { total, finished: Number.isFinite(finished) ? finished : null };
+}
+
+// core/audit-configuration.mjs
+init_define_TOOL_CATALOG();
+import { createHash as createHash2 } from "node:crypto";
+var AUDIT_CONFIGURATION_CONTRACT_VERSION = "1.0.0";
+var ROSTER_MAX_PAGE_SIZE = 100;
+var AI_DISCOVERY_PAGE_SIZE = 100;
+var MAX_PAGE_BUDGET = 1e3;
+var ROSTER_DEFAULTS = Object.freeze({ pageSize: 100, maxPages: 100 });
+var AI_BUNDLE_DEFAULTS = Object.freeze({ maxPages: 100 });
+var AI_BUNDLE_COMPONENTS = Object.freeze(["conversation_ai", "voice_ai", "agent_studio"]);
+var ROSTER_WARNINGS = Object.freeze({
+  ROSTER_DUPLICATE_ID_CONFLICT: "ROSTER_DUPLICATE_ID_CONFLICT",
+  ROSTER_TOTAL_CHANGED: "ROSTER_TOTAL_CHANGED",
+  ROSTER_TOTAL_UNAVAILABLE: "ROSTER_TOTAL_UNAVAILABLE",
+  ROSTER_TOTAL_MISMATCH: "ROSTER_TOTAL_MISMATCH",
+  // The OVER-count, which is a different upstream fault from the under-count above and was
+  // previously reported as neither. Before this code existed, a page carrying MORE unique
+  // rows than its own reported total fell past the equality terminal, past the short-page
+  // test (a full page), past the zero-progress test (it gained rows), and the walk then spent
+  // its entire page budget re-asking for rows that were already in hand — finally blaming
+  // ROSTER_PAGE_BUDGET_EXHAUSTED for a defect that has nothing to do with the budget. It also
+  // left the equality test undefended: relaxing `uniqueCount === reportedTotal` to `>=`
+  // survived the whole suite, because no fixture could ever reach the over-count branch.
+  ROSTER_TOTAL_OVERCOUNT: "ROSTER_TOTAL_OVERCOUNT",
+  ROSTER_EMPTY_PAGE: "ROSTER_EMPTY_PAGE",
+  ROSTER_NO_UNIQUE_PROGRESS: "ROSTER_NO_UNIQUE_PROGRESS",
+  ROSTER_ROW_MALFORMED: "ROSTER_ROW_MALFORMED",
+  ROSTER_ROW_ID_MISSING: "ROSTER_ROW_ID_MISSING",
+  ROSTER_PAGE_BUDGET_EXHAUSTED: "ROSTER_PAGE_BUDGET_EXHAUSTED",
+  ROSTER_PAGE_READ_FAILED: "ROSTER_PAGE_READ_FAILED",
+  IDENTITY_CONFLICT_QUARANTINE: "IDENTITY_CONFLICT_QUARANTINE",
+  IDENTITY_INSPECTION_INCOMPLETE: "IDENTITY_INSPECTION_INCOMPLETE",
+  RATE_LIMITED: "RATE_LIMITED",
+  CIRCUIT_OPEN: "CIRCUIT_OPEN"
+});
+var AI_BUNDLE_WARNINGS = Object.freeze({
+  AI_DISCOVERY_READ_FAILED: "AI_DISCOVERY_READ_FAILED",
+  AI_DISCOVERY_UNREADABLE: "AI_DISCOVERY_UNREADABLE",
+  AI_DISCOVERY_ROW_MALFORMED: "AI_DISCOVERY_ROW_MALFORMED",
+  AI_DISCOVERY_ROW_ID_MISSING: "AI_DISCOVERY_ROW_ID_MISSING",
+  // The AI twin of ROSTER_DUPLICATE_ID_CONFLICT. Discovery used to collapse two rows sharing
+  // an id into whichever arrived first, silently — so a soft-deleted tombstone arriving ahead
+  // of a live agent with the same id classified the LIVE agent out of the audit entirely
+  // (`detailDenominator: 0`, `complete: true`). The roster has warned on exactly this shape
+  // since it shipped; the AI walk merely never looked.
+  AI_DISCOVERY_DUPLICATE_ID_CONFLICT: "AI_DISCOVERY_DUPLICATE_ID_CONFLICT",
+  AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED: "AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED",
+  AI_DISCOVERY_NO_UNIQUE_PROGRESS: "AI_DISCOVERY_NO_UNIQUE_PROGRESS",
+  AI_DISCOVERY_TOTAL_MISMATCH: "AI_DISCOVERY_TOTAL_MISMATCH",
+  // The AI twins of ROSTER_TOTAL_CHANGED and (half of) ROSTER_TOTAL_UNAVAILABLE. The AI walk
+  // used to read `total` per page and reconcile against ONLY the terminal page's copy, keeping
+  // no history at all — so an earlier page's total was discarded in silence. An Agent Studio
+  // discovery that announced `total:500` on page 1 and then went quiet on a short page 2, or
+  // that said 500 and then 150, published 150 agents as the COMPLETE, APPLICABLE surface with
+  // zero warnings. That contradicts this module's own stated AI rule (see the header: a
+  // reported total that disagrees with the rows makes the surface incomplete on EVERY AI
+  // route) and the roster's ROSTER_TOTAL_CHANGED, which has guarded exactly this since it
+  // shipped. Two codes rather than one because an auditor BRANCHES on them and "the number
+  // moved" and "the number was retracted" are different upstream faults.
+  AI_DISCOVERY_TOTAL_CHANGED: "AI_DISCOVERY_TOTAL_CHANGED",
+  AI_DISCOVERY_TOTAL_DISAPPEARED: "AI_DISCOVERY_TOTAL_DISAPPEARED",
+  AI_DETAIL_READ_FAILED: "AI_DETAIL_READ_FAILED",
+  AI_DETAIL_UNREADABLE: "AI_DETAIL_UNREADABLE",
+  // A detail response that is perfectly readable and describes SOMEBODY ELSE. See
+  // readAgentRecord: the record was previously accepted on the strength of carrying an id at
+  // all, never on that id being the one the request was issued for.
+  AI_DETAIL_IDENTITY_MISMATCH: "AI_DETAIL_IDENTITY_MISMATCH",
+  AI_DELETION_SIGNAL_AMBIGUOUS: "AI_DELETION_SIGNAL_AMBIGUOUS",
+  AI_COMPANY_CONTEXT_UNAVAILABLE: "AI_COMPANY_CONTEXT_UNAVAILABLE",
+  AI_RAIL_UNAVAILABLE: "AI_RAIL_UNAVAILABLE",
+  AI_POLICY_REFUSED: "AI_POLICY_REFUSED",
+  IDENTITY_CONFLICT_QUARANTINE: "IDENTITY_CONFLICT_QUARANTINE",
+  IDENTITY_INSPECTION_INCOMPLETE: "IDENTITY_INSPECTION_INCOMPLETE",
+  RATE_LIMITED: "RATE_LIMITED",
+  CIRCUIT_OPEN: "CIRCUIT_OPEN"
+});
+var AI_BUNDLE_ERROR_CODES = Object.freeze([
+  ...new Set([
+    // Every warning code EXCEPT CIRCUIT_OPEN, which is re-thrown by absorbThrow before any
+    // error can be recorded for it: a latched circuit is a fact about the run, not about a
+    // component's read, and admitting it here would advertise a shape this rail never emits.
+    ...Object.values(AI_BUNDLE_WARNINGS).filter((code) => code !== AI_BUNDLE_WARNINGS.CIRCUIT_OPEN),
+    // RETURNED by the gateway as `failureClass` (Task 2 carry-forward).
+    CODES.AUTH_REJECTED,
+    CODES.RATE_LIMITED,
+    CODES.LOCATION_RATE_LIMITED,
+    CODES.INVALID_RESPONSE_BODY,
+    CODES.IDENTITY_CONFLICT,
+    CODES.IDENTITY_INSPECTION_CAPPED,
+    CODES.IDENTITY_DEPTH_CAPPED,
+    CODES.IDENTITY_UNREADABLE,
+    // THROWN by audit policy and absorbed per component by absorbThrow. CIRCUIT_OPEN is
+    // deliberately absent: it is re-thrown, never recorded as a component error.
+    CODES.UNKNOWN_CAPABILITY,
+    CODES.UNKNOWN_CAPABILITY_HOST,
+    CODES.AMBIGUOUS_CAPABILITY,
+    CODES.ABSOLUTE_PATH_REJECTED,
+    CODES.CAPABILITY_TRACE_MISMATCH,
+    CODES.UNAPPROVED_METHOD,
+    CODES.MISSING_PATH_BINDING,
+    CODES.INVALID_PATH_BINDING,
+    CODES.UNKNOWN_QUERY_KEY,
+    CODES.MISSING_QUERY_KEY,
+    CODES.DUPLICATE_QUERY_KEY,
+    CODES.FIXED_QUERY_VALUE_MISMATCH,
+    CODES.DISALLOWED_QUERY_VALUE,
+    CODES.QUERY_BOUND_VIOLATION,
+    CODES.BINDING_MISMATCH,
+    CODES.LOCATION_BINDING_MISMATCH,
+    CODES.MISSING_AUTH_RAIL,
+    CODES.TRANSPORT_FAILED,
+    CODES.INVALID_CIRCUIT_SCOPE,
+    CODES.IDENTITY_INSPECTION_FAILED,
+    // The absorbThrow fallback for an error carrying no `.code` at all.
+    CODES.ENGINE_ABORT
+  ].filter((code) => typeof code === "string"))
+].sort());
+var AI_SURFACES = Object.freeze({
+  conversation_ai: Object.freeze({
+    discoveryCapabilityId: "conversation_ai_agent_discovery",
+    detailCapabilityId: "conversation_ai_agent_detail",
+    paginated: false,
+    requiresCompany: false
+  }),
+  voice_ai: Object.freeze({
+    discoveryCapabilityId: "voice_ai_agent_discovery",
+    detailCapabilityId: "voice_ai_agent_detail",
+    paginated: false,
+    requiresCompany: false,
+    // The Voice discovery route is the only one on which a soft-deleted tombstone has been
+    // observed, and its detail route is forbidden for such a row. The rule is stated for
+    // THIS route only: applying it to a product whose deletion schema this rail has never
+    // seen would drop a live configuration on the strength of a guess.
+    tombstonesApply: true
+  }),
+  agent_studio: Object.freeze({
+    discoveryCapabilityId: "agent_studio_agent_discovery",
+    detailCapabilityId: "agent_studio_agent_detail",
+    paginated: true,
+    requiresCompany: true
+  })
+});
+var ROSTER_CAPABILITY_IDS = Object.freeze(["workflow_roster_list"]);
+var AI_BUNDLE_CAPABILITY_IDS = Object.freeze([
+  "conversation_ai_agent_discovery",
+  "conversation_ai_agent_detail",
+  "voice_ai_agent_discovery",
+  "voice_ai_agent_detail",
+  "agent_studio_agent_discovery",
+  "agent_studio_agent_detail"
+]);
+var canonicalize2 = (value) => {
+  if (Array.isArray(value)) return value.map(canonicalize2);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize2(value[key])]));
+  }
+  return value;
+};
+var sha256Canonical2 = (value) => createHash2("sha256").update(JSON.stringify(canonicalize2(value))).digest("hex");
+function resolveConfigurationDescriptors(capabilityIds, descriptors = AUDIT_CAPABILITIES) {
+  return capabilityIds.map((capabilityId) => {
+    const descriptor2 = descriptors.find((candidate) => candidate.capabilityId === capabilityId);
+    if (!descriptor2) {
+      throw new Error(`AUDIT_CONFIGURATION_DESCRIPTOR_MISSING: ${capabilityId} is not in the audit descriptor set`);
+    }
+    return descriptor2;
+  });
+}
+var ROSTER_CAPABILITY_VERSION = `sha256:${sha256Canonical2(resolveConfigurationDescriptors(ROSTER_CAPABILITY_IDS))}`;
+var AI_BUNDLE_CAPABILITY_VERSION = `sha256:${sha256Canonical2(resolveConfigurationDescriptors(AI_BUNDLE_CAPABILITY_IDS))}`;
+var invalidInput = (detail) => {
+  const error51 = new Error(`${CODES.INVALID_AUDIT_CONFIGURATION_INPUT}: ${detail}`);
+  error51.code = CODES.INVALID_AUDIT_CONFIGURATION_INPUT;
+  error51.detail = detail;
+  error51.remediation = "Pass a non-empty locationId bound to this audit gateway, an in-range page budget, and (for the AI bundle) a non-empty companyId when Agent Studio must be read.";
+  return error51;
+};
+var isNonEmptyString2 = (value) => typeof value === "string" && value.trim() !== "";
+var boundedInteger2 = (value, { min, max, fallback, name }) => {
+  if (value === void 0) return fallback;
+  if (!Number.isSafeInteger(value) || value < min || value > max) {
+    throw invalidInput(`${name} must be an integer between ${min} and ${max}`);
+  }
+  return value;
+};
+function validateRosterInput(input = {}) {
+  const source = input ?? {};
+  if (!isNonEmptyString2(source.locationId)) throw invalidInput("locationId must be a non-empty string");
+  return {
+    locationId: source.locationId,
+    pageSize: boundedInteger2(source.pageSize, { min: 1, max: ROSTER_MAX_PAGE_SIZE, fallback: ROSTER_DEFAULTS.pageSize, name: "pageSize" }),
+    maxPages: boundedInteger2(source.maxPages, { min: 1, max: MAX_PAGE_BUDGET, fallback: ROSTER_DEFAULTS.maxPages, name: "maxPages" })
+  };
+}
+function validateAiBundleInput(input = {}) {
+  const source = input ?? {};
+  if (!isNonEmptyString2(source.locationId)) throw invalidInput("locationId must be a non-empty string");
+  if (source.companyId !== void 0 && !isNonEmptyString2(source.companyId)) {
+    throw invalidInput("companyId must be a non-empty string when supplied");
+  }
+  return {
+    locationId: source.locationId,
+    companyId: source.companyId ?? null,
+    maxPages: boundedInteger2(source.maxPages, { min: 1, max: MAX_PAGE_BUDGET, fallback: AI_BUNDLE_DEFAULTS.maxPages, name: "maxPages" })
+  };
+}
+var bindGateway = (auditGateway, locationId) => {
+  if (!auditGateway || typeof auditGateway.callCapability !== "function") {
+    throw invalidInput("an audit gateway exposing callCapability is required");
+  }
+  const boundLocationId = auditGateway.locationId ?? locationId;
+  if (String(boundLocationId) !== locationId) {
+    throw invalidInput("the requested locationId is not the location this audit gateway is bound to");
+  }
+  return String(boundLocationId);
+};
+var rowsOf2 = (json2, ...keys) => {
+  if (Array.isArray(json2)) return json2;
+  if (!json2 || typeof json2 !== "object") return null;
+  for (const key of keys) if (Array.isArray(json2[key])) return json2[key];
+  return null;
+};
+var ID_WRAPPER_KEYS2 = ["$oid", "_id", "id"];
+var unwrapId = (raw) => {
+  if (raw === null || raw === void 0) return null;
+  if (typeof raw !== "object") return raw;
+  if (Array.isArray(raw)) return null;
+  for (const key of ID_WRAPPER_KEYS2) {
+    if (!Object.hasOwn(raw, key)) continue;
+    const inner = raw[key];
+    return inner !== null && inner !== void 0 && typeof inner !== "object" ? inner : null;
+  }
+  return null;
+};
+var idOf2 = (row) => {
+  if (row === null || row === void 0) return null;
+  for (const key of ["_id", "id"]) {
+    const raw = unwrapId(row[key]);
+    if (raw === null) continue;
+    const value = String(raw);
+    if (value !== "") return value;
+  }
+  return null;
+};
+var contentHashOf2 = (row) => {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return sha256Canonical2(row ?? null);
+  const normalized = { ...row };
+  for (const key of ["_id", "id"]) {
+    if (!Object.hasOwn(normalized, key)) continue;
+    const unwrapped = unwrapId(normalized[key]);
+    if (unwrapped !== null) normalized[key] = String(unwrapped);
+  }
+  return sha256Canonical2(normalized);
+};
+var makeRowKeyer2 = () => {
+  const idlessOccurrences = /* @__PURE__ */ new Map();
+  return (row) => {
+    const id = idOf2(row);
+    if (id !== null) return `id:${id}`;
+    const hash2 = contentHashOf2(row);
+    const occurrence = idlessOccurrences.get(hash2) ?? 0;
+    idlessOccurrences.set(hash2, occurrence + 1);
+    return `noid:${hash2}#${occurrence}`;
+  };
+};
+var readTotal = (json2) => {
+  const raw = json2?.total;
+  return Number.isFinite(raw) ? Number(raw) : null;
+};
+var WARNING_DETAIL_SAMPLES = 3;
+function makeWarningLog() {
+  const warnings = [];
+  const aggregated = /* @__PURE__ */ new Map();
+  return {
+    warnings,
+    warn(code, component, detail) {
+      warnings.push({ code, component, detail, detailSamples: [detail], occurrences: 1 });
+    },
+    // ROW-SCOPED warnings are AGGREGATED, one object per (code, component). A code that
+    // fires per row is unbounded in the size of the account's data, and 20,000 copies of one
+    // sentence is not evidence but ballast in an artifact that is serialized over stdio and
+    // hashed whole into the proof ledger.
+    //
+    // The `component` half of the key is LOAD-BEARING HERE, unlike in Task 3 where every
+    // call site passed one component and the half was unreachable. This bundle has three
+    // independent surfaces, and one aggregated code firing on two of them must produce TWO
+    // objects with independent counters — otherwise an auditor reading `occurrences: 3`
+    // cannot tell one badly-shaped surface from three.
+    warnAggregated(code, component, detail) {
+      const key = `${code}::${component}`;
+      const existing = aggregated.get(key);
+      if (existing) {
+        existing.occurrences += 1;
+        if (existing.detailSamples.length < WARNING_DETAIL_SAMPLES && !existing.detailSamples.includes(detail)) {
+          existing.detailSamples.push(detail);
+        }
+        return;
+      }
+      const entry = { code, component, detail, detailSamples: [detail], occurrences: 1 };
+      aggregated.set(key, entry);
+      warnings.push(entry);
+    }
+  };
+}
+var warningForFailure = (failureClass, fallbackCode) => {
+  if (failureClass === CODES.RATE_LIMITED || failureClass === CODES.LOCATION_RATE_LIMITED) return "RATE_LIMITED";
+  if (failureClass === CODES.IDENTITY_CONFLICT) return "IDENTITY_CONFLICT_QUARANTINE";
+  if (failureClass === CODES.IDENTITY_INSPECTION_CAPPED || failureClass === CODES.IDENTITY_DEPTH_CAPPED || failureClass === CODES.IDENTITY_UNREADABLE) {
+    return "IDENTITY_INSPECTION_INCOMPLETE";
+  }
+  return fallbackCode;
+};
+var failureDetail = (response, capabilityId) => `capability ${response.capabilityId ?? capabilityId} returned ${response.failureClass ?? "an unusable response"} (status ${response.status ?? "unknown"})`;
+async function listWorkflowsComplete({ auditGateway, input } = {}) {
+  const config2 = validateRosterInput(input);
+  const boundLocationId = bindGateway(auditGateway, config2.locationId);
+  const { warnings, warn, warnAggregated } = makeWarningLog();
+  const appliedQueries = [];
+  const sourceRoutes = [];
+  const conflicts = [];
+  const bindingMethods = /* @__PURE__ */ new Set();
+  const rateLimit = { limited: false, retryAfterMs: null };
+  const pagination = { attempted: 0, fetched: 0, exhausted: false, budget: config2.maxPages };
+  const totalHistory = [];
+  const uniqueProgress = [];
+  const seenIds = /* @__PURE__ */ new Map();
+  const conflictedIds = /* @__PURE__ */ new Set();
+  let capturedAt = null;
+  let quarantined = false;
+  let identityIncomplete2 = false;
+  let workflows = null;
+  let uniqueCount = 0;
+  let reportedTotal = null;
+  let terminalReason = null;
+  const read = async (query) => {
+    const response = await auditGateway.callCapability({
+      capabilityId: "workflow_roster_list",
+      typedBindings: { locationId: boundLocationId },
+      query
+    });
+    appliedQueries.push({ capabilityId: "workflow_roster_list", query });
+    sourceRoutes.push({
+      capabilityId: "workflow_roster_list",
+      // The gateway resolves the HOST as well as the path, and a receipt reader who only
+      // sees the path cannot tell which rail answered.
+      host: response.host,
+      appliedPath: response.appliedPath,
+      appliedQuery: response.appliedQuery,
+      status: response.status,
+      ok: response.ok,
+      failureClass: response.failureClass,
+      capturedAt: response.capturedAt
+    });
+    if (capturedAt === null && typeof response.capturedAt === "string") capturedAt = response.capturedAt;
+    const identity = response.identity;
+    if (identity && typeof identity === "object") {
+      if (typeof identity.bindingMethod === "string") bindingMethods.add(identity.bindingMethod);
+      for (const conflict of identity.conflicts ?? []) conflicts.push({ capabilityId: "workflow_roster_list", ...conflict });
+      if (identity.inspectionCapped || identity.depthCapped || (identity.unreadable ?? []).length > 0) {
+        identityIncomplete2 = true;
+      }
+    }
+    if (response.quarantined === true) quarantined = true;
+    if (response.failureClass === CODES.RATE_LIMITED || response.failureClass === CODES.LOCATION_RATE_LIMITED) {
+      rateLimit.limited = true;
+      if (typeof response.retryAfterMs === "number") rateLimit.retryAfterMs = response.retryAfterMs;
+    }
+    return response;
+  };
+  const finalize2 = () => {
+    if (rateLimit.limited && !warnings.some((entry) => entry.code === ROSTER_WARNINGS.RATE_LIMITED)) {
+      warn(
+        ROSTER_WARNINGS.RATE_LIMITED,
+        "workflow_roster",
+        "a read in this walk was throttled by the account, so the roster is provably less than the whole one"
+      );
+    }
+    const complete = warnings.length === 0 && !rateLimit.limited;
+    return {
+      appliedQueries,
+      boundLocationId,
+      capabilityVersion: ROSTER_CAPABILITY_VERSION,
+      capturedAt,
+      complete,
+      locationBinding: {
+        // Absence records request-scope binding: a weaker claim than a native match but
+        // still evidence. Downgrading absence to a failure would make most of this API
+        // unreadable; upgrading it to a native match would claim proof that does not exist.
+        bindingMethod: bindingMethods.size === 1 ? [...bindingMethods][0] : bindingMethods.size === 0 ? "request_scope" : "mixed",
+        quarantined,
+        conflicts,
+        inspectionIncomplete: identityIncomplete2
+      },
+      pagination,
+      rateLimit,
+      reportedTotal,
+      sourceRoutes,
+      terminalReason,
+      totalHistory,
+      truncated: !complete,
+      uniqueCount,
+      uniqueProgress,
+      warnings,
+      workflows
+    };
+  };
+  try {
+    await walk2();
+    return finalize2();
+  } catch (error51) {
+    if (error51 && error51.code === CODES.CIRCUIT_OPEN) {
+      warn(
+        ROSTER_WARNINGS.CIRCUIT_OPEN,
+        "workflow_roster",
+        `the audit circuit latched mid-walk (${error51.meta?.scope ?? "unknown scope"}/${error51.meta?.reason ?? "unknown reason"}); everything read before the latch is attached to error.partial`
+      );
+      error51.partial = finalize2();
+    }
+    throw error51;
+  }
+  async function walk2() {
+    let offset = 0;
+    for (; ; ) {
+      if (pagination.attempted >= pagination.budget) {
+        pagination.exhausted = true;
+        warn(
+          ROSTER_WARNINGS.ROSTER_PAGE_BUDGET_EXHAUSTED,
+          "workflow_roster",
+          `the roster page budget of ${pagination.budget} was spent with rows still unread`
+        );
+        return;
+      }
+      const query = {
+        type: "workflow",
+        limit: String(config2.pageSize),
+        offset: String(offset),
+        sortBy: "name",
+        sortOrder: "asc",
+        includeCustomObjects: "true",
+        includeObjectiveBuilder: "true"
+      };
+      pagination.attempted += 1;
+      const response = await read(query);
+      if (!response.ok) {
+        warn(
+          warningForFailure(response.failureClass, ROSTER_WARNINGS.ROSTER_PAGE_READ_FAILED),
+          "workflow_roster",
+          failureDetail(response, "workflow_roster_list")
+        );
+        return;
+      }
+      const rows = rowsOf2(response.json, "workflows", "data");
+      if (rows === null) {
+        warn(
+          ROSTER_WARNINGS.ROSTER_PAGE_READ_FAILED,
+          "workflow_roster",
+          "the roster response carried no readable workflow list"
+        );
+        return;
+      }
+      pagination.fetched += 1;
+      if (workflows === null) workflows = [];
+      let gained = 0;
+      for (const row of rows) {
+        if (!row || typeof row !== "object" || Array.isArray(row)) {
+          warnAggregated(
+            ROSTER_WARNINGS.ROSTER_ROW_MALFORMED,
+            "workflow_roster",
+            "a roster row was not an object and cannot be counted toward the reported total"
+          );
+          continue;
+        }
+        const id = idOf2(row);
+        if (id === null) {
+          warnAggregated(
+            ROSTER_WARNINGS.ROSTER_ROW_ID_MISSING,
+            "workflow_roster",
+            "a roster row carried neither _id nor id and cannot be counted toward the reported total"
+          );
+          continue;
+        }
+        const hash2 = contentHashOf2(row);
+        const hashes = seenIds.get(id);
+        if (hashes === void 0) {
+          seenIds.set(id, /* @__PURE__ */ new Set([hash2]));
+          uniqueCount += 1;
+          gained += 1;
+          workflows.push(row);
+          continue;
+        }
+        if (hashes.has(hash2)) continue;
+        hashes.add(hash2);
+        workflows.push(row);
+        if (!conflictedIds.has(id)) {
+          conflictedIds.add(id);
+          warnAggregated(
+            ROSTER_WARNINGS.ROSTER_DUPLICATE_ID_CONFLICT,
+            "workflow_roster",
+            `two roster rows share an id but not a content hash (${hashes.size} distinct payloads)`
+          );
+        }
+      }
+      uniqueProgress.push(gained);
+      const pageTotal = readTotal(response.json);
+      totalHistory.push(pageTotal);
+      if (pageTotal === null) {
+        warn(
+          ROSTER_WARNINGS.ROSTER_TOTAL_UNAVAILABLE,
+          "workflow_roster",
+          "the roster response reported no total, so the unique count cannot be reconciled against a terminal proof"
+        );
+        return;
+      }
+      if (reportedTotal === null) {
+        reportedTotal = pageTotal;
+      } else if (pageTotal !== reportedTotal) {
+        reportedTotal = pageTotal;
+        warn(
+          ROSTER_WARNINGS.ROSTER_TOTAL_CHANGED,
+          "workflow_roster",
+          "the reported total changed mid-walk, so no fixed target remains to reconcile the unique count against"
+        );
+        return;
+      }
+      if (uniqueCount === reportedTotal) {
+        terminalReason = "unique_count_equals_reported_total";
+        return;
+      }
+      if (uniqueCount > reportedTotal) {
+        warn(
+          ROSTER_WARNINGS.ROSTER_TOTAL_OVERCOUNT,
+          "workflow_roster",
+          `the walk holds ${uniqueCount} unique workflows against a smaller reported total of ${reportedTotal}, so the total is not a terminal proof`
+        );
+        return;
+      }
+      if (rows.length === 0) {
+        warn(
+          ROSTER_WARNINGS.ROSTER_EMPTY_PAGE,
+          "workflow_roster",
+          "a zero-row page arrived below the reported total, which is a false terminal rather than the end of the roster"
+        );
+        return;
+      }
+      if (gained === 0) {
+        warn(
+          ROSTER_WARNINGS.ROSTER_NO_UNIQUE_PROGRESS,
+          "workflow_roster",
+          "a page added no unique workflow while the unique count was still below the reported total"
+        );
+        return;
+      }
+      if (rows.length < config2.pageSize) {
+        warn(
+          ROSTER_WARNINGS.ROSTER_TOTAL_MISMATCH,
+          "workflow_roster",
+          `the walk ran out of rows at ${uniqueCount} unique workflows against a reported total of ${reportedTotal}`
+        );
+        return;
+      }
+      offset += rows.length;
+    }
+  }
+}
+var signalOf = (row, field, positive, negative) => {
+  if (!Object.hasOwn(row, field)) return "absent";
+  if (row[field] === positive) return "positive";
+  if (row[field] === negative) return "negative";
+  return "unknown";
+};
+var gradeDeletionSignals = (row) => {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return "unreadable";
+  const deleted = signalOf(row, "isDeleted", true, false);
+  const status = signalOf(row, "agentStatus", "INACTIVE", "ACTIVE");
+  if (deleted === "positive" && status === "positive") return "tombstone";
+  if ((deleted === "negative" || deleted === "absent") && (status === "negative" || status === "absent")) return "live";
+  return "ambiguous";
+};
+var readAgentRecord = (json2) => {
+  if (!json2 || typeof json2 !== "object" || Array.isArray(json2)) return null;
+  for (const key of ["agent", "employee", "data"]) {
+    const nested = json2[key];
+    if (nested && typeof nested === "object" && !Array.isArray(nested) && idOf2(nested) !== null) return nested;
+  }
+  return idOf2(json2) === null ? null : json2;
+};
+async function getAiConfigurationBundle({ auditGateway, input } = {}) {
+  const config2 = validateAiBundleInput(input);
+  const boundLocationId = bindGateway(auditGateway, config2.locationId);
+  const { warnings, warn, warnAggregated } = makeWarningLog();
+  const appliedQueries = [];
+  const conflicts = [];
+  const bindingMethods = /* @__PURE__ */ new Set();
+  const rateLimit = { limited: false, retryAfterMs: null };
+  let capturedAt = null;
+  let quarantined = false;
+  let identityIncomplete2 = false;
+  const components = {};
+  for (const name of AI_BUNDLE_COMPONENTS) {
+    components[name] = {
+      applicable: "unknown",
+      complete: false,
+      detailDenominator: 0,
+      detailsRead: 0,
+      errors: [],
+      items: null,
+      pages: {
+        attempted: 0,
+        fetched: 0,
+        exhausted: false,
+        // `null`, not `config.maxPages`, on the two SINGLE-SHOT surfaces. Their descriptors
+        // declare no page parameter, so the budget is never consulted and never can be:
+        // reporting a number there described a limit that does not apply to this surface, and
+        // a reader comparing `attempted` against it would conclude there was headroom left
+        // when there was never a second page to spend it on.
+        budget: AI_SURFACES[name].paginated ? config2.maxPages : null
+      },
+      sourceRoutes: [],
+      // One entry per page READ, `null` where that page reported no total — the roster's
+      // `totalHistory`, per component, and published for the same reason: a walk whose whole
+      // output is a count must let a reviewer see every number the upstream gave it, not just
+      // the last one. `[]` on a component that never read a page is not a claim about totals;
+      // `pages.fetched` already says nothing was read.
+      totalHistory: []
+    };
+  }
+  const errorIndex = /* @__PURE__ */ new Map();
+  const recordError = (component, code, capabilityId, phase, detail2) => {
+    const key = `${code}::${capabilityId}::${phase}`;
+    let perComponent = errorIndex.get(component);
+    if (perComponent === void 0) {
+      perComponent = /* @__PURE__ */ new Map();
+      errorIndex.set(component, perComponent);
+    }
+    const existing = perComponent.get(key);
+    if (existing) {
+      existing.occurrences += 1;
+      if (existing.detailSamples.length < WARNING_DETAIL_SAMPLES && !existing.detailSamples.includes(detail2)) {
+        existing.detailSamples.push(detail2);
+      }
+      return;
+    }
+    const entry = { code, capabilityId, phase, detail: detail2, detailSamples: [detail2], occurrences: 1 };
+    perComponent.set(key, entry);
+    components[component].errors.push(entry);
+  };
+  const read = async (component, capabilityId, typedBindings, query) => {
+    const response = await auditGateway.callCapability({ capabilityId, typedBindings, query });
+    appliedQueries.push({ capabilityId, component, query });
+    components[component].sourceRoutes.push({
+      capabilityId,
+      host: response.host,
+      appliedPath: response.appliedPath,
+      appliedQuery: response.appliedQuery,
+      status: response.status,
+      ok: response.ok,
+      failureClass: response.failureClass,
+      capturedAt: response.capturedAt
+    });
+    if (capturedAt === null && typeof response.capturedAt === "string") capturedAt = response.capturedAt;
+    const identity = response.identity;
+    if (identity && typeof identity === "object") {
+      if (typeof identity.bindingMethod === "string") bindingMethods.add(identity.bindingMethod);
+      for (const conflict of identity.conflicts ?? []) conflicts.push({ capabilityId, ...conflict });
+      if (identity.inspectionCapped || identity.depthCapped || (identity.unreadable ?? []).length > 0) {
+        identityIncomplete2 = true;
+      }
+    }
+    if (response.quarantined === true) quarantined = true;
+    if (response.failureClass === CODES.RATE_LIMITED || response.failureClass === CODES.LOCATION_RATE_LIMITED) {
+      rateLimit.limited = true;
+      if (typeof response.retryAfterMs === "number") rateLimit.retryAfterMs = response.retryAfterMs;
+    }
+    return response;
+  };
+  const absorbThrow = (error51, component, capabilityId, phase) => {
+    if (error51 && error51.code === CODES.CIRCUIT_OPEN) throw error51;
+    const code = error51?.code ?? CODES.ENGINE_ABORT;
+    recordError(component, code, capabilityId, phase, error51?.detail ?? `capability ${capabilityId} was refused before it reached the wire`);
+    warn(
+      code === CODES.MISSING_AUTH_RAIL ? AI_BUNDLE_WARNINGS.AI_RAIL_UNAVAILABLE : AI_BUNDLE_WARNINGS.AI_POLICY_REFUSED,
+      component,
+      `capability ${capabilityId} was refused by audit policy with ${code}`
+    );
+  };
+  const finalize2 = () => {
+    if (rateLimit.limited && !warnings.some((entry) => entry.code === AI_BUNDLE_WARNINGS.RATE_LIMITED)) {
+      warn(
+        AI_BUNDLE_WARNINGS.RATE_LIMITED,
+        "run",
+        "a read in this sweep was throttled by the account, so at least one surface returned less than it would have"
+      );
+    }
+    const complete = warnings.length === 0 && !rateLimit.limited;
+    return {
+      appliedQueries,
+      boundLocationId,
+      capabilityVersion: AI_BUNDLE_CAPABILITY_VERSION,
+      capturedAt,
+      companyId: config2.companyId,
+      complete,
+      components,
+      contractVersion: AUDIT_CONFIGURATION_CONTRACT_VERSION,
+      locationBinding: {
+        bindingMethod: bindingMethods.size === 1 ? [...bindingMethods][0] : bindingMethods.size === 0 ? "request_scope" : "mixed",
+        quarantined,
+        conflicts,
+        inspectionIncomplete: identityIncomplete2
+      },
+      rateLimit,
+      truncated: !complete,
+      warnings
+    };
+  };
+  try {
+    for (const name of AI_BUNDLE_COMPONENTS) await sweep(name);
+    return finalize2();
+  } catch (error51) {
+    if (error51 && error51.code === CODES.CIRCUIT_OPEN) {
+      warn(
+        AI_BUNDLE_WARNINGS.CIRCUIT_OPEN,
+        "run",
+        `the audit circuit latched mid-sweep (${error51.meta?.scope ?? "unknown scope"}/${error51.meta?.reason ?? "unknown reason"}); everything read before the latch is attached to error.partial`
+      );
+      error51.partial = finalize2();
+    }
+    throw error51;
+  }
+  async function sweep(name) {
+    const surface = AI_SURFACES[name];
+    const component = components[name];
+    const discovered = await discover(name, surface, component);
+    if (discovered === null) return;
+    const { items, reconciled } = discovered;
+    if (!reconciled && items.length === 0) return;
+    component.items = items;
+    component.applicable = reconciled ? items.length > 0 : "unknown";
+    component.detailDenominator = items.filter((item) => item.tombstone !== true).length;
+    await detail(name, surface, component);
+    component.complete = component.errors.length === 0 && !warnings.some((entry) => entry.component === name);
+  }
+  async function discover(name, surface, component) {
+    const discoveryCapabilityId = surface.discoveryCapabilityId;
+    if (surface.requiresCompany && config2.companyId === null) {
+      recordError(
+        name,
+        AI_BUNDLE_WARNINGS.AI_COMPANY_CONTEXT_UNAVAILABLE,
+        discoveryCapabilityId,
+        "discovery",
+        "the bundle was given no companyId, and this discovery route binds agencyId to it"
+      );
+      warn(
+        AI_BUNDLE_WARNINGS.AI_COMPANY_CONTEXT_UNAVAILABLE,
+        name,
+        `capability ${discoveryCapabilityId} needs the typed company context, which this run does not have`
+      );
+      return null;
+    }
+    const items = [];
+    const seen = /* @__PURE__ */ new Set();
+    const idHashes = /* @__PURE__ */ new Map();
+    const conflictedIds = /* @__PURE__ */ new Set();
+    let readAny = false;
+    let reportedTotal = null;
+    let reconciled = false;
+    for (let page = 1; ; page += 1) {
+      if (surface.paginated && component.pages.attempted >= component.pages.budget) {
+        component.pages.exhausted = true;
+        recordError(
+          name,
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED,
+          discoveryCapabilityId,
+          "discovery",
+          `the discovery page budget of ${component.pages.budget} was spent with agents still undiscovered`
+        );
+        warn(
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_PAGE_BUDGET_EXHAUSTED,
+          name,
+          `the ${name} discovery page budget of ${component.pages.budget} was spent with agents still undiscovered`
+        );
+        break;
+      }
+      const query = surface.paginated ? {
+        locationId: boundLocationId,
+        agencyId: config2.companyId,
+        productId: "superagent",
+        page: String(page),
+        pageSize: String(AI_DISCOVERY_PAGE_SIZE),
+        groupBy: "foldersFirst",
+        sortBy: "lastUpdated",
+        sortOrder: "desc"
+      } : { locationId: boundLocationId };
+      const typedBindings = surface.paginated ? { locationId: boundLocationId, companyId: config2.companyId } : { locationId: boundLocationId };
+      component.pages.attempted += 1;
+      let response;
+      try {
+        response = await read(name, discoveryCapabilityId, typedBindings, query);
+      } catch (error51) {
+        absorbThrow(error51, name, discoveryCapabilityId, "discovery");
+        break;
+      }
+      if (!response.ok) {
+        recordError(
+          name,
+          response.failureClass ?? CODES.INVALID_RESPONSE_BODY,
+          discoveryCapabilityId,
+          "discovery",
+          failureDetail(response, discoveryCapabilityId)
+        );
+        warn(
+          warningForFailure(response.failureClass, AI_BUNDLE_WARNINGS.AI_DISCOVERY_READ_FAILED),
+          name,
+          failureDetail(response, discoveryCapabilityId)
+        );
+        break;
+      }
+      const rows = rowsOf2(response.json, "agents", "employees", "data", "items");
+      if (rows === null) {
+        recordError(
+          name,
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_UNREADABLE,
+          discoveryCapabilityId,
+          "discovery",
+          "the discovery response carried no readable agent list"
+        );
+        warn(
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_UNREADABLE,
+          name,
+          `capability ${discoveryCapabilityId} answered 200 with an envelope this rail cannot read`
+        );
+        break;
+      }
+      component.pages.fetched += 1;
+      readAny = true;
+      const keyer = makeRowKeyer2();
+      let gained = 0;
+      for (const row of rows) {
+        const key = keyer(row);
+        const id = idOf2(row);
+        if (seen.has(key)) {
+          if (id === null) continue;
+          const hash2 = contentHashOf2(row);
+          const hashes = idHashes.get(id);
+          if (hashes.has(hash2)) continue;
+          hashes.add(hash2);
+          if (!conflictedIds.has(id)) {
+            conflictedIds.add(id);
+            warnAggregated(
+              AI_BUNDLE_WARNINGS.AI_DISCOVERY_DUPLICATE_ID_CONFLICT,
+              name,
+              `two ${name} discovery rows share an id but not a content hash (${hashes.size} distinct payloads)`
+            );
+            recordError(
+              name,
+              AI_BUNDLE_WARNINGS.AI_DISCOVERY_DUPLICATE_ID_CONFLICT,
+              discoveryCapabilityId,
+              "discovery",
+              "two discovery rows share an id but not a content hash"
+            );
+          }
+        } else {
+          seen.add(key);
+          gained += 1;
+          if (id !== null) idHashes.set(id, /* @__PURE__ */ new Set([contentHashOf2(row)]));
+        }
+        const grade = gradeDeletionSignals(row);
+        if (grade === "unreadable") {
+          warnAggregated(
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_ROW_MALFORMED,
+            name,
+            "a discovery row was not an object, so no detail route can ever be addressed for it"
+          );
+          recordError(
+            name,
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_ROW_MALFORMED,
+            discoveryCapabilityId,
+            "discovery",
+            "a discovery row was not an object"
+          );
+        } else if (id === null) {
+          warnAggregated(
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_ROW_ID_MISSING,
+            name,
+            "a discovery row carried neither _id nor id, so its detail route can never be addressed"
+          );
+          recordError(
+            name,
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_ROW_ID_MISSING,
+            discoveryCapabilityId,
+            "discovery",
+            "a discovery row carried no id"
+          );
+        } else if (grade === "ambiguous") {
+          warnAggregated(
+            AI_BUNDLE_WARNINGS.AI_DELETION_SIGNAL_AMBIGUOUS,
+            name,
+            "a discovery row carried one deletion signal without the other, so its lifecycle state is unknown"
+          );
+        }
+        items.push({
+          id,
+          row,
+          // Only the Voice route's tombstones are recognised, and only on a schema-valid row.
+          tombstone: surface.tombstonesApply === true && grade === "tombstone",
+          detailRead: false,
+          detail: null
+        });
+      }
+      const pageTotal = readTotal(response.json);
+      component.totalHistory.push(pageTotal);
+      if (pageTotal === null) {
+        if (reportedTotal !== null) {
+          recordError(
+            name,
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_TOTAL_DISAPPEARED,
+            discoveryCapabilityId,
+            "discovery",
+            `a later discovery page stopped reporting the total of ${reportedTotal} this walk had latched`
+          );
+          warn(
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_TOTAL_DISAPPEARED,
+            name,
+            `${name} discovery reported a total of ${reportedTotal} and then a later page reported none, so no fixed target remains`
+          );
+          break;
+        }
+      } else if (reportedTotal === null) {
+        reportedTotal = pageTotal;
+      } else if (pageTotal !== reportedTotal) {
+        recordError(
+          name,
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_TOTAL_CHANGED,
+          discoveryCapabilityId,
+          "discovery",
+          `the reported total moved from ${reportedTotal} to ${pageTotal} mid-walk`
+        );
+        warn(
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_TOTAL_CHANGED,
+          name,
+          `${name} discovery changed its reported total from ${reportedTotal} to ${pageTotal} mid-walk, so no fixed target remains to reconcile against`
+        );
+        break;
+      }
+      const reconcileTotal = () => {
+        if (reportedTotal !== null && seen.size !== reportedTotal) {
+          recordError(
+            name,
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_TOTAL_MISMATCH,
+            discoveryCapabilityId,
+            "discovery",
+            `discovery ran out of rows at ${seen.size} agents against a reported total of ${reportedTotal}`
+          );
+          warn(
+            AI_BUNDLE_WARNINGS.AI_DISCOVERY_TOTAL_MISMATCH,
+            name,
+            `${name} discovery ran out of rows at ${seen.size} agents against a reported total of ${reportedTotal}`
+          );
+          return;
+        }
+        reconciled = true;
+      };
+      if (!surface.paginated) {
+        reconcileTotal();
+        break;
+      }
+      if (rows.length < AI_DISCOVERY_PAGE_SIZE) {
+        reconcileTotal();
+        break;
+      }
+      if (gained === 0) {
+        recordError(
+          name,
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_NO_UNIQUE_PROGRESS,
+          discoveryCapabilityId,
+          "discovery",
+          "a full discovery page added no new agent, so the page parameter is not advancing the collection"
+        );
+        warn(
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_NO_UNIQUE_PROGRESS,
+          name,
+          `${name} discovery returned a full page that added no new agent`
+        );
+        break;
+      }
+    }
+    return readAny ? { items, reconciled } : null;
+  }
+  async function detail(name, surface, component) {
+    const detailCapabilityId = surface.detailCapabilityId;
+    const discoveredAgentIds = {
+      [surface.discoveryCapabilityId]: component.items.filter((item) => item.id !== null).map((item) => item.id)
+    };
+    for (const item of component.items) {
+      if (item.tombstone === true) continue;
+      if (item.id === null) continue;
+      let response;
+      try {
+        response = await read(name, detailCapabilityId, {
+          locationId: boundLocationId,
+          agentId: item.id,
+          discoveredAgentIds
+        }, { locationId: boundLocationId });
+      } catch (error51) {
+        absorbThrow(error51, name, detailCapabilityId, "detail");
+        continue;
+      }
+      if (!response.ok) {
+        recordError(
+          name,
+          response.failureClass ?? CODES.INVALID_RESPONSE_BODY,
+          detailCapabilityId,
+          "detail",
+          failureDetail(response, detailCapabilityId)
+        );
+        warnAggregated(
+          warningForFailure(response.failureClass, AI_BUNDLE_WARNINGS.AI_DETAIL_READ_FAILED),
+          name,
+          failureDetail(response, detailCapabilityId)
+        );
+        continue;
+      }
+      const record2 = readAgentRecord(response.json);
+      if (record2 === null) {
+        recordError(
+          name,
+          AI_BUNDLE_WARNINGS.AI_DETAIL_UNREADABLE,
+          detailCapabilityId,
+          "detail",
+          "the detail response carried no readable agent record"
+        );
+        warnAggregated(
+          AI_BUNDLE_WARNINGS.AI_DETAIL_UNREADABLE,
+          name,
+          `capability ${detailCapabilityId} answered 200 with a body carrying no identifiable agent record`
+        );
+        continue;
+      }
+      const recordId = idOf2(record2);
+      if (recordId !== item.id) {
+        recordError(
+          name,
+          AI_BUNDLE_WARNINGS.AI_DETAIL_IDENTITY_MISMATCH,
+          detailCapabilityId,
+          "detail",
+          "the detail response carried a different agent id from the one it was requested for"
+        );
+        warnAggregated(
+          AI_BUNDLE_WARNINGS.AI_DETAIL_IDENTITY_MISMATCH,
+          name,
+          `capability ${detailCapabilityId} answered a request for one agent with a record identifying another`
+        );
+        continue;
+      }
+      item.detailRead = true;
+      item.detail = record2;
+      component.detailsRead += 1;
+    }
+  }
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
@@ -35338,7 +36470,7 @@ function compile(ir, ctx) {
 
 // ../skills/create-ghl-workflow/engine/idgen.mjs
 init_define_TOOL_CATALOG();
-import { createHash as createHash2, randomUUID } from "node:crypto";
+import { createHash as createHash3, randomUUID } from "node:crypto";
 function makeUuidV4() {
   return randomUUID();
 }
@@ -35346,7 +36478,7 @@ function makeDeterministicIdGen(seed) {
   let n = 0;
   return () => {
     n += 1;
-    const bytes = createHash2("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
+    const bytes = createHash3("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
     bytes[6] = bytes[6] & 15 | 64;
     bytes[8] = bytes[8] & 63 | 128;
     const hex3 = bytes.toString("hex");
@@ -44878,17 +46010,17 @@ function partitionOps(ops) {
 }
 function resolveTrigger(op, existing) {
   const list = existing ?? [];
-  const idOf2 = (t) => t.id ?? t._id;
+  const idOf3 = (t) => t.id ?? t._id;
   if (op.triggerId) {
-    const hit = list.find((t) => idOf2(t) === op.triggerId);
-    if (!hit) throw new Error(`${op.op}: no trigger ${op.triggerId} on this workflow (have: ${list.map(idOf2).join(", ") || "none"})`);
+    const hit = list.find((t) => idOf3(t) === op.triggerId);
+    if (!hit) throw new Error(`${op.op}: no trigger ${op.triggerId} on this workflow (have: ${list.map(idOf3).join(", ") || "none"})`);
     return hit;
   }
   if (!op.name && !op.type) throw new Error(`${op.op} needs a triggerId, or a name/type to match on`);
   const hits = list.filter((t) => (op.name == null || t.name === op.name) && (op.type == null || t.type === op.type));
   const what = [op.name && `name '${op.name}'`, op.type && `type '${op.type}'`].filter(Boolean).join(" + ");
   if (!hits.length) throw new Error(`${op.op}: no trigger matching ${what} (have: ${list.map((t) => `${t.name}/${t.type}`).join(", ") || "none"})`);
-  if (hits.length > 1) throw new Error(`${op.op}: ${hits.length} triggers match ${what} \u2014 pass an explicit triggerId (${hits.map(idOf2).join(", ")})`);
+  if (hits.length > 1) throw new Error(`${op.op}: ${hits.length} triggers match ${what} \u2014 pass an explicit triggerId (${hits.map(idOf3).join(", ")})`);
   return hits[0];
 }
 function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
@@ -47637,17 +48769,17 @@ function fastForwardAmbiguousFailure(failure2, data2, rows) {
     data2
   );
 }
-function canonicalize2(value) {
-  if (Array.isArray(value)) return value.map(canonicalize2);
+function canonicalize3(value) {
+  if (Array.isArray(value)) return value.map(canonicalize3);
   if (value && typeof value === "object") {
     return Object.fromEntries(
-      Object.keys(value).sort().filter((key) => value[key] !== void 0).map((key) => [key, canonicalize2(value[key])])
+      Object.keys(value).sort().filter((key) => value[key] !== void 0).map((key) => [key, canonicalize3(value[key])])
     );
   }
   return value;
 }
 function boundEditIdGen(locationId, workflowId, version2, ops, occupiedIds) {
-  const base = makeDeterministicIdGen(JSON.stringify(canonicalize2({
+  const base = makeDeterministicIdGen(JSON.stringify(canonicalize3({
     locationId,
     workflowId,
     version: version2,
@@ -47718,7 +48850,7 @@ function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) 
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
   const canonicalRows = rows.map((row) => ({ statusId: row._id, contactId: row.contactId ?? null })).sort((left, right) => String(left.statusId).localeCompare(String(right.statusId)) || String(left.contactId).localeCompare(String(right.contactId)));
-  const previewToken = createHash3("sha256").update(JSON.stringify(canonicalize2({
+  const previewToken = createHash4("sha256").update(JSON.stringify(canonicalize3({
     locationId,
     workflowId,
     stepId,
@@ -48147,6 +49279,96 @@ var TOOLS2 = [
         circuit: deps.auditCircuit ?? pacing.circuit
       });
       return ok(await collectWorkflowRuntimeWindow({ auditGateway, input: args }));
+    }, args)
+  },
+  {
+    name: "list_workflows_complete",
+    description: describe3(
+      "list_workflows_complete",
+      "Walk the workflow roster to a reconciled terminal proof \u2014 proof: external-receipt-required; risk: read. A failed, contradicted or budget-exhausted walk is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      // Bounded HERE as well as in the composite: the descriptor's own limit bound is 100,
+      // and a schema that admitted more would hand the composite a budget its own validator
+      // would then refuse — two copies of one rule disagreeing.
+      pageSize: external_exports.number().int().min(1).max(100).default(100),
+      maxPages: external_exports.number().int().min(1).max(1e3).default(100)
+    }),
+    capabilities: [
+      // NOTE FOR TASK 5. This row's path template is `{loc}` — the placeholder vocabulary the
+      // whole capability manifest has always used — while the audit DESCRIPTOR for the same
+      // route (`workflow_roster_list` in core/audit-capabilities.mjs) spells its
+      // `normalizedPath` `/workflow/{locationId}/list`. They address one route. Task 5's rule
+      // "a descriptor and its capability row differ => fail" therefore needs an explicit
+      // NORMALIZATION step before the comparison (map the descriptor's binding names onto the
+      // manifest's placeholders, or vice versa), or it will fail every audit capability that
+      // carries a path binding at all. This is the first row where the two vocabularies meet.
+      { method: "GET", path: "/workflow/{loc}/list" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const config2 = validateRosterInput(args ?? {});
+      if (typeof deps?.makeGw !== "function") {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "the roster composite was invoked without a gateway factory",
+          "Register the tool with { state, makeGw } dependencies before calling it."
+        );
+      }
+      const backend = deps.makeGw({ loc: config2.locationId, rail: "jwt", state: deps.state, throttleMs: 0, jitterMs: 0 });
+      const pacing = processAuditPacing();
+      const auditGateway = makeAuditGateway({
+        gateways: { backend },
+        locationId: config2.locationId,
+        limiter: deps.auditLimiter ?? pacing.limiter,
+        circuit: deps.auditCircuit ?? pacing.circuit
+      });
+      return ok(await listWorkflowsComplete({ auditGateway, input: args }));
+    }, args)
+  },
+  {
+    name: "get_ai_configuration_bundle",
+    description: describe3(
+      "get_ai_configuration_bundle",
+      "Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Live canary required before Full audit."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      // Optional because a missing agency context is a real operating condition, answered
+      // per component by AI_COMPANY_CONTEXT_UNAVAILABLE with zero reads. There is
+      // deliberately NO surface selector: callers cannot omit a surface, so there must be no
+      // field through which they could try.
+      companyId: external_exports.string().optional(),
+      maxPages: external_exports.number().int().min(1).max(1e3).default(100)
+    }),
+    capabilities: [
+      { method: "GET", path: "/ai-employees/agents" },
+      { method: "GET", path: "/ai-employees/employees/{agentId}" },
+      // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
+      // list_account_entities reads: a different capability with a different receipt.
+      { method: "GET", path: "/voice-ai/agents/simple" },
+      { method: "GET", path: "/voice-ai/agents/{agentId}" },
+      { method: "GET", path: "/agent-studio/agents/agents-with-folders" },
+      { method: "GET", path: "/agent-studio/super-agent/agents/{agentId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const config2 = validateAiBundleInput(args ?? {});
+      if (typeof deps?.makeGw !== "function") {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "the AI configuration bundle was invoked without a gateway factory",
+          "Register the tool with { state, makeGw } dependencies before calling it."
+        );
+      }
+      const ai = deps.makeGw({ loc: config2.locationId, rail: "ai", state: deps.state, throttleMs: 0, jitterMs: 0 });
+      const pacing = processAuditPacing();
+      const auditGateway = makeAuditGateway({
+        gateways: { ai },
+        locationId: config2.locationId,
+        limiter: deps.auditLimiter ?? pacing.limiter,
+        circuit: deps.auditCircuit ?? pacing.circuit
+      });
+      return ok(await getAiConfigurationBundle({ auditGateway, input: args }));
     }, args)
   },
   {

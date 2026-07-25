@@ -52,6 +52,13 @@ export const CODES = Object.freeze({
   // have that something recorded as evidence for a window nobody actually asked for.
   INVALID_RUNTIME_WINDOW: 'INVALID_RUNTIME_WINDOW',
 
+  // The account-surface composites' OWN input fault, separate from INVALID_RUNTIME_WINDOW
+  // for the same reason that one is separate from VALIDATION_FAILED: a caller must be able
+  // to tell "the roster/bundle request I made was never legal" apart from any upstream
+  // refusal. A page budget or a location that never bound is a caller-side fix, never a
+  // reason to retry and never an empty surface.
+  INVALID_AUDIT_CONFIGURATION_INPUT: 'INVALID_AUDIT_CONFIGURATION_INPUT',
+
   // Construction-time audit-rail faults. They are separate from the request-time
   // codes above because they mean the PROCESS is wired wrong: no request could
   // ever have been legal, so there is nothing to checkpoint and resume.

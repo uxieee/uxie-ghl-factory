@@ -145,6 +145,41 @@
     "path": "/workflows/status/enroll-stats"
   },
   {
+    "tool": "list_workflows_complete",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/ai-employees/agents"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/ai-employees/employees/{agentId}"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/voice-ai/agents/simple"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/voice-ai/agents/{agentId}"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/agent-studio/agents/agents-with-folders"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
+    "path": "/agent-studio/super-agent/agents/{agentId}"
+  },
+  {
     "tool": "get_contacts_at_step",
     "method": "GET",
     "path": "/workflows/status/search/details-by-step"

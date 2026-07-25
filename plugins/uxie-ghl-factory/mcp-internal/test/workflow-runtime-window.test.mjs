@@ -2109,27 +2109,101 @@ test('an injected limiter and circuit still win over the process-wide pair', asy
   assert.equal(typeof result.ok, 'boolean');
 });
 
-test('every row id the tool catalog cites for this tool exists in the reconciled vocabulary', () => {
-  // c0566c6 established tool-descriptions.json as reconciled against the docs capability
-  // matrix. The new entry shipped `workflow-get`, `workflow-triggers` and
+const CATALOG_ROW_FIELDS = Object.freeze(['rows', 'proofRows', 'proofFloorRows', 'riskRows']);
+
+// The entries this plan ADDED to a catalog that c0566c6 had already reconciled against the
+// docs capability matrix. They are the ones that can invent a row id, because everything else
+// in the file predates them and IS the reconciliation.
+const AUDIT_CATALOG_ENTRIES = Object.freeze([
+  'get_workflow_runtime_window',
+  'list_workflows_complete',
+  'get_ai_configuration_bundle',
+]);
+
+test('every row id the tool catalog cites — in EVERY entry — exists in the reconciled vocabulary', () => {
+  // GENERALIZED from the runtime-window-only version. c0566c6 established
+  // tool-descriptions.json as reconciled against the docs capability matrix. The
+  // runtime-window entry shipped `workflow-get`, `workflow-triggers` and
   // `workflow-sticky-notes` — three ids that appear in no other entry and correspond to no
   // matrix row (the real ones are `workflow-read`, `triggers-list` and
-  // `workflow-sticky-notes-list`). Nothing validated them, so they were inert metadata in a
-  // file whose whole purpose is to be verifiable.
+  // `workflow-sticky-notes-list`). Nothing validated them. Pinning the check to ONE tool name
+  // left the same hole open for every entry added afterwards, and Task 4 walked straight into
+  // it: `get_ai_configuration_bundle` cited `entities-voice-ai-agents-list`, the row for
+  // list_account_entities's BARE /voice-ai/agents — the very route this bundle disavows.
   const catalog = JSON.parse(readFileSync(new URL('../tool-descriptions.json', import.meta.url), 'utf8'));
-  const ROW_FIELDS = ['rows', 'proofRows', 'proofFloorRows', 'riskRows'];
-  const vocabulary = new Set(
-    Object.entries(catalog)
-      .filter(([name]) => name !== 'get_workflow_runtime_window')
-      .flatMap(([, entry]) => ROW_FIELDS.flatMap((field) => entry[field] ?? [])),
-  );
-  const entry = catalog.get_workflow_runtime_window;
-  assert.ok(entry, 'the runtime-window tool must be in the description catalog');
-  for (const field of ROW_FIELDS) {
-    assert.ok(Array.isArray(entry[field]) && entry[field].length > 0, `${field} must be a non-empty list`);
-    for (const row of entry[field]) {
-      assert.ok(vocabulary.has(row), `${field} cites ${row}, which is in no reconciled catalog entry`);
+  for (const [name, entry] of Object.entries(catalog)) {
+    // The vocabulary for an entry is every row id cited by every OTHER entry — the same
+    // relation the original test used, now evaluated per entry.
+    const vocabulary = new Set(
+      Object.entries(catalog)
+        .filter(([other]) => other !== name)
+        .flatMap(([, other]) => CATALOG_ROW_FIELDS.flatMap((field) => other[field] ?? [])),
+    );
+    for (const field of CATALOG_ROW_FIELDS) {
+      const rows = entry[field];
+      assert.ok(Array.isArray(rows), `${name}.${field} must be a list of row ids`);
+      assert.ok(rows.length > 0, `${name}.${field} must be a non-empty list`);
+      for (const row of rows) {
+        assert.equal(typeof row, 'string', `${name}.${field} cites a non-string row id`);
+        // Only the entries this plan added are held to "another entry already cites this".
+        // A legacy entry may legitimately be the sole citer of a matrix row it alone reads
+        // (`entities-calendars-list` is one), and demoting those to failures would assert a
+        // rule the file has never obeyed rather than the one it was reconciled under.
+        if (!AUDIT_CATALOG_ENTRIES.includes(name)) continue;
+        assert.ok(vocabulary.has(row), `${name}.${field} cites ${row}, which is in no other reconciled catalog entry`);
+      }
+      // Every narrower list is a subset of `rows`, in every entry. Without this, a row id can
+      // be dropped from `rows` and survive in `riskRows`, where nothing would ever look at it.
+      if (field === 'rows') continue;
+      for (const row of rows) {
+        assert.ok((entry.rows ?? []).includes(row), `${name}.${field} cites ${row}, which is missing from ${name}.rows`);
+      }
     }
+  }
+});
+
+test('every audit capability with no matrix row is RECORDED as having none, and none is invented', () => {
+  // The honest half of the fix above. Two of the bundle's routes — /voice-ai/agents/simple and
+  // /agent-studio/agents/agents-with-folders — are genuinely new to the matrix, and the matrix
+  // that defines row ids is NOT in this repository: the README defines none, and a repo-wide
+  // grep finds row ids only inside tool-descriptions.json. So the gap is recorded rather than
+  // papered over with an invented id, and the record is MACHINE-CHECKED here so Task 6 freezes
+  // an honest file and Task 7 cannot mint a receipt implying provenance that does not exist.
+  //
+  // The check that makes the record load-bearing: cited rows plus recorded gaps must account
+  // for EVERY capability the tool declares. A route that is neither cited nor recorded is an
+  // undocumented read hiding in a file whose whole purpose is to be verifiable.
+  const catalog = JSON.parse(readFileSync(new URL('../tool-descriptions.json', import.meta.url), 'utf8'));
+  for (const name of AUDIT_CATALOG_ENTRIES) {
+    const entry = catalog[name];
+    assert.ok(entry, `${name} must be in the description catalog`);
+    const gaps = entry.undocumentedCapabilities;
+    assert.ok(Array.isArray(gaps), `${name}.undocumentedCapabilities must be a list, even when empty`);
+    const registered = TOOLS.find((candidate) => candidate.name === name);
+    assert.ok(registered, `${name} is not a registered tool`);
+    const paths = registered.capabilities.map((capability) => capability.path);
+    for (const gap of gaps) {
+      assert.ok(paths.includes(gap.path), `${name} records a gap for ${gap.path}, which it does not read`);
+      assert.equal(typeof gap.reason, 'string', `${name}'s gap for ${gap.path} must say WHY there is no row`);
+      assert.ok(gap.reason.length > 40, `${name}'s gap for ${gap.path} must give a real reason`);
+    }
+    assert.equal(new Set(gaps.map((gap) => gap.path)).size, gaps.length, `${name} records one gap twice`);
+    // THE LIMIT OF THIS CHECK, stated so it is not read as more than it is. This is a
+    // CARDINALITY argument, not an identity one: it proves the two lists ACCOUNT FOR the
+    // declared routes, not that each declared route is individually either cited or recorded. A
+    // gap recorded for a path that IS cited, paired with a different path recorded nowhere,
+    // satisfies this equality exactly — the loop above only checks that a recorded gap names a
+    // path the tool reads, never that the CITED rows do.
+    //
+    // The identity form is unavailable in this repository, not merely unwritten: proving it
+    // needs a row-id -> path map, and the matrix that defines row ids is not here (the README
+    // defines none, and a repo-wide grep finds row ids only inside tool-descriptions.json,
+    // which is the very file under test). The Task 7 canary is where that map arrives; until it
+    // does, this is the strongest honest statement available, and pretending otherwise in a file
+    // whose whole purpose is to be verifiable would be the exact failure it exists to catch.
+    assert.equal(entry.rows.length + gaps.length, paths.length,
+      `${name} cites ${entry.rows.length} rows and records ${gaps.length} gaps for ${paths.length} capabilities: `
+      + 'every declared route must be either cited or recorded as having no matrix row');
   }
 });
 
