@@ -1,0 +1,451 @@
+{
+  "_file": "Scenarios for the /workflows/logs/v2 partition walk. See README.md in this folder for the upstream model (inclusive-on-both-ends range stub, _t:null = returned for every range).",
+  "_windowNote": "Every scenario here uses a NON-ZERO fromDate. It used to be 0 almost everywhere, which meant `Math.max(0, fromDate - 1)` clamped the mandated 1ms lower-bound expansion away and the real expansion path was only ever exercised by child partitions - a 636-case differential oracle found 30 windows the collector called complete while missing events, and every one of them had fromDate:0. The single deliberate fromDate:0 case is `window-starting-at-epoch-zero`, which pins the clamped-bound behaviour instead of hiding it.",
+  "scenarios": {
+    "empty-window": {
+      "planBullet": "Empty and short execution windows",
+      "why": "An empty window is the ONE result an incomplete walk can fake for free. If a genuinely empty window cannot be told apart from a failed read, every completeness claim downstream is worthless.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventIds": [],
+        "eventCount": 0,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "short-window": {
+      "planBullet": "Empty and short execution windows",
+      "why": "Proves the half-open [fromDate, toDate) analytical filter is applied LOCALLY. The stub returns _t=999 (only reachable because of the mandated 1ms expansion) and _t=2000 (== toDate); both come back on the wire and both must be dropped, while _t=1000 (== fromDate) must be kept.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": "before", "_t": 999, "startedExecutionAt": 999 },
+        { "_id": "at-from", "_t": 1000, "startedExecutionAt": 1000 },
+        { "_id": "inside", "_t": 1500, "startedExecutionAt": 1500 },
+        { "_id": "at-to", "_t": 2000, "startedExecutionAt": 2000 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventIds": ["at-from", "inside"],
+        "eventCount": 2,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "window-starting-at-epoch-zero": {
+      "planBullet": "Empty and short execution windows (clamped lower bound)",
+      "why": "The one deliberate fromDate:0 case. The 1ms expansion CANNOT be applied at epoch 0, so the query goes out on the raw bound and an event at exactly t=0 survives only if the upstream lower bound is inclusive - which is undocumented. The collector must report the expansion it actually applied (expansionMs 0, not the 1 it used to claim while clamping) and declare the window incomplete, because membership at the boundary is unprovable rather than merely unlikely.",
+      "input": { "fromDate": 0, "toDate": 1000 },
+      "corpus": [
+        { "_id": "at-zero", "_t": 0, "startedExecutionAt": 0 },
+        { "_id": "inside", "_t": 500, "startedExecutionAt": 500 }
+      ],
+      "expect": {
+        "logQueryWindows": [[0, 1000]],
+        "eventIds": ["at-zero", "inside"],
+        "eventCount": 2,
+        "expansionMs": 0,
+        "appliedFromDate": 0,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_WINDOW_LOWER_BOUND_UNEXPANDED"],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "saturated-split": {
+      "planBullet": "A saturated window that splits into complete subwindows",
+      "why": "The core of Step 3. 22 events cannot be seen through a 20-row page, so the walk must split at the integer midpoint and recurse depth-first until every partition is terminal, and the union must be all 22 with nothing double-counted. The window starts at 1000 so the 1ms expansion is genuinely applied at the top of the walk rather than clamped away.",
+      "input": { "fromDate": 1000, "toDate": 5000, "minPartitionMs": 1 },
+      "corpus": [
+        { "generate": { "count": 20, "idPrefix": "e-", "tStart": 1000, "tStep": 100 } },
+        { "_id": "tail-1", "_t": 3000, "startedExecutionAt": 3000 },
+        { "_id": "tail-2", "_t": 3100, "startedExecutionAt": 3100 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 5000], [999, 3000], [999, 2000], [1999, 3000], [2999, 5000]],
+        "eventCount": 22,
+        "expansionMs": 1,
+        "appliedFromDate": 999,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 5, "terminal": 3, "exhausted": false }
+      }
+    },
+
+    "repeated-rows": {
+      "planBullet": "Repeated and reordered rows",
+      "why": "Dedup must key on content, and an ID-LESS row must never be collapsed silently. The three identical `dup` rows collapse to one (their id is part of the hashed content). The two identical id-less rows are two DISTINCT rows inside one response, so both survive - collapsing them was a silent undercount with no warning at all - and the third id-less row differs in content and survives on its own. Any id-less row makes the count unprovable, which is what LOG_EVENT_ID_MISSING says.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": "dup", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" },
+        { "_id": "dup", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" },
+        { "_id": "dup", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" },
+        { "_id": "a", "_t": 1020, "startedExecutionAt": 1020 },
+        { "_id": "b", "_t": 1030, "startedExecutionAt": 1030 },
+        { "_t": 1040, "startedExecutionAt": 1040, "eventType": "email" },
+        { "_t": 1040, "startedExecutionAt": 1040, "eventType": "email" },
+        { "_t": 1040, "startedExecutionAt": 1040, "eventType": "sms" }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventIds": ["a", "b", "dup"],
+        "eventCount": 6,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_EVENT_ID_MISSING"],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "numeric-and-string-ids-are-one-row": {
+      "planBullet": "Repeated and reordered rows",
+      "why": "Upstream has returned an id as both 5 and '5'. Hashing them unnormalised made them two distinct payloads sharing one id, which is the exact shape of a genuine LOG_DUPLICATE_ID_CONFLICT - a phantom contradiction an auditor would have chased. Ids are normalised to strings before hashing, so this is ONE row and there is nothing to warn about.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": 5, "_t": 1010, "startedExecutionAt": 1010 },
+        { "_id": "5", "_t": 1010, "startedExecutionAt": 1010 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventIds": ["5"],
+        "eventCount": 1,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "reordered-rows": {
+      "planBullet": "Repeated and reordered rows",
+      "why": "Identical corpus to saturated-split, emitted DESCENDING. A walk that assumes ascending emission picks a different 20 rows per page, so if the union or the partition count changes here the collector is depending on upstream ordering it was never promised.",
+      "input": { "fromDate": 1000, "toDate": 5000, "minPartitionMs": 1 },
+      "order": "desc",
+      "corpus": [
+        { "generate": { "count": 20, "idPrefix": "e-", "tStart": 1000, "tStep": 100 } },
+        { "_id": "tail-1", "_t": 3000, "startedExecutionAt": 3000 },
+        { "_id": "tail-2", "_t": 3100, "startedExecutionAt": 3100 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 5000], [999, 3000], [999, 2000], [1999, 3000], [2999, 5000]],
+        "eventCount": 22,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 5, "terminal": 3, "exhausted": false }
+      }
+    },
+
+    "unordered-single-page-is-sorted": {
+      "planBullet": "Repeated and reordered rows",
+      "why": "The emitted order and the required order must DISAGREE, or the sort is proven by a tautology - deleting `events.sort` entirely survived the whole suite. One unsaturated page emitted strictly descending is the smallest corpus where the result order can only come from the collector's own sort.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "order": "desc",
+      "corpus": [
+        { "_id": "u-1", "_t": 1010, "startedExecutionAt": 1010 },
+        { "_id": "u-2", "_t": 1200, "startedExecutionAt": 1200 },
+        { "_id": "u-3", "_t": 1400, "startedExecutionAt": 1400 },
+        { "_id": "u-4", "_t": 1900, "startedExecutionAt": 1900 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventTimestamps": [1010, 1200, 1400, 1900],
+        "eventCount": 4,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "conflicting-duplicate-ids": {
+      "planBullet": "Conflicting duplicate IDs",
+      "why": "Two rows share an id but not a content hash, so one of them is a lie and the collector cannot tell which. BOTH are retained as evidence and the window is declared incomplete - silently keeping the first would turn a contradiction into a confident answer.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": "dup", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" },
+        { "_id": "dup", "_t": 1020, "startedExecutionAt": 1020, "eventType": "email" },
+        { "_id": "clean", "_t": 1030, "startedExecutionAt": 1030 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventCount": 3,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_DUPLICATE_ID_CONFLICT"],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "saturation-at-min-partition": {
+      "planBullet": "Saturation at minPartitionMs",
+      "why": "A 2ms window holding 25 events cannot be split below minPartitionMs, so the page stays saturated and the walk has provably NOT seen the whole window. Marking this complete is how 5 of 25 executions disappear.",
+      "input": { "fromDate": 1000, "toDate": 1002, "minPartitionMs": 1000 },
+      "corpus": [
+        { "generate": { "count": 25, "idPrefix": "burst-", "tStart": 1000, "tStep": 0 } }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 1002]],
+        "eventCount": 20,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_PARTITION_SATURATED_AT_FLOOR"],
+        "partitions": { "attempted": 1, "terminal": 0, "exhausted": false }
+      }
+    },
+
+    "saturation-exactly-at-the-floor": {
+      "planBullet": "Saturation at minPartitionMs (boundary)",
+      "why": "The floor test is `to - from <= minPartitionMs`, and only a window of EXACTLY minPartitionMs tells `<=` apart from `<`. Under `<` this 1000ms window splits, and keeps splitting, until the partitions are 1ms wide - a ~2048-read storm against one location instead of a one-line saturation report. saturation-at-min-partition uses a 2ms window and passes under either operator, so it cannot see this.",
+      "input": { "fromDate": 1000, "toDate": 2000, "minPartitionMs": 1000 },
+      "corpus": [
+        { "generate": { "count": 25, "idPrefix": "floor-", "tStart": 1000, "tStep": 10 } }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_PARTITION_SATURATED_AT_FLOOR"],
+        "partitions": { "attempted": 1, "terminal": 0, "exhausted": false }
+      }
+    },
+
+    "missing-timestamp-unsaturated": {
+      "planBullet": "Missing event timestamp in an unsaturated partition",
+      "why": "The partition is terminal (3 rows < 20) so the walk itself is fine, yet one row's [fromDate, toDate) membership cannot be proven. Per plan line 427 the row is retained as evidence and the REQUESTED window is still incomplete. A short page must not be allowed to launder an unplaceable row.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": "ok-1", "_t": 1010, "startedExecutionAt": 1010 },
+        { "_id": "ok-2", "_t": 1020, "createdAt": 1020 },
+        { "_id": "no-time", "_t": null }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventIds": ["no-time", "ok-1", "ok-2"],
+        "eventCount": 3,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_EVENT_TIMESTAMP_UNPARSEABLE"],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "corrupt-higher-priority-timestamp-field": {
+      "planBullet": "Missing event timestamp in an unsaturated partition (present-but-garbage sibling)",
+      "why": "`startedExecutionAt` is PRESENT and unreadable while `createdAt` parses. The old fallback took createdAt and said nothing, so the result was indistinguishable from a queued row that legitimately has no start time - and the window's [fromDate, toDate) membership was asserted through a proxy for a field that exists and could not be read. That is much closer to 'no parseable time => incomplete' than to a normal fallback, so the corrupt field is named and the window is incomplete.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": "corrupt", "_t": 1500, "startedExecutionAt": "not-a-date", "createdAt": 1500 },
+        { "_id": "clean", "_t": 1600, "startedExecutionAt": 1600 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventIds": ["clean", "corrupt"],
+        "eventCount": 2,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_EVENT_TIMESTAMP_FIELD_UNREADABLE"],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "fractional-second-precision": {
+      "planBullet": "Missing event timestamp in an unsaturated partition (fractional-second grammar)",
+      "why": "The ISO grammar accepts 1-9 fractional digits and normalises them by right-padding to exactly 3, but every fixture until now used either no fraction or exactly 3 digits — the one width where padding and truncation are both no-ops. So `.1` (which must be 100ms, NOT 1ms) and `.123456` (which must truncate to 123ms, not overflow into seconds) were never exercised, and a padding rule of `fraction.slice(0,3)` or `Number('.'+fraction)*1000` would have survived every test in the suite while moving events by up to 99 milliseconds — enough to cross a partition boundary in a minPartitionMs=1 walk.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": "one-digit", "_t": 1100, "startedExecutionAt": "1970-01-01T00:00:01.1Z" },
+        { "_id": "two-digits", "_t": 1120, "startedExecutionAt": "1970-01-01T00:00:01.12Z" },
+        { "_id": "six-digits", "_t": 1123, "startedExecutionAt": "1970-01-01T00:00:01.123456Z" },
+        { "_id": "nine-digits", "_t": 1123, "startedExecutionAt": "1970-01-01T00:00:01.123456789Z" }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "eventIds": ["nine-digits", "one-digit", "six-digits", "two-digits"],
+        "eventTimestamps": [1100, 1120, 1123, 1123],
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 1, "terminal": 1, "exhausted": false }
+      }
+    },
+
+    "missing-timestamp-saturated": {
+      "planBullet": "Missing event timestamp in a saturated partition",
+      "why": "Same defect inside a page that ALSO saturates. The split must still run to terminal subwindows (so the timed events are complete), while the unplaceable row keeps the requested window incomplete. Conflating the two would either abort the split early or hide the unplaceable row behind a successful split.",
+      "input": { "fromDate": 1000, "toDate": 2000, "minPartitionMs": 1 },
+      "corpus": [
+        { "generate": { "count": 19, "idPrefix": "e-", "tStart": 1000, "tStep": 50 } },
+        { "_id": "no-time", "_t": null }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 2000], [999, 1500], [1499, 2000]],
+        "eventCount": 20,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_EVENT_TIMESTAMP_UNPARSEABLE"],
+        "partitions": { "attempted": 3, "terminal": 2, "exhausted": false }
+      }
+    },
+
+    "partition-budget-exhausted": {
+      "planBullet": "Partition-budget exhaustion",
+      "why": "The saturated-split corpus needs 5 partitions; the budget allows 3. The walk stops with two subwindows never queried at all, which is a fail-closed stop - never a quiet 'that is all there was'.",
+      "input": { "fromDate": 1000, "toDate": 5000, "minPartitionMs": 1, "maxLogPartitions": 3 },
+      "corpus": [
+        { "generate": { "count": 20, "idPrefix": "e-", "tStart": 1000, "tStep": 100 } },
+        { "_id": "tail-1", "_t": 3000, "startedExecutionAt": 3000 },
+        { "_id": "tail-2", "_t": 3100, "startedExecutionAt": 3100 }
+      ],
+      "expect": {
+        "logQueryWindows": [[999, 5000], [999, 3000], [999, 2000]],
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_PARTITION_BUDGET_EXHAUSTED"],
+        "partitions": { "attempted": 3, "exhausted": true }
+      }
+    },
+
+    "multiple-event-type-streams": {
+      "planBullet": "Multiple event-type streams",
+      "why": "`eventType` is optional but NOT repeatable (audit-capabilities.mjs, workflow_execution_logs), so N event types cost N INDEPENDENT partition walks. Each query must carry exactly one eventType and the streams must merge without cross-contaminating each other's partitioning.",
+      "input": { "fromDate": 1000, "toDate": 2000, "eventTypes": ["added_to_workflow", "email"] },
+      "streams": {
+        "added_to_workflow": [
+          { "_id": "atw-1", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" },
+          { "_id": "atw-2", "_t": 1020, "startedExecutionAt": 1020, "eventType": "added_to_workflow" }
+        ],
+        "email": [
+          { "_id": "em-1", "_t": 1030, "startedExecutionAt": 1030, "eventType": "email" }
+        ]
+      },
+      "expect": {
+        "logQueryWindows": [[999, 2000], [999, 2000]],
+        "logQueryEventTypes": ["added_to_workflow", "email"],
+        "eventIds": ["atw-1", "atw-2", "em-1"],
+        "eventCount": 3,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "partitions": { "attempted": 2, "terminal": 2, "exhausted": false }
+      }
+    },
+
+    "partition-budget-shared-across-streams": {
+      "planBullet": "Partition-budget exhaustion + Multiple event-type streams",
+      "why": "Task 2 carry-forward item 3: maxLogPartitions is a per-walk-TOTAL budget, not a per-stream one. With a budget of 1 and two event types, the second stream must never be queried at all. If the budget were per-stream both walks would run and this scenario would report complete:true with 3 events.",
+      "input": { "fromDate": 1000, "toDate": 2000, "eventTypes": ["added_to_workflow", "email"], "maxLogPartitions": 1 },
+      "streams": {
+        "added_to_workflow": [
+          { "_id": "atw-1", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" },
+          { "_id": "atw-2", "_t": 1020, "startedExecutionAt": 1020, "eventType": "added_to_workflow" }
+        ],
+        "email": [
+          { "_id": "em-1", "_t": 1030, "startedExecutionAt": 1030, "eventType": "email" }
+        ]
+      },
+      "expect": {
+        "logQueryWindows": [[999, 2000]],
+        "logQueryEventTypes": ["added_to_workflow"],
+        "eventIds": ["atw-1", "atw-2"],
+        "eventCount": 2,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["LOG_PARTITION_BUDGET_EXHAUSTED"],
+        "partitions": { "attempted": 1, "exhausted": true }
+      }
+    },
+
+    "failed-partition-stops-the-whole-walk": {
+      "planBullet": "Multiple event-type streams (fail-closed)",
+      "why": "A failed log partition sets logWalkStopped, and that flag must stop BOTH the sibling subwindows and every later eventType stream. Without it the walk carries on spending budget against a location that has already refused a read, and - worse - the second stream's clean result makes the merged set look like a complete answer. With a budget-shared design the mutant is invisible unless a second stream exists to be skipped.",
+      "input": { "fromDate": 1000, "toDate": 2000, "eventTypes": ["added_to_workflow", "email"] },
+      "streams": {
+        "added_to_workflow": [
+          { "_id": "atw-1", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" }
+        ],
+        "email": [
+          { "_id": "em-1", "_t": 1030, "startedExecutionAt": 1030, "eventType": "email" }
+        ]
+      },
+      "overrides": [
+        {
+          "capabilityId": "workflow_execution_logs",
+          "nth": 1,
+          "response": { "ok": false, "status": 500, "failureClass": "HTTP_500", "json": { "message": "logs unavailable" } }
+        }
+      ],
+      "expect": {
+        "logQueryEventTypes": ["added_to_workflow"],
+        "eventCount": 0,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"],
+        "partitions": { "attempted": 1, "terminal": 0, "exhausted": false }
+      }
+    },
+
+    "unreadable-log-envelope": {
+      "planBullet": "A saturated window that splits into complete subwindows (envelope guard)",
+      "why": "rowsOf returns null - not [] - for an ok:true response whose envelope names no row array, and that distinction is the module's headline invariant. No fixture produced one, so mutating `return null` to `return []` survived the entire suite: the walk would read the empty list as a terminal partition and publish complete:true with zero events, which is precisely the empty-versus-failed collapse this module exists to prevent.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [
+        { "_id": "never-seen", "_t": 1010, "startedExecutionAt": 1010 }
+      ],
+      "overrides": [
+        {
+          "capabilityId": "workflow_execution_logs",
+          "nth": 1,
+          "response": { "json": { "unexpectedEnvelope": true } }
+        }
+      ],
+      "expect": {
+        "eventCount": 0,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"],
+        "partitions": { "attempted": 1, "terminal": 0, "exhausted": false },
+        "componentCompleteness": {
+          "runtimeEvents": false,
+          "workflowDefinition": true,
+          "perStepCounts": true,
+          "enrollments": true
+        }
+      }
+    },
+
+    "unreadable-log-envelope-stops-the-whole-walk": {
+      "planBullet": "Multiple event-type streams (envelope guard, fail-closed)",
+      "why": "The unreadable-envelope branch sets logWalkStopped just as the failed-read branch does, and for the same reason: the union is provably incomplete, so spending the rest of the budget on further streams buys nothing and the second stream's clean result would make the merged set look whole. With one stream the flag is invisible (the surrounding `return` already ends that partition), so it takes a second eventType to see it.",
+      "input": { "fromDate": 1000, "toDate": 2000, "eventTypes": ["added_to_workflow", "email"] },
+      "streams": {
+        "added_to_workflow": [
+          { "_id": "atw-1", "_t": 1010, "startedExecutionAt": 1010, "eventType": "added_to_workflow" }
+        ],
+        "email": [
+          { "_id": "em-1", "_t": 1030, "startedExecutionAt": 1030, "eventType": "email" }
+        ]
+      },
+      "overrides": [
+        { "capabilityId": "workflow_execution_logs", "nth": 1, "response": { "json": { "unexpectedEnvelope": true } } }
+      ],
+      "expect": {
+        "logQueryEventTypes": ["added_to_workflow"],
+        "eventCount": 0,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"],
+        "partitions": { "attempted": 1, "terminal": 0, "exhausted": false }
+      }
+    }
+  }
+}

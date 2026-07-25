@@ -218,6 +218,52 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-enrollment-stats-cache"
         ]
       },
+      get_workflow_runtime_window: {
+        description: "Collect one workflow's complete, evidence-qualified runtime window (definition, time-partitioned executions, enrollment walk, per-step counts, requested step rosters, enrollment totals) \u2014 proof: external-receipt-required; risk: read. Every failure is complete:false with a coded warning, never an empty window. `complete` covers RUNTIME EVENT COVERAGE only: the separate configurationBinding field records that nothing on this rail proves the captured definition governed the events in the window, so no consumer may claim it did. Live canary required before Full audit.",
+        risk: "read",
+        proof: "external-receipt-required",
+        proofFloor: "external-receipt-required",
+        proofRows: [
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
+        ],
+        proofFloorRows: [
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
+        ],
+        riskRows: [
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
+        ],
+        rows: [
+          "logs-count-per-step",
+          "logs-details-by-step",
+          "logs-enrollment-history",
+          "logs-list-v2",
+          "triggers-list",
+          "workflow-enrollment-stats-cache",
+          "workflow-read",
+          "workflow-sticky-notes-list"
+        ]
+      },
       get_contacts_at_step: {
         description: "List contacts at step \u2014 proof: live-runtime (2026-07-18); risk: read",
         risk: "read",
@@ -12022,9 +12068,9 @@ function createTransparentProxy(getter) {
       target ?? (target = getter());
       return Reflect.getOwnPropertyDescriptor(target, prop);
     },
-    defineProperty(_, prop, descriptor) {
+    defineProperty(_, prop, descriptor2) {
       target ?? (target = getter());
-      return Reflect.defineProperty(target, prop, descriptor);
+      return Reflect.defineProperty(target, prop, descriptor2);
     }
   });
 }
@@ -31664,7 +31710,7 @@ import { dirname as dirname2, resolve as resolve3 } from "node:path";
 init_define_TOOL_CATALOG();
 import { fileURLToPath } from "node:url";
 import { dirname, resolve as resolve2 } from "node:path";
-import { createHash as createHash2 } from "node:crypto";
+import { createHash as createHash3 } from "node:crypto";
 
 // core/errors.mjs
 init_define_TOOL_CATALOG();
@@ -31709,6 +31755,12 @@ var CODES = Object.freeze({
   // mistyped scope must be loud: silently accepting it would register a latch nothing
   // ever checks, and the run would sail on through a dead credential.
   INVALID_CIRCUIT_SCOPE: "INVALID_CIRCUIT_SCOPE",
+  // The audit composite's OWN input fault. It is separate from VALIDATION_FAILED because
+  // an audit caller must be able to tell "my window was never legal" apart from any
+  // upstream refusal: the log descriptors carry no numeric bounds on fromDate/toDate, so
+  // an inverted or malformed window would otherwise reach the wire, return SOMETHING, and
+  // have that something recorded as evidence for a window nobody actually asked for.
+  INVALID_RUNTIME_WINDOW: "INVALID_RUNTIME_WINDOW",
   // Construction-time audit-rail faults. They are separate from the request-time
   // codes above because they mean the PROCESS is wired wrong: no request could
   // ever have been legal, so there is nothing to checkpoint and resume.
@@ -31939,6 +31991,2094 @@ function requireAiCredentials(creds) {
   if (jwtExpired) throw new AuthError(CODES.TOKEN_EXPIRED, "Bearer JWT exp is in the past", AI_RECAPTURE);
   if (tokenIdExpired) throw new AuthError(CODES.TOKEN_ID_EXPIRED, "token-id exp is in the past", AI_RECAPTURE);
   return tokenIdClaims;
+}
+
+// core/audit-gateway.mjs
+init_define_TOOL_CATALOG();
+
+// core/audit-capabilities.mjs
+init_define_TOOL_CATALOG();
+var deepFreeze = (value) => {
+  if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+  Object.freeze(value);
+  for (const child of Object.values(value)) deepFreeze(child);
+  return value;
+};
+var AUDIT_HOSTS = Object.freeze({
+  backend: "https://backend.leadconnectorhq.com",
+  services: "https://services.leadconnectorhq.com"
+});
+var descriptor = (over) => deepFreeze({
+  host: "backend",
+  authRail: "backend",
+  method: "GET",
+  pathBindings: {},
+  queryBindings: {},
+  requiredQueryKeys: [],
+  optionalQueryKeys: [],
+  repeatableQueryKeys: [],
+  fixedQueryValues: {},
+  allowedQueryValues: {},
+  numericQueryBounds: {},
+  locationBinding: "query",
+  // Which discovery capability's sealed result may authorize this detail route. A flat
+  // product-agnostic seal would let a Voice id probe the Conversation-AI and
+  // Agent-Studio detail routes, which is a cross-product probe with a valid-looking id.
+  sealedBy: null,
+  ...over
+});
+var AUDIT_CAPABILITIES = Object.freeze([
+  descriptor({
+    capabilityId: "workflow_roster_list",
+    normalizedPath: "/workflow/{locationId}/list",
+    pathBindings: { locationId: "locationId" },
+    requiredQueryKeys: ["type", "limit", "offset", "sortBy", "sortOrder", "includeCustomObjects", "includeObjectiveBuilder"],
+    optionalQueryKeys: ["status", "search"],
+    fixedQueryValues: {
+      type: "workflow",
+      sortBy: "name",
+      sortOrder: "asc",
+      includeCustomObjects: "true",
+      includeObjectiveBuilder: "true"
+    },
+    allowedQueryValues: { status: ["published", "draft"] },
+    numericQueryBounds: { limit: { min: 1, max: 100 }, offset: { min: 0 } },
+    locationBinding: "path"
+  }),
+  descriptor({
+    capabilityId: "workflow_detail",
+    normalizedPath: "/workflow/{locationId}/{workflowId}",
+    pathBindings: { locationId: "locationId", workflowId: "workflowId" },
+    requiredQueryKeys: ["includeScheduledPauseInfo"],
+    fixedQueryValues: { includeScheduledPauseInfo: "true" },
+    locationBinding: "path"
+  }),
+  descriptor({
+    capabilityId: "workflow_triggers",
+    normalizedPath: "/workflow/{locationId}/trigger",
+    pathBindings: { locationId: "locationId" },
+    queryBindings: { workflowId: "workflowId" },
+    requiredQueryKeys: ["workflowId"],
+    locationBinding: "path"
+  }),
+  descriptor({
+    capabilityId: "workflow_sticky_notes",
+    normalizedPath: "/workflows/sticky-notes-all",
+    queryBindings: { workflowId: "workflowId" },
+    requiredQueryKeys: ["workflowId", "locationId"],
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "workflow_execution_logs",
+    normalizedPath: "/workflows/logs/v2",
+    queryBindings: { workflowId: "workflowId" },
+    requiredQueryKeys: ["workflowId", "locationId", "limit", "fromDate", "toDate"],
+    optionalQueryKeys: ["contactId", "eventType"],
+    // TASK 3 CONSTRAINT, recorded here so it is designed around rather than discovered:
+    // `eventType` is OPTIONAL but NOT repeatable, so it addresses exactly ONE event type
+    // per partition walk. Task 3's `eventTypes: z.array(z.string()).max(20)` therefore
+    // costs up to 20 INDEPENDENT partition walks, all drawing on the one
+    // `maxLogPartitions: 256` budget — i.e. as few as 12 partitions per event type before
+    // the budget is spent, which is not enough to reach a terminal partition on a busy
+    // workflow. Task 3 must either budget per event type or narrow the window.
+    //
+    // A comma-joined `eventType=a,b,c` is deliberately NOT declared: that is an UNPROVEN
+    // upstream shape. If the backend does not split on commas it matches nothing and
+    // returns an empty page, which this rail would record as a legitimately empty window —
+    // the single worst failure mode available here. Proving it requires a live capture,
+    // a descriptor change, and tests; until then one call per event type is the honest cost.
+    // Page size is pinned at the one value the 20-row collector was proven against.
+    // A larger page would silently change what "terminal partition" means.
+    fixedQueryValues: { limit: "20" },
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "workflow_count_per_step",
+    normalizedPath: "/workflows/status/search/count-per-step",
+    queryBindings: { workflowId: "workflowId" },
+    requiredQueryKeys: ["workflowId", "locationId"],
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "workflow_enrollment_search",
+    normalizedPath: "/workflows/status/search/workflow-with-filter",
+    queryBindings: { workflowId: "workflowId" },
+    requiredQueryKeys: ["workflowId", "locationId", "action", "limit"],
+    optionalQueryKeys: [
+      "contactId",
+      "fromDate",
+      "toDate",
+      "eventType",
+      "referenceId",
+      "referenceCreatedAt",
+      "referenceSid",
+      "referenceSequence"
+    ],
+    allowedQueryValues: { action: ["first", "next"] },
+    fixedQueryValues: { limit: "20" },
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "workflow_step_details",
+    normalizedPath: "/workflows/status/search/details-by-step",
+    queryBindings: { workflowId: "workflowId", currentStepId: "stepId" },
+    requiredQueryKeys: ["workflowId", "locationId", "currentStepId", "skip", "limit", "showTotalCount"],
+    // Without showTotalCount the roster cannot be reconciled against a total, so a
+    // truncated roster would read as a complete one.
+    fixedQueryValues: { showTotalCount: "true" },
+    numericQueryBounds: { limit: { min: 1, max: 50 }, skip: { min: 0 } },
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "workflow_enroll_stats_cache",
+    normalizedPath: "/workflows/status/search/enroll-stats-cache",
+    queryBindings: { "workflowIds[]": "workflowId" },
+    requiredQueryKeys: ["workflowIds[]", "locationId"],
+    // `workflowIds[]` is an ARRAY parameter upstream, and it was declared repeatable on
+    // that basis. It is not repeatable HERE, and the two facts do not conflict: the plan
+    // (line 313) binds this key to "contain exactly that workflow", so the bound-key
+    // cardinality rule in audit-gateway.mjs requires exactly one value. Declaring it
+    // repeatable was therefore dead policy — every batch attempt threw BINDING_MISMATCH,
+    // so the field could never be exercised positively.
+    //
+    // Batching N workflows into one call is NOT authorized: it would ask the upstream for
+    // a differently-shaped result than the one-workflow read the receipt claims, and it
+    // widens the audit surface (a batch response carries rows for workflows this call was
+    // never typed with, which the identity guard would then have to either quarantine or
+    // ignore). Cardinality 1 is the spec.
+    //
+    // COST, recorded deliberately so a later reader does not "optimize" it: one call per
+    // workflow is the spec-mandated price of this capability. An account with 400
+    // workflows costs 400 calls here. That is the intended trade — a proven narrow read
+    // per workflow beats an unproven wide one — and changing it requires a plan revision,
+    // a descriptor change, new tests, and a manifest diff, in that order.
+    //
+    // The LITERAL bracket emission is independent of this field: encodeQueryKey in
+    // audit-gateway.mjs is what keeps `workflowIds[]` off the wire as `workflowIds%5B%5D`,
+    // and it still applies to a single-valued key.
+    repeatableQueryKeys: [],
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "workflow_enroll_stats",
+    normalizedPath: "/workflows/status/enroll-stats",
+    queryBindings: { workflowId: "workflowId" },
+    requiredQueryKeys: ["workflowId", "locationId"],
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "voice_ai_agent_discovery",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/voice-ai/agents/simple",
+    requiredQueryKeys: ["locationId"],
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "voice_ai_agent_detail",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/voice-ai/agents/{agentId}",
+    pathBindings: { agentId: "agentId" },
+    requiredQueryKeys: ["locationId"],
+    locationBinding: "query",
+    sealedBy: "voice_ai_agent_discovery"
+  }),
+  descriptor({
+    capabilityId: "conversation_ai_agent_discovery",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/ai-employees/agents",
+    requiredQueryKeys: ["locationId"],
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "conversation_ai_agent_detail",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/ai-employees/employees/{agentId}",
+    pathBindings: { agentId: "agentId" },
+    requiredQueryKeys: ["locationId"],
+    locationBinding: "query",
+    sealedBy: "conversation_ai_agent_discovery"
+  }),
+  descriptor({
+    capabilityId: "agent_studio_agent_discovery",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/agent-studio/agents/agents-with-folders",
+    // agencyId is the agency the location belongs to, not a free parameter: it is
+    // bound to the typed companyId the composite was given.
+    queryBindings: { agencyId: "companyId" },
+    requiredQueryKeys: ["locationId", "agencyId", "productId", "page", "pageSize", "groupBy", "sortBy", "sortOrder"],
+    fixedQueryValues: {
+      productId: "superagent",
+      groupBy: "foldersFirst",
+      sortBy: "lastUpdated",
+      sortOrder: "desc"
+    },
+    numericQueryBounds: { page: { min: 1 }, pageSize: { min: 1, max: 100 } },
+    locationBinding: "query"
+  }),
+  descriptor({
+    capabilityId: "agent_studio_agent_detail",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/agent-studio/super-agent/agents/{agentId}",
+    pathBindings: { agentId: "agentId" },
+    requiredQueryKeys: ["locationId"],
+    locationBinding: "query",
+    sealedBy: "agent_studio_agent_discovery"
+  })
+]);
+var BY_ID = new Map(AUDIT_CAPABILITIES.map((capability) => [capability.capabilityId, capability]));
+function capabilityById(capabilityId, descriptors = AUDIT_CAPABILITIES) {
+  if (typeof capabilityId !== "string" || capabilityId === "") return void 0;
+  if (descriptors === AUDIT_CAPABILITIES) return BY_ID.get(capabilityId);
+  return descriptors.find((capability) => capability.capabilityId === capabilityId);
+}
+function auditError(code, detail, remediation) {
+  const safeDetail = scrubSecrets(String(detail));
+  const error51 = new Error(`${code}: ${safeDetail}`);
+  error51.code = code;
+  error51.detail = safeDetail;
+  error51.remediation = scrubSecrets(String(remediation));
+  return error51;
+}
+function hostBaseFor(host) {
+  if (typeof host !== "string" || !Object.hasOwn(AUDIT_HOSTS, host)) {
+    throw auditError(
+      CODES.UNKNOWN_CAPABILITY_HOST,
+      "the requested capability names a host outside the two approved audit origins",
+      "Audit reads may only target the backend or services origin; correct the descriptor host."
+    );
+  }
+  return AUDIT_HOSTS[host];
+}
+var segmentsOf = (normalizedPath) => normalizedPath.split("/").filter(Boolean);
+var isVariable = (segment) => segment.startsWith("{") && segment.endsWith("}");
+var staticSegmentCount = (normalizedPath) => segmentsOf(normalizedPath).filter((s) => !isVariable(s)).length;
+function resolveCapability({ host, method, path }, descriptors = AUDIT_CAPABILITIES) {
+  if (method !== "GET") {
+    throw auditError(
+      CODES.UNAPPROVED_METHOD,
+      "the audit rail is GET-only and cannot resolve a capability for another method",
+      "Use a read capability, or add a separate non-audit tool for the write."
+    );
+  }
+  const raw = String(path ?? "");
+  if (!raw.startsWith("/") || raw.startsWith("//") || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(raw)) {
+    throw auditError(
+      CODES.ABSOLUTE_PATH_REJECTED,
+      "a capability path must be a rooted relative path, not an absolute or scheme-bearing URL",
+      "Pass the path only; the host comes from the descriptor, never from the caller."
+    );
+  }
+  const wanted = segmentsOf(raw);
+  const candidates = descriptors.filter((capability) => {
+    if (capability.host !== host) return false;
+    const declared = segmentsOf(capability.normalizedPath);
+    if (declared.length !== wanted.length) return false;
+    return declared.every((segment, index) => isVariable(segment) || segment === wanted[index]);
+  });
+  if (candidates.length === 0) {
+    throw auditError(
+      CODES.UNKNOWN_CAPABILITY,
+      "no audit capability descriptor matches the requested host and path",
+      "Add a descriptor plus its tests and regenerate the manifest before calling this route."
+    );
+  }
+  const best = Math.max(...candidates.map((capability) => staticSegmentCount(capability.normalizedPath)));
+  const winners = candidates.filter((capability) => staticSegmentCount(capability.normalizedPath) === best);
+  if (winners.length > 1) {
+    throw auditError(
+      CODES.AMBIGUOUS_CAPABILITY,
+      `the requested path matches ${winners.length} descriptors with equal path specificity`,
+      "Disambiguate the descriptors so exactly one can own a concrete path, then re-run."
+    );
+  }
+  return winners[0];
+}
+
+// core/audit-gateway.mjs
+var DEFAULT_MINIMUM_DELAY_MS = 300;
+var DEFAULT_JITTER_MS = 150;
+var defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
+function makeAuditLimiter({
+  minimumDelayMs = DEFAULT_MINIMUM_DELAY_MS,
+  jitterMs = DEFAULT_JITTER_MS,
+  sleepImpl = defaultSleep,
+  randomImpl = Math.random,
+  nowImpl = Date.now
+} = {}) {
+  let chain = Promise.resolve();
+  let nextAllowedAt = -Infinity;
+  const schedule = (task) => {
+    const run = chain.then(async () => {
+      const waitMs = nextAllowedAt - nowImpl();
+      if (waitMs > 0) await sleepImpl(waitMs);
+      nextAllowedAt = nowImpl() + minimumDelayMs + Math.floor(randomImpl() * jitterMs);
+      return task();
+    });
+    chain = run.then(() => void 0, () => void 0);
+    return run;
+  };
+  return { schedule };
+}
+var CIRCUIT_SCOPES = Object.freeze(["process", "backend", "ai"]);
+function makeAuditCircuit() {
+  const latched = /* @__PURE__ */ new Map();
+  const unusableBodyRuns = /* @__PURE__ */ new Map();
+  const requireScope = (scope) => {
+    if (!CIRCUIT_SCOPES.includes(scope)) {
+      throw auditError(
+        CODES.INVALID_CIRCUIT_SCOPE,
+        `the audit circuit has no scope by that name (expected one of ${CIRCUIT_SCOPES.join(", ")})`,
+        "Open and query the circuit with 'process' or a credential rail name."
+      );
+    }
+    return scope;
+  };
+  const blockerFor = (scope) => {
+    if (latched.has("process")) return { scope: "process", ...latched.get("process") };
+    if (scope !== "process" && latched.has(scope)) return { scope, ...latched.get(scope) };
+    return null;
+  };
+  return {
+    // Defaults to 'process' so an unscoped question means "is the whole run stopped".
+    isOpen: (scope = "process") => blockerFor(requireScope(scope)) !== null,
+    state: (scope = "process") => {
+      const blocker = blockerFor(requireScope(scope));
+      return blocker === null ? { open: false, scope: null, reason: null, meta: null } : { open: true, scope: blocker.scope, reason: blocker.reason, meta: blocker.meta };
+    },
+    // `state()` answers "what is BLOCKING this scope", which is what a caller about to
+    // read needs — and a 'process' latch deliberately outranks a rail latch there. That
+    // made every rail fact unreadable the moment the process latched: an AI credential
+    // that died at 09:00 became invisible behind a 09:05 throttle, so a checkpoint written
+    // after both could not record that the AI rail ALSO needs clearing, and a resumer
+    // would clear the throttle and walk straight back into the dead credential.
+    //
+    // `latchOf` answers the other question — "what did THIS scope record" — independently
+    // of any broader latch. Both are needed; neither can be expressed as the other.
+    latchOf: (scope) => {
+      requireScope(scope);
+      const entry = latched.get(scope);
+      return entry === void 0 ? { open: false, scope, reason: null, meta: null } : { open: true, scope, reason: entry.reason, meta: entry.meta };
+    },
+    // Every latch that exists, in CIRCUIT_SCOPES order, so Task 3/5 checkpoint metadata can
+    // record the whole set rather than only whichever one happens to outrank the others.
+    latches: () => CIRCUIT_SCOPES.filter((scope) => latched.has(scope)).map((scope) => ({ scope, reason: latched.get(scope).reason, meta: latched.get(scope).meta })),
+    open(scope, nextReason, nextMeta = null) {
+      requireScope(scope);
+      if (latched.has(scope)) return;
+      latched.set(scope, { reason: String(nextReason), meta: nextMeta });
+    },
+    // Returns the new run length so the caller can compare it against its own threshold
+    // without the circuit needing to know what that threshold is.
+    noteUnusableBody(scope) {
+      requireScope(scope);
+      const next = (unusableBodyRuns.get(scope) ?? 0) + 1;
+      unusableBodyRuns.set(scope, next);
+      return next;
+    },
+    // Only a GENUINELY successful read clears the run — see the caller for why a parseable
+    // error body must not.
+    noteUsableRead(scope) {
+      requireScope(scope);
+      unusableBodyRuns.set(scope, 0);
+    },
+    unusableBodyRun: (scope) => {
+      requireScope(scope);
+      return unusableBodyRuns.get(scope) ?? 0;
+    }
+  };
+}
+var UNSAFE_IN_SEGMENT = /[/\\?#]/;
+var SCHEME_PREFIX = /^[A-Za-z][A-Za-z0-9+.-]*:/;
+var MAX_DECODE_PASSES = 5;
+var isSafePathSegment = (value) => {
+  let current = value;
+  for (let pass = 0; pass < MAX_DECODE_PASSES; pass += 1) {
+    if (current === "" || current === "." || current === "..") return false;
+    if (UNSAFE_IN_SEGMENT.test(current)) return false;
+    if (SCHEME_PREFIX.test(current)) return false;
+    if (!current.includes("%")) return true;
+    let decoded;
+    try {
+      decoded = decodeURIComponent(current);
+    } catch {
+      return false;
+    }
+    if (decoded === current) return true;
+    current = decoded;
+  }
+  return false;
+};
+var UNSIGNED_INTEGER = /^\d+$/;
+var encodeQueryKey = (key) => encodeURIComponent(key).replace(/%5B/g, "[").replace(/%5D/g, "]");
+var toParams = (query) => {
+  const params = new URLSearchParams();
+  if (query instanceof URLSearchParams) {
+    for (const [key, value] of query.entries()) params.append(key, value);
+    return params;
+  }
+  for (const [key, value] of Object.entries(query ?? {})) {
+    if (value === void 0 || value === null) continue;
+    if (Array.isArray(value)) {
+      for (const item of value) params.append(key, String(item));
+    } else {
+      params.append(key, String(value));
+    }
+  }
+  return params;
+};
+var isLocationRateLimited = (json2) => {
+  if (!json2 || typeof json2 !== "object") return false;
+  if (Array.isArray(json2)) {
+    return json2.some((row) => row && typeof row === "object" && row.isLocationRateLimited === true);
+  }
+  if (json2.isLocationRateLimited === true) return true;
+  const nested = json2.data;
+  return Boolean(nested && typeof nested === "object" && nested.isLocationRateLimited === true);
+};
+var IDENTITY_FIELDS = Object.freeze({
+  locationId: "locationId",
+  workflowId: "workflowId",
+  stepId: "stepId",
+  currentStepId: "stepId",
+  companyId: "companyId",
+  agentId: "agentId"
+});
+var checkableFieldsCache = /* @__PURE__ */ new WeakMap();
+var checkableFieldsFor = (capability) => {
+  const cached2 = checkableFieldsCache.get(capability);
+  if (cached2) return cached2;
+  const targets = /* @__PURE__ */ new Set([
+    ...Object.values(capability.pathBindings),
+    ...Object.values(capability.queryBindings)
+  ]);
+  if (capability.locationBinding) targets.add("locationId");
+  const fields = Object.freeze(Object.entries(IDENTITY_FIELDS).filter(([, target]) => targets.has(target)).map(([field, target]) => [field, target]));
+  checkableFieldsCache.set(capability, fields);
+  return fields;
+};
+var MAX_IDENTITY_DEPTH = 3;
+var MAX_IDENTITY_RECORDS = 500;
+var ID_WRAPPER_KEYS = ["$oid", "_id", "id"];
+var WRAPPED = /* @__PURE__ */ Symbol("unreadable");
+var readIdentityValue = (raw) => {
+  if (raw === null || raw === void 0) return null;
+  if (typeof raw !== "object") return { value: raw };
+  if (Array.isArray(raw)) return WRAPPED;
+  for (const key of ID_WRAPPER_KEYS) {
+    if (!Object.hasOwn(raw, key)) continue;
+    const inner = raw[key];
+    if (inner !== null && inner !== void 0 && typeof inner !== "object") return { value: inner };
+    return WRAPPED;
+  }
+  return WRAPPED;
+};
+var inspectIdentity = (json2, expected, fields) => {
+  const checked = /* @__PURE__ */ new Set();
+  const conflicts = [];
+  const unreadable = [];
+  let nativeRecords = 0;
+  let scopedRecords = 0;
+  let inspected = 0;
+  let inspectionCapped = false;
+  let depthCapped = false;
+  const carriesIdentity = (record2) => fields.some(([field]) => Object.hasOwn(record2, field));
+  const scan = (record2) => {
+    let sawIdentity = false;
+    let consumed = null;
+    for (const [field, target] of fields) {
+      if (!Object.hasOwn(record2, field)) continue;
+      const raw = record2[field];
+      const want = expected[target];
+      if (want === null || want === void 0) continue;
+      const read = readIdentityValue(raw);
+      if (read === null) continue;
+      if (raw !== null && typeof raw === "object") {
+        consumed ??= /* @__PURE__ */ new Set();
+        consumed.add(raw);
+      }
+      if (read === WRAPPED) {
+        unreadable.push({ field, expected: String(want) });
+        continue;
+      }
+      sawIdentity = true;
+      if (String(read.value) === String(want)) checked.add(field);
+      else conflicts.push({ field, expected: String(want), actual: String(read.value) });
+    }
+    return { sawIdentity, consumed };
+  };
+  const visit = (value, depth, isArrayMember) => {
+    if (Array.isArray(value)) {
+      let fromArray = 0;
+      for (const item of value) fromArray += visit(item, depth, true);
+      return fromArray;
+    }
+    if (!value || typeof value !== "object") return 0;
+    const spendsBudget = isArrayMember || carriesIdentity(value);
+    if (spendsBudget) {
+      if (inspected >= MAX_IDENTITY_RECORDS) {
+        inspectionCapped = true;
+        return 0;
+      }
+      inspected += 1;
+    }
+    const { sawIdentity, consumed } = scan(value);
+    let fromChildren = 0;
+    const children = Object.values(value).filter((child) => child && typeof child === "object" && !consumed?.has(child));
+    if (depth < MAX_IDENTITY_DEPTH) {
+      for (const child of children) fromChildren += visit(child, depth + 1, false);
+    } else if (children.length > 0) {
+      depthCapped = true;
+    }
+    if (sawIdentity) {
+      nativeRecords += 1;
+      return 1 + fromChildren;
+    }
+    if (fromChildren === 0) {
+      scopedRecords += 1;
+      return 1;
+    }
+    return fromChildren;
+  };
+  visit(json2, 0, false);
+  const bindingMethod = nativeRecords === 0 ? "request_scope" : scopedRecords === 0 ? "native" : "mixed";
+  return {
+    identity: {
+      bindingMethod,
+      checked: [...checked].sort(),
+      conflicts,
+      unreadable,
+      inspectionCapped,
+      depthCapped
+    },
+    quarantined: conflicts.length > 0
+  };
+};
+var identityIncomplete = (identity) => identity.unreadable.length > 0 || identity.inspectionCapped || identity.depthCapped;
+var EXPECTED_RAIL = Object.freeze({ backend: "jwt", ai: "ai" });
+function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors = AUDIT_CAPABILITIES }) {
+  if (typeof locationId !== "string" || locationId.trim() === "") {
+    throw auditError(
+      CODES.INVALID_AUDIT_LOCATION,
+      "an audit gateway must be constructed with a non-empty string locationId",
+      "Pass the typed location the run is scoped to; the audit rail has no default location."
+    );
+  }
+  const boundLocationId = locationId;
+  const rails = { ...gateways ?? {} };
+  for (const [slot, expected] of Object.entries(EXPECTED_RAIL)) {
+    const candidate = rails[slot];
+    if (candidate === void 0 || candidate === null) continue;
+    if (candidate.rail !== expected) {
+      throw auditError(
+        CODES.AUDIT_RAIL_MISMATCH,
+        `the ${slot} audit slot was given a gateway on the ${String(candidate.rail)} credential rail`,
+        `Construct the ${slot} slot with a rail:'${expected}' gateway; the slots are not interchangeable.`
+      );
+    }
+  }
+  const gatewayFor = (capability) => {
+    const chosen = rails[capability.authRail];
+    if (!chosen) {
+      throw auditError(
+        CODES.MISSING_AUTH_RAIL,
+        `capability ${capability.capabilityId} needs the ${capability.authRail} credential rail, which was not supplied`,
+        "Construct the audit gateway with both rails, or do not call capabilities on a rail you cannot authenticate."
+      );
+    }
+    return chosen;
+  };
+  const validate = ({ capabilityId, method, typedBindings, query }) => {
+    const capability = capabilityById(capabilityId, descriptors);
+    if (!capability) {
+      throw auditError(
+        CODES.UNKNOWN_CAPABILITY,
+        "the requested capability id is not in the audit descriptor set",
+        "Call one of the registered audit capabilities, or add a descriptor plus tests first."
+      );
+    }
+    if (method !== "GET") {
+      throw auditError(
+        CODES.UNAPPROVED_METHOD,
+        `capability ${capability.capabilityId} may only be called with GET on the audit rail`,
+        "The audit profile is structurally read-only; use the full server for any write."
+      );
+    }
+    if (typedBindings.locationId !== void 0 && String(typedBindings.locationId) !== boundLocationId) {
+      throw auditError(
+        CODES.LOCATION_BINDING_MISMATCH,
+        `capability ${capability.capabilityId} was given a typed location other than the bound one`,
+        "Audit reads are scoped to one location per gateway; construct a second gateway for a second location."
+      );
+    }
+    const appliedPath = capability.normalizedPath.split("/").map((segment) => {
+      if (!(segment.startsWith("{") && segment.endsWith("}"))) return segment;
+      const variable = segment.slice(1, -1);
+      const target = capability.pathBindings[variable];
+      const raw = typedBindings[target];
+      if (raw === void 0 || raw === null) {
+        throw auditError(
+          CODES.MISSING_PATH_BINDING,
+          `capability ${capability.capabilityId} needs a typed ${target} for path variable ${variable}`,
+          "Pass the typed id through typedBindings before calling this capability."
+        );
+      }
+      const value = String(raw);
+      if (!isSafePathSegment(value)) {
+        throw auditError(
+          CODES.INVALID_PATH_BINDING,
+          `path variable ${variable} of capability ${capability.capabilityId} is not a single safe decoded segment`,
+          "Path variables accept one decoded segment: no separators, traversal, scheme, or empty value."
+        );
+      }
+      if (value.includes("%")) {
+        throw auditError(
+          CODES.INVALID_PATH_BINDING,
+          `path variable ${variable} of capability ${capability.capabilityId} contains a percent-encoding sequence`,
+          "Pass the decoded id; audit path variables are plain ids and never percent-encoded."
+        );
+      }
+      if (target === "locationId" && value !== boundLocationId) {
+        throw auditError(
+          CODES.LOCATION_BINDING_MISMATCH,
+          `capability ${capability.capabilityId} would address a location other than the bound one`,
+          "Audit reads are scoped to one location per gateway; construct a second gateway for a second location."
+        );
+      }
+      if (target === "agentId") {
+        const sealed = typedBindings.discoveredAgentIds;
+        const sealKey = capability.sealedBy;
+        if (!sealed || typeof sealed !== "object" || Array.isArray(sealed)) {
+          throw auditError(
+            CODES.BINDING_MISMATCH,
+            `capability ${capability.capabilityId} needs the sealed discovery result keyed by discovery capability id`,
+            "Pass discoveredAgentIds as { <discovery capabilityId>: [...ids] }, then retry the detail read."
+          );
+        }
+        const permitted = Object.hasOwn(sealed, sealKey) ? sealed[sealKey] : void 0;
+        if (!Array.isArray(permitted)) {
+          throw auditError(
+            CODES.BINDING_MISMATCH,
+            `capability ${capability.capabilityId} has no sealed result under its own discovery capability ${sealKey}`,
+            `Run ${sealKey} first and seal its ids under that key; another product's discovery result cannot authorize this route.`
+          );
+        }
+        if (!permitted.map(String).includes(value)) {
+          throw auditError(
+            CODES.BINDING_MISMATCH,
+            `capability ${capability.capabilityId} was asked for an agent outside its sealed discovery result`,
+            "Only read details for ids returned by the paired discovery capability."
+          );
+        }
+      }
+      return encodeURIComponent(value);
+    }).join("/");
+    const params = toParams(query);
+    const declared = /* @__PURE__ */ new Set([...capability.requiredQueryKeys, ...capability.optionalQueryKeys]);
+    const repeatable = new Set(capability.repeatableQueryKeys);
+    const presentKeys = [...new Set(params.keys())];
+    for (const key of presentKeys) {
+      if (!declared.has(key)) {
+        throw auditError(
+          CODES.UNKNOWN_QUERY_KEY,
+          `capability ${capability.capabilityId} does not declare one of the supplied query keys`,
+          "Only descriptor-declared keys may be sent; add the key to the descriptor plus tests first."
+        );
+      }
+    }
+    for (const key of capability.requiredQueryKeys) {
+      if (!params.has(key)) {
+        throw auditError(
+          CODES.MISSING_QUERY_KEY,
+          `capability ${capability.capabilityId} requires query key ${key}`,
+          "Supply every required query key; a partial query cannot support a completeness claim."
+        );
+      }
+    }
+    for (const key of presentKeys) {
+      if (params.getAll(key).length > 1 && !repeatable.has(key)) {
+        throw auditError(
+          CODES.DUPLICATE_QUERY_KEY,
+          `query key ${key} is repeated but capability ${capability.capabilityId} does not allow repeats`,
+          "Send one value per key; only descriptor-declared repeatable keys may appear more than once."
+        );
+      }
+    }
+    for (const [key, expected] of Object.entries(capability.fixedQueryValues)) {
+      for (const value of params.getAll(key)) {
+        if (value !== String(expected)) {
+          throw auditError(
+            CODES.FIXED_QUERY_VALUE_MISMATCH,
+            `query key ${key} is pinned by capability ${capability.capabilityId} and cannot be changed`,
+            "Changing a pinned value invalidates the proven contract; revise the descriptor and re-prove it instead."
+          );
+        }
+      }
+    }
+    for (const [key, allowed] of Object.entries(capability.allowedQueryValues)) {
+      const permitted = allowed.map(String);
+      for (const value of params.getAll(key)) {
+        if (!permitted.includes(value)) {
+          throw auditError(
+            CODES.DISALLOWED_QUERY_VALUE,
+            `query key ${key} carries a value outside the set capability ${capability.capabilityId} allows`,
+            "Use one of the descriptor-declared values for this key."
+          );
+        }
+      }
+    }
+    for (const [key, bounds] of Object.entries(capability.numericQueryBounds)) {
+      for (const value of params.getAll(key)) {
+        const numeric = Number(value);
+        const outOfRange = !UNSIGNED_INTEGER.test(value) || !Number.isFinite(numeric) || bounds.min !== void 0 && numeric < bounds.min || bounds.max !== void 0 && numeric > bounds.max;
+        if (outOfRange) {
+          throw auditError(
+            CODES.QUERY_BOUND_VIOLATION,
+            `query key ${key} is outside the numeric bounds capability ${capability.capabilityId} declares`,
+            "Keep paging parameters inside the declared bounds; a wider page has not been proven."
+          );
+        }
+      }
+    }
+    for (const key of capability.requiredQueryKeys) {
+      if (params.getAll(key).some((value) => value.trim() === "")) {
+        throw auditError(
+          CODES.MISSING_QUERY_KEY,
+          `capability ${capability.capabilityId} requires a non-empty value for query key ${key}`,
+          "Supply a real value for every required key; an empty value is not a narrower request, it is an unbounded one."
+        );
+      }
+    }
+    for (const [key, target] of Object.entries(capability.queryBindings)) {
+      const values = params.getAll(key);
+      if (values.length === 0) continue;
+      const typed = typedBindings[target];
+      if (typed === void 0 || typed === null) {
+        throw auditError(
+          CODES.BINDING_MISMATCH,
+          `query key ${key} must be bound to a typed ${target}, which was not supplied`,
+          "Pass the typed id through typedBindings so the emitted query can be checked against it."
+        );
+      }
+      if (values.length !== 1) {
+        throw auditError(
+          CODES.BINDING_MISMATCH,
+          `query key ${key} must carry exactly one value bound to the typed ${target} for capability ${capability.capabilityId}`,
+          "Bound keys address exactly one entity; send a single value equal to the typed id."
+        );
+      }
+      for (const value of values) {
+        if (value !== String(typed)) {
+          throw auditError(
+            CODES.BINDING_MISMATCH,
+            `query key ${key} does not match the typed ${target} for capability ${capability.capabilityId}`,
+            "A capability may only ask about the entity it was typed with; correct the query or the typed binding."
+          );
+        }
+      }
+    }
+    if (Object.values(capability.queryBindings).includes("stepId") && typedBindings.stepId !== void 0 && typedBindings.stepId !== null && typedBindings.discoveredStepIds !== void 0) {
+      const sealedSteps = typedBindings.discoveredStepIds;
+      if (!Array.isArray(sealedSteps) || !sealedSteps.map(String).includes(String(typedBindings.stepId))) {
+        throw auditError(
+          CODES.BINDING_MISMATCH,
+          `capability ${capability.capabilityId} was typed with a step outside the sealed step set it was given`,
+          "Either omit discoveredStepIds or pass an array that contains the step being read."
+        );
+      }
+    }
+    if (capability.locationBinding === "query") {
+      for (const value of params.getAll("locationId")) {
+        if (value !== boundLocationId) {
+          throw auditError(
+            CODES.LOCATION_BINDING_MISMATCH,
+            `capability ${capability.capabilityId} would query a location other than the bound one`,
+            "Audit reads are scoped to one location per gateway; construct a second gateway for a second location."
+          );
+        }
+      }
+    }
+    const traced = resolveCapability({ host: capability.host, method: "GET", path: appliedPath }, descriptors);
+    if (traced.capabilityId !== capability.capabilityId) {
+      throw auditError(
+        CODES.CAPABILITY_TRACE_MISMATCH,
+        `the concrete path for capability ${capability.capabilityId} resolves to ${traced.capabilityId}`,
+        "A typed id collided with a static route segment; correct the binding before retrying."
+      );
+    }
+    const appliedQuery = {};
+    for (const key of presentKeys) {
+      const values = params.getAll(key);
+      appliedQuery[key] = repeatable.has(key) ? values : values[0];
+    }
+    const search = [...params.entries()].map(([key, value]) => `${encodeQueryKey(key)}=${encodeURIComponent(value)}`).join("&");
+    return {
+      // The RESOLVED trace, not the claimed id. A receipt minted from the caller's claim
+      // would prove nothing about the request that was actually sent. The mismatch throw
+      // immediately above means the two are provably the same descriptor here, so this
+      // line cannot be killed by a single mutation on its own — it is the trace CHECK
+      // that carries the behaviour, and that check is what the collision tests kill.
+      // Sourcing the receipt from `traced` keeps that true even if the check ever moves.
+      capability: traced,
+      // Scrubbed on the SUCCESS path too, not only on rejection: an optional free-text
+      // key such as `search` is caller-controlled, and these fields are echoed straight
+      // into the receipt and the MCP transcript.
+      appliedPath: scrubSecrets(appliedPath),
+      appliedQuery: scrubSecrets(appliedQuery),
+      target: search ? `${appliedPath}?${search}` : appliedPath,
+      gateway: gatewayFor(traced),
+      base: hostBaseFor(traced.host)
+    };
+  };
+  const INVALID_BODY_LATCH_THRESHOLD = 3;
+  const circuitOpenError = (scope) => {
+    const state2 = circuit.state(scope);
+    const error51 = auditError(
+      CODES.CIRCUIT_OPEN,
+      `the shared audit circuit is open on the ${state2.scope ?? scope} scope (${state2.reason ?? "unknown reason"})`,
+      "Stop the run and resume from the last checkpoint after the throttle clears; the audit rail never auto-retries."
+    );
+    error51.meta = state2;
+    error51.retryAfterMs = state2.meta?.retryAfterMs ?? null;
+    return error51;
+  };
+  const callCapability = async ({ capabilityId, method = "GET", typedBindings = {}, query = {} }) => {
+    const { capability, appliedPath, appliedQuery, target, gateway, base } = validate({ capabilityId, method, typedBindings, query });
+    const scope = capability.authRail;
+    if (circuit.isOpen(scope)) throw circuitOpenError(scope);
+    let meta3;
+    try {
+      meta3 = await limiter.schedule(() => {
+        if (circuit.isOpen(scope)) throw circuitOpenError(scope);
+        return gateway.callWithMeta("GET", target, void 0, { base });
+      });
+    } catch (error51) {
+      if (error51?.code === CODES.CIRCUIT_OPEN) throw error51;
+      circuit.open(scope, CODES.TRANSPORT_FAILED, {
+        capabilityId: capability.capabilityId,
+        status: null,
+        retryAfterMs: null
+      });
+      const failure2 = auditError(
+        CODES.TRANSPORT_FAILED,
+        `capability ${capability.capabilityId} could not complete its transport`,
+        "Treat the read as failed, not empty. Resume from the last checkpoint once the transport is healthy."
+      );
+      Object.defineProperty(failure2, "cause", { value: error51, enumerable: false, configurable: true, writable: true });
+      throw failure2;
+    }
+    const authRejected = meta3.status === 401 || meta3.status === 403;
+    const locationThrottled = isLocationRateLimited(meta3.json);
+    const bodyUsable = meta3.json !== null && typeof meta3.json === "object";
+    let identity;
+    let quarantined;
+    try {
+      ({ identity, quarantined } = inspectIdentity(
+        meta3.json,
+        {
+          locationId: boundLocationId,
+          workflowId: typedBindings.workflowId,
+          stepId: typedBindings.stepId,
+          companyId: typedBindings.companyId,
+          agentId: typedBindings.agentId
+        },
+        checkableFieldsFor(capability)
+      ));
+    } catch (error51) {
+      const failure2 = auditError(
+        CODES.IDENTITY_INSPECTION_FAILED,
+        `capability ${capability.capabilityId} returned a body that threw while its identity was being inspected`,
+        "Treat the read as failed, not empty. A response whose identity cannot be inspected cannot prove it belongs to this location."
+      );
+      Object.defineProperty(failure2, "cause", { value: error51, enumerable: false, configurable: true, writable: true });
+      throw failure2;
+    }
+    const incomplete = identityIncomplete(identity);
+    const latchMeta = {
+      capabilityId: capability.capabilityId,
+      status: meta3.status,
+      retryAfterMs: meta3.retryAfterMs
+    };
+    if (meta3.status === 429) {
+      circuit.open("process", CODES.RATE_LIMITED, latchMeta);
+    } else if (meta3.status === 401) {
+      circuit.open(scope, CODES.AUTH_REJECTED, latchMeta);
+    } else if (locationThrottled) {
+      circuit.open("process", CODES.LOCATION_RATE_LIMITED, latchMeta);
+    } else if (!bodyUsable) {
+      const consecutive = circuit.noteUnusableBody(scope);
+      if (consecutive >= INVALID_BODY_LATCH_THRESHOLD) {
+        circuit.open(scope, CODES.INVALID_RESPONSE_BODY, { ...latchMeta, consecutive });
+      }
+    }
+    if (meta3.ok === true && bodyUsable) circuit.noteUsableRead(scope);
+    const failureClass = authRejected ? CODES.AUTH_REJECTED : meta3.status === 429 ? CODES.RATE_LIMITED : locationThrottled ? CODES.LOCATION_RATE_LIMITED : meta3.ok !== true ? `HTTP_${meta3.status}` : !bodyUsable ? CODES.INVALID_RESPONSE_BODY : quarantined ? CODES.IDENTITY_CONFLICT : identity.unreadable.length > 0 ? CODES.IDENTITY_UNREADABLE : identity.inspectionCapped ? CODES.IDENTITY_INSPECTION_CAPPED : identity.depthCapped ? CODES.IDENTITY_DEPTH_CAPPED : null;
+    return {
+      capabilityId: capability.capabilityId,
+      host: capability.host,
+      appliedPath,
+      appliedQuery,
+      status: meta3.status,
+      // A throttled 200, an unparseable body, a record whose identity contradicts the
+      // request, and an identity check that could not be COMPLETED are all NOT successes.
+      // The status and body are preserved so the caller can record the evidence, but none
+      // of them may count as a read.
+      ok: meta3.ok === true && !locationThrottled && bodyUsable && !quarantined && !incomplete,
+      json: meta3.json,
+      identity,
+      quarantined,
+      failureClass,
+      retryAfterMs: meta3.retryAfterMs,
+      capturedAt: meta3.capturedAt
+    };
+  };
+  return { callCapability, locationId: boundLocationId };
+}
+
+// core/gateway.mjs
+init_define_TOOL_CATALOG();
+var BASE = "https://backend.leadconnectorhq.com";
+var IFRAME = "https://client-app-automation-workflows.leadconnectorhq.com";
+var APP = "https://app.gohighlevel.com";
+var AI_HOST = "https://services.leadconnectorhq.com";
+var GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
+var THROTTLE_MS = 300;
+var JITTER_MS = 150;
+var DELTA_SECONDS = /^\d+$/;
+var IMF_FIXDATE = /^[A-Za-z]{3}, \d{2} [A-Za-z]{3} \d{4} \d{2}:\d{2}:\d{2} GMT$/;
+var RFC850_DATE = /^[A-Za-z]{3,6}day, \d{2}-[A-Za-z]{3}-\d{2} \d{2}:\d{2}:\d{2} GMT$/;
+var ASCTIME_DATE = /^[A-Za-z]{3} ([A-Za-z]{3}) ([ \d]\d) (\d{2}):(\d{2}):(\d{2}) (\d{4})$/;
+var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var parseAsctimeGmt = (text) => {
+  const match = ASCTIME_DATE.exec(text);
+  if (!match) return NaN;
+  const [, monthName, dayText, hour, minute, second, year] = match;
+  const month = MONTHS.indexOf(monthName);
+  if (month < 0) return NaN;
+  const day = Number(dayText);
+  const at = Date.UTC(Number(year), month, day, Number(hour), Number(minute), Number(second));
+  const check2 = new Date(at);
+  const valid = check2.getUTCFullYear() === Number(year) && check2.getUTCMonth() === month && check2.getUTCDate() === day && check2.getUTCHours() === Number(hour) && check2.getUTCMinutes() === Number(minute) && check2.getUTCSeconds() === Number(second);
+  return valid ? at : NaN;
+};
+var MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
+var RECAPTURE2 = "Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token), then retry. No restart needed.";
+var defaultSleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
+function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep2, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
+  const creds = readCredentials({ tokenFile, allowExpired: true });
+  const headers = (isWrite, overrides = {}, base = BASE) => {
+    const h = { channel: "APP", source: "WEB_USER", version: "2021-07-28", accept: "application/json, text/plain, */*" };
+    if (isWrite) {
+      h["content-type"] = "application/json";
+      h.origin = rail === "ai" ? APP : IFRAME;
+      h.referer = `${rail === "ai" ? APP : IFRAME}/`;
+    } else if (rail === "ai") {
+      h.referer = `${APP}/`;
+    }
+    for (const [rawName, value] of Object.entries(overrides ?? {})) {
+      if (value === void 0 || value === null) continue;
+      const name = rawName.toLowerCase();
+      if (name === "authorization" || name === "token-id") continue;
+      h[name] = value;
+    }
+    if (rail === "ai") {
+      let origin;
+      try {
+        origin = new URL(base).origin;
+      } catch {
+        origin = null;
+      }
+      if (origin !== AI_HOST) {
+        const e = new Error(`ai rail may only target ${AI_HOST}, not ${origin ?? base}`);
+        e.code = "AI_RAIL_HOST_INVALID";
+        e.remediation = "The AI credential rail attaches an agency-admin token-id; route AI calls to the AI host only.";
+        throw e;
+      }
+      requireAiCredentials(creds);
+      h.authorization = `Bearer ${creds.jwt}`;
+      h["token-id"] = creds.tokenId;
+    } else if (rail === "token-id") {
+      if (!creds.tokenId) {
+        const e = new Error("no token-id in capture file");
+        e.code = "TOKEN_MISSING";
+        e.remediation = RECAPTURE2;
+        throw e;
+      }
+      h["token-id"] = creds.tokenId;
+    } else {
+      if (creds.secondsRemaining <= 0) {
+        const e = new Error("JWT exp is in the past");
+        e.code = "TOKEN_EXPIRED";
+        e.remediation = RECAPTURE2;
+        throw e;
+      }
+      h.authorization = `Bearer ${creds.jwt}`;
+    }
+    return h;
+  };
+  const request = async (method, path, body, baseOrOptions = BASE) => {
+    const options = typeof baseOrOptions === "string" ? { base: baseOrOptions } : baseOrOptions ?? {};
+    const base = options.base ?? BASE;
+    const signedUpload = options.signedUpload === true;
+    let signedTarget = null;
+    if (signedUpload) {
+      let ok2 = method === "PUT" && (Buffer.isBuffer(body) || ArrayBuffer.isView(body));
+      try {
+        const resolved = new URL(path, base);
+        ok2 = ok2 && resolved.protocol === "https:" && GCS_HOST_RE.test(resolved.hostname);
+        signedTarget = resolved.href;
+      } catch {
+        ok2 = false;
+      }
+      if (!ok2) {
+        throw new Error("signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL");
+      }
+    }
+    const delayMs = Math.max(0, throttleMs) + Math.floor(randomImpl() * Math.max(0, jitterMs));
+    if (delayMs > 0) await sleepImpl(delayMs);
+    const requestHeaders = signedUpload ? Object.fromEntries(Object.entries(options.headers ?? {}).filter(([name, value]) => value !== void 0 && value !== null && !["authorization", "token-id"].includes(name.toLowerCase())).map(([name, value]) => [name.toLowerCase(), value])) : headers(method !== "GET", options.headers, base);
+    const res = await fetchImpl(signedTarget ?? base + path, {
+      method,
+      headers: requestHeaders,
+      body: body === void 0 ? void 0 : signedUpload ? body : JSON.stringify(body)
+    });
+    return res;
+  };
+  const call = async (method, path, body, baseOrOptions = BASE) => {
+    const res = await request(method, path, body, baseOrOptions);
+    const text = await res.text();
+    let json2;
+    try {
+      json2 = JSON.parse(text);
+    } catch {
+      json2 = text;
+    }
+    return { status: res.status, ok: res.ok, json: json2 };
+  };
+  const headerValue = (res, name) => {
+    if (typeof res?.headers?.get === "function") return res.headers.get(name) ?? null;
+    const bag = res?.headers;
+    if (!bag || typeof bag !== "object") return null;
+    const wanted = String(name).toLowerCase();
+    for (const [key, value] of Object.entries(bag)) {
+      if (String(key).toLowerCase() !== wanted) continue;
+      return value === void 0 || value === null ? null : value;
+    }
+    return null;
+  };
+  const readRetryAfterMs = (res, capturedAt) => {
+    const raw = headerValue(res, "retry-after");
+    if (raw === null || raw === void 0) return null;
+    const text = String(raw).trim();
+    if (text === "") return null;
+    if (DELTA_SECONDS.test(text)) return Math.min(Number(text) * 1e3, MAX_RETRY_AFTER_MS);
+    let at;
+    if (ASCTIME_DATE.test(text)) at = parseAsctimeGmt(text);
+    else if (IMF_FIXDATE.test(text) || RFC850_DATE.test(text)) at = Date.parse(text);
+    else return null;
+    if (Number.isNaN(at)) return null;
+    return Math.min(Math.max(0, at - capturedAt), MAX_RETRY_AFTER_MS);
+  };
+  const callWithMeta = async (method, path, body, baseOrOptions = BASE) => {
+    const res = await request(method, path, body, baseOrOptions);
+    const capturedAt = nowImpl();
+    const text = await res.text();
+    let json2;
+    try {
+      json2 = JSON.parse(text);
+    } catch {
+      json2 = text;
+    }
+    return { status: res.status, ok: res.ok, json: json2, retryAfterMs: readRetryAfterMs(res, capturedAt), capturedAt };
+  };
+  const sseError = (code, detail, remediation) => {
+    const error51 = new Error(detail);
+    error51.code = code;
+    error51.detail = detail;
+    error51.remediation = remediation;
+    return error51;
+  };
+  const parseEvent = (frame) => {
+    const fields = frame.replace(/\r/g, "").split("\n");
+    let event = "message";
+    const data2 = [];
+    for (const line of fields) {
+      if (line.startsWith("event:")) event = line.slice(6).trim();
+      if (line.startsWith("data:")) data2.push(line.slice(5).trimStart());
+    }
+    const raw = data2.join("\n");
+    let payload = raw;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+    }
+    return { event, data: payload };
+  };
+  const stream = async (method, path, body, baseOrOptions = BASE) => {
+    const diagnose = process.env.GHL_SSE_DIAGNOSTICS === "1";
+    const startedAt = Date.now();
+    let bytesReceived = 0;
+    let chunkCount = 0;
+    const lastEvents = [];
+    const trace = (phase, extra = {}) => {
+      if (!diagnose) return;
+      process.stderr.write(`[ghl-sse] ${JSON.stringify({
+        phase,
+        elapsedMs: Date.now() - startedAt,
+        bytesReceived,
+        chunkCount,
+        lastEvents,
+        ...extra
+      })}
+`);
+    };
+    const supplied = typeof baseOrOptions === "string" ? { base: baseOrOptions } : baseOrOptions ?? {};
+    const terminalEvents = new Set(supplied.terminalEvents ?? ["done", "agent_saved"]);
+    let res;
+    try {
+      res = await request(method, path, body, {
+        ...supplied,
+        headers: { accept: "text/event-stream", ...supplied.headers ?? {} }
+      });
+    } catch (error51) {
+      trace("request_error", { errorName: error51?.name ?? "Error" });
+      throw error51;
+    }
+    trace("response", { status: res.status, ok: res.ok });
+    if (!res.ok) {
+      const text = await res.text();
+      let json2;
+      try {
+        json2 = JSON.parse(text);
+      } catch {
+        json2 = text;
+      }
+      const error51 = sseError(
+        `HTTP_${res.status}`,
+        "SSE endpoint returned an unsuccessful HTTP response",
+        "Inspect the upstream response, correct the request or credentials, then retry."
+      );
+      error51.gatewayResponse = { status: res.status, json: json2 };
+      throw error51;
+    }
+    const contentType = res.headers?.get?.("content-type") ?? res.headers?.["content-type"] ?? "";
+    trace("sse_headers", { status: res.status, contentType });
+    if (!/\btext\/event-stream\b/i.test(contentType) || !res.body?.getReader) {
+      throw sseError(
+        CODES.SSE_EXPECTED,
+        "Agent Studio build did not return an SSE response",
+        "Do not treat this as a successful agent creation. Inspect the response shape before retrying."
+      );
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    const events = [];
+    let buffer = "";
+    let terminal = null;
+    const recordEvent = (parsed) => {
+      events.push(parsed);
+      lastEvents.push(parsed.event);
+      if (lastEvents.length > 32) lastEvents.shift();
+      if (terminalEvents.has(parsed.event)) terminal = parsed;
+    };
+    const consumeFrames = () => {
+      const frames = buffer.split(/\r\n\r\n|\r\n\n|\n\r\n|\n\n|\r\r/);
+      buffer = frames.pop();
+      for (const frame of frames) {
+        if (!frame.trim()) continue;
+        const parsed = parseEvent(frame);
+        recordEvent(parsed);
+      }
+    };
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (value) {
+          bytesReceived += value.byteLength;
+          chunkCount++;
+          buffer += decoder.decode(value, { stream: !done });
+          consumeFrames();
+        }
+        if (done) break;
+      }
+    } catch (error51) {
+      trace("reader_error", { status: res.status, errorName: error51?.name ?? "Error" });
+      throw error51;
+    }
+    buffer += decoder.decode();
+    consumeFrames();
+    if (buffer.trim()) {
+      const parsed = parseEvent(buffer);
+      recordEvent(parsed);
+    }
+    trace("stream_closed", { status: res.status, terminalEvent: terminal?.event ?? null, pendingBytes: Buffer.byteLength(buffer) });
+    if (!terminal) {
+      trace("incomplete", { status: res.status });
+      throw sseError(
+        CODES.SSE_INCOMPLETE,
+        "SSE stream ended without a terminal success event",
+        "Do not treat this as a successful agent creation. Inspect the account for a partial draft before retrying."
+      );
+    }
+    return { status: res.status, ok: res.ok, events, terminal };
+  };
+  return { call, callWithMeta, stream, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
+}
+
+// core/workflow-runtime-window.mjs
+init_define_TOOL_CATALOG();
+import { createHash } from "node:crypto";
+var RUNTIME_WINDOW_CONTRACT_VERSION = "1.0.0";
+var LOG_PAGE_SIZE = 20;
+var ENROLLMENT_PAGE_SIZE = 20;
+var STEP_ROSTER_PAGE_SIZE = 50;
+var RUNTIME_WINDOW_WARNINGS = Object.freeze({
+  LOG_DUPLICATE_ID_CONFLICT: "LOG_DUPLICATE_ID_CONFLICT",
+  LOG_EVENT_TIMESTAMP_UNPARSEABLE: "LOG_EVENT_TIMESTAMP_UNPARSEABLE",
+  // A HIGHER-priority timestamp field was present and unreadable, so the event's
+  // membership in [fromDate, toDate) rests on a lower-priority proxy for a field that
+  // exists and could not be read. That is far closer to the plan's "no parseable time =>
+  // incomplete" than it is to the ordinary absent-field fallback, and an auditor must be
+  // able to tell "absent, normal for a queued row" from "present and garbage".
+  LOG_EVENT_TIMESTAMP_FIELD_UNREADABLE: "LOG_EVENT_TIMESTAMP_FIELD_UNREADABLE",
+  // A retained execution row carried no `_id`/`id`. Such a row can only be deduplicated
+  // by content, so two genuinely distinct events with identical payloads are
+  // indistinguishable from one event returned twice by overlapping partitions. Rows are
+  // retained rather than collapsed (see retainEvent), and the count is declared
+  // unprovable rather than silently under- or over-reported.
+  LOG_EVENT_ID_MISSING: "LOG_EVENT_ID_MISSING",
+  // The requested window starts at epoch 0, so the mandated one-millisecond lower-bound
+  // expansion could not be applied. Upstream boundary semantics are undocumented; if the
+  // lower bound is exclusive, an event landing exactly on fromDate is dropped upstream and
+  // no local filter can recover it.
+  LOG_WINDOW_LOWER_BOUND_UNEXPANDED: "LOG_WINDOW_LOWER_BOUND_UNEXPANDED",
+  LOG_PARTITION_SATURATED_AT_FLOOR: "LOG_PARTITION_SATURATED_AT_FLOOR",
+  LOG_PARTITION_BUDGET_EXHAUSTED: "LOG_PARTITION_BUDGET_EXHAUSTED",
+  // The enrollment/step-roster equivalents of LOG_EVENT_ID_MISSING. Rows on these two
+  // routes were keyed by CONTENT alone, so two identical id-less rows in one page collapsed
+  // into one row with no warning at all — the same silent undercount the execution-log walk
+  // was fixed for, in the two places the fix was never applied. Both copies are now retained
+  // (keyed by occurrence index within the response that returned them, so a page echoed by a
+  // repeated cursor still dedupes) and the exact count is declared unprovable, because two
+  // genuinely distinct id-less rows returned by two DIFFERENT pages remain indistinguishable
+  // from one row echoed twice.
+  ENROLLMENT_ROW_ID_MISSING: "ENROLLMENT_ROW_ID_MISSING",
+  STEP_ROSTER_ROW_ID_MISSING: "STEP_ROSTER_ROW_ID_MISSING",
+  ENROLLMENT_CURSOR_MISSING: "ENROLLMENT_CURSOR_MISSING",
+  ENROLLMENT_CURSOR_REPEATED: "ENROLLMENT_CURSOR_REPEATED",
+  ENROLLMENT_NO_UNIQUE_PROGRESS: "ENROLLMENT_NO_UNIQUE_PROGRESS",
+  ENROLLMENT_PAGE_BUDGET_EXHAUSTED: "ENROLLMENT_PAGE_BUDGET_EXHAUSTED",
+  ENROLLMENT_TOTAL_MISMATCH: "ENROLLMENT_TOTAL_MISMATCH",
+  ENROLLMENT_TOTALS_UNAVAILABLE: "ENROLLMENT_TOTALS_UNAVAILABLE",
+  STEP_ROSTER_PAGE_BUDGET_EXHAUSTED: "STEP_ROSTER_PAGE_BUDGET_EXHAUSTED",
+  STEP_ROSTER_UNSEALED: "STEP_ROSTER_UNSEALED",
+  IDENTITY_CONFLICT_QUARANTINE: "IDENTITY_CONFLICT_QUARANTINE",
+  IDENTITY_INSPECTION_INCOMPLETE: "IDENTITY_INSPECTION_INCOMPLETE",
+  COMPONENT_READ_FAILED: "COMPONENT_READ_FAILED",
+  RATE_LIMITED: "RATE_LIMITED",
+  // Emitted onto the PARTIAL result attached to a thrown CIRCUIT_OPEN. The throw still
+  // propagates — a latched circuit means the run must stop and be resumed deliberately —
+  // but everything already read is real evidence, and discarding it forced a resumer to
+  // re-walk partitions it had already paid for. `error.partial` carries this warning plus
+  // the completed `pagination`/`sourceRoutes` so the resumer knows exactly where it got to.
+  CIRCUIT_OPEN: "CIRCUIT_OPEN"
+});
+var RUNTIME_WINDOW_DEFAULTS = Object.freeze({
+  maxLogPartitions: 256,
+  minPartitionMs: 1e3,
+  maxEnrollmentPages: 200,
+  maxStepRosterPages: 200
+});
+var DEFAULTS = RUNTIME_WINDOW_DEFAULTS;
+var MAX_FILTER_ITEMS = 20;
+var invalidWindow = (detail) => {
+  const error51 = new Error(`${CODES.INVALID_RUNTIME_WINDOW}: ${detail}`);
+  error51.code = CODES.INVALID_RUNTIME_WINDOW;
+  error51.detail = detail;
+  error51.remediation = "Pass a half-open [fromDate, toDate) window of non-negative integer epoch milliseconds with fromDate < toDate, the proven page size of 20, and in-range budgets.";
+  return error51;
+};
+var isEpochMs = (value) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+var isNonEmptyString = (value) => typeof value === "string" && value.trim() !== "";
+var boundedInteger = (value, { min, max, fallback, name }) => {
+  if (value === void 0) return fallback;
+  if (!Number.isSafeInteger(value) || value < min || max !== void 0 && value > max) {
+    throw invalidWindow(`${name} must be an integer between ${min} and ${max ?? "the documented maximum"}`);
+  }
+  return value;
+};
+var stringList = (value, name) => {
+  if (value === void 0) return [];
+  if (!Array.isArray(value) || value.length > MAX_FILTER_ITEMS) {
+    throw invalidWindow(`${name} must be an array of at most ${MAX_FILTER_ITEMS} ids`);
+  }
+  for (const item of value) {
+    if (!isNonEmptyString(item)) throw invalidWindow(`${name} may only contain non-empty string ids`);
+  }
+  return [...new Set(value)];
+};
+function validateRuntimeWindowInput(input = {}) {
+  const source = input ?? {};
+  if (!isNonEmptyString(source.locationId)) throw invalidWindow("locationId must be a non-empty string");
+  if (!isNonEmptyString(source.workflowId)) throw invalidWindow("workflowId must be a non-empty string");
+  if (!isEpochMs(source.fromDate)) throw invalidWindow("fromDate must be a non-negative integer epoch-millisecond value");
+  if (!isEpochMs(source.toDate) || source.toDate === 0) throw invalidWindow("toDate must be a positive integer epoch-millisecond value");
+  if (source.fromDate >= source.toDate) throw invalidWindow("the window is half-open, so fromDate must be strictly less than toDate");
+  if (source.pageSize !== void 0 && source.pageSize !== LOG_PAGE_SIZE) {
+    throw invalidWindow(`pageSize is pinned at ${LOG_PAGE_SIZE}; a larger page redefines what a terminal partition means and has not been proven`);
+  }
+  if (source.contactId !== void 0 && !isNonEmptyString(source.contactId)) {
+    throw invalidWindow("contactId must be a non-empty string when supplied");
+  }
+  return {
+    locationId: source.locationId,
+    workflowId: source.workflowId,
+    fromDate: source.fromDate,
+    toDate: source.toDate,
+    contactId: source.contactId ?? null,
+    eventTypes: stringList(source.eventTypes, "eventTypes"),
+    stepIds: stringList(source.stepIds, "stepIds"),
+    pageSize: LOG_PAGE_SIZE,
+    maxLogPartitions: boundedInteger(source.maxLogPartitions, { min: 1, max: 2048, fallback: DEFAULTS.maxLogPartitions, name: "maxLogPartitions" }),
+    minPartitionMs: boundedInteger(source.minPartitionMs, { min: 1, fallback: DEFAULTS.minPartitionMs, name: "minPartitionMs" }),
+    maxEnrollmentPages: boundedInteger(source.maxEnrollmentPages, { min: 1, max: 1e3, fallback: DEFAULTS.maxEnrollmentPages, name: "maxEnrollmentPages" }),
+    maxStepRosterPages: boundedInteger(source.maxStepRosterPages, { min: 1, max: 1e3, fallback: DEFAULTS.maxStepRosterPages, name: "maxStepRosterPages" })
+  };
+}
+var canonicalize = (value) => {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])]));
+  }
+  return value;
+};
+var sha256Canonical = (value) => createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+var RUNTIME_WINDOW_CAPABILITY_IDS = Object.freeze([
+  "workflow_detail",
+  "workflow_triggers",
+  "workflow_sticky_notes",
+  "workflow_execution_logs",
+  "workflow_count_per_step",
+  "workflow_enrollment_search",
+  "workflow_step_details",
+  "workflow_enroll_stats_cache",
+  "workflow_enroll_stats"
+]);
+function resolveRuntimeWindowDescriptors(capabilityIds, descriptors = AUDIT_CAPABILITIES) {
+  return capabilityIds.map((capabilityId) => {
+    const descriptor2 = descriptors.find((candidate) => candidate.capabilityId === capabilityId);
+    if (!descriptor2) {
+      throw new Error(`RUNTIME_WINDOW_DESCRIPTOR_MISSING: ${capabilityId} is not in the audit descriptor set`);
+    }
+    return descriptor2;
+  });
+}
+var runtimeWindowDescriptors = resolveRuntimeWindowDescriptors(RUNTIME_WINDOW_CAPABILITY_IDS);
+var AUDIT_CAPABILITY_VERSION = `sha256:${sha256Canonical(runtimeWindowDescriptors)}`;
+var rowsOf = (json2, ...keys) => {
+  if (Array.isArray(json2)) return json2;
+  if (!json2 || typeof json2 !== "object") return null;
+  for (const key of keys) if (Array.isArray(json2[key])) return json2[key];
+  return null;
+};
+var idOf = (row) => {
+  const raw = row?._id ?? row?.id;
+  if (raw === void 0 || raw === null || String(raw) === "") return null;
+  return String(raw);
+};
+var makeRowKeyer = () => {
+  const idlessOccurrences = /* @__PURE__ */ new Map();
+  return (row) => {
+    const id = idOf(row);
+    if (id !== null) return `id:${id}`;
+    const hash2 = contentHashOf(row);
+    const occurrence = idlessOccurrences.get(hash2) ?? 0;
+    idlessOccurrences.set(hash2, occurrence + 1);
+    return `noid:${hash2}#${occurrence}`;
+  };
+};
+var contentHashOf = (row) => {
+  if (!row || typeof row !== "object" || Array.isArray(row)) return sha256Canonical(row ?? null);
+  const normalized = { ...row };
+  for (const key of ["_id", "id"]) {
+    if (Object.hasOwn(normalized, key) && normalized[key] !== null && normalized[key] !== void 0) {
+      normalized[key] = String(normalized[key]);
+    }
+  }
+  return sha256Canonical(normalized);
+};
+var TIMESTAMP_FIELDS = Object.freeze(["startedExecutionAt", "createdAt", "updatedAt"]);
+var NUMERIC_STRING = /^-?\d+$/;
+var ISO_8601 = /^(\d{4})-(\d{2})-(\d{2})(?:[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?(Z|z|[+-]\d{2}:?\d{2})?)?$/;
+var toEpochMs = (raw) => {
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : null;
+  if (typeof raw !== "string") return null;
+  const text = raw.trim();
+  if (text === "") return null;
+  if (NUMERIC_STRING.test(text)) return Number(text);
+  const match = ISO_8601.exec(text);
+  if (match === null) return null;
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText, fractionText, offsetText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText ?? "0");
+  const minute = Number(minuteText ?? "0");
+  const second = Number(secondText ?? "0");
+  const millisecond = fractionText === void 0 ? 0 : Number(`${fractionText}000`.slice(0, 3));
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  if (hour > 23 || minute > 59 || second > 59) return null;
+  const moment = /* @__PURE__ */ new Date(0);
+  moment.setUTCFullYear(year, month - 1, day);
+  moment.setUTCHours(hour, minute, second, millisecond);
+  const utc = moment.getTime();
+  if (!Number.isFinite(utc)) return null;
+  if (moment.getUTCFullYear() !== year || moment.getUTCMonth() !== month - 1 || moment.getUTCDate() !== day) return null;
+  if (offsetText === void 0 || offsetText === "Z" || offsetText === "z") return utc;
+  const digits = offsetText.slice(1).replace(":", "");
+  const offsetHours = Number(digits.slice(0, 2));
+  const offsetMinutes = Number(digits.slice(2, 4));
+  if (offsetHours > 23 || offsetMinutes > 59) return null;
+  const sign = offsetText[0] === "-" ? -1 : 1;
+  return utc - sign * (offsetHours * 60 + offsetMinutes) * 6e4;
+};
+var readEventTime = (row) => {
+  if (!row || typeof row !== "object") {
+    return { timestamp: null, timestampField: null, unreadableTimestampFields: [] };
+  }
+  const unreadableTimestampFields = [];
+  for (const field of TIMESTAMP_FIELDS) {
+    if (!Object.hasOwn(row, field)) continue;
+    const timestamp = toEpochMs(row[field]);
+    if (timestamp !== null) return { timestamp, timestampField: field, unreadableTimestampFields };
+    unreadableTimestampFields.push(field);
+  }
+  return { timestamp: null, timestampField: null, unreadableTimestampFields };
+};
+async function collectWorkflowRuntimeWindow({ auditGateway, input } = {}) {
+  const config2 = validateRuntimeWindowInput(input);
+  if (!auditGateway || typeof auditGateway.callCapability !== "function") {
+    throw invalidWindow("an audit gateway exposing callCapability is required");
+  }
+  const boundLocationId = auditGateway.locationId ?? config2.locationId;
+  if (String(boundLocationId) !== config2.locationId) {
+    throw invalidWindow("the requested locationId is not the location this audit gateway is bound to");
+  }
+  const { workflowId } = config2;
+  const appliedQueries = [];
+  const sourceRoutes = [];
+  const warnings = [];
+  const conflicts = [];
+  const bindingMethods = /* @__PURE__ */ new Set();
+  const rateLimit = { limited: false, retryAfterMs: null };
+  let quarantined = false;
+  let identityIncomplete2 = false;
+  let capturedAt = null;
+  const warn = (code, component, detail) => {
+    warnings.push({ code, component, detail, occurrences: 1, detailSamples: [detail] });
+  };
+  const WARNING_DETAIL_SAMPLES = 3;
+  const aggregatedWarnings = /* @__PURE__ */ new Map();
+  const warnAggregated = (code, component, detail) => {
+    const key = `${code}::${component}`;
+    const existing = aggregatedWarnings.get(key);
+    if (existing) {
+      existing.occurrences += 1;
+      if (existing.detailSamples.length < WARNING_DETAIL_SAMPLES && !existing.detailSamples.includes(detail)) {
+        existing.detailSamples.push(detail);
+      }
+      return;
+    }
+    const entry = { code, component, detail, occurrences: 1, detailSamples: [detail] };
+    aggregatedWarnings.set(key, entry);
+    warnings.push(entry);
+  };
+  const progress = {
+    workflowDefinition: null,
+    runtimeEvents: null,
+    enrollments: null,
+    perStepCounts: null,
+    stepRosters: null,
+    enrollmentTotals: null,
+    logPartitions: null,
+    enrollmentPages: null,
+    stepRosterPages: null,
+    definitionComplete: false,
+    enrollmentsComplete: false,
+    // LOOP-REACHED markers, and the reason componentCompleteness can be trusted on a
+    // PARTIAL result. `runtimeEvents` and `stepRosters` are published into `progress`
+    // BEFORE their loops run (they have to be — the loops push into those very arrays, and
+    // a CIRCUIT_OPEN mid-walk must still be able to publish what was already collected), so
+    // `!== null` says only "the array exists", never "the walk ran". Without these two
+    // flags a circuit latching on the FIRST execution-log read published
+    // `runtimeEvents: []` under `componentCompleteness.runtimeEvents: true`, and a latch on
+    // the first step-roster read published `stepRosters: []` under `stepRosters: true` — the
+    // exact empty-versus-failed collapse this module exists to prevent, made worse by
+    // sitting on a result a Task 5 resumer reads to decide what it may SKIP. The CIRCUIT_OPEN
+    // warning is filed against component `'run'`, so componentClean() cannot see it either.
+    // These are the same idiom as definitionComplete/enrollmentsComplete, which never had
+    // the problem only because their components are assigned after their reads.
+    runtimeEventsWalkFinished: false,
+    stepRosterLoopFinished: false
+  };
+  const lowerBoundExpansionMs = config2.fromDate > 0 ? 1 : 0;
+  const read = async (capabilityId, typedBindings, query) => {
+    const response = await auditGateway.callCapability({ capabilityId, typedBindings, query });
+    appliedQueries.push({ capabilityId, query });
+    sourceRoutes.push({
+      capabilityId,
+      // The gateway resolves the HOST (backend vs services) as well as the path, and a
+      // receipt reader that only sees the path cannot tell which rail answered.
+      host: response.host,
+      appliedPath: response.appliedPath,
+      appliedQuery: response.appliedQuery,
+      status: response.status,
+      ok: response.ok,
+      failureClass: response.failureClass,
+      capturedAt: response.capturedAt
+    });
+    if (capturedAt === null && typeof response.capturedAt === "string") capturedAt = response.capturedAt;
+    const identity = response.identity;
+    if (identity && typeof identity === "object") {
+      if (typeof identity.bindingMethod === "string") bindingMethods.add(identity.bindingMethod);
+      for (const conflict of identity.conflicts ?? []) conflicts.push({ capabilityId, ...conflict });
+      if (identity.inspectionCapped || identity.depthCapped || (identity.unreadable ?? []).length > 0) {
+        identityIncomplete2 = true;
+      }
+    }
+    if (response.quarantined === true) quarantined = true;
+    if (response.failureClass === CODES.RATE_LIMITED || response.failureClass === CODES.LOCATION_RATE_LIMITED) {
+      rateLimit.limited = true;
+      if (typeof response.retryAfterMs === "number") rateLimit.retryAfterMs = response.retryAfterMs;
+    }
+    return response;
+  };
+  const warnForFailure = (response, component) => {
+    const failureClass = response.failureClass;
+    const detail = `capability ${response.capabilityId ?? component} returned ${failureClass ?? "an unusable response"} (status ${response.status ?? "unknown"})`;
+    if (failureClass === CODES.RATE_LIMITED || failureClass === CODES.LOCATION_RATE_LIMITED) {
+      warn(RUNTIME_WINDOW_WARNINGS.RATE_LIMITED, component, detail);
+      return;
+    }
+    if (failureClass === CODES.IDENTITY_CONFLICT) {
+      warn(RUNTIME_WINDOW_WARNINGS.IDENTITY_CONFLICT_QUARANTINE, component, detail);
+      return;
+    }
+    if (failureClass === CODES.IDENTITY_INSPECTION_CAPPED || failureClass === CODES.IDENTITY_DEPTH_CAPPED || failureClass === CODES.IDENTITY_UNREADABLE) {
+      warn(RUNTIME_WINDOW_WARNINGS.IDENTITY_INSPECTION_INCOMPLETE, component, detail);
+      return;
+    }
+    warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, component, detail);
+  };
+  const componentClean = (component) => !warnings.some((entry) => entry.component === component);
+  const finalize2 = () => {
+    if (rateLimit.limited && !warnings.some((entry) => entry.code === RUNTIME_WINDOW_WARNINGS.RATE_LIMITED)) {
+      warn(
+        RUNTIME_WINDOW_WARNINGS.RATE_LIMITED,
+        "run",
+        "a read in this run was throttled by the account, so at least one component returned less than it would have"
+      );
+    }
+    const complete = warnings.length === 0 && !rateLimit.limited;
+    return {
+      contractVersion: RUNTIME_WINDOW_CONTRACT_VERSION,
+      boundLocationId,
+      workflowId,
+      requestedWindow: { fromDate: config2.fromDate, toDate: config2.toDate, boundaries: "[)" },
+      appliedWindow: {
+        fromDate: config2.fromDate - lowerBoundExpansionMs,
+        toDate: config2.toDate,
+        queryBoundaries: "upstream-defined",
+        analyticalFilter: "[)",
+        expansionMs: lowerBoundExpansionMs
+      },
+      appliedQueries,
+      filters: { contactId: config2.contactId, eventTypes: config2.eventTypes, stepIds: config2.stepIds },
+      workflowDefinition: progress.workflowDefinition,
+      runtimeEvents: progress.runtimeEvents,
+      enrollments: progress.enrollments,
+      perStepCounts: progress.perStepCounts,
+      stepRosters: progress.stepRosters,
+      enrollmentTotals: progress.enrollmentTotals,
+      // Per-component completeness. `runtimeEvents` has to stay an array to be usable, so
+      // it cannot express "not read" by being null the way its siblings do; without this
+      // block a total log-read failure published `[]`, which is the exact "empty vs failed"
+      // collapse this whole module exists to prevent. A component that was never reached
+      // (a run that threw) is false here, not true-by-absence-of-warnings — and that is
+      // what the two `…Finished` flags buy: `runtimeEvents` and `stepRosters` are the only
+      // two components published into `progress` before their loops run, so for them alone
+      // `!== null` is satisfied by a walk that never happened. Everything here is an AND of
+      // three independent things: the component EXISTS, its loop RAN TO THE END, and
+      // nothing warned against it.
+      //
+      // ONE THROW-PATH GAP REMAINS, and it is stated here rather than fixed because the fix
+      // would change the verdict. `enrollments` is cross-checked against the totals routes by
+      // the ENROLLMENT_TOTAL_MISMATCH rule, which runs AFTER them (step 6 below). A thrown
+      // CIRCUIT_OPEN on `workflow_enroll_stats_cache` therefore skips that check entirely,
+      // and this map reports `enrollments: true` where a run that COMPLETED over identical
+      // data would have reported `false`. It is not silent — the same artifact carries
+      // `enrollmentTotals: null`, `componentCompleteness.enrollmentTotals: false`, a
+      // CIRCUIT_OPEN warning and `complete: false` — so the consumer rule is exactly this:
+      //
+      //   A RESUMER MUST NOT TREAT `enrollments: true` AS SKIPPABLE UNLESS
+      //   `enrollmentTotals: true` ALSO HOLDS.
+      //
+      // Read on its own, `enrollments: true` is a claim that the roster was walked, never a
+      // claim that it was reconciled.
+      componentCompleteness: {
+        workflowDefinition: progress.workflowDefinition !== null && progress.definitionComplete && componentClean("workflow_definition"),
+        runtimeEvents: progress.runtimeEvents !== null && progress.runtimeEventsWalkFinished && componentClean("runtime_events"),
+        perStepCounts: progress.perStepCounts !== null && componentClean("per_step_counts"),
+        enrollments: progress.enrollments !== null && progress.enrollmentsComplete && componentClean("enrollments"),
+        stepRosters: progress.stepRosters !== null && progress.stepRosterLoopFinished && progress.stepRosters.every((roster) => roster.complete) && componentClean("step_rosters"),
+        enrollmentTotals: progress.enrollmentTotals !== null && progress.enrollmentTotals.total !== null && componentClean("enrollment_totals")
+      },
+      pagination: {
+        logPartitions: progress.logPartitions,
+        enrollmentPages: progress.enrollmentPages,
+        stepRosterPages: progress.stepRosterPages
+      },
+      rateLimit,
+      locationBinding: {
+        // Absence records request-scope binding: a weaker claim than a native match, but
+        // still evidence. Downgrading absence to a failure would make most of this API
+        // unreadable; upgrading it to a native match would claim proof that does not exist.
+        bindingMethod: bindingMethods.size === 1 ? [...bindingMethods][0] : bindingMethods.size === 0 ? "request_scope" : "mixed",
+        quarantined,
+        conflicts,
+        inspectionIncomplete: identityIncomplete2
+      },
+      sourceRoutes,
+      capabilityVersion: AUDIT_CAPABILITY_VERSION,
+      capturedAt,
+      // The SECOND axis, kept out of `complete` on purpose. Nothing on this rail proves
+      // the captured definition was the one in force while these events ran, and that is
+      // true of EVERY run — folding it into `complete` would pin `complete` to false
+      // forever and make it useless for its actual job (runtime event coverage). Task 11
+      // consumes this field as a publication gate: no consumer may state or imply that the
+      // current configuration governed historical events on this evidence.
+      configurationBinding: {
+        definitionGovernedRuntimeEvents: "unproven",
+        provenBy: null,
+        publishableAsGoverning: false,
+        detail: "The audit rail exposes no workflow version-history capability, so nothing here proves the captured definition was in force during the requested window."
+      },
+      complete,
+      truncated: !complete,
+      warnings
+    };
+  };
+  try {
+    return await collect();
+  } catch (error51) {
+    if (error51 && error51.code === CODES.CIRCUIT_OPEN) {
+      warn(
+        RUNTIME_WINDOW_WARNINGS.CIRCUIT_OPEN,
+        "run",
+        `the audit circuit latched mid-run (${error51.meta?.scope ?? "unknown scope"}/${error51.meta?.reason ?? "unknown reason"}); everything read before the latch is attached to error.partial`
+      );
+      error51.partial = finalize2();
+    }
+    throw error51;
+  }
+  async function collect() {
+    const entityBindings = { locationId: boundLocationId, workflowId };
+    const detail = await read("workflow_detail", entityBindings, { includeScheduledPauseInfo: "true" });
+    if (!detail.ok) warnForFailure(detail, "workflow_definition");
+    const triggersResponse = await read("workflow_triggers", entityBindings, { workflowId });
+    if (!triggersResponse.ok) warnForFailure(triggersResponse, "workflow_definition");
+    const notesResponse = await read("workflow_sticky_notes", entityBindings, { workflowId, locationId: boundLocationId });
+    if (!notesResponse.ok) warnForFailure(notesResponse, "workflow_definition");
+    const workflow = detail.ok ? detail.json : null;
+    const triggers = triggersResponse.ok ? rowsOf(triggersResponse.json, "triggers", "data") : null;
+    const stickyNotes = notesResponse.ok ? rowsOf(notesResponse.json, "data", "notes") : null;
+    const definitionComplete = workflow !== null && triggers !== null && stickyNotes !== null;
+    progress.definitionComplete = definitionComplete;
+    if (detail.ok && workflow === null) warnForFailure(detail, "workflow_definition");
+    if (triggersResponse.ok && triggers === null) warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, "workflow_definition", "the trigger response carried no readable trigger list");
+    if (notesResponse.ok && stickyNotes === null) warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, "workflow_definition", "the sticky-note response carried no readable note list");
+    const discoveredStepIds = (workflow?.workflowData?.templates ?? []).map((template) => template?.id ?? template?._id).filter((id) => id !== void 0 && id !== null && String(id) !== "").map(String);
+    progress.workflowDefinition = {
+      workflow,
+      triggers,
+      stickyNotes,
+      version: workflow?.version ?? null,
+      hashAlgorithm: "sha256",
+      // Hashed only when all three components read cleanly: a hash over a partial
+      // definition would compare unequal to itself on the next run for reasons that have
+      // nothing to do with the workflow changing — and Task 7 binds a receipt to this
+      // hash, so a partial definition hashing to a complete-looking value would bind a
+      // receipt to evidence that was never collected.
+      canonicalHash: definitionComplete ? sha256Canonical({ workflow, triggers, stickyNotes }) : null,
+      capturedAt: detail.capturedAt ?? null,
+      // The quietest lie available to this collector is reading a definition TODAY and
+      // reporting runtime from last week as though those contacts went through it. Nothing
+      // on the audit rail proves an effective interval — there is no version-history
+      // capability — so the claim is refused outright rather than approximated from the
+      // requested window. See `configurationBinding` for the run-level statement of it.
+      validity: {
+        effectiveFrom: null,
+        effectiveTo: null,
+        source: null,
+        provenEffectiveInterval: false,
+        appliesToRequestedWindow: "unproven"
+      }
+    };
+    if (lowerBoundExpansionMs === 0) {
+      warn(
+        RUNTIME_WINDOW_WARNINGS.LOG_WINDOW_LOWER_BOUND_UNEXPANDED,
+        "runtime_events",
+        "the requested window starts at epoch 0, so the one-millisecond lower-bound expansion could not be applied and an event landing exactly on fromDate cannot be proven present"
+      );
+    }
+    const logPartitions = { attempted: 0, terminal: 0, exhausted: false, budget: config2.maxLogPartitions };
+    progress.logPartitions = logPartitions;
+    const events = [];
+    progress.runtimeEvents = events;
+    const eventKeys = /* @__PURE__ */ new Set();
+    const hashesById = /* @__PURE__ */ new Map();
+    const conflictedIds = /* @__PURE__ */ new Set();
+    let logWalkStopped = false;
+    let idlessWarned = false;
+    const retainEvent = (row, contentHash, occurrence, timestamp, timestampField, unreadableTimestampFields) => {
+      const id = idOf(row);
+      const key = id === null ? `noid:${contentHash}#${occurrence}` : `content:${contentHash}`;
+      if (eventKeys.has(key)) return;
+      eventKeys.add(key);
+      if (id === null && !idlessWarned) {
+        idlessWarned = true;
+        warn(
+          RUNTIME_WINDOW_WARNINGS.LOG_EVENT_ID_MISSING,
+          "runtime_events",
+          "an execution row carried neither _id nor id, so its event count can only be deduplicated by content and cannot be proven"
+        );
+      }
+      if (id !== null) {
+        const hashes = hashesById.get(id) ?? /* @__PURE__ */ new Set();
+        hashes.add(contentHash);
+        hashesById.set(id, hashes);
+        if (hashes.size > 1 && !conflictedIds.has(id)) {
+          conflictedIds.add(id);
+          warnAggregated(RUNTIME_WINDOW_WARNINGS.LOG_DUPLICATE_ID_CONFLICT, "runtime_events", `two execution rows share an id but not a content hash (${hashes.size} distinct payloads)`);
+        }
+      }
+      if (timestamp === null) {
+        warnAggregated(RUNTIME_WINDOW_WARNINGS.LOG_EVENT_TIMESTAMP_UNPARSEABLE, "runtime_events", "an execution row carried no parseable startedExecutionAt, createdAt or updatedAt");
+      }
+      if (unreadableTimestampFields.length > 0) {
+        warnAggregated(
+          RUNTIME_WINDOW_WARNINGS.LOG_EVENT_TIMESTAMP_FIELD_UNREADABLE,
+          "runtime_events",
+          `an execution row carried an unreadable ${unreadableTimestampFields.join(", ")} ahead of the field its timestamp was finally taken from`
+        );
+      }
+      events.push({ id, timestamp, timestampField, unreadableTimestampFields, event: row });
+    };
+    const visitPartition = async (from, to, eventType) => {
+      if (logWalkStopped) return;
+      if (logPartitions.attempted >= logPartitions.budget) {
+        logPartitions.exhausted = true;
+        logWalkStopped = true;
+        warn(RUNTIME_WINDOW_WARNINGS.LOG_PARTITION_BUDGET_EXHAUSTED, "runtime_events", `the log partition budget of ${logPartitions.budget} was spent with subwindows still unread`);
+        return;
+      }
+      const query = {
+        workflowId,
+        locationId: boundLocationId,
+        limit: String(LOG_PAGE_SIZE),
+        // The one-millisecond expansion exists because upstream boundary semantics are
+        // undocumented: an exclusive lower bound would drop an event landing exactly on
+        // fromDate. Retention back to the half-open analytical window happens locally. At
+        // `from === 0` the expansion cannot be applied at all, which is a warned-about
+        // incompleteness rather than a silent clamp (see LOG_WINDOW_LOWER_BOUND_UNEXPANDED).
+        fromDate: String(Math.max(0, from - 1)),
+        toDate: String(to)
+      };
+      if (config2.contactId !== null) query.contactId = config2.contactId;
+      if (eventType !== null) query.eventType = eventType;
+      logPartitions.attempted += 1;
+      const response = await read("workflow_execution_logs", entityBindings, query);
+      if (!response.ok) {
+        warnForFailure(response, "runtime_events");
+        logWalkStopped = true;
+        return;
+      }
+      const rows = rowsOf(response.json, "logs", "data", "rows");
+      if (rows === null) {
+        warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, "runtime_events", "the execution-log response carried no readable row list");
+        logWalkStopped = true;
+        return;
+      }
+      const idlessOccurrences = /* @__PURE__ */ new Map();
+      for (const row of rows) {
+        const { timestamp, timestampField, unreadableTimestampFields } = readEventTime(row);
+        const contentHash = contentHashOf(row);
+        let occurrence = 0;
+        if (idOf(row) === null) {
+          occurrence = idlessOccurrences.get(contentHash) ?? 0;
+          idlessOccurrences.set(contentHash, occurrence + 1);
+        }
+        if (timestamp === null) retainEvent(row, contentHash, occurrence, null, null, unreadableTimestampFields);
+        else if (timestamp >= from && timestamp < to) retainEvent(row, contentHash, occurrence, timestamp, timestampField, unreadableTimestampFields);
+      }
+      if (rows.length < LOG_PAGE_SIZE) {
+        logPartitions.terminal += 1;
+        return;
+      }
+      if (to - from <= config2.minPartitionMs) {
+        warnAggregated(RUNTIME_WINDOW_WARNINGS.LOG_PARTITION_SATURATED_AT_FLOOR, "runtime_events", `a saturated partition of ${to - from}ms cannot be split below minPartitionMs=${config2.minPartitionMs}`);
+        return;
+      }
+      const mid = Math.floor((from + to) / 2);
+      await visitPartition(from, mid, eventType);
+      await visitPartition(mid, to, eventType);
+    };
+    const streams = config2.eventTypes.length > 0 ? config2.eventTypes : [null];
+    for (const eventType of streams) {
+      if (logWalkStopped) break;
+      await visitPartition(config2.fromDate, config2.toDate, eventType);
+    }
+    events.sort((left, right) => {
+      if (left.timestamp === null && right.timestamp === null) return 0;
+      if (left.timestamp === null) return 1;
+      if (right.timestamp === null) return -1;
+      return left.timestamp - right.timestamp;
+    });
+    progress.runtimeEventsWalkFinished = true;
+    const countsResponse = await read("workflow_count_per_step", entityBindings, { workflowId, locationId: boundLocationId });
+    if (!countsResponse.ok) {
+      warnForFailure(countsResponse, "per_step_counts");
+    } else {
+      progress.perStepCounts = rowsOf(countsResponse.json, "counts", "data", "rows");
+      if (progress.perStepCounts === null) {
+        warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, "per_step_counts", "the count-per-step response carried no readable count list");
+      }
+    }
+    const enrollmentRows = [];
+    const enrollmentKeys = /* @__PURE__ */ new Set();
+    const enrollmentPages = { fetched: 0, exhausted: false, budget: config2.maxEnrollmentPages };
+    progress.enrollmentPages = enrollmentPages;
+    let enrollmentsComplete = true;
+    let enrollmentIdlessWarned = false;
+    const seenCursors = /* @__PURE__ */ new Set();
+    let cursor = null;
+    let action = "first";
+    for (; ; ) {
+      const query = {
+        workflowId,
+        locationId: boundLocationId,
+        action,
+        limit: String(ENROLLMENT_PAGE_SIZE),
+        fromDate: String(config2.fromDate),
+        toDate: String(config2.toDate)
+      };
+      if (config2.contactId !== null) query.contactId = config2.contactId;
+      if (cursor !== null) Object.assign(query, cursor);
+      const response = await read("workflow_enrollment_search", entityBindings, query);
+      if (!response.ok) {
+        warnForFailure(response, "enrollments");
+        enrollmentsComplete = false;
+        break;
+      }
+      const batch = rowsOf(response.json, "rows", "statuses", "data");
+      if (batch === null) {
+        warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, "enrollments", "the enrollment response carried no readable row list");
+        enrollmentsComplete = false;
+        break;
+      }
+      enrollmentPages.fetched += 1;
+      let added = 0;
+      const keyOf = makeRowKeyer();
+      for (const row of batch) {
+        const key = keyOf(row);
+        if (enrollmentKeys.has(key)) continue;
+        enrollmentKeys.add(key);
+        enrollmentRows.push(row);
+        added += 1;
+        if (idOf(row) === null && !enrollmentIdlessWarned) {
+          enrollmentIdlessWarned = true;
+          warn(
+            RUNTIME_WINDOW_WARNINGS.ENROLLMENT_ROW_ID_MISSING,
+            "enrollments",
+            "an enrollment row carried neither _id nor id, so its roster count can only be deduplicated by content and cannot be proven"
+          );
+        }
+      }
+      if (batch.length < ENROLLMENT_PAGE_SIZE) break;
+      if (added === 0) {
+        warn(RUNTIME_WINDOW_WARNINGS.ENROLLMENT_NO_UNIQUE_PROGRESS, "enrollments", "an enrollment page advanced the cursor but contributed no new rows");
+        enrollmentsComplete = false;
+        break;
+      }
+      if (enrollmentPages.fetched >= enrollmentPages.budget) {
+        enrollmentPages.exhausted = true;
+        warn(RUNTIME_WINDOW_WARNINGS.ENROLLMENT_PAGE_BUDGET_EXHAUSTED, "enrollments", `the enrollment page budget of ${enrollmentPages.budget} was spent before the roster ended`);
+        enrollmentsComplete = false;
+        break;
+      }
+      const next = cursorFromRow(batch[batch.length - 1]);
+      if (next === null) {
+        warn(RUNTIME_WINDOW_WARNINGS.ENROLLMENT_CURSOR_MISSING, "enrollments", "the terminal row of a full enrollment page carried neither an id nor a sid to page on");
+        enrollmentsComplete = false;
+        break;
+      }
+      const token = JSON.stringify(next);
+      if (seenCursors.has(token)) {
+        warn(RUNTIME_WINDOW_WARNINGS.ENROLLMENT_CURSOR_REPEATED, "enrollments", "an enrollment page ended on a cursor tuple that had already been used");
+        enrollmentsComplete = false;
+        break;
+      }
+      seenCursors.add(token);
+      cursor = next;
+      action = "next";
+    }
+    progress.enrollments = {
+      rows: enrollmentRows,
+      complete: enrollmentsComplete,
+      windowScoped: true,
+      contactFiltered: config2.contactId !== null
+    };
+    progress.enrollmentsComplete = enrollmentsComplete;
+    const stepRosters = [];
+    progress.stepRosters = stepRosters;
+    const stepRosterPages = { fetched: 0, exhausted: false, budget: config2.maxStepRosterPages };
+    progress.stepRosterPages = stepRosterPages;
+    const sealedSteps = new Set(discoveredStepIds);
+    let rosterIdlessWarned = false;
+    for (const stepId of config2.stepIds) {
+      if (!sealedSteps.has(stepId)) {
+        warn(RUNTIME_WINDOW_WARNINGS.STEP_ROSTER_UNSEALED, "step_rosters", "a requested step is not in the step set the workflow definition declares, so no roster read was issued");
+        stepRosters.push({ stepId, contacts: null, total: null, complete: false, pages: 0 });
+        continue;
+      }
+      const roster = { stepId, contacts: [], total: null, complete: true, pages: 0 };
+      const rosterKeys = /* @__PURE__ */ new Set();
+      let skip = 0;
+      for (; ; ) {
+        if (stepRosterPages.fetched >= stepRosterPages.budget) {
+          stepRosterPages.exhausted = true;
+          roster.complete = false;
+          warn(RUNTIME_WINDOW_WARNINGS.STEP_ROSTER_PAGE_BUDGET_EXHAUSTED, "step_rosters", `the step-roster page budget of ${stepRosterPages.budget} was spent before step ${stepId} reached its reported total`);
+          break;
+        }
+        const response = await read(
+          "workflow_step_details",
+          // discoveredStepIds is an OPTIONAL seal, and it is supplied because honouring it
+          // costs nothing and stops a typo'd step id from being read as an empty roster.
+          { ...entityBindings, stepId, discoveredStepIds },
+          {
+            workflowId,
+            locationId: boundLocationId,
+            currentStepId: stepId,
+            skip: String(skip),
+            limit: String(STEP_ROSTER_PAGE_SIZE),
+            showTotalCount: "true"
+          }
+        );
+        if (!response.ok) {
+          warnForFailure(response, "step_rosters");
+          roster.complete = false;
+          break;
+        }
+        const rows = rowsOf(response.json, "rows", "data");
+        if (rows === null) {
+          warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, "step_rosters", "a step-roster response carried no readable row list");
+          roster.complete = false;
+          break;
+        }
+        stepRosterPages.fetched += 1;
+        roster.pages += 1;
+        const reported = Number(response.json?.totalCount);
+        if (Number.isFinite(reported) && reported >= 0) roster.total = reported;
+        const keyOf = makeRowKeyer();
+        for (const row of rows) {
+          const key = keyOf(row);
+          if (rosterKeys.has(key)) continue;
+          rosterKeys.add(key);
+          roster.contacts.push(row);
+          if (idOf(row) === null && !rosterIdlessWarned) {
+            rosterIdlessWarned = true;
+            warn(
+              RUNTIME_WINDOW_WARNINGS.STEP_ROSTER_ROW_ID_MISSING,
+              "step_rosters",
+              "a step-roster row carried neither _id nor id, so the roster count can only be deduplicated by content and cannot be proven"
+            );
+          }
+        }
+        if (roster.total !== null && roster.contacts.length >= roster.total) break;
+        if (rows.length < STEP_ROSTER_PAGE_SIZE) {
+          if (roster.total === null) break;
+          warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, "step_rosters", `step ${stepId} ran out of rows at ${roster.contacts.length} of a reported ${roster.total}`);
+          roster.complete = false;
+          break;
+        }
+        skip += rows.length;
+      }
+      stepRosters.push(roster);
+    }
+    progress.stepRosterLoopFinished = true;
+    const cacheResponse = await read("workflow_enroll_stats_cache", entityBindings, {
+      "workflowIds[]": workflowId,
+      locationId: boundLocationId
+    });
+    if (!cacheResponse.ok) warnForFailure(cacheResponse, "enrollment_totals");
+    let stats = cacheResponse.ok ? pickStats(cacheResponse.json, workflowId) : null;
+    let statsSource = stats === null ? null : "workflow_enroll_stats_cache";
+    if (stats === null) {
+      const legacyResponse = await read("workflow_enroll_stats", entityBindings, { workflowId, locationId: boundLocationId });
+      if (!legacyResponse.ok) warnForFailure(legacyResponse, "enrollment_totals");
+      stats = legacyResponse.ok ? pickStats(legacyResponse.json, workflowId) : null;
+      statsSource = stats === null ? null : "workflow_enroll_stats";
+      if (stats === null) {
+        warn(RUNTIME_WINDOW_WARNINGS.ENROLLMENT_TOTALS_UNAVAILABLE, "enrollment_totals", "neither the enrollment-totals cache nor the legacy totals route returned a usable total");
+      }
+    }
+    const enrollmentTotals = {
+      total: stats?.total ?? null,
+      finished: stats?.finished ?? null,
+      source: statsSource,
+      // The totals routes report the workflow's LIFETIME figure. Stating the scope is the
+      // whole point: without it, `total` sitting next to a window-scoped roster invites
+      // exactly the subtraction nobody is entitled to make.
+      scope: "workflow_all_time"
+    };
+    progress.enrollmentTotals = enrollmentTotals;
+    if (enrollmentTotals.total !== null && enrollmentRows.length > enrollmentTotals.total) {
+      warn(RUNTIME_WINDOW_WARNINGS.ENROLLMENT_TOTAL_MISMATCH, "enrollments", `the enrollment roster walked ${enrollmentRows.length} unique rows inside the requested window against a reported all-time total of ${enrollmentTotals.total}`);
+      progress.enrollments.complete = false;
+      progress.enrollmentsComplete = false;
+    }
+    return finalize2();
+  }
+}
+function cursorFromRow(row) {
+  if (!row || typeof row !== "object") return null;
+  const usable = (value) => value !== void 0 && value !== null && String(value).trim() !== "";
+  const first = (...candidates) => candidates.find(usable);
+  const cursor = {};
+  const referenceId = first(row._id, row.id, row.referenceId);
+  const referenceCreatedAt = first(row.createdAt, row.referenceCreatedAt);
+  const referenceSid = first(row.sid, row.referenceSid);
+  const referenceSequence = first(row.sequence, row.referenceSequence);
+  if (usable(referenceId)) cursor.referenceId = String(referenceId);
+  if (usable(referenceCreatedAt)) cursor.referenceCreatedAt = String(referenceCreatedAt);
+  if (usable(referenceSid)) cursor.referenceSid = String(referenceSid);
+  if (usable(referenceSequence)) cursor.referenceSequence = String(referenceSequence);
+  return cursor.referenceId === void 0 && cursor.referenceSid === void 0 ? null : cursor;
+}
+function pickStats(json2, workflowId) {
+  const rows = Array.isArray(json2) ? json2 : Array.isArray(json2?.stats) ? json2.stats : Array.isArray(json2?.data) ? json2.data : json2 && typeof json2 === "object" ? [json2] : [];
+  const mine = rows.find((row) => row && String(row.workflowId) === String(workflowId)) ?? rows[0] ?? null;
+  if (!mine || typeof mine !== "object") return null;
+  const total = Number(mine.total);
+  if (!Number.isFinite(total)) return null;
+  const finished = Number(mine.finished);
+  return { total, finished: Number.isFinite(finished) ? finished : null };
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
@@ -33198,7 +35338,7 @@ function compile(ir, ctx) {
 
 // ../skills/create-ghl-workflow/engine/idgen.mjs
 init_define_TOOL_CATALOG();
-import { createHash, randomUUID } from "node:crypto";
+import { createHash as createHash2, randomUUID } from "node:crypto";
 function makeUuidV4() {
   return randomUUID();
 }
@@ -33206,7 +35346,7 @@ function makeDeterministicIdGen(seed) {
   let n = 0;
   return () => {
     n += 1;
-    const bytes = createHash("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
+    const bytes = createHash2("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
     bytes[6] = bytes[6] & 15 | 64;
     bytes[8] = bytes[8] & 63 | 128;
     const hex3 = bytes.toString("hex");
@@ -42738,17 +44878,17 @@ function partitionOps(ops) {
 }
 function resolveTrigger(op, existing) {
   const list = existing ?? [];
-  const idOf = (t) => t.id ?? t._id;
+  const idOf2 = (t) => t.id ?? t._id;
   if (op.triggerId) {
-    const hit = list.find((t) => idOf(t) === op.triggerId);
-    if (!hit) throw new Error(`${op.op}: no trigger ${op.triggerId} on this workflow (have: ${list.map(idOf).join(", ") || "none"})`);
+    const hit = list.find((t) => idOf2(t) === op.triggerId);
+    if (!hit) throw new Error(`${op.op}: no trigger ${op.triggerId} on this workflow (have: ${list.map(idOf2).join(", ") || "none"})`);
     return hit;
   }
   if (!op.name && !op.type) throw new Error(`${op.op} needs a triggerId, or a name/type to match on`);
   const hits = list.filter((t) => (op.name == null || t.name === op.name) && (op.type == null || t.type === op.type));
   const what = [op.name && `name '${op.name}'`, op.type && `type '${op.type}'`].filter(Boolean).join(" + ");
   if (!hits.length) throw new Error(`${op.op}: no trigger matching ${what} (have: ${list.map((t) => `${t.name}/${t.type}`).join(", ") || "none"})`);
-  if (hits.length > 1) throw new Error(`${op.op}: ${hits.length} triggers match ${what} \u2014 pass an explicit triggerId (${hits.map(idOf).join(", ")})`);
+  if (hits.length > 1) throw new Error(`${op.op}: ${hits.length} triggers match ${what} \u2014 pass an explicit triggerId (${hits.map(idOf2).join(", ")})`);
   return hits[0];
 }
 function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
@@ -44533,7 +46673,7 @@ function parseVoiceAiIR(ir) {
 
 // ../skills/ghl-ai-agents-specialist/engine/voiceai-compiler.mjs
 var AUTH_HEADER2 = "ai";
-var DEFAULTS = {
+var DEFAULTS2 = {
   voiceId: "g6xIsTj2HwM6VR4iXFCw",
   voiceModel: "auto",
   language: "en-US",
@@ -44604,69 +46744,69 @@ function buildUpdateBody(ir, { locationId } = {}) {
   const kb = ir.knowledgeBase ?? {};
   const translation = ir.translation ?? {};
   const noResponseConfig = ir.noResponseConfig ?? {};
-  const enableBackchannel = behavior.enableBackchannel ?? DEFAULTS.enableBackchannel;
-  const backchannelFrequency = behavior.backchannelFrequency ?? (enableBackchannel ? 0.8 : DEFAULTS.backchannelFrequency);
+  const enableBackchannel = behavior.enableBackchannel ?? DEFAULTS2.enableBackchannel;
+  const backchannelFrequency = behavior.backchannelFrequency ?? (enableBackchannel ? 0.8 : DEFAULTS2.backchannelFrequency);
   return {
     agentName: ir.agentName,
-    welcomeMessage: ir.welcomeMessage ?? DEFAULTS.welcomeMessage,
-    voiceId: voice.voiceId ?? DEFAULTS.voiceId,
-    voiceModel: voice.voiceModel ?? DEFAULTS.voiceModel,
-    language: callSettings.language ?? DEFAULTS.language,
+    welcomeMessage: ir.welcomeMessage ?? DEFAULTS2.welcomeMessage,
+    voiceId: voice.voiceId ?? DEFAULTS2.voiceId,
+    voiceModel: voice.voiceModel ?? DEFAULTS2.voiceModel,
+    language: callSettings.language ?? DEFAULTS2.language,
     locationId,
-    businessName: ir.businessName ?? DEFAULTS.businessName,
-    inboundPhoneNumber: outbound.inboundPhoneNumber ?? DEFAULTS.inboundPhoneNumber,
-    inboundNumbers: outbound.inboundNumbers ?? DEFAULTS.inboundNumbers,
-    numberPoolId: outbound.numberPoolId ?? DEFAULTS.numberPoolId,
+    businessName: ir.businessName ?? DEFAULTS2.businessName,
+    inboundPhoneNumber: outbound.inboundPhoneNumber ?? DEFAULTS2.inboundPhoneNumber,
+    inboundNumbers: outbound.inboundNumbers ?? DEFAULTS2.inboundNumbers,
+    numberPoolId: outbound.numberPoolId ?? DEFAULTS2.numberPoolId,
     agentPrompt: ir.agentPrompt,
-    callEndWorkflowIds: postCall.callEndWorkflowIds ?? DEFAULTS.callEndWorkflowIds,
-    advancedSettingsEnabled: ir.advancedSettingsEnabled ?? DEFAULTS.advancedSettingsEnabled,
-    sendPostCallNotificationTo: postCall.sendPostCallNotificationTo ?? DEFAULTS.sendPostCallNotificationTo,
-    agentWorkingHours: ir.agentWorkingHours ?? DEFAULTS.agentWorkingHours,
-    maxCallDuration: callSettings.maxCallDuration ?? DEFAULTS.maxCallDuration,
-    voiceTemperature: voice.voiceTemperature ?? DEFAULTS.voiceTemperature,
-    voiceSpeed: voice.voiceSpeed ?? DEFAULTS.voiceSpeed,
-    voiceVolume: voice.voiceVolume ?? DEFAULTS.voiceVolume,
-    modelTemperature: behavior.modelTemperature ?? DEFAULTS.modelTemperature,
-    backgroundSound: voice.backgroundSound ?? DEFAULTS.backgroundSound,
-    reminderFrequency: callSettings.reminderFrequency ?? DEFAULTS.reminderFrequency,
-    sendUserIdleReminders: callSettings.sendUserIdleReminders ?? DEFAULTS.sendUserIdleReminders,
-    reminderAfterIdleTimeSeconds: callSettings.reminderAfterIdleTimeSeconds ?? DEFAULTS.reminderAfterIdleTimeSeconds,
-    interruptionSensitivity: behavior.interruptionSensitivity ?? DEFAULTS.interruptionSensitivity,
-    isAgentAsBackupDisabled: ir.isAgentAsBackupDisabled ?? DEFAULTS.isAgentAsBackupDisabled,
-    timezone: ir.timezone ?? DEFAULTS.timezone,
-    llmModel: ir.llmModel ?? DEFAULTS.llmModel,
-    knowledgeBaseIds: kb.knowledgeBaseIds ?? DEFAULTS.knowledgeBaseIds,
-    knowledgeBasePrompt: kb.knowledgeBasePrompt ?? DEFAULTS.knowledgeBasePrompt,
-    provider: DEFAULTS.provider,
+    callEndWorkflowIds: postCall.callEndWorkflowIds ?? DEFAULTS2.callEndWorkflowIds,
+    advancedSettingsEnabled: ir.advancedSettingsEnabled ?? DEFAULTS2.advancedSettingsEnabled,
+    sendPostCallNotificationTo: postCall.sendPostCallNotificationTo ?? DEFAULTS2.sendPostCallNotificationTo,
+    agentWorkingHours: ir.agentWorkingHours ?? DEFAULTS2.agentWorkingHours,
+    maxCallDuration: callSettings.maxCallDuration ?? DEFAULTS2.maxCallDuration,
+    voiceTemperature: voice.voiceTemperature ?? DEFAULTS2.voiceTemperature,
+    voiceSpeed: voice.voiceSpeed ?? DEFAULTS2.voiceSpeed,
+    voiceVolume: voice.voiceVolume ?? DEFAULTS2.voiceVolume,
+    modelTemperature: behavior.modelTemperature ?? DEFAULTS2.modelTemperature,
+    backgroundSound: voice.backgroundSound ?? DEFAULTS2.backgroundSound,
+    reminderFrequency: callSettings.reminderFrequency ?? DEFAULTS2.reminderFrequency,
+    sendUserIdleReminders: callSettings.sendUserIdleReminders ?? DEFAULTS2.sendUserIdleReminders,
+    reminderAfterIdleTimeSeconds: callSettings.reminderAfterIdleTimeSeconds ?? DEFAULTS2.reminderAfterIdleTimeSeconds,
+    interruptionSensitivity: behavior.interruptionSensitivity ?? DEFAULTS2.interruptionSensitivity,
+    isAgentAsBackupDisabled: ir.isAgentAsBackupDisabled ?? DEFAULTS2.isAgentAsBackupDisabled,
+    timezone: ir.timezone ?? DEFAULTS2.timezone,
+    llmModel: ir.llmModel ?? DEFAULTS2.llmModel,
+    knowledgeBaseIds: kb.knowledgeBaseIds ?? DEFAULTS2.knowledgeBaseIds,
+    knowledgeBasePrompt: kb.knowledgeBasePrompt ?? DEFAULTS2.knowledgeBasePrompt,
+    provider: DEFAULTS2.provider,
     translation: {
-      enabled: translation.enabled ?? DEFAULTS.translation.enabled,
-      language: translation.language ?? DEFAULTS.translation.language
+      enabled: translation.enabled ?? DEFAULTS2.translation.enabled,
+      language: translation.language ?? DEFAULTS2.translation.language
     },
-    beginMessageDelayMs: ir.beginMessageDelayMs ?? DEFAULTS.beginMessageDelayMs,
-    welcomeMessageMode: ir.welcomeMessageMode ?? DEFAULTS.welcomeMessageMode,
-    responsiveness: behavior.responsiveness ?? DEFAULTS.responsiveness,
-    endCallAfterSilenceMs: callSettings.endCallAfterSilenceMs ?? DEFAULTS.endCallAfterSilenceMs,
-    ringDurationSeconds: callSettings.ringDurationSeconds ?? DEFAULTS.ringDurationSeconds,
-    sttMode: transcription.sttMode ?? DEFAULTS.sttMode,
-    customSttConfig: transcription.customSttConfig ?? DEFAULTS.customSttConfig,
-    normalizeForSpeech: voice.normalizeForSpeech ?? DEFAULTS.normalizeForSpeech,
-    ambientSoundVolume: voice.ambientSoundVolume ?? DEFAULTS.ambientSoundVolume,
-    enableDynamicVoiceSpeed: voice.enableDynamicVoiceSpeed ?? DEFAULTS.enableDynamicVoiceSpeed,
-    enableDynamicResponsiveness: behavior.enableDynamicResponsiveness ?? DEFAULTS.enableDynamicResponsiveness,
-    vocabSpecialization: transcription.vocabSpecialization ?? DEFAULTS.vocabSpecialization,
-    boostedKeywords: transcription.boostedKeywords ?? DEFAULTS.boostedKeywords,
-    pronunciationDictionary: transcription.pronunciationDictionary ?? DEFAULTS.pronunciationDictionary,
+    beginMessageDelayMs: ir.beginMessageDelayMs ?? DEFAULTS2.beginMessageDelayMs,
+    welcomeMessageMode: ir.welcomeMessageMode ?? DEFAULTS2.welcomeMessageMode,
+    responsiveness: behavior.responsiveness ?? DEFAULTS2.responsiveness,
+    endCallAfterSilenceMs: callSettings.endCallAfterSilenceMs ?? DEFAULTS2.endCallAfterSilenceMs,
+    ringDurationSeconds: callSettings.ringDurationSeconds ?? DEFAULTS2.ringDurationSeconds,
+    sttMode: transcription.sttMode ?? DEFAULTS2.sttMode,
+    customSttConfig: transcription.customSttConfig ?? DEFAULTS2.customSttConfig,
+    normalizeForSpeech: voice.normalizeForSpeech ?? DEFAULTS2.normalizeForSpeech,
+    ambientSoundVolume: voice.ambientSoundVolume ?? DEFAULTS2.ambientSoundVolume,
+    enableDynamicVoiceSpeed: voice.enableDynamicVoiceSpeed ?? DEFAULTS2.enableDynamicVoiceSpeed,
+    enableDynamicResponsiveness: behavior.enableDynamicResponsiveness ?? DEFAULTS2.enableDynamicResponsiveness,
+    vocabSpecialization: transcription.vocabSpecialization ?? DEFAULTS2.vocabSpecialization,
+    boostedKeywords: transcription.boostedKeywords ?? DEFAULTS2.boostedKeywords,
+    pronunciationDictionary: transcription.pronunciationDictionary ?? DEFAULTS2.pronunciationDictionary,
     enableBackchannel,
     backchannelFrequency,
-    backchannelWords: behavior.backchannelWords ?? DEFAULTS.backchannelWords,
-    denoisingMode: voice.denoisingMode ?? DEFAULTS.denoisingMode,
-    voicemailOption: outbound.voicemailOption ?? DEFAULTS.voicemailOption,
-    ivrOption: outbound.ivrOption ?? DEFAULTS.ivrOption,
-    aiDisclaimerConfiguration: outbound.aiDisclaimerConfiguration ?? DEFAULTS.aiDisclaimerConfiguration,
-    prompts: ir.prompts ?? DEFAULTS.prompts,
+    backchannelWords: behavior.backchannelWords ?? DEFAULTS2.backchannelWords,
+    denoisingMode: voice.denoisingMode ?? DEFAULTS2.denoisingMode,
+    voicemailOption: outbound.voicemailOption ?? DEFAULTS2.voicemailOption,
+    ivrOption: outbound.ivrOption ?? DEFAULTS2.ivrOption,
+    aiDisclaimerConfiguration: outbound.aiDisclaimerConfiguration ?? DEFAULTS2.aiDisclaimerConfiguration,
+    prompts: ir.prompts ?? DEFAULTS2.prompts,
     noResponseConfig: {
-      enabled: noResponseConfig.enabled ?? DEFAULTS.noResponseConfig.enabled,
-      keywords: noResponseConfig.keywords ?? DEFAULTS.noResponseConfig.keywords
+      enabled: noResponseConfig.enabled ?? DEFAULTS2.noResponseConfig.enabled,
+      keywords: noResponseConfig.keywords ?? DEFAULTS2.noResponseConfig.keywords
     }
   };
 }
@@ -44921,7 +47061,7 @@ function parseSuperAgentIR(ir) {
 
 // ../skills/ghl-ai-agents-specialist/engine/studio-compiler.mjs
 var AUTH_HEADER3 = "ai";
-var DEFAULTS2 = {
+var DEFAULTS3 = {
   contextManagement: { strategy: "summarize", keepRecentTurns: 10, compactionThreshold: 0.9 },
   reasoningEffort: "medium",
   plugins: [{ slug: "default", name: "Default", description: "Built-in crm skills for your agent", skills: [], allSkills: true }],
@@ -44944,14 +47084,14 @@ function buildConfig(norm2) {
   if (Array.isArray(knowledgeBaseIds) && knowledgeBaseIds.length > 0) tools.add("kb_search");
   return {
     name: norm2.name,
-    description: norm2.description ?? DEFAULTS2.description,
+    description: norm2.description ?? DEFAULTS3.description,
     model: norm2.model,
     systemPrompt: norm2.systemPrompt,
     tools: Array.from(tools),
     triggers: buildTriggers(norm2),
-    contextManagement: DEFAULTS2.contextManagement,
-    reasoning: { effort: norm2.reasoningEffort ?? DEFAULTS2.reasoningEffort },
-    plugins: DEFAULTS2.plugins,
+    contextManagement: DEFAULTS3.contextManagement,
+    reasoning: { effort: norm2.reasoningEffort ?? DEFAULTS3.reasoningEffort },
+    plugins: DEFAULTS3.plugins,
     starterPrompts: norm2.starterPrompts ?? [],
     knowledgeBaseIds,
     actions: []
@@ -45018,11 +47158,11 @@ function extractAgentId(kind, response) {
   return null;
 }
 var actionId = (body) => responseId(body);
-var threadAgentId = (descriptor, agentId) => {
-  const body = { ...descriptor?.body ?? {} };
+var threadAgentId = (descriptor2, agentId) => {
+  const body = { ...descriptor2?.body ?? {} };
   if ("employeeId" in body) body.employeeId = agentId;
   if ("agentId" in body) body.agentId = agentId;
-  return { ...descriptor, path: descriptor.path.replaceAll("{agentId}", agentId), body };
+  return { ...descriptor2, path: descriptor2.path.replaceAll("{agentId}", agentId), body };
 };
 var emptyClass = () => ({ mismatches: [], unverified: [], confirmed: [] });
 var mergeClass = (parts) => parts.reduce((acc, part) => {
@@ -45165,6 +47305,16 @@ var credentialFailure = (code = CODES.VALIDATION_FAILED) => fail(
   "a tool argument contains a credential-looking value (value withheld)",
   "Remove credentials from tool arguments. Authentication comes only from the configured token file."
 );
+var sharedAuditLimiter = null;
+var sharedAuditCircuit = null;
+function processAuditPacing() {
+  sharedAuditLimiter ??= makeAuditLimiter();
+  sharedAuditCircuit ??= makeAuditCircuit();
+  return { limiter: sharedAuditLimiter, circuit: sharedAuditCircuit };
+}
+function makeGatewayFactory({ state: state2, gatewayImpl = makeGateway }) {
+  return (options = {}) => gatewayImpl({ tokenFile: state2.tokenFile, ...options });
+}
 function validateRegisteredArgs(tool, args) {
   if (containsSecrets(args)) {
     return credentialFailure(tool.name === "set_token_file" ? CODES.TOKEN_MISSING : CODES.VALIDATION_FAILED);
@@ -45185,10 +47335,10 @@ var payloadSummary = (body) => {
   if (body && typeof body === "object") return { kind: "object", fields: Object.keys(body).sort() };
   return { kind: typeof body };
 };
-var descriptorPreview = (descriptor) => ({
-  method: descriptor.method,
-  path: descriptor.path,
-  payload: payloadSummary(descriptor.body)
+var descriptorPreview = (descriptor2) => ({
+  method: descriptor2.method,
+  path: descriptor2.path,
+  payload: payloadSummary(descriptor2.body)
 });
 function compileAiAgentPlan(kind, args) {
   if (kind === "convai") {
@@ -45487,17 +47637,17 @@ function fastForwardAmbiguousFailure(failure2, data2, rows) {
     data2
   );
 }
-function canonicalize(value) {
-  if (Array.isArray(value)) return value.map(canonicalize);
+function canonicalize2(value) {
+  if (Array.isArray(value)) return value.map(canonicalize2);
   if (value && typeof value === "object") {
     return Object.fromEntries(
-      Object.keys(value).sort().filter((key) => value[key] !== void 0).map((key) => [key, canonicalize(value[key])])
+      Object.keys(value).sort().filter((key) => value[key] !== void 0).map((key) => [key, canonicalize2(value[key])])
     );
   }
   return value;
 }
 function boundEditIdGen(locationId, workflowId, version2, ops, occupiedIds) {
-  const base = makeDeterministicIdGen(JSON.stringify(canonicalize({
+  const base = makeDeterministicIdGen(JSON.stringify(canonicalize2({
     locationId,
     workflowId,
     version: version2,
@@ -45568,7 +47718,7 @@ function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) 
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
   const canonicalRows = rows.map((row) => ({ statusId: row._id, contactId: row.contactId ?? null })).sort((left, right) => String(left.statusId).localeCompare(String(right.statusId)) || String(left.contactId).localeCompare(String(right.contactId)));
-  const previewToken = createHash2("sha256").update(JSON.stringify(canonicalize({
+  const previewToken = createHash3("sha256").update(JSON.stringify(canonicalize2({
     locationId,
     workflowId,
     stepId,
@@ -45940,6 +48090,63 @@ var TOOLS2 = [
         ...enrollmentStats ? { enrollmentStats } : {},
         note: "added_to_workflow in logs is the ONLY proof a trigger fired."
       });
+    }, args)
+  },
+  {
+    name: "get_workflow_runtime_window",
+    description: describe3(
+      "get_workflow_runtime_window",
+      "Collect one workflow's complete runtime window \u2014 proof: external-receipt-required; risk: read. `complete` covers runtime event coverage only; configurationBinding records that nothing proves the captured definition governed those events. Live canary required before Full audit."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      // Epoch milliseconds, half-open [fromDate, toDate). Bounded HERE as well as in the
+      // collector because the log descriptors carry no numeric bounds on either key.
+      fromDate: external_exports.number().int().nonnegative(),
+      toDate: external_exports.number().int().positive(),
+      contactId: external_exports.string().optional(),
+      // `eventType` is not repeatable upstream, so each entry costs its own partition walk
+      // against the one shared maxLogPartitions budget.
+      eventTypes: external_exports.array(external_exports.string()).max(20).default([]),
+      stepIds: external_exports.array(external_exports.string()).max(20).default([]),
+      // Not a knob: 20 is the only page size the partition walk's terminal test has been
+      // proven against. Declared so an explicit 20 parses and anything else is refused.
+      pageSize: external_exports.literal(20).default(20),
+      maxLogPartitions: external_exports.number().int().min(1).max(2048).default(256),
+      minPartitionMs: external_exports.number().int().min(1).default(1e3),
+      maxEnrollmentPages: external_exports.number().int().min(1).max(1e3).default(200),
+      maxStepRosterPages: external_exports.number().int().min(1).max(1e3).default(200)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/trigger" },
+      { method: "GET", path: "/workflows/sticky-notes-all" },
+      { method: "GET", path: "/workflows/logs/v2" },
+      { method: "GET", path: "/workflows/status/search/count-per-step" },
+      { method: "GET", path: "/workflows/status/search/workflow-with-filter" },
+      { method: "GET", path: "/workflows/status/search/details-by-step" },
+      { method: "GET", path: "/workflows/status/search/enroll-stats-cache" },
+      { method: "GET", path: "/workflows/status/enroll-stats" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const config2 = validateRuntimeWindowInput(args ?? {});
+      if (typeof deps?.makeGw !== "function") {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "the runtime-window tool was invoked without a gateway factory",
+          "Register the tool with { state, makeGw } dependencies before calling it."
+        );
+      }
+      const backend = deps.makeGw({ loc: config2.locationId, rail: "jwt", state: deps.state, throttleMs: 0, jitterMs: 0 });
+      const pacing = processAuditPacing();
+      const auditGateway = makeAuditGateway({
+        gateways: { backend },
+        locationId: config2.locationId,
+        limiter: deps.auditLimiter ?? pacing.limiter,
+        circuit: deps.auditCircuit ?? pacing.circuit
+      });
+      return ok(await collectWorkflowRuntimeWindow({ auditGateway, input: args }));
     }, args)
   },
   {
@@ -46899,296 +49106,6 @@ function registerTools(server2, deps, tools = TOOLS2) {
   }
 }
 
-// core/gateway.mjs
-init_define_TOOL_CATALOG();
-var BASE = "https://backend.leadconnectorhq.com";
-var IFRAME = "https://client-app-automation-workflows.leadconnectorhq.com";
-var APP = "https://app.gohighlevel.com";
-var AI_HOST = "https://services.leadconnectorhq.com";
-var GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
-var THROTTLE_MS = 300;
-var JITTER_MS = 150;
-var DELTA_SECONDS = /^\d+$/;
-var IMF_FIXDATE = /^[A-Za-z]{3}, \d{2} [A-Za-z]{3} \d{4} \d{2}:\d{2}:\d{2} GMT$/;
-var RFC850_DATE = /^[A-Za-z]{3,6}day, \d{2}-[A-Za-z]{3}-\d{2} \d{2}:\d{2}:\d{2} GMT$/;
-var ASCTIME_DATE = /^[A-Za-z]{3} ([A-Za-z]{3}) ([ \d]\d) (\d{2}):(\d{2}):(\d{2}) (\d{4})$/;
-var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-var parseAsctimeGmt = (text) => {
-  const match = ASCTIME_DATE.exec(text);
-  if (!match) return NaN;
-  const [, monthName, dayText, hour, minute, second, year] = match;
-  const month = MONTHS.indexOf(monthName);
-  if (month < 0) return NaN;
-  const day = Number(dayText);
-  const at = Date.UTC(Number(year), month, day, Number(hour), Number(minute), Number(second));
-  const check2 = new Date(at);
-  const valid = check2.getUTCFullYear() === Number(year) && check2.getUTCMonth() === month && check2.getUTCDate() === day && check2.getUTCHours() === Number(hour) && check2.getUTCMinutes() === Number(minute) && check2.getUTCSeconds() === Number(second);
-  return valid ? at : NaN;
-};
-var MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
-var RECAPTURE2 = "Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token), then retry. No restart needed.";
-var defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
-function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
-  const creds = readCredentials({ tokenFile, allowExpired: true });
-  const headers = (isWrite, overrides = {}, base = BASE) => {
-    const h = { channel: "APP", source: "WEB_USER", version: "2021-07-28", accept: "application/json, text/plain, */*" };
-    if (isWrite) {
-      h["content-type"] = "application/json";
-      h.origin = rail === "ai" ? APP : IFRAME;
-      h.referer = `${rail === "ai" ? APP : IFRAME}/`;
-    } else if (rail === "ai") {
-      h.referer = `${APP}/`;
-    }
-    for (const [rawName, value] of Object.entries(overrides ?? {})) {
-      if (value === void 0 || value === null) continue;
-      const name = rawName.toLowerCase();
-      if (name === "authorization" || name === "token-id") continue;
-      h[name] = value;
-    }
-    if (rail === "ai") {
-      let origin;
-      try {
-        origin = new URL(base).origin;
-      } catch {
-        origin = null;
-      }
-      if (origin !== AI_HOST) {
-        const e = new Error(`ai rail may only target ${AI_HOST}, not ${origin ?? base}`);
-        e.code = "AI_RAIL_HOST_INVALID";
-        e.remediation = "The AI credential rail attaches an agency-admin token-id; route AI calls to the AI host only.";
-        throw e;
-      }
-      requireAiCredentials(creds);
-      h.authorization = `Bearer ${creds.jwt}`;
-      h["token-id"] = creds.tokenId;
-    } else if (rail === "token-id") {
-      if (!creds.tokenId) {
-        const e = new Error("no token-id in capture file");
-        e.code = "TOKEN_MISSING";
-        e.remediation = RECAPTURE2;
-        throw e;
-      }
-      h["token-id"] = creds.tokenId;
-    } else {
-      if (creds.secondsRemaining <= 0) {
-        const e = new Error("JWT exp is in the past");
-        e.code = "TOKEN_EXPIRED";
-        e.remediation = RECAPTURE2;
-        throw e;
-      }
-      h.authorization = `Bearer ${creds.jwt}`;
-    }
-    return h;
-  };
-  const request = async (method, path, body, baseOrOptions = BASE) => {
-    const options = typeof baseOrOptions === "string" ? { base: baseOrOptions } : baseOrOptions ?? {};
-    const base = options.base ?? BASE;
-    const signedUpload = options.signedUpload === true;
-    let signedTarget = null;
-    if (signedUpload) {
-      let ok2 = method === "PUT" && (Buffer.isBuffer(body) || ArrayBuffer.isView(body));
-      try {
-        const resolved = new URL(path, base);
-        ok2 = ok2 && resolved.protocol === "https:" && GCS_HOST_RE.test(resolved.hostname);
-        signedTarget = resolved.href;
-      } catch {
-        ok2 = false;
-      }
-      if (!ok2) {
-        throw new Error("signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL");
-      }
-    }
-    const delayMs = Math.max(0, throttleMs) + Math.floor(randomImpl() * Math.max(0, jitterMs));
-    if (delayMs > 0) await sleepImpl(delayMs);
-    const requestHeaders = signedUpload ? Object.fromEntries(Object.entries(options.headers ?? {}).filter(([name, value]) => value !== void 0 && value !== null && !["authorization", "token-id"].includes(name.toLowerCase())).map(([name, value]) => [name.toLowerCase(), value])) : headers(method !== "GET", options.headers, base);
-    const res = await fetchImpl(signedTarget ?? base + path, {
-      method,
-      headers: requestHeaders,
-      body: body === void 0 ? void 0 : signedUpload ? body : JSON.stringify(body)
-    });
-    return res;
-  };
-  const call = async (method, path, body, baseOrOptions = BASE) => {
-    const res = await request(method, path, body, baseOrOptions);
-    const text = await res.text();
-    let json2;
-    try {
-      json2 = JSON.parse(text);
-    } catch {
-      json2 = text;
-    }
-    return { status: res.status, ok: res.ok, json: json2 };
-  };
-  const headerValue = (res, name) => {
-    if (typeof res?.headers?.get === "function") return res.headers.get(name) ?? null;
-    const bag = res?.headers;
-    if (!bag || typeof bag !== "object") return null;
-    const wanted = String(name).toLowerCase();
-    for (const [key, value] of Object.entries(bag)) {
-      if (String(key).toLowerCase() !== wanted) continue;
-      return value === void 0 || value === null ? null : value;
-    }
-    return null;
-  };
-  const readRetryAfterMs = (res, capturedAt) => {
-    const raw = headerValue(res, "retry-after");
-    if (raw === null || raw === void 0) return null;
-    const text = String(raw).trim();
-    if (text === "") return null;
-    if (DELTA_SECONDS.test(text)) return Math.min(Number(text) * 1e3, MAX_RETRY_AFTER_MS);
-    let at;
-    if (ASCTIME_DATE.test(text)) at = parseAsctimeGmt(text);
-    else if (IMF_FIXDATE.test(text) || RFC850_DATE.test(text)) at = Date.parse(text);
-    else return null;
-    if (Number.isNaN(at)) return null;
-    return Math.min(Math.max(0, at - capturedAt), MAX_RETRY_AFTER_MS);
-  };
-  const callWithMeta = async (method, path, body, baseOrOptions = BASE) => {
-    const res = await request(method, path, body, baseOrOptions);
-    const capturedAt = nowImpl();
-    const text = await res.text();
-    let json2;
-    try {
-      json2 = JSON.parse(text);
-    } catch {
-      json2 = text;
-    }
-    return { status: res.status, ok: res.ok, json: json2, retryAfterMs: readRetryAfterMs(res, capturedAt), capturedAt };
-  };
-  const sseError = (code, detail, remediation) => {
-    const error51 = new Error(detail);
-    error51.code = code;
-    error51.detail = detail;
-    error51.remediation = remediation;
-    return error51;
-  };
-  const parseEvent = (frame) => {
-    const fields = frame.replace(/\r/g, "").split("\n");
-    let event = "message";
-    const data2 = [];
-    for (const line of fields) {
-      if (line.startsWith("event:")) event = line.slice(6).trim();
-      if (line.startsWith("data:")) data2.push(line.slice(5).trimStart());
-    }
-    const raw = data2.join("\n");
-    let payload = raw;
-    try {
-      payload = JSON.parse(raw);
-    } catch {
-    }
-    return { event, data: payload };
-  };
-  const stream = async (method, path, body, baseOrOptions = BASE) => {
-    const diagnose = process.env.GHL_SSE_DIAGNOSTICS === "1";
-    const startedAt = Date.now();
-    let bytesReceived = 0;
-    let chunkCount = 0;
-    const lastEvents = [];
-    const trace = (phase, extra = {}) => {
-      if (!diagnose) return;
-      process.stderr.write(`[ghl-sse] ${JSON.stringify({
-        phase,
-        elapsedMs: Date.now() - startedAt,
-        bytesReceived,
-        chunkCount,
-        lastEvents,
-        ...extra
-      })}
-`);
-    };
-    const supplied = typeof baseOrOptions === "string" ? { base: baseOrOptions } : baseOrOptions ?? {};
-    const terminalEvents = new Set(supplied.terminalEvents ?? ["done", "agent_saved"]);
-    let res;
-    try {
-      res = await request(method, path, body, {
-        ...supplied,
-        headers: { accept: "text/event-stream", ...supplied.headers ?? {} }
-      });
-    } catch (error51) {
-      trace("request_error", { errorName: error51?.name ?? "Error" });
-      throw error51;
-    }
-    trace("response", { status: res.status, ok: res.ok });
-    if (!res.ok) {
-      const text = await res.text();
-      let json2;
-      try {
-        json2 = JSON.parse(text);
-      } catch {
-        json2 = text;
-      }
-      const error51 = sseError(
-        `HTTP_${res.status}`,
-        "SSE endpoint returned an unsuccessful HTTP response",
-        "Inspect the upstream response, correct the request or credentials, then retry."
-      );
-      error51.gatewayResponse = { status: res.status, json: json2 };
-      throw error51;
-    }
-    const contentType = res.headers?.get?.("content-type") ?? res.headers?.["content-type"] ?? "";
-    trace("sse_headers", { status: res.status, contentType });
-    if (!/\btext\/event-stream\b/i.test(contentType) || !res.body?.getReader) {
-      throw sseError(
-        CODES.SSE_EXPECTED,
-        "Agent Studio build did not return an SSE response",
-        "Do not treat this as a successful agent creation. Inspect the response shape before retrying."
-      );
-    }
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    const events = [];
-    let buffer = "";
-    let terminal = null;
-    const recordEvent = (parsed) => {
-      events.push(parsed);
-      lastEvents.push(parsed.event);
-      if (lastEvents.length > 32) lastEvents.shift();
-      if (terminalEvents.has(parsed.event)) terminal = parsed;
-    };
-    const consumeFrames = () => {
-      const frames = buffer.split(/\r\n\r\n|\r\n\n|\n\r\n|\n\n|\r\r/);
-      buffer = frames.pop();
-      for (const frame of frames) {
-        if (!frame.trim()) continue;
-        const parsed = parseEvent(frame);
-        recordEvent(parsed);
-      }
-    };
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (value) {
-          bytesReceived += value.byteLength;
-          chunkCount++;
-          buffer += decoder.decode(value, { stream: !done });
-          consumeFrames();
-        }
-        if (done) break;
-      }
-    } catch (error51) {
-      trace("reader_error", { status: res.status, errorName: error51?.name ?? "Error" });
-      throw error51;
-    }
-    buffer += decoder.decode();
-    consumeFrames();
-    if (buffer.trim()) {
-      const parsed = parseEvent(buffer);
-      recordEvent(parsed);
-    }
-    trace("stream_closed", { status: res.status, terminalEvent: terminal?.event ?? null, pendingBytes: Buffer.byteLength(buffer) });
-    if (!terminal) {
-      trace("incomplete", { status: res.status });
-      throw sseError(
-        CODES.SSE_INCOMPLETE,
-        "SSE stream ended without a terminal success event",
-        "Do not treat this as a successful agent creation. Inspect the account for a partial draft before retrying."
-      );
-    }
-    return { status: res.status, ok: res.ok, events, terminal };
-  };
-  return { call, callWithMeta, stream, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
-}
-
 // stdio.mjs
 var HERE2 = dirname2(fileURLToPath2(import.meta.url));
 var pkgVersion = true ? "0.1.0" : (() => {
@@ -47199,7 +49116,7 @@ var pkgVersion = true ? "0.1.0" : (() => {
   }
 })();
 var state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
-var makeGw = ({ loc, rail }) => makeGateway({ tokenFile: state.tokenFile, loc, rail });
+var makeGw = makeGatewayFactory({ state });
 var server = new McpServer({ name: "uxie-ghl-internal-mcp", version: pkgVersion });
 registerTools(server, { state, makeGw });
 await server.connect(new StdioServerTransport());

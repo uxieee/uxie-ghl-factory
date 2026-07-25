@@ -21,7 +21,17 @@ const aiTool = {
   inputSchema: {},
   handler() {},
 };
-const futureTools = [...TOOLS, runtimeTool, rosterTool, aiTool];
+// The three composites this profile selects arrive across Tasks 3-4. Whichever are ALREADY
+// registered in TOOLS are used as registered; the rest stay as fixtures here so this test
+// keeps proving the selector against the whole audit set before the real tools exist.
+// Appending a stub whose name TOOLS already defines would trip the selector's own
+// DUPLICATE_TOOL guard — which is proved below with a deliberate duplicate instead, so the
+// filter costs the suite no coverage.
+const registered = new Set(TOOLS.map((tool) => tool.name));
+const futureTools = [
+  ...TOOLS,
+  ...[runtimeTool, rosterTool, aiTool].filter((tool) => !registered.has(tool.name)),
+];
 
 test('audit profile exposes the exact read-only set', () => {
   assert.deepEqual(AUDIT_TOOL_NAMES, [

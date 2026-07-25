@@ -171,6 +171,52 @@
       "workflow-enrollment-stats-cache"
     ]
   },
+  "get_workflow_runtime_window": {
+    "description": "Collect one workflow's complete, evidence-qualified runtime window (definition, time-partitioned executions, enrollment walk, per-step counts, requested step rosters, enrollment totals) — proof: external-receipt-required; risk: read. Every failure is complete:false with a coded warning, never an empty window. `complete` covers RUNTIME EVENT COVERAGE only: the separate configurationBinding field records that nothing on this rail proves the captured definition governed the events in the window, so no consumer may claim it did. Live canary required before Full audit.",
+    "risk": "read",
+    "proof": "external-receipt-required",
+    "proofFloor": "external-receipt-required",
+    "proofRows": [
+      "logs-count-per-step",
+      "logs-details-by-step",
+      "logs-enrollment-history",
+      "logs-list-v2",
+      "triggers-list",
+      "workflow-enrollment-stats-cache",
+      "workflow-read",
+      "workflow-sticky-notes-list"
+    ],
+    "proofFloorRows": [
+      "logs-count-per-step",
+      "logs-details-by-step",
+      "logs-enrollment-history",
+      "logs-list-v2",
+      "triggers-list",
+      "workflow-enrollment-stats-cache",
+      "workflow-read",
+      "workflow-sticky-notes-list"
+    ],
+    "riskRows": [
+      "logs-count-per-step",
+      "logs-details-by-step",
+      "logs-enrollment-history",
+      "logs-list-v2",
+      "triggers-list",
+      "workflow-enrollment-stats-cache",
+      "workflow-read",
+      "workflow-sticky-notes-list"
+    ],
+    "rows": [
+      "logs-count-per-step",
+      "logs-details-by-step",
+      "logs-enrollment-history",
+      "logs-list-v2",
+      "triggers-list",
+      "workflow-enrollment-stats-cache",
+      "workflow-read",
+      "workflow-sticky-notes-list"
+    ]
+  },
   "get_contacts_at_step": {
     "description": "List contacts at step — proof: live-runtime (2026-07-18); risk: read",
     "risk": "read",

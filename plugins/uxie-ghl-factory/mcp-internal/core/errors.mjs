@@ -45,6 +45,13 @@ export const CODES = Object.freeze({
   // ever checks, and the run would sail on through a dead credential.
   INVALID_CIRCUIT_SCOPE: 'INVALID_CIRCUIT_SCOPE',
 
+  // The audit composite's OWN input fault. It is separate from VALIDATION_FAILED because
+  // an audit caller must be able to tell "my window was never legal" apart from any
+  // upstream refusal: the log descriptors carry no numeric bounds on fromDate/toDate, so
+  // an inverted or malformed window would otherwise reach the wire, return SOMETHING, and
+  // have that something recorded as evidence for a window nobody actually asked for.
+  INVALID_RUNTIME_WINDOW: 'INVALID_RUNTIME_WINDOW',
+
   // Construction-time audit-rail faults. They are separate from the request-time
   // codes above because they mean the PROCESS is wired wrong: no request could
   // ever have been legal, so there is nothing to checkpoint and resume.

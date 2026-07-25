@@ -7,6 +7,9 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
+import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
+import { makeGateway } from './gateway.mjs';
+import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
 import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
 import {
@@ -54,6 +57,34 @@ const credentialFailure = (code = CODES.VALIDATION_FAILED) => fail(
   'a tool argument contains a credential-looking value (value withheld)',
   'Remove credentials from tool arguments. Authentication comes only from the configured token file.',
 );
+
+// ONE limiter and ONE circuit for the whole process, created lazily on first audit use.
+//
+// The plan (line 331) says the audit stdio process creates one of each and shares them
+// across every audit gateway. That process does not exist until Task 5, and on the server
+// that DOES exist nothing supplies them — so `deps.auditLimiter ?? makeAuditLimiter()` was
+// the only reachable branch and every tool call got a FRESH pair. A 429 that latched the
+// circuit on call N was discarded before call N+1, which then re-hammered the very
+// location that had just asked this process to stop; and the pacing each call promised was
+// pacing against nothing. Module scope is the process, so the invariant holds on today's
+// server too, while an injected pair still wins for the Task 5 driver and for tests.
+let sharedAuditLimiter = null;
+let sharedAuditCircuit = null;
+export function processAuditPacing() {
+  sharedAuditLimiter ??= makeAuditLimiter();
+  sharedAuditCircuit ??= makeAuditCircuit();
+  return { limiter: sharedAuditLimiter, circuit: sharedAuditCircuit };
+}
+
+// The gateway factory the stdio entry points hand to registerTools. It lives here, and is
+// a spread rather than a destructure, because the destructured version in stdio.mjs
+// (`({ loc, rail }) => makeGateway({ tokenFile, loc, rail })`) silently swallowed every
+// other option — including the `throttleMs: 0, jitterMs: 0` the audit tools pass so the
+// SHARED limiter can own pacing. The result was the double-throttle Task 2's carry-forward
+// warns about: the per-gateway 300-450ms delay AND the limiter's, on every audit read.
+export function makeGatewayFactory({ state, gatewayImpl = makeGateway }) {
+  return (options = {}) => gatewayImpl({ tokenFile: state.tokenFile, ...options });
+}
 
 function validateRegisteredArgs(tool, args) {
   // Secret detection MUST precede unknown-key validation so neither keys nor
@@ -936,6 +967,69 @@ export const TOOLS = [
         ...(enrollmentStats ? { enrollmentStats } : {}),
         note: 'added_to_workflow in logs is the ONLY proof a trigger fired.',
       });
+    }, args),
+  },
+  {
+    name: 'get_workflow_runtime_window',
+    description: describe(
+      'get_workflow_runtime_window',
+      'Collect one workflow\'s complete runtime window — proof: external-receipt-required; risk: read. `complete` covers runtime event coverage only; configurationBinding records that nothing proves the captured definition governed those events. Live canary required before Full audit.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      // Epoch milliseconds, half-open [fromDate, toDate). Bounded HERE as well as in the
+      // collector because the log descriptors carry no numeric bounds on either key.
+      fromDate: z.number().int().nonnegative(),
+      toDate: z.number().int().positive(),
+      contactId: z.string().optional(),
+      // `eventType` is not repeatable upstream, so each entry costs its own partition walk
+      // against the one shared maxLogPartitions budget.
+      eventTypes: z.array(z.string()).max(20).default([]),
+      stepIds: z.array(z.string()).max(20).default([]),
+      // Not a knob: 20 is the only page size the partition walk's terminal test has been
+      // proven against. Declared so an explicit 20 parses and anything else is refused.
+      pageSize: z.literal(20).default(20),
+      maxLogPartitions: z.number().int().min(1).max(2048).default(256),
+      minPartitionMs: z.number().int().min(1).default(1000),
+      maxEnrollmentPages: z.number().int().min(1).max(1000).default(200),
+      maxStepRosterPages: z.number().int().min(1).max(1000).default(200),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'GET', path: '/workflows/sticky-notes-all' },
+      { method: 'GET', path: '/workflows/logs/v2' },
+      { method: 'GET', path: '/workflows/status/search/count-per-step' },
+      { method: 'GET', path: '/workflows/status/search/workflow-with-filter' },
+      { method: 'GET', path: '/workflows/status/search/details-by-step' },
+      { method: 'GET', path: '/workflows/status/search/enroll-stats-cache' },
+      { method: 'GET', path: '/workflows/status/enroll-stats' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      // Validated BEFORE the gateway is constructed: building one first would spend a
+      // credential read (and register an audit trace) for a window that was never legal.
+      const config = validateRuntimeWindowInput(args ?? {});
+      if (typeof deps?.makeGw !== 'function') {
+        return fail(CODES.ENGINE_ABORT, 'the runtime-window tool was invoked without a gateway factory',
+          'Register the tool with { state, makeGw } dependencies before calling it.');
+      }
+      // Throttling is disabled on the per-gateway rail because the shared audit limiter
+      // owns pacing; leaving the default double-throttles every read. `makeGw` must
+      // therefore FORWARD these options — see makeGatewayFactory for the version that
+      // dropped them.
+      const backend = deps.makeGw({ loc: config.locationId, rail: 'jwt', state: deps.state, throttleMs: 0, jitterMs: 0 });
+      // An injected pair wins (Task 5's driver, and tests that need an isolated circuit);
+      // otherwise the PROCESS-wide pair, never a fresh one per call. A per-call circuit
+      // forgets a 429 the instant the call that earned it returns.
+      const pacing = processAuditPacing();
+      const auditGateway = makeAuditGateway({
+        gateways: { backend },
+        locationId: config.locationId,
+        limiter: deps.auditLimiter ?? pacing.limiter,
+        circuit: deps.auditCircuit ?? pacing.circuit,
+      });
+      return ok(await collectWorkflowRuntimeWindow({ auditGateway, input: args }));
     }, args),
   },
   {

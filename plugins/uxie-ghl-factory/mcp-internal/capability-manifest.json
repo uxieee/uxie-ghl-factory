@@ -100,6 +100,51 @@
     "path": "/workflows/status/enroll-stats"
   },
   {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflows/sticky-notes-all"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflows/logs/v2"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflows/status/search/count-per-step"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflows/status/search/workflow-with-filter"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflows/status/search/details-by-step"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflows/status/search/enroll-stats-cache"
+  },
+  {
+    "tool": "get_workflow_runtime_window",
+    "method": "GET",
+    "path": "/workflows/status/enroll-stats"
+  },
+  {
     "tool": "get_contacts_at_step",
     "method": "GET",
     "path": "/workflows/status/search/details-by-step"
