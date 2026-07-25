@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "bin": {
-    "ghl-internal-mcp": "./stdio.mjs"
+    "ghl-internal-mcp": "./stdio.mjs",
+    "ghl-internal-mcp-audit": "./stdio-audit.mjs"
   },
   "scripts": {
     "build": "node scripts/build.mjs",

@@ -1,0 +1,562 @@
+{
+  "schemaVersion": "1.0",
+  "profile": "audit",
+  "proofModel": "external_capability_receipts_v1",
+  "tools": [
+    "auth_status",
+    "list_workflows_complete",
+    "get_workflow",
+    "export_workflow",
+    "get_workflow_runtime_window",
+    "get_ai_configuration_bundle"
+  ],
+  "capabilities": [
+    {
+      "tool": "list_workflows_complete",
+      "capabilityId": "workflow_roster_list",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflow/{locationId}/list",
+      "pathBindings": {
+        "locationId": "locationId"
+      },
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "type",
+        "limit",
+        "offset",
+        "sortBy",
+        "sortOrder",
+        "includeCustomObjects",
+        "includeObjectiveBuilder"
+      ],
+      "optionalQueryKeys": [
+        "status",
+        "search"
+      ],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "type": "workflow",
+        "sortBy": "name",
+        "sortOrder": "asc",
+        "includeCustomObjects": "true",
+        "includeObjectiveBuilder": "true"
+      },
+      "allowedQueryValues": {
+        "status": [
+          "published",
+          "draft"
+        ]
+      },
+      "numericQueryBounds": {
+        "limit": {
+          "min": 1,
+          "max": 100
+        },
+        "offset": {
+          "min": 0
+        }
+      },
+      "locationBinding": "path",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow",
+      "capabilityId": "workflow_detail",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflow/{locationId}/{workflowId}",
+      "pathBindings": {
+        "locationId": "locationId",
+        "workflowId": "workflowId"
+      },
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "includeScheduledPauseInfo"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "includeScheduledPauseInfo": "true"
+      },
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "path",
+      "sealedBy": null
+    },
+    {
+      "tool": "export_workflow",
+      "capabilityId": "workflow_detail",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflow/{locationId}/{workflowId}",
+      "pathBindings": {
+        "locationId": "locationId",
+        "workflowId": "workflowId"
+      },
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "includeScheduledPauseInfo"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "includeScheduledPauseInfo": "true"
+      },
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "path",
+      "sealedBy": null
+    },
+    {
+      "tool": "export_workflow",
+      "capabilityId": "workflow_triggers",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflow/{locationId}/trigger",
+      "pathBindings": {
+        "locationId": "locationId"
+      },
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "path",
+      "sealedBy": null
+    },
+    {
+      "tool": "export_workflow",
+      "capabilityId": "workflow_sticky_notes",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/sticky-notes-all",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId",
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_detail",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflow/{locationId}/{workflowId}",
+      "pathBindings": {
+        "locationId": "locationId",
+        "workflowId": "workflowId"
+      },
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "includeScheduledPauseInfo"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "includeScheduledPauseInfo": "true"
+      },
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "path",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_triggers",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflow/{locationId}/trigger",
+      "pathBindings": {
+        "locationId": "locationId"
+      },
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "path",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_sticky_notes",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/sticky-notes-all",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId",
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_execution_logs",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/logs/v2",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId",
+        "locationId",
+        "limit",
+        "fromDate",
+        "toDate"
+      ],
+      "optionalQueryKeys": [
+        "contactId",
+        "eventType"
+      ],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "limit": "20"
+      },
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_count_per_step",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/status/search/count-per-step",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId",
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_enrollment_search",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/status/search/workflow-with-filter",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId",
+        "locationId",
+        "action",
+        "limit"
+      ],
+      "optionalQueryKeys": [
+        "contactId",
+        "fromDate",
+        "toDate",
+        "eventType",
+        "referenceId",
+        "referenceCreatedAt",
+        "referenceSid",
+        "referenceSequence"
+      ],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "limit": "20"
+      },
+      "allowedQueryValues": {
+        "action": [
+          "first",
+          "next"
+        ]
+      },
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_step_details",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/status/search/details-by-step",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowId": "workflowId",
+        "currentStepId": "stepId"
+      },
+      "requiredQueryKeys": [
+        "workflowId",
+        "locationId",
+        "currentStepId",
+        "skip",
+        "limit",
+        "showTotalCount"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "showTotalCount": "true"
+      },
+      "allowedQueryValues": {},
+      "numericQueryBounds": {
+        "limit": {
+          "min": 1,
+          "max": 50
+        },
+        "skip": {
+          "min": 0
+        }
+      },
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_enroll_stats_cache",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/status/search/enroll-stats-cache",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowIds[]": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowIds[]",
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_workflow_runtime_window",
+      "capabilityId": "workflow_enroll_stats",
+      "host": "backend",
+      "authRail": "backend",
+      "method": "GET",
+      "normalizedPath": "/workflows/status/enroll-stats",
+      "pathBindings": {},
+      "queryBindings": {
+        "workflowId": "workflowId"
+      },
+      "requiredQueryKeys": [
+        "workflowId",
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_ai_configuration_bundle",
+      "capabilityId": "conversation_ai_agent_discovery",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/ai-employees/agents",
+      "pathBindings": {},
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_ai_configuration_bundle",
+      "capabilityId": "conversation_ai_agent_detail",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/ai-employees/employees/{agentId}",
+      "pathBindings": {
+        "agentId": "agentId"
+      },
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": "conversation_ai_agent_discovery"
+    },
+    {
+      "tool": "get_ai_configuration_bundle",
+      "capabilityId": "voice_ai_agent_discovery",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/voice-ai/agents/simple",
+      "pathBindings": {},
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_ai_configuration_bundle",
+      "capabilityId": "voice_ai_agent_detail",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/voice-ai/agents/{agentId}",
+      "pathBindings": {
+        "agentId": "agentId"
+      },
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": "voice_ai_agent_discovery"
+    },
+    {
+      "tool": "get_ai_configuration_bundle",
+      "capabilityId": "agent_studio_agent_discovery",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/agent-studio/agents/agents-with-folders",
+      "pathBindings": {},
+      "queryBindings": {
+        "agencyId": "companyId"
+      },
+      "requiredQueryKeys": [
+        "locationId",
+        "agencyId",
+        "productId",
+        "page",
+        "pageSize",
+        "groupBy",
+        "sortBy",
+        "sortOrder"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "productId": "superagent",
+        "groupBy": "foldersFirst",
+        "sortBy": "lastUpdated",
+        "sortOrder": "desc"
+      },
+      "allowedQueryValues": {},
+      "numericQueryBounds": {
+        "page": {
+          "min": 1
+        },
+        "pageSize": {
+          "min": 1,
+          "max": 100
+        }
+      },
+      "locationBinding": "query",
+      "sealedBy": null
+    },
+    {
+      "tool": "get_ai_configuration_bundle",
+      "capabilityId": "agent_studio_agent_detail",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/agent-studio/super-agent/agents/{agentId}",
+      "pathBindings": {
+        "agentId": "agentId"
+      },
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "locationId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": "agent_studio_agent_discovery"
+    }
+  ],
+  "manifestHash": "sha256:5f41aaae210dc32573c8b569a0b04032436c5f10b99c1cb9ff29bf4d271f2407"
+}

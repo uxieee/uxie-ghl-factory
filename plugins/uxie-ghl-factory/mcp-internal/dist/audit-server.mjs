@@ -7502,7 +7502,7 @@ var require_dist = __commonJS({
   }
 });
 
-// stdio.mjs
+// stdio-audit.mjs
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
@@ -31768,7 +31768,7 @@ var StdioServerTransport = class {
   }
 };
 
-// stdio.mjs
+// stdio-audit.mjs
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { dirname as dirname2, resolve as resolve3 } from "node:path";
 
@@ -32639,7 +32639,7 @@ var inspectIdentity = (json2, expected, fields) => {
 };
 var identityIncomplete = (identity) => identity.unreadable.length > 0 || identity.inspectionCapped || identity.depthCapped;
 var EXPECTED_RAIL = Object.freeze({ backend: "jwt", ai: "ai" });
-function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors = AUDIT_CAPABILITIES }) {
+function makeAuditGateway({ gateways, locationId, limiter: limiter2, circuit: circuit2, descriptors = AUDIT_CAPABILITIES }) {
   if (typeof locationId !== "string" || locationId.trim() === "") {
     throw auditError(
       CODES.INVALID_AUDIT_LOCATION,
@@ -32915,7 +32915,7 @@ function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors 
   };
   const INVALID_BODY_LATCH_THRESHOLD = 3;
   const circuitOpenError = (scope) => {
-    const state2 = circuit.state(scope);
+    const state2 = circuit2.state(scope);
     const error51 = auditError(
       CODES.CIRCUIT_OPEN,
       `the shared audit circuit is open on the ${state2.scope ?? scope} scope (${state2.reason ?? "unknown reason"})`,
@@ -32928,16 +32928,16 @@ function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors 
   const callCapability = async ({ capabilityId, method = "GET", typedBindings = {}, query = {} }) => {
     const { capability, appliedPath, appliedQuery, target, gateway, base } = validate({ capabilityId, method, typedBindings, query });
     const scope = capability.authRail;
-    if (circuit.isOpen(scope)) throw circuitOpenError(scope);
+    if (circuit2.isOpen(scope)) throw circuitOpenError(scope);
     let meta3;
     try {
-      meta3 = await limiter.schedule(() => {
-        if (circuit.isOpen(scope)) throw circuitOpenError(scope);
+      meta3 = await limiter2.schedule(() => {
+        if (circuit2.isOpen(scope)) throw circuitOpenError(scope);
         return gateway.callWithMeta("GET", target, void 0, { base });
       });
     } catch (error51) {
       if (error51?.code === CODES.CIRCUIT_OPEN) throw error51;
-      circuit.open(scope, CODES.TRANSPORT_FAILED, {
+      circuit2.open(scope, CODES.TRANSPORT_FAILED, {
         capabilityId: capability.capabilityId,
         status: null,
         retryAfterMs: null
@@ -32983,18 +32983,18 @@ function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors 
       retryAfterMs: meta3.retryAfterMs
     };
     if (meta3.status === 429) {
-      circuit.open("process", CODES.RATE_LIMITED, latchMeta);
+      circuit2.open("process", CODES.RATE_LIMITED, latchMeta);
     } else if (meta3.status === 401) {
-      circuit.open(scope, CODES.AUTH_REJECTED, latchMeta);
+      circuit2.open(scope, CODES.AUTH_REJECTED, latchMeta);
     } else if (locationThrottled) {
-      circuit.open("process", CODES.LOCATION_RATE_LIMITED, latchMeta);
+      circuit2.open("process", CODES.LOCATION_RATE_LIMITED, latchMeta);
     } else if (!bodyUsable) {
-      const consecutive = circuit.noteUnusableBody(scope);
+      const consecutive = circuit2.noteUnusableBody(scope);
       if (consecutive >= INVALID_BODY_LATCH_THRESHOLD) {
-        circuit.open(scope, CODES.INVALID_RESPONSE_BODY, { ...latchMeta, consecutive });
+        circuit2.open(scope, CODES.INVALID_RESPONSE_BODY, { ...latchMeta, consecutive });
       }
     }
-    if (meta3.ok === true && bodyUsable) circuit.noteUsableRead(scope);
+    if (meta3.ok === true && bodyUsable) circuit2.noteUsableRead(scope);
     const failureClass = authRejected ? CODES.AUTH_REJECTED : meta3.status === 429 ? CODES.RATE_LIMITED : locationThrottled ? CODES.LOCATION_RATE_LIMITED : meta3.ok !== true ? `HTTP_${meta3.status}` : !bodyUsable ? CODES.INVALID_RESPONSE_BODY : quarantined ? CODES.IDENTITY_CONFLICT : identity.unreadable.length > 0 ? CODES.IDENTITY_UNREADABLE : identity.inspectionCapped ? CODES.IDENTITY_INSPECTION_CAPPED : identity.depthCapped ? CODES.IDENTITY_DEPTH_CAPPED : null;
     return {
       capabilityId: capability.capabilityId,
@@ -50334,7 +50334,88 @@ function registerTools(server2, deps, tools = TOOLS2) {
   }
 }
 
-// stdio.mjs
+// core/audit-profile.mjs
+init_define_TOOL_CATALOG();
+var AUDIT_TOOL_NAMES = Object.freeze([
+  "auth_status",
+  "list_workflows_complete",
+  "get_workflow",
+  "export_workflow",
+  "get_workflow_runtime_window",
+  "get_ai_configuration_bundle"
+]);
+function toolsForProfile(profile, tools = TOOLS2) {
+  if (profile !== "audit") throw new Error("UNKNOWN_TOOL_PROFILE");
+  const byName = /* @__PURE__ */ new Map();
+  for (const tool of tools) {
+    if (byName.has(tool.name)) throw new Error("DUPLICATE_TOOL");
+    byName.set(tool.name, tool);
+  }
+  const selected = AUDIT_TOOL_NAMES.map((name) => {
+    const tool = byName.get(name);
+    if (!tool) throw new Error(`MISSING_AUDIT_TOOL:${name}`);
+    return tool;
+  });
+  for (const tool of selected) {
+    if (tool.name === "auth_status") continue;
+    if (tool.capabilities.length === 0) throw new Error(`UNAPPROVED_AUDIT_TOOL:${tool.name}`);
+    if (tool.capabilities.some((capability) => capability.method !== "GET")) {
+      throw new Error(`UNAPPROVED_AUDIT_TOOL:${tool.name}`);
+    }
+  }
+  return selected;
+}
+
+// core/audit-readonly.mjs
+init_define_TOOL_CATALOG();
+function auditError2(code, detail, remediation) {
+  const safeDetail = scrubSecrets(String(detail));
+  const error51 = new Error(`${code}: ${safeDetail}`);
+  error51.code = code;
+  error51.detail = safeDetail;
+  error51.remediation = scrubSecrets(String(remediation));
+  return error51;
+}
+var APPROVED_ORIGINS = Object.freeze(Object.values(AUDIT_HOSTS));
+var originOf = (baseOrOptions) => {
+  const base = typeof baseOrOptions === "string" ? baseOrOptions : baseOrOptions?.base;
+  if (base === void 0) return null;
+  try {
+    return new URL(base).origin;
+  } catch {
+    return String(base);
+  }
+};
+var blocked = (what, detail) => auditError2(
+  CODES.AUDIT_WRITE_BLOCKED,
+  detail,
+  `The audit profile is structurally read-only. Use the full server for ${what}.`
+);
+function readOnlyGateway(gateway) {
+  const guard2 = (name, fn) => (method, path, body, baseOrOptions) => {
+    if (method !== "GET") {
+      return Promise.reject(blocked("any write", `${name} was called with ${String(method)} on the audit rail`));
+    }
+    if (body !== void 0) {
+      return Promise.reject(blocked("any request carrying a body", `${name} was given a request body on the audit rail`));
+    }
+    const origin = originOf(baseOrOptions);
+    if (origin !== null && !APPROVED_ORIGINS.includes(origin)) {
+      return Promise.reject(blocked("any other host", `${name} was pointed at an origin outside the audit hosts`));
+    }
+    return fn(method, path, body, baseOrOptions);
+  };
+  return {
+    ...gateway,
+    call: guard2("call", (...args) => gateway.call(...args)),
+    callWithMeta: guard2("callWithMeta", (...args) => gateway.callWithMeta(...args)),
+    // SSE is a build channel on this codebase (Agent Studio), never a read. There is no
+    // GET-shaped legitimate use of it on the audit rail, so it is refused outright.
+    stream: () => Promise.reject(blocked("a streaming build", "stream is not available on the audit rail"))
+  };
+}
+
+// stdio-audit.mjs
 var HERE2 = dirname2(fileURLToPath2(import.meta.url));
 var pkgVersion = true ? "0.1.0" : (() => {
   try {
@@ -50344,7 +50425,15 @@ var pkgVersion = true ? "0.1.0" : (() => {
   }
 })();
 var state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
-var makeGw = makeGatewayFactory({ state });
-var server = new McpServer({ name: "uxie-ghl-internal-mcp", version: pkgVersion });
-registerTools(server, { state, makeGw });
+var { limiter, circuit } = processAuditPacing();
+var makeGw = makeGatewayFactory({
+  state,
+  gatewayImpl: (options) => readOnlyGateway(makeGateway(options))
+});
+var server = new McpServer({ name: "uxie-ghl-internal-mcp-audit", version: pkgVersion });
+registerTools(
+  server,
+  { state, makeGw, auditLimiter: limiter, auditCircuit: circuit },
+  toolsForProfile("audit")
+);
 await server.connect(new StdioServerTransport());

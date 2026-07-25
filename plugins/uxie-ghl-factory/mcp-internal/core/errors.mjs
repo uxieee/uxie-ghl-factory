@@ -45,6 +45,13 @@ export const CODES = Object.freeze({
   // ever checks, and the run would sail on through a dead credential.
   INVALID_CIRCUIT_SCOPE: 'INVALID_CIRCUIT_SCOPE',
 
+  // The audit process's SECOND lock. The first is the registry filter, which decides which
+  // tools exist; this one decides which HTTP methods can leave, and it sits below every tool
+  // rather than beside them. Two independent locks matter because the audit bundle still
+  // CONTAINS the write handlers as unreachable code (one TOOLS array literal, nothing for
+  // esbuild to tree-shake), so registry filtering alone is a single point of failure.
+  AUDIT_WRITE_BLOCKED: 'AUDIT_WRITE_BLOCKED',
+
   // The audit composite's OWN input fault. It is separate from VALIDATION_FAILED because
   // an audit caller must be able to tell "my window was never legal" apart from any
   // upstream refusal: the log descriptors carry no numeric bounds on fromDate/toDate, so
