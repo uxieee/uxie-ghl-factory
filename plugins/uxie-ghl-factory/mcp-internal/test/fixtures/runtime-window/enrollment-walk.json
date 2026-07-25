@@ -1,0 +1,340 @@
+{
+  "_file": "Scenarios for the /workflows/status/search/workflow-with-filter enrollment walk (action=first/next). Every scenario keeps the log corpus empty so the assertions are about the cursor walk alone. A page may carry `generate` (expanded first) and `rows` (appended after), which is how a 19-generated + 1-hand-written terminal row page stays readable.",
+  "scenarios": {
+    "one-page-enrollment": {
+      "planBullet": "One-page and three-page enrollments",
+      "why": "A short first page is the terminal case. It must also prove the FIRST call carries action=first and no cursor key at all - not an empty one.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          {
+            "rows": [
+              { "_id": "enr-1", "contactId": "c1", "createdAt": 100, "sid": "s1", "sequence": 1 },
+              { "_id": "enr-2", "contactId": "c2", "createdAt": 101, "sid": "s2", "sequence": 2 },
+              { "_id": "enr-3", "contactId": "c3", "createdAt": 102, "sid": "s3", "sequence": 3 }
+            ]
+          }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first"],
+        "enrollmentPages": 1,
+        "enrollmentCount": 3,
+        "enrollmentComplete": true,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "three-page-enrollment": {
+      "planBullet": "One-page and three-page enrollments",
+      "why": "Two full pages then a short one. The walk must continue only while a page is exactly full (limit is pinned at 20 by the descriptor) and must stop on the short page rather than issuing a fourth call that would loop.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          { "generate": { "count": 20, "idPrefix": "p1-", "createdAtStart": 1000, "sidPrefix": "sid1-", "sequenceStart": 1 } },
+          { "generate": { "count": 20, "idPrefix": "p2-", "createdAtStart": 2000, "sidPrefix": "sid2-", "sequenceStart": 101 } },
+          { "generate": { "count": 5, "idPrefix": "p3-", "createdAtStart": 3000, "sidPrefix": "sid3-", "sequenceStart": 201 } }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first", "next", "next"],
+        "enrollmentPages": 3,
+        "enrollmentCount": 45,
+        "enrollmentComplete": true,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "reference-sequence-forwarding": {
+      "planBullet": "referenceSequence forwarding",
+      "why": "Plan line 431 and Remaining-Gaps line 34: the pre-existing walk forwarded referenceId/referenceCreatedAt/referenceSid and DROPPED referenceSequence, so a cursor key the upstream orders by was silently truncated. The complete tuple must go out on every action=next call.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          { "generate": { "count": 20, "idPrefix": "seq-", "createdAtStart": 500, "sidPrefix": "sid-", "sequenceStart": 41 } },
+          { "rows": [{ "_id": "last-1", "contactId": "cz", "createdAt": 900, "sid": "sid-z", "sequence": 900 }] }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first", "next"],
+        "enrollmentPages": 2,
+        "enrollmentCount": 21,
+        "enrollmentComplete": true,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "reference-sequence-alias": {
+      "planBullet": "referenceSequence forwarding",
+      "why": "Rows are not guaranteed to name the field `sequence`; some echo it back as `referenceSequence`. The cursor reader must accept either, in that priority, so a row-shape change does not silently drop the key again.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          {
+            "generate": { "count": 19, "idPrefix": "alias-", "createdAtStart": 500, "sidPrefix": "sid-", "sequenceStart": 41 },
+            "rows": [{ "_id": "alias-last", "contactId": "ca", "createdAt": 777, "sid": "sid-a", "referenceSequence": 777 }]
+          },
+          { "rows": [{ "_id": "tail", "contactId": "ct", "createdAt": 800, "sid": "sid-t", "sequence": 800 }] }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first", "next"],
+        "enrollmentPages": 2,
+        "enrollmentCount": 21,
+        "enrollmentComplete": true,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "omit-absent-cursor-keys": {
+      "planBullet": "Missing or repeated enrollment cursor",
+      "why": "Task 2 carry-forward item 2: cursor keys are OPTIONAL on the descriptor, so the gateway's non-empty rule does NOT cover them and `referenceSid=` would reach the wire as an empty value that quietly changes the query. When the terminal row carries no sid and no sequence the KEYS must be absent, not empty.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          {
+            "generate": { "count": 19, "idPrefix": "om-", "createdAtStart": 300, "sidPrefix": "sid-", "sequenceStart": 1 },
+            "rows": [{ "_id": "om-last", "contactId": "cl", "createdAt": 400 }]
+          },
+          { "rows": [{ "_id": "om-tail", "contactId": "cx", "createdAt": 500, "sid": "sid-x", "sequence": 9 }] }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first", "next"],
+        "enrollmentPages": 2,
+        "enrollmentCount": 21,
+        "enrollmentComplete": true,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "missing-enrollment-cursor": {
+      "planBullet": "Missing or repeated enrollment cursor",
+      "why": "A full page whose terminal row carries neither an id nor a sid leaves nothing to advance on. Continuing would re-request page one forever; stopping quietly would report a truncated roster as the whole roster. The honest move is to stop AND say so. UPDATED: that id-less terminal row is ALSO the row whose count this collector cannot prove (it can only be deduplicated by content), so ENROLLMENT_ROW_ID_MISSING now rides alongside — the enrollment-side twin of LOG_EVENT_ID_MISSING, which this walk never had.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          {
+            "generate": { "count": 19, "idPrefix": "mc-", "createdAtStart": 300, "sidPrefix": "sid-", "sequenceStart": 1 },
+            "rows": [{ "contactId": "c-anon", "createdAt": 999 }]
+          }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first"],
+        "enrollmentPages": 1,
+        "enrollmentCount": 20,
+        "enrollmentComplete": false,
+        "complete": false,
+        "warningCodes": ["ENROLLMENT_CURSOR_MISSING", "ENROLLMENT_ROW_ID_MISSING"]
+      }
+    },
+
+    "repeated-enrollment-cursor": {
+      "planBullet": "Missing or repeated enrollment cursor",
+      "why": "Page two ends on the exact same cursor tuple as page one, so page three would be page two again. Without tuple-repeat detection the walk spins until maxEnrollmentPages and then reports a page-budget problem it does not actually have.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          {
+            "generate": { "count": 19, "idPrefix": "rc1-", "createdAtStart": 300, "sidPrefix": "sid1-", "sequenceStart": 1 },
+            "rows": [{ "_id": "pin", "contactId": "cp", "createdAt": 555, "sid": "sid-pin", "sequence": 55 }]
+          },
+          {
+            "generate": { "count": 19, "idPrefix": "rc2-", "createdAtStart": 400, "sidPrefix": "sid2-", "sequenceStart": 21 },
+            "rows": [{ "_id": "pin", "contactId": "cp", "createdAt": 555, "sid": "sid-pin", "sequence": 55 }]
+          }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first", "next"],
+        "enrollmentPages": 2,
+        "enrollmentComplete": false,
+        "complete": false,
+        "warningCodes": ["ENROLLMENT_CURSOR_REPEATED"]
+      }
+    },
+
+    "zero-unique-enrollment-progress": {
+      "planBullet": "Missing or repeated enrollment cursor",
+      "why": "The cursor tuple ADVANCES (createdAt differs) but page two carries the same 20 contacts as page one. Tuple-repeat detection alone does not catch this; unique-progress accounting does. Otherwise the walk pages forever over one page of rows and calls the result complete.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "enrollment": {
+        "pages": [
+          { "generate": { "count": 20, "idPrefix": "zp-", "createdAtStart": 300, "sidPrefix": "sid-", "sequenceStart": 1 } },
+          { "generate": { "count": 20, "idPrefix": "zp-", "createdAtStart": 900, "sidPrefix": "sid-", "sequenceStart": 1 } }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first", "next"],
+        "enrollmentPages": 2,
+        "enrollmentCount": 20,
+        "enrollmentComplete": false,
+        "complete": false,
+        "warningCodes": ["ENROLLMENT_NO_UNIQUE_PROGRESS"]
+      }
+    },
+
+    "enrollment-page-budget-exhausted": {
+      "planBullet": "One-page and three-page enrollments",
+      "why": "maxEnrollmentPages is its OWN budget, separate from maxLogPartitions and maxStepRosterPages. Spending it must fail closed rather than report the pages it happened to reach as the whole roster. statsCache is pinned to the 40 rows actually walked so the expected warning set isolates the page budget rather than also tripping the total-mismatch check.",
+      "input": { "fromDate": 1000, "toDate": 2000, "maxEnrollmentPages": 2 },
+      "corpus": [],
+      "statsCache": [{ "workflowId": "wf-1", "total": 40, "finished": 0 }],
+      "enrollment": {
+        "pages": [
+          { "generate": { "count": 20, "idPrefix": "b1-", "createdAtStart": 1000, "sidPrefix": "sid1-", "sequenceStart": 1 } },
+          { "generate": { "count": 20, "idPrefix": "b2-", "createdAtStart": 2000, "sidPrefix": "sid2-", "sequenceStart": 101 } },
+          { "generate": { "count": 20, "idPrefix": "b3-", "createdAtStart": 3000, "sidPrefix": "sid3-", "sequenceStart": 201 } }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first", "next"],
+        "enrollmentPages": 2,
+        "enrollmentCount": 40,
+        "enrollmentComplete": false,
+        "complete": false,
+        "warningCodes": ["ENROLLMENT_PAGE_BUDGET_EXHAUSTED"]
+      }
+    },
+
+    "enrollment-total-mismatch": {
+      "planBullet": "Enrollment total mismatch",
+      "why": "REWRITTEN. This used to be `total 10 vs roster 3` and asserted complete:false. That rule fired on essentially every real window - the totals routes report the workflow's LIFETIME figure while this roster is window-filtered, so `total 500 vs 3 in-window rows` was the NORMAL arithmetic and `complete` was pinned false in production, making a genuine LOG_PARTITION_BUDGET_EXHAUSTED indistinguishable from expected subtraction. What remains is the only case that is a contradiction under ANY scoping: a window-scoped roster that EXCEEDS the all-time total. Here 3 in-window rows are reported against an all-time total of 1.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "statsCache": [{ "workflowId": "wf-1", "total": 1, "finished": 0 }],
+      "enrollment": {
+        "pages": [
+          {
+            "rows": [
+              { "_id": "tm-1", "contactId": "c1", "createdAt": 100, "sid": "s1", "sequence": 1 },
+              { "_id": "tm-2", "contactId": "c2", "createdAt": 101, "sid": "s2", "sequence": 2 },
+              { "_id": "tm-3", "contactId": "c3", "createdAt": 102, "sid": "s3", "sequence": 3 }
+            ]
+          }
+        ]
+      },
+      "expect": {
+        "enrollmentActions": ["first"],
+        "enrollmentPages": 1,
+        "enrollmentCount": 3,
+        "enrollmentComplete": false,
+        "complete": false,
+        "warningCodes": ["ENROLLMENT_TOTAL_MISMATCH"]
+      }
+    },
+
+    "window-scoped-roster-below-the-all-time-total-is-normal": {
+      "planBullet": "Enrollment total mismatch (the case that must NOT warn)",
+      "why": "The counterpart that makes the rule above meaningful. An all-time total of 500 alongside 3 rows inside a narrow window is arithmetic, not evidence of a truncated walk, and warning on it made `complete` non-discriminating for every production run. The scope is recorded on both sides instead - enrollments.windowScoped and enrollmentTotals.scope - so a reader can never mistake `total` for the count of the rows next to it.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "statsCache": [{ "workflowId": "wf-1", "total": 500, "finished": 400 }],
+      "enrollment": {
+        "pages": [
+          {
+            "rows": [
+              { "_id": "ws-1", "contactId": "c1", "createdAt": 100, "sid": "s1", "sequence": 1 },
+              { "_id": "ws-2", "contactId": "c2", "createdAt": 101, "sid": "s2", "sequence": 2 },
+              { "_id": "ws-3", "contactId": "c3", "createdAt": 102, "sid": "s3", "sequence": 3 }
+            ]
+          }
+        ]
+      },
+      "expect": {
+        "enrollmentCount": 3,
+        "enrollmentComplete": true,
+        "enrollmentTotal": 500,
+        "enrollmentTotalsScope": "workflow_all_time",
+        "enrollmentWindowScoped": true,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "unreadable-enrollment-envelope": {
+      "planBullet": "One-page and three-page enrollments (envelope guard)",
+      "why": "An ok:true enrollment response whose envelope names no row array. rowsOf must return null so the walk stops and says so; under the `return []` mutant an empty batch reads as a short terminal page and the workflow publishes as one nobody ever entered.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        { "capabilityId": "workflow_enrollment_search", "nth": 1, "response": { "json": { "unexpectedEnvelope": true } } }
+      ],
+      "expect": {
+        "enrollmentPages": 0,
+        "enrollmentCount": 0,
+        "enrollmentComplete": false,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"]
+      }
+    },
+
+    "unreadable-per-step-count-envelope": {
+      "planBullet": "One-page and three-page enrollments (envelope guard)",
+      "why": "The per-step count route's envelope guard. rowsOf returning [] instead of null here publishes `perStepCounts: []` - a workflow with nobody parked at any step - for a response that was never readable, and the run still reports complete:true.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        { "capabilityId": "workflow_count_per_step", "nth": 1, "response": { "json": { "unexpectedEnvelope": true } } }
+      ],
+      "expect": {
+        "perStepCountsNull": true,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"]
+      }
+    },
+
+    "rate-limited-enrollment-page": {
+      "planBullet": "Rate-limited enrollment page",
+      "why": "Global Constraint line 24: a 429 must fail closed. The gateway RETURNS ok:false with failureClass RATE_LIMITED (it does not throw), so a collector that models a failed read as a thrown error alone records this as a clean 20-row roster. retryAfterMs must survive into the result so a resumer knows when to come back.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "statsCache": [{ "workflowId": "wf-1", "total": 20, "finished": 0 }],
+      "enrollment": {
+        "pages": [
+          { "generate": { "count": 20, "idPrefix": "rl-", "createdAtStart": 1000, "sidPrefix": "sid-", "sequenceStart": 1 } }
+        ]
+      },
+      "overrides": [
+        {
+          "capabilityId": "workflow_enrollment_search",
+          "nth": 2,
+          "response": { "ok": false, "status": 429, "failureClass": "RATE_LIMITED", "retryAfterMs": 1500, "json": { "message": "slow down" } }
+        }
+      ],
+      "expect": {
+        "enrollmentActions": ["first", "next"],
+        "enrollmentPages": 1,
+        "enrollmentCount": 20,
+        "enrollmentComplete": false,
+        "complete": false,
+        "truncated": true,
+        "rateLimited": true,
+        "retryAfterMs": 1500,
+        "warningCodes": ["RATE_LIMITED"]
+      }
+    }
+  }
+}

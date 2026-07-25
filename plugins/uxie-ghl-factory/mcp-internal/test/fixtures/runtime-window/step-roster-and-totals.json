@@ -1,0 +1,324 @@
+{
+  "_file": "Scenarios for requested step rosters (/workflows/status/search/details-by-step) and cached enrollment totals with the legacy fallback.",
+  "_windowNote": "fromDate is non-zero throughout so LOG_WINDOW_LOWER_BOUND_UNEXPANDED does not appear in these scenarios' warning sets; the clamped-bound case lives in execution-log-windows.json.",
+  "scenarios": {
+    "step-roster-pagination": {
+      "planBullet": "Step roster pagination",
+      "why": "details-by-step is capped at limit<=50 by the descriptor, so a 120-contact step is three pages. The walk must page on `skip` to the REPORTED totalCount and reconcile against it - showTotalCount is pinned to true precisely so a truncated roster cannot read as a complete one.",
+      "input": { "fromDate": 1000, "toDate": 2000, "stepIds": ["step-1"] },
+      "corpus": [],
+      "stepDetails": {
+        "step-1": {
+          "totalCount": 120,
+          "pages": [
+            { "generate": { "count": 50, "idPrefix": "s1-a-" } },
+            { "generate": { "count": 50, "idPrefix": "s1-b-" } },
+            { "generate": { "count": 20, "idPrefix": "s1-c-" } }
+          ]
+        }
+      },
+      "expect": {
+        "stepRosterSkips": [0, 50, 100],
+        "stepRosterPages": 3,
+        "stepRosterContacts": { "step-1": 120 },
+        "stepRosterComplete": { "step-1": true },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "step-roster-short-page-undercount": {
+      "planBullet": "Step roster pagination",
+      "why": "THE reconcile guard. The upstream reports 120 at this step and then runs out of rows at 80. `if (roster.total === null) break;` is the only thing separating that from a clean terminal short page, and mutating it to a bare `break;` survived all 385 tests because no fixture ever produced a short page BELOW a reported total. Under the mutant this step publishes as a complete 80-contact roster - the exact undercount showTotalCount is pinned to true to detect.",
+      "input": { "fromDate": 1000, "toDate": 2000, "stepIds": ["step-1"] },
+      "corpus": [],
+      "stepDetails": {
+        "step-1": {
+          "totalCount": 120,
+          "pages": [
+            { "generate": { "count": 50, "idPrefix": "us-a-" } },
+            { "generate": { "count": 30, "idPrefix": "us-b-" } }
+          ]
+        }
+      },
+      "expect": {
+        "stepRosterSkips": [0, 50],
+        "stepRosterPages": 2,
+        "stepRosterContacts": { "step-1": 80 },
+        "stepRosterComplete": { "step-1": false },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"]
+      }
+    },
+
+    "step-roster-short-page-without-a-reported-total": {
+      "planBullet": "Step roster pagination",
+      "why": "The other side of the same guard, and the reason it cannot simply be deleted. With no readable totalCount there is nothing to reconcile against, so a short page IS terminal and the roster is complete. Without this case the fix for the undercount could be 'always warn on a short page', which would make every total-less step permanently incomplete.",
+      "input": { "fromDate": 1000, "toDate": 2000, "stepIds": ["step-1"] },
+      "corpus": [],
+      "stepDetails": {
+        "step-1": {
+          "pages": [
+            { "generate": { "count": 12, "idPrefix": "nt-a-" } }
+          ]
+        }
+      },
+      "expect": {
+        "stepRosterSkips": [0],
+        "stepRosterPages": 1,
+        "stepRosterContacts": { "step-1": 12 },
+        "stepRosterComplete": { "step-1": true },
+        "stepRosterTotals": { "step-1": null },
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "step-roster-page-budget-exhausted": {
+      "planBullet": "Step roster pagination",
+      "why": "maxStepRosterPages is its own budget. Two of three pages read is 100 of 120 contacts, and reporting that as the step's roster is exactly the kind of quiet undercount an auditor would build a finding on.",
+      "input": { "fromDate": 1000, "toDate": 2000, "stepIds": ["step-1"], "maxStepRosterPages": 2 },
+      "corpus": [],
+      "stepDetails": {
+        "step-1": {
+          "totalCount": 120,
+          "pages": [
+            { "generate": { "count": 50, "idPrefix": "s1-a-" } },
+            { "generate": { "count": 50, "idPrefix": "s1-b-" } },
+            { "generate": { "count": 20, "idPrefix": "s1-c-" } }
+          ]
+        }
+      },
+      "expect": {
+        "stepRosterSkips": [0, 50],
+        "stepRosterPages": 2,
+        "stepRosterContacts": { "step-1": 100 },
+        "stepRosterComplete": { "step-1": false },
+        "complete": false,
+        "warningCodes": ["STEP_ROSTER_PAGE_BUDGET_EXHAUSTED"]
+      }
+    },
+
+    "step-roster-unreadable-envelope": {
+      "planBullet": "Step roster pagination (envelope guard)",
+      "why": "An ok:true roster response whose envelope names no row array. rowsOf must return null so the roster is refused; under the `return []` mutant it reads as a step with nobody in it, published as a complete roster.",
+      "input": { "fromDate": 1000, "toDate": 2000, "stepIds": ["step-1"] },
+      "corpus": [],
+      "stepDetails": {
+        "step-1": { "totalCount": 3, "pages": [{ "generate": { "count": 3, "idPrefix": "env-" } }] }
+      },
+      "overrides": [
+        { "capabilityId": "workflow_step_details", "nth": 1, "response": { "json": { "unexpectedEnvelope": true } } }
+      ],
+      "expect": {
+        "stepRosterPages": 0,
+        "stepRosterComplete": { "step-1": false },
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"]
+      }
+    },
+
+    "step-roster-refused-when-step-set-is-empty": {
+      "planBullet": "Step roster pagination",
+      "why": "Task 2 carry-forward item 5: discoveredStepIds is an OPTIONAL seal on workflow_step_details, and an EMPTY array alongside a typed stepId THROWS rather than returning an incomplete read. A workflow definition with no steps therefore cannot be given a roster request at all - the collector must refuse locally and record the gap instead of throwing a policy error out of the composite. `contacts` is null rather than [] on a refused roster: an empty array is a claim that the step holds nobody.",
+      "input": { "fromDate": 1000, "toDate": 2000, "stepIds": ["step-9"] },
+      "corpus": [],
+      "definition": {
+        "workflow": { "_id": "wf-1", "name": "Empty WF", "version": 2, "workflowData": { "templates": [] } },
+        "triggers": { "triggers": [] },
+        "stickyNotes": { "data": [], "count": 0 }
+      },
+      "expect": {
+        "stepRosterCalls": 0,
+        "stepRosterContactsNull": ["step-9"],
+        "complete": false,
+        "warningCodes": ["STEP_ROSTER_UNSEALED"]
+      }
+    },
+
+    "stats-cache-primary": {
+      "planBullet": "Stats cache fallback",
+      "why": "The happy path: the cache answers, so the legacy /workflows/status/enroll-stats route must NOT be called. A collector that always calls both doubles the read cost of every workflow in the account.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "statsCache": [{ "workflowId": "wf-1", "total": 0, "finished": 0 }],
+      "expect": {
+        "statsSource": "workflow_enroll_stats_cache",
+        "legacyStatsCalls": 0,
+        "enrollmentTotal": 0,
+        "enrollmentTotalsScope": "workflow_all_time",
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "stats-cache-miss-readable-body": {
+      "planBullet": "Stats cache fallback",
+      "why": "This is what a cache MISS actually is, and the only thing that may be treated as one: a readable ok:true body carrying no usable total for this workflow. The legacy route answers, and because nothing failed the window is still complete. Without this case the fix for the swallowed cache FAILURE (below) could not be told apart from breaking the designed fallback.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        { "capabilityId": "workflow_enroll_stats_cache", "nth": 1, "response": { "json": { "stats": [] } } }
+      ],
+      "stats": { "workflowId": "wf-1", "total": 4, "finished": 1 },
+      "expect": {
+        "statsSource": "workflow_enroll_stats",
+        "legacyStatsCalls": 1,
+        "enrollmentTotal": 4,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": []
+      }
+    },
+
+    "stats-cache-fallback": {
+      "planBullet": "Stats cache fallback",
+      "why": "REWRITTEN. This scenario used to assert complete:true when the cache route came back ok:false - the totals-cache read was the ONLY read in the run whose response never went through warnForFailure, and because it is the LAST read of the run nothing downstream caught it. A 429, a 403, a quarantining IDENTITY_CONFLICT and an IDENTITY_UNREADABLE all produced complete:true, truncated:false, warnings:[]. A coded failure is not a cache miss, so the legacy fallback still supplies the total AND the failed read is recorded.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        {
+          "capabilityId": "workflow_enroll_stats_cache",
+          "nth": 1,
+          "response": { "ok": false, "status": 500, "failureClass": "HTTP_500", "json": { "message": "cache unavailable" } }
+        }
+      ],
+      "stats": { "workflowId": "wf-1", "total": 0, "finished": 0 },
+      "expect": {
+        "statsSource": "workflow_enroll_stats",
+        "legacyStatsCalls": 1,
+        "enrollmentTotal": 0,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED"]
+      }
+    },
+
+    "stats-cache-rate-limited": {
+      "planBullet": "Rate-limited enrollment page (last-read sibling)",
+      "why": "A LOCATION_RATE_LIMITED 200 landing on the totals cache - the LAST read of the run - used to vanish completely: the throttle set rateLimit.limited and nothing turned that into an incompleteness verdict, so the window published as complete:true with rateLimit.limited:true sitting inside it. A throttle is now a complete:false input in its own right, whichever route trips it, and it never depends on Task 2's circuit having latched first.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        {
+          "capabilityId": "workflow_enroll_stats_cache",
+          "nth": 1,
+          "response": { "ok": false, "status": 200, "failureClass": "LOCATION_RATE_LIMITED", "retryAfterMs": 9000, "json": { "message": "slow down" } }
+        }
+      ],
+      "stats": { "workflowId": "wf-1", "total": 0, "finished": 0 },
+      "expect": {
+        "statsSource": "workflow_enroll_stats",
+        "legacyStatsCalls": 1,
+        "rateLimited": true,
+        "retryAfterMs": 9000,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["RATE_LIMITED"]
+      }
+    },
+
+    "stats-cache-identity-conflict": {
+      "planBullet": "Stats cache fallback (quarantine sibling)",
+      "why": "A quarantining IDENTITY_CONFLICT on the totals cache means another location's totals row came back on this location's read. It must be recorded as a quarantine, not silently retried into the legacy route as though the cache had merely been empty.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        {
+          "capabilityId": "workflow_enroll_stats_cache",
+          "nth": 1,
+          "response": {
+            "ok": false,
+            "status": 200,
+            "failureClass": "IDENTITY_CONFLICT",
+            "quarantined": true,
+            "identity": {
+              "bindingMethod": "native",
+              "checked": ["locationId"],
+              "conflicts": [{ "field": "locationId", "expected": "LOC1", "actual": "OTHER-LOC" }]
+            }
+          }
+        }
+      ],
+      "stats": { "workflowId": "wf-1", "total": 0, "finished": 0 },
+      "expect": {
+        "statsSource": "workflow_enroll_stats",
+        "legacyStatsCalls": 1,
+        "quarantined": true,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["IDENTITY_CONFLICT_QUARANTINE"]
+      }
+    },
+
+    "stats-both-routes-fail": {
+      "planBullet": "Stats cache fallback",
+      "why": "Both totals routes fail. The result must carry a null total with source null and say the totals component is incomplete - never a 0 total, which would read as a reconciled empty workflow and could be published as 'this workflow enrolled nobody'. Both failed reads are now recorded on their own, so the failure CLASS survives instead of being flattened into the single availability warning.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        {
+          "capabilityId": "workflow_enroll_stats_cache",
+          "nth": 1,
+          "response": { "ok": false, "status": 500, "failureClass": "HTTP_500", "json": { "message": "cache unavailable" } }
+        },
+        {
+          "capabilityId": "workflow_enroll_stats",
+          "nth": 1,
+          "response": { "ok": false, "status": 503, "failureClass": "HTTP_503", "json": { "message": "stats unavailable" } }
+        }
+      ],
+      "expect": {
+        "statsSource": null,
+        "legacyStatsCalls": 1,
+        "enrollmentTotal": null,
+        "complete": false,
+        "warningCodes": ["COMPONENT_READ_FAILED", "ENROLLMENT_TOTALS_UNAVAILABLE"]
+      }
+    },
+
+    "stats-legacy-route-fails-after-a-genuine-cache-miss": {
+      "planBullet": "Stats cache fallback",
+      "why": "Isolates the LEGACY route's own failure. In stats-both-routes-fail the cache also fails, so its COMPONENT_READ_FAILED masks the legacy one and dropping the legacy warnForFailure survives unnoticed. Here the cache genuinely misses (readable body, no usable total) and only the legacy read fails, so the failure CLASS has to be recorded on its own or it is flattened into the bare availability warning and the operator loses the 429-versus-503 distinction.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "overrides": [
+        { "capabilityId": "workflow_enroll_stats_cache", "nth": 1, "response": { "json": { "stats": [] } } },
+        {
+          "capabilityId": "workflow_enroll_stats",
+          "nth": 1,
+          "response": { "ok": false, "status": 503, "failureClass": "HTTP_503", "json": { "message": "stats unavailable" } }
+        }
+      ],
+      "expect": {
+        "statsSource": null,
+        "legacyStatsCalls": 1,
+        "enrollmentTotal": null,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": ["COMPONENT_READ_FAILED", "ENROLLMENT_TOTALS_UNAVAILABLE"]
+      }
+    },
+
+    "stats-total-is-not-a-number": {
+      "planBullet": "Stats cache fallback",
+      "why": "pickStats refuses a row whose `total` is not a finite number, and nothing tested it. Under a mutant that drops the Number.isFinite guard the total becomes NaN, which is neither null nor comparable - it would flow into enrollmentTotals.total, defeat every reconciliation, and print as `null`-ish while actually being a number. A total that cannot be read is not a total.",
+      "input": { "fromDate": 1000, "toDate": 2000 },
+      "corpus": [],
+      "statsCache": [{ "workflowId": "wf-1", "total": "many", "finished": 0 }],
+      "stats": { "workflowId": "wf-1", "total": "lots", "finished": 0 },
+      "expect": {
+        "statsSource": null,
+        "legacyStatsCalls": 1,
+        "enrollmentTotal": null,
+        "complete": false,
+        "warningCodes": ["ENROLLMENT_TOTALS_UNAVAILABLE"]
+      }
+    }
+  }
+}

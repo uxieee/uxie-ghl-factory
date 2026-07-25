@@ -6,8 +6,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { registerTools } from './core/tools.mjs';
-import { makeGateway } from './core/gateway.mjs';
+import { makeGatewayFactory, registerTools } from './core/tools.mjs';
 import { DEFAULT_TOKEN_FILE } from './core/auth.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -22,7 +21,11 @@ const pkgVersion = typeof __MCP_VERSION__ !== 'undefined'
     })();
 
 const state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
-const makeGw = ({ loc, rail }) => makeGateway({ tokenFile: state.tokenFile, loc, rail });
+// Forwards EVERY option a tool passes. The previous `({ loc, rail }) => …` destructure
+// dropped the audit tools' `throttleMs: 0, jitterMs: 0`, so the gateway kept its own
+// 300-450ms delay while the shared audit limiter paced on top of it — the double-throttle
+// the Task 2 carry-forward warns about, with the tool's own comment asserting the opposite.
+const makeGw = makeGatewayFactory({ state });
 
 const server = new McpServer({ name: 'uxie-ghl-internal-mcp', version: pkgVersion });
 registerTools(server, { state, makeGw });
