@@ -120,3 +120,38 @@ test('set_token_file and auth_status reject token-id credentials in direct-call 
   assert.equal(state.tokenFile, '/existing/tok.txt');
   assert.doesNotMatch(JSON.stringify({ setResult, authResult }), /tid-live-secret/);
 });
+
+// ---------------------------------------------------------------------------
+// Task 6: the audit composites' descriptions are FROZEN
+// ---------------------------------------------------------------------------
+//
+// These strings are baked into dist/audit-server.mjs and are what an operator reads at the
+// moment they decide how far to trust an audit. They must stay invariant across a canary:
+// a bundled description rewritten after a successful live run would turn a per-capability,
+// expiring receipt into a blanket claim that no longer matches the proof index.
+test('every audit composite carries the frozen proof, risk and canary labels', async () => {
+  const { AUDIT_TOOL_NAMES } = await import('../core/audit-profile.mjs');
+  const composites = ['get_workflow_runtime_window', 'list_workflows_complete', 'get_ai_configuration_bundle'];
+  for (const name of composites) {
+    assert.ok(AUDIT_TOOL_NAMES.includes(name), `${name} must be in the audit profile`);
+    const tool = TOOLS.find((candidate) => candidate.name === name);
+    assert.ok(tool, `${name} is not registered`);
+    assert.match(tool.description, /proof: external-receipt-required/,
+      `${name} must stay external-receipt-required; a canary resolves per capability from the proof index, not by rewriting this string`);
+    assert.match(tool.description, /risk: read/, `${name} must declare risk: read`);
+    assert.match(tool.description, /Live canary required before Full audit/,
+      `${name} must carry the human-gated canary stop line`);
+    // The absence of a live claim is the point: nothing here may assert proof the account
+    // has not yet given.
+    assert.doesNotMatch(tool.description, /LIVE-PROVEN|live-proven|proof: live-runtime/i,
+      `${name} claims live proof it does not have`);
+  }
+});
+
+test('no audit composite description promises an empty result on failure', () => {
+  for (const name of ['get_workflow_runtime_window', 'list_workflows_complete', 'get_ai_configuration_bundle']) {
+    const tool = TOOLS.find((candidate) => candidate.name === name);
+    assert.match(tool.description, /never an empty/i,
+      `${name} must state that a failure is never an empty result — that is the whole contract`);
+  }
+});
