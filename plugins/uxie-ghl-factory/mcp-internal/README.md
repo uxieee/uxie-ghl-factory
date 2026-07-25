@@ -68,6 +68,10 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `get_workflow` | summary + step count (use `export_workflow` for the graph) |
 | `export_workflow` | workflow body + triggers + sticky notes |
 | `get_workflow_logs` | executions, per-step counts, enrollment roster |
+| `get_workflow_runtime_window` | one workflow's complete, evidence-qualified runtime window (see **Audit profile**) |
+| `list_workflows_complete` | the whole roster walked to a reconciled terminal proof (see **Audit profile**) |
+| `get_ai_configuration_bundle` | Conversation AI + Voice AI + Agent Studio discovery and detail (see **Audit profile**) |
+| `get_contacts_at_step` | contacts parked at or processed by one step, paginated to the reported total |
 | `list_account_entities` | pipelines, calendars, users, forms, custom fields, AI agents |
 | `list_courses` | course summaries with status and available chapter/lesson/offer counts |
 | `build_course` | no-call validation preview; confirmed course build with created IDs, verification and cleanup evidence |
@@ -93,6 +97,170 @@ machine-branchable:
 | `PREVIEW_STALE` | fast-forward preview token is missing or no longer matches fresh parked state |
 | `ENGINE_ABORT` | engine threw — usually a spec or dependency problem |
 | `HTTP_<n>` | any other upstream status |
+
+## Audit profile
+
+A second, structurally read-only entry point (`stdio-audit.mjs`, bundled as
+`dist/audit-server.mjs`) for the weekly whole-account auditor. It is a separate server with a
+separate registry, not a flag on the full one, and it publishes exactly six tools:
+`auth_status`, `list_workflows_complete`, `get_workflow`, `export_workflow`,
+`get_workflow_runtime_window`, `get_ai_configuration_bundle`.
+
+Only three of those six carry the audit evidence contract. `list_workflows_complete`,
+`get_workflow_runtime_window` and `get_ai_configuration_bundle` go through the audit gateway,
+so they get capability-descriptor validation, response identity inspection, the shared limiter
+and the shared circuit. `get_workflow` and `export_workflow` are the ordinary read tools: in
+the audit process they have the read-only wrapper below them and nothing else, so a rate limit
+during one of them neither latches the circuit nor is recorded as evidence. `auth_status`
+makes no request at all.
+
+### What is excluded, and what that does and does not mean
+
+`raw_request`, `set_token_file`, every write, every confirmation-gated tool, and the readers
+`list_account_entities`, `list_workflows`, `get_workflow_logs` and `get_contacts_at_step` are
+all absent from the audit registry. Each of the last four fails a completeness requirement in
+its own way: `list_account_entities` and `get_workflow_logs` substitute an empty array for a
+failed component, `list_workflows` reads one offset page and never reconciles the reported
+count, and `get_contacts_at_step` reports `complete: true` unconditionally.
+
+Read-only-ness rests on TWO independent locks:
+
+1. **The registry filter.** `toolsForProfile('audit')` selects the six tools from a literal.
+   No environment variable and no argv input can widen it.
+2. **A gateway wrapper** (`core/audit-readonly.mjs`), installed under every tool because every
+   tool obtains its gateway from `deps.makeGw` and `stdio-audit.mjs` is the only construction
+   site. Only a `GET` to one of the two approved audit origins can leave the process; a
+   body-bearing request and the SSE `stream` channel are refused outright.
+
+Be precise about what this is not. `dist/audit-server.mjs` **still contains** the write
+handlers as unreachable dead code, because `core/tools.mjs` declares every tool in one array
+literal and esbuild has nothing to tree-shake. The audit bundle is in fact marginally larger
+than the full server. Read-only-ness is a property of these two locks, not of the artefact,
+and nothing in this repository should be read as claiming otherwise.
+
+### `get_workflow_runtime_window`
+
+Inputs: `locationId`, `workflowId`, `fromDate`, `toDate` (epoch ms, rejected before any
+gateway is built when `fromDate >= toDate`), optional `contactId`, `eventTypes` (max 20),
+`stepIds` (max 20), and the budgets `maxLogPartitions` (default 256), `minPartitionMs`
+(default 1000), `maxEnrollmentPages` (default 200), `maxStepRosterPages` (default 200). The
+page sizes behind those budgets are pinned: execution logs and the enrollment walk read 20
+rows per page, step rosters 50, so the default budgets cover 5,120 execution rows, 4,000
+enrollments and 10,000 roster rows. The execution-log `pageSize` is pinned at 20 and is not
+caller-selectable: 20 is the value the partition collector was proven against, and a larger
+page would silently change what "terminal partition" means.
+
+Output: `workflowDefinition`, `runtimeEvents`, `enrollments`, `perStepCounts`, `stepRosters`,
+`enrollmentTotals`, `pagination`, `rateLimit`, `locationBinding`, `sourceRoutes`,
+`appliedQueries`, `filters`, `requestedWindow`, `appliedWindow`, `capabilityVersion`,
+`capturedAt`, `componentCompleteness`, `configurationBinding`, `complete`, `truncated`,
+`warnings`, `contractVersion`, `boundLocationId`, `workflowId`.
+
+**Time-partition completeness.** The analytical window is half-open, `[fromDate, toDate)`.
+The upstream query is expanded one millisecond at the lower bound and rows are then filtered
+locally, because upstream boundary inclusivity is not documented. A partition returning fewer
+than 20 rows is terminal; a partition returning 20 or more is saturated and is split at the
+integer midpoint, recursively, until every partition is terminal. There is no execution-log
+cursor and none is invented.
+
+Saturation that cannot be split any further, at `minPartitionMs`, yields `complete:false` and
+`truncated:true` rather than a silently short window. So does a conflicting duplicate id, an
+unreadable event timestamp, a rate limit on any route, a quarantined or unverifiable identity,
+a lower bound that could not be expanded (a window starting at epoch 0), and an exhausted
+partition, enrollment or roster budget. Every one of those carries a coded warning.
+
+`complete` covers **runtime event coverage only**. The separate `configurationBinding` field
+records that nothing on this rail proves the captured workflow definition governed the events
+in the window: there is no version-history capability, so `workflowDefinition.validity`
+reports `effectiveFrom: null` and `appliesToRequestedWindow: "unproven"`. No consumer may
+claim the current configuration explains historical runtime on this evidence.
+
+Two output fields are easy to misread. `enrollmentTotals` is workflow-wide and all-time while
+`enrollments` is window-scoped, so the two must never be subtracted. A `stepIds` entry that
+the workflow definition does not contain is refused locally with `STEP_ROSTER_UNSEALED` and
+`contacts: null`, without a read.
+
+### `list_workflows_complete` and `get_ai_configuration_bundle`
+
+The roster walks by offset and publishes only when the unique workflow count equals a
+**stable** reported total; it reports one flat completeness verdict, because it is a single
+surface. The AI bundle always attempts all three surfaces (Conversation AI, Voice AI, Agent
+Studio), a caller cannot omit one, and it reports per-component
+`{applicable, complete, items, pages, sourceRoutes}`. Neither ever substitutes an empty
+result for a failed read: a failed component is `null` with a coded warning.
+
+### Credentials, refresh, and partial runs
+
+Authentication continues to come from the configured token file. The location JWT is
+short-lived, and the Agent Studio and AI surfaces additionally require the elevated
+agency-admin `token-id`, which expires independently. On the `ai` rail that credential is
+asserted to reach only `services.leadconnectorhq.com`; no audit tool constructs the other
+rail that can carry it.
+
+A run that outlives a credential does not degrade quietly, but the code it surfaces depends on
+where the expiry is caught. On the three composites, a locally-detected expiry is rewritten as
+`TRANSPORT_FAILED` and aborts the whole call with no partial result; an upstream `401` is
+classified `AUTH_REJECTED` on `sourceRoutes[]`, files a `COMPONENT_READ_FAILED` warning, and
+latches that rail, after which further reads throw `CIRCUIT_OPEN` (which does carry
+`error.partial`). `TOKEN_EXPIRED` is the code for `get_workflow` and `export_workflow` only.
+
+Re-capture with `/uxie-ghl-factory:connect`. Latch scopes are not uniform: a `401` or a
+transport failure latches only its own rail, three consecutive unusable response bodies latch
+that rail too, a `429` or a location-level throttle latches the whole process, and a `403`
+latches nothing at all (it is an entitlement fact about one resource, so a component can
+record it and the run can continue). Nothing auto-retries after a latch.
+
+A thrown `CIRCUIT_OPEN` carries the reads already completed on `error.partial`, so a resumer
+can checkpoint and continue instead of re-spending its budget. One rule applies to that
+partial: **a resumer must not treat `componentCompleteness.enrollments: true` as skippable
+unless `enrollmentTotals: true` also holds.** The totals reconciliation runs after the totals
+read, so a circuit that latched on the enrollment-totals cache skips the check and the partial
+can over-report that one component.
+
+### The API YAML is a specification, not proof
+
+The API YAML is capability documentation and lives outside this repository. It describes what
+an endpoint is said to accept; it is not runtime proof that the endpoint behaves that way for
+this account. No completeness claim in this profile derives from it.
+
+### Proof model, and the human-gated canary stop line
+
+Every audit composite is labelled `proof: external-receipt-required; risk: read`. That label
+is frozen: it is baked into the committed bundle and is **not** rewritten after a successful
+canary. Proof is resolved per capability from an external proof index instead, where each
+receipt binds a capability descriptor hash, a manifest hash, the exact canaried bundle hash,
+and an expiry. The absence of an unexpired receipt for a capability applicable to a run is
+machine-enforced and cannot support a Full audit.
+
+The composite completeness contracts are **offline-proven only**. They have never been run
+against a live account. Task 7 is the bounded, read-only live canary that would produce the
+first receipts, and it requires explicit human approval, a freshly captured credential, named
+location and workflow ids, and an approved closed window. Do not start it from the plan alone.
+
+### Recorded gaps a canary must close
+
+These are stated rather than hidden, because each one is a place where offline green does not
+imply live correct:
+
+- **Timestamp grammar.** The strict ISO-8601 parser has never met a real
+  `/workflows/logs/v2` payload; no captured response exists in this repository. It fails
+  closed, so a real event in an unexpected shape marks an honest window incomplete rather
+  than vanishing, but the shape itself is unverified.
+- **Envelope shapes.** `readTotal` requires a root-level finite `total`; the roster row and
+  agent-record envelope key lists are likewise unverified against live payloads.
+- **Docs-matrix rows.** Six audit routes carry no row in the capability matrix, and the
+  matrix itself lives outside this repository: `/workflows/status/enroll-stats` (the legacy
+  enrollment-totals fallback, read on every runtime-window run), `/voice-ai/agents/simple`,
+  `/voice-ai/agents/{agentId}`, `/ai-employees/employees/{agentId}`,
+  `/agent-studio/agents/agents-with-folders` and
+  `/agent-studio/super-agent/agents/{agentId}`. No row id was invented to fill the gap;
+  `tool-descriptions.json` records each uncited capability instead, and a test proves every
+  declared route is either cited or recorded.
+- **Detail identity.** The bundle assumes a detail body's `_id`/`id` equals the discovery
+  row's. If that is wrong for a product, every agent falsely mismatches and that component's
+  configuration is dropped.
+- **Launcher.** `launch.mjs` resolves `dist/server.mjs` only; the audit bundle has no
+  launcher yet.
 
 ## Historical live proof ledger — EXECUTED vs OBSERVED
 

@@ -33312,6 +33312,32 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
 init_define_TOOL_CATALOG();
 import { createHash } from "node:crypto";
 var RUNTIME_WINDOW_CONTRACT_VERSION = "1.0.0";
+var RUNTIME_WINDOW_RESULT_KEYS = Object.freeze([
+  "contractVersion",
+  "boundLocationId",
+  "workflowId",
+  "requestedWindow",
+  "appliedWindow",
+  "appliedQueries",
+  "filters",
+  "workflowDefinition",
+  "runtimeEvents",
+  "enrollments",
+  "perStepCounts",
+  "stepRosters",
+  "enrollmentTotals",
+  "componentCompleteness",
+  "pagination",
+  "rateLimit",
+  "locationBinding",
+  "sourceRoutes",
+  "capabilityVersion",
+  "capturedAt",
+  "configurationBinding",
+  "complete",
+  "truncated",
+  "warnings"
+]);
 var LOG_PAGE_SIZE = 20;
 var ENROLLMENT_PAGE_SIZE = 20;
 var STEP_ROSTER_PAGE_SIZE = 50;

@@ -2302,3 +2302,10 @@ test('get_contacts_at_step keeps walking details-by-step to the reported total',
   assert.equal(result.data.contacts.length, 3);
   assert.equal(result.data.complete, true);
 });
+
+// The exported key list must equal the one this file already pins against real collector
+// results, so README checks built on the export cannot drift from the contract itself.
+test('RUNTIME_WINDOW_RESULT_KEYS equals the result contract this file pins', async () => {
+  const { RUNTIME_WINDOW_RESULT_KEYS } = await import('../core/workflow-runtime-window.mjs');
+  assert.deepEqual([...RUNTIME_WINDOW_RESULT_KEYS].sort(), [...RESULT_KEYS].sort());
+});

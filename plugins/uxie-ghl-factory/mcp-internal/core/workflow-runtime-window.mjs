@@ -73,6 +73,18 @@ export const RUNTIME_WINDOW_CONTRACT_VERSION = '1.0.0';
 // collector has ever published. Raising it needs a descriptor change, a manifest
 // revision, and a live canary that reconciles the larger size against the proven
 // 20-row walk — never a parameter.
+// The exact top-level key set `collectWorkflowRuntimeWindow` resolves with. Exported so the
+// README's documented output list can be diffed against the real contract in BOTH directions
+// — a prose list is otherwise free to omit a field or invent one, and a keyword grep over the
+// README cannot tell either from a correct list.
+export const RUNTIME_WINDOW_RESULT_KEYS = Object.freeze([
+  'contractVersion', 'boundLocationId', 'workflowId', 'requestedWindow', 'appliedWindow',
+  'appliedQueries', 'filters', 'workflowDefinition', 'runtimeEvents', 'enrollments',
+  'perStepCounts', 'stepRosters', 'enrollmentTotals', 'componentCompleteness', 'pagination',
+  'rateLimit', 'locationBinding', 'sourceRoutes', 'capabilityVersion', 'capturedAt',
+  'configurationBinding', 'complete', 'truncated', 'warnings',
+]);
+
 export const LOG_PAGE_SIZE = 20;
 export const ENROLLMENT_PAGE_SIZE = 20;   // fixedQueryValues.limit = '20' on the enrollment descriptor
 export const STEP_ROSTER_PAGE_SIZE = 50;  // numericQueryBounds.limit.max = 50 on details-by-step
