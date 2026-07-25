@@ -1,12 +1,17 @@
-// RED tests for core/audit-capabilities.mjs (Task 2, Step 1).
+// Tests for core/audit-capabilities.mjs (Task 2, Step 1) plus the Task 5 build-and-diff
+// gate at the foot of this file.
 //
-// TODO(Task 5): this file currently validates descriptor uniqueness + schema +
-// the frozen initial descriptor set only. Task 5 upgrades it to a
-// build-and-diff gate: regenerate `audit-capability-manifest.json` from these
-// same descriptors and assert row-for-row equality so gateway policy and the
-// committed manifest cannot drift.
+// Task 2 left this file validating descriptor uniqueness + schema + the frozen initial
+// descriptor set only, with a TODO for Task 5. That TODO is now discharged: the last
+// section regenerates the audit capability manifest from THESE descriptors and asserts
+// row-for-row equality, so gateway policy and the committed artefact cannot drift. The
+// direction of that dependency matters and is asserted, not assumed — the manifest is
+// COMPILED FROM the descriptors, never read back into policy.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import {
   AUDIT_CAPABILITIES,
   AUDIT_HOSTS,
@@ -578,4 +583,88 @@ test('no two descriptors can tie, so AMBIGUOUS_CAPABILITY is structurally unreac
       );
     }
   }
+});
+
+// ---------------------------------------------------------------------------
+// Task 5: the build-and-diff gate
+// ---------------------------------------------------------------------------
+//
+// The descriptors above are the ONLY source of audit policy. The generated manifest is an
+// artefact of them. Without an equality gate the two drift silently in the one direction
+// that matters: a descriptor tightened here while the checked-in manifest keeps describing
+// the wider surface that Task 7's receipts are minted against.
+//
+// `repeatableQueryKeys` and `sealedBy` are included in the compared field set because the
+// plan's prose field list predates both, and an artefact missing them would describe a
+// wider surface than the gateway enforces (see the module header of audit-capabilities.mjs).
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const MANIFEST_FILE = resolve(HERE, '../audit-capability-manifest.json');
+
+let genManifest = null;
+async function manifestApi() {
+  genManifest ??= await import('../scripts/gen-manifest.mjs');
+  assert.equal(
+    typeof genManifest.buildAuditManifest, 'function',
+    'scripts/gen-manifest.mjs must export buildAuditManifest() — the manifest is compiled from these descriptors',
+  );
+  return genManifest;
+}
+
+const readCommittedManifest = () => {
+  try {
+    return JSON.parse(readFileSync(MANIFEST_FILE, 'utf8'));
+  } catch (error) {
+    assert.fail(`audit-capability-manifest.json is missing or unreadable (${error.code ?? error.message}); run \`npm run manifest\``);
+  }
+};
+
+test('the generated manifest describes exactly the descriptors in this module', async () => {
+  const { buildAuditManifest } = await manifestApi();
+  const manifest = buildAuditManifest();
+  const rows = manifest.capabilities;
+
+  assert.deepEqual(
+    [...new Set(rows.map((row) => row.capabilityId))].sort(),
+    [...CAPABILITY_ORDER].sort(),
+    'the manifest must cover every descriptor and invent none',
+  );
+
+  for (const capability of AUDIT_CAPABILITIES) {
+    const matching = rows.filter((row) => row.capabilityId === capability.capabilityId);
+    assert.ok(matching.length > 0, `${capability.capabilityId}: no manifest row`);
+    const expected = canonical(Object.fromEntries(
+      DESCRIPTOR_FIELDS.map((field) => [field, capability[field]]),
+    ));
+    for (const row of matching) {
+      const projected = canonical(Object.fromEntries(
+        DESCRIPTOR_FIELDS.map((field) => [field, row[field]]),
+      ));
+      assert.deepEqual(
+        projected, expected,
+        `${capability.capabilityId}: manifest row (tool ${row.tool}) diverges from the gateway descriptor`,
+      );
+    }
+  }
+});
+
+test('the COMMITTED audit manifest equals a fresh generation, field for field', async () => {
+  const { buildAuditManifest } = await manifestApi();
+  assert.deepEqual(
+    readCommittedManifest(), buildAuditManifest(),
+    'audit-capability-manifest.json is stale — run `npm run manifest` and commit it',
+  );
+});
+
+test('the manifest is an ARTEFACT: mutating it cannot widen what the gateway enforces', async () => {
+  const { buildAuditManifest } = await manifestApi();
+  const before = buildAuditManifest();
+  // A manifest row is data. Widening one must not change the descriptors, and regenerating
+  // must reproduce the original — proving policy is never read back out of the artefact.
+  before.capabilities[0].requiredQueryKeys = ['anything'];
+  before.capabilities[0].method = 'DELETE';
+  const roster = capabilityById('workflow_roster_list');
+  assert.equal(roster.method, 'GET');
+  assert.equal(roster.requiredQueryKeys.includes('anything'), false);
+  assert.deepEqual(buildAuditManifest(), readCommittedManifest());
 });

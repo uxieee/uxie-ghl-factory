@@ -8,6 +8,7 @@ import { dirname, resolve } from 'node:path';
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(HERE, '..');
 export const OUTFILE = resolve(ROOT, 'dist/server.mjs');
+export const AUDIT_OUTFILE = resolve(ROOT, 'dist/audit-server.mjs');
 
 // Values baked into the bundle at build time, because dist/ ships without a sibling
 // package.json or the tool-description catalog:
@@ -16,11 +17,11 @@ export const OUTFILE = resolve(ROOT, 'dist/server.mjs');
 //                      and falls back to the co-located file in the un-bundled dev entry
 //   __TOOL_CATALOG__ — the tool-description catalog, inlined as a JS object literal (raw
 //                      JSON is a valid object-literal expression)
-export function buildOptions(extra = {}) {
+function optionsFor(entry, extra = {}) {
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const catalog = readFileSync(resolve(ROOT, 'tool-descriptions.json'), 'utf8');
   return {
-    entryPoints: [resolve(ROOT, 'stdio.mjs')],
+    entryPoints: [resolve(ROOT, entry)],
     bundle: true,
     platform: 'node',
     format: 'esm',
@@ -32,4 +33,17 @@ export function buildOptions(extra = {}) {
     logLevel: 'warning',
     ...extra,
   };
+}
+
+export function buildOptions(extra = {}) {
+  return optionsFor('stdio.mjs', extra);
+}
+
+// The audit bundle is a SEPARATE artefact from a SEPARATE entry point, sharing only the
+// defines. It is built and diffed by the same gates as the full bundle because a stale
+// dist/audit-server.mjs could still carry a tool the source no longer registers — and the
+// whole point of a structurally read-only profile is that the thing the plugin launches is
+// the thing the tests checked.
+export function auditBuildOptions(extra = {}) {
+  return optionsFor('stdio-audit.mjs', extra);
 }
