@@ -32167,13 +32167,29 @@ var CATALOG_CORRECTIONS = {
     note: 'committed shape captured 2026-07-25 on AU. UI label -> key: End custom message = message, Reactivate After bot (REQUIRED) = sleepEnabled, Reactivate After value = sleepDuration, unit = sleepUnit ("hours").'
   },
   // Committed capture is `{}` — no fields at all, and the node renders clean. The
-  // generated `prompt` key came from a recon read of the panel and does not persist.
+  // generated `prompt` key came from a recon read of the panel and does not persist;
+  // the marketplace schema confirms this node has no `prompt`. It DOES have an optional
+  // `instructions` — absent from the capture only because nothing was authored, which is
+  // not evidence the key does not exist.
   conversationai_continue: {
-    reason: "committed capture is {} \u2014 the recon-derived `prompt` key does not persist (2026-07-25 AU)",
+    reason: "the recon-derived `prompt` key does not persist; the real optional field is `instructions`",
     confidence: "verified-live",
-    attrKeys: ["type", "__customInputs__"],
+    attrKeys: ["instructions", "type", "__customInputs__"],
     example: "research/ai-agents-internal/flow-builder-required-fields.md",
-    note: "committed shape captured 2026-07-25 on AU: no fields at all, and clean in the builder."
+    note: "committed shape captured 2026-07-25 on AU is {} (nothing required). `instructions` is an optional textarea per reference/steps/marketplace/conversation-ai.md."
+  },
+  // 🔴 The recon panel-read named these `services` / `description`. The assets-endpoint
+  // schema gives the real keys, and the OPTIONS ENDPOINT corroborates the first one — it
+  // returns `{"conversationai_services": []}`, i.e. the option key IS the attribute key
+  // (the same holds for objective's `contactField`). The live findings doc inferred
+  // `services`/`description` from UI LABELS only; services_booking was omitted from the
+  // rebuild because AU has no commerce services, so there is no committed capture to
+  // settle it. Whoever first runs this on an account WITH commerce services should
+  // capture the committed shape and promote this to verified-live.
+  conversationai_services_booking: {
+    reason: "recon named these services/description; the assets schema + options endpoint say conversationai_services / conversationai_booking_description",
+    attrKeys: ["conversationai_services", "conversationai_booking_description", "type", "__customInputs__"],
+    note: "NO committed capture \u2014 keys come from the marketplace assets schema, with `conversationai_services` corroborated by the options-endpoint response key. Unusable on an account with no commerce services."
   },
   // Committed capture is {assignedEmployeeId} only — the documented `prompt` did NOT
   // persist. Dropping it from attrKeys turns a silent drop into an ATTR_KEY error.
@@ -32192,23 +32208,31 @@ var suppliedNonEmpty = (attrs, key) => {
   return true;
 };
 var REQUIRED_FIELDS = {
-  conversationai_objective: { fields: {} },
-  // attested clean: only `objective`, itself optional to the builder
   conversationai_continue: { fields: {} },
-  // attested clean: literally {}
+  // attested clean: nothing required
+  // `objective` is the node's entire purpose and the schema marks it required. The live
+  // probe authored it, which is why no builder error was ever seen for it.
+  conversationai_objective: {
+    fields: {
+      objective: { label: "Objective", hint: "Author attributes.objective \u2014 the prompt describing what to find out." }
+    }
+  },
   conversationai_ai_message: {
     fields: {
+      // Required per the schema. Never surfaced as a builder error live because the probe
+      // always supplied it — absence of an observed error is not evidence of optionality.
+      message: { label: "Message prompt", hint: "Author attributes.message \u2014 the prompt the bot generates from." },
       waitForReply: {
         label: "Wait for contact reply",
         presence: true,
-        // Safe to default: the control is a checkbox and the captured step-examples for
-        // both message nodes already carry `true`.
+        // The schema's own default, matching the captured step-examples.
         default: () => true
       }
     }
   },
   conversationai_custom_message: {
     fields: {
+      message: { label: "Message", hint: "Author attributes.message \u2014 the literal message to send." },
       waitForReply: { label: "Wait for contact reply", presence: true, default: () => true }
     }
   },
@@ -32246,14 +32270,14 @@ var REQUIRED_FIELDS = {
     // `services` and the node can NEVER go clean. Treat as opt-in per client.
     precondition: 'This node requires a configured commerce service. On AU the options endpoint returned {"conversationai_services": []}, meaning no service exists to select and the node can never be satisfied. Confirm the account has commerce services before using it: GET backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_services_booking?optionType=default&workflowId={WID}&locationId={LOC} (locationId is REQUIRED or it 400s).',
     fields: {
-      services: {
+      conversationai_services: {
         label: "Select Services",
-        hint: "Requires configured commerce services \u2014 see the precondition above."
+        hint: "Requires configured commerce services \u2014 see the precondition above. NOTE the key is `conversationai_services`, not `services`: the options endpoint returns it under that exact name."
       },
-      description: {
+      conversationai_booking_description: {
         label: "Service Booking Description",
-        default: (node) => node.name,
-        hint: "Author attributes.description, or give the node a `name` to derive it from."
+        // The schema's own default for this textarea.
+        default: () => "Get customer to book a service"
       }
     }
   },
@@ -32262,16 +32286,19 @@ var REQUIRED_FIELDS = {
       sleepEnabled: {
         label: "Reactivate After bot",
         presence: true,
-        // ⚠️ INFERRED, not builder-confirmed. `false` is the behaviour-preserving value
-        // (an unchecked "Reactivate After bot"), and the analogous checkbox on this same
-        // panel family — waitForReply — is proven presence-not-truthiness. The only
-        // committed capture of THIS node had `sleepEnabled: true` with sleepDuration 1 /
-        // sleepUnit "hours", so if the builder turns out to demand truthiness here, this
-        // default is what to revisit first.
-        default: () => false
+        // ATTESTED, not inferred: the assets-endpoint schema records this checkbox's
+        // default as `true`, and the committed capture agrees — {sleepEnabled: true,
+        // sleepDuration: 1, sleepUnit: "hours"}. Defaulting to `true` reproduces what the
+        // BUILDER itself produces for an untouched node, which is the standard this
+        // compiler holds itself to. Author `sleepEnabled: false` to opt out; the schedule
+        // halves are then irrelevant and not required.
+        default: () => true
       }
     }
   }
+};
+var CONDITIONAL_DEFAULTS = {
+  conversationai_end: (attrs) => attrs.sleepEnabled === true ? { sleepDuration: attrs.sleepDuration ?? 1, sleepUnit: attrs.sleepUnit ?? "hours" } : {}
 };
 function checkCoupledFields(node, attrs) {
   if (node.type !== "conversationai_end") return;
@@ -32303,6 +32330,7 @@ function enforceRequiredFields(node, attrs) {
       `${node.type} '${ref}' is missing the required attribute '${key}' ("${f.label}"). The builder renders this node with a red error badge and the flow CANNOT be published, while the build pipeline still reports success \u2014 so this must fail at compile time.` + (f.hint ? ` ${f.hint}` : "") + (spec.precondition ? ` ${spec.precondition}` : "")
     );
   }
+  Object.assign(out, CONDITIONAL_DEFAULTS[node.type]?.(out) ?? {});
   checkCoupledFields(node, out);
   return out;
 }

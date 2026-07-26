@@ -117,7 +117,7 @@ test('fields-only conv-ai nodes (end/continue/transfer_bot/services_booking) get
     { type: 'conversationai_end', attributes: { message: 'bye', sleepEnabled: true, sleepDuration: 1, sleepUnit: 'hours' } },
     { type: 'conversationai_continue', attributes: {} },
     { type: 'conversationai_transfer_bot', attributes: { assignedEmployeeId: 'AGENT2' } },
-    { type: 'conversationai_services_booking', attributes: { services: ['svc1'], description: 'book a facial' } },
+    { type: 'conversationai_services_booking', attributes: { conversationai_services: ['svc1'], conversationai_booking_description: 'book a facial' } },
   ];
   for (const c of cases) {
     const t = tmpl({ name: 'X', triggers: [flowTrigger],
