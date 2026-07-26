@@ -268,6 +268,40 @@ imply live correct:
   the composed rule (newest build that HAS an audit bundle, not "fail because the newest one
   lacks it") and semver ordering, since `0.9.0` sorts after `0.10.0` as a string.
 
+## Live envelope recon — 2026-07-27, GROM AU (`wdzEoUZnXO9tB3PPzcot`)
+
+Read-only GETs, driven through the internal MCP against a real account, to settle the envelope
+shapes this rail had only ever guessed at. Nothing mutated. The point was not to capture shapes
+for their own sake — it was that the reader either matches what GHL returns or the audit reads
+nothing, and four of these had never been checked against a live response.
+
+| Route | OBSERVED envelope | Verdict |
+| --- | --- | --- |
+| `GET /workflow/{loc}/list` | `{rows, count: 55, isLocationRateLimited}` | **The old reader matched NEITHER half.** No root `total` exists at all. `count` is a number and respects filters (`status=published` → 37). |
+| `GET /voice-ai/agents/simple` | **bare array**, no envelope, no total | Readable. Total-absent is tolerated because the surface is single-shot. |
+| `GET /ai-employees/agents` | **404 "Cannot GET"** | **Route does not exist.** Corrected to `/ai-employees/employees/search`. |
+| `GET /ai-employees/employees/search` | `{employees, totalCount: 3, count: 3, traceId}` | `totalCount` is the total. `count` carried the SAME value on a single page — the exact ambiguity for which `count` is excluded from the AI total keys. |
+| `GET /agent-studio/agents/agents-with-folders` | `{items, folders, total: 1, totalAgents, totalFolders, page, pageSize, hasMore}` | Root numeric `total` confirmed. |
+| `GET /workflows/logs/v2` | **bare array**; row has `status: "finished"`, `_id`, `stepId`, `sequence`, `workflowStatusId`, `meta`, `metrics` | **No `eventType` field and no `outcome` field.** `eventType` is a query param that filters on `status`. |
+| `GET /workflows/status/search/workflow-with-filter` | `{statuses, count, isLocationRateLimited, traceId}` | Keyed `statuses`, not `rows` — already in the reader's key list. |
+| `GET /workflow/{loc}/trigger` | **bare array** | Readable. Gates `definitionComplete`. |
+| `GET /workflows/sticky-notes-all` | `{data, count, traceId}` | Readable. Gates `definitionComplete`. |
+| `GET /ai-employees/employees/{id}`, `GET /voice-ai/agents/{id}` | detail `id` == discovery `id` on both; Voice detail carries **both** `_id` and `id` | **Canary item 4 of 4 settled** — the assumption with the widest blast radius. |
+
+Timestamps: every value observed is ISO-8601 UTC with milliseconds and a literal `Z`
+(`2026-07-24T07:13:52.421Z`) — **not** the synthetic numeric epochs every fixture uses. The
+strict grammar in `core/workflow-runtime-window.mjs` was exercised against the live values and
+accepts them, which retires the "unvalidated against live data" warning on that parser.
+
+NOT SETTLED: the `count-per-step` row key (`currentStepId`). The bare-array envelope is
+confirmed, but the account had **no parked contacts** on the day — five workflows all returned
+`[]`, and every enrollment row read `status: "finished"`. The key rests on two prior live runs,
+not on this one. It needs an account with contacts sitting at a wait.
+
+Incidental, recorded for the workflow-engine project rather than this one: a UI-built
+`facebook_lead_gen` trigger read back `masterType: "highlevel"`, where that project's notes
+record `"internal"` as the settled value for both flavours. Worth reconciling there.
+
 ## Historical live proof ledger — EXECUTED vs OBSERVED
 
 Account: **GROM AU** (`wdzEoUZnXO9tB3PPzcot`). Workflow: *AU Magic Link Provisioner*
