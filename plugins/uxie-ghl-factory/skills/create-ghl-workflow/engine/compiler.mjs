@@ -8,7 +8,7 @@ function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
   if (node.type === 'email') return emailAttributes(node, ctx);
   if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {}, node.ref);
-  if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
+  if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {}, node.ref);
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {}, ctx);
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
@@ -386,12 +386,25 @@ function webhookAttributes(a, ref) {
 // custom_code (JS sandbox) — `code` is a function body; `inputData` is a flat object
 // {key:value}; `output` is a REQUIRED hand-populated sample of the return value (publish
 // blocks on empty output). Sandbox HTTP uses customRequest.*, not fetch.
-function codeAttributes(a) {
+function codeAttributes(a, ref) {
+  // An EMPTY `output` is what the builder reports as "Code must be tested before saving".
+  // That message reads like a hard platform block on automation — it is not. Pressing
+  // Test in the UI is merely how a human POPULATES `output`; authoring a representative
+  // sample directly satisfies the validator with no UI visit. Live-proven 2026-07-25 on
+  // AU: two custom_code nodes side by side, the one without `output` carried the error
+  // badge, the one with it was clean. Defaulting to {} silently produced an unpublishable
+  // step, so require it instead.
+  const output = a.output ?? {};
+  if (output === null || typeof output !== 'object' || Object.keys(output).length === 0)
+    throw new IRError('CODE_OUTPUT_EMPTY',
+      `custom_code '${ref ?? '?'}' has an empty \`output\`. The builder rejects this as `
+      + `"Code must be tested before saving" and the step cannot be published. Author a `
+      + `representative sample of what the code returns, e.g. output: { ok: true }.`);
   return {
     code: a.code ?? 'return {};',
     language: a.language ?? 'javascript',
     inputData: a.inputData ?? {},
-    output: a.output ?? {},
+    output,
   };
 }
 

@@ -224,6 +224,16 @@ test('custom_webhook rejects an unattested event value', () => {
     attributes: { event: 'workflow', method: 'GET', url: 'https://e.invalid/s' } }], 'WEBHOOK_EVENT');
 });
 
+// "Code must be tested before saving" is an EMPTY-output error, not a platform block on
+// automation. Authoring a sample satisfies it; live-proven 2026-07-25 on AU.
+test('custom_code rejects an empty output, accepts an authored sample', () => {
+  throws([{ ref: 'c', kind: 'action', type: 'custom_code', name: 'C',
+    attributes: { code: 'return { ok: true };' } }], 'CODE_OUTPUT_EMPTY');
+  const t = templatesOf([{ ref: 'c', kind: 'action', type: 'custom_code', name: 'C',
+    attributes: { code: 'return { ok: true };', output: { ok: true } } }]);
+  assert.deepEqual(t[0].attributes.output, { ok: true });
+});
+
 test('custom_webhook requires a url', () => {
   throws([{ ref: 'w', kind: 'action', type: 'custom_webhook', name: 'W',
     attributes: { event: 'CUSTOM', method: 'GET' } }], 'WEBHOOK_URL');
