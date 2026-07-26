@@ -32012,7 +32012,7 @@ function lintConditionShape(c) {
 }
 function collectRefs(ir) {
   const refs = [];
-  for (const t of ir.triggers ?? []) refs.push(t.ref);
+  for (const t of ir.triggers ?? []) if (t.ref !== void 0) refs.push(t.ref);
   const walk2 = (nodes) => {
     for (const n of nodes ?? []) {
       if (n.ref !== void 0) refs.push(n.ref);
@@ -32149,12 +32149,178 @@ function checkOppFieldShape(field, { ref, warn } = {}) {
   }
 }
 
+// ../skills/create-ghl-workflow/engine/required-fields.mjs
+init_define_TOOL_CATALOG();
+var CATALOG_CORRECTIONS = {
+  // 🔴 The generated keys for this node are WRONG. Authoring the documented
+  // `reactivate: false` was accepted, persisted as an unknown key, and left the
+  // actually-required `sleepEnabled` unset — so the node kept its error badge. The shape
+  // below was captured verbatim by filling the node in the builder, clicking Save action
+  // then Save workflow, and exporting. Promoted to verified-live on that capture, which
+  // also switches on the ATTR_KEY guard (it only fires on verified-live types) so an
+  // invented key can no longer pass through here.
+  conversationai_end: {
+    reason: "documented keys customMessage/reactivate/duration are wrong; committed capture is {message, sleepEnabled, sleepDuration, sleepUnit} (2026-07-25 AU)",
+    confidence: "verified-live",
+    attrKeys: ["message", "sleepEnabled", "sleepDuration", "sleepUnit", "type", "__customInputs__"],
+    example: "research/ai-agents-internal/flow-builder-required-fields.md",
+    note: 'committed shape captured 2026-07-25 on AU. UI label -> key: End custom message = message, Reactivate After bot (REQUIRED) = sleepEnabled, Reactivate After value = sleepDuration, unit = sleepUnit ("hours").'
+  },
+  // Committed capture is `{}` — no fields at all, and the node renders clean. The
+  // generated `prompt` key came from a recon read of the panel and does not persist.
+  conversationai_continue: {
+    reason: "committed capture is {} \u2014 the recon-derived `prompt` key does not persist (2026-07-25 AU)",
+    confidence: "verified-live",
+    attrKeys: ["type", "__customInputs__"],
+    example: "research/ai-agents-internal/flow-builder-required-fields.md",
+    note: "committed shape captured 2026-07-25 on AU: no fields at all, and clean in the builder."
+  },
+  // Committed capture is {assignedEmployeeId} only — the documented `prompt` did NOT
+  // persist. Dropping it from attrKeys turns a silent drop into an ATTR_KEY error.
+  conversationai_transfer_bot: {
+    reason: "the documented `prompt` key did not persist in the committed capture (2026-07-25 AU)",
+    attrKeys: ["assignedEmployeeId", "type", "__customInputs__"],
+    note: "committed shape captured 2026-07-25 on AU: assignedEmployeeId only. Bot ids come from GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}."
+  }
+};
+var suppliedPresence = (attrs, key) => key in attrs && attrs[key] !== void 0;
+var suppliedNonEmpty = (attrs, key) => {
+  const v = attrs[key];
+  if (v === void 0 || v === null) return false;
+  if (typeof v === "string") return v.trim() !== "";
+  if (Array.isArray(v)) return v.length > 0;
+  return true;
+};
+var REQUIRED_FIELDS = {
+  conversationai_objective: { fields: {} },
+  // attested clean: only `objective`, itself optional to the builder
+  conversationai_continue: { fields: {} },
+  // attested clean: literally {}
+  conversationai_ai_message: {
+    fields: {
+      waitForReply: {
+        label: "Wait for contact reply",
+        presence: true,
+        // Safe to default: the control is a checkbox and the captured step-examples for
+        // both message nodes already carry `true`.
+        default: () => true
+      }
+    }
+  },
+  conversationai_custom_message: {
+    fields: {
+      waitForReply: { label: "Wait for contact reply", presence: true, default: () => true }
+    }
+  },
+  conversationai_ai_splitter: {
+    fields: {
+      description: {
+        label: "Description",
+        // The LLM routes on this text, so the node name is a meaningful fallback — but an
+        // unnamed splitter has nothing to fall back TO, and an empty description is what
+        // the builder rejects. Defaulting to '' would just re-create the defect.
+        default: (node) => node.name,
+        hint: "This is the text the LLM routes on. Author attributes.description, or give the node a `name` to derive it from."
+      }
+    }
+  },
+  conversationai_book_appointment: {
+    fields: {
+      calendarId: {
+        label: "Select Calendar",
+        hint: "A real calendar id is required and cannot be defaulted. List them with the calendars read tool, then author attributes.calendarId."
+      }
+    }
+  },
+  conversationai_transfer_bot: {
+    fields: {
+      assignedEmployeeId: {
+        label: "Select Bot to Transfer to",
+        hint: 'A real bot id is required and cannot be defaulted. List them with GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC} (the response also carries a {value:"keep-same"} sentinel), then author attributes.assignedEmployeeId.'
+      }
+    }
+  },
+  conversationai_services_booking: {
+    // 🔴 Unusable on a fresh account: the options endpoint returns
+    // {"conversationai_services": []} on AU, so there is no id that could satisfy
+    // `services` and the node can NEVER go clean. Treat as opt-in per client.
+    precondition: 'This node requires a configured commerce service. On AU the options endpoint returned {"conversationai_services": []}, meaning no service exists to select and the node can never be satisfied. Confirm the account has commerce services before using it: GET backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_services_booking?optionType=default&workflowId={WID}&locationId={LOC} (locationId is REQUIRED or it 400s).',
+    fields: {
+      services: {
+        label: "Select Services",
+        hint: "Requires configured commerce services \u2014 see the precondition above."
+      },
+      description: {
+        label: "Service Booking Description",
+        default: (node) => node.name,
+        hint: "Author attributes.description, or give the node a `name` to derive it from."
+      }
+    }
+  },
+  conversationai_end: {
+    fields: {
+      sleepEnabled: {
+        label: "Reactivate After bot",
+        presence: true,
+        // ⚠️ INFERRED, not builder-confirmed. `false` is the behaviour-preserving value
+        // (an unchecked "Reactivate After bot"), and the analogous checkbox on this same
+        // panel family — waitForReply — is proven presence-not-truthiness. The only
+        // committed capture of THIS node had `sleepEnabled: true` with sleepDuration 1 /
+        // sleepUnit "hours", so if the builder turns out to demand truthiness here, this
+        // default is what to revisit first.
+        default: () => false
+      }
+    }
+  }
+};
+function checkCoupledFields(node, attrs) {
+  if (node.type !== "conversationai_end") return;
+  if (attrs.sleepEnabled !== true) return;
+  const missing = ["sleepDuration", "sleepUnit"].filter((k) => !suppliedNonEmpty(attrs, k));
+  if (missing.length)
+    throw new IRError(
+      "REQUIRED_FIELD",
+      `conversationai_end '${node.ref ?? node.name ?? "?"}' sets sleepEnabled:true without [${missing.join(", ")}]. Reactivation is a schedule and needs both halves \u2014 the committed capture is {sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.`
+    );
+}
+function enforceRequiredFields(node, attrs) {
+  const spec = REQUIRED_FIELDS[node?.type];
+  if (!spec) return attrs;
+  const out = { ...attrs };
+  const ref = node.ref ?? node.name ?? "?";
+  for (const [key, f] of Object.entries(spec.fields)) {
+    const supplied = f.presence ? suppliedPresence : suppliedNonEmpty;
+    if (supplied(out, key)) continue;
+    if (f.default) {
+      const value = f.default(node);
+      if (supplied({ [key]: value }, key)) {
+        out[key] = value;
+        continue;
+      }
+    }
+    throw new IRError(
+      "REQUIRED_FIELD",
+      `${node.type} '${ref}' is missing the required attribute '${key}' ("${f.label}"). The builder renders this node with a red error badge and the flow CANNOT be published, while the build pipeline still reports success \u2014 so this must fail at compile time.` + (f.hint ? ` ${f.hint}` : "") + (spec.precondition ? ` ${spec.precondition}` : "")
+    );
+  }
+  checkCoupledFields(node, out);
+  return out;
+}
+function requiredKeysFor(type) {
+  return Object.keys(REQUIRED_FIELDS[type]?.fields ?? {});
+}
+function isSupplied(type, key, attrs) {
+  const f = REQUIRED_FIELDS[type]?.fields?.[key];
+  if (!f) return true;
+  return (f.presence ? suppliedPresence : suppliedNonEmpty)(attrs ?? {}, key);
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
   if (node.kind === "wait") return waitAttributes(node);
   if (node.type === "email") return emailAttributes(node, ctx);
-  if (node.type === "custom_webhook") return webhookAttributes(node.attributes ?? {});
-  if (node.type === "custom_code") return codeAttributes(node.attributes ?? {});
+  if (node.type === "custom_webhook") return webhookAttributes(node.attributes ?? {}, node.ref);
+  if (node.type === "custom_code") return codeAttributes(node.attributes ?? {}, node.ref);
   if (node.type === "voice_ai_outbound_call") return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === "internal_notification") return internalNotificationAttributes(node.attributes ?? {}, ctx);
   if (node.type === "create_opportunity") return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
@@ -32164,7 +32330,7 @@ function attributesFor(node, ctx) {
 function normalizeAttrs(node, attrs, ctx) {
   const meta3 = ctx?.catalog?.step(node.type);
   if (!meta3) return attrs;
-  const out = { ...attrs };
+  const out = { ...enforceRequiredFields(node, attrs) };
   if (meta3.usesCustomInputs && !("__customInputs__" in out)) out.__customInputs__ = {};
   if (Array.isArray(meta3.attrKeys) && meta3.attrKeys.includes("type") && !("type" in out)) {
     out.type = node.type === "internal_notification" ? ["sms", "email", "notification", "whatsapp"].find((c) => c in out) ?? node.type : node.type;
@@ -32209,7 +32375,36 @@ function oppField(filterField, value, dataType, valueFieldType) {
   if (dataType !== void 0) f.dataType = dataType;
   return f;
 }
+var CREATE_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
+  "pipelineId",
+  "stageId",
+  "status",
+  "name",
+  "source",
+  "value",
+  "pipeline",
+  "stage"
+  // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+]);
+var CREATE_OPP_ALIASES = {
+  pipelineStageId: "stageId",
+  stage_id: "stageId",
+  pipeline_stage_id: "stageId",
+  pipeline_id: "pipelineId",
+  monetaryValue: "value"
+};
 function createOpportunityAttributes(a, ref, ctx) {
+  const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError(
+      "UNKNOWN_ATTR",
+      `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => CREATE_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...CREATE_OPP_AUTHOR_KEYS].join(", ")}. NOTE the asymmetry \u2014 you author 'stageId', which compiles to the filterField 'pipelineStageId'. An ignored key compiles to a step that saves, round-trips clean, and creates an opportunity with no pipeline.`
+    );
+  if (a.stageId != null && a.pipelineId == null)
+    throw new IRError(
+      "OPP_STAGE_NO_PIPELINE",
+      `create_opportunity '${ref}' sets stageId without pipelineId. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Always author pipelineId alongside stageId.`
+    );
   const f = [];
   if (a.name != null) f.push(oppField("name", a.name, "TEXT", "string"));
   if (a.stageId != null) f.push(oppField("pipelineStageId", a.stageId, "SINGLE_OPTIONS", "select"));
@@ -32277,6 +32472,17 @@ function updateOpportunityAttributes(a, ref, ctx) {
       "EMPTY_STEP",
       `update_opportunity '${ref}' has nothing to update \u2014 it would compile to __customInputFields__:[] and no-op at runtime while round-tripping clean. Author either attributes.updates:[{field,value}] or the name path attributes:{pipeline,stage,status,...}.`
     );
+  const idx = (ff) => f.findIndex((x) => x.filterField === ff);
+  const stageAt = idx("pipelineStageId");
+  if (stageAt !== -1) {
+    const pipeAt = idx("pipelineId");
+    if (pipeAt === -1)
+      throw new IRError(
+        "OPP_STAGE_NO_PIPELINE",
+        `update_opportunity '${ref}' sets a pipeline stage without a pipeline. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Author pipelineId alongside stageId (or add a pipelineId entry to updates[]).`
+      );
+    if (pipeAt > stageAt) f.unshift(f.splice(pipeAt, 1)[0]);
+  }
   return { allowBackward: a.allowBackward ?? false, type: "internal_update_opportunity", __customInputFields__: f, __customInputs__: {} };
 }
 function voiceAiOutboundCallAttributes(a) {
@@ -32354,9 +32560,25 @@ function internalNotificationAttributes(a, ctx) {
     selectedUser: asUserArray(b.selectedUser)
   } };
 }
-function webhookAttributes(a) {
+var WEBHOOK_EVENTS = /* @__PURE__ */ new Set(["CUSTOM"]);
+var WEBHOOK_METHODS = /* @__PURE__ */ new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
+function webhookAttributes(a, ref) {
+  const ev = a.event ?? "CUSTOM";
+  if (!WEBHOOK_EVENTS.has(ev))
+    throw new IRError(
+      "WEBHOOK_EVENT",
+      `custom_webhook '${ref ?? "?"}' has event '${ev}'. Only ${[...WEBHOOK_EVENTS].join(", ")} is attested. An unknown event leaves the builder's EVENT dropdown blank and METHOD, CONTENT-TYPE and RAW BODY never render, so the step saves with no method and no body.`
+    );
+  const method = a.method ?? "POST";
+  if (!WEBHOOK_METHODS.has(String(method).toUpperCase()))
+    throw new IRError(
+      "WEBHOOK_METHOD",
+      `custom_webhook '${ref ?? "?"}' has method '${method}'. Expected one of ${[...WEBHOOK_METHODS].join(", ")}.`
+    );
+  if (!a.url)
+    throw new IRError("WEBHOOK_URL", `custom_webhook '${ref ?? "?"}' has no url \u2014 the validator requires one.`);
   return {
-    event: a.event ?? "CUSTOM",
+    event: ev,
     method: a.method ?? "POST",
     url: a.url ?? "",
     body: a.body ?? { contentType: "application/json", rawData: a.rawData ?? "{}", keyValueData: [] },
@@ -32367,12 +32589,18 @@ function webhookAttributes(a) {
     webhookResponse: a.webhookResponse ?? { isSampleRequested: false, selectedContact: "" }
   };
 }
-function codeAttributes(a) {
+function codeAttributes(a, ref) {
+  const output = a.output ?? {};
+  if (output === null || typeof output !== "object" || Object.keys(output).length === 0)
+    throw new IRError(
+      "CODE_OUTPUT_EMPTY",
+      `custom_code '${ref ?? "?"}' has an empty \`output\`. The builder rejects this as "Code must be tested before saving" and the step cannot be published. Author a representative sample of what the code returns, e.g. output: { ok: true }.`
+    );
   return {
     code: a.code ?? "return {};",
     language: a.language ?? "javascript",
     inputData: a.inputData ?? {},
-    output: a.output ?? {}
+    output
   };
 }
 function waitAttributes(node) {
@@ -32635,7 +32863,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     if (n.type === "conversationai_book_appointment") {
-      const attrs = n.attributes ?? {};
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const container = {
         id,
@@ -32671,7 +32899,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     if (n.type === "conversationai_ai_splitter") {
-      const attrs = n.attributes ?? {};
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const authorBranches = n.branches ?? [];
       const noneId = ctx.idGen();
       const branchIds = authorBranches.map(() => ctx.idGen());
@@ -32756,6 +32984,11 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     if (n.type === "find_opportunity" && (n.onFound || n.onNotFound)) {
+      if (n.attributes?.__customInputFields__ !== void 0)
+        throw new IRError(
+          "FIND_FILTERS_MISPLACED",
+          `find_opportunity '${n.ref ?? n.name}' authors attributes.__customInputFields__, which this step IGNORES \u2014 that is the emitted shape, not the author shape. Move it to the node-level find.filters: [{ field: 'pipeline_id', operator: 'eq', value: '<pipelineId>' }]. Left as authored, the finder compiles with NO filters and matches an arbitrary opportunity.`
+        );
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? "eq", secondValue: f.value }));
       const container = {
@@ -41679,6 +41912,18 @@ var catalog_data_default = {
 function data() {
   return catalog_data_default;
 }
+function correctSteps(steps) {
+  const out = { ...steps };
+  for (const [type, fix] of Object.entries(CATALOG_CORRECTIONS)) {
+    const { reason, ...patch } = fix;
+    out[type] = { ...out[type] ?? { type, kind: "step" }, ...patch };
+  }
+  for (const [type, spec] of Object.entries(REQUIRED_FIELDS)) {
+    if (!out[type]) continue;
+    out[type] = { ...out[type], attestedRequiredFields: Object.keys(spec.fields) };
+  }
+  return out;
+}
 function findFilterModel(d, triggerType) {
   const models = d.filterModels ?? {};
   for (const [cls, m] of Object.entries(models)) {
@@ -41690,18 +41935,19 @@ function findFilterModel(d, triggerType) {
 }
 function loadCatalog() {
   const d = data();
+  const steps = correctSteps(d.steps);
   return {
-    step: (type) => d.steps[type],
+    step: (type) => steps[type],
     trigger: (type) => d.triggers[type],
     filterModel: (type) => findFilterModel(d, type),
     stepCapabilities: () => d.stepCapabilities ?? {},
-    allSteps: () => Object.keys(d.steps),
+    allSteps: () => Object.keys(steps),
     allTriggers: () => Object.keys(d.triggers),
     // coverage snapshot for reporting / tests
     counts: () => ({
       steps: d.stepCount,
       triggers: d.triggerCount,
-      verifiedLiveSteps: Object.values(d.steps).filter((s) => s.confidence === "verified-live").length
+      verifiedLiveSteps: Object.values(steps).filter((s) => s.confidence === "verified-live").length
     })
   };
 }
@@ -42387,6 +42633,11 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
+function missingRequiredFields(step) {
+  const keys = requiredKeysFor(step?.type);
+  if (!keys.length) return [];
+  return keys.filter((k) => !isSupplied(step.type, k, step.attributes ?? {}));
+}
 var UPSTREAM_SECRET_KEY = /(?:authorization|token|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|password|credentials?|cookies?|session)/i;
 var UPSTREAM_TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
 var UPSTREAM_BEARER = /\bBearer\s+[A-Za-z0-9._-]{8,}/gi;
@@ -42635,10 +42886,18 @@ async function orchestrate(ir, gw, opts = {}) {
     });
   for (const gt of got) {
     const st = sentById.get(gt.id);
-    if (!st) continue;
-    const dropped = Object.keys(st.attributes || {}).filter((k) => !(k in (gt.attributes || {})) && k !== "template_id");
-    if (dropped.length) report.verify.issues.push({ type: gt.type, dropped });
-    else report.verify.pass++;
+    const issue2 = {};
+    if (st) {
+      const dropped = Object.keys(st.attributes || {}).filter((k) => !(k in (gt.attributes || {})) && k !== "template_id");
+      if (dropped.length) issue2.dropped = dropped;
+    }
+    const missingRequired = missingRequiredFields(gt);
+    if (missingRequired.length) {
+      issue2.missingRequired = missingRequired;
+      issue2.note = "the builder renders this step with a red error badge and the workflow CANNOT be published \u2014 this does NOT show up as a dropped attribute because the key was never sent.";
+    }
+    if (Object.keys(issue2).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue2 });
+    else if (st) report.verify.pass++;
   }
   if (opts.publish) {
     const freshResponse = await callAt("publish_workflow_get", "GET", `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
@@ -42768,7 +43027,46 @@ function normalizeDiff(d) {
   const modified = d.modifiedSteps.filter((id) => !created.has(id) && !deleted.has(id) && !netted.has(id));
   return { createdSteps: [...created], modifiedSteps: [...new Set(modified)], deletedSteps: [...deleted] };
 }
+var OP_REQUIRED_ARGS = {
+  appendStep: ["step"],
+  insertAfter: ["step", "afterId"],
+  insertBefore: ["step", "beforeId"],
+  appendToBranch: ["step", "branchEntryId"],
+  deleteStep: ["stepId"],
+  modifyStep: ["stepId"],
+  setStepDisabled: ["stepId"],
+  disableStepsByType: ["type"],
+  moveStep: ["stepId", "afterId"],
+  addBranch: ["containerId"],
+  deleteContainer: ["containerId"],
+  repairParentKeys: []
+};
+var OP_ARG_ALIASES = {
+  node: "step",
+  newStep: "step",
+  action: "step",
+  id: "stepId",
+  targetId: "stepId",
+  afterStepId: "afterId",
+  beforeStepId: "beforeId",
+  branchId: "branchEntryId",
+  container: "containerId"
+};
+function checkOpShape(op) {
+  const required2 = OP_REQUIRED_ARGS[op?.op];
+  if (!required2) return;
+  const missing = required2.filter((k) => op[k] === void 0);
+  if (!missing.length) return;
+  const suggestions = missing.map((want) => {
+    const wrong = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === want);
+    return wrong ? `you passed '${wrong}' \u2014 this op takes '${want}'` : null;
+  }).filter(Boolean);
+  throw new Error(
+    `edit op '${op.op}' is missing required argument(s) [${missing.join(", ")}]` + (suggestions.length ? ` \u2014 ${suggestions.join("; ")}` : "") + `. '${op.op}' takes: ${required2.join(", ")}.`
+  );
+}
 function applyOp(templates, op, { ctx, idGen }) {
+  checkOpShape(op);
   switch (op.op) {
     // The three add ops each take EITHER a linear step or a container subgraph; the
     // compile decides which, so callers write the same op either way.
@@ -46774,6 +47072,18 @@ var TOOLS2 = [
           "Pass one HTTP method token without whitespace or header/path content."
         );
       }
+      let body = args.body;
+      if (typeof body === "string") {
+        try {
+          body = JSON.parse(body);
+        } catch {
+          return fail(
+            CODES.VALIDATION_FAILED,
+            "raw_request body was a string that is not valid JSON",
+            "Pass body as an object \u2014 the gateway serializes it for you. A pre-serialized JSON string is accepted and parsed back, but a non-JSON string has no valid encoding on these endpoints, which all take JSON."
+          );
+        }
+      }
       if (method !== "GET" && args.confirm !== true) {
         return withFailureData(
           fail(
@@ -46781,7 +47091,7 @@ var TOOLS2 = [
             "Raw write preview is ready; no gateway call was sent.",
             "Review data.preview, then repeat the same request with confirm:true to send it."
           ),
-          { preview: { method, path: args.path, ...args.body === void 0 ? {} : { body: args.body } } }
+          { preview: { method, path: args.path, ...body === void 0 ? {} : { body } } }
         );
       }
       const onAi = host === "ai";
@@ -46800,7 +47110,7 @@ var TOOLS2 = [
         }
       };
       const writeCall = await safeGatewayCall(
-        () => gw.call(method, args.path, args.body, callOpts)
+        () => gw.call(method, args.path, body, callOpts)
       );
       if (writeCall.threw) {
         partialProgress.write.ambiguous = true;
