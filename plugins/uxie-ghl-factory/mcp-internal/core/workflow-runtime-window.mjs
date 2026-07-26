@@ -1073,6 +1073,17 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
     progress.runtimeEventsWalkFinished = true;
 
     // --- 3. per-step counts -------------------------------------------------------
+    // SHAPE SETTLED 2026-07-27 by parking a contact on GROM AU (the account had none, so the
+    // row key could not be read off an empty array — a send-free probe workflow was built,
+    // one fabricated contact parked at a 30-day wait, and everything deleted after; ledger in
+    // README.md). The response is a BARE ARRAY of `{total, currentStepId}` — the step key is
+    // `currentStepId`, NOT `stepId` and NOT `_id`, and the count key is `total`, not `count`.
+    //
+    // Nothing here consumes that key, deliberately: `perStepCounts` is published VERBATIM, and
+    // `discoveredStepIds` (the roster seal) comes from the DEFINITION's `workflowData.templates`
+    // rather than from these rows. So the live key can never silently mismatch a reader that
+    // does not exist. A CONSUMER walking `perStepCounts`, however, must read `currentStepId`;
+    // a fixture-derived guess of `stepId` returns undefined for every row.
     const countsResponse = await read('workflow_count_per_step', entityBindings, { workflowId, locationId: boundLocationId });
     if (!countsResponse.ok) {
       warnForFailure(countsResponse, 'per_step_counts');

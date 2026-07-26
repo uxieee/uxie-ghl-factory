@@ -293,10 +293,47 @@ Timestamps: every value observed is ISO-8601 UTC with milliseconds and a literal
 strict grammar in `core/workflow-runtime-window.mjs` was exercised against the live values and
 accepts them, which retires the "unvalidated against live data" warning on that parser.
 
-NOT SETTLED: the `count-per-step` row key (`currentStepId`). The bare-array envelope is
-confirmed, but the account had **no parked contacts** on the day — five workflows all returned
-`[]`, and every enrollment row read `status: "finished"`. The key rests on two prior live runs,
-not on this one. It needs an account with contacts sitting at a wait.
+### The parked-contact probe — `count-per-step` SETTLED
+
+The account had no parked contacts (five workflows all returned `[]`, every enrollment read
+`status: "finished"`), so the row key could not be observed by reading alone. Rather than infer
+a key name from an empty array, one was parked deliberately:
+
+1. Built a **send-free** throwaway workflow — one `contact_tag` trigger, one 30-day `wait`, and
+   nothing else. Zero message steps, so no real person could be contacted by it.
+2. Published it (trigger `active: 1/1`).
+3. Created a fabricated contact carrying the trigger tag — never a real client record.
+4. Read the endpoints while exactly one contact sat at the wait.
+5. Deleted contact, workflow, and the auto-created tag; verified each absence against RAW
+   response bodies, not success flags (`count` back to 55; contact → `400 Contact not found`;
+   tag absent from the list).
+
+```jsonc
+// GET /workflows/status/search/count-per-step   → a bare array
+[ { "total": 1, "currentStepId": "82446196-93c8-4bb7-97af-8f4705c5c772" } ]
+
+// GET /workflows/status/search/details-by-step  → an envelope
+{ "totalCount": 1,
+  "rows": [ { "_id": "01KYG6HNNNXG64T6KH8MCKRT47",   // the workflow-status ULID, NOT a contactId
+              "contactId": "…", "workflowId": "…",
+              "currentStepId": "82446196-93c8-4bb7-97af-8f4705c5c772",
+              "executeOn": "2026-08-25T21:50:53.567Z" } ] }
+```
+
+**The step key is `currentStepId` and the count key is `total`** — not `stepId`, not `_id`, not
+`count`. Cross-confirmed: that `currentStepId` equals the `stepId` the log row reported for the
+same wait step, and the drill-down's `_id` equals the log row's `workflowStatusId`.
+
+Two things the probe settled for free. The runtime log for a parked contact carries
+`status: "waiting"`, `type: "wait_time"` and a real `nextExecutionAt` — so `waiting` is a live
+value of the status enum, and the invented `waiting_on_action` remains absent from every
+observation. And the enrollment row keyed `stepId: "added_to_workflow"` — a literal sentinel
+string where every other row carries a UUID, which anything parsing `stepId` as an id must
+tolerate.
+
+A tag applied **at contact creation** does fire the tag trigger: `added_to_workflow` appeared in
+the logs 0.4s later with `addedSource.triggerType: "contact_tag"`. That is the only proof a
+trigger fired, per this repo's own rule, and it is now direct rather than inherited.
 
 Incidental, recorded for the workflow-engine project rather than this one: a UI-built
 `facebook_lead_gen` trigger read back `masterType: "highlevel"`, where that project's notes
