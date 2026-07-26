@@ -10,9 +10,14 @@
 // Regenerate the committed index after gen-catalog runs:
 //   node scripts/query-catalog-cli.mjs --md > references/capabilities.md
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
+import { correctSteps } from './catalog.mjs';
 
+// Apply the same hand-maintained corrections the compiler runs on. Without this, the
+// generated capabilities.md kept advertising conversationai_end's WRONG keys
+// (customMessage/reactivate/duration) — the very keys that caused the defect this overlay
+// exists to fix, in the document agents are told to consult before authoring.
 export function loadData() {
-  return CATALOG_DATA;
+  return { ...CATALOG_DATA, steps: correctSteps(CATALOG_DATA.steps) };
 }
 
 // IR authoring sugar for container types (SKILL.md "Node kinds"). Everything else
