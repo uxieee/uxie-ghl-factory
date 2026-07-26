@@ -222,7 +222,27 @@ export const AUDIT_CAPABILITIES = Object.freeze([
     capabilityId: 'conversation_ai_agent_discovery',
     host: 'services',
     authRail: 'ai',
-    normalizedPath: '/ai-employees/agents',
+    // CORRECTED 2026-07-27 FROM LIVE TRAFFIC. This was `/ai-employees/agents`, which GHL does
+    // not serve: a read-only probe on GROM AU answered
+    // `404 {"message":"Cannot GET /ai-employees/agents?locationId=…","error":"Not Found"}` —
+    // an express-style "route not registered", not an empty surface and not a permissions
+    // problem. The whole Conversation AI component therefore failed EVERY run with
+    // AI_DISCOVERY_READ_FAILED, took the bundle to complete:false, and would have done so on
+    // the canary for a reason that had nothing to do with what the canary was testing.
+    //
+    // The live route is the discovery sibling of the detail route below — same
+    // `/ai-employees/employees/*` family — and it answers
+    // `{employees: [...], totalCount: N, count: N, traceId}` with `id` on each row, matching
+    // the id the detail body returns. `totalCount` is why AI_TOTAL_KEYS reads it; `count` is
+    // deliberately not read (see core/audit-configuration.mjs — it carried the same value as
+    // `totalCount` on a single-page response, so nothing observed separates a page count from
+    // a surface total).
+    //
+    // NOTE FOR CONSUMERS: this moves `capabilityDescriptorHash` for this capability and
+    // therefore `capabilityManifestHash`. That is a pinned handshake value; a client holding
+    // the old one must re-pin. The alternative was leaving a capability that cannot read its
+    // surface at all, which is not a contract worth preserving.
+    normalizedPath: '/ai-employees/employees/search',
     requiredQueryKeys: ['locationId'],
     locationBinding: 'query',
   }),

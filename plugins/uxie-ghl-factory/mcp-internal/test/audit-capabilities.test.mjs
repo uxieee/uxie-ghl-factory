@@ -196,7 +196,12 @@ const EXPECTED = {
     capabilityId: 'conversation_ai_agent_discovery',
     host: 'services',
     authRail: 'ai',
-    normalizedPath: '/ai-employees/agents',
+    // Snapshot updated 2026-07-27 with the route correction. `/ai-employees/agents` was
+    // never a real GHL route — a live read-only probe on GROM AU returned a 404 "Cannot GET",
+    // so Conversation AI discovery failed on every run. This snapshot exists to make a
+    // descriptor change deliberate rather than incidental, and this change is deliberate:
+    // the value it pinned was wrong, and pinning a wrong value only guarantees it stays wrong.
+    normalizedPath: '/ai-employees/employees/search',
     requiredQueryKeys: ['locationId'],
     locationBinding: 'query',
   }),

@@ -152,7 +152,7 @@
   {
     "tool": "get_ai_configuration_bundle",
     "method": "GET",
-    "path": "/ai-employees/agents"
+    "path": "/ai-employees/employees/search"
   },
   {
     "tool": "get_ai_configuration_bundle",
