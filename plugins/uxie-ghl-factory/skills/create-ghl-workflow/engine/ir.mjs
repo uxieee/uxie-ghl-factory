@@ -135,7 +135,16 @@ export function lintConditionShape(c) {
 // Walk every node (graph + every nested scope) and every trigger, collecting refs.
 export function collectRefs(ir) {
   const refs = [];
-  for (const t of ir.triggers ?? []) refs.push(t.ref);
+  // Triggers are ref-OPTIONAL, so this must guard exactly like the node walk below.
+  // Unguarded, a ref-less trigger pushed `undefined` into refs -> into parseIR's `seen`
+  // set -> `seen.has(undefined)` became TRUE, which silently DISABLED the GOTO_UNRESOLVED
+  // guard for the whole workflow (a goto authored with the wrong key has target ===
+  // undefined and sailed through). Since virtually every real workflow has a trigger, the
+  // guard was dead in production: the mandatory find->not-found->create->goto-found
+  // pattern compiled with a dangling targetNodeId and the builder reported "Target node
+  // not found". Live-diagnosed 2026-07-25 on AU. A second ref-less trigger also tripped a
+  // spurious DUP_REF (two `undefined`s).
+  for (const t of ir.triggers ?? []) if (t.ref !== undefined) refs.push(t.ref);
   const walk = (nodes) => {
     for (const n of nodes ?? []) {
       if (n.ref !== undefined) refs.push(n.ref);
