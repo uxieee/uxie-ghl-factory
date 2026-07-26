@@ -30,6 +30,29 @@ test('unresolved goto rejected', () => {
   assert.throws(() => parseIR(ir), (e) => e.code === 'GOTO_UNRESOLVED');
 });
 
+// Regression: a ref-LESS trigger used to push `undefined` into collectRefs' output, so
+// parseIR's `seen` set contained undefined and `seen.has(n.target)` was TRUE for a goto
+// whose target was undefined (the shape produced by authoring attributes.targetNodeId
+// instead of the top-level `target` key). That silently disabled GOTO_UNRESOLVED for any
+// workflow with a trigger — i.e. nearly all of them. Live-diagnosed 2026-07-25 on AU:
+// the find -> not-found -> create -> goto-found pattern compiled with a dangling
+// targetNodeId and the builder reported "Target node not found".
+test('goto guard still fires when a ref-less trigger is present', () => {
+  const ir = validIR();
+  ir.triggers = [{ type: 'conv_ai_trigger', name: 'Chat Initiated' }];   // no `ref`
+  ir.graph.push({ ref: 'g', kind: 'goto', name: 'G', attributes: { targetNodeId: 'a' } });
+  assert.throws(() => parseIR(ir), (e) => e.code === 'GOTO_UNRESOLVED');
+});
+
+test('two ref-less triggers do not trip a spurious DUP_REF', () => {
+  const ir = validIR();
+  ir.triggers = [
+    { type: 'conv_ai_trigger', name: 'A' },
+    { type: 'contact_tag', name: 'B' },
+  ];
+  assert.doesNotThrow(() => parseIR(ir));
+});
+
 test('non-terminal goto rejected', () => {
   const ir = validIR();
   ir.graph[1].branches[0].then.push({ ref: 'g', kind: 'goto', target: 'a' });
