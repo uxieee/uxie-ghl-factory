@@ -3,12 +3,13 @@
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, OPP_SHAPES } from './opp-shapes.mjs';
+import { enforceRequiredFields } from './required-fields.mjs';
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
   if (node.type === 'email') return emailAttributes(node, ctx);
-  if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {});
-  if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
+  if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {}, node.ref);
+  if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {}, node.ref);
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {}, ctx);
   if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
@@ -28,7 +29,11 @@ function attributesFor(node, ctx) {
 function normalizeAttrs(node, attrs, ctx) {
   const meta = ctx?.catalog?.step(node.type);
   if (!meta) return attrs;
-  const out = { ...attrs };
+  // Fill defaultable required fields and hard-fail the rest BEFORE the key check, so a
+  // node that is merely missing a default does not first trip ATTR_KEY on the injected
+  // key. A missing required field is what makes the builder show "Resolve N Errors" on a
+  // workflow this engine reported as a clean pass.
+  const out = { ...enforceRequiredFields(node, attrs) };
   if (meta.usesCustomInputs && !('__customInputs__' in out)) out.__customInputs__ = {};
   if (Array.isArray(meta.attrKeys) && meta.attrKeys.includes('type') && !('type' in out)) {
     // internal_notification's attributes.type is the CHANNEL, not the step type —
@@ -86,7 +91,40 @@ function oppField(filterField, value, dataType, valueFieldType) {
   if (dataType !== undefined) f.dataType = dataType;   // absence is legal; never inject a dialect
   return f;
 }
+// create_opportunity's author keys, mirroring UPDATE_OPP_AUTHOR_KEYS below. Without this
+// guard the generic checkAttrKeys pass is skipped wholesale for this type (it validates
+// against the EMITTED keys, none of which an author writes here), so a typo — or the
+// natural mistake of writing the GHL-side spellings `pipeline_id` / `pipeline_stage_id` —
+// dropped SILENTLY and produced an opportunity with no pipeline and no stage. It built
+// clean, verified clean, and the builder showed no error. Live-diagnosed 2026-07-25 on AU.
+const CREATE_OPP_AUTHOR_KEYS = new Set([
+  'pipelineId', 'stageId', 'status', 'name', 'source', 'value',
+  'pipeline', 'stage',    // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+]);
+const CREATE_OPP_ALIASES = {
+  pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_stage_id: 'stageId',
+  pipeline_id: 'pipelineId', monetaryValue: 'value',
+};
 function createOpportunityAttributes(a, ref, ctx) {
+  const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError('UNKNOWN_ATTR',
+      `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(', ')}]${
+        bad.some((k) => CREATE_OPP_ALIASES[k])
+          ? ` — did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(', ')}?`
+          : ''
+      }. Author keys: ${[...CREATE_OPP_AUTHOR_KEYS].join(', ')}. NOTE the asymmetry — you author `
+      + `'stageId', which compiles to the filterField 'pipelineStageId'. An ignored key compiles `
+      + `to a step that saves, round-trips clean, and creates an opportunity with no pipeline.`);
+  // GHL's own create-opportunity validator requires BOTH pipeline and stage. A stage
+  // without a pipeline renders as a DISABLED node in the builder (live-confirmed
+  // 2026-07-25): the stage picker cannot resolve its options without a pipeline to
+  // scope them to.
+  if (a.stageId != null && a.pipelineId == null)
+    throw new IRError('OPP_STAGE_NO_PIPELINE',
+      `create_opportunity '${ref}' sets stageId without pipelineId. GHL scopes the stage `
+      + `picker to a pipeline, so a stage-only step renders DISABLED in the builder and `
+      + `never runs. Always author pipelineId alongside stageId.`);
   const f = [];
   if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
   if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
@@ -183,6 +221,22 @@ function updateOpportunityAttributes(a, ref, ctx) {
       `update_opportunity '${ref}' has nothing to update — it would compile to ` +
       `__customInputFields__:[] and no-op at runtime while round-tripping clean. Author either ` +
       `attributes.updates:[{field,value}] or the name path attributes:{pipeline,stage,status,...}.`);
+  // A stage write REQUIRES its pipeline, on either authoring path. GHL scopes the stage
+  // picker to a pipeline, so a stage-only step renders as a DISABLED node in the builder
+  // and never runs (live-confirmed 2026-07-25 on AU: a move-stage step authored with
+  // stageId alone came back "Duplicate opportunity / Disabled"). The pipeline entry must
+  // also come FIRST in __customInputFields__ so the stage resolves against it.
+  const idx = (ff) => f.findIndex((x) => x.filterField === ff);
+  const stageAt = idx('pipelineStageId');
+  if (stageAt !== -1) {
+    const pipeAt = idx('pipelineId');
+    if (pipeAt === -1)
+      throw new IRError('OPP_STAGE_NO_PIPELINE',
+        `update_opportunity '${ref}' sets a pipeline stage without a pipeline. GHL scopes the `
+        + `stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and `
+        + `never runs. Author pipelineId alongside stageId (or add a pipelineId entry to updates[]).`);
+    if (pipeAt > stageAt) f.unshift(f.splice(pipeAt, 1)[0]);   // pipeline must precede stage
+  }
   return { allowBackward: a.allowBackward ?? false, type: 'internal_update_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
 
@@ -300,10 +354,33 @@ function internalNotificationAttributes(a, ctx) {
 
 // custom_webhook (outbound HTTP) — live-verified shape. body.rawData is a JSON STRING;
 // headers/parameters are arrays of {key,value}; authorization is a {type,data} union.
-function webhookAttributes(a) {
+// `event` classifies the outbound webhook and DRIVES THE PANEL: the builder renders
+// METHOD, CONTENT-TYPE and RAW BODY only once EVENT resolves to a known value. An
+// unrecognised value (e.g. the plausible-looking 'workflow') leaves the EVENT dropdown
+// blank and those three controls never appear, so the step can carry neither a method
+// nor a body — while round-tripping clean. Live-confirmed 2026-07-25 on AU. 'CUSTOM' is
+// the only value attested in the corpus or the reference.
+const WEBHOOK_EVENTS = new Set(['CUSTOM']);
+const WEBHOOK_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+function webhookAttributes(a, ref) {
+  const ev = a.event ?? 'CUSTOM';
+  if (!WEBHOOK_EVENTS.has(ev))
+    throw new IRError('WEBHOOK_EVENT',
+      `custom_webhook '${ref ?? '?'}' has event '${ev}'. Only ${[...WEBHOOK_EVENTS].join(', ')} is `
+      + `attested. An unknown event leaves the builder's EVENT dropdown blank and METHOD, `
+      + `CONTENT-TYPE and RAW BODY never render, so the step saves with no method and no body.`);
+  // Normalize to the attested casing. The guard below compared .toUpperCase() but the
+  // emitted value was the author's original, so `method: 'post'` passed validation and
+  // went on the wire lowercase — a casing the corpus does not attest.
+  const method = String(a.method ?? 'POST').toUpperCase();
+  if (!WEBHOOK_METHODS.has(method))
+    throw new IRError('WEBHOOK_METHOD',
+      `custom_webhook '${ref ?? '?'}' has method '${method}'. Expected one of ${[...WEBHOOK_METHODS].join(', ')}.`);
+  if (!a.url)
+    throw new IRError('WEBHOOK_URL', `custom_webhook '${ref ?? '?'}' has no url — the validator requires one.`);
   return {
-    event: a.event ?? 'CUSTOM',
-    method: a.method ?? 'POST',
+    event: ev,
+    method,
     url: a.url ?? '',
     body: a.body ?? { contentType: 'application/json', rawData: a.rawData ?? '{}', keyValueData: [] },
     headers: a.headers ?? [],
@@ -317,12 +394,25 @@ function webhookAttributes(a) {
 // custom_code (JS sandbox) — `code` is a function body; `inputData` is a flat object
 // {key:value}; `output` is a REQUIRED hand-populated sample of the return value (publish
 // blocks on empty output). Sandbox HTTP uses customRequest.*, not fetch.
-function codeAttributes(a) {
+function codeAttributes(a, ref) {
+  // An EMPTY `output` is what the builder reports as "Code must be tested before saving".
+  // That message reads like a hard platform block on automation — it is not. Pressing
+  // Test in the UI is merely how a human POPULATES `output`; authoring a representative
+  // sample directly satisfies the validator with no UI visit. Live-proven 2026-07-25 on
+  // AU: two custom_code nodes side by side, the one without `output` carried the error
+  // badge, the one with it was clean. Defaulting to {} silently produced an unpublishable
+  // step, so require it instead.
+  const output = a.output ?? {};
+  if (output === null || typeof output !== 'object' || Object.keys(output).length === 0)
+    throw new IRError('CODE_OUTPUT_EMPTY',
+      `custom_code '${ref ?? '?'}' has an empty \`output\`. The builder rejects this as `
+      + `"Code must be tested before saving" and the step cannot be published. Author a `
+      + `representative sample of what the code returns, e.g. output: { ok: true }.`);
   return {
     code: a.code ?? 'return {};',
     language: a.language ?? 'javascript',
     inputData: a.inputData ?? {},
-    output: a.output ?? {},
+    output,
   };
 }
 
@@ -671,7 +761,11 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // flow-builder-captures/conv-ai-node-templates.json exactly (2026-07-14). Tails
     // hang off `onBooked` / `onNotBooked` scopes (both optional).
     if (n.type === 'conversationai_book_appointment') {
-      const attrs = n.attributes ?? {};
+      // Container types build their attributes inline and never reach normalizeAttrs, so
+      // the required-field check has to be invoked here too. Without it `calendarId`
+      // compiled to `undefined` and the builder rendered "Select Calendar is a required
+      // field" while the engine reported a clean pass.
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const container = {
         id, type: 'conversationai_book_appointment', name: n.name ?? 'Book appointment',
@@ -707,7 +801,10 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // conditionType:"user-defined" with empty meta. Each branch is a separate
     // type:"transition" node; routing is driven by description + branch name (fields stay {}).
     if (n.type === 'conversationai_ai_splitter') {
-      const attrs = n.attributes ?? {};
+      // Same bypass as book_appointment above — enforce here, not in normalizeAttrs.
+      // `description` is what the LLM routes on; it used to default to '' and render the
+      // node with a red badge.
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const authorBranches = n.branches ?? [];
       const noneId = ctx.idGen();
       const branchIds = authorBranches.map(() => ctx.idGen());
@@ -780,6 +877,19 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // find_opportunity — multipath container with PRE-DEFINED Found/Not-Found branches
     // (live-verified). Same transition-step mechanics as the multipath wait.
     if (n.type === 'find_opportunity' && (n.onFound || n.onNotFound)) {
+      // Filters are authored at NODE level as find.filters — NOT as
+      // attributes.__customInputFields__ (the EMITTED shape). That key is on the engine's
+      // accepted list, so the generic ATTR_KEY guard stays silent, and this handler never
+      // reads it: the finder compiled with ZERO filters and matched an arbitrary
+      // opportunity. Combined with sorting:'latest', a contact holding two cards resolved
+      // at random. Built clean, verified clean, no builder error. Live-diagnosed
+      // 2026-07-25 on AU.
+      if (n.attributes?.__customInputFields__ !== undefined)
+        throw new IRError('FIND_FILTERS_MISPLACED',
+          `find_opportunity '${n.ref ?? n.name}' authors attributes.__customInputFields__, which this `
+          + `step IGNORES — that is the emitted shape, not the author shape. Move it to the node-level `
+          + `find.filters: [{ field: 'pipeline_id', operator: 'eq', value: '<pipelineId>' }]. Left as `
+          + `authored, the finder compiles with NO filters and matches an arbitrary opportunity.`);
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? 'eq', secondValue: f.value }));
       const container = {
@@ -1011,6 +1121,10 @@ export function buildTrigger(t, ctx, wid) {
     conditions,
     type: t.type, masterType: t.masterType ?? meta?.masterType ?? 'highlevel', name: t.name,
     actions: [{ workflow_id: wid, type: 'add_to_workflow' }],
+    // Marketplace triggers carry their schema flavour on the stored document. The builder
+    // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
+    // it wherever the catalog records one — and never invent it where it does not.
+    ...(meta?.workflowsTriggerType ? { workflowsTriggerType: meta.workflowsTriggerType } : {}),
     active: t.active !== false, triggersChanged: true,
     location_id: ctx.loc, company_id: ctx.cid, company_age: ctx.companyAge,
     // conv_ai_trigger binds a FLOW_BUILDER_BOT flow workflow to its agent — without
@@ -1057,7 +1171,7 @@ export function compile(ir, ctx) {
   // LIVE-CAUGHT 2026-07-21 (GROM AU): `send_internal_notification` (the real slug is
   // `internal_notification`) compiled clean, built, round-tripped, and reported
   // warnings:[] — but the builder rendered a bare box with no action icon and its step
-  // editor would NOT open. The catalog is complete (316 step types), so an unrecognised
+  // editor would NOT open. The catalog is complete (383 step types), so an unrecognised
   // type is an authoring error, not a gap. Silently shipping it produces exactly the
   // failure this engine exists to prevent: a workflow that saves and does nothing.
   //

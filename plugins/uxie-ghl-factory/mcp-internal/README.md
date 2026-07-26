@@ -398,7 +398,7 @@ defect was ours and not a browser artifact.
 
 Root cause: `compile()` looked the type up with `ctx.catalog.step(t.type)` and simply
 skipped when it was missing — an unrecognised type was never rejected. The catalog is
-complete (316 step types), so an unknown type is an authoring error.
+complete (383 step types), so an unknown type is an authoring error.
 
 Fix: `compile()` now throws `STEP_TYPE_UNKNOWN`, naming the offending type and suggesting
 the nearest catalog slug, with an explicit `allowUnknownStepTypes` override for the

@@ -23,8 +23,20 @@ import { loadCatalog } from './catalog.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
+import { requiredKeysFor, isSupplied } from './required-fields.mjs';
+import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
+
+// Which attested required fields a PERSISTED step is missing. Uses the same
+// presence-vs-non-empty rule the compiler applied, so verify cannot drift into a second,
+// subtly different notion of "supplied" — a `waitForReply: false` is satisfied, an empty
+// `description` is not.
+export function missingRequiredFields(step) {
+  const keys = requiredKeysFor(step?.type);
+  if (!keys.length) return [];
+  return keys.filter((k) => !isSupplied(step.type, k, step.attributes ?? {}));
+}
 
 const UPSTREAM_SECRET_KEY = /(?:authorization|token|jwt|api[-_ ]?(?:key|secret)|client[-_ ]?secret|password|credentials?|cookies?|session)/i;
 const UPSTREAM_TOKENISH = /\bey[A-Za-z0-9._-]{20,}/g;
@@ -265,9 +277,52 @@ export async function orchestrate(ir, gw, opts = {}) {
     report.verify.issues.push({ danglingParentKeys: dangling,
       note: 'step(s) point parentKey at a missing step — builder hygiene, not a runtime break (runtime walks `next`). Repair with the repairParentKeys edit op.' });
   for (const gt of got) {
-    const st = sentById.get(gt.id); if (!st) continue;
-    const dropped = Object.keys(st.attributes || {}).filter((k) => !(k in (gt.attributes || {})) && k !== 'template_id');
-    if (dropped.length) report.verify.issues.push({ type: gt.type, dropped }); else report.verify.pass++;
+    const st = sentById.get(gt.id);
+    const issue = {};
+    if (st) {
+      const dropped = Object.keys(st.attributes || {}).filter((k) => !(k in (gt.attributes || {})) && k !== 'template_id');
+      if (dropped.length) issue.dropped = dropped;
+    }
+    // Assert the required set against what GHL actually STORED. Every check above this
+    // one is about persistence — did the step survive, did an attribute key vanish — and
+    // all of them are blind to a step whose attributes round-tripped perfectly but which
+    // is missing a field the BUILDER requires. That is why verify returned
+    // {pass:14, issues:[]} on a workflow the builder showed "Resolve 7 Errors" for.
+    // Reading it off the GET rather than the sent body also catches the server dropping a
+    // required field we did send.
+    const missingRequired = missingRequiredFields(gt);
+    if (missingRequired.length) {
+      issue.missingRequired = missingRequired;
+      issue.note = 'the builder renders this step with a red error badge and the workflow CANNOT be '
+        + 'published — this does NOT show up as a dropped attribute because the key was never sent.';
+    }
+    if (Object.keys(issue).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue });
+    else if (st) report.verify.pass++;
+  }
+
+  // 5b. Cross-check the persisted graph against GHL'S OWN action schema — the same rulebook
+  //     the builder computes its "Resolve N Errors" banner from. No endpoint returns that
+  //     banner (validate-assets checks referenced assets, not field completeness), so this
+  //     is the only way to know before a human opens the canvas.
+  //
+  //     Best-effort by design: the fetch returns null on any failure and the build carries
+  //     on. It is an ADDITION to the checks above, not a replacement — the marketplace
+  //     catalog describes 307 of the engine's 383 step types and omits the core native ones
+  //     (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, …), so an absent
+  //     type means "not described here", never "clean". (The catalog now INGESTS this same
+  //     rulebook — see gen-catalog.mjs — so the 307 it describes all have entries; the
+  //     boundary is unchanged, because ingesting it cannot make it cover what it omits.)
+  const actionSchema = await fetchActionSchema(call, loc);
+  if (actionSchema) {
+    const triggerTypes = (ir.triggers ?? []).map((t) => t.type).filter(Boolean);
+    const schemaErrors = checkWorkflow(got, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+    report.schemaChecked = { source: 'live', types: actionSchema.size, steps: got.length };
+    for (const e of schemaErrors) {
+      report.verify.issues.push({ type: e.type, id: e.stepId, name: e.step, schemaErrors: e.messages,
+        note: "from GHL's own action schema — this is what the builder's \"Resolve N Errors\" panel would show." });
+    }
+  } else {
+    report.schemaChecked = { source: 'unavailable', note: 'live action schema could not be fetched; required-field checks fell back to the attested map' };
   }
 
   // 6. optional publish (opt-in). Mirrors the builder's real publish PUT — this is

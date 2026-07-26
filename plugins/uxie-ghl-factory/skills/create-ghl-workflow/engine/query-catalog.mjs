@@ -10,9 +10,14 @@
 // Regenerate the committed index after gen-catalog runs:
 //   node scripts/query-catalog-cli.mjs --md > references/capabilities.md
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
+import { correctSteps } from './catalog.mjs';
 
+// Apply the same hand-maintained corrections the compiler runs on. Without this, the
+// generated capabilities.md kept advertising conversationai_end's WRONG keys
+// (customMessage/reactivate/duration) — the very keys that caused the defect this overlay
+// exists to fix, in the document agents are told to consult before authoring.
 export function loadData() {
-  return CATALOG_DATA;
+  return { ...CATALOG_DATA, steps: correctSteps(CATALOG_DATA.steps) };
 }
 
 // IR authoring sugar for container types (SKILL.md "Node kinds"). Everything else
@@ -42,12 +47,22 @@ export function searchCatalog(d, term) {
     .sort((a, b) => b[0] - a[0]).map(([, e]) => e);
 }
 
+// Every catalogued trigger has a masterType — "highlevel" for OG, "internal" for every
+// marketplace one (captured from the builder 2026-07-27). `unset` would mean a catalog bug,
+// so say that rather than printing `undefined`.
+function masterTypeLabel(e) {
+  return e.masterType ?? 'unset (catalog gap)';
+}
+
 export function renderCard(e) {
   const lines = [];
   if (e.kind === 'trigger') {
-    lines.push(`■ ${e.type} — TRIGGER (${e.category ?? 'other'}, masterType ${e.masterType}) ${TIER_MARK[e.confidence] ?? ''}${e.confidence}`);
+    lines.push(`■ ${e.type} — TRIGGER (${e.category ?? 'other'}, masterType ${masterTypeLabel(e)}) ${TIER_MARK[e.confidence] ?? ''}${e.confidence}`);
     const rows = e.filterRows ?? [];
     if (rows.length) lines.push(`  filters: ${rows.map((r) => `${r.label} (${r.value}, ${r.type})`).join(' | ')}`);
+    // Rulebook-sourced triggers carry the assets-side filter schema instead — a different
+    // row shape, so it is reported separately rather than pretended to be expandable.
+    else if (e.schemaFilters?.length) lines.push(`  filters (schema, pass through verbatim): ${e.schemaFilters.map((r) => `${r.title} (${r.field}, ${r.fieldType})`).join(' | ')}`);
     if (e.example) lines.push(`  example: ${e.example}`);
     lines.push(`  IR: triggers: [{ ref, type: ${e.type}, name, filters: [{ field, value }] }]`);
   } else {
@@ -136,8 +151,9 @@ export function renderMarkdown(d) {
   for (const [cat, list] of Object.entries(byCat).sort()) {
     out.push('', `### ${cat}`);
     for (const t of list.sort((a, b) => a.type.localeCompare(b.type))) {
-      const rows = (t.filterRows ?? []).map((r) => `${r.label} (\`${r.value}\`)`).join(', ');
-      out.push(`- ${TIER_MARK[t.confidence] ?? ''} \`${t.type}\` (${t.masterType})${rows ? ' — filters: ' + rows : ''}`);
+      const rows = (t.filterRows ?? []).map((r) => `${r.label} (\`${r.value}\`)`).join(', ')
+        || (t.schemaFilters ?? []).map((r) => `${r.title} (\`${r.field}\`)`).join(', ');
+      out.push(`- ${TIER_MARK[t.confidence] ?? ''} \`${t.type}\` (${masterTypeLabel(t)})${rows ? ' — filters: ' + rows : ''}`);
     }
   }
   out.push('');
