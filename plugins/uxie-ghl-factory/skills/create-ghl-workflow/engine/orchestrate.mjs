@@ -24,6 +24,7 @@ import { collectRequiredTags, missingTags } from './tags.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
+import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -286,6 +287,29 @@ export async function orchestrate(ir, gw, opts = {}) {
     }
     if (Object.keys(issue).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue });
     else if (st) report.verify.pass++;
+  }
+
+  // 5b. Cross-check the persisted graph against GHL'S OWN action schema — the same rulebook
+  //     the builder computes its "Resolve N Errors" banner from. No endpoint returns that
+  //     banner (validate-assets checks referenced assets, not field completeness), so this
+  //     is the only way to know before a human opens the canvas.
+  //
+  //     Best-effort by design: the fetch returns null on any failure and the build carries
+  //     on. It is an ADDITION to the checks above, not a replacement — the marketplace
+  //     catalog covers 240 of the engine's 316 step types and omits the core native ones
+  //     (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, …), so an absent
+  //     type means "not described here", never "clean".
+  const actionSchema = await fetchActionSchema(call, loc);
+  if (actionSchema) {
+    const triggerTypes = (ir.triggers ?? []).map((t) => t.type).filter(Boolean);
+    const schemaErrors = checkWorkflow(got, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+    report.schemaChecked = { source: 'live', types: actionSchema.size, steps: got.length };
+    for (const e of schemaErrors) {
+      report.verify.issues.push({ type: e.type, id: e.stepId, name: e.step, schemaErrors: e.messages,
+        note: "from GHL's own action schema — this is what the builder's \"Resolve N Errors\" panel would show." });
+    }
+  } else {
+    report.schemaChecked = { source: 'unavailable', note: 'live action schema could not be fetched; required-field checks fell back to the attested map' };
   }
 
   // 6. optional publish (opt-in). Mirrors the builder's real publish PUT — this is

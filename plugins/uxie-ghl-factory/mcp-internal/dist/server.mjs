@@ -42671,6 +42671,97 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   };
 }
 
+// ../skills/create-ghl-workflow/engine/action-schema.mjs
+init_define_TOOL_CATALOG();
+var PSEUDO_FIELDS = /* @__PURE__ */ new Set(["DYNAMIC"]);
+function isBlank(v) {
+  if (v === void 0 || v === null) return true;
+  if (typeof v === "string") return v.trim() === "";
+  if (Array.isArray(v)) return v.length === 0;
+  return false;
+}
+function coerceDefault(raw, fieldType) {
+  if (raw === void 0 || raw === null || raw === "") return void 0;
+  if (fieldType === "checkbox" || fieldType === "toggle") {
+    if (raw === true || raw === false) return raw;
+    if (raw === "true") return true;
+    if (raw === "false") return false;
+    return void 0;
+  }
+  if (fieldType === "numerical") {
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : void 0;
+  }
+  return raw;
+}
+function parseActionSchema(assets) {
+  const byType = /* @__PURE__ */ new Map();
+  for (const app of assets?.actions ?? []) {
+    for (const action of app?.actions ?? []) {
+      if (!action?.key || !Array.isArray(action.inputs)) continue;
+      const fields = action.inputs.filter((f) => f?.field && !PSEUDO_FIELDS.has(f.field)).map((f) => ({
+        field: f.field,
+        title: f.title ?? f.field,
+        required: f.required === true,
+        fieldType: f.fieldType,
+        default: coerceDefault(f.value, f.fieldType)
+      }));
+      byType.set(action.key, {
+        type: action.key,
+        app: app.appName,
+        section: action.section,
+        fields,
+        requiredFields: fields.filter((f) => f.required).map((f) => f.field),
+        requiredTriggers: action.requiredTriggers ?? [],
+        isPremium: action.additionalConfig?.isPremium === true,
+        isMultipath: action.branchesConfig != null
+      });
+    }
+  }
+  return byType;
+}
+function missingForStep(step, schema2) {
+  const spec = schema2?.get?.(step?.type);
+  if (!spec) return [];
+  return spec.fields.filter((f) => f.required && isBlank((step.attributes ?? {})[f.field])).map((f) => ({
+    field: f.field,
+    title: f.title,
+    message: `"${f.title}" is a required field`
+  }));
+}
+function checkWorkflow(templates, schema2, { triggerTypes } = {}) {
+  const errors = [];
+  for (const step of templates ?? []) {
+    const missing = missingForStep(step, schema2);
+    if (missing.length) {
+      errors.push({ stepId: step.id, step: step.name, type: step.type, messages: missing.map((m) => m.message), fields: missing.map((m) => m.field) });
+    }
+    if (triggerTypes) {
+      const need = schema2?.get?.(step.type)?.requiredTriggers ?? [];
+      if (need.length && !need.some((t) => triggerTypes.includes(t))) {
+        errors.push({
+          stepId: step.id,
+          step: step.name,
+          type: step.type,
+          messages: [`'${step.type}' requires one of these triggers: ${need.join(", ")} \u2014 this workflow has [${triggerTypes.join(", ") || "none"}]`],
+          fields: []
+        });
+      }
+    }
+  }
+  return errors;
+}
+async function fetchActionSchema(call, loc) {
+  try {
+    const r = await call("GET", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+    if (!r?.ok || !r.json) return null;
+    const schema2 = parseActionSchema(r.json);
+    return schema2.size ? schema2 : null;
+  } catch {
+    return null;
+  }
+}
+
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
 function missingRequiredFields(step) {
   const keys = requiredKeysFor(step?.type);
@@ -42937,6 +43028,23 @@ async function orchestrate(ir, gw, opts = {}) {
     }
     if (Object.keys(issue2).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue2 });
     else if (st) report.verify.pass++;
+  }
+  const actionSchema = await fetchActionSchema(call, loc);
+  if (actionSchema) {
+    const triggerTypes = (ir.triggers ?? []).map((t) => t.type).filter(Boolean);
+    const schemaErrors = checkWorkflow(got, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+    report.schemaChecked = { source: "live", types: actionSchema.size, steps: got.length };
+    for (const e of schemaErrors) {
+      report.verify.issues.push({
+        type: e.type,
+        id: e.stepId,
+        name: e.step,
+        schemaErrors: e.messages,
+        note: `from GHL's own action schema \u2014 this is what the builder's "Resolve N Errors" panel would show.`
+      });
+    }
+  } else {
+    report.schemaChecked = { source: "unavailable", note: "live action schema could not be fetched; required-field checks fell back to the attested map" };
   }
   if (opts.publish) {
     const freshResponse = await callAt("publish_workflow_get", "GET", `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
@@ -46055,6 +46163,57 @@ var TOOLS2 = [
         note: "Summary only \u2014 use export_workflow for the full graph."
       });
     }, args)
+  },
+  {
+    name: "check_workflow",
+    description: describe3(
+      "check_workflow",
+      `Read-only pre-flight: reproduce the workflow builder's "Resolve N Errors" list for an existing workflow, without opening the UI (proof: live-reproduction 2026-07-27 \u2014 matched the builder exactly on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL's OWN action schema (the marketplace assets catalog the builder itself validates against). NOTE: that catalog omits core native actions (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means "nothing found in the 240 types it describes", not "provably publishable".`
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string()
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/trigger" },
+      { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const loc = encodeURIComponent(args.locationId);
+      const wid = encodeURIComponent(args.workflowId);
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const body = await gw.call("GET", `/workflow/${loc}/${wid}?includeScheduledPauseInfo=true`);
+      if (!body.ok) return fromHttp(body.status, body.json);
+      const templates = body.json?.workflowData?.templates ?? [];
+      const trg = await gw.call("GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
+      const triggerList = Array.isArray(trg?.json) ? trg.json : trg?.json?.triggers ?? trg?.json?.data ?? [];
+      const triggerTypes = triggerList.map((t) => t?.type).filter(Boolean);
+      const actionSchema = await fetchActionSchema((m, p) => gw.call(m, p), args.locationId);
+      if (!actionSchema) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "Could not fetch the action schema, so no check was performed.",
+          "Retry; if it persists the assets endpoint may be unavailable for this location."
+        );
+      }
+      const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+      return ok({
+        workflowId: args.workflowId,
+        name: body.json?.name,
+        status: body.json?.status,
+        steps: templates.length,
+        errorCount: errors.length,
+        errors,
+        headline: `Resolve ${errors.length} Errors`,
+        coverage: {
+          schemaTypes: actionSchema.size,
+          stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
+          stepsNotDescribed: templates.filter((t) => !actionSchema.has(t.type)).length,
+          note: "Steps not described by the marketplace catalog (core native actions) are SKIPPED, not asserted clean. A zero errorCount is not proof the workflow is publishable."
+        }
+      });
+    })
   },
   {
     name: "export_workflow",
