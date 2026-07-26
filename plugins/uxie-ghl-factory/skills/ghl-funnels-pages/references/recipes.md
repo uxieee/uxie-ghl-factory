@@ -27,6 +27,13 @@ this file must first pass both gates in
 > **public URL keeps serving the previous content**. Publishing is a SEPARATE
 > call — recipe 7. See "Draft vs published" below before reporting any page live.
 
+> 🔴 **A funnel built entirely through this API cannot currently be finished.** The
+> funnel document it produces is malformed in some way the builder rejects: the UI
+> detail view hangs on a spinner forever, and `autosave` 422s on the new page — so
+> there is no version to publish. **Build the funnel + first page through the UI, then
+> use these recipes to write content into it.** Full detail and the exact UI click-path
+> in §9 below. Live-confirmed on AU 2026-07-25.
+
 ## 0. Draft vs published — read before reporting a page shipped
 
 `POST /funnels/builder/autosave/{pageId}` returns `201` and writes the **draft**.
@@ -101,6 +108,12 @@ back as `updated_by` on the version). It is **required** — omitting it 422s.
 `→ 201 { "domains": [], "paths": [] }`; the funnel disappears from
 `/funnels/funnel/list`.
 
+⚠️ **`funnel/list` is briefly STALE after a delete.** Immediately after a
+successful `201`, the list still returned the deleted funnel; seconds later it
+was correctly absent. Do **not** conclude the delete failed from one immediate
+read, and above all **do not fire the delete a second time**. Re-read after a
+short pause instead. Live-observed on AU 2026-07-25.
+
 `userId` is **required** (omitting it returns `422 "userId should not be empty"`).
 There is no `DELETE` verb on this resource — `DELETE /funnels/funnel/{id}` and
 `DELETE /funnels/funnel/delete/{id}` both 404. Live-proven 2026-07-19 on the
@@ -132,9 +145,16 @@ uuid v4 (you generate this before calling create-step — the server does not).
 confirm the funnel doc exists with the name you set.
 
 **Known limits:**
+- 🔴 **The funnel this creates cannot be opened in the UI** — the detail view hangs
+  on a spinner indefinitely, while UI-created funnels in the same account open
+  instantly. The call returns `201` and the funnel doc exists, so this looks like
+  success and is not. Combined with the page-save 422 in recipe 2, an
+  API-created funnel cannot be completed. **Create funnels through the UI (§9)**
+  and use these recipes to write into them. Live-confirmed on AU 2026-07-25.
 - `type` is only proven as `"funnel"` — no other value was tested; don't
   invent alternatives (e.g. a `"website"` type).
-- Proven live on GROM Digital AU (funnel `RipeI1dmKTAtdKQSbBVy`).
+- Proven live on GROM Digital AU (funnel `RipeI1dmKTAtdKQSbBVy`) — "proven" here
+  means the document is created, NOT that the result is usable (see above).
 
 ---
 
@@ -170,13 +190,21 @@ step appears in the funnel's `steps[]` array (`{id,name,pages:[pageId],sequence,
   empty in every proven call — its purpose beyond that isn't explored;
   don't invent contents for it.
 - Proven live (page `pWOizhNP5hBqHtVNLgfu`).
-- The freshly created page's *default* section/row/col skeleton was not
-  independently exercised — the proven build path (recipe 3) reads an
-  **existing** page's `pageData` as a structural template and clones it
-  rather than hand-building a section tree from scratch. Treat "build a
-  page's content from nothing but this recipe" as unproven; always start
-  from a real `GET /funnels/builder/page/data?pageId=` response (either the
-  new page's own, or a known-good existing page) and edit that.
+- 🔴 **The page this creates cannot be saved to.** `POST /funnels/builder/autosave/{pageId}`
+  **422s** on it — including when the body is a byte-for-byte echo of the page's
+  own `GET /funnels/builder/page/data?pageId=` response, unmodified. No autosave
+  means no version, and `publish-version` has nothing to target, so **an
+  API-created page can never be published**. Live-confirmed on AU 2026-07-25.
+  Create the step through the UI instead (§9).
+- This CORRECTS the previous guidance here, which said to start from a real
+  `page/data` response "either the new page's own, or a known-good existing
+  page". The new page's own data is exactly the case that fails. If you are
+  writing content, the source page must be a **known-good EXISTING page** —
+  and the target page must be one the UI created.
+- The freshly created page's *default* section/row/col skeleton was never
+  independently exercised, and the 422 above is the likely reason: the
+  skeleton appears to be missing something the save validator requires.
+  Treat "build a page's content from nothing but this recipe" as unproven.
 
 ---
 
@@ -318,6 +346,21 @@ recipe 3) — or fetch any page in the funnel's rendered preview and confirm
 the markup appears in `<head>`/before `</body>`.
 
 **Known limits:**
+- 🔴 **Empty strings are IGNORED, not applied.** Sending `domainId: ""` and
+  `bodyTrackingCode: ""` returns `201` and changes nothing — the previous values
+  are still there on read-back. So this endpoint can SET a field but cannot
+  CLEAR one, and a `201` is not evidence the payload took. Always verify with
+  the fetch GET below. Deleting the funnel was the only removal that worked.
+  Live-confirmed on AU 2026-07-25.
+- Consequence for the payload above: `domainId: ""`, `faviconUrl": ""` and
+  `chatWidgetId: ""` are **inert filler** — they neither set nor clear those
+  fields. In particular this payload does **not** attach a chat widget, and
+  cannot detach one. The funnel doc carries `chatWidgetId` and
+  `isChatWidgetLive`; attach a widget through the funnel's Settings tab in the
+  UI (§9), which is the only proven path.
+- Because empty strings are dropped, you can safely send the full payload
+  without wiping fields you did not mean to touch — but you also cannot rely
+  on it to reset anything.
 - Applies to **every page in the funnel**, not one page — if you only want
   one page affected, use 5b instead.
 - With `isOptimisePageLoad: true` (the default in the proven payload),
@@ -400,3 +443,69 @@ title/description/keywords appear in the served `<head>`.
   does.
 - The autosave step alone does nothing for SEO; skipping step 1 above and
   only doing step 2 leaves `meta` unchanged.
+
+---
+
+## 9. 🔴 API-created funnels are MALFORMED — build through the UI
+
+**All findings in this section live-confirmed on AU 2026-07-25.**
+
+Standing up a funnel purely through recipes 1 + 2 produces a funnel document the
+builder will not work with. Four separate defects compound into one conclusion:
+**the create path is not usable end to end today.**
+
+| # | Defect | Effect |
+|---|---|---|
+| 1 | `POST /funnels/funnel/create` + `create-step` produces a funnel the UI cannot render — the detail view hangs on a spinner indefinitely. UI-created funnels in the same account open instantly. | The funnel is unusable in the app. |
+| 2 | `POST /funnels/builder/autosave/{pageId}` **422s** on the new page, even when the body is an unmodified echo of that page's own `GET /funnels/builder/page/data?pageId=` response. | No draft version is ever created. |
+| 3 | No autosave means no version, and `publish-version` targets a **version**. | **An API-created page can never be published.** |
+| 4 | `POST /funnels/funnel/update-settings` silently ignores empty strings (recipe 5a). | Fields cannot be cleared; `chatWidgetId: ""` never attaches or detaches a widget. |
+
+Defects 1 and 2 are very likely the same root cause: the API-created documents are
+missing something the builder and the save validator both require. What that is has
+**not** been identified — do not guess at it by diffing an API-created page against a
+UI-created one and inventing fields; that is how the wrong conclusion gets shipped.
+Until a committed capture proves the missing piece, use the UI path.
+
+### The UI path, which works end to end
+
+`Sites → Funnels → New funnel → From blank`
+→ funnel renders correctly
+→ `Add new step or import` (give it a name + path)
+→ funnel `Settings` tab → pick **Domain** from the dropdown → pick **Chat widget** → Save
+→ step `Overview` → `Create from blank` → opens `/location/{loc}/page-builder/{pageId}`
+   (an iframe named `funnel-builder`)
+→ Publish.
+
+Once the funnel and its first page exist this way, recipes 3–7 work against them
+normally: read `page/data`, mutate, `autosave`, `publish-version`.
+
+### Chat widgets
+
+- The funnel doc carries **`chatWidgetId`** and **`isChatWidgetLive`**. Funnel Settings
+  has a native **Chat widget** selector backed by those two fields — that is the correct
+  way to put a widget on a funnel.
+- ⚠️ `https://api.gohighlevel.com/message/get_chat_widget/{locationId}` is a **DEMO
+  PREVIEW, not a working widget.** Its panel is pre-populated with placeholder content
+  (an agent called "Jane Doe", canned lines, messages timestamped "20m ago" that were
+  never sent) and **submissions there go nowhere** — no contact is created and no
+  workflow enrolls. To test a widget you need it embedded on a real published page.
+- 🔴 **The widget's `Chat type` must MATCH the agent's channel.** An agent on `Live_Chat`
+  needs a **Live Chat** widget. Chat type is a property of the widget (Sites → Chat
+  Widget), not of the funnel. A mismatch produces **silence with no error anywhere**.
+- ⚠️ **Widget names carry no information.** On AU, "Chat Widget 1" was a `Voice AI`
+  widget and "Chat widget 2" was `SMS / Email chat` — neither was Live Chat. Read the
+  list's **`Chat type` column**, never the name.
+
+### Publishing an empty page does not take
+
+Publishing a page with **no content** via the builder's Publish button left the public
+URL still serving the pre-publish shell (`stcdn.leadconnectorhq.com/_preview/…`, body
+length 0), containing **no chat-widget reference at all** despite the widget being
+attached at funnel level.
+
+UNRESOLVED — either publish silently no-ops on an empty page, or funnel-level widget
+injection requires `isChatWidgetLive`. **Put at least one real element on the page
+before publishing**, and check `isChatWidgetLive` on the funnel doc. Do not report a page
+as live off a Publish click alone; fetch the public URL and confirm non-empty content
+(§0 applies here too).
