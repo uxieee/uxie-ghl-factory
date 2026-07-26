@@ -1114,6 +1114,20 @@ function expandFilter(f, rows) {
 
 export function buildTrigger(t, ctx, wid) {
   const meta = ctx.catalog.trigger(t.type);
+  // 🔴 masterType is not derivable for the marketplace `INTEGRATION_AI` triggers the
+  // rulebook contributes: the assets payload does not carry it, and the only corpus
+  // evidence (`proposal_estimate_update`, `affiliate_new_lead`) covers the INTERNAL half
+  // only. Without this guard the fallback below quietly writes "highlevel", which is a
+  // GUESS on a field that decides whether the trigger ever fires — the exact silent
+  // failure this compiler exists to prevent. Fail closed and make the author state it.
+  if (meta?.masterTypeUnknown && !t.masterType)
+    throw new IRError('TRIGGER_MASTERTYPE',
+      `trigger '${t.type}' is a marketplace (${meta.workflowsTriggerType}) trigger whose masterType `
+      + `is not recorded in GHL's assets catalog and has never been observed in the corpus. `
+      + `The engine will not guess it — a wrong masterType saves cleanly and never fires. `
+      + `Author it explicitly (masterType: "internal" is the only value observed on persisted `
+      + `marketplace triggers; "app" appears in some GHL docs but is NOT corpus-observed), or `
+      + `create the trigger once in the UI and read the value back with the trigger list GET.`);
   const rows = meta?.filterRows ?? [];
   const conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
   return {
@@ -1167,7 +1181,7 @@ export function compile(ir, ctx) {
   // LIVE-CAUGHT 2026-07-21 (GROM AU): `send_internal_notification` (the real slug is
   // `internal_notification`) compiled clean, built, round-tripped, and reported
   // warnings:[] — but the builder rendered a bare box with no action icon and its step
-  // editor would NOT open. The catalog is complete (316 step types), so an unrecognised
+  // editor would NOT open. The catalog is complete (383 step types), so an unrecognised
   // type is an authoring error, not a gap. Silently shipping it produces exactly the
   // failure this engine exists to prevent: a workflow that saves and does nothing.
   //

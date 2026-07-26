@@ -296,9 +296,11 @@ export async function orchestrate(ir, gw, opts = {}) {
   //
   //     Best-effort by design: the fetch returns null on any failure and the build carries
   //     on. It is an ADDITION to the checks above, not a replacement — the marketplace
-  //     catalog covers 240 of the engine's 316 step types and omits the core native ones
+  //     catalog describes 307 of the engine's 383 step types and omits the core native ones
   //     (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, …), so an absent
-  //     type means "not described here", never "clean".
+  //     type means "not described here", never "clean". (The catalog now INGESTS this same
+  //     rulebook — see gen-catalog.mjs — so the 307 it describes all have entries; the
+  //     boundary is unchanged, because ingesting it cannot make it cover what it omits.)
   const actionSchema = await fetchActionSchema(call, loc);
   if (actionSchema) {
     const triggerTypes = (ir.triggers ?? []).map((t) => t.type).filter(Boolean);
