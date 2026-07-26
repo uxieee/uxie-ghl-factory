@@ -22,6 +22,10 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { AUDIT_CAPABILITIES } from '../core/audit-capabilities.mjs';
 import { makeAuditCircuit } from '../core/audit-gateway.mjs';
+// The REAL contract boundary, not a stand-in for it. The definition-hash test below has to
+// scrub exactly the way a shipped response does, so it calls the same `ok()` core/tools.mjs
+// calls; a local copy of the scrub would prove only that the copy agreed with itself.
+import { ok } from '../core/errors.mjs';
 import { TOOLS, makeGatewayFactory, processAuditPacing } from '../core/tools.mjs';
 import {
   AUDIT_CAPABILITY_VERSION,
@@ -1449,6 +1453,91 @@ test('the workflow definition is captured with a canonical hash and honest valid
     triggers: DEFAULT_DEFINITION.triggers.triggers,
     stickyNotes: DEFAULT_DEFINITION.stickyNotes.data,
   }));
+});
+
+// A definition carrying the two things `scrubSecrets` actually rewrites, in the two places a
+// real workflow carries them: a Bearer credential in a webhook header (rewritten in place)
+// and a SECRET_KEYS-named field whose WHOLE SUBTREE is replaced by '<redacted>'. Webhook and
+// custom-code steps are exactly where these live upstream, which is why this is the common
+// case and not a corner one.
+const SECRET_BEARING_DEFINITION = Object.freeze({
+  workflow: {
+    _id: WF,
+    name: 'Runtime WF',
+    status: 'published',
+    version: 7,
+    workflowData: {
+      templates: [
+        { id: 'step-1', type: 'webhook', headers: { Authorization: 'Bearer sk-live-abcdefghijklmnopqrstuvwxyz012345' } },
+        { id: 'step-2', type: 'custom_code', credentials: { value: 'sk_live_do_not_leak', region: 'ap-southeast-2' } },
+      ],
+    },
+  },
+  triggers: { triggers: [{ id: 'trg-1', type: 'contact_created' }] },
+  stickyNotes: { data: [{ id: 'note-1', text: 'note' }], count: 1 },
+});
+
+test('the definition hash a client receives is one it can actually reproduce', async () => {
+  // THE BUG THIS PINS. `canonicalHash` is computed over the definition as GHL served it, but
+  // the whole result then leaves through ok() -> scrubSecrets, which is lossy and NOT
+  // invertible. So a consumer holding the transcript could never reproduce `canonicalHash`
+  // from the bytes it received, on any workflow containing a credential — and that is most
+  // workflows with a webhook or custom-code step. The fix publishes BOTH digests; this test
+  // is what stops a later "simplification" from collapsing them back into one.
+  const { result } = await runScenario({ ...happy(), definition: SECRET_BEARING_DEFINITION });
+  const definition = result.workflowDefinition;
+
+  // The scrub must actually have bitten, or this test proves nothing about either hash.
+  const received = ok(result).data.workflowDefinition;
+  const templates = received.workflow.workflowData.templates;
+  assert.notEqual(templates[0].headers.Authorization, SECRET_BEARING_DEFINITION.workflow.workflowData.templates[0].headers.Authorization,
+    'the Bearer credential must have been rewritten, otherwise this scenario is not exercising the scrub');
+  assert.equal(templates[1].credentials, '<redacted>',
+    'a SECRET_KEYS-named field must lose its whole subtree, otherwise this scenario is not exercising the scrub');
+
+  // THE PROPERTY A CLIENT DEPENDS ON: the scrubbed digest is reproducible from the received
+  // bytes. This is computed the way a consumer would compute it — over what arrived, with no
+  // access to the pre-scrub definition.
+  assert.equal(definition.canonicalHashScrubbed, sha256Canonical({
+    workflow: received.workflow,
+    triggers: received.triggers,
+    stickyNotes: received.stickyNotes,
+  }), 'canonicalHashScrubbed must be reproducible from the bytes the client actually receives');
+
+  // And the pre-scrub digest is NOT, which is the whole reason a second one exists. If these
+  // two ever agree on a secret-bearing definition, either the scrub stopped working or
+  // someone pointed both hashes at the same bytes; both are regressions and both fail here.
+  assert.notEqual(definition.canonicalHash, definition.canonicalHashScrubbed,
+    'the two digests must differ on a secret-bearing definition, or one of them is not doing its job');
+  assert.equal(definition.canonicalHash, sha256Canonical({
+    workflow: SECRET_BEARING_DEFINITION.workflow,
+    triggers: SECRET_BEARING_DEFINITION.triggers.triggers,
+    stickyNotes: SECRET_BEARING_DEFINITION.stickyNotes.data,
+  }), 'canonicalHash must still identify the definition GHL actually served');
+
+  // Which digest covers what, stated rather than left to be inferred from field names: a
+  // client that verifies the wrong one reports a definition mismatch that is really a scrub.
+  assert.deepEqual(definition.hashCoverage, {
+    canonicalHash: 'pre-scrub upstream bytes; NOT reproducible from this response',
+    canonicalHashScrubbed: 'post-scrub bytes; reproducible from this response',
+  });
+});
+
+test('both definition digests are refused together when the definition is incomplete', async () => {
+  // A partial definition hashing to a complete-looking value would bind a receipt to
+  // evidence that was never collected. That rule already governed `canonicalHash`; the
+  // second digest must not become a way around it.
+  const { result } = await runScenario({
+    ...happy(),
+    overrides: [{
+      capabilityId: 'workflow_triggers',
+      nth: 1,
+      response: { status: 500, ok: false, json: {}, failureClass: 'HTTP_500' },
+    }],
+  });
+  assert.equal(result.workflowDefinition.canonicalHash, null);
+  assert.equal(result.workflowDefinition.canonicalHashScrubbed, null,
+    'an incomplete definition must refuse BOTH digests, not just the pre-scrub one');
 });
 
 test('the current definition is never claimed to have applied to historical events', async () => {

@@ -210,9 +210,9 @@ test('tools/call get_workflow_runtime_window returns the stable contract through
 test('tools/call list_workflows_complete reports an unreconciled walk as incomplete, never as an empty success', async () => {
   const ROSTER_KEYS = [
     'appliedQueries', 'boundLocationId', 'capabilityVersion', 'capturedAt', 'complete',
-    'locationBinding', 'pagination', 'rateLimit', 'reportedTotal', 'sourceRoutes',
-    'terminalReason', 'totalHistory', 'truncated', 'uniqueCount', 'uniqueProgress',
-    'warnings', 'workflows',
+    'envelopeShape', 'locationBinding', 'pagination', 'rateLimit', 'reportedTotal',
+    'sourceRoutes', 'terminalReason', 'totalHistory', 'truncated', 'uniqueCount',
+    'uniqueProgress', 'warnings', 'workflows',
   ];
   const clean = auditHarness();
   await withAuditClient(clean.deps, async (client) => {

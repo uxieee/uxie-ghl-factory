@@ -42,10 +42,35 @@ therefore fails here rather than passing against a lenient stub.
 
 ### Roster (`workflow-roster.json`)
 
-- The response envelope is `{ workflows: [...], total: N }`. `omitTotal` on a page drops
-  `total` entirely; a per-page `total` overrides the scenario's `declaredTotal` for that
-  page only (used by `changing-reported-total`, and by `reported-total-is-a-string` to serve
-  a total that is a STRING rather than a number).
+- The response envelope defaults to the **live-observed** `{ rows: [...], count: N }`.
+  Corrected 2026-07-27: this file previously documented `{ workflows: [...], total: N }`, a
+  shape no captured GHL response has ever carried. The real one is
+  `{rows, count, isLocationRateLimited}` with a numeric `count`, per
+  `ghl-internal-api-research/docs/03-endpoints.md:167`, `DISCOVERIES.md:121`, the
+  `openapi.json` entry stamped `x-proof: live-runtime` (2026-07-21), and the shipped reader
+  at `core/tools.mjs:762-763`. Every scenario here agreed with the invented shape, so the one
+  envelope that actually matters was the one nothing tested — and against a real account the
+  rail matched neither half: rows fell to `ROSTER_PAGE_READ_FAILED` and the walk published
+  zero workflows, while the missing total would have left every roster permanently
+  `ROSTER_TOTAL_UNAVAILABLE`.
+- `envelopeKeys` on a page (or on the scenario) selects a different key pair —
+  `legacy-envelope-workflows-total` and `legacy-envelope-data-key` exist to keep the older
+  candidates readable, because dropping a candidate key can only ever turn a readable
+  envelope into an unreadable one and this rail gets no second attempt at a page it refused.
+- `alsoRows` / `alsoTotal` serve a SECOND, literal reading of the same response under a
+  different key. Where the two readings disagree the response has contradicted itself and no
+  reading of it can be defended, so the walk reports `ROSTER_ENVELOPE_CONFLICT` and reads
+  nothing (`envelope-row-keys-disagree`, `envelope-total-keys-disagree`); where they agree it
+  reads normally (`envelope-row-keys-agree`, `envelope-total-keys-agree`). Both directions
+  are pinned: "more than one candidate key present is a conflict" fails closed and therefore
+  looks safe, but would refuse a perfectly readable envelope.
+- `expect.envelopeShape` pins the keys the walk actually READ FROM — not every candidate the
+  reader accepts and not every key present. The two halves are recorded separately, so a page
+  whose rows contradicted themselves but whose total read cleanly reports
+  `{rowsKeys: [], totalKeys: ['count']}`.
+- `omitTotal` on a page drops the total entirely; a per-page `total` overrides the scenario's
+  `declaredTotal` for that page only (used by `changing-reported-total`, and by
+  `reported-total-is-a-string` to serve a total that is a STRING rather than a number).
 - `body` on a page serves a RAW envelope instead, bypassing the `{workflows, total}`
   construction (`unreadable-page-envelope`). Without it, "a 200 this rail cannot read is not
   an empty roster" — the doctrine the whole module is built on — was untestable on the
@@ -67,6 +92,25 @@ therefore fails here rather than passing against a lenient stub.
 - `agent_studio` discovery pages by PAGE NUMBER (1, 2, 3 ...) at the pinned
   `pageSize` of 100, which is the descriptor's declared maximum. `expect.studioPages` pins
   the emitted sequence.
+- The discovery envelope defaults to `{ agents: [...], total: N }`, which is what the
+  pre-existing scenarios were written against — but it is no longer the only shape reachable,
+  and it is not the shape most of these routes actually answer with. Captured 2026-07-27:
+  `/agent-studio/agents-with-folders` answers `{items, total, totalAgents, totalFolders}` and
+  the `/ai-employees` search routes answer `{employees, totalCount, count}`. The row keys were
+  already accepted; **`totalCount` was not**, so an `/ai-employees` surface reporting its own
+  size had that size read as absent. `envelopeKeys` selects a shape per page or per component;
+  `captured-ai-envelopes` serves a different captured shape on each of the three products so
+  no one key family can regress without a named failure.
+- `count` is deliberately NOT an accepted AI total key. On `/ai-employees/employees/search` it
+  is reported alongside `totalCount` carrying the same value on a single-page response, so
+  nothing observed distinguishes "rows on this page" from "rows in the surface" — and a page
+  count read as a surface total is a false terminal.
+- `/voice-ai/agents/simple` remains UNVERIFIED: only a row excerpt was ever captured, never
+  the envelope. Absence reads as "no total", which on a single-shot surface is tolerated
+  rather than fatal.
+- `alsoRows` / `alsoTotal` work as on the roster; `ai-discovery-envelope-conflict` pins that a
+  self-contradictory discovery response yields `AI_DISCOVERY_ENVELOPE_CONFLICT` and an
+  `items: null` component rather than a confidently-short agent list.
 - A discovery page is terminal on a SHORT page. When the response also carries a `total`
   the walk reconciles against it; when it does not, a short page is terminal on its own.
   This is deliberately WEAKER than the roster's rule, and the asymmetry is a contract
