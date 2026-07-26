@@ -259,8 +259,14 @@ imply live correct:
 - **Detail identity.** The bundle assumes a detail body's `_id`/`id` equals the discovery
   row's. If that is wrong for a product, every agent falsely mismatches and that component's
   configuration is dropped.
-- **Launcher.** `launch.mjs` resolves `dist/server.mjs` only; the audit bundle has no
-  launcher yet.
+- ~~**Launcher.** `launch.mjs` resolves `dist/server.mjs` only; the audit bundle has no
+  launcher yet.~~ **CLOSED 2026-07-27.** `launch-audit.mjs` resolves `dist/audit-server.mjs`
+  and nothing else. Two files rather than a flag on one: a flag has to default to something,
+  and a full-by-default launcher hands an operator who mistyped it the entire write registry
+  while they believe they are read-only. It REFUSES to start when no installed build ships an
+  audit bundle rather than downgrading, and `test/launchers.test.mjs` pins that — including
+  the composed rule (newest build that HAS an audit bundle, not "fail because the newest one
+  lacks it") and semver ordering, since `0.9.0` sorts after `0.10.0` as a string.
 
 ## Historical live proof ledger — EXECUTED vs OBSERVED
 

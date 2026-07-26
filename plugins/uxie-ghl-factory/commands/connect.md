@@ -24,15 +24,24 @@ would ever reach the transcript.
 - **Launcher (stable, shared):** `~/.uxie-ghl-internal-mcp/launch.mjs` — a copy of the plugin's
   `mcp-internal/launch.mjs`, so the project config points at a path that survives plugin
   updates (it resolves the newest installed plugin build at run time).
+- **Audit launcher (stable, shared):** `~/.uxie-ghl-internal-mcp/launch-audit.mjs` — the same
+  arrangement for the READ-ONLY audit profile (6 tools, every capability a GET). Two separate
+  files rather than a flag on one: a flag has to default to something, and a full-by-default
+  launcher hands an operator who mistyped it every write tool in the registry while they
+  believe they are read-only. The audit launcher REFUSES to start if no installed build ships
+  `dist/audit-server.mjs`; it never downgrades to the full server.
 - **Registration:** project-scoped via `claude mcp add --scope local`, keyed to this folder.
 
 ## Steps (agent runs these)
 
-1. **Copy the launcher to its stable home** (idempotent — refreshes it each run):
+1. **Copy the launchers to their stable home** (idempotent — refreshes them each run):
    ```bash
    mkdir -p "$HOME/.uxie-ghl-internal-mcp"
    cp "${CLAUDE_PLUGIN_ROOT}/mcp-internal/launch.mjs" "$HOME/.uxie-ghl-internal-mcp/launch.mjs"
+   cp "${CLAUDE_PLUGIN_ROOT}/mcp-internal/launch-audit.mjs" "$HOME/.uxie-ghl-internal-mcp/launch-audit.mjs"
    ```
+   Copy BOTH. A stable home holding only the full launcher is how the audit profile ends up
+   unreachable — the failure this step exists to prevent.
 2. **Capture the token to the project-local file** (leak-safe). Open the Playwright browser
    (SEPARATE Chrome profile — the user's normal GHL login does NOT carry over) to the **AI
    Agents** surface so one capture yields both credentials:
@@ -60,6 +69,17 @@ would ever reach the transcript.
    `--scope local` keeps it private + project-specific (in `~/.claude.json` under this folder).
    The first time Claude Code connects a project server it may show a **workspace-trust dialog**
    — the user accepts it once per folder.
+
+   **For a read-only audit project**, register the audit profile INSTEAD (a different server
+   name, so the two never collide in one folder):
+   ```bash
+   claude mcp add --transport stdio --scope local \
+     -e GHL_TOK_FILE="$(pwd)/.ghl/uxie-ghl-internal-mcp-tok.txt" \
+     uxie-ghl-internal-mcp-audit \
+     -- node "$HOME/.uxie-ghl-internal-mcp/launch-audit.mjs"
+   ```
+   Registering both in one folder defeats the point: read-only-ness is a property of which
+   server the caller reaches, and a folder offering both offers the write tools too.
 4. **Verify:** the server should connect; call `auth_status` (claims only) then one real read
    tool (`list_workflows`) and confirm `ok`. Report a short pass/fail. (A brand-new registration
    may need the user to reload/approve before the tools appear.)
