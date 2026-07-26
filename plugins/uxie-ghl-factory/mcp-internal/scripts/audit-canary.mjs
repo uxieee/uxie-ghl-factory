@@ -204,12 +204,23 @@ export function judgeStep(step, response) {
       return { pass: true, detail: d.complete ? `roster complete: ${d.uniqueCount} reconciled` : `roster incomplete, honestly: ${observed.warnings.join(', ')}`, observed };
     }
     case 'enrollments-and-roster': {
-      observed.enrollments = Array.isArray(d.enrollments) ? d.enrollments.length : null;
+      // `enrollments` is an OBJECT — `{rows, complete, windowScoped, contactFiltered}` — not
+      // an array. The first draft of this judge asserted an array and failed a healthy live
+      // run for it. The shape is deliberate: the walk is always window-scoped, so publishing
+      // a bare array invites a reader to compare its length against the all-time
+      // `enrollmentTotals.total`, which is the one subtraction the collector exists to
+      // prevent. Judge the contract that exists, not the one that seemed likely.
+      observed.enrollments = d.enrollments === null ? null : {
+        rows: Array.isArray(d.enrollments?.rows) ? d.enrollments.rows.length : null,
+        complete: d.enrollments?.complete,
+        windowScoped: d.enrollments?.windowScoped,
+      };
       observed.componentCompleteness = d.componentCompleteness;
-      if (d.componentCompleteness?.enrollments === true && !Array.isArray(d.enrollments)) {
-        return fail('enrollments claimed complete but is not an array', observed);
+      if (d.componentCompleteness?.enrollments === true) {
+        if (d.enrollments === null) return fail('enrollments claimed complete but published nothing', observed);
+        if (!Array.isArray(d.enrollments.rows)) return fail('enrollments claimed complete but carries no row list', observed);
       }
-      return { pass: true, detail: `enrollment walk reported ${observed.enrollments ?? 'null'} rows`, observed };
+      return { pass: true, detail: `enrollment walk reported ${observed.enrollments?.rows ?? 'null'} rows (windowScoped)`, observed };
     }
     case 'ai-bundle': {
       const components = d.components ?? {};

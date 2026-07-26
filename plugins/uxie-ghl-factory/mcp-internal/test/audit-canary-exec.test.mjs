@@ -29,7 +29,7 @@ const healthyWindow = (over = {}) => ok({
   complete: true,
   warnings: [],
   pagination: { logPartitions: { attempted: 1, terminal: 1, streams: 1 } },
-  enrollments: [],
+  enrollments: { rows: [], complete: true, windowScoped: true, contactFiltered: false },
   componentCompleteness: { enrollments: true },
   stepRosters: [],
   ...over,
@@ -187,7 +187,33 @@ test('the honest-incompleteness step fails if the rail quietly succeeded', () =>
   assert.equal(judgeStep(step, correct).pass, true);
 });
 
-test('enrollments claimed complete but not an array fails', () => {
+test('enrollments is judged as the OBJECT it is, not the array it looks like', () => {
+  // REGRESSION, caught by the first live canary run (GROM AU 2026-07-27). This judge
+  // originally asserted `Array.isArray(d.enrollments)` and failed a perfectly healthy run.
+  // The contract publishes `{rows, complete, windowScoped, contactFiltered}` on purpose: the
+  // walk is always window-scoped, so a bare array invites a reader to compare its length
+  // against the ALL-TIME `enrollmentTotals.total` — the one subtraction the collector exists
+  // to prevent. The lesson is the general one: a canary judge that asserts a plausible shape
+  // instead of the documented one burns the run and blames the server.
+  const live = healthyWindow({
+    enrollments: { rows: [{ _id: '01KX00WHXPKCJDR1VSD75M5PR3' }], complete: true, windowScoped: true, contactFiltered: false },
+    componentCompleteness: { enrollments: true },
+  });
+  const verdict = judgeStep(stepById('enrollments-and-roster'), live);
+  assert.equal(verdict.pass, true);
+  assert.equal(verdict.observed.enrollments.rows, 1);
+  assert.equal(verdict.observed.enrollments.windowScoped, true);
+  assert.match(verdict.detail, /windowScoped/);
+
+  // Still caught: complete:true over an object with no row list is a false claim.
+  const noRows = healthyWindow({
+    enrollments: { complete: true, windowScoped: true },
+    componentCompleteness: { enrollments: true },
+  });
+  assert.equal(judgeStep(stepById('enrollments-and-roster'), noRows).pass, false);
+});
+
+test('enrollments claimed complete but published nothing fails', () => {
   const step = stepById('enrollments-and-roster');
   const lying = healthyWindow({ enrollments: null, componentCompleteness: { enrollments: true } });
   assert.equal(judgeStep(step, lying).pass, false);
