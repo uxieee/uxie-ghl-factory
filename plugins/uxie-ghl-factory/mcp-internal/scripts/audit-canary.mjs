@@ -16,7 +16,7 @@
 // plus explicit --location, --workflow, --from and --to. Anything missing aborts before a
 // gateway is constructed. Even then this only ever drives dist/audit-server.mjs, whose every
 // egress is a GET through the read-only wrapper.
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { AUDIT_CAPABILITIES } from '../core/audit-capabilities.mjs';
@@ -88,6 +88,196 @@ export const CANARY_PLAN = Object.freeze([
   'an expired-auth or safety-bound case, to prove incompleteness is reported honestly',
 ]);
 
+// --- the executor ---------------------------------------------------------------
+//
+// The seven planned reads as EXECUTABLE steps. Each names the tool it calls, the arguments it
+// builds from the approved window, and — the part that matters — what would make it a PASS.
+//
+// `expect` is not "did the call return 200". Every one of these tools answers `ok:true` with
+// `complete:false` on a surface it could not read, which is the whole contract, so a canary
+// that only checked `ok` would attest to reads that never happened. Each step states the
+// property it is actually proving and is judged on that.
+//
+// STEP 7 IS NOT A FAILURE OF THE CANARY. It asks for a step id the workflow definition does
+// not contain, which the collector refuses LOCALLY with STEP_ROSTER_UNSEALED and
+// `contacts: null`. Proving the rail reports incompleteness honestly is as much a part of the
+// receipt as proving it can read — a rail that only ever succeeds has not been shown to be
+// capable of saying no.
+export const CANARY_STEPS = Object.freeze([
+  {
+    id: 'registry',
+    tool: null,                       // a tools/list call, not a tool call
+    why: 'prove the published registry before any runtime read',
+    expect: 'tools/list equals AUDIT_TOOL_NAMES exactly, in order',
+  },
+  {
+    id: 'window-small',
+    tool: 'get_workflow_runtime_window',
+    args: (i) => ({ locationId: i.locationId, workflowId: i.workflowId, fromDate: i.toDate - 1000, toDate: i.toDate }),
+    why: 'a closed window small enough to terminate in one partition',
+    expect: 'ok, and pagination.logPartitions.terminal >= 1',
+  },
+  {
+    id: 'window-partitioned',
+    tool: 'get_workflow_runtime_window',
+    args: (i) => ({ locationId: i.locationId, workflowId: i.workflowId, fromDate: i.fromDate, toDate: i.toDate }),
+    why: 'the full approved window — the only step that can exercise a real partition split',
+    expect: 'ok, and the partition walk is a full binary tree (attempted === 2*terminal - streams)',
+  },
+  {
+    id: 'roster',
+    tool: 'list_workflows_complete',
+    args: (i) => ({ locationId: i.locationId }),
+    why: 'a real multi-page roster reconciled against a stable reported total',
+    expect: 'ok, envelopeShape records the live keys, and complete===true reconciles uniqueCount to reportedTotal',
+  },
+  {
+    id: 'enrollments-and-roster',
+    tool: 'get_workflow_runtime_window',
+    args: (i) => ({ locationId: i.locationId, workflowId: i.workflowId, fromDate: i.fromDate, toDate: i.toDate, stepIds: i.stepIds ?? [] }),
+    why: 'the enrollment cursor walk, and a step roster when a step id was approved',
+    expect: 'ok, and enrollments is an array (never null) when the component reports complete',
+  },
+  {
+    id: 'ai-bundle',
+    tool: 'get_ai_configuration_bundle',
+    args: (i) => ({ locationId: i.locationId, ...(i.companyId ? { companyId: i.companyId } : {}) }),
+    why: 'all three AI surfaces, discovery and detail',
+    expect: 'ok, all three components present, and each records the envelope keys it actually read',
+  },
+  {
+    id: 'honest-incompleteness',
+    tool: 'get_workflow_runtime_window',
+    args: (i) => ({
+      locationId: i.locationId, workflowId: i.workflowId, fromDate: i.fromDate, toDate: i.toDate,
+      // A step id no definition contains. Refused locally — no read is issued for it.
+      stepIds: ['canary-unsealed-step-id'],
+    }),
+    why: 'prove incompleteness is REPORTED, not papered over',
+    expect: 'ok:true with complete===false and a STEP_ROSTER_UNSEALED warning; contacts null, never []',
+  },
+]);
+
+const warningCodes = (data) => [...new Set((data?.warnings ?? []).map((w) => w.code))];
+
+// Judges one step's response against the property it exists to prove. Returns
+// {pass, observed, detail} — never throws, because a canary that dies on step 3 must still
+// report steps 1 and 2 rather than losing the run.
+export function judgeStep(step, response) {
+  const fail = (detail, observed = {}) => ({ pass: false, detail, observed });
+  if (!response) return fail('no response captured');
+  if (step.id === 'registry') {
+    const names = response.tools ?? [];
+    const expected = [...AUDIT_TOOL_NAMES];
+    const same = names.length === expected.length && names.every((n, i) => n === expected[i]);
+    return same
+      ? { pass: true, detail: `registry is exactly ${expected.length} tools, in order`, observed: { tools: names } }
+      : fail('published registry does not equal AUDIT_TOOL_NAMES', { tools: names, expected });
+  }
+  if (response.ok !== true) {
+    return fail(`tool returned ok:false (${response.code ?? 'no code'})`, { code: response.code });
+  }
+  const d = response.data ?? {};
+  const observed = { complete: d.complete, warnings: warningCodes(d) };
+  switch (step.id) {
+    case 'window-small':
+    case 'window-partitioned': {
+      const p = d.pagination?.logPartitions ?? {};
+      observed.logPartitions = p;
+      if (!Number.isFinite(p.terminal) || p.terminal < 1) return fail('no terminal log partition was reached', observed);
+      // The invariant the client derives terminality from. Stated here so the receipt proves
+      // the shape rather than merely quoting it.
+      if (Number.isFinite(p.attempted) && Number.isFinite(p.streams)
+        && p.attempted !== (2 * p.terminal) - p.streams) {
+        return fail('partition walk is not a full binary tree', observed);
+      }
+      return { pass: true, detail: `partition walk closed: ${p.terminal} terminal of ${p.attempted} attempted`, observed };
+    }
+    case 'roster': {
+      observed.envelopeShape = d.envelopeShape;
+      observed.uniqueCount = d.uniqueCount;
+      observed.reportedTotal = d.reportedTotal;
+      if (d.workflows === null) return fail('roster published no workflow list', observed);
+      if (d.complete === true && d.uniqueCount !== d.reportedTotal) {
+        return fail('roster claims complete without reconciling its own total', observed);
+      }
+      return { pass: true, detail: d.complete ? `roster complete: ${d.uniqueCount} reconciled` : `roster incomplete, honestly: ${observed.warnings.join(', ')}`, observed };
+    }
+    case 'enrollments-and-roster': {
+      observed.enrollments = Array.isArray(d.enrollments) ? d.enrollments.length : null;
+      observed.componentCompleteness = d.componentCompleteness;
+      if (d.componentCompleteness?.enrollments === true && !Array.isArray(d.enrollments)) {
+        return fail('enrollments claimed complete but is not an array', observed);
+      }
+      return { pass: true, detail: `enrollment walk reported ${observed.enrollments ?? 'null'} rows`, observed };
+    }
+    case 'ai-bundle': {
+      const components = d.components ?? {};
+      observed.components = Object.fromEntries(Object.entries(components)
+        .map(([k, v]) => [k, { applicable: v.applicable, complete: v.complete, envelopeShape: v.envelopeShape }]));
+      const missing = ['conversation_ai', 'voice_ai', 'agent_studio'].filter((k) => !components[k]);
+      if (missing.length) return fail(`component(s) missing entirely: ${missing.join(', ')}`, observed);
+      return { pass: true, detail: 'all three AI components present', observed };
+    }
+    case 'honest-incompleteness': {
+      if (d.complete !== false) return fail('an unsealed step id did not make the window incomplete', observed);
+      if (!observed.warnings.includes('STEP_ROSTER_UNSEALED')) {
+        return fail('incompleteness was reported without naming the unsealed step', observed);
+      }
+      const roster = (d.stepRosters ?? [])[0];
+      observed.contacts = roster ? roster.contacts : undefined;
+      if (roster && roster.contacts !== null) return fail('an unread step roster published [] instead of null', observed);
+      return { pass: true, detail: 'refused locally and said so — contacts null, STEP_ROSTER_UNSEALED raised', observed };
+    }
+    default:
+      return fail(`no judge for step ${step.id}`);
+  }
+}
+
+// Drives the seven steps through an INJECTED caller, so the whole executor is testable with
+// no account, no credential and no network. `call` is
+// `(toolName|null, args) => Promise<response>`; a null tool means tools/list.
+export async function executeCanary(call, input) {
+  const steps = [];
+  for (const step of CANARY_STEPS) {
+    const args = step.tool ? step.args(input) : null;
+    let response = null;
+    let transportError = null;
+    try {
+      response = await call(step.tool, args);
+    } catch (error) {
+      transportError = error?.message ?? String(error);
+    }
+    const verdict = transportError
+      ? { pass: false, detail: `transport failed: ${transportError}`, observed: {} }
+      : judgeStep(step, response);
+    steps.push({ id: step.id, tool: step.tool, why: step.why, expect: step.expect, ...verdict });
+    // NO early exit. A failed step is evidence too, and stopping would hide whether the
+    // failure was local to one surface or general to the rail — the first question anyone
+    // asks about a failed canary.
+  }
+  return steps;
+}
+
+// The receipt. Binds the verdict to the exact artefacts that produced it: a receipt that did
+// not name the bundle it ran could be replayed against a different build, which is the one
+// thing a proof index must never allow.
+export function buildReceipt({ input, steps, hashes, stampedAt }) {
+  const passed = steps.filter((s) => s.pass).length;
+  return {
+    receiptVersion: '1.0.0',
+    verdict: passed === steps.length ? 'pass' : 'partial',
+    stepsPassed: passed,
+    stepsTotal: steps.length,
+    approver: input.approver,
+    account: { locationId: input.locationId, workflowId: input.workflowId },
+    window: { fromDate: input.fromDate, toDate: input.toDate },
+    artefacts: hashes,
+    stampedAt,
+    steps,
+  };
+}
+
 export function report(input) {
   const blockers = liveBlockers(input);
   const hashes = artefactHashes();
@@ -124,13 +314,44 @@ export function report(input) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const input = parseCanaryArgs(process.argv.slice(2), process.env);
   console.log(report(input));
-  // Deliberately does NOT execute the live plan yet. Wiring the executor is the second half
-  // of Task 7 and must not land before a human has approved a specific account and window;
-  // shipping a runnable one now would mean the only thing standing between this repository
-  // and a live account is a flag nobody has reviewed.
-  if (liveBlockers(input).length === 0) {
-    console.log('');
-    console.log('The live executor is intentionally not wired yet. Approve the canary first.');
+  if (liveBlockers(input).length > 0) { process.exitCode = 0; }
+  else {
+    // Every gate is satisfied, so the executor runs. It drives the COMMITTED bundle over
+    // stdio — the same artefact whose hash the receipt binds — rather than importing source,
+    // because a receipt for code that was never packaged proves nothing about what ships.
+    const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+    const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio.js');
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: [AUDIT_BUNDLE],
+      env: { ...process.env },
+      stderr: 'pipe',
+    });
+    const client = new Client({ name: 'audit-canary', version: '1.0.0' }, { capabilities: {} });
+    await client.connect(transport);
+    try {
+      const call = async (tool, args) => {
+        if (tool === null) return { tools: (await client.listTools()).tools.map((t) => t.name) };
+        const result = await client.callTool({ name: tool, arguments: args });
+        return JSON.parse(result.content[0].text);
+      };
+      const steps = await executeCanary(call, input);
+      // Stamped from the wall clock HERE and nowhere deeper: the collectors take their
+      // `capturedAt` from the responses themselves, and a receipt that invented its own
+      // timestamps inside them would let a replay look freshly observed.
+      const receipt = buildReceipt({ input, steps, hashes: artefactHashes(), stampedAt: new Date().toISOString() });
+      console.log('');
+      for (const step of steps) console.log(`  ${step.pass ? 'PASS' : 'FAIL'}  ${step.id} — ${step.detail}`);
+      console.log('');
+      console.log(`verdict: ${receipt.verdict} (${receipt.stepsPassed}/${receipt.stepsTotal})`);
+      const out = resolve(ROOT, `audit-canary-receipt-${input.locationId}.json`);
+      writeFileSync(out, `${JSON.stringify(receipt, null, 2)}\n`);
+      console.log(`receipt: ${out}`);
+      // A partial run is a real outcome, not a crash, but it must not exit 0 — a CI step or a
+      // resumer that only checked the exit code would file a partial canary as a pass.
+      process.exitCode = receipt.verdict === 'pass' ? 0 : 1;
+    } finally {
+      await client.close();
+    }
   }
-  process.exitCode = 0;
 }

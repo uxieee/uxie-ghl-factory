@@ -233,9 +233,27 @@ and an expiry. The absence of an unexpired receipt for a capability applicable t
 machine-enforced and cannot support a Full audit.
 
 The composite completeness contracts are **offline-proven only**. They have never been run
-against a live account. Task 7 is the bounded, read-only live canary that would produce the
-first receipts, and it requires explicit human approval, a freshly captured credential, named
-location and workflow ids, and an approved closed window. Do not start it from the plan alone.
+end-to-end against a live account, and **no receipt exists**. Task 7 is the bounded, read-only
+live canary that would produce the first ones. It requires explicit human approval, a freshly
+captured credential, named location and workflow ids, and an approved closed window. Do not
+start it from the plan alone.
+
+The executor IS now built (`scripts/audit-canary.mjs`, 2026-07-27) — it was a planner that
+refused to run for its first two months, which meant "spend the canary carefully" was advice
+about something nobody could execute. It drives the **committed bundle** over stdio, not the
+source, because a receipt for code that was never packaged proves nothing about what ships.
+
+Running it still requires all four gates (`--live`, `GHL_AUDIT_CANARY_APPROVED=1`, a named
+`--approver`, and an approved closed window); a dry run remains the default and makes no
+network call. Each of the seven steps is judged on the property it exists to prove, never on
+`ok:true` — every one of these tools answers `ok:true` with `complete:false` on a surface it
+could not read, so a canary checking only `ok` would mint a receipt over reads that never
+happened. A run with any failed step is `partial`, never `pass`, and exits non-zero.
+
+Step 7 asks for a step id the definition does not contain and PASSES only if the rail refuses
+it locally with `STEP_ROSTER_UNSEALED` and `contacts: null`. A rail that only ever succeeds
+has not been shown capable of saying no, and that capability is as much a part of the receipt
+as the reads are.
 
 ### Recorded gaps a canary must close
 
