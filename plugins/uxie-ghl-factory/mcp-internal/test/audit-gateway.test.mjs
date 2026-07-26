@@ -2646,28 +2646,68 @@ test('R1: nested {data:{data:[…]}} and arrays-of-arrays are walked', async () 
 // which is the one distinction this whole rail exists to preserve. The bound itself is
 // unchanged; what changed is that reaching it is now recorded and fails closed.
 test('R1/m7: the walk is depth-bounded, and reaching the bound fails closed instead of passing silently', async () => {
-  // Three OBJECT levels (arrays are transparent). `{data:{data:[row]}}` is level 2, so the
-  // real shapes are covered with one spare; anything deeper is not payload this API emits,
-  // and walking it would start matching ids on unrelated nested objects.
-  const atBound = await logsRead(JSON.stringify({ a: { b: [{ locationId: 'LOC-OTHER' }] } }));
-  assert.equal(atBound.result.quarantined, true, 'depth 2 is inside the bound');
-  assert.equal(atBound.result.identity.depthCapped, false, 'nothing was left unlooked-at');
+  // REWRITTEN AGAIN 2026-07-27, when the bound moved 3 -> 32 after the first live canary run.
+  // The previous version hardcoded four-deep literals to trip a bound of three, so it broke
+  // the moment the bound became realistic — and worse, it had baked the OLD justification
+  // into a comment ("anything deeper is not payload this API emits"), which live traffic
+  // disproved: a real 43-step workflow body nests to 15, with genuine identity fields at
+  // depth 11 the old bound never looked at.
+  //
+  // So the payloads are now built RELATIVE to the bound rather than written out. The claim
+  // under test has nothing to do with any particular number: whatever the bound is, reaching
+  // it must be recorded and must fail closed, and stopping short of it must not.
+  const nest = (levels, leaf) => {
+    let node = leaf;
+    for (let i = 0; i < levels; i += 1) node = { nested: node };
+    return node;
+  };
 
-  const beyond = await logsRead(JSON.stringify({ a: { b: { c: { d: { locationId: 'OTHER' } } } } }));
+  // Comfortably INSIDE the bound: the conflict is found, and nothing is left unlooked-at.
+  // This is also the case the raise strengthened — at a bound of 3 this payload was capped
+  // and the wrong location was never noticed at all.
+  const inside = await logsRead(JSON.stringify(nest(6, [{ locationId: 'LOC-OTHER' }])));
+  assert.equal(inside.result.quarantined, true, 'a conflict inside the bound must still quarantine');
+  assert.equal(inside.result.identity.depthCapped, false, 'nothing was left unlooked-at');
+
+  // BEYOND any sane bound. Fails closed: recorded, not ok, and explicitly NOT a conflict —
+  // the walker never read the field, so it has proven nothing about it. "I could not check"
+  // and "I checked and it is wrong" stay distinct, which is the whole point of the flag.
+  const beyond = await logsRead(JSON.stringify(nest(64, { locationId: 'OTHER' })));
   assert.equal(beyond.result.identity.depthCapped, true, 'the walk must SAY it stopped early');
   assert.equal(beyond.result.ok, false, 'an incomplete check is not a successful read');
   assert.equal(beyond.result.failureClass, 'IDENTITY_DEPTH_CAPPED');
-  // It is still not a CONFLICT: the walker never read the field, so it has proven nothing
-  // about it. "I could not check" and "I checked and it is wrong" stay distinct.
   assert.equal(beyond.result.quarantined, false);
   assert.deepEqual(beyond.result.identity.conflicts, []);
 
-  // A response that simply ENDS at the bound with nothing underneath is not capped, so the
-  // flag tracks payload actually left unvisited rather than merely reaching depth 3.
-  const exact = await logsRead(JSON.stringify({ a: { b: { c: { locationId: LOC } } } }));
+  // A response that simply ENDS inside the bound is not capped: the flag tracks payload
+  // actually left unvisited, never merely reaching a depth.
+  const exact = await logsRead(JSON.stringify(nest(4, { locationId: LOC })));
   assert.equal(exact.result.identity.depthCapped, false);
   assert.equal(exact.result.ok, true);
 });
+
+test('the identity bound is deep enough for a real GHL workflow body', async () => {
+  // The regression this pins is the one that cost the first canary run: the bound must clear
+  // the nesting of an actual payload, not just the nesting of an envelope. Measured on GROM
+  // AU 2026-07-27 across 20 workflow bodies — deepest was 15, identity fields at depth 11.
+  // 16 here is that observed reality; if someone lowers the bound back toward envelope depth,
+  // this fails with the reason attached rather than surfacing as a mystery incomplete audit.
+  const deepButReal = await logsRead(JSON.stringify(nestForTest(15, { locationId: LOC })));
+  assert.equal(deepButReal.result.identity.depthCapped, false,
+    'a body nested as deeply as a real 43-step workflow must be fully inspected');
+  assert.equal(deepButReal.result.ok, true);
+
+  // And the identity at that depth is genuinely CHECKED, not merely walked past.
+  const deepConflict = await logsRead(JSON.stringify(nestForTest(15, { locationId: 'LOC-OTHER' })));
+  assert.equal(deepConflict.result.quarantined, true,
+    'an identity at real-payload depth must still be compared, or the walk is theatre');
+});
+
+function nestForTest(levels, leaf) {
+  let node = leaf;
+  for (let i = 0; i < levels; i += 1) node = { nested: node };
+  return node;
+}
 
 // REWRITTEN (C1). This test used to assert only that `inspectionCapped` was RECORDED, and
 // the previous pass deliberately let a capped inspection still return `ok:true`. That was

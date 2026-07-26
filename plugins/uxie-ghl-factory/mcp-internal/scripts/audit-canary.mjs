@@ -28,6 +28,11 @@ const ROOT = resolve(HERE, '..');
 export const AUDIT_BUNDLE = resolve(ROOT, 'dist/audit-server.mjs');
 export const AUDIT_MANIFEST = resolve(ROOT, 'audit-capability-manifest.json');
 
+// Per-call ceiling for a live step. Generous by design — the audit rail paces itself and a
+// full window legitimately runs for minutes; this exists to stop a hung read, not to bound
+// honest work.
+const CALL_TIMEOUT_MS = 15 * 60 * 1000;
+
 export function parseCanaryArgs(argv = [], env = {}) {
   const flags = { live: false };
   for (let index = 0; index < argv.length; index += 1) {
@@ -343,7 +348,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     try {
       const call = async (tool, args) => {
         if (tool === null) return { tools: (await client.listTools()).tools.map((t) => t.name) };
-        const result = await client.callTool({ name: tool, arguments: args });
+        // A REAL audit read is minutes, not seconds, and the SDK's default request timeout is
+        // seconds. The first run after the identity bound was fixed failed three steps with
+        // `MCP error -32001: Request timed out` — which reads exactly like a server fault and
+        // is not one: the reads had finally started doing the work the old bound aborted, and
+        // every one of them is human-paced by the shared limiter on purpose. Timing a
+        // deliberately throttled walk out on a default is measuring the harness, not the rail.
+        const result = await client.callTool({ name: tool, arguments: args }, undefined, { timeout: CALL_TIMEOUT_MS });
         return JSON.parse(result.content[0].text);
       };
       const steps = await executeCanary(call, input);

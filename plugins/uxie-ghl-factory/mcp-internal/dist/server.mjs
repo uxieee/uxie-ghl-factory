@@ -32570,7 +32570,7 @@ var checkableFieldsFor = (capability) => {
   checkableFieldsCache.set(capability, fields);
   return fields;
 };
-var MAX_IDENTITY_DEPTH = 3;
+var MAX_IDENTITY_DEPTH = 32;
 var MAX_IDENTITY_RECORDS = 500;
 var ID_WRAPPER_KEYS = ["$oid", "_id", "id"];
 var WRAPPED = /* @__PURE__ */ Symbol("unreadable");
