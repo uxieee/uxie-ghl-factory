@@ -58,9 +58,21 @@ test('ai_splitter: an UNNAMED node has nothing to derive a description from and 
     (e) => e.code === 'REQUIRED_FIELD' && /description/.test(e.message));
 });
 
-test('end: omitted sleepEnabled is defaulted to the no-op value', () => {
+// The assets-endpoint schema records this checkbox's default as `true` and the committed
+// capture agrees, so defaulting to true reproduces what the BUILDER produces for an
+// untouched node. The schedule halves come along with it.
+test('end: omitted sleepEnabled defaults to the attested platform default, with its schedule', () => {
   const a = attrsOf({ type: 'conversationai_end', name: 'End', attributes: {} });
+  assert.equal(a.sleepEnabled, true);
+  assert.equal(a.sleepDuration, 1);
+  assert.equal(a.sleepUnit, 'hours');
+});
+
+test('end: authoring sleepEnabled:false opts out and pulls in no schedule', () => {
+  const a = attrsOf({ type: 'conversationai_end', name: 'End', attributes: { sleepEnabled: false } });
   assert.equal(a.sleepEnabled, false);
+  assert.equal(a.sleepDuration, undefined);
+  assert.equal(a.sleepUnit, undefined);
 });
 
 // --- the three that cannot be defaulted ------------------------------------------
@@ -80,18 +92,32 @@ test('transfer_bot without assignedEmployeeId is a hard error', () => {
 
 test('services_booking without services is a hard error naming the precondition', () => {
   assert.throws(
-    () => build({ type: 'conversationai_services_booking', name: 'Book service', attributes: { description: 'd' } }),
+    () => build({ type: 'conversationai_services_booking', name: 'Book service', attributes: {} }),
     (e) => e.code === 'REQUIRED_FIELD' && /commerce service/.test(e.message),
     'the error must say the account needs a configured commerce service');
 });
 
 // --- the two attested-clean types -------------------------------------------------
 
-test('objective and continue require nothing — they are attested clean', () => {
-  assert.deepEqual(requiredKeysFor('conversationai_objective'), []);
+test('continue requires nothing; objective requires only its objective', () => {
   assert.deepEqual(requiredKeysFor('conversationai_continue'), []);
+  assert.deepEqual(requiredKeysFor('conversationai_objective'), ['objective']);
   assert.equal(attrsOf({ type: 'conversationai_objective', name: 'Ask', attributes: { objective: 'find out' } }).objective, 'find out');
   assert.deepEqual(attrsOf({ type: 'conversationai_continue', name: 'Continue', attributes: {} }).__customInputs__, {});
+  throws({ type: 'conversationai_objective', name: 'Ask', attributes: {} }, 'REQUIRED_FIELD');
+});
+
+// Required per the schema, but never seen as a live builder error because the probe always
+// supplied it. Absence of an observed error is not evidence of optionality.
+test('the message nodes require their message', () => {
+  throws({ type: 'conversationai_ai_message', name: 'Ask', attributes: {} }, 'REQUIRED_FIELD');
+  throws({ type: 'conversationai_custom_message', name: 'Say', attributes: {} }, 'REQUIRED_FIELD');
+});
+
+// `continue` has an optional `instructions`; the committed capture was {} only because
+// nothing was authored, which is not evidence the key does not exist.
+test('continue accepts its optional instructions field', () => {
+  assert.equal(attrsOf({ type: 'conversationai_continue', name: 'C', attributes: { instructions: 'keep going' } }).instructions, 'keep going');
 });
 
 // --- conversationai_end's corrected key names -------------------------------------
@@ -106,11 +132,13 @@ test('end: the WRONG documented keys are now rejected instead of silently persis
     'the error must point at the real key names');
 });
 
-test('end: sleepEnabled:true without its schedule halves is rejected', () => {
-  throws({ type: 'conversationai_end', name: 'End', attributes: { sleepEnabled: true } }, 'REQUIRED_FIELD');
-  const a = attrsOf({ type: 'conversationai_end', name: 'End',
-    attributes: { message: '', sleepEnabled: true, sleepDuration: 1, sleepUnit: 'hours' } });
+test('end: sleepEnabled:true fills a missing schedule, but an EMPTY one is still rejected', () => {
+  const a = attrsOf({ type: 'conversationai_end', name: 'End', attributes: { sleepEnabled: true } });
+  assert.equal(a.sleepDuration, 1);
   assert.equal(a.sleepUnit, 'hours');
+  // An explicitly blank unit is not something a default can rescue — reactivation would
+  // persist as an incomplete schedule.
+  throws({ type: 'conversationai_end', name: 'End', attributes: { sleepEnabled: true, sleepUnit: '' } }, 'REQUIRED_FIELD');
 });
 
 // --- the overlay itself ------------------------------------------------------------
@@ -135,7 +163,7 @@ test('corrections reach the compiler through loadCatalog, not just the raw JSON'
   assert.deepEqual(c.step('conversationai_end').attrKeys,
     ['message', 'sleepEnabled', 'sleepDuration', 'sleepUnit', 'type', '__customInputs__']);
   assert.equal(c.step('conversationai_end').confidence, 'verified-live');
-  assert.deepEqual(c.step('conversationai_continue').attrKeys, ['type', '__customInputs__']);
+  assert.deepEqual(c.step('conversationai_continue').attrKeys, ['instructions', 'type', '__customInputs__']);
   assert.ok(!c.step('conversationai_transfer_bot').attrKeys.includes('prompt'));
   // the attested set is surfaced separately from the generated advisory one
   assert.deepEqual(c.step('conversationai_book_appointment').attestedRequiredFields, ['calendarId']);
@@ -175,5 +203,5 @@ test('isSupplied applies presence vs non-empty per field', () => {
   assert.equal(isSupplied('conversationai_ai_message', 'waitForReply', { waitForReply: false }), true);
   assert.equal(isSupplied('conversationai_ai_message', 'waitForReply', {}), false);
   assert.equal(isSupplied('conversationai_ai_splitter', 'description', { description: '  ' }), false);
-  assert.equal(isSupplied('conversationai_services_booking', 'services', { services: [] }), false);
+  assert.equal(isSupplied('conversationai_services_booking', 'conversationai_services', { conversationai_services: [] }), false);
 });

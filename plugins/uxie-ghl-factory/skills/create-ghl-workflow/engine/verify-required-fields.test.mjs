@@ -40,8 +40,9 @@ test('all three unresolvable ids are flagged when absent', () => {
   assert.deepEqual(missingRequiredFields({ type: 'conversationai_book_appointment', attributes: {} }), ['calendarId']);
   assert.deepEqual(missingRequiredFields({ type: 'conversationai_transfer_bot', attributes: {} }), ['assignedEmployeeId']);
   assert.deepEqual(
-    missingRequiredFields({ type: 'conversationai_services_booking', attributes: { services: [], description: 'd' } }),
-    ['services']);
+    missingRequiredFields({ type: 'conversationai_services_booking',
+      attributes: { conversationai_services: [], conversationai_booking_description: 'd' } }),
+    ['conversationai_services']);
 });
 
 // --- through orchestrate -------------------------------------------------------------
