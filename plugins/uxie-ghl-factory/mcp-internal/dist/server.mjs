@@ -33281,11 +33281,6 @@ function expandFilter(f, rows) {
 }
 function buildTrigger(t, ctx, wid) {
   const meta3 = ctx.catalog.trigger(t.type);
-  if (meta3?.masterTypeUnknown && !t.masterType)
-    throw new IRError(
-      "TRIGGER_MASTERTYPE",
-      `trigger '${t.type}' is a marketplace (${meta3.workflowsTriggerType}) trigger whose masterType is not recorded in GHL's assets catalog and has never been observed in the corpus. The engine will not guess it \u2014 a wrong masterType saves cleanly and never fires. Author it explicitly (masterType: "internal" is the only value observed on persisted marketplace triggers; "app" appears in some GHL docs but is NOT corpus-observed), or create the trigger once in the UI and read the value back with the trigger list GET.`
-    );
   const rows = meta3?.filterRows ?? [];
   const conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
   return {
@@ -33297,6 +33292,10 @@ function buildTrigger(t, ctx, wid) {
     masterType: t.masterType ?? meta3?.masterType ?? "highlevel",
     name: t.name,
     actions: [{ workflow_id: wid, type: "add_to_workflow" }],
+    // Marketplace triggers carry their schema flavour on the stored document. The builder
+    // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
+    // it wherever the catalog records one — and never invent it where it does not.
+    ...meta3?.workflowsTriggerType ? { workflowsTriggerType: meta3.workflowsTriggerType } : {},
     active: t.active !== false,
     triggersChanged: true,
     location_id: ctx.loc,
@@ -63218,7 +63217,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "base_id",
@@ -63246,7 +63245,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "base_id",
@@ -63274,7 +63273,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "scope",
@@ -63361,7 +63360,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "actor_id",
@@ -63470,7 +63469,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "task_id",
@@ -63579,7 +63578,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63607,7 +63606,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63652,7 +63651,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63685,7 +63684,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63707,7 +63706,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63740,7 +63739,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63768,7 +63767,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63810,7 +63809,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63843,7 +63842,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "workspace_id",
@@ -63943,7 +63942,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "account_id",
@@ -64304,7 +64303,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "account_id",
@@ -64476,7 +64475,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "account_id",
@@ -64694,7 +64693,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "account_id",
@@ -64916,7 +64915,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "account_id",
@@ -65118,7 +65117,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "account_id",
@@ -65315,7 +65314,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "account_id",
@@ -65343,7 +65342,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "organization",
@@ -65540,7 +65539,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "scope",
@@ -65732,7 +65731,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "scope",
@@ -65819,7 +65818,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "scope",
@@ -65936,7 +65935,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -66052,7 +66051,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -66153,7 +66152,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -66279,7 +66278,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -66370,7 +66369,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -66496,7 +66495,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -67538,7 +67537,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "name",
@@ -67572,7 +67571,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "name",
@@ -68078,7 +68077,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "robot_id",
@@ -68242,7 +68241,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "payload.bookingId",
@@ -68280,7 +68279,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "payload.bookingId",
@@ -68318,7 +68317,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "payload.bookingId",
@@ -68356,7 +68355,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "payload.bookingId",
@@ -68394,7 +68393,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "payload.id",
@@ -68432,7 +68431,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "payload.uid",
@@ -68460,7 +68459,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       customVars: [
         {
           reference: "submissionUri",
@@ -68511,7 +68510,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -68633,7 +68632,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "triggers_on",
@@ -68665,7 +68664,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "form_id",
@@ -68688,7 +68687,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68702,7 +68701,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68716,7 +68715,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68730,7 +68729,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68744,7 +68743,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68758,7 +68757,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68772,7 +68771,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68786,7 +68785,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68800,7 +68799,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a2140dd9bed284864655dfd",
       source: "rulebook"
     },
@@ -68814,7 +68813,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -68828,7 +68827,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "id",
@@ -68976,7 +68975,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -68990,7 +68989,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "object_type",
@@ -69095,7 +69094,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "object_type",
@@ -69200,7 +69199,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "object_type",
@@ -69223,7 +69222,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "object_type",
@@ -69246,7 +69245,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -69260,7 +69259,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -69274,7 +69273,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -69288,7 +69287,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "engagement_type",
@@ -69333,7 +69332,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -69347,7 +69346,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -69361,7 +69360,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -69375,7 +69374,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69f1b2e06464b3b0a26f3dc7",
       source: "rulebook"
     },
@@ -69389,7 +69388,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "cloud_site",
@@ -69432,7 +69431,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "cloud_site",
@@ -69475,7 +69474,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "metric_id",
@@ -69497,7 +69496,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "6a1536028ae7584c78676fc7",
       source: "rulebook"
     },
@@ -69511,7 +69510,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "list_id",
@@ -69534,7 +69533,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "segment_id",
@@ -69557,7 +69556,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69593,7 +69592,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69634,7 +69633,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69675,7 +69674,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69735,7 +69734,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69828,7 +69827,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69874,7 +69873,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69946,7 +69945,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -69992,7 +69991,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -70028,7 +70027,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -70069,7 +70068,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -70162,7 +70161,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "team_id",
@@ -70222,7 +70221,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "698c308ec23081117adcf283",
       source: "rulebook"
     },
@@ -70236,7 +70235,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "698c308ec23081117adcf283",
       source: "rulebook"
     },
@@ -70250,7 +70249,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "board_id",
@@ -70278,7 +70277,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69819e2824e81598bae16296",
       source: "rulebook"
     },
@@ -70292,7 +70291,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "board_id",
@@ -70320,7 +70319,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "board_id",
@@ -70342,7 +70341,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "board_id",
@@ -70364,7 +70363,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "board_id",
@@ -70386,7 +70385,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       appId: "69819e2824e81598bae16296",
       source: "rulebook"
     },
@@ -70400,7 +70399,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaConditions: [
         {
           reference: "id",
@@ -70428,7 +70427,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "project_id",
@@ -70464,7 +70463,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "project_id",
@@ -70892,7 +70891,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "id",
@@ -70968,7 +70967,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "database_id",
@@ -70990,7 +70989,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "id",
@@ -71012,7 +71011,7 @@ Rules to Follow:
       premium: true,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "database_id",
@@ -71663,7 +71662,7 @@ Rules to Follow:
       premium: false,
       beta: false,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "survey_id",
@@ -72062,7 +72061,7 @@ Rules to Follow:
       premium: true,
       beta: true,
       workflowsTriggerType: "INTEGRATION_AI",
-      masterTypeUnknown: true,
+      masterType: "internal",
       schemaFilters: [
         {
           field: "form_id",

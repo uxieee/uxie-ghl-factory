@@ -9,7 +9,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCatalog } from './catalog.mjs';
 import { buildTrigger } from './compiler.mjs';
-import { IRError } from './ir.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
 import CATALOG from './catalog.data.json' with { type: 'json' };
 
@@ -43,27 +42,30 @@ test('rulebook filter schemas are never exposed as expandable filterRows', () =>
   }
 });
 
-test('masterType is recorded where observed and refused where not', () => {
+// SETTLED LIVE 2026-07-27: a Calendly trigger added through the builder UI showed the
+// builder POSTing masterType "internal" for an INTEGRATION_AI trigger, alongside
+// workflowsTriggerType. GHL persists both. The "app" value in older notes was never observed.
+test('every rulebook trigger carries masterType "internal", both flavours', () => {
   for (const t of fromRulebook(triggers)) {
-    if (t.workflowsTriggerType === 'INTERNAL') {
-      assert.equal(t.masterType, 'internal', t.type);
-    } else {
-      assert.equal(t.masterType, undefined, `${t.type} invented a masterType`);
-      assert.equal(t.masterTypeUnknown, true, t.type);
-    }
+    assert.equal(t.masterType, 'internal', t.type);
+    assert.equal(t.masterTypeUnknown, undefined, `${t.type} still marked unknown`);
+    assert.ok(t.workflowsTriggerType, `${t.type} lost its schema flavour`);
   }
 });
 
-test('buildTrigger refuses to guess an unknown masterType, and accepts an authored one', () => {
-  const unknown = fromRulebook(triggers).find((t) => t.masterTypeUnknown);
-  assert.ok(unknown, 'no masterType-unknown trigger to test against');
-  assert.throws(
-    () => buildTrigger({ type: unknown.type, name: 'x', filters: [] }, ctx(), 'WID'),
-    (e) => e instanceof IRError && e.code === 'TRIGGER_MASTERTYPE');
-  assert.equal(buildTrigger({ type: unknown.type, name: 'x', filters: [], masterType: 'internal' }, ctx(), 'WID').masterType, 'internal');
+test('buildTrigger emits the captured marketplace envelope', () => {
+  const built = buildTrigger(
+    { type: 'lc_calendly_new_routing_form_submission', name: 'New Routing Form Submission', filters: [] },
+    ctx(), 'WID');
+  assert.equal(built.masterType, 'internal');
+  assert.equal(built.workflowsTriggerType, 'INTEGRATION_AI');
+  assert.deepEqual(built.conditions, []);
+  assert.deepEqual(built.actions, [{ workflow_id: 'WID', type: 'add_to_workflow' }]);
 
-  const internal = fromRulebook(triggers).find((t) => t.masterType === 'internal');
-  assert.equal(buildTrigger({ type: internal.type, name: 'x', filters: [] }, ctx(), 'WID').masterType, 'internal');
+  // OG triggers have no workflowsTriggerType recorded, and none is invented for them.
+  const og = buildTrigger({ type: 'contact_tag', name: 'T', filters: [] }, ctx(), 'WID');
+  assert.equal(og.masterType, 'highlevel');
+  assert.equal('workflowsTriggerType' in og, false);
 });
 
 test('the rulebook did not overwrite an attested shape', () => {
