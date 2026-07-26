@@ -1465,7 +1465,7 @@ test('each rail carries its own capabilities to its own host with its own creden
     'the agency token-id must never ride a backend read');
 
   assert.equal(aiCall.rail, 'ai', 'a services capability must travel the ai-rail gateway');
-  assert.equal(aiCall.url, `${SERVICES}/ai-employees/agents?locationId=${LOC}`);
+  assert.equal(aiCall.url, `${SERVICES}/ai-employees/employees/search?locationId=${LOC}`);
   assert.equal(aiCall.init.headers.authorization, `Bearer ${jwt}`);
   assert.equal(aiCall.init.headers['token-id'], tokenId, 'the ai rail must send token-id');
 });
@@ -1631,7 +1631,7 @@ test('every capability emits exactly the host, path, and query its descriptor de
     workflow_enroll_stats: [`${BACKEND}/workflows/status/enroll-stats`, [`locationId=${LOC}`, `workflowId=${WF}`]],
     voice_ai_agent_discovery: [`${SERVICES}/voice-ai/agents/simple`, [`locationId=${LOC}`]],
     voice_ai_agent_detail: [`${SERVICES}/voice-ai/agents/agent-1`, [`locationId=${LOC}`]],
-    conversation_ai_agent_discovery: [`${SERVICES}/ai-employees/agents`, [`locationId=${LOC}`]],
+    conversation_ai_agent_discovery: [`${SERVICES}/ai-employees/employees/search`, [`locationId=${LOC}`]],
     conversation_ai_agent_detail: [`${SERVICES}/ai-employees/employees/agent-1`, [`locationId=${LOC}`]],
     agent_studio_agent_discovery: [`${SERVICES}/agent-studio/agents/agents-with-folders`, [
       `agencyId=${COMPANY}`, 'groupBy=foldersFirst', `locationId=${LOC}`, 'page=1', 'pageSize=100',

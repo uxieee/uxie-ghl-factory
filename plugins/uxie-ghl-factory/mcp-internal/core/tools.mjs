@@ -1101,7 +1101,10 @@ export const TOOLS = [
       maxPages: z.number().int().min(1).max(1000).default(100),
     }),
     capabilities: [
-      { method: 'GET', path: '/ai-employees/agents' },
+      // CORRECTED 2026-07-27 from live traffic: `/ai-employees/agents` 404s ("Cannot GET",
+      // i.e. no such route), so this component failed every run. The live discovery route is
+      // the sibling of the detail route below. See core/audit-capabilities.mjs for the probe.
+      { method: 'GET', path: '/ai-employees/employees/search' },
       { method: 'GET', path: '/ai-employees/employees/{agentId}' },
       // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
       // list_account_entities reads: a different capability with a different receipt.

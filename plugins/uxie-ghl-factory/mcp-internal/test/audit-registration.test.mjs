@@ -59,7 +59,9 @@ const DEFAULT_BODIES = Object.freeze({
     workflowData: { templates: [{ id: 'step-1' }] },
   },
   [`/workflow/${LOC}/trigger`]: { triggers: [] },
-  [`/workflow/${LOC}/list`]: { workflows: [], total: 0 },
+  // The LIVE envelope, captured on GROM AU 2026-07-27: `{rows, count, isLocationRateLimited}`.
+  // This used to be `{workflows, total}`, a shape GHL has never returned.
+  [`/workflow/${LOC}/list`]: { rows: [], count: 0, isLocationRateLimited: false },
   '/workflows/sticky-notes-all': { data: [], count: 0 },
   '/workflows/logs/v2': { logs: [] },
   '/workflows/status/search/count-per-step': { counts: [] },
@@ -67,9 +69,13 @@ const DEFAULT_BODIES = Object.freeze({
   '/workflows/status/search/details-by-step': { totalCount: 0, rows: [] },
   '/workflows/status/search/enroll-stats-cache': [{ workflowId: WF, total: 0, finished: 0 }],
   '/workflows/status/enroll-stats': { workflowId: WF, total: 0, finished: 0 },
-  '/ai-employees/agents': { agents: [] },
-  '/voice-ai/agents/simple': { agents: [] },
-  '/agent-studio/agents/agents-with-folders': { agents: [] },
+  '/ai-employees/employees/search': { employees: [], totalCount: 0 },
+  // Also the live shapes (GROM AU 2026-07-27). `/voice-ai/agents/simple` answers a BARE
+  // ARRAY with no envelope and no total at all — which is legal here because the surface is
+  // single-shot, so a short page is terminal on its own. `/agent-studio/…/agents-with-folders`
+  // answers `{items, folders, total, totalAgents, totalFolders, page, pageSize, hasMore}`.
+  '/voice-ai/agents/simple': [],
+  '/agent-studio/agents/agents-with-folders': { items: [], folders: [], total: 0, totalAgents: 0, totalFolders: 0 },
 });
 
 function auditHarness({ overrides = {} } = {}) {

@@ -415,7 +415,7 @@
       "host": "services",
       "authRail": "ai",
       "method": "GET",
-      "normalizedPath": "/ai-employees/agents",
+      "normalizedPath": "/ai-employees/employees/search",
       "pathBindings": {},
       "queryBindings": {},
       "requiredQueryKeys": [
@@ -558,5 +558,5 @@
       "sealedBy": "agent_studio_agent_discovery"
     }
   ],
-  "manifestHash": "sha256:5f41aaae210dc32573c8b569a0b04032436c5f10b99c1cb9ff29bf4d271f2407"
+  "manifestHash": "sha256:a61f27940a0981083fed57308bec127bd4caa95a467f9750b8931ce64a055dd1"
 }
