@@ -3,6 +3,7 @@
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, OPP_SHAPES } from './opp-shapes.mjs';
+import { enforceRequiredFields } from './required-fields.mjs';
 
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
@@ -28,7 +29,11 @@ function attributesFor(node, ctx) {
 function normalizeAttrs(node, attrs, ctx) {
   const meta = ctx?.catalog?.step(node.type);
   if (!meta) return attrs;
-  const out = { ...attrs };
+  // Fill defaultable required fields and hard-fail the rest BEFORE the key check, so a
+  // node that is merely missing a default does not first trip ATTR_KEY on the injected
+  // key. A missing required field is what makes the builder show "Resolve N Errors" on a
+  // workflow this engine reported as a clean pass.
+  const out = { ...enforceRequiredFields(node, attrs) };
   if (meta.usesCustomInputs && !('__customInputs__' in out)) out.__customInputs__ = {};
   if (Array.isArray(meta.attrKeys) && meta.attrKeys.includes('type') && !('type' in out)) {
     // internal_notification's attributes.type is the CHANNEL, not the step type —
@@ -753,7 +758,11 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // flow-builder-captures/conv-ai-node-templates.json exactly (2026-07-14). Tails
     // hang off `onBooked` / `onNotBooked` scopes (both optional).
     if (n.type === 'conversationai_book_appointment') {
-      const attrs = n.attributes ?? {};
+      // Container types build their attributes inline and never reach normalizeAttrs, so
+      // the required-field check has to be invoked here too. Without it `calendarId`
+      // compiled to `undefined` and the builder rendered "Select Calendar is a required
+      // field" while the engine reported a clean pass.
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const container = {
         id, type: 'conversationai_book_appointment', name: n.name ?? 'Book appointment',
@@ -789,7 +798,10 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // conditionType:"user-defined" with empty meta. Each branch is a separate
     // type:"transition" node; routing is driven by description + branch name (fields stay {}).
     if (n.type === 'conversationai_ai_splitter') {
-      const attrs = n.attributes ?? {};
+      // Same bypass as book_appointment above — enforce here, not in normalizeAttrs.
+      // `description` is what the LLM routes on; it used to default to '' and render the
+      // node with a red badge.
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const authorBranches = n.branches ?? [];
       const noneId = ctx.idGen();
       const branchIds = authorBranches.map(() => ctx.idGen());
