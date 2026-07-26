@@ -7,7 +7,7 @@ import { checkOppFieldShape, STANDARD_OPP_FIELDS, OPP_SHAPES } from './opp-shape
 function attributesFor(node, ctx) {
   if (node.kind === 'wait') return waitAttributes(node);
   if (node.type === 'email') return emailAttributes(node, ctx);
-  if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {});
+  if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {}, node.ref);
   if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {});
   if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
   if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {}, ctx);
@@ -86,7 +86,40 @@ function oppField(filterField, value, dataType, valueFieldType) {
   if (dataType !== undefined) f.dataType = dataType;   // absence is legal; never inject a dialect
   return f;
 }
+// create_opportunity's author keys, mirroring UPDATE_OPP_AUTHOR_KEYS below. Without this
+// guard the generic checkAttrKeys pass is skipped wholesale for this type (it validates
+// against the EMITTED keys, none of which an author writes here), so a typo — or the
+// natural mistake of writing the GHL-side spellings `pipeline_id` / `pipeline_stage_id` —
+// dropped SILENTLY and produced an opportunity with no pipeline and no stage. It built
+// clean, verified clean, and the builder showed no error. Live-diagnosed 2026-07-25 on AU.
+const CREATE_OPP_AUTHOR_KEYS = new Set([
+  'pipelineId', 'stageId', 'status', 'name', 'source', 'value',
+  'pipeline', 'stage',    // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+]);
+const CREATE_OPP_ALIASES = {
+  pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_stage_id: 'stageId',
+  pipeline_id: 'pipelineId', monetaryValue: 'value',
+};
 function createOpportunityAttributes(a, ref, ctx) {
+  const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError('UNKNOWN_ATTR',
+      `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(', ')}]${
+        bad.some((k) => CREATE_OPP_ALIASES[k])
+          ? ` — did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(', ')}?`
+          : ''
+      }. Author keys: ${[...CREATE_OPP_AUTHOR_KEYS].join(', ')}. NOTE the asymmetry — you author `
+      + `'stageId', which compiles to the filterField 'pipelineStageId'. An ignored key compiles `
+      + `to a step that saves, round-trips clean, and creates an opportunity with no pipeline.`);
+  // GHL's own create-opportunity validator requires BOTH pipeline and stage. A stage
+  // without a pipeline renders as a DISABLED node in the builder (live-confirmed
+  // 2026-07-25): the stage picker cannot resolve its options without a pipeline to
+  // scope them to.
+  if (a.stageId != null && a.pipelineId == null)
+    throw new IRError('OPP_STAGE_NO_PIPELINE',
+      `create_opportunity '${ref}' sets stageId without pipelineId. GHL scopes the stage `
+      + `picker to a pipeline, so a stage-only step renders DISABLED in the builder and `
+      + `never runs. Always author pipelineId alongside stageId.`);
   const f = [];
   if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
   if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
@@ -183,6 +216,22 @@ function updateOpportunityAttributes(a, ref, ctx) {
       `update_opportunity '${ref}' has nothing to update — it would compile to ` +
       `__customInputFields__:[] and no-op at runtime while round-tripping clean. Author either ` +
       `attributes.updates:[{field,value}] or the name path attributes:{pipeline,stage,status,...}.`);
+  // A stage write REQUIRES its pipeline, on either authoring path. GHL scopes the stage
+  // picker to a pipeline, so a stage-only step renders as a DISABLED node in the builder
+  // and never runs (live-confirmed 2026-07-25 on AU: a move-stage step authored with
+  // stageId alone came back "Duplicate opportunity / Disabled"). The pipeline entry must
+  // also come FIRST in __customInputFields__ so the stage resolves against it.
+  const idx = (ff) => f.findIndex((x) => x.filterField === ff);
+  const stageAt = idx('pipelineStageId');
+  if (stageAt !== -1) {
+    const pipeAt = idx('pipelineId');
+    if (pipeAt === -1)
+      throw new IRError('OPP_STAGE_NO_PIPELINE',
+        `update_opportunity '${ref}' sets a pipeline stage without a pipeline. GHL scopes the `
+        + `stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and `
+        + `never runs. Author pipelineId alongside stageId (or add a pipelineId entry to updates[]).`);
+    if (pipeAt > stageAt) f.unshift(f.splice(pipeAt, 1)[0]);   // pipeline must precede stage
+  }
   return { allowBackward: a.allowBackward ?? false, type: 'internal_update_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
 
@@ -300,9 +349,29 @@ function internalNotificationAttributes(a, ctx) {
 
 // custom_webhook (outbound HTTP) — live-verified shape. body.rawData is a JSON STRING;
 // headers/parameters are arrays of {key,value}; authorization is a {type,data} union.
-function webhookAttributes(a) {
+// `event` classifies the outbound webhook and DRIVES THE PANEL: the builder renders
+// METHOD, CONTENT-TYPE and RAW BODY only once EVENT resolves to a known value. An
+// unrecognised value (e.g. the plausible-looking 'workflow') leaves the EVENT dropdown
+// blank and those three controls never appear, so the step can carry neither a method
+// nor a body — while round-tripping clean. Live-confirmed 2026-07-25 on AU. 'CUSTOM' is
+// the only value attested in the corpus or the reference.
+const WEBHOOK_EVENTS = new Set(['CUSTOM']);
+const WEBHOOK_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+function webhookAttributes(a, ref) {
+  const ev = a.event ?? 'CUSTOM';
+  if (!WEBHOOK_EVENTS.has(ev))
+    throw new IRError('WEBHOOK_EVENT',
+      `custom_webhook '${ref ?? '?'}' has event '${ev}'. Only ${[...WEBHOOK_EVENTS].join(', ')} is `
+      + `attested. An unknown event leaves the builder's EVENT dropdown blank and METHOD, `
+      + `CONTENT-TYPE and RAW BODY never render, so the step saves with no method and no body.`);
+  const method = a.method ?? 'POST';
+  if (!WEBHOOK_METHODS.has(String(method).toUpperCase()))
+    throw new IRError('WEBHOOK_METHOD',
+      `custom_webhook '${ref ?? '?'}' has method '${method}'. Expected one of ${[...WEBHOOK_METHODS].join(', ')}.`);
+  if (!a.url)
+    throw new IRError('WEBHOOK_URL', `custom_webhook '${ref ?? '?'}' has no url — the validator requires one.`);
   return {
-    event: a.event ?? 'CUSTOM',
+    event: ev,
     method: a.method ?? 'POST',
     url: a.url ?? '',
     body: a.body ?? { contentType: 'application/json', rawData: a.rawData ?? '{}', keyValueData: [] },
@@ -780,6 +849,19 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // find_opportunity — multipath container with PRE-DEFINED Found/Not-Found branches
     // (live-verified). Same transition-step mechanics as the multipath wait.
     if (n.type === 'find_opportunity' && (n.onFound || n.onNotFound)) {
+      // Filters are authored at NODE level as find.filters — NOT as
+      // attributes.__customInputFields__ (the EMITTED shape). That key is on the engine's
+      // accepted list, so the generic ATTR_KEY guard stays silent, and this handler never
+      // reads it: the finder compiled with ZERO filters and matched an arbitrary
+      // opportunity. Combined with sorting:'latest', a contact holding two cards resolved
+      // at random. Built clean, verified clean, no builder error. Live-diagnosed
+      // 2026-07-25 on AU.
+      if (n.attributes?.__customInputFields__ !== undefined)
+        throw new IRError('FIND_FILTERS_MISPLACED',
+          `find_opportunity '${n.ref ?? n.name}' authors attributes.__customInputFields__, which this `
+          + `step IGNORES — that is the emitted shape, not the author shape. Move it to the node-level `
+          + `find.filters: [{ field: 'pipeline_id', operator: 'eq', value: '<pipelineId>' }]. Left as `
+          + `authored, the finder compiles with NO filters and matches an arbitrary opportunity.`);
       const t1 = ctx.idGen(), t2 = ctx.idGen();
       const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? 'eq', secondValue: f.value }));
       const container = {
