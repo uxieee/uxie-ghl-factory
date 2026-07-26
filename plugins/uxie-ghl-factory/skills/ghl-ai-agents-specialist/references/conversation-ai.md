@@ -203,10 +203,26 @@ engine's catalog (`node scripts/query-catalog-cli.mjs conversationai`):
 | Custom message | `conversationai_custom_message` | ✅ full (verbatim send) |
 | Book appointment | `conversationai_book_appointment` | ✅ multi-path (`onBooked`/`onNotBooked`; `calendarId`) |
 | AI splitter | `conversationai_ai_splitter` | ✅ multi-path (`branches[]` + "No condition met" fallback via `default`) |
-| End conversation | `conversationai_end` | ⚑ recon-fields (`customMessage`, `reactivate`, `duration`) |
-| Continue conversation | `conversationai_continue` | ⚑ recon-fields (`prompt`) |
-| Transfer bot | `conversationai_transfer_bot` | ✅ (`assignedEmployeeId`, `prompt`) |
-| Services booking | `conversationai_services_booking` | ⚑ recon-fields (`services[]`, `description`; needs a configured commerce service) |
+| End conversation | `conversationai_end` | ✅ full (`message`, `sleepEnabled`**\***, `sleepDuration`, `sleepUnit`) |
+| Continue conversation | `conversationai_continue` | ✅ full (`instructions`, optional — nothing required) |
+| Transfer bot | `conversationai_transfer_bot` | ✅ (`assignedEmployeeId`**\*** only — there is NO `prompt`) |
+| Services booking | `conversationai_services_booking` | ⚑ (`conversationai_services`**\***, `conversationai_booking_description`; needs a configured commerce service) |
+
+**\*** = **required by the builder.** Omit one and the node renders with a red error badge
+and the flow cannot be published, while a build pipeline can still report success. The full
+required set is `waitForReply` (ai_message, custom_message — presence, `false` is accepted),
+`objective`, `message`, `description` (ai_splitter), `calendarId`, `assignedEmployeeId`,
+`sleepEnabled`, and services_booking's two. The `create-ghl-workflow` engine defaults the
+defaultable ones and hard-errors the rest, so authoring through it cannot produce this state.
+
+🔴 **Three key names above were WRONG until 2026-07-27** and are corrected here from committed
+captures: `conversationai_end` was documented as `customMessage`/`reactivate`/`duration` — all
+three names are wrong, and authoring `reactivate` persisted as an unknown key while the
+actually-required `sleepEnabled` stayed unset. `transfer_bot.prompt` and `continue.prompt` were
+recon reads of the panel and never persisted. `services_booking`'s keys came from UI labels;
+the real ones are confirmed by the options endpoint, which returns the list under exactly
+`conversationai_services`. Treat any ⚑ row as having possibly-wrong key NAMES until a committed
+capture proves otherwise.
 
 The two multi-path nodes emit `cat:"multi-path"`, `convertToMultipath:true`, `transitions[]`, and
 a separate `type:"transition"` node per branch (mirrors `find_opportunity`). ⚑ = field structure
