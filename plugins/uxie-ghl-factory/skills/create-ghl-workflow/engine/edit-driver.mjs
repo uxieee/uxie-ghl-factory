@@ -143,7 +143,53 @@ export function normalizeDiff(d) {
 
 // Apply one op to templates. ctx (catalog + idGen) is needed to compile new steps;
 // idGen mints new branch/step ids for addBranch.
+// The required argument keys per op. Without this, a wrong key was not caught at the op
+// layer at all: `{op:'appendStep', node:{...}}` — `node` being the obvious guess for what
+// a step is called — sailed through the tool's passthrough schema and died deep inside
+// compileSubgraph as `Cannot read properties of undefined (reading 'kind')`, which names
+// neither the op nor the key. Cost real time live on AU 2026-07-25.
+const OP_REQUIRED_ARGS = {
+  appendStep: ['step'],
+  insertAfter: ['step', 'afterId'],
+  insertBefore: ['step', 'beforeId'],
+  appendToBranch: ['step', 'branchEntryId'],
+  deleteStep: ['stepId'],
+  modifyStep: ['stepId'],
+  setStepDisabled: ['stepId'],
+  disableStepsByType: ['type'],
+  moveStep: ['stepId', 'afterId'],
+  addBranch: ['containerId'],
+  deleteContainer: ['containerId'],
+  repairParentKeys: [],
+};
+
+// Keys people reach for that mean something else here. `node` is by far the common one:
+// the IR calls these things nodes everywhere EXCEPT the edit ops, which call them steps.
+const OP_ARG_ALIASES = {
+  node: 'step', newStep: 'step', action: 'step',
+  id: 'stepId', targetId: 'stepId', afterStepId: 'afterId', beforeStepId: 'beforeId',
+  branchId: 'branchEntryId', container: 'containerId',
+};
+
+export function checkOpShape(op) {
+  const required = OP_REQUIRED_ARGS[op?.op];
+  if (!required) return;   // unknown ops fall through to the dispatch default
+  const missing = required.filter((k) => op[k] === undefined);
+  if (!missing.length) return;
+  const suggestions = missing
+    .map((want) => {
+      const wrong = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === want);
+      return wrong ? `you passed '${wrong}' — this op takes '${want}'` : null;
+    })
+    .filter(Boolean);
+  throw new Error(
+    `edit op '${op.op}' is missing required argument(s) [${missing.join(', ')}]`
+    + (suggestions.length ? ` — ${suggestions.join('; ')}` : '')
+    + `. '${op.op}' takes: ${required.join(', ')}.`);
+}
+
 export function applyOp(templates, op, { ctx, idGen }) {
+  checkOpShape(op);
   switch (op.op) {
     // The three add ops each take EITHER a linear step or a container subgraph; the
     // compile decides which, so callers write the same op either way.

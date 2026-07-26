@@ -1898,6 +1898,30 @@ export const TOOLS = [
           'Pass one HTTP method token without whitespace or header/path content.',
         );
       }
+
+      // DOUBLE-ENCODING GUARD. The gateway serializes every body with JSON.stringify, and
+      // `body` here is z.unknown() — so a caller that hands over an already-serialized JSON
+      // STRING (the natural thing to do when hand-writing an escape-hatch payload) got it
+      // stringified a second time. The wire carried "{\"locationId\":...}" — a JSON string
+      // whose contents are JSON — and upstream answered
+      //   Unexpected token '"', ""{\"locati"... is not valid JSON
+      // Reproduced on three separate payloads; it blocked every non-GET escape-hatch call.
+      // Normalize BEFORE the confirm gate so the preview shows what will actually be sent.
+      let body = args.body;
+      if (typeof body === 'string') {
+        try {
+          body = JSON.parse(body);
+        } catch {
+          return fail(
+            CODES.VALIDATION_FAILED,
+            'raw_request body was a string that is not valid JSON',
+            'Pass body as an object — the gateway serializes it for you. A pre-serialized '
+            + 'JSON string is accepted and parsed back, but a non-JSON string has no valid '
+            + 'encoding on these endpoints, which all take JSON.',
+          );
+        }
+      }
+
       if (method !== 'GET' && args.confirm !== true) {
         return withFailureData(
           fail(
@@ -1905,7 +1929,7 @@ export const TOOLS = [
             'Raw write preview is ready; no gateway call was sent.',
             'Review data.preview, then repeat the same request with confirm:true to send it.',
           ),
-          { preview: { method, path: args.path, ...(args.body === undefined ? {} : { body: args.body }) } },
+          { preview: { method, path: args.path, ...(body === undefined ? {} : { body }) } },
         );
       }
 
@@ -1930,7 +1954,7 @@ export const TOOLS = [
         },
       };
       const writeCall = await safeGatewayCall(
-        () => gw.call(method, args.path, args.body, callOpts),
+        () => gw.call(method, args.path, body, callOpts),
       );
       if (writeCall.threw) {
         partialProgress.write.ambiguous = true;
