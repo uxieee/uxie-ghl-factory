@@ -166,12 +166,67 @@ test('update_opportunity builds fields from resolved pipelineId/stageId', () => 
 test('update_opportunity still honours an explicit updates[] (canonical shape unchanged)', () => {
   const t = templatesOf([{
     ref: 'u', kind: 'action', type: 'update_opportunity', name: 'U', assocGuaranteed: true,
-    attributes: { allowBackward: true, updates: [{ field: 'pipelineStageId', value: 'SID' }] },
+    attributes: { allowBackward: true, updates: [
+      { field: 'pipelineId', value: 'PID' }, { field: 'pipelineStageId', value: 'SID' },
+    ] },
   }]);
   const f = t[0].attributes.__customInputFields__;
-  assert.equal(f.length, 1);
-  assert.equal(f[0].filterField, 'pipelineStageId');
-  assert.equal(f[0].value, 'SID');
+  assert.equal(f.length, 2);
+  assert.equal(f[0].filterField, 'pipelineId');      // pipeline MUST precede stage
+  assert.equal(f[1].filterField, 'pipelineStageId');
+  assert.equal(f[1].value, 'SID');
+});
+
+// A stage write without its pipeline renders as a DISABLED node in the builder — GHL
+// scopes the stage picker to a pipeline, so the step never runs. Live-confirmed
+// 2026-07-25 on AU ("Duplicate opportunity / Disabled" with only a Pipeline Stage field).
+test('update_opportunity rejects a stage without its pipeline, on both authoring paths', () => {
+  throws([{ ref: 'u', kind: 'action', type: 'update_opportunity', name: 'U', assocGuaranteed: true,
+    attributes: { stageId: 'SID' } }], 'OPP_STAGE_NO_PIPELINE');
+  throws([{ ref: 'u', kind: 'action', type: 'update_opportunity', name: 'U', assocGuaranteed: true,
+    attributes: { updates: [{ field: 'pipelineStageId', value: 'SID' }] } }], 'OPP_STAGE_NO_PIPELINE');
+});
+
+test('update_opportunity reorders a trailing pipeline entry ahead of the stage', () => {
+  const t = templatesOf([{
+    ref: 'u', kind: 'action', type: 'update_opportunity', name: 'U', assocGuaranteed: true,
+    attributes: { updates: [
+      { field: 'pipelineStageId', value: 'SID' }, { field: 'pipelineId', value: 'PID' },
+    ] },
+  }]);
+  const f = t[0].attributes.__customInputFields__;
+  assert.equal(f[0].filterField, 'pipelineId');
+  assert.equal(f[1].filterField, 'pipelineStageId');
+});
+
+test('create_opportunity rejects the GHL-side key spellings instead of dropping them', () => {
+  throws([{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'C',
+    attributes: { pipeline_id: 'PID', pipeline_stage_id: 'SID', name: 'x' } }], 'UNKNOWN_ATTR');
+});
+
+test('create_opportunity rejects a stage without its pipeline', () => {
+  throws([{ ref: 'c', kind: 'action', type: 'create_opportunity', name: 'C',
+    attributes: { stageId: 'SID', name: 'x' } }], 'OPP_STAGE_NO_PIPELINE');
+});
+
+// attributes.__customInputFields__ is the EMITTED shape; find_opportunity reads
+// node-level find.filters and silently ignored it, compiling a filter-less finder.
+test('find_opportunity rejects filters authored in the emitted shape', () => {
+  throws([{ ref: 'f', kind: 'action', type: 'find_opportunity', name: 'F',
+    attributes: { __customInputFields__: [{ filterField: 'pipeline_id', value: 'PID' }] },
+    onFound: [], onNotFound: [] }], 'FIND_FILTERS_MISPLACED');
+});
+
+// An unknown `event` leaves the builder's EVENT dropdown blank, so METHOD, CONTENT-TYPE
+// and RAW BODY never render and the step saves with no method and no body.
+test('custom_webhook rejects an unattested event value', () => {
+  throws([{ ref: 'w', kind: 'action', type: 'custom_webhook', name: 'W',
+    attributes: { event: 'workflow', method: 'GET', url: 'https://e.invalid/s' } }], 'WEBHOOK_EVENT');
+});
+
+test('custom_webhook requires a url', () => {
+  throws([{ ref: 'w', kind: 'action', type: 'custom_webhook', name: 'W',
+    attributes: { event: 'CUSTOM', method: 'GET' } }], 'WEBHOOK_URL');
 });
 
 test('update_opportunity with nothing to update is rejected, never emitted empty', () => {
@@ -184,11 +239,12 @@ test('update_opportunity with nothing to update is rejected, never emitted empty
 // can't fail on it — but an unresolved-stage move that regresses is the single most
 // common live symptom. The default must at least be explicit and documented.
 test('update_opportunity allowBackward defaults to false and is honoured when set', () => {
+  const upd = [{ field: 'pipelineId', value: 'PID' }, { field: 'pipelineStageId', value: 'SID' }];
   const off = templatesOf([{ ref: 'u', kind: 'action', type: 'update_opportunity', name: 'U', assocGuaranteed: true,
-    attributes: { updates: [{ field: 'pipelineStageId', value: 'SID' }] } }]);
+    attributes: { updates: upd } }]);
   assert.equal(off[0].attributes.allowBackward, false);
   const on = templatesOf([{ ref: 'u', kind: 'action', type: 'update_opportunity', name: 'U', assocGuaranteed: true,
-    attributes: { allowBackward: true, updates: [{ field: 'pipelineStageId', value: 'SID' }] } }]);
+    attributes: { allowBackward: true, updates: upd } }]);
   assert.equal(on[0].attributes.allowBackward, true);
 });
 
