@@ -69,6 +69,50 @@ Contact field-changed (fires when a custom field changes — e.g. a field-trigge
 
 Casing trap: root `workflowId` is camelCase; `location_id`/`company_id`/`workflow_id` are snake_case. For other trigger/action `type` strings, harvest a real trigger (`GET /workflow/{LOC}/trigger?workflowId={someWid}`) or the catalog `GET /workflows-marketplace/location/{LOC}/assets?workflowTypes=default,contacts`.
 
+### The trigger `_id` registration trap — build fresh, never PUT-in-place
+
+> **A `contact_tag` / `pipeline_stage_updated` trigger that SAVES with correct config,
+> is published + active, but produces 0 organic enrolments is a SUBSCRIPTION problem, not
+> a config problem — and repairing it with an in-place PUT does NOT fix it.**
+> Verified live 2026-07-18 across both trigger classes, via API and via the builder UI.
+
+GHL's live trigger-bucket subscription is keyed to the trigger's server-side **`_id`**, not
+to its config. When you build the trigger and then mutate it **in place** — an in-place
+`PUT /workflow/{LOC}/trigger/{tid}`, or an unpublish→republish cycle — the trigger **reuses
+the same `_id`** and is never (re)subscribed into the live bucket. The config reads back
+correct and the workflow is active, but nothing is listening: real tag-adds / stage-moves
+enrol nobody, indefinitely. On the *same* account, appointment / payment triggers built the
+same way fire in ~1.5s (control), so it is not the account, the JWT, or the publish path.
+
+Ruled out during the field trace: **not** the condition operator (that's the cosmetic caveat
+below); **not** `isTriggerBucketMigrated` (that flag read `true` on both a dead trigger and a
+live one — it does not discriminate).
+
+**Fix — mint a NEW `_id`.** Delete the stale trigger (releasing its `_id`) and add a fresh
+one so a new `_id` registers, then activate. Both paths mint a new `_id`:
+- API: `DELETE /workflow/{LOC}/trigger/{tid}` then a fresh `POST /workflow/{LOC}/trigger`
+  (per §3) — **not** an in-place PUT to the existing trigger id.
+- UI: remove the trigger in the builder and re-add it.
+
+> ⚠️ This makes the engine's `modifyTrigger` op suspect for `contact_tag` /
+> `pipeline_stage_updated`: `engine/edit-driver.mjs` → `planTriggerOps` emits
+> `modifyTrigger` as a `PUT /workflow/{loc}/trigger/{tid}` that **re-seats the same `id`/`_id`**
+> (`body: { ...t, ...merged, id: tid, _id: t._id ?? tid }`). By this finding that PUT leaves
+> the trigger inert on these two classes. Prefer **`deleteTrigger` + `addTrigger`** (a
+> delete+add-fresh pair) to change a tag/stage trigger's filters, rather than `modifyTrigger`.
+> Documented here rather than patched in the engine — confirm with a drive-test before
+> changing the `modifyTrigger` code path.
+
+**Cosmetic caveat (separate from the firing bug):** stage / `pipeline_stage_updated`
+conditions use operator **`==`** in the builder. An engine that emits **`eq`** instead
+renders the condition **blank** in the builder UI. This is a display defect only — an `eq`
+condition is *not* why a trigger fails to fire; the `_id` subscription is. (The compiler's
+`defaultOp` already returns `==` for number/date/select rows — see `engine/compiler.mjs`.)
+
+**Config-correct is NOT proof of firing.** Only a real tag-add / stage-move that produces an
+enrolment whose `addedSource.source == "trigger"` proves a trigger is live. Always drive-test
+(see §4) before calling a trigger done.
+
 ## 4. Verify
 
 `GET /workflow/{LOC}/{WID}?includeScheduledPauseInfo=true` and `GET /workflow/{LOC}/trigger?workflowId={WID}`. Confirm the step's key set matches the harvested template and the trigger condition persisted.
