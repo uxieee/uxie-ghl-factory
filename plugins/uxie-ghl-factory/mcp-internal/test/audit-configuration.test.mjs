@@ -65,6 +65,11 @@ const CAPTURED_AT = '2026-07-24T00:00:00.000Z';
 // branched on. Anything either composite emits must be one of these.
 
 const ROSTER_WARNING_CODES = Object.freeze([
+  // Added 2026-07-27 with the envelope-reader settlement: one 200 carrying two contradictory
+  // readings of itself. Distinct from ROSTER_PAGE_READ_FAILED ("no key I know") because an
+  // auditor acts on them differently — that one is a rail that has fallen behind the API,
+  // this one is an upstream response that disagrees with itself.
+  'ROSTER_ENVELOPE_CONFLICT',
   'ROSTER_DUPLICATE_ID_CONFLICT',
   'ROSTER_TOTAL_CHANGED',
   'ROSTER_TOTAL_UNAVAILABLE',
@@ -89,6 +94,9 @@ const ROSTER_WARNING_CODES = Object.freeze([
 const AI_WARNING_CODES = Object.freeze([
   'AI_DISCOVERY_READ_FAILED',
   'AI_DISCOVERY_UNREADABLE',
+  // The AI twin of ROSTER_ENVELOPE_CONFLICT, added with the same settlement and separate from
+  // AI_DISCOVERY_UNREADABLE for the same reason.
+  'AI_DISCOVERY_ENVELOPE_CONFLICT',
   'AI_DISCOVERY_ROW_MALFORMED',
   'AI_DISCOVERY_ROW_ID_MISSING',
   // Added by adversarial review: discovery silently collapsed two rows sharing an id, so a
@@ -126,9 +134,9 @@ const WARNING_KEYS = Object.freeze(['code', 'component', 'detail', 'detailSample
 // falsy = "nothing was cut") nor a private scratch field leaked into a published artifact.
 const ROSTER_RESULT_KEYS = Object.freeze([
   'appliedQueries', 'boundLocationId', 'capabilityVersion', 'capturedAt', 'complete',
-  'locationBinding', 'pagination', 'rateLimit', 'reportedTotal', 'sourceRoutes',
-  'terminalReason', 'totalHistory', 'truncated', 'uniqueCount', 'uniqueProgress',
-  'warnings', 'workflows',
+  'envelopeShape', 'locationBinding', 'pagination', 'rateLimit', 'reportedTotal',
+  'sourceRoutes', 'terminalReason', 'totalHistory', 'truncated', 'uniqueCount',
+  'uniqueProgress', 'warnings', 'workflows',
 ]);
 
 const BUNDLE_RESULT_KEYS = Object.freeze([
@@ -152,8 +160,8 @@ const BUNDLE_RESULT_KEYS = Object.freeze([
 // closes is invisible from any other field — a walk that latched 500 and finished with 150 rows
 // and a walk that was never told anything are otherwise the same artifact.
 const COMPONENT_KEYS = Object.freeze([
-  'applicable', 'complete', 'detailDenominator', 'detailsRead', 'errors', 'items', 'pages',
-  'sourceRoutes', 'totalHistory',
+  'applicable', 'complete', 'detailDenominator', 'detailsRead', 'envelopeShape', 'errors',
+  'items', 'pages', 'sourceRoutes', 'totalHistory',
 ]);
 
 // --- fixtures -------------------------------------------------------------------
@@ -337,19 +345,34 @@ function makeRosterGateway(spec, { locationId = LOC } = {}) {
         if (page.meta) error.meta = page.meta;
         throw error;
       }
-      // `body` serves a RAW envelope, bypassing the `{workflows, total}` construction below.
-      // It exists so an unreadable 200 is reachable on the roster as it already was on the AI
-      // gateway: without it, `rowsOf(...) === null` could only ever be a hypothesis, and
-      // relaxing it to `rowsOf(...) ?? []` — which turns "I could not read this" into "there
-      // was nothing", the exact doctrine this module is built on — survived the whole suite.
+      // `body` serves a RAW envelope, bypassing the envelope construction below. It exists so
+      // an unreadable 200 is reachable on the roster as it already was on the AI gateway:
+      // without it, `readRows(...).rows === null` could only ever be a hypothesis, and
+      // relaxing it to `readRows(...).rows ?? []` — which turns "I could not read this" into
+      // "there was nothing", the exact doctrine this module is built on — survived the whole
+      // suite.
       if (Object.hasOwn(page, 'body')) {
         return respond(capability, typedBindings, query, page.body, page.gateway ?? {});
       }
       const rows = expandRows(page);
+      // THE DEFAULT IS THE LIVE-OBSERVED ENVELOPE: `{rows, count}`, per
+      // ghl-internal-api-research/docs/03-endpoints.md:167 and the openapi.json entry stamped
+      // x-proof "live-runtime" (2026-07-21). It used to be `{workflows, total}`, which no
+      // captured response has ever carried — so every scenario in this file agreed with a
+      // shape the rail would never meet, and the one envelope that actually matters was the
+      // one nothing tested. Defaulting here rather than per-scenario is deliberate: it puts
+      // all 21 pre-existing scenarios onto the real shape at once. `envelopeKeys` overrides
+      // it for the scenarios that exist to prove the legacy keys still read.
+      const envelope = page.envelopeKeys ?? spec.envelopeKeys ?? { rowsKey: 'rows', totalKey: 'count' };
+      const json = { [envelope.rowsKey]: rows };
       // `total` is an INDEPENDENT fixture input: the scenario's declaredTotal, or an
       // explicit per-page override. It is never computed from `rows`.
-      const json = { workflows: rows };
-      if (!page.omitTotal) json.total = page.total ?? spec.declaredTotal;
+      if (!page.omitTotal) json[envelope.totalKey] = page.total ?? spec.declaredTotal;
+      // A SECOND, CONTRADICTORY reading of the same response, served under a different key —
+      // both literals, never derived, so the contradiction is the fixture's claim and not an
+      // artifact of how the harness expanded something.
+      if (page.alsoRows) json[page.alsoRows.key] = page.alsoRows.rows;
+      if (page.alsoTotal) json[page.alsoTotal.key] = page.alsoTotal.value;
       return respond(capability, typedBindings, query, json, page.gateway ?? {});
     },
   };
@@ -390,7 +413,14 @@ function makeAiGateway(spec, { locationId = LOC } = {}) {
     assert.ok(page, `${component} discovery requested page ${index + 1} but the fixture declares only ${pages.length}`);
     if (Object.hasOwn(page, 'body')) return { json: page.body, override: page.gateway ?? {} };
     const rows = expandRows(page);
-    const json = { agents: rows };
+    // `agents`/`total` remains the DEFAULT because it is what the pre-existing scenarios were
+    // written against, but it is no longer the only shape reachable. The captured AI
+    // envelopes differ per route and were outside the old key lists in one half or the other:
+    // `/agent-studio/agents-with-folders` answers `{items, total, totalAgents, totalFolders}`
+    // (captured 2026-07-11) and the `/ai-employees` search routes answer
+    // `{employees, totalCount, count}`. `envelopeKeys` on a page selects one.
+    const envelope = page.envelopeKeys ?? declared.envelopeKeys ?? { rowsKey: 'agents', totalKey: 'total' };
+    const json = { [envelope.rowsKey]: rows };
     // An INDEPENDENT fixture input, and now a PER-PAGE one, exactly as on the roster: the
     // component's declaredTotal, an explicit per-page `total` override, or `omitTotal` to drop
     // it from that page entirely.
@@ -402,7 +432,11 @@ function makeAiGateway(spec, { locationId = LOC } = {}) {
     // discarding every earlier one in silence. That is the Task 3 carry-forward in its purest
     // form: an oracle shaped by what the harness can say rather than by what production can do.
     const total = Object.hasOwn(page, 'total') ? page.total : declared.declaredTotal;
-    if (!page.omitTotal && total !== undefined) json.total = total;
+    if (!page.omitTotal && total !== undefined) json[envelope.totalKey] = total;
+    // A second, literal, contradictory reading of the same discovery response — the AI twin
+    // of the roster harness's alsoRows/alsoTotal, and never derived from `rows`.
+    if (page.alsoRows) json[page.alsoRows.key] = page.alsoRows.rows;
+    if (page.alsoTotal) json[page.alsoTotal.key] = page.alsoTotal.value;
     return { json, override: page.gateway ?? {} };
   };
 
@@ -491,6 +525,13 @@ function assertRosterExpectations(result, gateway, expected) {
     // rail may not make a claim it did not observe.
     assert.equal(result.workflows, null, 'a roster that never read a page must be null, never []');
   }
+  if (has('envelopeShape')) {
+    // The keys the walk MET, asserted against a literal. A rail that quietly stopped reading
+    // one of the two key families would still reconcile the scenarios that use the other, so
+    // the observation itself is pinned rather than only its consequences.
+    assert.deepEqual(result.envelopeShape, expected.envelopeShape,
+      'the recorded envelope shape must name exactly the keys this walk actually read');
+  }
   if (has('uniqueCount')) assert.equal(result.uniqueCount, expected.uniqueCount);
   if (has('reportedTotal')) assert.equal(result.reportedTotal, expected.reportedTotal);
   if (has('totalHistory')) assert.deepEqual(result.totalHistory, expected.totalHistory);
@@ -555,6 +596,13 @@ function assertComponentExpectations(component, expected, label) {
     `${label} must carry exactly the plan's per-component fields`);
   if (has('applicable')) assert.equal(component.applicable, expected.applicable, `${label}.applicable`);
   if (has('complete')) assert.equal(component.complete, expected.complete, `${label}.complete`);
+  if (has('envelopeShape')) {
+    // Per component, for the same reason the roster pins its own: the AI products answer on
+    // three different routes with three different captured envelopes, so a reader that
+    // quietly stopped accepting one family would still satisfy the other two.
+    assert.deepEqual(component.envelopeShape, expected.envelopeShape,
+      `${label}.envelopeShape must name exactly the keys this discovery walk actually read`);
+  }
   if (has('itemsNull')) {
     // The forbidden fallback, stated positively: a component that could not be read is null,
     // never []. `list_account_entities` returns [] for exactly this case.

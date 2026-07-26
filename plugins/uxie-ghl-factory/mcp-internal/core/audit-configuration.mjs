@@ -88,6 +88,11 @@ export const AI_BUNDLE_COMPONENTS = Object.freeze(['conversation_ai', 'voice_ai'
 // The closed warning vocabularies. Closed on purpose: an auditor BRANCHES on these codes and
 // a free-text reason cannot be branched on. Adding a code is a contract change.
 export const ROSTER_WARNINGS = Object.freeze({
+  // One 200 carrying TWO readings of itself. Distinct from ROSTER_PAGE_READ_FAILED, which
+  // means "no key I know" — this means "more keys than I know what to do with, and they
+  // disagree". An auditor branches on them differently: the first is a rail that has fallen
+  // behind the API, the second is an upstream response that contradicts itself.
+  ROSTER_ENVELOPE_CONFLICT: 'ROSTER_ENVELOPE_CONFLICT',
   ROSTER_DUPLICATE_ID_CONFLICT: 'ROSTER_DUPLICATE_ID_CONFLICT',
   ROSTER_TOTAL_CHANGED: 'ROSTER_TOTAL_CHANGED',
   ROSTER_TOTAL_UNAVAILABLE: 'ROSTER_TOTAL_UNAVAILABLE',
@@ -116,6 +121,10 @@ export const ROSTER_WARNINGS = Object.freeze({
 export const AI_BUNDLE_WARNINGS = Object.freeze({
   AI_DISCOVERY_READ_FAILED: 'AI_DISCOVERY_READ_FAILED',
   AI_DISCOVERY_UNREADABLE: 'AI_DISCOVERY_UNREADABLE',
+  // The AI twin of ROSTER_ENVELOPE_CONFLICT, and separate from AI_DISCOVERY_UNREADABLE for
+  // the same reason: "no key I recognise" and "two keys that contradict each other" are
+  // different upstream faults and an auditor acts on them differently.
+  AI_DISCOVERY_ENVELOPE_CONFLICT: 'AI_DISCOVERY_ENVELOPE_CONFLICT',
   AI_DISCOVERY_ROW_MALFORMED: 'AI_DISCOVERY_ROW_MALFORMED',
   AI_DISCOVERY_ROW_ID_MISSING: 'AI_DISCOVERY_ROW_ID_MISSING',
   // The AI twin of ROSTER_DUPLICATE_ID_CONFLICT. Discovery used to collapse two rows sharing
@@ -335,17 +344,85 @@ const bindGateway = (auditGateway, locationId) => {
 // Envelope shapes are live-verified per route but not guaranteed, so an unrecognised shape
 // returns null (= "I could not read this") rather than [] (= "there was nothing"). That
 // distinction IS the contract.
-// TASK 7 CANARY RECONCILIATION (1 of 4). This key list is UNVERIFIED against a live payload:
-// no captured `/workflow/{locationId}/list` or AI discovery response exists in this repo. It
-// fails closed — an envelope keyed anything else reads as "I could not read this" rather than
-// as an empty surface — but a wrong list makes an honest account permanently unreadable, so
-// the canary must confirm the real key on every route this is called for.
-const rowsOf = (json, ...keys) => {
-  if (Array.isArray(json)) return json;
-  if (!json || typeof json !== 'object') return null;
-  for (const key of keys) if (Array.isArray(json[key])) return json[key];
-  return null;
+//
+// TASK 7 CANARY RECONCILIATION (1 of 4) — SETTLED 2026-07-27, AND REMOVED FROM THE CANARY.
+// This key list used to be a guess, and on the one route that matters most it was the WRONG
+// guess. The observed `/workflow/{locationId}/list` envelope is
+// `{rows, count, isLocationRateLimited}` with a NUMERIC `count` — not `{workflows, total}`:
+//   - ghl-internal-api-research/docs/03-endpoints.md:167, DISCOVERIES.md:121
+//   - ghl-workflow-api-docs/site/public/openapi.json, x-proof "live-runtime" (2026-07-21)
+//   - core/tools.mjs:762-763, the shipped and live-exercised reader for the same route
+// Against a real account the old list matched NEITHER half: rows fell to
+// ROSTER_PAGE_READ_FAILED and the walk published zero workflows, and repairing only the rows
+// key would still have left every roster permanently ROSTER_TOTAL_UNAVAILABLE. Both halves
+// are read here now, and BOTH key families are accepted rather than trading one bet for
+// another — with the keys actually observed recorded on the result (`envelopeShape`), so the
+// first live run pins the shape as evidence instead of as this comment's say-so.
+//
+// Recorded on the result when a page arrived as a BARE ARRAY rather than an envelope, so
+// "the shape carried no key" and "no page was ever read" stay distinguishable in the
+// evidence. `/workflows/logs/v2` is a bare array upstream, so this is a real GHL shape.
+// Declared BEFORE its first textual use: these readers are called long after module
+// evaluation, but a reader who has to prove that to themselves has already been slowed down.
+const BARE_ARRAY = '<bare-array>';
+
+// Rows and totals are read by the SAME rule: try each candidate in order, and treat two
+// candidates that are both present but DISAGREE as a contradiction rather than a preference.
+// Silently preferring the first-listed key would let `{rows:[…3 rows…], workflows:[…40
+// rows…]}` publish 3 workflows as a complete roster. There is no reading of that response
+// this rail can defend, so it makes none — it reports the conflict and reads nothing.
+const readRows = (json, keys) => {
+  if (Array.isArray(json)) return { rows: json, key: BARE_ARRAY, conflict: null };
+  if (!json || typeof json !== 'object') return { rows: null, key: null, conflict: null };
+  const present = keys.filter((key) => Array.isArray(json[key]));
+  if (present.length === 0) return { rows: null, key: null, conflict: null };
+  const [first, ...rest] = present;
+  // Hashed, not length-compared: two same-length arrays of DIFFERENT rows are exactly the
+  // case a length check waves through, and it is the case that loses rows.
+  const canonical = sha256Canonical(json[first]);
+  const disagreeing = rest.filter((key) => sha256Canonical(json[key]) !== canonical);
+  if (disagreeing.length > 0) return { rows: null, key: null, conflict: [first, ...disagreeing] };
+  return { rows: json[first], key: first, conflict: null };
 };
+
+// TASK 7 CANARY RECONCILIATION (2 of 4) — the total half of the same settlement. A total is
+// still read ONLY from an ALREADY-NUMERIC value: `Number.isFinite` rather than a coercion is
+// the whole point, because `count:"240"` coerces to a perfectly plausible 240 and a walk that
+// accepted it would reconcile against a number whose type it had merely guessed. Every total
+// on every route in the capture corpus is a real number, so the strictness costs nothing that
+// has actually been observed.
+const readTotalFrom = (json, keys) => {
+  if (!json || typeof json !== 'object' || Array.isArray(json)) return { total: null, key: null, conflict: null };
+  const present = keys.filter((key) => Number.isFinite(json[key]));
+  if (present.length === 0) return { total: null, key: null, conflict: null };
+  const [first, ...rest] = present;
+  const disagreeing = rest.filter((key) => json[key] !== json[first]);
+  if (disagreeing.length > 0) return { total: null, key: null, conflict: [first, ...disagreeing] };
+  return { total: json[first], key: first, conflict: null };
+};
+
+// The candidate key sets, per surface, ordered by observation strength.
+//
+// ROSTER — `rows`/`count` are the live-observed pair (see above). `workflows`/`data`/`total`
+// are retained rather than replaced: dropping a candidate can only ever turn a readable
+// envelope into an unreadable one, and this rail has no second chance at a page it refused.
+const ROSTER_ROW_KEYS = Object.freeze(['rows', 'workflows', 'data']);
+const ROSTER_TOTAL_KEYS = Object.freeze(['count', 'total']);
+
+// AI — `items` + a root numeric `total` is captured on `/agent-studio/agents-with-folders`
+// (the route this rail's descriptor actually reads); `employees` + `totalCount` on the
+// `/ai-employees` search routes; `agents` on `/agent-studio/agents`.
+//
+// `count` is DELIBERATELY ABSENT from the AI total keys. On `/ai-employees/employees/search`
+// it is reported alongside `totalCount` carrying the SAME value on a single-page response,
+// so nothing observed distinguishes "rows on this page" from "rows in the surface" — and a
+// page count read as a surface total is a false terminal, which is the one failure this
+// module exists to refuse. RESIDUAL, RECORDED: `/agent-studio/agents` nests its total under
+// `pagination` rather than at the root. That is not the route read here, and a nested probe
+// is not added on the strength of a route this rail never calls; if a descriptor is ever
+// pointed at it, the total reads as absent (incomplete, loud) rather than as wrong.
+const AI_ROW_KEYS = Object.freeze(['agents', 'employees', 'data', 'items']);
+const AI_TOTAL_KEYS = Object.freeze(['total', 'totalCount']);
 
 // The real Mongo/BSON wrappers an id can arrive inside. This list is a deliberate COPY of
 // `ID_WRAPPER_KEYS` in core/audit-gateway.mjs — that module's copy is private, and the two are
@@ -417,16 +494,21 @@ const makeRowKeyer = () => {
   };
 };
 
-// TASK 7 CANARY RECONCILIATION (2 of 4). A total is read ONLY from a ROOT-LEVEL, already-
-// numeric `total`. `Number.isFinite` rather than a coercion is the whole point: `total:"240"`
-// coerces to a perfectly plausible 240, and a walk that accepted it would reconcile against a
-// number it had merely guessed the type of. Fail-closed has a real cost here, though, and the
-// canary must measure it: if the live envelope reports `total:"240"` or `{meta:{total}}`, then
-// EVERY roster read is permanently incomplete (ROSTER_TOTAL_UNAVAILABLE) for a reason that is
-// a harness assumption rather than missing evidence.
-const readTotal = (json) => {
-  const raw = json?.total;
-  return Number.isFinite(raw) ? Number(raw) : null;
+// Accumulates the envelope keys a walk actually met, so `envelopeShape` on the result is an
+// observation rather than a restatement of the candidate lists above. A walk that read no
+// page at all reports empty arrays — which is why the keys are collected here and not
+// derived from the candidate constants.
+const makeShapeLog = () => {
+  const rowsKeys = new Set();
+  const totalKeys = new Set();
+  return {
+    record: ({ rowsKey, totalKey }) => {
+      if (rowsKey !== null && rowsKey !== undefined) rowsKeys.add(rowsKey);
+      if (totalKey !== null && totalKey !== undefined) totalKeys.add(totalKey);
+    },
+    // Sorted so two runs over the same account produce byte-identical evidence.
+    read: () => ({ rowsKeys: [...rowsKeys].sort(), totalKeys: [...totalKeys].sort() }),
+  };
 };
 
 // --- warnings --------------------------------------------------------------------
@@ -505,6 +587,7 @@ export async function listWorkflowsComplete({ auditGateway, input } = {}) {
   const pagination = { attempted: 0, fetched: 0, exhausted: false, budget: config.maxPages };
   const totalHistory = [];
   const uniqueProgress = [];
+  const shapeLog = makeShapeLog();
   const seenIds = new Map();      // id -> Set of content hashes
   const conflictedIds = new Set();
   let capturedAt = null;
@@ -587,6 +670,20 @@ export async function listWorkflowsComplete({ auditGateway, input } = {}) {
       capabilityVersion: ROSTER_CAPABILITY_VERSION,
       capturedAt,
       complete,
+      // The envelope keys each value was actually READ FROM — not every candidate the reader
+      // was willing to accept, and not every key that happened to be present. Two keys that
+      // agree are ONE reading, so only the key the value came from is named; naming both
+      // would imply the walk had two independent observations when it had one.
+      //
+      // The two halves are recorded SEPARATELY and on purpose: a page whose rows contradicted
+      // themselves but whose total read cleanly reports `{rowsKeys:[], totalKeys:['count']}`,
+      // so the artifact says WHICH half of the envelope failed rather than only that one did.
+      //
+      // This is the field that retires canary item 1 of 4: the first live run records
+      // `rows`/`count` here as evidence, and if a future GHL release moves either key the
+      // change is visible in the artifact instead of surfacing as an unexplained empty
+      // roster with a warning that blames the wrong thing.
+      envelopeShape: shapeLog.read(),
       locationBinding: {
         // Absence records request-scope binding: a weaker claim than a native match but
         // still evidence. Downgrading absence to a failure would make most of this API
@@ -656,7 +753,22 @@ export async function listWorkflowsComplete({ auditGateway, input } = {}) {
           failureDetail(response, 'workflow_roster_list'));
         return;
       }
-      const rows = rowsOf(response.json, 'workflows', 'data');
+      // Read BOTH halves of the envelope before either is used, so a page that contradicts
+      // itself on its total is refused before its rows are counted into the walk.
+      const rowsRead = readRows(response.json, ROSTER_ROW_KEYS);
+      const totalRead = readTotalFrom(response.json, ROSTER_TOTAL_KEYS);
+      shapeLog.record({ rowsKey: rowsRead.key, totalKey: totalRead.key });
+      if (rowsRead.conflict !== null || totalRead.conflict !== null) {
+        // Both conflicts are named in one warning: an auditor reading this needs to know the
+        // response disagreed with itself, and which keys did the disagreeing, in one place.
+        const parts = [];
+        if (rowsRead.conflict !== null) parts.push(`row keys ${rowsRead.conflict.join('/')} carry different lists`);
+        if (totalRead.conflict !== null) parts.push(`total keys ${totalRead.conflict.join('/')} report different numbers`);
+        warn(ROSTER_WARNINGS.ROSTER_ENVELOPE_CONFLICT, 'workflow_roster',
+          `the roster response contradicted itself (${parts.join('; ')}), so no reading of it can be defended`);
+        return;
+      }
+      const rows = rowsRead.rows;
       if (rows === null) {
         // A 200 carrying an envelope this rail cannot read is not an empty roster. It is a
         // read that did not happen, and it is counted as one.
@@ -713,7 +825,7 @@ export async function listWorkflowsComplete({ auditGateway, input } = {}) {
       }
       uniqueProgress.push(gained);
 
-      const pageTotal = readTotal(response.json);
+      const pageTotal = totalRead.total;
       totalHistory.push(pageTotal);
       if (pageTotal === null) {
         // Without a reported total there is nothing to reconcile against, so a single short
@@ -864,6 +976,12 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
   // circuit latched, or because its rail was never wired — still appears, with
   // `applicable:'unknown'`, `complete:false` and `items:null`. A missing component is the one
   // shape this contract may never produce.
+  // The shape logs live BESIDE the published components, not on them: a log is a pair of
+  // closures and a component is a serialized artifact, and putting the two in one object is
+  // how a `record`/`read` function ends up hashed into the proof ledger as `null`. Each
+  // component's `envelopeShape` is read out of here at finalize.
+  const shapeLogs = new Map(AI_BUNDLE_COMPONENTS.map((name) => [name, makeShapeLog()]));
+
   const components = {};
   for (const name of AI_BUNDLE_COMPONENTS) {
     components[name] = {
@@ -872,6 +990,12 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       detailDenominator: 0,
       detailsRead: 0,
       errors: [],
+      // The envelope keys this component's discovery walk actually met — the per-component
+      // twin of the roster's field, and settled by the same 2026-07-27 capture review.
+      // `/agent-studio/agents-with-folders` was observed emitting `items` + a root numeric
+      // `total`; the `/ai-employees` search routes emit `employees` + `totalCount`. Both were
+      // outside the old key lists in one half or the other.
+      envelopeShape: { rowsKeys: [], totalKeys: [] },
       items: null,
       pages: {
         attempted: 0,
@@ -977,6 +1101,11 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       warn(AI_BUNDLE_WARNINGS.RATE_LIMITED, 'run',
         'a read in this sweep was throttled by the account, so at least one surface returned less than it would have');
     }
+    // Read out of the side logs HERE rather than at each record site, so a component that was
+    // never attempted publishes `{rowsKeys:[], totalKeys:[]}` — an empty observation — and a
+    // partial attached to a thrown CIRCUIT_OPEN carries whatever shapes were met before the
+    // latch. Both go through this one line, so neither can drift from the other.
+    for (const name of AI_BUNDLE_COMPONENTS) components[name].envelopeShape = shapeLogs.get(name).read();
     // `truncated` below is `!complete`: the two fields are IDENTICAL by construction today,
     // for the same reason and with the same caveat as on the roster. See that finalize.
     // `!rateLimit.limited` is likewise defence in depth and currently unreachable — the block
@@ -1134,7 +1263,20 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
           failureDetail(response, discoveryCapabilityId));
         break;
       }
-      const rows = rowsOf(response.json, 'agents', 'employees', 'data', 'items');
+      const rowsRead = readRows(response.json, AI_ROW_KEYS);
+      const totalRead = readTotalFrom(response.json, AI_TOTAL_KEYS);
+      shapeLogs.get(name).record({ rowsKey: rowsRead.key, totalKey: totalRead.key });
+      if (rowsRead.conflict !== null || totalRead.conflict !== null) {
+        const parts = [];
+        if (rowsRead.conflict !== null) parts.push(`row keys ${rowsRead.conflict.join('/')} carry different lists`);
+        if (totalRead.conflict !== null) parts.push(`total keys ${totalRead.conflict.join('/')} report different numbers`);
+        recordError(name, AI_BUNDLE_WARNINGS.AI_DISCOVERY_ENVELOPE_CONFLICT, discoveryCapabilityId, 'discovery',
+          `the discovery response contradicted itself (${parts.join('; ')})`);
+        warn(AI_BUNDLE_WARNINGS.AI_DISCOVERY_ENVELOPE_CONFLICT, name,
+          `capability ${discoveryCapabilityId} answered 200 with a self-contradictory envelope (${parts.join('; ')}), so no reading of it can be defended`);
+        break;
+      }
+      const rows = rowsRead.rows;
       if (rows === null) {
         // UNREADABLE IS NOT EMPTY. This is the scenario the whole "empty is not failed" rule
         // exists for: the gateway says ok:true, so a composite reaching for
@@ -1215,7 +1357,7 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
         });
       }
 
-      const pageTotal = readTotal(response.json);
+      const pageTotal = totalRead.total;
 
       // THE TOTAL IS READ ON EVERY SURFACE, INCLUDING THE SINGLE-SHOT ONES. This read used to
       // sit below a `if (!surface.paginated) break;`, so Conversation AI and Voice AI DISCARDED
@@ -1224,11 +1366,15 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       // routes, so a mismatch cannot be walked off — but it is still a contradiction, and the
       // roster refuses to publish without reconciling a total for exactly this reason.
       //
-      // TASK 7 CANARY RECONCILIATION (see canary 2 of 4 on `readTotal`, which is the reader all
-      // of this goes through): whether GHL emits `total` on `/ai-employees/agents` or
-      // `/voice-ai/agents/simple` at all is UNVERIFIED. If it does not, these branches never
-      // fire and nothing changes; if it does, and it disagrees, the surface is now honestly
-      // incomplete instead of quietly wrong. Confirm the shape on the live canary.
+      // PARTLY SETTLED 2026-07-27, and still partly open — the honest split:
+      //   - `/agent-studio/agents-with-folders` DOES emit a root numeric `total` (captured
+      //     2026-07-11, ghl-workflow-api-docs research/ai-agents-internal/captures), so on the
+      //     one paginated AI surface these branches are live rather than theoretical.
+      //   - `/ai-employees/*` search routes emit `totalCount`, now read (see AI_TOTAL_KEYS).
+      //   - `/voice-ai/agents/simple` — STILL UNVERIFIED. Only a row excerpt was ever captured,
+      //     never the envelope. Absence reads as "no total", which on a single-shot surface is
+      //     tolerated rather than fatal, so this cannot break the canary; it merely leaves the
+      //     Voice surface reconciled by row count alone. Capture the envelope when convenient.
 
       // AND IT IS REMEMBERED ACROSS PAGES, which it previously was not. The walk read
       // `pageTotal` per page and reconciled against ONLY the terminal page's copy, keeping no

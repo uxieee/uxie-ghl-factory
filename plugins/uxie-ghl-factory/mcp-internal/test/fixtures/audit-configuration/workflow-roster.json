@@ -1,21 +1,40 @@
 {
   "_file": "Scenarios for listWorkflowsComplete's offset walk over /workflow/{locationId}/list (Task 4, plan line 525 and line 539). See README.md in this folder for the upstream model and for why declaredTotal is an INDEPENDENT input.",
-  "_totalNote": "declaredTotal (and any per-page `total` override) is a FIXTURE INPUT. It is never computed from the rows the stub is about to serve. Task 3's first harness derived the declared enrollment total from its own rows, which made every complete:true rest on a reconciliation that could not fail. The scenario `three-pages` deliberately declares a total the served rows DO reach, and `short-page-below-total` / `zero-unique-progress` deliberately declare one they do NOT, so the reconciliation is provably load-bearing in both directions.",
+  "_totalNote": "declaredTotal (and any per-page `total` override) is a FIXTURE INPUT. It is never computed from the rows the stub is about to serve. Task 3's first harness derived the declared enrollment total from its own rows, which made every complete:true rest on a reconciliation that could not fail. The scenario `three-pages` deliberately declares a total the served rows DO reach, and `short-page-below-total` / `zero-unique-progress` deliberately declare one they do NOT, so the reconciliation is provably load-bearing in both directions. Envelope keys default to the LIVE-OBSERVED {rows, count}; envelopeKeys on a page overrides it, and alsoRows/alsoTotal serve a second, literal, contradictory reading of the same response.",
   "scenarios": {
     "one-page": {
       "planBullet": "Workflow-roster fixtures cover one page (plan line 525)",
       "why": "The base case, and the only place the full emitted query is pinned. The descriptor fixes five of the seven required keys, so a composite that forgot one would still get a page back from a lenient stub - and the receipt would then claim a request that was never made.",
-      "input": { "pageSize": 100, "maxPages": 100 },
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
       "declaredTotal": 3,
       "pages": [
-        { "rows": [
-          { "_id": "wf-1", "name": "Alpha", "status": "published" },
-          { "_id": "wf-2", "name": "Bravo", "status": "draft" },
-          { "_id": "wf-3", "name": "Charlie", "status": "published" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha",
+              "status": "published"
+            },
+            {
+              "_id": "wf-2",
+              "name": "Bravo",
+              "status": "draft"
+            },
+            {
+              "_id": "wf-3",
+              "name": "Charlie",
+              "status": "published"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "firstQuery": {
           "type": "workflow",
           "limit": "100",
@@ -25,11 +44,19 @@
           "includeCustomObjects": "true",
           "includeObjectiveBuilder": "true"
         },
-        "workflowIds": ["wf-1", "wf-2", "wf-3"],
+        "workflowIds": [
+          "wf-1",
+          "wf-2",
+          "wf-3"
+        ],
         "uniqueCount": 3,
         "reportedTotal": 3,
-        "totalHistory": [3],
-        "uniqueProgress": [3],
+        "totalHistory": [
+          3
+        ],
+        "uniqueProgress": [
+          3
+        ],
         "pagesFetched": 1,
         "pagesExhausted": false,
         "complete": true,
@@ -38,18 +65,28 @@
         "terminalReason": "unique_count_equals_reported_total"
       }
     },
-
     "empty-account-terminal": {
       "planBullet": "one page (terminal proof over an empty roster)",
       "why": "An account with no workflows and a failed first read produce the SAME artifact unless the reported total is reconciled. Zero unique rows against a declared total of zero is the only shape that may publish an empty roster as complete.",
-      "input": { "pageSize": 100, "maxPages": 100 },
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
       "declaredTotal": 0,
-      "pages": [ { "rows": [] } ],
+      "pages": [
+        {
+          "rows": []
+        }
+      ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "uniqueCount": 0,
         "reportedTotal": 0,
-        "totalHistory": [0],
+        "totalHistory": [
+          0
+        ],
         "pagesFetched": 1,
         "complete": true,
         "truncated": false,
@@ -57,23 +94,52 @@
         "terminalReason": "unique_count_equals_reported_total"
       }
     },
-
     "three-pages": {
       "planBullet": "three pages (plan line 525)",
       "why": "Proves the walk pages by OFFSET rather than by a page number, and that the offset advances by the rows actually returned. A composite that advanced by pageSize regardless would skip rows on any short page and still land on a plausible-looking count.",
-      "input": { "pageSize": 100, "maxPages": 100 },
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
       "declaredTotal": 240,
       "pages": [
-        { "generate": { "count": 100, "idPrefix": "wf-a-" } },
-        { "generate": { "count": 100, "idPrefix": "wf-b-" } },
-        { "generate": { "count": 40, "idPrefix": "wf-c-" } }
+        {
+          "generate": {
+            "count": 100,
+            "idPrefix": "wf-a-"
+          }
+        },
+        {
+          "generate": {
+            "count": 100,
+            "idPrefix": "wf-b-"
+          }
+        },
+        {
+          "generate": {
+            "count": 40,
+            "idPrefix": "wf-c-"
+          }
+        }
       ],
       "expect": {
-        "offsets": [0, 100, 200],
+        "offsets": [
+          0,
+          100,
+          200
+        ],
         "uniqueCount": 240,
         "reportedTotal": 240,
-        "totalHistory": [240, 240, 240],
-        "uniqueProgress": [100, 100, 40],
+        "totalHistory": [
+          240,
+          240,
+          240
+        ],
+        "uniqueProgress": [
+          100,
+          100,
+          40
+        ],
         "pagesFetched": 3,
         "pagesExhausted": false,
         "complete": true,
@@ -82,27 +148,67 @@
         "terminalReason": "unique_count_equals_reported_total"
       }
     },
-
     "duplicate-ids-identical-content": {
       "planBullet": "duplicate IDs (plan line 525)",
       "why": "Offset paging over a live collection re-serves rows across page boundaries. An identical re-serve is NOT a contradiction, and counting it twice would let the walk 'reach' its declared total while never having seen the tail.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 6,
       "pages": [
-        { "rows": [
-          { "_id": "d-0", "name": "d0" }, { "_id": "d-1", "name": "d1" },
-          { "_id": "d-2", "name": "d2" }, { "_id": "d-3", "name": "d3" }
-        ] },
-        { "rows": [
-          { "_id": "d-2", "name": "d2" }, { "_id": "d-3", "name": "d3" },
-          { "_id": "d-4", "name": "d4" }, { "_id": "d-5", "name": "d5" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": "d-0",
+              "name": "d0"
+            },
+            {
+              "_id": "d-1",
+              "name": "d1"
+            },
+            {
+              "_id": "d-2",
+              "name": "d2"
+            },
+            {
+              "_id": "d-3",
+              "name": "d3"
+            }
+          ]
+        },
+        {
+          "rows": [
+            {
+              "_id": "d-2",
+              "name": "d2"
+            },
+            {
+              "_id": "d-3",
+              "name": "d3"
+            },
+            {
+              "_id": "d-4",
+              "name": "d4"
+            },
+            {
+              "_id": "d-5",
+              "name": "d5"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 6,
         "reportedTotal": 6,
-        "uniqueProgress": [4, 2],
+        "uniqueProgress": [
+          4,
+          2
+        ],
         "pagesFetched": 2,
         "complete": true,
         "truncated": false,
@@ -110,28 +216,76 @@
         "terminalReason": "unique_count_equals_reported_total"
       }
     },
-
     "duplicate-ids-numeric-and-string-serialization": {
       "planBullet": "duplicate IDs (plan line 525)",
       "why": "The re-serve above is byte-identical, so it is deduped by `unwrapId` and the raw payload alone and never exercises the `String(...)` coercion in `contentHashOf`. A backend that emits `_id` as a NUMBER on one page and as its string form on the next is the same workflow re-served, and `idOf` already keys both to '5' - but WITHOUT the coercion their content hashes differ, which is this rail's definition of 'two rows sharing an id but not a payload'. The result is a manufactured ROSTER_DUPLICATE_ID_CONFLICT, a second copy of one workflow retained as evidence of a contradiction that never happened, and a roster published incomplete for it. Dropping the coercion survived the entire suite before this scenario existed.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 7,
       "pages": [
-        { "rows": [
-          { "_id": 5, "name": "One Workflow" }, { "_id": "n-1", "name": "n1" },
-          { "_id": "n-2", "name": "n2" }, { "_id": "n-3", "name": "n3" }
-        ] },
-        { "rows": [
-          { "_id": "5", "name": "One Workflow" }, { "_id": "n-4", "name": "n4" },
-          { "_id": "n-5", "name": "n5" }, { "_id": "n-6", "name": "n6" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": 5,
+              "name": "One Workflow"
+            },
+            {
+              "_id": "n-1",
+              "name": "n1"
+            },
+            {
+              "_id": "n-2",
+              "name": "n2"
+            },
+            {
+              "_id": "n-3",
+              "name": "n3"
+            }
+          ]
+        },
+        {
+          "rows": [
+            {
+              "_id": "5",
+              "name": "One Workflow"
+            },
+            {
+              "_id": "n-4",
+              "name": "n4"
+            },
+            {
+              "_id": "n-5",
+              "name": "n5"
+            },
+            {
+              "_id": "n-6",
+              "name": "n6"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
-        "workflowIds": ["5", "n-1", "n-2", "n-3", "n-4", "n-5", "n-6"],
+        "offsets": [
+          0,
+          4
+        ],
+        "workflowIds": [
+          "5",
+          "n-1",
+          "n-2",
+          "n-3",
+          "n-4",
+          "n-5",
+          "n-6"
+        ],
         "uniqueCount": 7,
         "reportedTotal": 7,
-        "uniqueProgress": [4, 3],
+        "uniqueProgress": [
+          4,
+          3
+        ],
         "pagesFetched": 2,
         "complete": true,
         "truncated": false,
@@ -139,58 +293,151 @@
         "terminalReason": "unique_count_equals_reported_total"
       }
     },
-
     "duplicate-ids-conflicting-content": {
       "planBullet": "duplicate IDs with conflicting content return complete:false and truncated:true (plan line 539)",
       "why": "Two rows sharing an id but not a content hash means one of them is wrong and this composite cannot tell which. Keeping the first turns a contradiction into a confident answer, and the unique count still reaches the declared total - so without this check the roster publishes as complete.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 7,
       "pages": [
-        { "rows": [
-          { "_id": "c-0", "name": "c0" }, { "_id": "c-1", "name": "c1" },
-          { "_id": "c-2", "name": "c2" }, { "_id": "c-3", "name": "c3" }
-        ] },
-        { "rows": [
-          { "_id": "c-0", "name": "RENAMED" }, { "_id": "c-4", "name": "c4" },
-          { "_id": "c-5", "name": "c5" }, { "_id": "c-6", "name": "c6" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": "c-0",
+              "name": "c0"
+            },
+            {
+              "_id": "c-1",
+              "name": "c1"
+            },
+            {
+              "_id": "c-2",
+              "name": "c2"
+            },
+            {
+              "_id": "c-3",
+              "name": "c3"
+            }
+          ]
+        },
+        {
+          "rows": [
+            {
+              "_id": "c-0",
+              "name": "RENAMED"
+            },
+            {
+              "_id": "c-4",
+              "name": "c4"
+            },
+            {
+              "_id": "c-5",
+              "name": "c5"
+            },
+            {
+              "_id": "c-6",
+              "name": "c6"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 7,
         "reportedTotal": 7,
-        "uniqueProgress": [4, 3],
+        "uniqueProgress": [
+          4,
+          3
+        ],
         "pagesFetched": 2,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_DUPLICATE_ID_CONFLICT"],
+        "warningCodes": [
+          "ROSTER_DUPLICATE_ID_CONFLICT"
+        ],
         "terminalReason": "unique_count_equals_reported_total"
       }
     },
-
     "reordered-rows": {
       "planBullet": "reordered rows (plan line 525)",
       "why": "sortBy=name is pinned but a rename between two page reads reorders the collection under the cursor. Dedup must be by identity, not by position: a positional walk would double-count the echo and stop three rows short of the declared total.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 8,
       "pages": [
-        { "rows": [
-          { "_id": "r-0", "name": "r0" }, { "_id": "r-1", "name": "r1" },
-          { "_id": "r-2", "name": "r2" }, { "_id": "r-3", "name": "r3" }
-        ] },
-        { "rows": [
-          { "_id": "r-3", "name": "r3" }, { "_id": "r-2", "name": "r2" },
-          { "_id": "r-4", "name": "r4" }, { "_id": "r-5", "name": "r5" }
-        ] },
-        { "rows": [
-          { "_id": "r-6", "name": "r6" }, { "_id": "r-7", "name": "r7" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": "r-0",
+              "name": "r0"
+            },
+            {
+              "_id": "r-1",
+              "name": "r1"
+            },
+            {
+              "_id": "r-2",
+              "name": "r2"
+            },
+            {
+              "_id": "r-3",
+              "name": "r3"
+            }
+          ]
+        },
+        {
+          "rows": [
+            {
+              "_id": "r-3",
+              "name": "r3"
+            },
+            {
+              "_id": "r-2",
+              "name": "r2"
+            },
+            {
+              "_id": "r-4",
+              "name": "r4"
+            },
+            {
+              "_id": "r-5",
+              "name": "r5"
+            }
+          ]
+        },
+        {
+          "rows": [
+            {
+              "_id": "r-6",
+              "name": "r6"
+            },
+            {
+              "_id": "r-7",
+              "name": "r7"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0, 4, 8],
+        "offsets": [
+          0,
+          4,
+          8
+        ],
         "uniqueCount": 8,
         "reportedTotal": 8,
-        "uniqueProgress": [4, 2, 2],
+        "uniqueProgress": [
+          4,
+          2,
+          2
+        ],
         "pagesFetched": 3,
         "complete": true,
         "truncated": false,
@@ -198,250 +445,501 @@
         "terminalReason": "unique_count_equals_reported_total"
       }
     },
-
     "changing-reported-total": {
       "planBullet": "changing reported totals return complete:false and truncated:true (plan lines 525, 539)",
       "why": "The reported total IS the terminal proof. If it moves mid-walk there is no fixed target to reconcile against, so 'unique count equals the total' stops meaning anything - and here the unique count reaches the FIRST total exactly, which is precisely the shape that would publish as complete.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 8,
       "pages": [
-        { "rows": [
-          { "_id": "t-0" }, { "_id": "t-1" }, { "_id": "t-2" }, { "_id": "t-3" }
-        ] },
-        { "total": 9, "rows": [
-          { "_id": "t-4" }, { "_id": "t-5" }, { "_id": "t-6" }, { "_id": "t-7" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": "t-0"
+            },
+            {
+              "_id": "t-1"
+            },
+            {
+              "_id": "t-2"
+            },
+            {
+              "_id": "t-3"
+            }
+          ]
+        },
+        {
+          "total": 9,
+          "rows": [
+            {
+              "_id": "t-4"
+            },
+            {
+              "_id": "t-5"
+            },
+            {
+              "_id": "t-6"
+            },
+            {
+              "_id": "t-7"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 8,
-        "totalHistory": [8, 9],
+        "totalHistory": [
+          8,
+          9
+        ],
         "pagesFetched": 2,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_TOTAL_CHANGED"],
+        "warningCodes": [
+          "ROSTER_TOTAL_CHANGED"
+        ],
         "terminalReason": null
       }
     },
-
     "empty-intermediate-page": {
       "planBullet": "an empty intermediate page (plan line 525)",
       "why": "A zero-row page below the declared total is the cheapest possible false terminal: a walk that treats any short page as the end publishes four of eight workflows as the whole account.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 8,
       "pages": [
-        { "rows": [
-          { "_id": "e-0" }, { "_id": "e-1" }, { "_id": "e-2" }, { "_id": "e-3" }
-        ] },
-        { "rows": [] }
+        {
+          "rows": [
+            {
+              "_id": "e-0"
+            },
+            {
+              "_id": "e-1"
+            },
+            {
+              "_id": "e-2"
+            },
+            {
+              "_id": "e-3"
+            }
+          ]
+        },
+        {
+          "rows": []
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 4,
         "reportedTotal": 8,
-        "uniqueProgress": [4, 0],
+        "uniqueProgress": [
+          4,
+          0
+        ],
         "pagesFetched": 2,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_EMPTY_PAGE"],
+        "warningCodes": [
+          "ROSTER_EMPTY_PAGE"
+        ],
         "terminalReason": null
       }
     },
-
     "zero-unique-progress": {
       "planBullet": "zero unique progress before the total is reached (plan lines 525, 539)",
       "why": "A backend that ignores offset re-serves page one forever. Every page is full, so a short-page terminal test never fires and the walk spends its whole budget; without a unique-progress check the roster would then exhaust the budget instead of naming the actual defect.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 8,
       "pages": [
-        { "rows": [
-          { "_id": "z-0" }, { "_id": "z-1" }, { "_id": "z-2" }, { "_id": "z-3" }
-        ] },
-        { "rows": [
-          { "_id": "z-0" }, { "_id": "z-1" }, { "_id": "z-2" }, { "_id": "z-3" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": "z-0"
+            },
+            {
+              "_id": "z-1"
+            },
+            {
+              "_id": "z-2"
+            },
+            {
+              "_id": "z-3"
+            }
+          ]
+        },
+        {
+          "rows": [
+            {
+              "_id": "z-0"
+            },
+            {
+              "_id": "z-1"
+            },
+            {
+              "_id": "z-2"
+            },
+            {
+              "_id": "z-3"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 4,
         "reportedTotal": 8,
-        "uniqueProgress": [4, 0],
+        "uniqueProgress": [
+          4,
+          0
+        ],
         "pagesFetched": 2,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_NO_UNIQUE_PROGRESS"],
+        "warningCodes": [
+          "ROSTER_NO_UNIQUE_PROGRESS"
+        ],
         "terminalReason": null
       }
     },
-
     "malformed-rows": {
       "planBullet": "malformed rows, and missing IDs (plan lines 525, 539)",
       "why": "A row that is not an object, and a row with no id, cannot be counted toward a reconciled total - but both are perfectly serializable and would otherwise pad the unique count until it matched. Each defect gets its own code because 'this is not a record' and 'this record cannot be identified' are different upstream faults.",
-      "input": { "pageSize": 3, "maxPages": 100 },
+      "input": {
+        "pageSize": 3,
+        "maxPages": 100
+      },
       "declaredTotal": 3,
       "pages": [
-        { "rows": [
-          { "_id": "m-1", "name": "good" },
-          "not-an-object",
-          { "name": "no id at all" }
-        ] },
-        { "rows": [] }
+        {
+          "rows": [
+            {
+              "_id": "m-1",
+              "name": "good"
+            },
+            "not-an-object",
+            {
+              "name": "no id at all"
+            }
+          ]
+        },
+        {
+          "rows": []
+        }
       ],
       "expect": {
-        "offsets": [0, 3],
+        "offsets": [
+          0,
+          3
+        ],
         "uniqueCount": 1,
         "reportedTotal": 3,
         "pagesFetched": 2,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_ROW_MALFORMED", "ROSTER_ROW_ID_MISSING", "ROSTER_EMPTY_PAGE"],
+        "warningCodes": [
+          "ROSTER_ROW_MALFORMED",
+          "ROSTER_ROW_ID_MISSING",
+          "ROSTER_EMPTY_PAGE"
+        ],
         "terminalReason": null
       }
     },
-
     "page-budget-exhaustion": {
       "planBullet": "page-budget exhaustion returns complete:false and truncated:true (plan lines 525, 539)",
       "why": "The budget is the only thing standing between a pathological account and an unbounded read, so hitting it must be a stated incompleteness rather than a quiet stop. The budget is checked BEFORE the read, so the third page is never requested.",
-      "input": { "pageSize": 4, "maxPages": 2 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 2
+      },
       "declaredTotal": 12,
       "pages": [
-        { "generate": { "count": 4, "idPrefix": "b1-" } },
-        { "generate": { "count": 4, "idPrefix": "b2-" } },
-        { "generate": { "count": 4, "idPrefix": "b3-" } }
+        {
+          "generate": {
+            "count": 4,
+            "idPrefix": "b1-"
+          }
+        },
+        {
+          "generate": {
+            "count": 4,
+            "idPrefix": "b2-"
+          }
+        },
+        {
+          "generate": {
+            "count": 4,
+            "idPrefix": "b3-"
+          }
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 8,
         "reportedTotal": 12,
         "pagesFetched": 2,
         "pagesExhausted": true,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_PAGE_BUDGET_EXHAUSTED"],
+        "warningCodes": [
+          "ROSTER_PAGE_BUDGET_EXHAUSTED"
+        ],
         "terminalReason": null
       }
     },
-
     "conflicting-returned-location": {
       "planBullet": "a conflicting returned location returns complete:false and truncated:true (plan lines 525, 539)",
       "why": "The gateway proves the response belongs to another location and returns ok:false with IDENTITY_CONFLICT. If the composite read the body anyway it would publish another account's workflows under this location id - the single worst artifact this rail can produce.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 4,
       "pages": [
         {
-          "gateway": { "ok": false, "status": 200, "failureClass": "IDENTITY_CONFLICT", "quarantined": true, "identity": { "conflicts": [{ "field": "locationId", "expected": "LOC1", "actual": "OTHER" }] } },
-          "rows": [ { "_id": "x-1" }, { "_id": "x-2" }, { "_id": "x-3" }, { "_id": "x-4" } ]
+          "gateway": {
+            "ok": false,
+            "status": 200,
+            "failureClass": "IDENTITY_CONFLICT",
+            "quarantined": true,
+            "identity": {
+              "conflicts": [
+                {
+                  "field": "locationId",
+                  "expected": "LOC1",
+                  "actual": "OTHER"
+                }
+              ]
+            }
+          },
+          "rows": [
+            {
+              "_id": "x-1"
+            },
+            {
+              "_id": "x-2"
+            },
+            {
+              "_id": "x-3"
+            },
+            {
+              "_id": "x-4"
+            }
+          ]
         }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "workflowsNull": true,
         "uniqueCount": 0,
         "pagesFetched": 0,
         "quarantined": true,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["IDENTITY_CONFLICT_QUARANTINE"],
+        "warningCodes": [
+          "IDENTITY_CONFLICT_QUARANTINE"
+        ],
         "terminalReason": null
       }
     },
-
     "missing-reported-total": {
       "planBullet": "terminal proof (plan line 539)",
       "why": "Without a reported total there is nothing to reconcile against, so a single short page would be indistinguishable from a complete roster. The rows are still retained as evidence; only the completeness claim is refused.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 4,
       "pages": [
-        { "omitTotal": true, "rows": [ { "_id": "n-1" }, { "_id": "n-2" } ] }
+        {
+          "omitTotal": true,
+          "rows": [
+            {
+              "_id": "n-1"
+            },
+            {
+              "_id": "n-2"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "uniqueCount": 2,
         "reportedTotal": null,
-        "totalHistory": [null],
+        "totalHistory": [
+          null
+        ],
         "pagesFetched": 1,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_TOTAL_UNAVAILABLE"],
+        "warningCodes": [
+          "ROSTER_TOTAL_UNAVAILABLE"
+        ],
         "terminalReason": null
       }
     },
-
     "short-page-below-total": {
       "planBullet": "missing IDs / terminal proof (plan line 539)",
       "why": "The classic silent undercount: the upstream simply stops returning rows before the total is reached. A short page is only terminal when the unique count has ALSO reached the reported total, and this scenario is the one that fails if that conjunction is ever loosened to an OR.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 10,
       "pages": [
-        { "generate": { "count": 4, "idPrefix": "s1-" } },
-        { "generate": { "count": 2, "idPrefix": "s2-" } }
+        {
+          "generate": {
+            "count": 4,
+            "idPrefix": "s1-"
+          }
+        },
+        {
+          "generate": {
+            "count": 2,
+            "idPrefix": "s2-"
+          }
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 6,
         "reportedTotal": 10,
         "pagesFetched": 2,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_TOTAL_MISMATCH"],
+        "warningCodes": [
+          "ROSTER_TOTAL_MISMATCH"
+        ],
         "terminalReason": null
       }
     },
-
     "first-page-auth-rejected": {
       "planBullet": "a failed page is complete:false, never an empty array (plan line 550)",
       "why": "A 403 on the first page and an account with no workflows produce the same JSON unless the composite refuses to publish an array it never read. `workflows` is null here, not [].",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 4,
       "pages": [
-        { "gateway": { "ok": false, "status": 403, "failureClass": "AUTH_REJECTED" }, "rows": [] }
+        {
+          "gateway": {
+            "ok": false,
+            "status": 403,
+            "failureClass": "AUTH_REJECTED"
+          },
+          "rows": []
+        }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "workflowsNull": true,
         "uniqueCount": 0,
         "pagesFetched": 0,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_PAGE_READ_FAILED"],
+        "warningCodes": [
+          "ROSTER_PAGE_READ_FAILED"
+        ],
         "terminalReason": null
       }
     },
-
     "unique-count-overshoots-reported-total": {
       "planBullet": "terminal proof (plan line 539); duplicate IDs and changing totals return complete:false (plan lines 525, 539)",
       "why": "The terminal proof is an EQUALITY, and this is the only scenario that can tell it from a `>=`. Five unique rows against a reported total of two means the total and the collection disagree, so there is no terminal target left to reach - but an over-count passes every remaining test in the walk (a full page, gaining rows), so before ROSTER_TOTAL_OVERCOUNT existed the walk spent its ENTIRE page budget re-asking for rows already in hand and then blamed ROSTER_PAGE_BUDGET_EXHAUSTED for a defect that has nothing to do with the budget. Relaxing the equality to `>=` survived the whole suite until this scenario existed: under the mutant this page publishes complete:true with uniqueCount 5 against reportedTotal 2 and zero warnings.",
-      "input": { "pageSize": 5, "maxPages": 100 },
+      "input": {
+        "pageSize": 5,
+        "maxPages": 100
+      },
       "declaredTotal": 2,
       "pages": [
-        { "rows": [
-          { "_id": "o-0" }, { "_id": "o-1" }, { "_id": "o-2" }, { "_id": "o-3" }, { "_id": "o-4" }
-        ] }
+        {
+          "rows": [
+            {
+              "_id": "o-0"
+            },
+            {
+              "_id": "o-1"
+            },
+            {
+              "_id": "o-2"
+            },
+            {
+              "_id": "o-3"
+            },
+            {
+              "_id": "o-4"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "uniqueCount": 5,
         "reportedTotal": 2,
-        "totalHistory": [2],
+        "totalHistory": [
+          2
+        ],
         "pagesFetched": 1,
         "pagesExhausted": false,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_TOTAL_OVERCOUNT"],
+        "warningCodes": [
+          "ROSTER_TOTAL_OVERCOUNT"
+        ],
         "terminalReason": null
       }
     },
-
     "unreadable-page-envelope": {
       "planBullet": "a malformed success is complete:false, never an empty array (plan line 550)",
       "why": "THE HEADLINE DOCTRINE, previously undefended on the roster: a 200 carrying an envelope this rail cannot read is not an empty roster, it is a read that did not happen. Relaxing `rows === null` to `rowsOf(...) ?? []` survived the whole suite because no roster scenario served an unreadable body - and under that mutant this page publishes `workflows: []` (a claim the walk never observed) and counts itself as a fetched page.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 4,
       "pages": [
-        { "body": { "unexpected": true } }
+        {
+          "body": {
+            "unexpected": true
+          }
+        }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "workflowsNull": true,
         "uniqueCount": 0,
         "reportedTotal": null,
@@ -450,71 +948,540 @@
         "pagesFetched": 0,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_PAGE_READ_FAILED"],
+        "warningCodes": [
+          "ROSTER_PAGE_READ_FAILED"
+        ],
         "terminalReason": null
       }
     },
-
     "reported-total-is-a-string": {
       "planBullet": "terminal proof (plan line 539)",
       "why": "The reported total must be an already-numeric root-level value, not something coerced into one. `total:\"3\"` coerces to a perfectly plausible 3, and a walk that accepted it would reconcile against a number whose type it had merely guessed - so relaxing `Number.isFinite(raw)` to a coercion survived the whole suite. The rows stay as evidence; only the completeness claim is refused. This scenario is also the measurement of what fail-closed COSTS: if a live envelope really does report a string, every roster read is permanently incomplete, which is why the Task 7 canary must reconcile the shape.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 3,
       "pages": [
-        { "total": "3", "rows": [ { "_id": "g-1" }, { "_id": "g-2" }, { "_id": "g-3" } ] }
+        {
+          "total": "3",
+          "rows": [
+            {
+              "_id": "g-1"
+            },
+            {
+              "_id": "g-2"
+            },
+            {
+              "_id": "g-3"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "uniqueCount": 3,
         "reportedTotal": null,
-        "totalHistory": [null],
+        "totalHistory": [
+          null
+        ],
         "pagesFetched": 1,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_TOTAL_UNAVAILABLE"],
+        "warningCodes": [
+          "ROSTER_TOTAL_UNAVAILABLE"
+        ],
         "terminalReason": null
       }
     },
-
     "empty-string-row-id": {
       "planBullet": "missing IDs return complete:false and truncated:true (plan lines 525, 539)",
       "why": "The empty string is not an id: it addresses nothing and collides with every other empty-id row. Deleting the empty-string guard from idOf survived the whole suite - and under that mutant this single row counts as one unique workflow, reaches the declared total of one, and publishes the roster as COMPLETE while holding a row it cannot address. Correct behaviour is two warnings: the row cannot be counted, and the page therefore added no unique workflow while the count was still below the total.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 1,
       "pages": [
-        { "rows": [ { "_id": "", "name": "an id-shaped hole" } ] }
+        {
+          "rows": [
+            {
+              "_id": "",
+              "name": "an id-shaped hole"
+            }
+          ]
+        }
       ],
       "expect": {
-        "offsets": [0],
+        "offsets": [
+          0
+        ],
         "uniqueCount": 0,
         "reportedTotal": 1,
         "pagesFetched": 1,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["ROSTER_ROW_ID_MISSING", "ROSTER_NO_UNIQUE_PROGRESS"],
+        "warningCodes": [
+          "ROSTER_ROW_ID_MISSING",
+          "ROSTER_NO_UNIQUE_PROGRESS"
+        ],
         "terminalReason": null
       }
     },
-
     "rate-limited-page": {
       "planBullet": "a rate limit makes the walk incomplete (plan line 550)",
       "why": "A 429 means the account asked this run to back off, so whatever the walk had at that moment is provably less than the whole roster. The retry hint is preserved for the checkpoint, and the run may never publish as complete.",
-      "input": { "pageSize": 4, "maxPages": 100 },
+      "input": {
+        "pageSize": 4,
+        "maxPages": 100
+      },
       "declaredTotal": 8,
       "pages": [
-        { "generate": { "count": 4, "idPrefix": "q1-" } },
-        { "gateway": { "ok": false, "status": 429, "failureClass": "RATE_LIMITED", "retryAfterMs": 2000 }, "rows": [] }
+        {
+          "generate": {
+            "count": 4,
+            "idPrefix": "q1-"
+          }
+        },
+        {
+          "gateway": {
+            "ok": false,
+            "status": 429,
+            "failureClass": "RATE_LIMITED",
+            "retryAfterMs": 2000
+          },
+          "rows": []
+        }
       ],
       "expect": {
-        "offsets": [0, 4],
+        "offsets": [
+          0,
+          4
+        ],
         "uniqueCount": 4,
         "pagesFetched": 1,
         "rateLimited": true,
         "retryAfterMs": 2000,
         "complete": false,
         "truncated": true,
-        "warningCodes": ["RATE_LIMITED"],
+        "warningCodes": [
+          "RATE_LIMITED"
+        ],
         "terminalReason": null
+      }
+    },
+    "live-envelope-rows-count": {
+      "planBullet": "terminal proof (plan line 539) - the LIVE-OBSERVED envelope",
+      "why": "The shape the rail will actually meet: GET /workflow/{locationId}/list answers {rows, count, isLocationRateLimited}, per ghl-internal-api-research/docs/03-endpoints.md:167, DISCOVERIES.md:121, the openapi.json entry stamped x-proof live-runtime (2026-07-21), and core/tools.mjs:762-763. Until this scenario existed the rail read NEITHER key: rows fell to ROSTER_PAGE_READ_FAILED and the walk published zero workflows against a real account, and repairing only the rows key would have left every roster permanently ROSTER_TOTAL_UNAVAILABLE. Both halves are pinned here so neither can regress alone.",
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
+      "declaredTotal": 2,
+      "pages": [
+        {
+          "envelopeKeys": {
+            "rowsKey": "rows",
+            "totalKey": "count"
+          },
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha",
+              "status": "published"
+            },
+            {
+              "_id": "wf-2",
+              "name": "Bravo",
+              "status": "draft"
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "offsets": [
+          0
+        ],
+        "workflowIds": [
+          "wf-1",
+          "wf-2"
+        ],
+        "uniqueCount": 2,
+        "reportedTotal": 2,
+        "totalHistory": [
+          2
+        ],
+        "pagesFetched": 1,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "terminalReason": "unique_count_equals_reported_total",
+        "envelopeShape": {
+          "rowsKeys": [
+            "rows"
+          ],
+          "totalKeys": [
+            "count"
+          ]
+        }
+      }
+    },
+    "legacy-envelope-workflows-total": {
+      "planBullet": "terminal proof (plan line 539) - the legacy key family still reads",
+      "why": "{workflows, total} is the shape this rail assumed before the 2026-07-27 capture review, and no captured response has ever carried it. It is still accepted rather than removed, because dropping a candidate key can only ever turn a readable envelope into an unreadable one and this rail gets no second attempt at a page it refused. This scenario is what stops a later cleanup from silently narrowing the reader back to one bet.",
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
+      "declaredTotal": 2,
+      "pages": [
+        {
+          "envelopeKeys": {
+            "rowsKey": "workflows",
+            "totalKey": "total"
+          },
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha",
+              "status": "published"
+            },
+            {
+              "_id": "wf-2",
+              "name": "Bravo",
+              "status": "draft"
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "offsets": [
+          0
+        ],
+        "workflowIds": [
+          "wf-1",
+          "wf-2"
+        ],
+        "uniqueCount": 2,
+        "reportedTotal": 2,
+        "totalHistory": [
+          2
+        ],
+        "pagesFetched": 1,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "terminalReason": "unique_count_equals_reported_total",
+        "envelopeShape": {
+          "rowsKeys": [
+            "workflows"
+          ],
+          "totalKeys": [
+            "total"
+          ]
+        }
+      }
+    },
+    "legacy-envelope-data-key": {
+      "planBullet": "terminal proof (plan line 539) - the third row-key candidate",
+      "why": "`data` is the last row-key candidate and the only one no scenario exercised, so deleting it from ROSTER_ROW_KEYS was a free mutant. A key list is only as load-bearing as the scenarios that read through each of its entries.",
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
+      "declaredTotal": 2,
+      "pages": [
+        {
+          "envelopeKeys": {
+            "rowsKey": "data",
+            "totalKey": "count"
+          },
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha",
+              "status": "published"
+            },
+            {
+              "_id": "wf-2",
+              "name": "Bravo",
+              "status": "draft"
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "offsets": [
+          0
+        ],
+        "workflowIds": [
+          "wf-1",
+          "wf-2"
+        ],
+        "uniqueCount": 2,
+        "reportedTotal": 2,
+        "totalHistory": [
+          2
+        ],
+        "pagesFetched": 1,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "terminalReason": "unique_count_equals_reported_total",
+        "envelopeShape": {
+          "rowsKeys": [
+            "data"
+          ],
+          "totalKeys": [
+            "count"
+          ]
+        }
+      }
+    },
+    "envelope-row-keys-agree": {
+      "planBullet": "a malformed success is complete:false, never an empty array (plan line 550) - the POSITIVE edge",
+      "why": "Two row keys carrying the SAME list is redundancy, not contradiction, and must read normally. Without this scenario the conflict rule could be strengthened to 'more than one row key present at all is a conflict' - which fails closed and therefore looks safe, but would refuse a perfectly readable envelope and take the roster to zero workflows for no reason.",
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
+      "declaredTotal": 2,
+      "pages": [
+        {
+          "envelopeKeys": {
+            "rowsKey": "rows",
+            "totalKey": "count"
+          },
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha",
+              "status": "published"
+            },
+            {
+              "_id": "wf-2",
+              "name": "Bravo",
+              "status": "draft"
+            }
+          ],
+          "alsoRows": {
+            "key": "workflows",
+            "rows": [
+              {
+                "_id": "wf-1",
+                "name": "Alpha",
+                "status": "published"
+              },
+              {
+                "_id": "wf-2",
+                "name": "Bravo",
+                "status": "draft"
+              }
+            ]
+          }
+        }
+      ],
+      "expect": {
+        "offsets": [
+          0
+        ],
+        "workflowIds": [
+          "wf-1",
+          "wf-2"
+        ],
+        "uniqueCount": 2,
+        "reportedTotal": 2,
+        "totalHistory": [
+          2
+        ],
+        "pagesFetched": 1,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "terminalReason": "unique_count_equals_reported_total",
+        "envelopeShape": {
+          "rowsKeys": [
+            "rows"
+          ],
+          "totalKeys": [
+            "count"
+          ]
+        }
+      }
+    },
+    "envelope-row-keys-disagree": {
+      "planBullet": "a malformed success is complete:false, never an empty array (plan line 550)",
+      "why": "One 200 carrying TWO different rosters. Reading the first-listed key would publish 1 workflow as a COMPLETE roster while a 2-row list sat in the same response - the exact silent-loss shape this module exists to refuse. There is no defensible reading of this body, so the rail makes none: it reports the conflict, names the disagreeing keys, and reads nothing. Note the recorded shape keeps the halves SEPARATE: the total key was still readable and is still recorded, so the artifact says which half of the envelope failed rather than only that one did.",
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
+      "declaredTotal": 2,
+      "pages": [
+        {
+          "envelopeKeys": {
+            "rowsKey": "rows",
+            "totalKey": "count"
+          },
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha"
+            }
+          ],
+          "alsoRows": {
+            "key": "workflows",
+            "rows": [
+              {
+                "_id": "wf-1",
+                "name": "Alpha",
+                "status": "published"
+              },
+              {
+                "_id": "wf-2",
+                "name": "Bravo",
+                "status": "draft"
+              }
+            ]
+          }
+        }
+      ],
+      "expect": {
+        "offsets": [
+          0
+        ],
+        "workflowsNull": true,
+        "uniqueCount": 0,
+        "reportedTotal": null,
+        "totalHistory": [],
+        "uniqueProgress": [],
+        "pagesFetched": 0,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": [
+          "ROSTER_ENVELOPE_CONFLICT"
+        ],
+        "terminalReason": null,
+        "envelopeShape": {
+          "rowsKeys": [],
+          "totalKeys": [
+            "count"
+          ]
+        }
+      }
+    },
+    "envelope-total-keys-disagree": {
+      "planBullet": "terminal proof (plan line 539) - two totals, one response",
+      "why": "The total half of the same rule, and it is refused BEFORE the rows are counted into the walk. The reported total is the only terminal proof this walk has; a response that reports two different ones has no terminal proof to offer, so counting its rows first and discovering that later would publish a partially-walked roster keyed to a number the response itself contradicted.",
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
+      "declaredTotal": 2,
+      "pages": [
+        {
+          "envelopeKeys": {
+            "rowsKey": "rows",
+            "totalKey": "count"
+          },
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha",
+              "status": "published"
+            },
+            {
+              "_id": "wf-2",
+              "name": "Bravo",
+              "status": "draft"
+            }
+          ],
+          "alsoTotal": {
+            "key": "total",
+            "value": 99
+          }
+        }
+      ],
+      "expect": {
+        "offsets": [
+          0
+        ],
+        "workflowsNull": true,
+        "uniqueCount": 0,
+        "reportedTotal": null,
+        "totalHistory": [],
+        "uniqueProgress": [],
+        "pagesFetched": 0,
+        "complete": false,
+        "truncated": true,
+        "warningCodes": [
+          "ROSTER_ENVELOPE_CONFLICT"
+        ],
+        "terminalReason": null,
+        "envelopeShape": {
+          "rowsKeys": [
+            "rows"
+          ],
+          "totalKeys": []
+        }
+      }
+    },
+    "envelope-total-keys-agree": {
+      "planBullet": "terminal proof (plan line 539) - two totals that concur",
+      "why": "The total-side twin of envelope-row-keys-agree, and the mutant it kills is the same: 'two total keys present is a conflict' fails closed, looks safe, and would make every roster incomplete on an envelope that agreed with itself. The recorded key is the one the value was READ FROM, not every key that happened to be present - two keys agreeing is one reading, and naming both would imply the walk had two.",
+      "input": {
+        "pageSize": 100,
+        "maxPages": 100
+      },
+      "declaredTotal": 2,
+      "pages": [
+        {
+          "envelopeKeys": {
+            "rowsKey": "rows",
+            "totalKey": "count"
+          },
+          "rows": [
+            {
+              "_id": "wf-1",
+              "name": "Alpha",
+              "status": "published"
+            },
+            {
+              "_id": "wf-2",
+              "name": "Bravo",
+              "status": "draft"
+            }
+          ],
+          "alsoTotal": {
+            "key": "total",
+            "value": 2
+          }
+        }
+      ],
+      "expect": {
+        "offsets": [
+          0
+        ],
+        "uniqueCount": 2,
+        "reportedTotal": 2,
+        "totalHistory": [
+          2
+        ],
+        "pagesFetched": 1,
+        "complete": true,
+        "truncated": false,
+        "warningCodes": [],
+        "terminalReason": "unique_count_equals_reported_total",
+        "envelopeShape": {
+          "rowsKeys": [
+            "rows"
+          ],
+          "totalKeys": [
+            "count"
+          ]
+        }
       }
     }
   }

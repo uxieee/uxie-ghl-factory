@@ -94,9 +94,21 @@ test('export_workflow reports a supplemental-request failure instead of claiming
 
 test('get_workflow_logs merges executions, per-step counts and the enrollment roster', async () => {
   const gw = gwStub({
-    'logs/v2': { logs: [{ id: 'l1', eventType: 'added_to_workflow' }] },
-    'count-per-step': { counts: [{ stepId: 's1', count: 3 }] },
-    'workflow-with-filter': { rows: [{ contactId: 'c1', stepId: 's1' }] },
+    // THE REAL CAPTURED SHAPES, not invented ones. Both of these used to be written the way
+    // a reader might guess — `{logs:[{eventType}]}` and `{counts:[{stepId, count}]}` — and
+    // both were wrong on every count, which mattered because downstream work read them as
+    // evidence of the live contract and built assertions on values GHL never emits.
+    // Captured 2026-07-15 live prod (ghl-workflow-api-docs
+    // research/execution-logs-internal/README.md) and re-proven GROM AU 2026-07-18:
+    //   - /workflows/logs/v2 answers a BARE ARRAY, not an envelope. There is no `eventType`
+    //     field on a row and no `outcome` field at all: `eventType` is a QUERY PARAM that
+    //     filters on the row's `status`, whose enum is enroll / added_to_workflow / step /
+    //     waiting / success / failed / retry / skipped / wait_finished / finished.
+    //   - count-per-step answers a bare array of `{total, currentStepId}` — the step key is
+    //     `currentStepId`, not `stepId` and not `_id`, and the count key is `total`.
+    'logs/v2': [{ _id: 'l1', status: 'added_to_workflow', stepId: 's1', sequence: 1 }],
+    'count-per-step': [{ total: 3, currentStepId: 's1' }],
+    'workflow-with-filter': { rows: [{ _id: 'ws1', contactId: 'c1', currentStepId: 's1' }] },
   });
   const result = await tool('get_workflow_logs').handler(
     { locationId: 'L', workflowId: 'w1', limit: 20 },
@@ -269,6 +281,14 @@ test('list_account_entities reuses the canonical best-effort entity sweep', asyn
     '/forms/': { forms: [{ id: 'f1', name: 'Form' }] },
     '/customFields/search': { customFields: [{ id: 'cf1', name: 'Field' }] },
     '/voice-ai/agents': { status: 404, ok: false, json: {} },
+    // UNVERIFIED SHAPE, DELIBERATELY LEFT AS-IS AND LABELLED. No captured
+    // `/ai-employees/agents` response exists in any corpus; the nearest captures are the
+    // `/ai-employees/employees/search` routes, which answer `{employees, totalCount, count}`
+    // — a different route with a different envelope, so copying its shape here would swap one
+    // guess for another and dress it up as evidence. `{agents:[…]}` is what the reader under
+    // test expects, and this stub asserts the READER, not the upstream contract. Do not cite
+    // this line as proof of the live envelope; it is the one mock in this file that has no
+    // capture behind it.
     '/ai-employees/agents': { agents: [{ id: 'a1', name: 'Agent' }] },
   });
   const result = await tool('list_account_entities').handler({ locationId: 'L' }, deps(gw));

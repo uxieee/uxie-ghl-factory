@@ -33819,6 +33819,32 @@ async function collectWorkflowRuntimeWindow({ auditGateway, input } = {}) {
       // hash, so a partial definition hashing to a complete-looking value would bind a
       // receipt to evidence that was never collected.
       canonicalHash: definitionComplete ? sha256Canonical({ workflow, triggers, stickyNotes }) : null,
+      // THE HASH A CLIENT CAN ACTUALLY CHECK. `canonicalHash` above is computed over the
+      // definition as it arrived from GHL, but this whole result then leaves through `ok()`
+      // (core/tools.mjs) → `scrubSecrets` (core/errors.mjs), which is LOSSY and NOT
+      // invertible: it rewrites Bearer tokens, JWT-shaped strings and `token:`/`apiKey=`/
+      // `password:` labelled values, and replaces the ENTIRE subtree under any key in
+      // SECRET_KEYS with '<redacted>'. So no consumer can reproduce `canonicalHash` from the
+      // bytes it received — and webhook and custom-code steps are precisely where those
+      // values live, which makes it the common case rather than a corner one.
+      //
+      // Publishing BOTH is the fix, rather than replacing the pre-scrub digest: the pre-scrub
+      // hash is the one that identifies the definition GHL actually served (two definitions
+      // differing only inside a redacted subtree share a post-scrub hash and must not be
+      // mistaken for the same workflow), and the post-scrub hash is the one a client holding
+      // the transcript can verify. They answer different questions, so both are stated and
+      // named for what they cover.
+      //
+      // Computed over `scrubSecrets(...)` of the same triple, in the same key order, so the
+      // only difference between the two digests is the scrub itself.
+      canonicalHashScrubbed: definitionComplete ? sha256Canonical(scrubSecrets({ workflow, triggers, stickyNotes })) : null,
+      // Which digest covers what the caller is holding. A client that verifies the wrong one
+      // reports a definition mismatch that is really a scrub, so this is stated rather than
+      // left to be inferred from field names.
+      hashCoverage: {
+        canonicalHash: "pre-scrub upstream bytes; NOT reproducible from this response",
+        canonicalHashScrubbed: "post-scrub bytes; reproducible from this response"
+      },
       capturedAt: detail.capturedAt ?? null,
       // The quietest lie available to this collector is reading a definition TODAY and
       // reporting runtime from last week as though those contacts went through it. Nothing
@@ -34196,6 +34222,11 @@ var ROSTER_DEFAULTS = Object.freeze({ pageSize: 100, maxPages: 100 });
 var AI_BUNDLE_DEFAULTS = Object.freeze({ maxPages: 100 });
 var AI_BUNDLE_COMPONENTS = Object.freeze(["conversation_ai", "voice_ai", "agent_studio"]);
 var ROSTER_WARNINGS = Object.freeze({
+  // One 200 carrying TWO readings of itself. Distinct from ROSTER_PAGE_READ_FAILED, which
+  // means "no key I know" — this means "more keys than I know what to do with, and they
+  // disagree". An auditor branches on them differently: the first is a rail that has fallen
+  // behind the API, the second is an upstream response that contradicts itself.
+  ROSTER_ENVELOPE_CONFLICT: "ROSTER_ENVELOPE_CONFLICT",
   ROSTER_DUPLICATE_ID_CONFLICT: "ROSTER_DUPLICATE_ID_CONFLICT",
   ROSTER_TOTAL_CHANGED: "ROSTER_TOTAL_CHANGED",
   ROSTER_TOTAL_UNAVAILABLE: "ROSTER_TOTAL_UNAVAILABLE",
@@ -34223,6 +34254,10 @@ var ROSTER_WARNINGS = Object.freeze({
 var AI_BUNDLE_WARNINGS = Object.freeze({
   AI_DISCOVERY_READ_FAILED: "AI_DISCOVERY_READ_FAILED",
   AI_DISCOVERY_UNREADABLE: "AI_DISCOVERY_UNREADABLE",
+  // The AI twin of ROSTER_ENVELOPE_CONFLICT, and separate from AI_DISCOVERY_UNREADABLE for
+  // the same reason: "no key I recognise" and "two keys that contradict each other" are
+  // different upstream faults and an auditor acts on them differently.
+  AI_DISCOVERY_ENVELOPE_CONFLICT: "AI_DISCOVERY_ENVELOPE_CONFLICT",
   AI_DISCOVERY_ROW_MALFORMED: "AI_DISCOVERY_ROW_MALFORMED",
   AI_DISCOVERY_ROW_ID_MISSING: "AI_DISCOVERY_ROW_ID_MISSING",
   // The AI twin of ROSTER_DUPLICATE_ID_CONFLICT. Discovery used to collapse two rows sharing
@@ -34401,12 +34436,31 @@ var bindGateway = (auditGateway, locationId) => {
   }
   return String(boundLocationId);
 };
-var rowsOf2 = (json2, ...keys) => {
-  if (Array.isArray(json2)) return json2;
-  if (!json2 || typeof json2 !== "object") return null;
-  for (const key of keys) if (Array.isArray(json2[key])) return json2[key];
-  return null;
+var BARE_ARRAY = "<bare-array>";
+var readRows = (json2, keys) => {
+  if (Array.isArray(json2)) return { rows: json2, key: BARE_ARRAY, conflict: null };
+  if (!json2 || typeof json2 !== "object") return { rows: null, key: null, conflict: null };
+  const present = keys.filter((key) => Array.isArray(json2[key]));
+  if (present.length === 0) return { rows: null, key: null, conflict: null };
+  const [first, ...rest] = present;
+  const canonical = sha256Canonical2(json2[first]);
+  const disagreeing = rest.filter((key) => sha256Canonical2(json2[key]) !== canonical);
+  if (disagreeing.length > 0) return { rows: null, key: null, conflict: [first, ...disagreeing] };
+  return { rows: json2[first], key: first, conflict: null };
 };
+var readTotalFrom = (json2, keys) => {
+  if (!json2 || typeof json2 !== "object" || Array.isArray(json2)) return { total: null, key: null, conflict: null };
+  const present = keys.filter((key) => Number.isFinite(json2[key]));
+  if (present.length === 0) return { total: null, key: null, conflict: null };
+  const [first, ...rest] = present;
+  const disagreeing = rest.filter((key) => json2[key] !== json2[first]);
+  if (disagreeing.length > 0) return { total: null, key: null, conflict: [first, ...disagreeing] };
+  return { total: json2[first], key: first, conflict: null };
+};
+var ROSTER_ROW_KEYS = Object.freeze(["rows", "workflows", "data"]);
+var ROSTER_TOTAL_KEYS = Object.freeze(["count", "total"]);
+var AI_ROW_KEYS = Object.freeze(["agents", "employees", "data", "items"]);
+var AI_TOTAL_KEYS = Object.freeze(["total", "totalCount"]);
 var ID_WRAPPER_KEYS2 = ["$oid", "_id", "id"];
 var unwrapId = (raw) => {
   if (raw === null || raw === void 0) return null;
@@ -34450,9 +34504,17 @@ var makeRowKeyer2 = () => {
     return `noid:${hash2}#${occurrence}`;
   };
 };
-var readTotal = (json2) => {
-  const raw = json2?.total;
-  return Number.isFinite(raw) ? Number(raw) : null;
+var makeShapeLog = () => {
+  const rowsKeys = /* @__PURE__ */ new Set();
+  const totalKeys = /* @__PURE__ */ new Set();
+  return {
+    record: ({ rowsKey, totalKey }) => {
+      if (rowsKey !== null && rowsKey !== void 0) rowsKeys.add(rowsKey);
+      if (totalKey !== null && totalKey !== void 0) totalKeys.add(totalKey);
+    },
+    // Sorted so two runs over the same account produce byte-identical evidence.
+    read: () => ({ rowsKeys: [...rowsKeys].sort(), totalKeys: [...totalKeys].sort() })
+  };
 };
 var WARNING_DETAIL_SAMPLES = 3;
 function makeWarningLog() {
@@ -34510,6 +34572,7 @@ async function listWorkflowsComplete({ auditGateway, input } = {}) {
   const pagination = { attempted: 0, fetched: 0, exhausted: false, budget: config2.maxPages };
   const totalHistory = [];
   const uniqueProgress = [];
+  const shapeLog = makeShapeLog();
   const seenIds = /* @__PURE__ */ new Map();
   const conflictedIds = /* @__PURE__ */ new Set();
   let capturedAt = null;
@@ -34569,6 +34632,20 @@ async function listWorkflowsComplete({ auditGateway, input } = {}) {
       capabilityVersion: ROSTER_CAPABILITY_VERSION,
       capturedAt,
       complete,
+      // The envelope keys each value was actually READ FROM — not every candidate the reader
+      // was willing to accept, and not every key that happened to be present. Two keys that
+      // agree are ONE reading, so only the key the value came from is named; naming both
+      // would imply the walk had two independent observations when it had one.
+      //
+      // The two halves are recorded SEPARATELY and on purpose: a page whose rows contradicted
+      // themselves but whose total read cleanly reports `{rowsKeys:[], totalKeys:['count']}`,
+      // so the artifact says WHICH half of the envelope failed rather than only that one did.
+      //
+      // This is the field that retires canary item 1 of 4: the first live run records
+      // `rows`/`count` here as evidence, and if a future GHL release moves either key the
+      // change is visible in the artifact instead of surfacing as an unexplained empty
+      // roster with a warning that blames the wrong thing.
+      envelopeShape: shapeLog.read(),
       locationBinding: {
         // Absence records request-scope binding: a weaker claim than a native match but
         // still evidence. Downgrading absence to a failure would make most of this API
@@ -34636,7 +34713,21 @@ async function listWorkflowsComplete({ auditGateway, input } = {}) {
         );
         return;
       }
-      const rows = rowsOf2(response.json, "workflows", "data");
+      const rowsRead = readRows(response.json, ROSTER_ROW_KEYS);
+      const totalRead = readTotalFrom(response.json, ROSTER_TOTAL_KEYS);
+      shapeLog.record({ rowsKey: rowsRead.key, totalKey: totalRead.key });
+      if (rowsRead.conflict !== null || totalRead.conflict !== null) {
+        const parts = [];
+        if (rowsRead.conflict !== null) parts.push(`row keys ${rowsRead.conflict.join("/")} carry different lists`);
+        if (totalRead.conflict !== null) parts.push(`total keys ${totalRead.conflict.join("/")} report different numbers`);
+        warn(
+          ROSTER_WARNINGS.ROSTER_ENVELOPE_CONFLICT,
+          "workflow_roster",
+          `the roster response contradicted itself (${parts.join("; ")}), so no reading of it can be defended`
+        );
+        return;
+      }
+      const rows = rowsRead.rows;
       if (rows === null) {
         warn(
           ROSTER_WARNINGS.ROSTER_PAGE_READ_FAILED,
@@ -34688,7 +34779,7 @@ async function listWorkflowsComplete({ auditGateway, input } = {}) {
         }
       }
       uniqueProgress.push(gained);
-      const pageTotal = readTotal(response.json);
+      const pageTotal = totalRead.total;
       totalHistory.push(pageTotal);
       if (pageTotal === null) {
         warn(
@@ -34782,6 +34873,7 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
   let capturedAt = null;
   let quarantined = false;
   let identityIncomplete2 = false;
+  const shapeLogs = new Map(AI_BUNDLE_COMPONENTS.map((name) => [name, makeShapeLog()]));
   const components = {};
   for (const name of AI_BUNDLE_COMPONENTS) {
     components[name] = {
@@ -34790,6 +34882,12 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       detailDenominator: 0,
       detailsRead: 0,
       errors: [],
+      // The envelope keys this component's discovery walk actually met — the per-component
+      // twin of the roster's field, and settled by the same 2026-07-27 capture review.
+      // `/agent-studio/agents-with-folders` was observed emitting `items` + a root numeric
+      // `total`; the `/ai-employees` search routes emit `employees` + `totalCount`. Both were
+      // outside the old key lists in one half or the other.
+      envelopeShape: { rowsKeys: [], totalKeys: [] },
       items: null,
       pages: {
         attempted: 0,
@@ -34878,6 +34976,7 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
         "a read in this sweep was throttled by the account, so at least one surface returned less than it would have"
       );
     }
+    for (const name of AI_BUNDLE_COMPONENTS) components[name].envelopeShape = shapeLogs.get(name).read();
     const complete = warnings.length === 0 && !rateLimit.limited;
     return {
       appliedQueries,
@@ -35001,7 +35100,28 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
         );
         break;
       }
-      const rows = rowsOf2(response.json, "agents", "employees", "data", "items");
+      const rowsRead = readRows(response.json, AI_ROW_KEYS);
+      const totalRead = readTotalFrom(response.json, AI_TOTAL_KEYS);
+      shapeLogs.get(name).record({ rowsKey: rowsRead.key, totalKey: totalRead.key });
+      if (rowsRead.conflict !== null || totalRead.conflict !== null) {
+        const parts = [];
+        if (rowsRead.conflict !== null) parts.push(`row keys ${rowsRead.conflict.join("/")} carry different lists`);
+        if (totalRead.conflict !== null) parts.push(`total keys ${totalRead.conflict.join("/")} report different numbers`);
+        recordError(
+          name,
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_ENVELOPE_CONFLICT,
+          discoveryCapabilityId,
+          "discovery",
+          `the discovery response contradicted itself (${parts.join("; ")})`
+        );
+        warn(
+          AI_BUNDLE_WARNINGS.AI_DISCOVERY_ENVELOPE_CONFLICT,
+          name,
+          `capability ${discoveryCapabilityId} answered 200 with a self-contradictory envelope (${parts.join("; ")}), so no reading of it can be defended`
+        );
+        break;
+      }
+      const rows = rowsRead.rows;
       if (rows === null) {
         recordError(
           name,
@@ -35093,7 +35213,7 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
           detail: null
         });
       }
-      const pageTotal = readTotal(response.json);
+      const pageTotal = totalRead.total;
       component.totalHistory.push(pageTotal);
       if (pageTotal === null) {
         if (reportedTotal !== null) {

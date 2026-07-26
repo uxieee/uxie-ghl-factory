@@ -63,7 +63,7 @@
 // have to invent the field the other one means.
 import { createHash } from 'node:crypto';
 import { AUDIT_CAPABILITIES } from './audit-capabilities.mjs';
-import { CODES } from './errors.mjs';
+import { CODES, scrubSecrets } from './errors.mjs';
 
 export const RUNTIME_WINDOW_CONTRACT_VERSION = '1.0.0';
 
@@ -852,6 +852,34 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
       // hash, so a partial definition hashing to a complete-looking value would bind a
       // receipt to evidence that was never collected.
       canonicalHash: definitionComplete ? sha256Canonical({ workflow, triggers, stickyNotes }) : null,
+      // THE HASH A CLIENT CAN ACTUALLY CHECK. `canonicalHash` above is computed over the
+      // definition as it arrived from GHL, but this whole result then leaves through `ok()`
+      // (core/tools.mjs) → `scrubSecrets` (core/errors.mjs), which is LOSSY and NOT
+      // invertible: it rewrites Bearer tokens, JWT-shaped strings and `token:`/`apiKey=`/
+      // `password:` labelled values, and replaces the ENTIRE subtree under any key in
+      // SECRET_KEYS with '<redacted>'. So no consumer can reproduce `canonicalHash` from the
+      // bytes it received — and webhook and custom-code steps are precisely where those
+      // values live, which makes it the common case rather than a corner one.
+      //
+      // Publishing BOTH is the fix, rather than replacing the pre-scrub digest: the pre-scrub
+      // hash is the one that identifies the definition GHL actually served (two definitions
+      // differing only inside a redacted subtree share a post-scrub hash and must not be
+      // mistaken for the same workflow), and the post-scrub hash is the one a client holding
+      // the transcript can verify. They answer different questions, so both are stated and
+      // named for what they cover.
+      //
+      // Computed over `scrubSecrets(...)` of the same triple, in the same key order, so the
+      // only difference between the two digests is the scrub itself.
+      canonicalHashScrubbed: definitionComplete
+        ? sha256Canonical(scrubSecrets({ workflow, triggers, stickyNotes }))
+        : null,
+      // Which digest covers what the caller is holding. A client that verifies the wrong one
+      // reports a definition mismatch that is really a scrub, so this is stated rather than
+      // left to be inferred from field names.
+      hashCoverage: {
+        canonicalHash: 'pre-scrub upstream bytes; NOT reproducible from this response',
+        canonicalHashScrubbed: 'post-scrub bytes; reproducible from this response',
+      },
       capturedAt: detail.capturedAt ?? null,
       // The quietest lie available to this collector is reading a definition TODAY and
       // reporting runtime from last week as though those contacts went through it. Nothing
