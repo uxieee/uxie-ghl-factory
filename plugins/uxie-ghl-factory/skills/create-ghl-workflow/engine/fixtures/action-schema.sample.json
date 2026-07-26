@@ -1,0 +1,680 @@
+{
+ "actions": [
+  {
+   "appName": "contact",
+   "actions": [
+    {
+     "key": "task-notification",
+     "section": "contact",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "title",
+       "title": "workflow.actions.addTask.title",
+       "required": true,
+       "fieldType": "string",
+       "validations": [],
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      },
+      {
+       "field": "body",
+       "title": "workflow.actions.addTask.description",
+       "required": true,
+       "fieldType": "rich-text",
+       "validations": [],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "config": {
+        "richTextEditorType": "html"
+       },
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "postProcessor": ""
+      },
+      {
+       "field": "assignedTo",
+       "title": "workflow.actions.addTask.assignTo",
+       "required": false,
+       "fieldType": "select",
+       "helpText": "",
+       "validations": [],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "fieldOptions": {
+        "isClearable": false
+       },
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "customInputHelperText": "workflow.actions.addTask.customUserAssigneeHelpText",
+       "postProcessor": "",
+       "mappedTo": "USERS"
+      },
+      {
+       "field": "dueDate",
+       "title": "Due_date",
+       "required": true,
+       "fieldType": "duration-picker",
+       "validations": [],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "customInputHelperText": "workflow.actions.addTask.customDueDateHelpText",
+       "postProcessor": ""
+      },
+      {
+       "field": "DYNAMIC",
+       "title": "dynamic",
+       "required": false,
+       "fieldType": "DYNAMIC",
+       "validations": [],
+       "dynamicFieldsConfig": {
+        "route": "",
+        "serviceName": "",
+        "customGenerator": "/**\n * This is wrapped in an async function\n * You can use await throughout the function\n */\nasync (staticInputs, attributes, extras) => {\n  const assignedToOldValues = [...staticInputs.assignedTo.options]\n  staticInputs.assignedTo.options = [{\n    label: \"Contact's Assigned User\",\n    value: 'contact.assigned_user',\n  }, ...assignedToOldValues]\n  return {\n    inputs: []\n  }\n}"
+       }
+      }
+     ],
+     "requiredTriggers": [],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    },
+    {
+     "key": "contact_engagement_score",
+     "section": "contact",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "operator",
+       "title": "Adjustment",
+       "required": true,
+       "fieldType": "select",
+       "value": "Add",
+       "options": [
+        {
+         "label": "Add",
+         "value": "Add"
+        },
+        {
+         "label": "Subtract",
+         "value": "Subtract"
+        }
+       ],
+       "sortOptions": true,
+       "resetValue": false,
+       "allowCustomInputPicker": false
+      },
+      {
+       "title": "Points",
+       "field": "points",
+       "required": true,
+       "fieldType": "numerical",
+       "sortOptions": true,
+       "resetValue": false,
+       "allowCustomInputPicker": false
+      }
+     ],
+     "requiredTriggers": [],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    }
+   ]
+  },
+  {
+   "appName": "Conversation AI",
+   "actions": [
+    {
+     "key": "conversationai_objective",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "objective",
+       "title": "Describe the Objective",
+       "required": true,
+       "fieldType": "textarea",
+       "helpText": "Input the prompt or instruction for this particular objective. Max 500 chars",
+       "placeholder": "Input the prompt for the objective ",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 500",
+         "errorMessage": "Maximum 500 characters allowed"
+        }
+       ],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "postProcessor": ""
+      },
+      {
+       "field": "contactField",
+       "title": "Update Contact Field",
+       "required": false,
+       "fieldType": "select",
+       "helpText": "Select the contact / custom field you want to update",
+       "placeholder": "Select",
+       "validations": [],
+       "value": "",
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "fieldOptions": {
+        "isClearable": true
+       },
+       "eventListeners": [
+        "onFocusOut"
+       ],
+       "altersDynamicField": true,
+       "allowCustomInputPicker": false,
+       "postProcessor": "",
+       "fetchOptions": {
+        "serviceName": "ai-employees-api",
+        "route": "objective-builder/listFields",
+        "headers": {
+         "developer_version": "obj"
+        }
+       }
+      },
+      {
+       "field": "instructions",
+       "title": "Additional Instructions",
+       "required": false,
+       "fieldType": "textarea",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 1000",
+         "errorMessage": "Maximum 1000 characters are allowed"
+        }
+       ],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "postProcessor": ""
+      },
+      {
+       "field": "responseExample",
+       "title": "Response Example",
+       "required": false,
+       "fieldType": "textarea",
+       "helpText": "Specify what a valid response should look like. Max 300 chars",
+       "placeholder": "Add responses example that you expect from the customer ",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 300",
+         "errorMessage": "Maximum 300 characters allowed"
+        }
+       ],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      },
+      {
+       "field": "skipIfFilled",
+       "title": "Skip objective if field is already filled out ",
+       "required": false,
+       "fieldType": "checkbox",
+       "validations": [],
+       "value": "false",
+       "altersDynamicField": false
+      },
+      {
+       "field": "maxAttempts",
+       "title": "Maximum Attempts",
+       "required": false,
+       "fieldType": "numerical",
+       "validations": [
+        {
+         "rule": "(value) => value >= 1",
+         "errorMessage": "Minimum 1 attempt is allowed"
+        },
+        {
+         "rule": "(value) => value <= 5",
+         "errorMessage": "Maximum 5 attempts are allowed"
+        }
+       ],
+       "value": "5",
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": false,
+       "postProcessor": ""
+      },
+      {
+       "field": "proceedIfNotMet",
+       "title": "Don’t Proceed to Next Objective If Criteria not Met.",
+       "required": false,
+       "fieldType": "checkbox",
+       "validations": [],
+       "value": "false",
+       "eventListeners": [
+        "onFocusOut"
+       ],
+       "altersDynamicField": true
+      },
+      {
+       "field": "DYNAMIC",
+       "title": "Notify a user",
+       "required": false,
+       "fieldType": "DYNAMIC",
+       "validations": [],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "dynamicFieldsConfig": {
+        "route": "",
+        "serviceName": "",
+        "customGenerator": "/**\n * This is wrapped in an async function\n * You can use await throughout the function\n */\nasync (staticInputs, attributes, extras) => {\n  if (attributes.contactField) {\n    staticInputs['skipIfFilled'].disabled = false\n  } else {\n    staticInputs['skipIfFilled'].disabled = true\n    staticInputs['skipIfFilled'].value = false\n    attributes.skipIfFilled = false\n  }\n  if (attributes.proceedIfNotMet) {\n    return {\n      inputs: [{\n        field: \"closingMessage\",\n        title: \"Closing Message\",\n        fieldType: \"string\",\n        required: true,\n      }, {\n        field: \"tags\",\n        title: \"Add a Tag\",\n        fieldType: \"multiselect\",\n        mappedTo: 'TAGS',\n      }]\n    }\n  }\n}",
+        "url": "",
+        "method": "GET",
+        "labelField": "",
+        "valueField": "",
+        "path": "",
+        "dependsOn": []
+       }
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_trigger",
+      "conv_ai_autonomous_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    },
+    {
+     "key": "conversationai_book_appointment",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "promptInstructions",
+       "title": "Enter the Prompt for Calendar Booking",
+       "required": false,
+       "fieldType": "textarea",
+       "helpText": "Prompt or instruction that you want to provide",
+       "placeholder": "Input the prompt",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 500",
+         "errorMessage": "Maximum 500 characters allowed"
+        }
+       ],
+       "value": "Get the customer to book an appointment",
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      },
+      {
+       "field": "calendarId",
+       "title": "Select Calendar",
+       "required": true,
+       "fieldType": "select",
+       "helpText": "Choose the calendar to schedule appointment ",
+       "validations": [],
+       "sortOptions": true,
+       "altersDynamicField": false,
+       "mappedTo": "CALENDARS"
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_trigger",
+      "conv_ai_autonomous_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": {}
+    },
+    {
+     "key": "conversationai_end",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "message",
+       "title": "End Custom Message",
+       "required": false,
+       "fieldType": "textarea",
+       "placeholder": "Enter custom message",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 300",
+         "errorMessage": "Maximum 300 characters are allowed"
+        }
+       ],
+       "value": "",
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      },
+      {
+       "field": "sleepEnabled",
+       "title": "Reactivate After bot",
+       "required": true,
+       "fieldType": "checkbox",
+       "helpText": "Time after which the bot should be reactivated",
+       "validations": [],
+       "value": "true",
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "eventListeners": [],
+       "altersDynamicField": true,
+       "allowCustomInputPicker": true
+      },
+      {
+       "field": "DYNAMIC",
+       "title": "Select sleep time",
+       "required": false,
+       "fieldType": "DYNAMIC",
+       "validations": [],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "dynamicFieldsConfig": {
+        "route": "",
+        "serviceName": "",
+        "customGenerator": "/**\n * This is wrapped in an async function\n * You can use await throughout the function\n */\nasync (staticInputs, attributes, extras) => {\n  if (attributes.sleepEnabled) {\n    return {\n      inputs: [{\n          field: \"sleepDuration\",\n          title: \"Reactivate after (value)\",\n          description: \"Time after which the bot should be reactivated.\",\n          fieldType: \"numerical\",\n          value: 1,\n          validations: [{\n            errorMessage: \"Minimum time should be greater than equal to 1\",\n            rule: \"(value) => value >= 1\"\n          }]\n        },\n        {\n          field: \"sleepUnit\",\n          title: \"Reactivate After (unit)\",\n          description: \"Choose the time unit for when the bot should be reactivated (minutes, hours, days).\",\n          fieldType: \"select\",\n          value: \"hours\",\n          options: [{\n              label: \"DAYS\",\n              value: \"days\",\n            },\n            {\n              label: \"HOURS\",\n              value: \"hours\",\n            },\n            {\n              label: \"MINUTES\",\n              value: \"minutes\",\n            },\n          ],\n        },\n      ],\n    };\n  } else {\n    return {\n      inputs: [],\n    };\n  }\n}",
+        "url": "",
+        "method": "GET",
+        "labelField": "",
+        "valueField": "",
+        "path": "",
+        "dependsOn": []
+       }
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_autonomous_trigger",
+      "conv_ai_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    },
+    {
+     "key": "conversationai_ai_splitter",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "description",
+       "title": "Description",
+       "required": true,
+       "fieldType": "textarea",
+       "helpText": "Define the condition or criteria based on which the AI should split the conversation into different branches.\n\n",
+       "placeholder": "Describe the branching logic, e.g., whether the customer owns a house or not",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 500",
+         "errorMessage": "Maximum 500 characters allowed"
+        }
+       ],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_autonomous_trigger",
+      "conv_ai_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": {}
+    },
+    {
+     "key": "conversationai_ai_message",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "message",
+       "title": "Enter the Prompt for The Message",
+       "required": true,
+       "fieldType": "textarea",
+       "helpText": "Prompt or instruction that you want to provide",
+       "placeholder": "Input the prompt for the Message",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 600",
+         "errorMessage": "Maximum 600 characters are allowed"
+        }
+       ],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      },
+      {
+       "field": "waitForReply",
+       "title": "Wait for contact reply",
+       "required": true,
+       "fieldType": "checkbox",
+       "validations": [],
+       "value": "true",
+       "resetValue": true,
+       "sortOptions": false,
+       "disabled": true,
+       "showBelowCustomField": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "postProcessor": ""
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_autonomous_trigger",
+      "conv_ai_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    },
+    {
+     "key": "conversationai_custom_message",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "message",
+       "title": "Enter the Message",
+       "required": true,
+       "fieldType": "textarea",
+       "helpText": "",
+       "placeholder": "Enter Message",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 600",
+         "errorMessage": "Maximum 600 characters allowed"
+        }
+       ],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      },
+      {
+       "field": "waitForReply",
+       "title": "Wait for contact reply",
+       "required": true,
+       "fieldType": "checkbox",
+       "validations": [],
+       "value": "true",
+       "resetValue": true,
+       "sortOptions": false,
+       "disabled": true,
+       "showBelowCustomField": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "postProcessor": ""
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_autonomous_trigger",
+      "conv_ai_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    },
+    {
+     "key": "conversationai_transfer_bot",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "assignedEmployeeId",
+       "title": "Select Bot to Transfer to",
+       "required": true,
+       "fieldType": "select",
+       "helpText": "Choose a Bot to transfer to ",
+       "validations": [],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "fieldOptions": {
+        "isClearable": true
+       },
+       "altersDynamicField": false,
+       "allowCustomInputPicker": false,
+       "postProcessor": "",
+       "fetchOptions": {
+        "serviceName": "ai-employees-api",
+        "route": "employees/list?type=transfer_bot&workflowId={{workflowId}}",
+        "headers": {
+         "developer_version": "obj"
+        }
+       }
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_trigger",
+      "conv_ai_autonomous_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    },
+    {
+     "key": "conversationai_continue",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "instructions",
+       "title": "Additional Instructions",
+       "required": false,
+       "fieldType": "textarea",
+       "helpText": "Use this field to provide additional instructions on top of your Global Prompt. The bot will follow these along with your Global prompt.",
+       "validations": [
+        {
+         "rule": "(value) => value.length <= 1000",
+         "errorMessage": "Maximum 1000 characters are allowed"
+        }
+       ],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_trigger",
+      "conv_ai_autonomous_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": null
+    },
+    {
+     "key": "conversationai_services_booking",
+     "section": "Conversation AI",
+     "workflowsActionType": "INTERNAL",
+     "inputs": [
+      {
+       "field": "conversationai_services",
+       "title": "Select Services",
+       "required": true,
+       "fieldType": "multiselect",
+       "validations": [],
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": false,
+       "postProcessor": "",
+       "fetchOptions": {
+        "serviceName": "automation-calendars-api",
+        "route": "workflow/services"
+       }
+      },
+      {
+       "field": "conversationai_booking_description",
+       "title": "Service Booking Description",
+       "required": true,
+       "fieldType": "textarea",
+       "placeholder": "Get customer to book a service",
+       "validations": [],
+       "value": "Get customer to book a service",
+       "resetValue": false,
+       "sortOptions": false,
+       "disabled": false,
+       "showBelowCustomField": false,
+       "altersDynamicField": false,
+       "allowCustomInputPicker": true,
+       "postProcessor": ""
+      }
+     ],
+     "requiredTriggers": [
+      "conv_ai_trigger",
+      "conv_ai_autonomous_trigger"
+     ],
+     "additionalConfig": {
+      "isPremium": false
+     },
+     "branchesConfig": {}
+    }
+   ]
+  }
+ ],
+ "triggers": []
+}

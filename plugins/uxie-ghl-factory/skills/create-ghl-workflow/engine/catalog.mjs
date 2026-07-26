@@ -11,9 +11,32 @@
 //   catalog.stepCapabilities() -> universal author/edit capabilities for all steps
 //   catalog.allSteps() / catalog.allTriggers() -> type[]  (for coverage reporting)
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
+import { CATALOG_CORRECTIONS, REQUIRED_FIELDS } from './required-fields.mjs';
 
 function data() {
   return CATALOG_DATA;
+}
+
+// Overlay the hand-maintained corrections onto the generated entries. catalog.data.json is
+// regenerated wholesale by gen-catalog.mjs (which lives in the ghl-workflow-api-docs repo),
+// so a correction hand-written INTO it would be lost on the next regen — it has to be
+// applied here instead. See required-fields.mjs for the evidence behind each one.
+//
+// `attestedRequiredFields` is deliberately a SEPARATE key from the generated
+// `requiredFields`: the generated one is marketplace-schema derived and does not describe
+// the emitted shape (goto declares "placement", which the engine has never emitted), so it
+// stays advisory. Only the attested set is enforced.
+export function correctSteps(steps) {
+  const out = { ...steps };
+  for (const [type, fix] of Object.entries(CATALOG_CORRECTIONS)) {
+    const { reason, ...patch } = fix;
+    out[type] = { ...(out[type] ?? { type, kind: 'step' }), ...patch };
+  }
+  for (const [type, spec] of Object.entries(REQUIRED_FIELDS)) {
+    if (!out[type]) continue;
+    out[type] = { ...out[type], attestedRequiredFields: Object.keys(spec.fields) };
+  }
+  return out;
 }
 
 // Map a trigger type to its recovered filter model. The generator keys filter
@@ -32,17 +55,18 @@ function findFilterModel(d, triggerType) {
 
 export function loadCatalog() {
   const d = data();
+  const steps = correctSteps(d.steps);
   return {
-    step: (type) => d.steps[type],
+    step: (type) => steps[type],
     trigger: (type) => d.triggers[type],
     filterModel: (type) => findFilterModel(d, type),
     stepCapabilities: () => d.stepCapabilities ?? {},
-    allSteps: () => Object.keys(d.steps),
+    allSteps: () => Object.keys(steps),
     allTriggers: () => Object.keys(d.triggers),
     // coverage snapshot for reporting / tests
     counts: () => ({
       steps: d.stepCount, triggers: d.triggerCount,
-      verifiedLiveSteps: Object.values(d.steps).filter((s) => s.confidence === 'verified-live').length,
+      verifiedLiveSteps: Object.values(steps).filter((s) => s.confidence === 'verified-live').length,
     }),
   };
 }

@@ -108,3 +108,26 @@ test('secret-keyed objects and arrays are detected and their full subtrees are s
     safe: { nested: ['preserved'] },
   });
 });
+
+// 401 vs 403 are different failures and must not share a code.
+//
+// Folding 403 into TOKEN_EXPIRED told the caller to re-authenticate for something
+// re-authentication cannot fix. Live on AU 2026-07-27, DELETE on an agent-type workflow
+// returned 403 {"error":true,"msg":"Workflows with type \"agent\" cannot be deleted"} and
+// was reported as an expired token — on a JWT that was demonstrably still valid. A
+// bad-token control on the same endpoint returned 401 "Unauthorized", so the two are
+// cleanly separable by status.
+test('403 is ACCESS_DENIED, not TOKEN_EXPIRED, and says re-auth will not help', () => {
+  const r = fromHttp(403, { error: true, msg: 'Workflows with type "agent" cannot be deleted' });
+  assert.equal(r.ok, false);
+  assert.equal(r.code, CODES.ACCESS_DENIED);
+  assert.match(r.detail, /cannot be deleted/);
+  assert.match(r.remediation, /NOT an expired token/);
+  assert.doesNotMatch(r.remediation, /Re-capture the JWT with/);
+});
+
+test('401 stays TOKEN_EXPIRED and still points at the capture runbook', () => {
+  const r = fromHttp(401, 'Unauthorized');
+  assert.equal(r.code, CODES.TOKEN_EXPIRED);
+  assert.match(r.remediation, /Re-capture the JWT/);
+});

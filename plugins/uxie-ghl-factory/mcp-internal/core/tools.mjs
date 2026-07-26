@@ -18,6 +18,7 @@ import {
 } from './audit-configuration.mjs';
 import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
+import { fetchActionSchema, checkWorkflow } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
   applyOps,
   partitionOps,
@@ -792,6 +793,63 @@ export const TOOLS = [
         note: 'Summary only — use export_workflow for the full graph.',
       });
     }, args),
+  },
+  {
+    name: 'check_workflow',
+    description: describe('check_workflow',
+      "Read-only pre-flight: reproduce the workflow builder's \"Resolve N Errors\" list for an existing "
+      + 'workflow, without opening the UI (proof: live-reproduction 2026-07-27 — matched the builder exactly '
+      + 'on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets '
+      + 'catalog the builder itself validates against). NOTE: that catalog omits core native actions '
+      + '(add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means '
+      + '"nothing found in the 240 types it describes", not "provably publishable".'),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const loc = encodeURIComponent(args.locationId);
+      const wid = encodeURIComponent(args.workflowId);
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+
+      const body = await gw.call('GET', `/workflow/${loc}/${wid}?includeScheduledPauseInfo=true`);
+      if (!body.ok) return fromHttp(body.status, body.json);
+      const templates = body.json?.workflowData?.templates ?? [];
+
+      const trg = await gw.call('GET', `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
+      const triggerList = Array.isArray(trg?.json) ? trg.json : (trg?.json?.triggers ?? trg?.json?.data ?? []);
+      const triggerTypes = triggerList.map((t) => t?.type).filter(Boolean);
+
+      const actionSchema = await fetchActionSchema((m, p) => gw.call(m, p), args.locationId);
+      if (!actionSchema) {
+        return fail(CODES.VALIDATION_FAILED,
+          'Could not fetch the action schema, so no check was performed.',
+          'Retry; if it persists the assets endpoint may be unavailable for this location.');
+      }
+
+      const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+      return ok({
+        workflowId: args.workflowId,
+        name: body.json?.name,
+        status: body.json?.status,
+        steps: templates.length,
+        errorCount: errors.length,
+        errors,
+        headline: `Resolve ${errors.length} Errors`,
+        coverage: {
+          schemaTypes: actionSchema.size,
+          stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
+          stepsNotDescribed: templates.filter((t) => !actionSchema.has(t.type)).length,
+          note: 'Steps not described by the marketplace catalog (core native actions) are SKIPPED, '
+            + 'not asserted clean. A zero errorCount is not proof the workflow is publishable.',
+        },
+      });
+    }),
   },
   {
     name: 'export_workflow',
@@ -2096,6 +2154,30 @@ export const TOOLS = [
           'Pass one HTTP method token without whitespace or header/path content.',
         );
       }
+
+      // DOUBLE-ENCODING GUARD. The gateway serializes every body with JSON.stringify, and
+      // `body` here is z.unknown() — so a caller that hands over an already-serialized JSON
+      // STRING (the natural thing to do when hand-writing an escape-hatch payload) got it
+      // stringified a second time. The wire carried "{\"locationId\":...}" — a JSON string
+      // whose contents are JSON — and upstream answered
+      //   Unexpected token '"', ""{\"locati"... is not valid JSON
+      // Reproduced on three separate payloads; it blocked every non-GET escape-hatch call.
+      // Normalize BEFORE the confirm gate so the preview shows what will actually be sent.
+      let body = args.body;
+      if (typeof body === 'string') {
+        try {
+          body = JSON.parse(body);
+        } catch {
+          return fail(
+            CODES.VALIDATION_FAILED,
+            'raw_request body was a string that is not valid JSON',
+            'Pass body as an object — the gateway serializes it for you. A pre-serialized '
+            + 'JSON string is accepted and parsed back, but a non-JSON string has no valid '
+            + 'encoding on these endpoints, which all take JSON.',
+          );
+        }
+      }
+
       if (method !== 'GET' && args.confirm !== true) {
         return withFailureData(
           fail(
@@ -2103,7 +2185,7 @@ export const TOOLS = [
             'Raw write preview is ready; no gateway call was sent.',
             'Review data.preview, then repeat the same request with confirm:true to send it.',
           ),
-          { preview: { method, path: args.path, ...(args.body === undefined ? {} : { body: args.body }) } },
+          { preview: { method, path: args.path, ...(body === undefined ? {} : { body }) } },
         );
       }
 
@@ -2128,7 +2210,7 @@ export const TOOLS = [
         },
       };
       const writeCall = await safeGatewayCall(
-        () => gw.call(method, args.path, args.body, callOpts),
+        () => gw.call(method, args.path, body, callOpts),
       );
       if (writeCall.threw) {
         partialProgress.write.ambiguous = true;
