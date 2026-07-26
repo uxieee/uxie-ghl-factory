@@ -281,15 +281,13 @@ test('list_account_entities reuses the canonical best-effort entity sweep', asyn
     '/forms/': { forms: [{ id: 'f1', name: 'Form' }] },
     '/customFields/search': { customFields: [{ id: 'cf1', name: 'Field' }] },
     '/voice-ai/agents': { status: 404, ok: false, json: {} },
-    // UNVERIFIED SHAPE, DELIBERATELY LEFT AS-IS AND LABELLED. No captured
-    // `/ai-employees/agents` response exists in any corpus; the nearest captures are the
-    // `/ai-employees/employees/search` routes, which answer `{employees, totalCount, count}`
-    // — a different route with a different envelope, so copying its shape here would swap one
-    // guess for another and dress it up as evidence. `{agents:[…]}` is what the reader under
-    // test expects, and this stub asserts the READER, not the upstream contract. Do not cite
-    // this line as proof of the live envelope; it is the one mock in this file that has no
-    // capture behind it.
-    '/ai-employees/agents': { agents: [{ id: 'a1', name: 'Agent' }] },
+    // NOW A REAL SHAPE (GROM AU, 2026-07-27). This stub used to key `/ai-employees/agents`
+    // with `{agents:[…]}` and carried a note saying no capture backed it — correctly, because
+    // that route does not exist: GHL answers `404 "Cannot GET"`. The sweep annotated it
+    // "best-effort (may 404)", so a permanent blind spot read as an occasional one and
+    // `list_account_entities` reported zero Conversation AI agents on accounts that had them.
+    // The live discovery route answers `{employees, totalCount, count}`.
+    '/ai-employees/employees/search': { employees: [{ id: 'a1', name: 'Agent' }], totalCount: 1, count: 1 },
   });
   const result = await tool('list_account_entities').handler({ locationId: 'L' }, deps(gw));
 
@@ -311,7 +309,7 @@ test('list_account_entities treats malformed successful payloads as empty best-e
     '/forms/': { forms: 'not an array' },
     '/customFields/search': { message: 'successful object without customFields' },
     '/voice-ai/agents': { data: { message: 'not an array' } },
-    '/ai-employees/agents': { agents: null },
+    '/ai-employees/employees/search': { employees: null },
   });
   const result = await tool('list_account_entities').handler({ locationId: 'L' }, deps(gw));
 

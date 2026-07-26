@@ -72,9 +72,20 @@ export async function fetchEntities(gw) {
       model: 'all', query: '', includeStandards: 'false',
     })}`),
     g(`/voice-ai/agents?${locationQuery()}`),               // best-effort (may 404)
-    g(`/ai-employees/agents?${locationQuery()}`),           // best-effort (may 404)
+    // CORRECTED 2026-07-27 from live traffic. This was `/ai-employees/agents`, annotated
+    // "best-effort (may 404)" — but it does not "may" 404, it ALWAYS does: GHL answers
+    // `404 {"message":"Cannot GET /ai-employees/agents?locationId=…","error":"Not Found"}`,
+    // an express route-not-registered. So this leg contributed nothing on every call and the
+    // best-effort annotation made a permanent blind spot look like an occasional one —
+    // `list_account_entities` reported ZERO Conversation AI agents on accounts that had them.
+    // The live discovery route is the search sibling of the per-agent detail route.
+    g(`/ai-employees/employees/search?${locationQuery()}`), // best-effort (may 404)
   ]);
-  const agents = [...recordsFrom(agS?.agents, agS?.data, agS), ...recordsFrom(agC?.agents, agC?.data, agC)]
+  // `employees` is the live key on the search route (`{employees, totalCount, count}`);
+  // `agents` is kept ahead of it because the Voice leg still answers under that key, and a
+  // reader that stopped accepting it would trade one silent empty list for another.
+  const agents = [...recordsFrom(agS?.agents, agS?.data, agS),
+    ...recordsFrom(agC?.employees, agC?.agents, agC?.data, agC)]
     .map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
   return {
     pipelines: recordsFrom(pl?.pipelines, pl).map((p) => ({

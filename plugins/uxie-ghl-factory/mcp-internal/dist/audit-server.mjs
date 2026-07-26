@@ -189,10 +189,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_workflow_logs: {
-        description: "Get workflow logs \u2014 proof: live-runtime (2026-07-24); risk: read",
+        description: "Get workflow logs \u2014 proof: live-runtime (2026-07-24), floor: documented; risk: read",
         risk: "read",
         proof: "live-runtime (2026-07-24)",
-        proofFloor: "live-runtime (2026-07-24)",
+        proofFloor: "documented",
         proofRows: [
           "logs-count-per-step",
           "logs-enrollment-history",
@@ -200,21 +200,20 @@ var init_define_TOOL_CATALOG = __esm({
           "workflow-enrollment-stats-cache"
         ],
         proofFloorRows: [
-          "logs-count-per-step",
-          "logs-enrollment-history",
-          "logs-list-v2",
-          "workflow-enrollment-stats-cache"
+          "workflow-enrollment-stats"
         ],
         riskRows: [
           "logs-count-per-step",
           "logs-enrollment-history",
           "logs-list-v2",
+          "workflow-enrollment-stats",
           "workflow-enrollment-stats-cache"
         ],
         rows: [
           "logs-count-per-step",
           "logs-enrollment-history",
           "logs-list-v2",
+          "workflow-enrollment-stats",
           "workflow-enrollment-stats-cache"
         ]
       },
@@ -380,10 +379,10 @@ var init_define_TOOL_CATALOG = __esm({
         proof: "live-runtime (2026-07-18)",
         proofFloor: "documented",
         proofRows: [
+          "entities-ai-employees-agents-list",
           "entities-custom-fields-search"
         ],
         proofFloorRows: [
-          "entities-ai-employees-agents-list",
           "entities-voice-ai-agents-list"
         ],
         riskRows: [
@@ -45939,10 +45938,20 @@ async function fetchEntities(gw) {
     })}`),
     g(`/voice-ai/agents?${locationQuery()}`),
     // best-effort (may 404)
-    g(`/ai-employees/agents?${locationQuery()}`)
+    // CORRECTED 2026-07-27 from live traffic. This was `/ai-employees/agents`, annotated
+    // "best-effort (may 404)" — but it does not "may" 404, it ALWAYS does: GHL answers
+    // `404 {"message":"Cannot GET /ai-employees/agents?locationId=…","error":"Not Found"}`,
+    // an express route-not-registered. So this leg contributed nothing on every call and the
+    // best-effort annotation made a permanent blind spot look like an occasional one —
+    // `list_account_entities` reported ZERO Conversation AI agents on accounts that had them.
+    // The live discovery route is the search sibling of the per-agent detail route.
+    g(`/ai-employees/employees/search?${locationQuery()}`)
     // best-effort (may 404)
   ]);
-  const agents = [...recordsFrom2(agS?.agents, agS?.data, agS), ...recordsFrom2(agC?.agents, agC?.data, agC)].map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
+  const agents = [
+    ...recordsFrom2(agS?.agents, agS?.data, agS),
+    ...recordsFrom2(agC?.employees, agC?.agents, agC?.data, agC)
+  ].map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
   return {
     pipelines: recordsFrom2(pl?.pipelines, pl).map((p) => ({
       id: p.id || p._id,
@@ -49600,7 +49609,7 @@ var TOOLS2 = [
       { method: "GET", path: "/forms/" },
       { method: "GET", path: "/locations/{loc}/customFields/search" },
       { method: "GET", path: "/voice-ai/agents" },
-      { method: "GET", path: "/ai-employees/agents" }
+      { method: "GET", path: "/ai-employees/employees/search" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -49745,7 +49754,7 @@ var TOOLS2 = [
       { method: "GET", path: "/forms/" },
       { method: "GET", path: "/locations/{loc}/customFields/search" },
       { method: "GET", path: "/voice-ai/agents" },
-      { method: "GET", path: "/ai-employees/agents" },
+      { method: "GET", path: "/ai-employees/employees/search" },
       { method: "POST", path: "/emails/builder" },
       { method: "POST", path: "/emails/builder/data" },
       { method: "GET", path: "/locations/{loc}/tags" },

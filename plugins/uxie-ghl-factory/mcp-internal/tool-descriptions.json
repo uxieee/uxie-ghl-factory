@@ -142,10 +142,10 @@
     ]
   },
   "get_workflow_logs": {
-    "description": "Get workflow logs — proof: live-runtime (2026-07-24); risk: read",
+    "description": "Get workflow logs — proof: live-runtime (2026-07-24), floor: documented; risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-07-24)",
-    "proofFloor": "live-runtime (2026-07-24)",
+    "proofFloor": "documented",
     "proofRows": [
       "logs-count-per-step",
       "logs-enrollment-history",
@@ -153,21 +153,20 @@
       "workflow-enrollment-stats-cache"
     ],
     "proofFloorRows": [
-      "logs-count-per-step",
-      "logs-enrollment-history",
-      "logs-list-v2",
-      "workflow-enrollment-stats-cache"
+      "workflow-enrollment-stats"
     ],
     "riskRows": [
       "logs-count-per-step",
       "logs-enrollment-history",
       "logs-list-v2",
+      "workflow-enrollment-stats",
       "workflow-enrollment-stats-cache"
     ],
     "rows": [
       "logs-count-per-step",
       "logs-enrollment-history",
       "logs-list-v2",
+      "workflow-enrollment-stats",
       "workflow-enrollment-stats-cache"
     ]
   },
@@ -333,10 +332,10 @@
     "proof": "live-runtime (2026-07-18)",
     "proofFloor": "documented",
     "proofRows": [
+      "entities-ai-employees-agents-list",
       "entities-custom-fields-search"
     ],
     "proofFloorRows": [
-      "entities-ai-employees-agents-list",
       "entities-voice-ai-agents-list"
     ],
     "riskRows": [
