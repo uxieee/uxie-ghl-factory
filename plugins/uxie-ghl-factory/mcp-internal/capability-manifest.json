@@ -217,7 +217,7 @@
   {
     "tool": "list_account_entities",
     "method": "GET",
-    "path": "/ai-employees/agents"
+    "path": "/ai-employees/employees/search"
   },
   {
     "tool": "list_courses",
@@ -402,7 +402,7 @@
   {
     "tool": "build_workflow",
     "method": "GET",
-    "path": "/ai-employees/agents"
+    "path": "/ai-employees/employees/search"
   },
   {
     "tool": "build_workflow",

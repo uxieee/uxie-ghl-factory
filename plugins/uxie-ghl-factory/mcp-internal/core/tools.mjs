@@ -1193,7 +1193,7 @@ export const TOOLS = [
       { method: 'GET', path: '/forms/' },
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
       { method: 'GET', path: '/voice-ai/agents' },
-      { method: 'GET', path: '/ai-employees/agents' },
+      { method: 'GET', path: '/ai-employees/employees/search' },
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
@@ -1344,7 +1344,7 @@ export const TOOLS = [
       { method: 'GET', path: '/forms/' },
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
       { method: 'GET', path: '/voice-ai/agents' },
-      { method: 'GET', path: '/ai-employees/agents' },
+      { method: 'GET', path: '/ai-employees/employees/search' },
       { method: 'POST', path: '/emails/builder' },
       { method: 'POST', path: '/emails/builder/data' },
       { method: 'GET', path: '/locations/{loc}/tags' },
