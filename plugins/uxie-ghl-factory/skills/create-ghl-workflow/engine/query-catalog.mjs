@@ -47,11 +47,11 @@ export function searchCatalog(d, term) {
     .sort((a, b) => b[0] - a[0]).map(([, e]) => e);
 }
 
-// A marketplace trigger the rulebook contributed has no recorded masterType and the compiler
-// refuses to guess one (compiler.mjs::buildTrigger). Say so here rather than printing
-// `undefined`, so the index tells the author what they have to supply.
+// Every catalogued trigger has a masterType — "highlevel" for OG, "internal" for every
+// marketplace one (captured from the builder 2026-07-27). `unset` would mean a catalog bug,
+// so say that rather than printing `undefined`.
 function masterTypeLabel(e) {
-  return e.masterType ?? (e.masterTypeUnknown ? 'UNKNOWN — you must author it' : 'unset');
+  return e.masterType ?? 'unset (catalog gap)';
 }
 
 export function renderCard(e) {
