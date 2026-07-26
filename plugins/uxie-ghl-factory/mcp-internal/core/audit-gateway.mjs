@@ -270,12 +270,37 @@ const checkableFieldsFor = (capability) => {
 };
 
 // How deep the walker looks for record objects, counted in OBJECT levels (arrays are
-// transparent, so an array-of-arrays costs nothing). 3 covers every envelope shape this
-// API is known to emit — a bare row, `{data:[row]}`, and the nested `{data:{data:[row]}}`
-// — with one level spare. It is deliberately bounded: walking arbitrarily deep starts
-// matching ids belonging to unrelated nested objects and manufactures conflicts that are
-// not conflicts.
-const MAX_IDENTITY_DEPTH = 3;
+// transparent, so an array-of-arrays costs nothing).
+//
+// RAISED 3 -> 32 on 2026-07-27, after the first live canary run failed on it. The old value
+// reasoned about ENVELOPE shapes — "a bare row, `{data:[row]}`, and the nested
+// `{data:{data:[row]}}`, with one level spare" — which is correct about envelopes and wrong
+// about payloads, because `visit()` descends into row CONTENT too. A GHL workflow body nests
+// `workflowData → templates → [i] → attributes → …` far past three levels, so `depthCapped`
+// fired on essentially every real workflow read, raised IDENTITY_INSPECTION_INCOMPLETE, and
+// made `componentClean('workflow_definition')` false. The consequence was not cosmetic: the
+// runtime window could NEVER report `complete` against a real account.
+//
+// MEASURED, not guessed (GROM AU, 20 workflow bodies, read-only):
+//   - deepest object nesting observed: 15, in a 43-step workflow with nested containers
+//   - identity fields actually occur at depth 0 (40 of them) and depth 11 (4) — so the old
+//     bound was not merely noisy, it never looked at the depth-11 identities at all
+//   - FOREIGN locationId values found by walking to full depth: ZERO
+//
+// That last line is the one that mattered. The old comment justified the bound by warning
+// that "walking arbitrarily deep starts matching ids belonging to unrelated nested objects
+// and manufactures conflicts that are not conflicts" — and a manufactured conflict
+// QUARANTINES a run, which is worse than incompleteness, so the concern deserved testing
+// rather than dismissing. It is not borne out on real payloads: every identity found at
+// depth belonged to the bound location.
+//
+// 32 is ~2x the deepest body observed, which leaves room for workflows more nested than any
+// on this account while still bounding the recursion. The bound is KEPT rather than removed
+// because `visit()` is recursive and a pathological payload should meet a limit, and because
+// MAX_IDENTITY_RECORDS below is a records cap, not a depth cap — it cannot stop a single
+// deeply-nested chain. Hitting this still fails closed, which is now meaningful: at 32 it
+// means the payload really is pathological, where at 3 it only meant the workflow was real.
+const MAX_IDENTITY_DEPTH = 32;
 // How many RECORDS may be inspected per response, where a record is an object that either
 // carries at least one checkable identity field or is a member of an array. That unit is
 // the whole point: the counter used to increment for EVERY visited object, including every
