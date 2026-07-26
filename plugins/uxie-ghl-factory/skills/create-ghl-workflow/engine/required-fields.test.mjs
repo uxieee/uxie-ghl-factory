@@ -154,7 +154,10 @@ test('every catalog correction is still NEEDED (the generated data still disagre
     const stillDiffers = Object.entries(patch).some(([k, v]) =>
       JSON.stringify(generated[k]) !== JSON.stringify(v));
     assert.ok(stillDiffers,
-      `the generated catalog now matches the ${type} correction — DELETE it from CATALOG_CORRECTIONS`);
+      `the generated catalog now matches the ${type} correction — DELETE that entry from `
+      + `CATALOG_CORRECTIONS in required-fields.mjs. This is the expected end state: someone `
+      + `captured a real step-example for ${type}, so the overlay is now dead weight. See the `
+      + `"HOW TO RETIRE THIS FILE" block at the top of required-fields.mjs.`);
   }
 });
 
