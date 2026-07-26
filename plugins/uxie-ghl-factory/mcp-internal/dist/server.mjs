@@ -31679,6 +31679,10 @@ var CODES = Object.freeze({
   PREVIEW_STALE: "PREVIEW_STALE",
   UNRESOLVED_DEPS: "UNRESOLVED_DEPS",
   VERSION_CONFLICT: "VERSION_CONFLICT",
+  // Authenticated fine, but the server refused the operation — a business rule, not a
+  // credential problem. Kept distinct from TOKEN_EXPIRED so an agent does not burn a
+  // re-authentication cycle on something re-authenticating cannot fix.
+  ACCESS_DENIED: "ACCESS_DENIED",
   VALIDATION_FAILED: "VALIDATION_FAILED",
   RATE_LIMITED: "RATE_LIMITED",
   ENGINE_ABORT: "ENGINE_ABORT"
@@ -31774,11 +31778,18 @@ var fail = (code, detail, remediation) => ({
 });
 function fromHttp(status, body) {
   const detail = typeof body === "string" ? body : JSON.stringify(scrubSecrets(body ?? {}));
-  if (status === 401 || status === 403) {
+  if (status === 401) {
     return fail(
       CODES.TOKEN_EXPIRED,
       detail,
       "Token rejected. Re-capture the JWT with the get-ghl-workflow-json skill capture runbook, then retry."
+    );
+  }
+  if (status === 403) {
+    return fail(
+      CODES.ACCESS_DENIED,
+      detail,
+      "Authenticated, but the server refused this operation \u2014 a permission or business rule, NOT an expired token. Re-capturing the JWT will not help; read `detail` for the reason."
     );
   }
   if (status === 409) return fail(CODES.VERSION_CONFLICT, detail, "Re-read the workflow to get the current version, then retry.");
