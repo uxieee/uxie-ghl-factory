@@ -32569,8 +32569,8 @@ function webhookAttributes(a, ref) {
       "WEBHOOK_EVENT",
       `custom_webhook '${ref ?? "?"}' has event '${ev}'. Only ${[...WEBHOOK_EVENTS].join(", ")} is attested. An unknown event leaves the builder's EVENT dropdown blank and METHOD, CONTENT-TYPE and RAW BODY never render, so the step saves with no method and no body.`
     );
-  const method = a.method ?? "POST";
-  if (!WEBHOOK_METHODS.has(String(method).toUpperCase()))
+  const method = String(a.method ?? "POST").toUpperCase();
+  if (!WEBHOOK_METHODS.has(method))
     throw new IRError(
       "WEBHOOK_METHOD",
       `custom_webhook '${ref ?? "?"}' has method '${method}'. Expected one of ${[...WEBHOOK_METHODS].join(", ")}.`
@@ -32579,7 +32579,7 @@ function webhookAttributes(a, ref) {
     throw new IRError("WEBHOOK_URL", `custom_webhook '${ref ?? "?"}' has no url \u2014 the validator requires one.`);
   return {
     event: ev,
-    method: a.method ?? "POST",
+    method,
     url: a.url ?? "",
     body: a.body ?? { contentType: "application/json", rawData: a.rawData ?? "{}", keyValueData: [] },
     headers: a.headers ?? [],

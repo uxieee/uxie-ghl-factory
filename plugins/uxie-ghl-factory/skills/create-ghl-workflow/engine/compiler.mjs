@@ -369,15 +369,18 @@ function webhookAttributes(a, ref) {
       `custom_webhook '${ref ?? '?'}' has event '${ev}'. Only ${[...WEBHOOK_EVENTS].join(', ')} is `
       + `attested. An unknown event leaves the builder's EVENT dropdown blank and METHOD, `
       + `CONTENT-TYPE and RAW BODY never render, so the step saves with no method and no body.`);
-  const method = a.method ?? 'POST';
-  if (!WEBHOOK_METHODS.has(String(method).toUpperCase()))
+  // Normalize to the attested casing. The guard below compared .toUpperCase() but the
+  // emitted value was the author's original, so `method: 'post'` passed validation and
+  // went on the wire lowercase — a casing the corpus does not attest.
+  const method = String(a.method ?? 'POST').toUpperCase();
+  if (!WEBHOOK_METHODS.has(method))
     throw new IRError('WEBHOOK_METHOD',
       `custom_webhook '${ref ?? '?'}' has method '${method}'. Expected one of ${[...WEBHOOK_METHODS].join(', ')}.`);
   if (!a.url)
     throw new IRError('WEBHOOK_URL', `custom_webhook '${ref ?? '?'}' has no url — the validator requires one.`);
   return {
     event: ev,
-    method: a.method ?? 'POST',
+    method,
     url: a.url ?? '',
     body: a.body ?? { contentType: 'application/json', rawData: a.rawData ?? '{}', keyValueData: [] },
     headers: a.headers ?? [],

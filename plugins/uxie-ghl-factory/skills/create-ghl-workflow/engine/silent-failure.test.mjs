@@ -347,3 +347,16 @@ test('an unemitted notification key warns instead of vanishing silently', () => 
   assert.ok(warnings.some((w) => /NOTIFICATION_KEY_DROPPED/.test(w) && /bogusKey/.test(w)),
     `expected a drop warning, got: ${JSON.stringify(warnings)}`);
 });
+
+// The WEBHOOK_METHOD guard compared method.toUpperCase() but emitted the author's
+// original string, so `method: 'post'` passed validation and went on the wire lowercase —
+// a casing the corpus does not attest. Found reviewing ff927f8.
+test('custom_webhook method is normalized to the attested casing, not just validated in it', () => {
+  const out = compile({
+    name: 'W', triggers: [],
+    graph: [{ ref: 'w', kind: 'action', type: 'custom_webhook', name: 'Hook',
+      attributes: { event: 'CUSTOM', method: 'post', url: 'https://example.com/h' } }],
+  }, ctx());
+  const hook = out.autoSaveBody.workflowData.templates.find((s) => s.type === 'custom_webhook');
+  assert.equal(hook.attributes.method, 'POST');
+});
