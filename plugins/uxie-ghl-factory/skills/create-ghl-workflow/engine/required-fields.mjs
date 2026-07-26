@@ -23,7 +23,45 @@
 // deliberately minimal attributes; the builder reported "Resolve 7 Errors" while the
 // engine reported `verify: { pass: 14, issues: [] }`. Supplying the fields below took it
 // to "Resolve 1 Errors", and the survivor was conversationai_end — because its DOCUMENTED
-// KEY NAMES WERE WRONG (see CATALOG_CORRECTIONS).
+// KEY NAMES WERE WRONG (see CATALOG_CORRECTIONS). Fixed and re-verified 2026-07-27: the
+// builder's own validation panel now reads "0 Errors — Zero errors, you are all good to go".
+//
+// ───────────────────────────────────────────────────────────────────────────────────────
+// HOW TO RETIRE THIS FILE  (known gap, deliberately left open — not a defect)
+// ───────────────────────────────────────────────────────────────────────────────────────
+// ROOT CAUSE of the whole class of bug: `catalog/step-examples/` in the docs repo has NO
+// captured example for three node types, so gen-catalog.mjs fell back to a recon read of
+// the UI panel and recorded WRONG FIELD NAMES for them:
+//
+//     conversationai_end               ← no capture
+//     conversationai_continue          ← no capture
+//     conversationai_services_booking  ← no capture
+//
+// The permanent fix is to capture them, not to keep patching over them. To do that:
+//
+//   1. Build ONE canary per type with EVERY field populated — not just the required ones.
+//      ⚠️ A capture only proves the keys you actually filled. A canary built with minimal
+//      attributes would teach gen-catalog that the fields you omitted DO NOT EXIST, which
+//      is strictly worse than the current wrong names: the engine would then REJECT valid
+//      authoring. This is the single trap to avoid here.
+//   2. Export it, anonymise the ids to <uuid-00N> placeholders, and save as
+//      `catalog/step-examples/<type>.json` in ghl-workflow-api-docs (match the shape of
+//      conversationai_ai_message.json — full node envelope, not just `attributes`).
+//   3. Re-run gen-catalog.mjs, copy catalog.data.json across to this repo, and re-run the
+//      suite. `required-fields.test.mjs` will FAIL on any correction that has become
+//      redundant, naming it — delete those entries from CATALOG_CORRECTIONS.
+//
+// STATUS as of 2026-07-27:
+//   conversationai_continue          — complete shape already known: {instructions}. Easy.
+//   conversationai_end               — needs a canary with `message` ALSO set; the
+//                                      2026-07-27 canary omitted it, so its export is an
+//                                      incomplete capture and must NOT be used as-is.
+//   conversationai_services_booking  — BLOCKED. Needs an account with configured commerce
+//                                      services; AU's options endpoint returns []. Do this
+//                                      opportunistically on a client account that has them.
+//
+// Until then this overlay is correct and self-policing, so there is no urgency. Behaviour
+// is identical either way — retiring it is housekeeping, not a fix.
 import { IRError } from './ir.mjs';
 
 // Corrections applied over the generated catalog entry, merged in catalog.mjs.
