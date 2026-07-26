@@ -62,6 +62,29 @@
 //
 // Until then this overlay is correct and self-policing, so there is no urgency. Behaviour
 // is identical either way — retiring it is housekeeping, not a fix.
+//
+// ── 2026-07-27: the rulebook merge does NOT retire this file. Checked, not assumed. ──────
+// `gen-catalog.mjs` now reads GHL's own marketplace schema (`sniffs/assets/`). That schema
+// knows all four corrected types, so the obvious expectation was that it would supersede
+// them. It does not, and the reasons are worth keeping because they generalise:
+//
+//   conversationai_end       schema says {message, sleepEnabled} + one DYNAMIC row. The
+//                            DYNAMIC row IS sleepDuration/sleepUnit — the schema literally
+//                            cannot name them. Correction still load-bearing.
+//   conversationai_transfer_bot  schema agrees with the correction ({assignedEmployeeId}).
+//   conversationai_continue      schema agrees with the correction ({instructions}).
+//   conversationai_services_booking  schema agrees (it is where those keys came from).
+//
+// Three of four AGREE — and are still not retirable, because a correction carries more than
+// key names: it carries `confidence: 'verified-live'`, which is what switches ON the
+// compiler's ATTR_KEY guard for that type. Schema data cannot justify that tier (see the
+// DYNAMIC problem one line up), so dropping the corrections would silently disarm the guard
+// on the very types it was added for. Agreement between an attested capture and the schema
+// is corroboration, not redundancy.
+//
+// `required-fields.test.mjs::every catalog correction is still NEEDED` passes, i.e. the
+// generated catalog still disagrees with all four. The retirement path above is unchanged:
+// capture the three missing step-examples, and the test will name what to delete.
 import { IRError } from './ir.mjs';
 
 // Corrections applied over the generated catalog entry, merged in catalog.mjs.

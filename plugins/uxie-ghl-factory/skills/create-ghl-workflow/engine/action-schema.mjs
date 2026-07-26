@@ -24,9 +24,9 @@
 //
 // 🔴 COVERAGE BOUNDARY — READ BEFORE RELYING ON THIS
 // --------------------------------------------------
-// This endpoint is the MARKETPLACE catalog. It carries 307 action types and covers 240 of
-// the engine's 316 known step types (~76%) — but it does NOT contain the core native
-// actions, which are the ones most workflows are actually built from:
+// This endpoint is the MARKETPLACE catalog. It carries 307 action types out of the engine's
+// 383 known step types (~80%) — but it does NOT contain the core native actions, which are
+// the ones most workflows are actually built from:
 //
 //     add_contact_tag  send_email  sms  if_else  wait  goto  custom_webhook
 //     custom_code  find_contact  create_opportunity  update_opportunity

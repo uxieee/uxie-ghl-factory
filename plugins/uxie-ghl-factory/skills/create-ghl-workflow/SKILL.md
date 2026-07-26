@@ -39,7 +39,7 @@ steps — use `scripts/edit.mjs`, see "Editing an existing workflow" below.)
 
 ## Know what you can build — check before you say "can't"
 
-The catalog is **complete**: 316 step types / 59 trigger types (the live-proven subset
+The catalog is **complete**: 383 step types / 204 trigger types (the live-proven subset
 is flagged ✅ in the index; `scripts/query-catalog-cli.mjs` prints the current counts). If you're about to tell the user a step or trigger
 "isn't supported", or about to fake a native action with a webhook/custom-code
 workaround, **check the catalog first** — your recall of GHL's action list is
@@ -251,7 +251,7 @@ subtree: a 51-step IR built 8 steps and reported "round-trip: 8 clean".
 wrote), `compiled` (templates sent) and `steps` (templates GHL returned). `compiled >=
 authored` is normal — containers add transition/None steps. A round-trip is only meaningful
 next to `authored`; on its own it merely proves the server echoed what was sent.
-- **Coverage:** 316 step types / 59 trigger types are catalogued (the live-proven
+- **Coverage:** 383 step types / 204 trigger types are catalogued (the live-proven
   subset is flagged ✅). Full index: `references/capabilities.md`; per-type lookup:
   `node scripts/query-catalog-cli.mjs <term>`; live counts: `node scripts/query-catalog-cli.mjs`.
 
@@ -531,7 +531,7 @@ The orchestrator prints exactly what it did. Check it:
 
 - `scripts/build.mjs` — **the entry point.** IR → verified draft, deps handled.
 - `engine/` — IR parser, compiler, catalog, resolver, orchestrator (+ tests).
-- `references/capabilities.md` — generated index of ALL 316 step / 59 trigger types
+- `references/capabilities.md` — generated index of ALL 383 step / 204 trigger types
   with attribute keys and filter fields; `scripts/query-catalog-cli.mjs` searches it.
 - `references/build-recipe.md` / `references/step-shapes.md` — endpoint/payload truth
   and the mirror-don't-invent doctrine (background; the engine already applies them).

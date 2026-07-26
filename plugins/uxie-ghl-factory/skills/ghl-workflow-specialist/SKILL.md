@@ -15,7 +15,7 @@ blueprint → approval → execute → verify). Recon here = read existing workf
 ## Knowledge (load what the task needs)
 - references/trigger-action-catalog.md — a design-level tour of common types. NOT the
   full surface: the **authoritative buildable catalog is the create-ghl-workflow engine's
-  index** (316 step / 59 trigger types) — `create-ghl-workflow/references/capabilities.md`
+  index** (383 step / 204 trigger types) — `create-ghl-workflow/references/capabilities.md`
   or `node scripts/query-catalog-cli.mjs <term>`. Consult it BEFORE telling the user a step/
   trigger "isn't supported" or reaching for a webhook/custom-code workaround.
 - references/patterns.md — multi-workflow architectures and when to use them

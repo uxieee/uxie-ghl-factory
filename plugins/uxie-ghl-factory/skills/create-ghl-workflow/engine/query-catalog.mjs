@@ -47,12 +47,22 @@ export function searchCatalog(d, term) {
     .sort((a, b) => b[0] - a[0]).map(([, e]) => e);
 }
 
+// A marketplace trigger the rulebook contributed has no recorded masterType and the compiler
+// refuses to guess one (compiler.mjs::buildTrigger). Say so here rather than printing
+// `undefined`, so the index tells the author what they have to supply.
+function masterTypeLabel(e) {
+  return e.masterType ?? (e.masterTypeUnknown ? 'UNKNOWN — you must author it' : 'unset');
+}
+
 export function renderCard(e) {
   const lines = [];
   if (e.kind === 'trigger') {
-    lines.push(`■ ${e.type} — TRIGGER (${e.category ?? 'other'}, masterType ${e.masterType}) ${TIER_MARK[e.confidence] ?? ''}${e.confidence}`);
+    lines.push(`■ ${e.type} — TRIGGER (${e.category ?? 'other'}, masterType ${masterTypeLabel(e)}) ${TIER_MARK[e.confidence] ?? ''}${e.confidence}`);
     const rows = e.filterRows ?? [];
     if (rows.length) lines.push(`  filters: ${rows.map((r) => `${r.label} (${r.value}, ${r.type})`).join(' | ')}`);
+    // Rulebook-sourced triggers carry the assets-side filter schema instead — a different
+    // row shape, so it is reported separately rather than pretended to be expandable.
+    else if (e.schemaFilters?.length) lines.push(`  filters (schema, pass through verbatim): ${e.schemaFilters.map((r) => `${r.title} (${r.field}, ${r.fieldType})`).join(' | ')}`);
     if (e.example) lines.push(`  example: ${e.example}`);
     lines.push(`  IR: triggers: [{ ref, type: ${e.type}, name, filters: [{ field, value }] }]`);
   } else {
@@ -141,8 +151,9 @@ export function renderMarkdown(d) {
   for (const [cat, list] of Object.entries(byCat).sort()) {
     out.push('', `### ${cat}`);
     for (const t of list.sort((a, b) => a.type.localeCompare(b.type))) {
-      const rows = (t.filterRows ?? []).map((r) => `${r.label} (\`${r.value}\`)`).join(', ');
-      out.push(`- ${TIER_MARK[t.confidence] ?? ''} \`${t.type}\` (${t.masterType})${rows ? ' — filters: ' + rows : ''}`);
+      const rows = (t.filterRows ?? []).map((r) => `${r.label} (\`${r.value}\`)`).join(', ')
+        || (t.schemaFilters ?? []).map((r) => `${r.title} (\`${r.field}\`)`).join(', ');
+      out.push(`- ${TIER_MARK[t.confidence] ?? ''} \`${t.type}\` (${masterTypeLabel(t)})${rows ? ' — filters: ' + rows : ''}`);
     }
   }
   out.push('');

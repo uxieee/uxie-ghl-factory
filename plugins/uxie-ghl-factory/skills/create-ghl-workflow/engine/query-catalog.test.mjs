@@ -9,8 +9,14 @@ const d = loadData();
 
 test('summary reports full catalog counts', () => {
   const s = summary(d);
-  assert.match(s, /316 step types/);
-  assert.match(s, /59 trigger types/);
+  // Assert against the data rather than a literal, so a regen does not need a test edit —
+  // but keep a FLOOR, because the failure that actually matters is the catalog silently
+  // shrinking (a missing sniffs/ input makes gen-catalog emit a smaller catalog, not an
+  // error). The floor is the pre-rulebook size: 316 steps / 59 triggers.
+  assert.match(s, new RegExp(`${Object.keys(d.steps).length} step types`));
+  assert.match(s, new RegExp(`${Object.keys(d.triggers).length} trigger types`));
+  assert.ok(Object.keys(d.steps).length >= 316, 'catalog lost step types');
+  assert.ok(Object.keys(d.triggers).length >= 59, 'catalog lost trigger types');
 });
 
 test('search finds a step by fuzzy name and a trigger by type', () => {
