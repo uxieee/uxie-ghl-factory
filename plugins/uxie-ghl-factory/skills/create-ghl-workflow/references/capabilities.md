@@ -54,9 +54,9 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### conversation_ai
 - ✅ `conversationai_book_appointment` — attrs: `promptInstructions`, `calendarId`, `type`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `conversationai_book_appointment`
-- ⚑ `conversationai_continue` — attrs: `prompt`, `type`, `__customInputs__`
-- ⚑ `conversationai_end` — attrs: `customMessage`, `reactivate`, `duration`, `type`, `__customInputs__`
-- ⚑ `conversationai_services_booking` — attrs: `services`, `description`, `type`, `__customInputs__`
+- ✅ `conversationai_continue` — attrs: `instructions`, `type`, `__customInputs__`
+- ✅ `conversationai_end` — attrs: `message`, `sleepEnabled`, `sleepDuration`, `sleepUnit`, `type`, `__customInputs__`
+- ⚑ `conversationai_services_booking` — attrs: `conversationai_services`, `conversationai_booking_description`, `type`, `__customInputs__`
 
 ### customObjects
 - ◐ `clear_custom_object_fields`
@@ -118,7 +118,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `conversationai_ai_splitter` — attrs: `description`, `type`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `conversationai_ai_splitter`
 - ✅ `conversationai_custom_message` — attrs: `message`, `waitForReply`, `type`, `__customInputs__`
 - ✅ `conversationai_objective` — attrs: `objective`, `contactField`, `instructions`, `responseExample`, `skipIfFilled`, `maxAttempts`, `proceedIfNotMet`, `type`, `__customInputs__`; premium
-- ✅ `conversationai_transfer_bot` — attrs: `assignedEmployeeId`, `prompt`, `type`, `__customInputs__`
+- ✅ `conversationai_transfer_bot` — attrs: `assignedEmployeeId`, `type`, `__customInputs__`
 - ✅ `edit_conversation` — attrs: `read`, `type`, `__customInputs__`
 - ✅ `find_opportunity` — attrs: `sorting`, `type`, `__customInputFields__`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `find_opportunity (onFound/onNotFound)`
 - ✅ `find_or_create_contact` — attrs: `emailLabel`, `emailAddress`, `namePrefix`, `names`, `middleName`, `lastName`, `nameSuffix`, `organizationName`, `jobTitle`, `phoneLabel`, `phoneNumber`, `addressLabel`, `country`, `poBox`, `city`, `postalCode`, `region`, `streetAddress`, `type`, `__customInputs__`; premium

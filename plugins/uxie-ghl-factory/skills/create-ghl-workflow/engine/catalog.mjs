@@ -26,7 +26,7 @@ function data() {
 // `requiredFields`: the generated one is marketplace-schema derived and does not describe
 // the emitted shape (goto declares "placement", which the engine has never emitted), so it
 // stays advisory. Only the attested set is enforced.
-function correctSteps(steps) {
+export function correctSteps(steps) {
   const out = { ...steps };
   for (const [type, fix] of Object.entries(CATALOG_CORRECTIONS)) {
     const { reason, ...patch } = fix;
