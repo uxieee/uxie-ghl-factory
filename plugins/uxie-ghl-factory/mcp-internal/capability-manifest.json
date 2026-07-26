@@ -60,6 +60,21 @@
     "path": "/workflow/{loc}/{wid}"
   },
   {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "check_workflow",
+    "method": "GET",
+    "path": "/workflows-marketplace/location/{loc}/assets"
+  },
+  {
     "tool": "export_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"

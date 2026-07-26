@@ -554,11 +554,16 @@ test('processAuditPacing hands out the SAME limiter and circuit for the life of 
 // 4. the normal server is untouched
 // ---------------------------------------------------------------------------
 
-test('the full 21-tool registry and the normal stdio entry point are unchanged', () => {
-  assert.equal(TOOLS.length, 21, 'the audit profile is ADDITIVE; the full server keeps every tool');
+test('the full 22-tool registry and the normal stdio entry point are unchanged', () => {
+  // 21 -> 22 when this branch merged main at 0.14.0, which added `check_workflow`. The
+  // literal list is kept rather than relaxed to a subset check: the claim is that the audit
+  // profile takes nothing AWAY, and only an exact list can catch a tool silently disappearing
+  // from the full server. A merge that drops one should fail here, loudly, which is why the
+  // count moves by hand and never by `TOOLS.length`.
+  assert.equal(TOOLS.length, 22, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
-    'create_studio_agent', 'list_workflows', 'get_workflow', 'export_workflow',
+    'create_studio_agent', 'list_workflows', 'get_workflow', 'check_workflow', 'export_workflow',
     'get_workflow_logs', 'get_workflow_runtime_window', 'list_workflows_complete',
     'get_ai_configuration_bundle', 'get_contacts_at_step', 'list_account_entities',
     'list_courses', 'build_course', 'build_workflow', 'edit_workflow', 'publish_workflow',
