@@ -1,4 +1,4 @@
-# Handoff — GHL engine/catalog work (as of 2026-07-27, v0.13.0)
+# Handoff — GHL engine/catalog work (as of 2026-07-27, v0.14.0)
 
 Paste the "NEXT SESSION PROMPT" at the bottom into a fresh session.
 
@@ -6,9 +6,9 @@ Paste the "NEXT SESSION PROMPT" at the bottom into a fresh session.
 
 ## Where things stand
 
-Both repos clean and pushed. Plugin **0.13.0** (both manifests). Tests: docs-engine **364**,
+Both repos clean and pushed. Plugin **0.14.0** (both manifests). Tests: docs-engine **364**,
 plugin-engine **351**, mcp **176**, docs-scripts **15** — zero failures. AU account clean
-(canary deleted; 49 workflows, back to the pre-canary count).
+(all three canaries + their auto-created tag deleted; 49 workflows, back to the pre-canary count).
 
 **This session: the catalog was regenerated from the live marketplace rulebook.**
 
@@ -28,7 +28,8 @@ New pieces:
   `executionConfig`. `assertNoAccountIds()` throws rather than write a leaky file.
 - `engine/rulebook.test.mjs` in **both** repos — the docs copy checks snapshot→catalog
   fidelity, the plugin copy checks the invariants of whatever catalog was copied across.
-- `buildTrigger` now throws `TRIGGER_MASTERTYPE` rather than guess (see the next job below).
+- `buildTrigger` emits the marketplace trigger envelope (`masterType` + `workflowsTriggerType`)
+  captured from the builder itself — see the masterType section below.
 - `dev/sweep-marketplace-triggers.mjs` — read-only masterType sweep across an account.
 
 ### LIVE-PROVEN on AU (`2cac4362-…`, since deleted)
@@ -99,29 +100,65 @@ rulebook entry — re-measure before trusting any new one:
 
 ---
 
-## THE NEXT JOB — settle `masterType` for marketplace triggers
+## masterType — SETTLED 2026-07-27 (was the next job; now done)
 
-104 of the 145 new triggers are `workflowsTriggerType: INTEGRATION_AI`, and the assets payload
-**does not carry `masterType`**. The entire corpus evidence is the INTERNAL half:
-`proposal_estimate_update` and `affiliate_new_lead`, both persisted as `"internal"` — and a
-read-only sweep of all 49 AU workflows this session found exactly one instance
-(`proposal_estimate_update`, `internal`), so that account has no INTEGRATION_AI evidence to read.
+The assets payload does not carry `masterType`, and it is the field that decides whether a
+trigger ever fires. Settled by adding a Calendly trigger through the builder UI on AU and
+reading the request the builder itself sent:
 
-The generator therefore assigns `"internal"` to the 43 INTERNAL triggers and **nothing** to the
-104 others, marking them `masterTypeUnknown`; `buildTrigger` throws `TRIGGER_MASTERTYPE` unless
-the author supplies it. The silent fallback would have been `"highlevel"`, and a wrong
-masterType saves cleanly and never fires.
+```jsonc
+// POST /workflow/{loc}/trigger  — the builder's own body
+{ "type": "lc_calendly_new_routing_form_submission",
+  "masterType": "internal",                  // ← for an INTEGRATION_AI trigger
+  "workflowsTriggerType": "INTEGRATION_AI",  // ← the builder sends this too
+  "conditions": [], "actions": [{ "workflow_id": "<wid>", "type": "add_to_workflow" }], … }
+```
 
-`"app"` appears in some earlier reference pages (`reference/triggers/marketplace/*.md`). It has
-**never been corpus-observed** — treat those notes as unverified.
+**Both flavours use `"internal"`.** `"app"` — asserted by 102 `reference/triggers/marketplace/*.md`
+pages and the marketplace README — was never corpus-observed and is WRONG; all of them are
+corrected. GHL persists both fields (read back off the stored document), so `gen-catalog.mjs`
+records both and `buildTrigger` emits `workflowsTriggerType` wherever the catalog has one —
+never inventing it for OG triggers, which keep `"highlevel"`.
 
-**How to settle it:** add one marketplace trigger through the UI and read what the builder
-itself POSTs to `/workflow/{loc}/trigger`. That is definitive. Attempted this session and
-abandoned — an overlay intercepted the click on "Add new trigger"; close the error panel and
-fit-to-screen first, or drive it from the picker in a fresh workflow. Then delete the
-`masterTypeUnknown` branch in `gen-catalog.mjs` and the guard in `buildTrigger`.
+Consequences: `masterTypeUnknown` and the `TRIGGER_MASTERTYPE` guard are **gone**. All 145
+rulebook triggers now build without the author supplying anything.
+
+**Proof:** the same trigger type was then built by the ENGINE into a second workflow, and the
+two persisted trigger documents were diffed field by field — **identical on all 11 fields**
+(type, masterType, workflowsTriggerType, name, conditions, actions, active, belongs_to,
+schedule_config, location_id, deleted). Both canaries and the auto-created tag deleted.
+
+How it was captured, for next time: the picker's marketplace triggers mostly need an OAuth
+connection, and a trigger with a REQUIRED filter cannot be saved without one (its option list
+404s/400s, and the panel refuses with "Oops! Looks like you've missed out on some fields").
+Pick one with **no required filters** — `sniffs/assets/triggers.json` has 35 such
+INTEGRATION_AI triggers; `lc_calendly_new_routing_form_submission` worked. Also: "Save trigger"
+in the panel only commits to LOCAL state — the POST does not fire until you press the
+workflow's own **Save** button (top right, which flips from a disabled "Saved" to an enabled
+"Save" with a red dot).
 
 ---
+
+## THE NEXT JOB — capture the 3 missing step-examples and retire `required-fields.mjs`
+
+That overlay is the last hand-maintained patch over the generated catalog. It cannot be
+deleted from evidence we have; it needs real captures. `catalog/step-examples/` has none for:
+
+    conversationai_end               needs a canary with `message` ALSO set
+    conversationai_continue          trivial — just `instructions`
+    conversationai_services_booking  BLOCKED on AU (needs configured commerce services)
+    conversationai_transfer_bot      capture exists only in a research doc, not step-examples/
+
+⚠️ **Build each canary with EVERY field populated, not just the required ones.** A minimal
+canary teaches gen-catalog that the omitted fields DO NOT EXIST, and the engine then REJECTS
+valid authoring — strictly worse than the wrong names being patched today. Then export,
+anonymise ids to `<uuid-00N>`, save as `catalog/step-examples/<type>.json` (full node
+envelope, matching `conversationai_ai_message.json`), re-run `gen-catalog.mjs`, copy the
+catalog across, and run the suite: `required-fields.test.mjs` FAILS BY DESIGN on each
+correction that has become redundant and names it for deletion.
+
+Do all four in one pass on an account that HAS commerce services and the file goes away
+entirely. Behaviour is identical either way — this is housekeeping, not a fix.
 
 ## Traps that already cost time — do not rediscover these
 
@@ -181,6 +218,8 @@ fit-to-screen first, or drive it from the picker in a fresh workflow. Then delet
   catalogued but not exercisable there. Test on an account with RCS enabled.
 - **Trigger-compatibility (`requiredTriggers`) is now live-proven** — remove it from any list
   of unproven checks.
+- **Marketplace triggers still need their upstream OAuth connection to FIRE.** The trigger
+  document saves and round-trips without one; that is not proof of runtime delivery.
 - **The agent→flow link PUT 422s** — the documented body is stale. Not a blocker (the builder
   opens without it) but the recipe needs re-capturing from the UI.
 - **Two expired token files** in the `Misc` root (`tok-capture.txt`, `funnels-tokenid.json`),
@@ -190,19 +229,21 @@ fit-to-screen first, or drive it from the picker in a fresh workflow. Then delet
 
 ## NEXT SESSION PROMPT
 
-> Settle `masterType` for GHL marketplace (`INTEGRATION_AI`) workflow triggers.
+> Capture the missing `conversationai_*` step-examples and retire `engine/required-fields.mjs`.
 >
-> Repo: `/Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin` (plugin, v0.13.0) with its mirror in
-> `ghl-workflow-api-docs`. **Read `ghl-plugin/HANDOFF.md` first** — it has the evidence so far,
-> eleven traps that already cost time, and the standing rules.
+> Repo: `/Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin` (plugin, v0.14.0) with its mirror in
+> `ghl-workflow-api-docs`. **Read `ghl-plugin/HANDOFF.md` first** — it has the retirement
+> procedure, eleven traps that already cost time, and the standing rules.
 >
-> The catalog now knows 204 trigger types, but 104 of them carry `masterTypeUnknown` because
-> the assets payload does not state it and the corpus has no instance. `buildTrigger` throws
-> `TRIGGER_MASTERTYPE` rather than guess. Add one marketplace trigger through the builder UI on
-> AU (`wdzEoUZnXO9tB3PPzcot`) and capture what the builder itself POSTs to
-> `/workflow/{loc}/trigger` — that is definitive. Then encode the answer in
-> `gen-catalog.mjs::triggerFromRulebook`, drop the guard, and correct the
-> `reference/triggers/marketplace/*.md` notes that claim `"app"` without evidence.
+> `catalog/step-examples/` has no capture for `conversationai_end`, `_continue`,
+> `_services_booking` or `_transfer_bot`, which is why four hand-written corrections still sit
+> over the generated catalog. Build one canary per type in the flow builder with EVERY field
+> populated (a minimal canary is worse than the bug — see the trap in HANDOFF), export,
+> anonymise, drop into `catalog/step-examples/`, regenerate, and delete whatever
+> `required-fields.test.mjs` then names as redundant.
+>
+> `_services_booking` needs an account with configured commerce services — AU has none, so do
+> that one on a client account or leave it and say so.
 >
 > **Live-prove before pushing.** Re-authorize with `/uxie-ghl-factory:connect` if the token has
 > expired, and remember trap 8: test with the repo's own `scripts/build.mjs`, not the installed

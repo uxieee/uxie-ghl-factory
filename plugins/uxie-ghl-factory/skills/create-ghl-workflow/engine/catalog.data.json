@@ -29764,7 +29764,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "base_id",
@@ -29792,7 +29792,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "base_id",
@@ -29820,7 +29820,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "scope",
@@ -29907,7 +29907,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "actor_id",
@@ -30016,7 +30016,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "task_id",
@@ -30125,7 +30125,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30153,7 +30153,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30198,7 +30198,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30231,7 +30231,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30253,7 +30253,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30286,7 +30286,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30314,7 +30314,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30356,7 +30356,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30389,7 +30389,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "workspace_id",
@@ -30489,7 +30489,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "account_id",
@@ -30850,7 +30850,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "account_id",
@@ -31022,7 +31022,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "account_id",
@@ -31240,7 +31240,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "account_id",
@@ -31462,7 +31462,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "account_id",
@@ -31664,7 +31664,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "account_id",
@@ -31861,7 +31861,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "account_id",
@@ -31889,7 +31889,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "organization",
@@ -32086,7 +32086,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "scope",
@@ -32278,7 +32278,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "scope",
@@ -32365,7 +32365,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "scope",
@@ -32482,7 +32482,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -32598,7 +32598,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -32699,7 +32699,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -32825,7 +32825,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -32916,7 +32916,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -33042,7 +33042,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -34084,7 +34084,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "name",
@@ -34118,7 +34118,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "name",
@@ -34624,7 +34624,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "robot_id",
@@ -34788,7 +34788,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "payload.bookingId",
@@ -34826,7 +34826,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "payload.bookingId",
@@ -34864,7 +34864,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "payload.bookingId",
@@ -34902,7 +34902,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "payload.bookingId",
@@ -34940,7 +34940,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "payload.id",
@@ -34978,7 +34978,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "payload.uid",
@@ -35006,7 +35006,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "customVars": [
     {
      "reference": "submissionUri",
@@ -35057,7 +35057,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -35179,7 +35179,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "triggers_on",
@@ -35211,7 +35211,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "form_id",
@@ -35234,7 +35234,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35248,7 +35248,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35262,7 +35262,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35276,7 +35276,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35290,7 +35290,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35304,7 +35304,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35318,7 +35318,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35332,7 +35332,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35346,7 +35346,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a2140dd9bed284864655dfd",
    "source": "rulebook"
   },
@@ -35360,7 +35360,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35374,7 +35374,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "id",
@@ -35522,7 +35522,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35536,7 +35536,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "object_type",
@@ -35641,7 +35641,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "object_type",
@@ -35746,7 +35746,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "object_type",
@@ -35769,7 +35769,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "object_type",
@@ -35792,7 +35792,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35806,7 +35806,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35820,7 +35820,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35834,7 +35834,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "engagement_type",
@@ -35879,7 +35879,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35893,7 +35893,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35907,7 +35907,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35921,7 +35921,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69f1b2e06464b3b0a26f3dc7",
    "source": "rulebook"
   },
@@ -35935,7 +35935,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "cloud_site",
@@ -35978,7 +35978,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "cloud_site",
@@ -36021,7 +36021,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "metric_id",
@@ -36043,7 +36043,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "6a1536028ae7584c78676fc7",
    "source": "rulebook"
   },
@@ -36057,7 +36057,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "list_id",
@@ -36080,7 +36080,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "segment_id",
@@ -36103,7 +36103,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36139,7 +36139,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36180,7 +36180,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36221,7 +36221,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36281,7 +36281,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36374,7 +36374,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36420,7 +36420,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36492,7 +36492,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36538,7 +36538,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36574,7 +36574,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36615,7 +36615,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36708,7 +36708,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "team_id",
@@ -36768,7 +36768,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "698c308ec23081117adcf283",
    "source": "rulebook"
   },
@@ -36782,7 +36782,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "698c308ec23081117adcf283",
    "source": "rulebook"
   },
@@ -36796,7 +36796,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "board_id",
@@ -36824,7 +36824,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69819e2824e81598bae16296",
    "source": "rulebook"
   },
@@ -36838,7 +36838,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "board_id",
@@ -36866,7 +36866,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "board_id",
@@ -36888,7 +36888,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "board_id",
@@ -36910,7 +36910,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "board_id",
@@ -36932,7 +36932,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "appId": "69819e2824e81598bae16296",
    "source": "rulebook"
   },
@@ -36946,7 +36946,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaConditions": [
     {
      "reference": "id",
@@ -36974,7 +36974,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "project_id",
@@ -37010,7 +37010,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "project_id",
@@ -37438,7 +37438,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "id",
@@ -37514,7 +37514,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "database_id",
@@ -37536,7 +37536,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "id",
@@ -37558,7 +37558,7 @@
    "premium": true,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "database_id",
@@ -38209,7 +38209,7 @@
    "premium": false,
    "beta": false,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "survey_id",
@@ -38608,7 +38608,7 @@
    "premium": true,
    "beta": true,
    "workflowsTriggerType": "INTEGRATION_AI",
-   "masterTypeUnknown": true,
+   "masterType": "internal",
    "schemaFilters": [
     {
      "field": "form_id",

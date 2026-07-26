@@ -1114,20 +1114,6 @@ function expandFilter(f, rows) {
 
 export function buildTrigger(t, ctx, wid) {
   const meta = ctx.catalog.trigger(t.type);
-  // 🔴 masterType is not derivable for the marketplace `INTEGRATION_AI` triggers the
-  // rulebook contributes: the assets payload does not carry it, and the only corpus
-  // evidence (`proposal_estimate_update`, `affiliate_new_lead`) covers the INTERNAL half
-  // only. Without this guard the fallback below quietly writes "highlevel", which is a
-  // GUESS on a field that decides whether the trigger ever fires — the exact silent
-  // failure this compiler exists to prevent. Fail closed and make the author state it.
-  if (meta?.masterTypeUnknown && !t.masterType)
-    throw new IRError('TRIGGER_MASTERTYPE',
-      `trigger '${t.type}' is a marketplace (${meta.workflowsTriggerType}) trigger whose masterType `
-      + `is not recorded in GHL's assets catalog and has never been observed in the corpus. `
-      + `The engine will not guess it — a wrong masterType saves cleanly and never fires. `
-      + `Author it explicitly (masterType: "internal" is the only value observed on persisted `
-      + `marketplace triggers; "app" appears in some GHL docs but is NOT corpus-observed), or `
-      + `create the trigger once in the UI and read the value back with the trigger list GET.`);
   const rows = meta?.filterRows ?? [];
   const conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
   return {
@@ -1135,6 +1121,10 @@ export function buildTrigger(t, ctx, wid) {
     conditions,
     type: t.type, masterType: t.masterType ?? meta?.masterType ?? 'highlevel', name: t.name,
     actions: [{ workflow_id: wid, type: 'add_to_workflow' }],
+    // Marketplace triggers carry their schema flavour on the stored document. The builder
+    // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
+    // it wherever the catalog records one — and never invent it where it does not.
+    ...(meta?.workflowsTriggerType ? { workflowsTriggerType: meta.workflowsTriggerType } : {}),
     active: t.active !== false, triggersChanged: true,
     location_id: ctx.loc, company_id: ctx.cid, company_age: ctx.companyAge,
     // conv_ai_trigger binds a FLOW_BUILDER_BOT flow workflow to its agent — without
