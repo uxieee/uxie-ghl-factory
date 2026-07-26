@@ -107,10 +107,16 @@ test('conversationai_ai_splitter: author branches + No-condition-met fallback, d
 });
 
 test('fields-only conv-ai nodes (end/continue/transfer_bot/services_booking) get the INTERNAL envelope', () => {
+  // These are the COMMITTED shapes captured on AU 2026-07-25, not the previously
+  // documented ones. `end` was {customMessage, reactivate, duration} — all three names
+  // wrong; authoring `reactivate` persisted an unknown key while the actually-required
+  // `sleepEnabled` stayed unset, so the node kept its error badge. `continue` is literally
+  // {} and `transfer_bot` is {assignedEmployeeId} only — the `prompt` key on both was a
+  // recon read of the panel and never persisted.
   const cases = [
-    { type: 'conversationai_end', attributes: { customMessage: 'bye', reactivate: true, duration: 1 } },
-    { type: 'conversationai_continue', attributes: { prompt: 'keep going' } },
-    { type: 'conversationai_transfer_bot', attributes: { assignedEmployeeId: 'AGENT2', prompt: 'hand over' } },
+    { type: 'conversationai_end', attributes: { message: 'bye', sleepEnabled: true, sleepDuration: 1, sleepUnit: 'hours' } },
+    { type: 'conversationai_continue', attributes: {} },
+    { type: 'conversationai_transfer_bot', attributes: { assignedEmployeeId: 'AGENT2' } },
     { type: 'conversationai_services_booking', attributes: { services: ['svc1'], description: 'book a facial' } },
   ];
   for (const c of cases) {
