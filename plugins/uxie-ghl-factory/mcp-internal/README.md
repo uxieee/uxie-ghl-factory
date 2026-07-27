@@ -142,13 +142,15 @@ and nothing in this repository should be read as claiming otherwise.
 
 Inputs: `locationId`, `workflowId`, `fromDate`, `toDate` (epoch ms, rejected before any
 gateway is built when `fromDate >= toDate`), optional `contactId`, `eventTypes` (max 20),
-`stepIds` (max 20), and the budgets `maxLogPartitions` (default 256), `minPartitionMs`
-(default 1000), `maxEnrollmentPages` (default 200), `maxStepRosterPages` (default 200). The
-page sizes behind those budgets are pinned: execution logs and the enrollment walk read 20
-rows per page, step rosters 50, so the default budgets cover 5,120 execution rows, 4,000
-enrollments and 10,000 roster rows. The execution-log `pageSize` is pinned at 20 and is not
-caller-selectable: 20 is the value the partition collector was proven against, and a larger
-page would silently change what "terminal partition" means.
+`stepIds` (max 20), the execution-log `logPageSize` (default 100, max 5000) and
+`maxLogPages` (default 200), the transient-fault allowance `maxLogRetries` (default 3), and
+the budgets `maxEnrollmentPages` (default 200) and `maxStepRosterPages` (default 200). The
+enrollment walk reads 20 rows per page and step rosters 50.
+
+Three inputs are **retired and refused, not ignored**: `pageSize`, `maxLogPartitions` and
+`minPartitionMs`. Passing any of them is an error naming the replacement. A parameter that is
+accepted and does nothing is indistinguishable, from the caller's side, from one that works —
+which is the defect described below.
 
 Output: `workflowDefinition`, `runtimeEvents`, `enrollments`, `perStepCounts`, `stepRosters`,
 `enrollmentTotals`, `pagination`, `rateLimit`, `locationBinding`, `sourceRoutes`,
@@ -156,18 +158,44 @@ Output: `workflowDefinition`, `runtimeEvents`, `enrollments`, `perStepCounts`, `
 `capturedAt`, `componentCompleteness`, `configurationBinding`, `complete`, `truncated`,
 `warnings`, `contractVersion`, `boundLocationId`, `workflowId`.
 
-**Time-partition completeness.** The analytical window is half-open, `[fromDate, toDate)`.
-The upstream query is expanded one millisecond at the lower bound and rows are then filtered
-locally, because upstream boundary inclusivity is not documented. A partition returning fewer
-than 20 rows is terminal; a partition returning 20 or more is saturated and is split at the
-integer midpoint, recursively, until every partition is terminal. There is no execution-log
-cursor and none is invented.
+**Execution-log completeness.** The analytical window is half-open, `[fromDate, toDate)`. It
+is sent to the server — which really does apply it — and then re-checked locally against each
+row's own `createdAt`, because a server-side filter is a claim and this module's job is not to
+take claims on trust. Upstream both bounds are **inclusive** (measured to the millisecond), so
+a row landing exactly on `toDate` arrives and is dropped locally.
 
-Saturation that cannot be split any further, at `minPartitionMs`, yields `complete:false` and
-`truncated:true` rather than a silently short window. So does a conflicting duplicate id, an
-unreadable event timestamp, a rate limit on any route, a quarantined or unverifiable identity,
-a lower bound that could not be expanded (a window starting at epoch 0), and an exhausted
-partition, enrollment or roster budget. Every one of those carries a coded warning.
+> ⚠️ **`fromDate`/`toDate` only work when `dateType=custom` is sent with them.** Without that
+> switch the endpoint silently discards the window and serves its own **~30-day default,
+> snapped to a day boundary** (not `now-30d` to the millisecond — measured 428 rows vs 419
+> on a workflow dense enough to tell them apart): HTTP 200, plausible rows, no warning. On the workflow this was measured against
+> that is 37 rows out of 433. The descriptor **pins** `dateType` to `custom` so this rail
+> cannot make the other request, and the preset values are not expressible at all — `all`,
+> `all_time`, `last_7_days` and any typo also fall through to the same 30-day default, so
+> `dateType=all` does not mean all history.
+
+Pages are walked with the endpoint's **cursor** (`action=first`, then `action=next` carrying
+`referenceId` **and** `referenceCreatedAt` — the id alone silently re-serves the same page).
+Every page re-returns the previous page's last row, so rows are de-duplicated by id, and the
+walk terminates on **a page that contributes no new ids** — never on an empty page, which does
+not occur. A short page is *not* treated as terminal: the walk spends one more request to
+prove exhaustion, because inferring completeness from page length is the exact reasoning that
+once published 8% of a workflow's history as a complete window.
+
+`actionType` is a real, working filter on this endpoint that this rail deliberately **does not
+send**. Its value enum cannot be established from any available source — the builder's step
+catalog is a different vocabulary (`wait` there, `wait_time` here) — and an unrecognised value
+returns an empty `200`. Nor could an allow-list rescue it: the only way to distinguish "that
+step type never ran" from "that slug was wrong" is to compare against the unfiltered window,
+which means fetching the pages the filter was meant to save. Rows are published verbatim with
+their `type`, so a **consumer** can filter the returned array; this tool does not do it for you
+and exposes no input for it.
+
+`complete:false` and `truncated:true` follow from an exhausted page budget, a cursor that
+cannot be advanced, a conflicting duplicate id, an unreadable event timestamp, a rate limit on
+any route, a quarantined or unverifiable identity, and an exhausted enrollment or roster
+budget. Every one of those carries a coded warning. Wide windows on this endpoint
+intermittently answer `HTTP 500` and then serve the identical request cleanly, so log reads
+retry up to `maxLogRetries` times on 5xx — never on 401/403/429.
 
 `complete` covers **runtime event coverage only**. The separate `configurationBinding` field
 records that nothing on this rail proves the captured workflow definition governed the events

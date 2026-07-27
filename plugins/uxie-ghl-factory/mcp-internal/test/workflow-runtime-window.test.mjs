@@ -38,7 +38,7 @@ import {
 const LOC = 'LOC1';
 const WF = 'wf-1';
 const CAPTURED_AT = '2026-07-24T00:00:00.000Z';
-const PAGE_SIZE = 20;            // pinned by the descriptor (fixedQueryValues.limit = '20')
+const LOG_PAGE_SIZE = 100;       // RUNTIME_WINDOW_DEFAULTS.logPageSize; bounded 1..5000
 const STEP_PAGE_SIZE = 50;       // details-by-step numericQueryBounds.limit max
 
 // An INDEPENDENT fixture input, not a figure derived from the rows the stub is about to
@@ -57,9 +57,8 @@ const WARNING_CODES = Object.freeze([
   'LOG_EVENT_TIMESTAMP_UNPARSEABLE',
   'LOG_EVENT_TIMESTAMP_FIELD_UNREADABLE',
   'LOG_EVENT_ID_MISSING',
-  'LOG_WINDOW_LOWER_BOUND_UNEXPANDED',
-  'LOG_PARTITION_SATURATED_AT_FLOOR',
-  'LOG_PARTITION_BUDGET_EXHAUSTED',
+  'LOG_PAGE_BUDGET_EXHAUSTED',
+  'LOG_CURSOR_UNUSABLE',
   // The enrollment/step-roster twins of LOG_EVENT_ID_MISSING. Rows on those two routes were
   // keyed by content alone, so two identical id-less rows in one page silently became one.
   'ENROLLMENT_ROW_ID_MISSING',
@@ -151,9 +150,14 @@ const scenario = (fixture, name) => {
 const expandRows = (specs) => specs.flatMap((spec) => {
   if (!spec?.generate) return [spec];
   const { count, idPrefix, tStart = 0, tStep = 0 } = spec.generate;
+  // `createdAt` is emitted as well as `startedExecutionAt` because the CURSOR needs it:
+  // `referenceCreatedAt` is load-bearing upstream, and a row that cannot supply it stalls
+  // the walk. Live rows from this endpoint carry `createdAt` and, in fact, never carry
+  // `startedExecutionAt` at all.
   return Array.from({ length: count }, (_, i) => ({
     _id: `${idPrefix}${i}`,
     _t: tStart + (i * tStep),
+    createdAt: tStart + (i * tStep),
     startedExecutionAt: tStart + (i * tStep),
   }));
 });
@@ -212,6 +216,9 @@ function makeFakeAuditGateway(spec, { locationId = LOC } = {}) {
 
   const definition = { ...DEFAULT_DEFINITION, ...(spec.definition ?? {}) };
   const descending = spec.order === 'desc';
+  // Fixed, not Date.now(): the default-window path must be reproducible byte-for-byte, and
+  // this module's whole contract is that two identical runs produce identical results.
+  const defaultWindowNow = spec.defaultWindowNow ?? 4_000;
   const corpus = expandRows(spec.corpus ?? []);
   const streams = spec.streams ?? null;
   const enrollmentPages = (spec.enrollment?.pages ?? []).map(expandEnrollmentPage);
@@ -226,11 +233,25 @@ function makeFakeAuditGateway(spec, { locationId = LOC } = {}) {
   const statsCache = spec.statsCache ?? [{ workflowId: WF, total: declaredTotal, finished: 0 }];
   const legacyStats = spec.stats ?? { workflowId: WF, total: declaredTotal, finished: 0 };
 
-  // The upstream log range is INCLUSIVE on both ends; see fixtures/runtime-window/README.md.
-  // That is what makes the collector's own half-open retention observable.
+  // THE LOG STUB MODELS THE REAL ENDPOINT, INCLUDING ITS TRAPS. Three properties are
+  // deliberate, and each one exists because the live server has it:
+  //
+  //   1. **The window only applies when `dateType=custom` is present.** Without it the real
+  //      server discards `fromDate`/`toDate` and serves its own recent-slice default. The
+  //      previous stub filtered by time unconditionally, which is precisely why the whole
+  //      fixture suite agreed with a collector that could never work: it simulated a server
+  //      that windows when asked, and the real one does not.
+  //   2. **Bounds are INCLUSIVE on both ends** (measured to the exact millisecond), so the
+  //      collector's own half-open retention stays observable — a row at exactly `toDate`
+  //      comes back over the wire and must be dropped locally.
+  //   3. **Cursor pages re-serve the reference row.** Every `action=next` page begins with
+  //      the row the cursor pointed at, so a collector that does not dedupe double-counts
+  //      every boundary, and one that waits for an empty page never terminates.
+  const DEFAULT_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
   const logsBody = (query) => {
-    const from = Number(query.fromDate);
-    const to = Number(query.toDate);
+    const windowed = query.dateType === 'custom';
+    const from = windowed ? Number(query.fromDate) : (defaultWindowNow - DEFAULT_WINDOW_MS);
+    const to = windowed ? Number(query.toDate) : defaultWindowNow;
     const source = query.eventType === undefined
       ? corpus
       : expandRows(streams?.[query.eventType] ?? []);
@@ -243,8 +264,22 @@ function makeFakeAuditGateway(spec, { locationId = LOC } = {}) {
     });
     timed.sort((a, b) => (a.row._t - b.row._t) || (a.index - b.index));
     if (descending) timed.reverse();
-    const page = [...timed, ...untimed]
-      .slice(0, PAGE_SIZE)
+    // Undatable rows lead rather than trail. Their position is arbitrary — they carry no
+    // orderable key — but trailing them made every page END on a row that cannot supply the
+    // cursor reference, which is its own (separately covered) scenario rather than a
+    // property of "a row had no timestamp".
+    const ordered = [...untimed, ...timed];
+
+    // Cursor: resume AT the reference row (inclusive) so it is re-served, exactly as the
+    // live endpoint does. `referenceCreatedAt` is load-bearing upstream; a request carrying
+    // only `referenceId` re-serves page 1, which this reproduces by ignoring the cursor.
+    let start = 0;
+    if (query.action === 'next' && query.referenceId !== undefined && query.referenceCreatedAt !== undefined) {
+      const at = ordered.findIndex(({ row }) => String(row._id ?? row.id) === String(query.referenceId));
+      if (at >= 0) start = at;
+    }
+    const page = ordered
+      .slice(start, start + Number(query.limit))
       .map(({ row }) => {
         const { _t, ...rest } = row;
         return rest;
@@ -395,7 +430,14 @@ function assertExpectations(result, gateway, expected) {
     assert.deepEqual(
       callsTo(gateway, 'workflow_execution_logs').map((c) => [Number(c.query.fromDate), Number(c.query.toDate)]),
       expected.logQueryWindows,
-      'the emitted log partition windows do not match',
+      'the emitted log query windows do not match',
+    );
+  }
+  if (has('logQueryActions')) {
+    assert.deepEqual(
+      callsTo(gateway, 'workflow_execution_logs').map((c) => c.query.action),
+      expected.logQueryActions,
+      'the cursor action sequence does not match',
     );
   }
   if (has('logQueryEventTypes')) {
@@ -421,9 +463,9 @@ function assertExpectations(result, gateway, expected) {
   if (has('complete')) assert.equal(result.complete, expected.complete);
   if (has('truncated')) assert.equal(result.truncated, expected.truncated);
   if (has('warningCodes')) assert.deepEqual(warningCodesOf(result), [...expected.warningCodes].sort());
-  if (has('partitions')) {
-    for (const [key, value] of Object.entries(expected.partitions)) {
-      assert.equal(result.pagination.logPartitions[key], value, `pagination.logPartitions.${key}`);
+  if (has('logPages')) {
+    for (const [key, value] of Object.entries(expected.logPages)) {
+      assert.equal(result.pagination.logPages[key], value, `pagination.logPages.${key}`);
     }
   }
   if (has('enrollmentActions')) {
@@ -476,6 +518,22 @@ function assertExpectations(result, gateway, expected) {
     for (const [component, isComplete] of Object.entries(expected.componentCompleteness)) {
       assert.equal(result.componentCompleteness[component], isComplete, `componentCompleteness.${component}`);
     }
+  }
+
+  // UNIVERSAL: every execution-log query carries `dateType=custom`, and none carries
+  // `actionType`. Asserted on EVERY scenario rather than in one dedicated test, because
+  // dropping the mode switch is the regression that silently returns a 30-day default
+  // instead of the requested window — a 200 with plausible rows and no error anywhere.
+  for (const call of callsTo(gateway, 'workflow_execution_logs')) {
+    assert.equal(call.query.dateType, 'custom',
+      'a log query went out without dateType=custom, so its window would be silently ignored');
+    assert.equal(Object.hasOwn(call.query, 'actionType'), false,
+      'actionType is deliberately undeclared: its value enum is unknown and a wrong value returns a silent empty page');
+    // A cursor page must carry BOTH reference halves or none. The id alone re-serves the
+    // same page forever, with no error to notice.
+    const hasId = Object.hasOwn(call.query, 'referenceId');
+    const hasAt = Object.hasOwn(call.query, 'referenceCreatedAt');
+    assert.equal(hasId, hasAt, 'a half-reference cursor cannot advance and must never be sent');
   }
 
   // Universal invariants, checked on every scenario rather than per-fixture: an
@@ -588,11 +646,25 @@ test('a non-integer, negative or non-finite window bound is rejected before any 
   }
 });
 
-test('a caller-selected page size is rejected: 20 is the only proven value', async () => {
-  // Plan line 416. A larger page silently redefines what "terminal partition" means, so
-  // it needs a manifest revision and a live canary - not a parameter.
-  await assertRejectedBeforeAnyRead({ fromDate: 0, toDate: 1000, pageSize: 50 });
-  await assertRejectedBeforeAnyRead({ fromDate: 0, toDate: 1000, pageSize: 19 });
+test('every retired partition input is REFUSED, never silently ignored', async () => {
+  // The lesson of this whole rewrite, applied to the collector's own front door. A
+  // parameter that is accepted and does nothing is indistinguishable, from the caller's
+  // side, from one that works — which is exactly how `fromDate` sat on this endpoint doing
+  // nothing for months. A caller still passing `maxLogPartitions` holds a belief about how
+  // completeness is reached here, and that belief is now wrong.
+  for (const retired of ['pageSize', 'maxLogPartitions', 'minPartitionMs']) {
+    await assertRejectedBeforeAnyRead({ fromDate: 0, toDate: 1000, [retired]: 20 });
+  }
+});
+
+test('logPageSize is caller-selectable within the range that was measured', async () => {
+  // Bounded, not pinned. `pageSize` had to be pinned because the OLD completeness test — "a
+  // short page is terminal" — was an argument about one page size. The cursor's test ("a
+  // page contributed no new ids") is sound at every page size.
+  await assertRejectedBeforeAnyRead({ fromDate: 0, toDate: 1000, logPageSize: 5001 });
+  await assertRejectedBeforeAnyRead({ fromDate: 0, toDate: 1000, logPageSize: 0 });
+  const { gateway } = await runScenario({ input: { fromDate: 1000, toDate: 2000, logPageSize: 5000 }, corpus: [] });
+  assert.equal(Number(callsTo(gateway, 'workflow_execution_logs')[0].query.limit), 5000);
 });
 
 test('a missing location or workflow id is rejected before any read', async () => {
@@ -610,8 +682,8 @@ test('a missing location or workflow id is rejected before any read', async () =
 const happy = () => ({
   input: { fromDate: 1000, toDate: 2000, stepIds: ['step-1'] },
   corpus: [
-    { _id: 'ev-1', _t: 1100, startedExecutionAt: 1100, eventType: 'added_to_workflow' },
-    { _id: 'ev-2', _t: 1200, startedExecutionAt: 1200, eventType: 'email' },
+    { _id: 'ev-1', _t: 1100, startedExecutionAt: 1100, eventType: 'added_to_workflow' , createdAt: 1100 },
+    { _id: 'ev-2', _t: 1200, startedExecutionAt: 1200, eventType: 'email' , createdAt: 1200 },
   ],
   enrollment: { pages: [{ rows: [{ _id: 'enr-1', contactId: 'c1', createdAt: 1, sid: 's1', sequence: 1 }] }] },
   stepDetails: { 'step-1': { totalCount: 2, pages: [{ rows: [{ _id: 'r1', contactId: 'c1' }, { _id: 'r2', contactId: 'c2' }] }] } },
@@ -620,7 +692,7 @@ const happy = () => ({
 test('the result carries exactly the plan-specified fields and contract version', async () => {
   const { result } = await runScenario(happy());
   assert.deepEqual(Object.keys(result).sort(), [...RESULT_KEYS].sort());
-  assert.equal(result.contractVersion, '1.0.0');
+  assert.equal(result.contractVersion, '2.0.0');
   assert.equal(result.boundLocationId, LOC);
   assert.equal(result.workflowId, WF);
   assert.equal(result.capturedAt, CAPTURED_AT, 'capture time must come from the reads, not a wall clock');
@@ -628,43 +700,40 @@ test('the result carries exactly the plan-specified fields and contract version'
   assert.ok(result.capabilityVersion.length > 0);
 });
 
-test('the requested window is half-open and the applied window records the 1ms expansion', async () => {
+test('the applied window equals the requested one and records that the SERVER filtered it', async () => {
   const { result } = await runScenario(happy());
   assert.deepEqual(result.requestedWindow, { fromDate: 1000, toDate: 2000, boundaries: '[)' });
-  assert.deepEqual(result.appliedWindow, {
-    fromDate: 999,
-    toDate: 2000,
-    queryBoundaries: 'upstream-defined',
-    analyticalFilter: '[)',
-    expansionMs: 1,
+  // No expansion. The old one-millisecond lower-bound nudge hedged against undocumented
+  // upstream boundary semantics; those are measured now — both bounds inclusive on
+  // `createdAt` — so the server is asked for exactly the window that was requested and the
+  // half-open filter is applied locally on top.
+  assert.equal(result.appliedWindow.fromDate, 1000);
+  assert.equal(result.appliedWindow.toDate, 2000);
+  assert.equal(result.appliedWindow.analyticalFilter, '[)');
+  assert.equal(result.appliedWindow.dateType, 'custom');
+  assert.equal(result.appliedWindow.serverFiltered, true);
+  assert.equal(Object.hasOwn(result.appliedWindow, 'expansionMs'), false,
+    'there is no upstream expansion left to report');
+});
+
+test('epoch zero is an ORDINARY lower bound, with no clamp and no warning', async () => {
+  // This test used to assert the opposite. The collector expanded every window by a
+  // millisecond at the lower bound; `Math.max(0, fromDate - 1)` clamped that away at epoch
+  // 0, so a fromDate:0 window was declared incomplete because a row at exactly t=0 could
+  // not be proven present. The hedge is gone with its subject: upstream bounds are
+  // INCLUSIVE (measured to the millisecond), so a row sitting exactly on fromDate arrives
+  // and is retained by the local `>=` test, at every fromDate including 0.
+  const { gateway, result } = await runScenario({
+    input: { fromDate: 0, toDate: 500 },
+    corpus: [{ _id: 'at-zero', _t: 0, createdAt: 0, startedExecutionAt: 0 }],
   });
-});
-
-test('a window starting at 0 reports the expansion it could NOT apply and refuses to call itself complete', async () => {
-  // REWRITTEN. This used to assert only that the query went out on 0 rather than -1, and
-  // said nothing about the receipt or the verdict — so `expansionMs: 1` sat in the result
-  // next to a lower bound that was never expanded. A 636-case differential oracle found 30
-  // windows the collector reported complete:true while missing events, and every single one
-  // had fromDate:0: one event at startedExecutionAt 0 in the window [0, 1) against an
-  // upstream `(from, to]` gives the oracle ['a'] and the collector []. The clamp cannot be
-  // removed (there is no t < 0 to ask for), so the honest move is to report expansionMs 0
-  // and declare the boundary unprovable.
-  const { gateway, result } = await runScenario({ input: { fromDate: 0, toDate: 500 }, corpus: [] });
   assert.equal(result.appliedWindow.fromDate, 0);
-  assert.equal(result.appliedWindow.expansionMs, 0, 'the receipt must not claim an expansion that was clamped away');
-  assert.equal(Number(callsTo(gateway, 'workflow_execution_logs')[0].query.fromDate), 0);
-  assert.equal(result.complete, false);
-  assert.ok(result.warnings.some((w) => w.code === 'LOG_WINDOW_LOWER_BOUND_UNEXPANDED'));
-});
-
-test('a window starting above 0 does apply the expansion and stays complete', async () => {
-  // The contrast case: without it, "warn at fromDate 0" could be satisfied by warning
-  // always, which would make `complete` constant-false — the same mistake the enrollment
-  // total-mismatch rule made.
-  const { result } = await runScenario({ input: { fromDate: 1, toDate: 500 }, corpus: [] });
-  assert.equal(result.appliedWindow.fromDate, 0);
-  assert.equal(result.appliedWindow.expansionMs, 1);
+  assert.deepEqual(result.runtimeEvents.map((e) => e.id), ['at-zero']);
   assert.equal(result.complete, true);
+  assert.deepEqual(result.warnings, []);
+  for (const call of callsTo(gateway, 'workflow_execution_logs')) {
+    assert.equal(Number(call.query.fromDate), 0, 'the raw bound goes out unexpanded');
+  }
 });
 
 test('the collector reads capabilities in one fixed order, definition first', async () => {
@@ -675,6 +744,10 @@ test('the collector reads capabilities in one fixed order, definition first', as
     'workflow_detail',
     'workflow_triggers',
     'workflow_sticky_notes',
+    // TWO log reads, not one: page 1 opens the cursor and page 2 CONFIRMS it is exhausted.
+    // The confirming read is deliberate — inferring "that was everything" from a short page
+    // is exactly the reasoning that published 37 of 433 rows as a complete window.
+    'workflow_execution_logs',
     'workflow_execution_logs',
     'workflow_count_per_step',
     'workflow_enrollment_search',
@@ -737,25 +810,46 @@ test('the enrollment roster is filtered by the REQUESTED window, not the expande
 
 const CURSOR_KEYS = ['action', 'referenceId', 'referenceCreatedAt', 'referenceSid', 'referenceSequence'];
 
-test('no cursor key is ever sent to /workflows/logs/v2', async () => {
-  // Global Constraint line 20: the YAML documents no execution-log cursor. Inventing one
-  // means the walk silently reads a route contract that was never proven, and a wrong
-  // cursor returns rows - not an error.
-  for (const spec of [happy(), scenario(LOG_FIXTURES, 'saturated-split'), scenario(LOG_FIXTURES, 'multiple-event-type-streams')]) {
+test('the cursor is driven with BOTH reference halves, or not at all', async () => {
+  // INVERTED from "no cursor key is ever sent". The endpoint's cursor is real — it was
+  // judged inert only because it had been tested without `action`. What must never happen
+  // now is a HALF reference: supply `referenceId` without `referenceCreatedAt` and the
+  // server answers 200 with page 1 again, so the walk makes no progress and reports no
+  // error. `referenceSid`/`referenceSequence` stay unsent: measured inert, and an
+  // undeclared key cannot reach the wire.
+  for (const spec of [happy(), scenario(LOG_FIXTURES, 'cursor-walks-multiple-pages'), scenario(LOG_FIXTURES, 'multiple-event-type-streams')]) {
     const { gateway } = await runScenario(spec);
-    for (const call of callsTo(gateway, 'workflow_execution_logs')) {
-      for (const key of CURSOR_KEYS) {
-        assert.equal(Object.hasOwn(call.query, key), false, `logs query carried a ${key} cursor key`);
+    const calls = callsTo(gateway, 'workflow_execution_logs');
+    assert.ok(calls.length > 0);
+    for (const [index, call] of calls.entries()) {
+      for (const key of ['referenceSid', 'referenceSequence']) {
+        assert.equal(Object.hasOwn(call.query, key), false, `logs query carried an unproven ${key}`);
       }
+      // Stream-agnostic, because each eventType stream restarts its own cursor: the first
+      // call of EVERY stream is `first`, not just the first call of the run.
+      assert.ok(['first', 'next'].includes(call.query.action), `call ${index}`);
+      assert.equal(
+        Object.hasOwn(call.query, 'referenceId'),
+        Object.hasOwn(call.query, 'referenceCreatedAt'),
+        'a half-reference silently re-reads the same page and must never be sent',
+      );
+      // The reference and the action must agree: `first` opens a stream with no cursor,
+      // `next` continues one and therefore always carries both halves.
+      assert.equal(Object.hasOwn(call.query, 'referenceId'), call.query.action === 'next', `call ${index}`);
     }
   }
 });
 
-test('every log query pins limit to 20 and carries only descriptor-declared keys', async () => {
+test('every log query carries the mode switch, the limit, and only declared keys', async () => {
   const { gateway } = await runScenario(scenario(LOG_FIXTURES, 'multiple-event-type-streams'));
-  const declared = new Set(['workflowId', 'locationId', 'limit', 'fromDate', 'toDate', 'contactId', 'eventType']);
+  // `actionType` is absent from this set deliberately — it is a REAL working filter that
+  // this rail refuses to declare, because its value enum cannot be established and an
+  // unrecognised value returns a silent empty page.
+  const declared = new Set(['workflowId', 'locationId', 'limit', 'dateType', 'fromDate', 'toDate',
+    'action', 'contactId', 'eventType', 'referenceId', 'referenceCreatedAt']);
   for (const call of callsTo(gateway, 'workflow_execution_logs')) {
-    assert.equal(String(call.query.limit), String(PAGE_SIZE));
+    assert.equal(call.query.dateType, 'custom', 'without the mode switch the window is silently ignored');
+    assert.equal(String(call.query.limit), String(LOG_PAGE_SIZE));
     for (const key of Object.keys(call.query)) {
       assert.ok(declared.has(key), `undeclared log query key ${key}`);
     }
@@ -769,7 +863,7 @@ test('event time is parsed by field priority and the supplying field is recorded
       { _id: 'all-three', _t: 100, startedExecutionAt: 100, createdAt: 200, updatedAt: 300 },
       { _id: 'created-and-updated', _t: 400, createdAt: 400, updatedAt: 500 },
       { _id: 'updated-only', _t: 600, updatedAt: 600 },
-      { _id: 'iso-string', _t: 700, startedExecutionAt: new Date(700).toISOString() },
+      { _id: 'iso-string', _t: 700, startedExecutionAt: new Date(700).toISOString() , createdAt: 700 },
     ],
   });
   const by = Object.fromEntries(result.runtimeEvents.map((e) => [e.id, e]));
@@ -793,13 +887,13 @@ test('an offsetless ISO timestamp is read as UTC, not as the host timezone', asy
   const { result } = await runScenario({
     input: { fromDate: 1000000, toDate: 2000000 },
     corpus: [
-      { _id: 'offsetless', _t: 1500000, startedExecutionAt: '1970-01-01T00:25:00' },
-      { _id: 'zulu', _t: 1500001, startedExecutionAt: '1970-01-01T00:25:00.001Z' },
+      { _id: 'offsetless', _t: 1500000, startedExecutionAt: '1970-01-01T00:25:00' , createdAt: 1500000 },
+      { _id: 'zulu', _t: 1500001, startedExecutionAt: '1970-01-01T00:25:00.001Z' , createdAt: 1500001 },
       // Same instant as `offsetless`, written with an explicit +08:00 offset, so the
       // offset arithmetic is proven rather than assumed.
-      { _id: 'offset-plus', _t: 1500002, startedExecutionAt: '1970-01-01T08:25:00.002+08:00' },
-      { _id: 'offset-minus', _t: 1500003, startedExecutionAt: '1969-12-31T16:25:00.003-08:00' },
-      { _id: 'space-separated', _t: 1500004, startedExecutionAt: '1970-01-01 00:25:00.004' },
+      { _id: 'offset-plus', _t: 1500002, startedExecutionAt: '1970-01-01T08:25:00.002+08:00' , createdAt: 1500002 },
+      { _id: 'offset-minus', _t: 1500003, startedExecutionAt: '1969-12-31T16:25:00.003-08:00' , createdAt: 1500003 },
+      { _id: 'space-separated', _t: 1500004, startedExecutionAt: '1970-01-01 00:25:00.004' , createdAt: 1500004 },
     ],
   });
   const by = Object.fromEntries(result.runtimeEvents.map((e) => [e.id, e]));
@@ -821,10 +915,10 @@ test('RFC 3339 lowercase designators are accepted on BOTH halves of the timestam
   const { result } = await runScenario({
     input: { fromDate: 1000000, toDate: 2000000 },
     corpus: [
-      { _id: 'lower-t-upper-z', _t: 1500000, startedExecutionAt: '1970-01-01t00:25:00Z' },
-      { _id: 'lower-t-lower-z', _t: 1500001, startedExecutionAt: '1970-01-01t00:25:00.001z' },
-      { _id: 'upper-t-lower-z', _t: 1500002, startedExecutionAt: '1970-01-01T00:25:00.002z' },
-      { _id: 'lower-t-offset', _t: 1500003, startedExecutionAt: '1970-01-01t08:25:00.003+08:00' },
+      { _id: 'lower-t-upper-z', _t: 1500000, startedExecutionAt: '1970-01-01t00:25:00Z' , createdAt: 1500000 },
+      { _id: 'lower-t-lower-z', _t: 1500001, startedExecutionAt: '1970-01-01t00:25:00.001z' , createdAt: 1500001 },
+      { _id: 'upper-t-lower-z', _t: 1500002, startedExecutionAt: '1970-01-01T00:25:00.002z' , createdAt: 1500002 },
+      { _id: 'lower-t-offset', _t: 1500003, startedExecutionAt: '1970-01-01t08:25:00.003+08:00' , createdAt: 1500003 },
     ],
   });
   assert.deepEqual(result.runtimeEvents.map((e) => e.timestamp), [1500000, 1500001, 1500002, 1500003]);
@@ -882,7 +976,7 @@ test('a numeric string is epoch ms, never a year', async () => {
   // execution to the 18th century and dropping it from every window ever asked for.
   const { result } = await runScenario({
     input: { fromDate: 1000, toDate: 2000 },
-    corpus: [{ _id: 'numeric-string', _t: 1700, startedExecutionAt: '1700' }],
+    corpus: [{ _id: 'numeric-string', _t: 1700, startedExecutionAt: '1700' , createdAt: 1700 }],
   });
   assert.equal(result.runtimeEvents.length, 1);
   assert.equal(result.runtimeEvents[0].timestamp, 1700);
@@ -918,7 +1012,7 @@ test('an id-less row echoed by overlapping partitions is still counted once', as
   // The other half of the occurrence rule. The saturated parent and both children return
   // the same untimed id-less row; position-keying it UNCONDITIONALLY would triple it.
   const { result } = await runScenario({
-    input: { fromDate: 1000, toDate: 2000, minPartitionMs: 1 },
+    input: { fromDate: 1000, toDate: 2000 },
     corpus: [
       ...Array.from({ length: 19 }, (_, i) => ({ _id: `e-${i}`, _t: 1000 + (i * 50), startedExecutionAt: 1000 + (i * 50) })),
       { _t: null, eventType: 'orphan' },
@@ -932,7 +1026,7 @@ test('an id-less row echoed by overlapping partitions is still counted once', as
 // used to push TWO warning objects: LOG_EVENT_TIMESTAMP_UNPARSEABLE and
 // LOG_EVENT_TIMESTAMP_FIELD_UNREADABLE.
 const undatableCorpus = (count) => Array.from({ length: count }, (_, i) => ({
-  _id: `undatable-${i}`, _t: 1000 + i, startedExecutionAt: 'not-a-date',
+  _id: `undatable-${i}`, _t: 1000 + i, startedExecutionAt: 'not-a-date', createdAt: 'not-a-date',
 }));
 
 const warningsByCode = (result) => {
@@ -952,7 +1046,7 @@ test('the warnings array is bounded by the VOCABULARY, not by the number of offe
   //
   // Nothing is lost by aggregating: an auditor branches on the CODE, and "how many rows" is
   // a number. So the count now rides on the single object as `occurrences`.
-  const window = { fromDate: 1000, toDate: 3000, minPartitionMs: 1 };
+  const window = { fromDate: 1000, toDate: 3000, logPageSize: 5000 };
   const small = await runScenario({ input: window, corpus: undatableCorpus(200) });
   const large = await runScenario({ input: window, corpus: undatableCorpus(2000) });
 
@@ -997,8 +1091,8 @@ test('the warnings array is bounded by the VOCABULARY, not by the number of offe
 // per millisecond so no partition can saturate at the floor (a 1ms window returns 3 rows,
 // never a full page) and every row is therefore provably walked.
 const conflictingPairCorpus = (idCount, t0 = 1000) => Array.from({ length: idCount }, (_, i) => [
-  { _id: `exec-${i}`, _t: t0 + (i * 2), startedExecutionAt: t0 + (i * 2), payload: 'a' },
-  { _id: `exec-${i}`, _t: t0 + (i * 2) + 1, startedExecutionAt: t0 + (i * 2) + 1, payload: 'b' },
+  { _id: `exec-${i}`, _t: t0 + (i * 2), createdAt: t0 + (i * 2), startedExecutionAt: t0 + (i * 2), payload: 'a' },
+  { _id: `exec-${i}`, _t: t0 + (i * 2) + 1, createdAt: t0 + (i * 2) + 1, startedExecutionAt: t0 + (i * 2) + 1, payload: 'b' },
 ]).flat();
 
 test('LOG_DUPLICATE_ID_CONFLICT is bounded by the VOCABULARY, and its count IS the number of conflicting ids', async () => {
@@ -1021,14 +1115,13 @@ test('LOG_DUPLICATE_ID_CONFLICT is bounded by the VOCABULARY, and its count IS t
       input: {
         fromDate: 1000,
         toDate: 1000 + (idCount * 2),
-        minPartitionMs: 1,
         // Generous on purpose: a walk that ran out of budget would see only some of the ids,
         // and `occurrences` would then be measuring the budget rather than the data.
-        maxLogPartitions: 1024,
+        logPageSize: 5000,
       },
       corpus,
     });
-    assert.equal(result.pagination.logPartitions.exhausted, false,
+    assert.equal(result.pagination.logPages.exhausted, false,
       `the ${idCount}-id walk must complete, or the occurrence count measures the budget`);
     assert.equal(result.runtimeEvents.length, idCount * 2,
       'both payloads of every id must be retained — one of them is wrong and the collector cannot tell which');
@@ -1081,11 +1174,11 @@ test('LOG_EVENT_ID_MISSING is already bounded at one object by a run-level guard
   // This test is the guard on that reasoning: if the row count ever starts driving the
   // object count here, it fails the same way the duplicate-id test above would have.
   const idlessCorpus = (count) => Array.from({ length: count }, (_, i) => ({
-    _t: 1000 + i, startedExecutionAt: 1000 + i, note: `idless-${i}`,
+    _t: 1000 + i, createdAt: 1000 + i, startedExecutionAt: 1000 + i, note: `idless-${i}`,
   }));
   const walk = async (count) => {
     const { result } = await runScenario({
-      input: { fromDate: 1000, toDate: 1000 + count, minPartitionMs: 1, maxLogPartitions: 1024 },
+      input: { fromDate: 1000, toDate: 1000 + count, logPageSize: 5000 },
       corpus: idlessCorpus(count),
     });
     const objects = warningsByCode(result).get('LOG_EVENT_ID_MISSING') ?? [];
@@ -1102,35 +1195,29 @@ test('LOG_EVENT_ID_MISSING is already bounded at one object by a run-level guard
     'the id-less warning count must not scale with the row count either');
 });
 
-test('the saturation warning collapses to one object and keeps a bounded sample of widths', async () => {
-  // The one aggregated code whose detail genuinely VARIES between firings: it names the
-  // partition width. Collapsing to a single object must not throw that away entirely, so a
-  // capped set of DISTINCT details rides alongside the count.
-  //
-  // The window is deliberately 65ms wide against minPartitionMs 5, so the binary split
-  // produces floor-width partitions of BOTH 4ms and 5ms (65 -> 32|33 -> … -> 4 and 5) and
-  // more than one distinct detail actually exists to sample. Rows are clustered 50-deep
-  // every 4ms so each floor partition comes back full — a saturated page inside a window too
-  // narrow to split is the whole precondition for this warning.
-  const clustered = Array.from({ length: 17 }, (_, cluster) => cluster * 4)
-    .flatMap((offset) => Array.from({ length: 50 }, (_, i) => ({
-      _id: `c${offset}-${i}`, _t: 1000 + offset, startedExecutionAt: 1000 + offset,
-    })));
+test('the budget-exhaustion warning is one object however many streams hit the ceiling', async () => {
+  // The aggregated-warning contract, re-anchored. It used to be demonstrated on the
+  // saturation warning, which named a partition width; that code is gone with the walk it
+  // described. LOG_PAGE_BUDGET_EXHAUSTED inherits the property — several event-type streams
+  // draw on ONE page budget, so several can hit the ceiling in a single run.
+  const streamNames = ['added_to_workflow', 'email', 'sms'];
+  const streams = Object.fromEntries(streamNames.map((name) => [
+    name,
+    Array.from({ length: 30 }, (_, i) => ({
+      _id: `${name}-${i}`, _t: 1000 + i, createdAt: 1000 + i, startedExecutionAt: 1000 + i, eventType: name,
+    })),
+  ]));
   const { result } = await runScenario({
-    input: { fromDate: 1000, toDate: 1065, minPartitionMs: 5 },
-    corpus: clustered,
+    input: { fromDate: 1000, toDate: 2000, eventTypes: streamNames, logPageSize: 5, maxLogPages: 2 },
+    streams,
   });
-  const saturations = warningsByCode(result).get('LOG_PARTITION_SATURATED_AT_FLOOR') ?? [];
-  assert.equal(saturations.length, 1, 'one object per code, however many leaves saturated');
-  const [saturation] = saturations;
-  assert.ok(saturation.occurrences > 1, `many leaves saturated, got ${saturation.occurrences}`);
-  assert.equal(saturation.detail, saturation.detailSamples[0],
+  const objects = warningsByCode(result).get('LOG_PAGE_BUDGET_EXHAUSTED') ?? [];
+  assert.equal(objects.length, 1, 'one object per code, however many streams ran out');
+  assert.equal(objects[0].detail, objects[0].detailSamples[0],
     'the readable `detail` field must stay the shape every other warning has');
-  assert.ok(saturation.detailSamples.length >= 2,
-    'partitions saturated at two different widths, so the sample must show more than one');
-  assert.ok(saturation.detailSamples.length <= 3, 'and the sample must still be capped');
-  assert.equal(new Set(saturation.detailSamples).size, saturation.detailSamples.length,
-    'a sample of duplicates is the same ballast the aggregation removed');
+  assert.equal(result.pagination.logPages.exhausted, true);
+  assert.equal(result.pagination.logPages.terminatedCleanly, false);
+  assert.equal(result.complete, false);
 });
 
 test('every warning object has the SAME key set, whichever emitter produced it', async () => {
@@ -1154,26 +1241,24 @@ test('every warning object has the SAME key set, whichever emitter produced it',
   //                 many-ids case is proved by its own test.
   //   self-deduping LOG_EVENT_ID_MISSING (`idlessWarned`) — one object by a run-level
   //                 boolean, not by the map
-  //   plain         LOG_WINDOW_LOWER_BOUND_UNEXPANDED, STEP_ROSTER_UNSEALED — fired once,
-  //                 guarded by nothing at all
+  //   plain         STEP_ROSTER_UNSEALED — fired once, guarded by nothing at all
   //
   // The corpus is built to fire them together:
-  //   - `fromDate: 0`  => the 1ms lower-bound expansion cannot be applied  (plain)
   //   - `stepIds: ['ghost-step']` is not in the definition's template set  (plain)
   //   - id-less rows with a garbage `startedExecutionAt` => unparseable + field-unreadable
   //     (aggregated, twice over) and an id-less retained row  (self-deduping)
   //   - two rows sharing `_id: 'dup'` with different payloads               (self-deduping)
   const { result } = await runScenario({
-    input: { fromDate: 0, toDate: 2000, minPartitionMs: 1, stepIds: ['ghost-step'] },
+    input: { fromDate: 0, toDate: 2000, stepIds: ['ghost-step'] },
     corpus: [
       // Same id, two different payloads: both are retained (one of them is wrong and the
       // collector cannot tell which), and the second one trips the conflict guard.
-      { _id: 'dup', _t: 10, startedExecutionAt: 10, payload: 'a' },
-      { _id: 'dup', _t: 11, startedExecutionAt: 11, payload: 'b' },
+      { _id: 'dup', _t: 10, startedExecutionAt: 10, payload: 'a' , createdAt: 10 },
+      { _id: 'dup', _t: 11, startedExecutionAt: 11, payload: 'b' , createdAt: 11 },
       // Id-less AND undatable, several times over, so the aggregating emitter has something
       // to actually collapse rather than emitting a single object by accident.
       ...Array.from({ length: 6 }, (_, i) => ({
-        _t: 100 + i, startedExecutionAt: 'not-a-date', note: `undatable-${i}`,
+        _t: 100 + i, createdAt: 'not-a-date', startedExecutionAt: 'not-a-date', note: `undatable-${i}`,
       })),
     ],
   });
@@ -1184,7 +1269,7 @@ test('every warning object has the SAME key set, whichever emitter produced it',
   for (const [emitter, codes] of [
     ['aggregated', ['LOG_EVENT_TIMESTAMP_UNPARSEABLE', 'LOG_EVENT_TIMESTAMP_FIELD_UNREADABLE']],
     ['self-deduping', ['LOG_EVENT_ID_MISSING', 'LOG_DUPLICATE_ID_CONFLICT']],
-    ['plain', ['LOG_WINDOW_LOWER_BOUND_UNEXPANDED', 'STEP_ROSTER_UNSEALED']],
+    ['plain', ['STEP_ROSTER_UNSEALED']],
   ]) {
     for (const code of codes) {
       assert.ok(seen.has(code),
@@ -1201,7 +1286,7 @@ test('every warning object has the SAME key set, whichever emitter produced it',
   }
   // The plain and self-deduping warnings are ONE-occurrence warnings and must say so as a
   // number. `undefined` here is the whole defect; so is a string, and so is 0.
-  for (const code of ['LOG_WINDOW_LOWER_BOUND_UNEXPANDED', 'STEP_ROSTER_UNSEALED', 'LOG_EVENT_ID_MISSING', 'LOG_DUPLICATE_ID_CONFLICT']) {
+  for (const code of ['STEP_ROSTER_UNSEALED', 'LOG_EVENT_ID_MISSING', 'LOG_DUPLICATE_ID_CONFLICT']) {
     const warning = result.warnings.find((w) => w.code === code);
     assert.equal(warning.occurrences, 1, `${code} fired once and must report the number 1`);
     assert.deepEqual(warning.detailSamples, [warning.detail], `${code} must carry its own detail as its only sample`);
@@ -1248,10 +1333,9 @@ test('every log-side incompleteness sets BOTH complete:false and truncated:true'
   // consumer branching on only one of them silently gets the other's failures wrong.
   for (const name of [
     'conflicting-duplicate-ids',
-    'saturation-at-min-partition',
+    'page-budget-exhausted',
     'missing-timestamp-unsaturated',
-    'missing-timestamp-saturated',
-    'partition-budget-exhausted',
+    'repeated-rows',
   ]) {
     const { result } = await runScenario(scenario(LOG_FIXTURES, name));
     assert.equal(result.complete, false, `${name} should be incomplete`);
@@ -1587,7 +1671,7 @@ async function assertHonestFailure(spec, code) {
 test('a thrown CIRCUIT_OPEN never becomes an empty-but-complete window', async () => {
   await assertHonestFailure({
     input: { fromDate: 1000, toDate: 2000 },
-    corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 }],
+    corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 , createdAt: 1010 }],
     overrides: [{ capabilityId: 'workflow_execution_logs', nth: 1, throwCode: 'CIRCUIT_OPEN', meta: { scope: 'process', reason: 'RATE_LIMITED' } }],
   }, 'CIRCUIT_OPEN');
 });
@@ -1595,7 +1679,7 @@ test('a thrown CIRCUIT_OPEN never becomes an empty-but-complete window', async (
 test('a thrown TRANSPORT_FAILED never becomes an empty-but-complete window', async () => {
   await assertHonestFailure({
     input: { fromDate: 1000, toDate: 2000 },
-    corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 }],
+    corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 , createdAt: 1010 }],
     overrides: [{ capabilityId: 'workflow_execution_logs', nth: 1, throwCode: 'TRANSPORT_FAILED' }],
   }, 'TRANSPORT_FAILED');
 });
@@ -1603,7 +1687,7 @@ test('a thrown TRANSPORT_FAILED never becomes an empty-but-complete window', asy
 test('a thrown IDENTITY_INSPECTION_FAILED never becomes an empty-but-complete window', async () => {
   await assertHonestFailure({
     input: { fromDate: 1000, toDate: 2000 },
-    corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 }],
+    corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 , createdAt: 1010 }],
     overrides: [{ capabilityId: 'workflow_execution_logs', nth: 1, throwCode: 'IDENTITY_INSPECTION_FAILED' }],
   }, 'IDENTITY_INSPECTION_FAILED');
 });
@@ -1614,7 +1698,7 @@ test('a thrown policy fault on any later component is still an honest failure', 
   ]) {
     await assertHonestFailure({
       input: { fromDate: 1000, toDate: 2000 },
-      corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 }],
+      corpus: [{ _id: 'a', _t: 1010, startedExecutionAt: 1010 , createdAt: 1010 }],
       overrides: [{ capabilityId, nth: 1, throwCode: 'BINDING_MISMATCH' }],
     }, 'BINDING_MISMATCH');
   }
@@ -1655,7 +1739,7 @@ test('a thrown CIRCUIT_OPEN carries the reads it already completed on error.part
   // evidence now travels with it.
   const gateway = makeFakeAuditGateway({
     input: { fromDate: 1000, toDate: 2000 },
-    corpus: [{ _id: 'already-read', _t: 1500, startedExecutionAt: 1500 }],
+    corpus: [{ _id: 'already-read', _t: 1500, startedExecutionAt: 1500 , createdAt: 1500 }],
     overrides: [{
       capabilityId: 'workflow_enrollment_search',
       nth: 1,
@@ -1681,8 +1765,11 @@ test('a thrown CIRCUIT_OPEN carries the reads it already completed on error.part
     'the reserved CIRCUIT_OPEN warning was declared but never emitted anywhere');
   // The things a resumer actually needs.
   assert.deepEqual(partial.requestedWindow, { fromDate: 1000, toDate: 2000, boundaries: '[)' });
-  assert.equal(partial.sourceRoutes.length, 5, 'the five reads that completed before the latch');
-  assert.equal(partial.pagination.logPartitions.attempted, 1);
+  assert.equal(partial.sourceRoutes.length, 6, 'the six reads before the latch — the log cursor costs two');
+  // Two log pages: the cursor opened and then confirmed itself exhausted, before the
+  // circuit latched on the NEXT component.
+  assert.equal(partial.pagination.logPages.pages, 2);
+  assert.equal(partial.pagination.logPages.terminatedCleanly, true);
   assert.equal(partial.runtimeEvents.length, 1, 'a real event was read before the latch and must not be thrown away');
   assert.equal(partial.enrollments, null, 'a component that was never reached is null, not empty');
   assert.equal(partial.componentCompleteness.enrollments, false);
@@ -1692,7 +1779,7 @@ test('a thrown CIRCUIT_OPEN carries the reads it already completed on error.part
 // A dense corpus: every partition comes back FULL, so the walk keeps splitting and a latch
 // can be placed at an arbitrary depth inside an unfinished walk.
 const DENSE_LOG_CORPUS = Array.from({ length: 400 }, (_, i) => ({
-  _id: `dense-${i}`, _t: 1000 + i, startedExecutionAt: 1000 + i,
+  _id: `dense-${i}`, _t: 1000 + i, createdAt: 1000 + i, startedExecutionAt: 1000 + i,
 }));
 
 async function latchAt(spec) {
@@ -1726,7 +1813,7 @@ test('error.partial never claims a component whose loop never ran', async () => 
   //
   // A Task 5 resumer reads exactly this field to decide what it may SKIP, so each of those
   // four is an instruction to publish [] for a window that was never read.
-  const logWindow = { fromDate: 1000, toDate: 2000, minPartitionMs: 1 };
+  const logWindow = { fromDate: 1000, toDate: 2000, logPageSize: 20 };
   const rosterWindow = { fromDate: 1000, toDate: 1001, stepIds: ['step-1', 'step-2'] };
   const rosterStubs = {
     'step-1': { totalCount: 1, pages: [{ rows: [{ _id: 'r1' }] }] },
@@ -1740,19 +1827,21 @@ test('error.partial never claims a component whose loop never ran', async () => 
     input: logWindow, corpus: DENSE_LOG_CORPUS, overrides: [latch('workflow_execution_logs', 1)],
   });
   assert.deepEqual(firstLogRead.runtimeEvents, []);
-  assert.equal(firstLogRead.pagination.logPartitions.terminal, 0);
+  assert.equal(firstLogRead.pagination.logPages.pages, 1);
   assert.equal(firstLogRead.componentCompleteness.runtimeEvents, false,
     'an empty event list from a walk that never read a page is not a complete component');
 
-  const fifthPartition = await latchAt({
+  // A latch PART-WAY THROUGH the cursor walk. Everything already paged is real evidence and
+  // must survive on error.partial — but the component must NOT report itself complete on it,
+  // because the cursor never reached a page contributing no new ids.
+  const midWalk = await latchAt({
     input: logWindow, corpus: DENSE_LOG_CORPUS, overrides: [latch('workflow_execution_logs', 5)],
   });
-  // `attempted` is incremented before the read is issued, so the latching partition counts.
-  assert.equal(fifthPartition.pagination.logPartitions.attempted, 5,
-    'four partitions completed and the fifth latched');
-  assert.equal(fifthPartition.pagination.logPartitions.terminal, 0, 'not one of them came back short');
-  assert.ok(fifthPartition.runtimeEvents.length > 0, 'the reads that DID complete are real evidence');
-  assert.equal(fifthPartition.componentCompleteness.runtimeEvents, false);
+  // `pages` is incremented before the read is issued, so the latching page counts.
+  assert.equal(midWalk.pagination.logPages.pages, 5, 'four pages completed and the fifth latched');
+  assert.equal(midWalk.pagination.logPages.terminatedCleanly, false, 'the cursor never exhausted itself');
+  assert.ok(midWalk.runtimeEvents.length > 0, 'the pages that DID complete are real evidence');
+  assert.equal(midWalk.componentCompleteness.runtimeEvents, false);
 
   const firstRosterRead = await latchAt({
     input: rosterWindow, corpus: [], stepDetails: rosterStubs, overrides: [latch('workflow_step_details', 1)],
@@ -1792,7 +1881,7 @@ test('a throttle makes the window incomplete even if no component warned about i
   // coupling that does not hold when the throttled read is the LAST one) is not enough.
   const { result } = await runScenario({
     input: { fromDate: 1000, toDate: 2000 },
-    corpus: [{ _id: 'seen', _t: 1500, startedExecutionAt: 1500 }],
+    corpus: [{ _id: 'seen', _t: 1500, startedExecutionAt: 1500 , createdAt: 1500 }],
     overrides: [{
       capabilityId: 'workflow_execution_logs',
       nth: 1,
@@ -1912,9 +2001,9 @@ test('the collector validates its own filter caps and budget bounds', async () =
     { eventTypes: ['ok', ''] },
     { stepIds: [null] },
     { eventTypes: 'not-an-array' },
-    { maxLogPartitions: 0 },
-    { maxLogPartitions: 2049 },
-    { minPartitionMs: 0 },
+    { maxLogPages: 0 },
+    { maxLogPages: 2049 },
+    { maxLogRetries: 11 },
     { maxEnrollmentPages: 0 },
     { maxEnrollmentPages: 1001 },
     { maxStepRosterPages: 0 },
@@ -1965,8 +2054,8 @@ test('capturedAt latches the FIRST response and is never a wall clock', async ()
 // --- determinism ----------------------------------------------------------------
 
 test('two identical runs produce identical results', async () => {
-  const first = await runScenario(scenario(LOG_FIXTURES, 'saturated-split'));
-  const second = await runScenario(scenario(LOG_FIXTURES, 'saturated-split'));
+  const first = await runScenario(scenario(LOG_FIXTURES, 'cursor-walks-multiple-pages'));
+  const second = await runScenario(scenario(LOG_FIXTURES, 'cursor-walks-multiple-pages'));
   assert.deepEqual(first.result, second.result);
 });
 
@@ -1986,25 +2075,26 @@ test('the tool schema applies the plan defaults', () => {
   const parsed = tool('get_workflow_runtime_window').inputSchema.parse({
     locationId: LOC, workflowId: WF, fromDate: 0, toDate: 1000,
   });
-  assert.equal(parsed.pageSize, 20);
-  assert.equal(parsed.maxLogPartitions, 256);
-  assert.equal(parsed.minPartitionMs, 1000);
+  assert.equal(parsed.logPageSize, 100);
+  assert.equal(parsed.maxLogPages, 200);
+  assert.equal(parsed.maxLogRetries, 3);
   assert.equal(parsed.maxEnrollmentPages, 200);
   assert.equal(parsed.maxStepRosterPages, 200);
   assert.deepEqual(parsed.eventTypes, []);
   assert.deepEqual(parsed.stepIds, []);
 });
 
-test('the tool schema rejects an unproven page size and out-of-range budgets', () => {
+test('the tool schema rejects an out-of-range page size and budgets', () => {
   const { inputSchema } = tool('get_workflow_runtime_window');
   const base = { locationId: LOC, workflowId: WF, fromDate: 0, toDate: 1000 };
   for (const over of [
-    { pageSize: 50 },
+    { logPageSize: 5001 },
+    { logPageSize: 0 },
     { eventTypes: Array.from({ length: 21 }, (_, i) => `e${i}`) },
     { stepIds: Array.from({ length: 21 }, (_, i) => `s${i}`) },
-    { maxLogPartitions: 0 },
-    { maxLogPartitions: 2049 },
-    { minPartitionMs: 0 },
+    { maxLogPages: 0 },
+    { maxLogPages: 2049 },
+    { maxLogRetries: 11 },
     { maxEnrollmentPages: 1001 },
     { maxStepRosterPages: 0 },
     { fromDate: -1 },

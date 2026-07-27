@@ -120,9 +120,21 @@ const EXPECTED = {
     capabilityId: 'workflow_execution_logs',
     normalizedPath: '/workflows/logs/v2',
     queryBindings: { workflowId: 'workflowId' },
-    requiredQueryKeys: ['workflowId', 'locationId', 'limit', 'fromDate', 'toDate'],
-    optionalQueryKeys: ['contactId', 'eventType'],
-    fixedQueryValues: { limit: '20' },
+    // `dateType` is REQUIRED and PINNED to 'custom', and this snapshot is the guard on it.
+    // Without it the endpoint discards `fromDate`/`toDate` and serves its own 30-day
+    // default — a 200 with plausible rows that is 8% of the history. `action` is required
+    // because the cursor needs it; `actionType` is deliberately absent (see the descriptor).
+    requiredQueryKeys: ['workflowId', 'locationId', 'limit', 'dateType', 'fromDate', 'toDate', 'action'],
+    optionalQueryKeys: ['contactId', 'eventType', 'referenceId', 'referenceCreatedAt'],
+    fixedQueryValues: { dateType: 'custom' },
+    allowedQueryValues: {
+      action: ['first', 'next'],
+      eventType: [
+        'added_to_workflow', 'enroll', 'step', 'success', 'waiting',
+        'wait_finished', 'skipped', 'failed', 'retry', 'finished',
+      ],
+    },
+    numericQueryBounds: { limit: { min: 1, max: 5000 } },
     locationBinding: 'query',
   }),
   workflow_count_per_step: descriptor({

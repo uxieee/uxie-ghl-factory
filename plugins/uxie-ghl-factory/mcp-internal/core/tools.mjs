@@ -1047,15 +1047,21 @@ export const TOOLS = [
       fromDate: z.number().int().nonnegative(),
       toDate: z.number().int().positive(),
       contactId: z.string().optional(),
-      // `eventType` is not repeatable upstream, so each entry costs its own partition walk
-      // against the one shared maxLogPartitions budget.
+      // `eventType` is not repeatable upstream, so each entry costs its own cursor walk
+      // against the one shared maxLogPages budget.
       eventTypes: z.array(z.string()).max(20).default([]),
       stepIds: z.array(z.string()).max(20).default([]),
-      // Not a knob: 20 is the only page size the partition walk's terminal test has been
-      // proven against. Declared so an explicit 20 parses and anything else is refused.
-      pageSize: z.literal(20).default(20),
-      maxLogPartitions: z.number().int().min(1).max(2048).default(256),
-      minPartitionMs: z.number().int().min(1).default(1000),
+      // Throughput, not correctness: the cursor walk terminates on a page contributing no
+      // new ids, which is sound at any page size. Bounded to the range measured live.
+      //
+      // `pageSize`, `maxLogPartitions` and `minPartitionMs` are GONE, not defaulted — the
+      // registration guard refuses undeclared keys, so a caller still passing one gets an
+      // error rather than a silent drop. See RETIRED_RUNTIME_WINDOW_INPUTS.
+      logPageSize: z.number().int().min(1).max(5000).default(100),
+      maxLogPages: z.number().int().min(1).max(2048).default(200),
+      // Wide windows on /workflows/logs/v2 intermittently 500 and then serve the identical
+      // request cleanly. Retry is part of the contract, not a workaround.
+      maxLogRetries: z.number().int().min(0).max(10).default(3),
       maxEnrollmentPages: z.number().int().min(1).max(1000).default(200),
       maxStepRosterPages: z.number().int().min(1).max(1000).default(200),
     }),

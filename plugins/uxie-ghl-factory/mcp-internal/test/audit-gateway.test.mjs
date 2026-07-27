@@ -125,8 +125,12 @@ const rosterQuery = (over = {}) => ({
   includeObjectiveBuilder: 'true',
   ...over,
 });
+// `dateType` and `action` are REQUIRED here now. Without `dateType=custom` the endpoint
+// silently ignores the window and serves its own 30-day default, so the descriptor pins the
+// switch and a query that omits it cannot be built at all.
 const logsQuery = (over = {}) => ({
-  workflowId: WF, locationId: LOC, limit: 20, fromDate: 0, toDate: 10, ...over,
+  workflowId: WF, locationId: LOC, limit: 100, dateType: 'custom',
+  fromDate: 0, toDate: 10, action: 'first', ...over,
 });
 const stepQuery = (over = {}) => ({
   workflowId: WF, locationId: LOC, currentStepId: STEP, skip: 0, limit: 50, showTotalCount: 'true', ...over,
@@ -326,7 +330,10 @@ test('an unknown query key is refused before fetch', async () => {
     () => audit.callCapability({
       capabilityId: 'workflow_execution_logs',
       typedBindings: { locationId: LOC, workflowId: WF },
-      query: logsQuery({ action: 'next' }),
+      // `actionType` is a REAL, working GHL filter that this descriptor deliberately does
+      // not declare, because its value enum cannot be established from any available source
+      // and an unrecognised value returns a silent empty page. Undeclared means unsendable.
+      query: logsQuery({ actionType: 'email' }),
     }),
     'UNKNOWN_QUERY_KEY',
     { calls },
@@ -336,7 +343,7 @@ test('an unknown query key is refused before fetch', async () => {
 test('a missing required query key is refused before fetch', async () => {
   const { audit, calls } = harness();
   const query = logsQuery();
-  delete query.toDate;
+  delete query.dateType;
   await rejectsWithCode(
     () => audit.callCapability({
       capabilityId: 'workflow_execution_logs',
@@ -393,9 +400,11 @@ test('validation reads every value (URLSearchParams.getAll semantics), so a dupl
   params.append('workflowId', WF);
   params.append('locationId', LOC);
   params.append('locationId', 'LOC-EVIL');
-  params.append('limit', '20');
+  params.append('limit', '100');
+  params.append('dateType', 'custom');
   params.append('fromDate', '0');
   params.append('toDate', '10');
+  params.append('action', 'first');
   // .get() would return LOC and pass; .getAll() sees the smuggled second value.
   assert.equal(params.get('locationId'), LOC);
   assert.deepEqual(params.getAll('locationId'), [LOC, 'LOC-EVIL']);
@@ -412,7 +421,7 @@ test('validation reads every value (URLSearchParams.getAll semantics), so a dupl
 
 test('a fixed query value cannot be changed', async () => {
   const cases = [
-    ['workflow_execution_logs', { locationId: LOC, workflowId: WF }, logsQuery({ limit: 200 })],
+    ['workflow_execution_logs', { locationId: LOC, workflowId: WF }, logsQuery({ dateType: 'all' })],
     ['workflow_roster_list', { locationId: LOC }, rosterQuery({ type: 'campaign' })],
     ['workflow_roster_list', { locationId: LOC }, rosterQuery({ sortOrder: 'desc' })],
     ['workflow_step_details', { locationId: LOC, workflowId: WF, stepId: STEP }, stepQuery({ showTotalCount: 'false' })],
@@ -446,6 +455,9 @@ test('a value outside the allowed set is refused', async () => {
 
 test('numeric bounds are enforced at both ends', async () => {
   const cases = [
+    // The log limit is BOUNDED, not pinned — the cursor makes page size a throughput knob.
+    ['workflow_execution_logs', { locationId: LOC, workflowId: WF }, logsQuery({ limit: 5001 })],
+    ['workflow_execution_logs', { locationId: LOC, workflowId: WF }, logsQuery({ limit: 0 })],
     ['workflow_roster_list', { locationId: LOC }, rosterQuery({ limit: 101 })],
     ['workflow_roster_list', { locationId: LOC }, rosterQuery({ limit: 0 })],
     ['workflow_roster_list', { locationId: LOC }, rosterQuery({ offset: -1 })],
@@ -1616,7 +1628,8 @@ test('every capability emits exactly the host, path, and query its descriptor de
     workflow_triggers: [`${BACKEND}/workflow/${LOC}/trigger`, [`workflowId=${WF}`]],
     workflow_sticky_notes: [`${BACKEND}/workflows/sticky-notes-all`, [`locationId=${LOC}`, `workflowId=${WF}`]],
     workflow_execution_logs: [`${BACKEND}/workflows/logs/v2`, [
-      'fromDate=0', 'limit=20', `locationId=${LOC}`, 'toDate=10', `workflowId=${WF}`,
+      'action=first', 'dateType=custom', 'fromDate=0', 'limit=100', `locationId=${LOC}`,
+      'toDate=10', `workflowId=${WF}`,
     ]],
     workflow_count_per_step: [`${BACKEND}/workflows/status/search/count-per-step`, [`locationId=${LOC}`, `workflowId=${WF}`]],
     workflow_enrollment_search: [`${BACKEND}/workflows/status/search/workflow-with-filter`, [
@@ -2823,7 +2836,7 @@ test('M1: an empty required value is refused before fetch', async () => {
   // `params.has('fromDate')` is true for `fromDate=`, so the request went to the wire as
   // `&fromDate=&toDate=` — an UNBOUNDED window — while the receipt would have claimed a
   // bounded one.
-  for (const over of [{ fromDate: '' }, { toDate: '' }, { fromDate: '   ' }]) {
+  for (const over of [{ fromDate: '' }, { toDate: '' }, { fromDate: '   ' }, { workflowId: '' }]) {
     const { audit, calls } = harness();
     await rejectsWithCode(
       () => audit.callCapability({
@@ -2835,12 +2848,15 @@ test('M1: an empty required value is refused before fetch', async () => {
       { calls },
     );
   }
-  // An OPTIONAL key may still be empty: it narrows nothing and claims nothing.
+  // An OPTIONAL key may still be empty: it narrows nothing and claims nothing. Exercised on
+  // `contactId` rather than `eventType`, because `eventType` is ALLOW-LISTED now (the closed
+  // IWorkflowLogStatus enum) and an empty string is not in that set, so it earns the more
+  // specific DISALLOWED_QUERY_VALUE instead — which is the correct, stricter answer.
   const { audit, calls } = harness();
   const result = await audit.callCapability({
     capabilityId: 'workflow_execution_logs',
     typedBindings: { locationId: LOC, workflowId: WF },
-    query: logsQuery({ eventType: '' }),
+    query: logsQuery({ contactId: '' }),
   });
   assert.equal(result.ok, true);
   assert.equal(calls.length, 1);
