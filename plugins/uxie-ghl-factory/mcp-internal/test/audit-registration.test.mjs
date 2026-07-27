@@ -180,7 +180,7 @@ test('tools/call get_workflow_runtime_window returns the stable contract through
   const RESULT_KEYS = [
     'appliedQueries', 'appliedWindow', 'boundLocationId', 'capabilityVersion', 'capturedAt',
     'complete', 'componentCompleteness', 'configurationBinding', 'contractVersion',
-    'enrollmentTotals', 'enrollments', 'filters', 'locationBinding', 'pagination',
+    'enrollmentTotals', 'enrollments', 'filters', 'locationBinding', 'observedEventTypes', 'pagination',
     'perStepCounts', 'rateLimit', 'requestedWindow', 'runtimeEvents', 'sourceRoutes',
     'stepRosters', 'truncated', 'warnings', 'workflowDefinition', 'workflowId',
   ];

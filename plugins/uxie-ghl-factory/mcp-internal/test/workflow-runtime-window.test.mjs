@@ -95,7 +95,7 @@ const RESULT_KEYS = Object.freeze([
   'complete', 'componentCompleteness', 'configurationBinding', 'contractVersion',
   'enrollmentTotals', 'enrollments', 'filters',
   'locationBinding', 'pagination', 'perStepCounts', 'rateLimit', 'requestedWindow',
-  'runtimeEvents', 'sourceRoutes', 'stepRosters', 'truncated', 'warnings',
+  'runtimeEvents', 'observedEventTypes', 'sourceRoutes', 'stepRosters', 'truncated', 'warnings',
   'workflowDefinition', 'workflowId',
 ]);
 
@@ -1858,6 +1858,56 @@ test('error.partial never claims a component whose loop never ran', async () => 
   assert.equal(secondRosterRead.stepRosters[0].complete, true, 'and that one really is complete');
   assert.equal(secondRosterRead.componentCompleteness.stepRosters, false,
     'a roster loop that covered 1 of 2 requested steps is not a complete component');
+});
+
+test('observedEventTypes counts what the window actually holds, from the rows themselves', async () => {
+  // The point of this field is that it CANNOT be wrong about the account it describes. A
+  // hard-coded step-type list would have been: the builder catalog says `wait`, these rows
+  // say `wait_time`, and the endpoint answers a wrong slug with a clean empty page — so a
+  // catalog-derived allow-list produces a confident "no wait steps ever ran".
+  const { result } = await runScenario({
+    input: { fromDate: 1000, toDate: 2000 },
+    corpus: [
+      { _id: 'a', _t: 1010, createdAt: 1010, startedExecutionAt: 1010, type: 'email', status: 'success' },
+      { _id: 'b', _t: 1020, createdAt: 1020, startedExecutionAt: 1020, type: 'email', status: 'skipped' },
+      { _id: 'c', _t: 1030, createdAt: 1030, startedExecutionAt: 1030, type: 'wait_time', status: 'waiting' },
+      { _id: 'd', _t: 1040, createdAt: 1040, startedExecutionAt: 1040 },   // neither field present
+      // Non-STRING values, not merely absent ones. Without the typeof guard a numeric type
+      // becomes the key `42` and a null status becomes `null`, so the histogram would grow
+      // keys that are not step types at all — and this field's whole value is that its keys
+      // ARE the account's vocabulary.
+      { _id: 'e', _t: 1050, createdAt: 1050, startedExecutionAt: 1050, type: 42, status: null },
+    ],
+  });
+  assert.deepEqual(result.observedEventTypes.byType,
+    { '(absent)': 2, email: 2, wait_time: 1 });
+  assert.deepEqual(result.observedEventTypes.byStatus,
+    { '(absent)': 2, skipped: 1, success: 1, waiting: 1 });
+  // Counted over RETAINED rows, so the totals reconcile with the published event list rather
+  // than with whatever the wire happened to return.
+  const total = (o) => Object.values(o).reduce((a, b) => a + b, 0);
+  assert.equal(total(result.observedEventTypes.byType), result.runtimeEvents.length);
+  assert.equal(total(result.observedEventTypes.byStatus), result.runtimeEvents.length);
+  // Key-sorted: this result is hashed whole into the proof ledger, so insertion order (an
+  // artifact of row order) must not change the bytes.
+  for (const bag of [result.observedEventTypes.byType, result.observedEventTypes.byStatus]) {
+    assert.deepEqual(Object.keys(bag), [...Object.keys(bag)].sort());
+  }
+});
+
+test('an EMPTY observedEventTypes is not a claim that the window held nothing', async () => {
+  // Same doctrine as every other component here: an empty histogram is a CLAIM that the
+  // window held nothing, and this rail may not make a claim it did not observe.
+  const { result } = await runScenario({
+    input: { fromDate: 1000, toDate: 2000 },
+    corpus: [{ _id: 'never-seen', _t: 1010, createdAt: 1010, startedExecutionAt: 1010 }],
+    overrides: [{ capabilityId: 'workflow_execution_logs', nth: 1, response: { json: { unexpectedEnvelope: true } } }],
+  });
+  assert.deepEqual(result.observedEventTypes, { byType: {}, byStatus: {} },
+    'a failed read publishes an EMPTY histogram over the zero rows it retained — and the '
+    + 'component completeness flag, not this field, is what says the read failed');
+  assert.equal(result.componentCompleteness.runtimeEvents, false);
+  assert.equal(result.complete, false);
 });
 
 test('the loop-reached markers are not just constant false', async () => {
