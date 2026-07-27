@@ -152,7 +152,7 @@ Three inputs are **retired and refused, not ignored**: `pageSize`, `maxLogPartit
 accepted and does nothing is indistinguishable, from the caller's side, from one that works —
 which is the defect described below.
 
-Output: `workflowDefinition`, `runtimeEvents`, `enrollments`, `perStepCounts`, `stepRosters`,
+Output: `workflowDefinition`, `runtimeEvents`, `observedEventTypes`, `enrollments`, `perStepCounts`, `stepRosters`,
 `enrollmentTotals`, `pagination`, `rateLimit`, `locationBinding`, `sourceRoutes`,
 `appliedQueries`, `filters`, `requestedWindow`, `appliedWindow`, `capabilityVersion`,
 `capturedAt`, `componentCompleteness`, `configurationBinding`, `complete`, `truncated`,
@@ -189,6 +189,14 @@ step type never ran" from "that slug was wrong" is to compare against the unfilt
 which means fetching the pages the filter was meant to save. Rows are published verbatim with
 their `type`, so a **consumer** can filter the returned array; this tool does not do it for you
 and exposes no input for it.
+
+`observedEventTypes` reports what the window actually holds — `{byType, byStatus}` counted from
+the retained rows. It is the honest replacement for a hard-coded step-type list: derived per
+account per window from observation, it cannot drift from the data it describes, where a list
+copied from the builder's step catalog would have been wrong on day one (`wait` there,
+`wait_time` here). `type` is the step that ran; `status` is what happened to it — the two
+vocabularies overlap (`wait_finished` is in both), which is worth knowing before filtering on
+either.
 
 `complete:false` and `truncated:true` follow from an exhausted page budget, a cursor that
 cannot be advanced, a conflicting duplicate id, an unreadable event timestamp, a rate limit on

@@ -33416,6 +33416,7 @@ var RUNTIME_WINDOW_RESULT_KEYS = Object.freeze([
   "filters",
   "workflowDefinition",
   "runtimeEvents",
+  "observedEventTypes",
   "enrollments",
   "perStepCounts",
   "stepRosters",
@@ -33823,6 +33824,30 @@ async function collectWorkflowRuntimeWindow({ auditGateway, input } = {}) {
       filters: { contactId: config2.contactId, eventTypes: config2.eventTypes, stepIds: config2.stepIds },
       workflowDefinition: progress.workflowDefinition,
       runtimeEvents: progress.runtimeEvents,
+      // WHAT THIS WINDOW ACTUALLY CONTAINS, counted from the retained rows.
+      //
+      // Free — these rows are already held — and it exists because the alternative was a
+      // hard-coded allow-list that would have been WRONG. The obvious source for the log's
+      // step-type vocabulary is the builder's 383-entry step catalog; the two are different
+      // languages. The catalog says `wait`, these rows say `wait_time`, and the endpoint
+      // answers a wrong slug with a clean empty page — so a catalog-derived list would have
+      // produced a confident "no wait steps ever ran".
+      //
+      // Derived per account, per window, from observation, it cannot drift from the data it
+      // describes. `type` is the step that ran; `status` is what happened to it (the two
+      // vocabularies overlap — `wait_finished` appears in both — which is its own trap).
+      observedEventTypes: progress.runtimeEvents === null ? null : (() => {
+        const byType = {};
+        const byStatus = {};
+        for (const { event } of progress.runtimeEvents) {
+          const type = typeof event?.type === "string" ? event.type : "(absent)";
+          const status = typeof event?.status === "string" ? event.status : "(absent)";
+          byType[type] = (byType[type] ?? 0) + 1;
+          byStatus[status] = (byStatus[status] ?? 0) + 1;
+        }
+        const sorted = (o) => Object.fromEntries(Object.keys(o).sort().map((k) => [k, o[k]]));
+        return { byType: sorted(byType), byStatus: sorted(byStatus) };
+      })(),
       enrollments: progress.enrollments,
       perStepCounts: progress.perStepCounts,
       stepRosters: progress.stepRosters,
