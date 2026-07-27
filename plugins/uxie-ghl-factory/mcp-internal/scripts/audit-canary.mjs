@@ -86,7 +86,7 @@ export function artefactHashes() {
 export const CANARY_PLAN = Object.freeze([
   'tools/list on dist/audit-server.mjs — prove the registry before any runtime read',
   'get_workflow_runtime_window over an empty or very small closed window',
-  'get_workflow_runtime_window over a window requiring multiple log time partitions',
+  'get_workflow_runtime_window over the full approved window — a multi-page log cursor walk',
   'list_workflows_complete — a complete multi-page roster',
   'get_workflow_runtime_window — a complete enrollment walk and one step roster',
   'get_ai_configuration_bundle — every applicable AI discovery and detail surface',
@@ -119,15 +119,15 @@ export const CANARY_STEPS = Object.freeze([
     id: 'window-small',
     tool: 'get_workflow_runtime_window',
     args: (i) => ({ locationId: i.locationId, workflowId: i.workflowId, fromDate: i.toDate - 1000, toDate: i.toDate }),
-    why: 'a closed window small enough to terminate in one partition',
-    expect: 'ok, and pagination.logPartitions.terminal >= 1',
+    why: 'a narrow closed window — the cursor should exhaust itself in very few pages',
+    expect: 'ok, and the cursor was followed to a page contributing no new ids',
   },
   {
-    id: 'window-partitioned',
+    id: 'window-wide',
     tool: 'get_workflow_runtime_window',
     args: (i) => ({ locationId: i.locationId, workflowId: i.workflowId, fromDate: i.fromDate, toDate: i.toDate }),
-    why: 'the full approved window — the only step that can exercise a real partition split',
-    expect: 'ok, and the partition walk is a full binary tree (attempted === 2*terminal - streams)',
+    why: 'the full approved window — the only step wide enough to need a multi-page cursor walk',
+    expect: 'ok, and the cursor was followed to a page contributing no new ids',
   },
   {
     id: 'roster',
@@ -186,17 +186,34 @@ export function judgeStep(step, response) {
   const observed = { complete: d.complete, warnings: warningCodes(d) };
   switch (step.id) {
     case 'window-small':
-    case 'window-partitioned': {
-      const p = d.pagination?.logPartitions ?? {};
-      observed.logPartitions = p;
-      if (!Number.isFinite(p.terminal) || p.terminal < 1) return fail('no terminal log partition was reached', observed);
-      // The invariant the client derives terminality from. Stated here so the receipt proves
-      // the shape rather than merely quoting it.
-      if (Number.isFinite(p.attempted) && Number.isFinite(p.streams)
-        && p.attempted !== (2 * p.terminal) - p.streams) {
-        return fail('partition walk is not a full binary tree', observed);
+    case 'window-wide': {
+      // THESE TWO STEPS USED TO JUDGE A PARTITION WALK, and they were the two the first live
+      // canary could never pass — not because the rail was broken, but because the property
+      // they demanded was unreachable. A "terminal" partition was one that came back SHORT,
+      // and the walk was narrowing a window the server was silently ignoring (no
+      // `dateType`), so every page came back identically full however narrow the range got.
+      // 256 partitions, `terminal: 0`, every time.
+      //
+      // The property judged now is the one the cursor walk can actually establish: it
+      // FOLLOWED THE CURSOR TO EXHAUSTION. `terminatedCleanly` means a page came back
+      // contributing no new ids — the endpoint had nothing further to give — which is a
+      // proof, where "the page was short" was only ever a guess.
+      const p = d.pagination?.logPages ?? {};
+      observed.logPages = p;
+      if (!Number.isFinite(p.pages) || p.pages < 1) return fail('no execution-log page was read', observed);
+      if (p.exhausted === true) {
+        // An honest outcome, but it must be reported as one in BOTH places. Pagination and
+        // the warning vocabulary disagreeing means an auditor branching on either gets the
+        // opposite answer from one branching on the other.
+        if (!observed.warnings.includes('LOG_PAGE_BUDGET_EXHAUSTED')) {
+          return fail('the page budget ran out and no warning said so', observed);
+        }
+        return { pass: true, detail: `budget of ${p.budget} spent after ${p.pages} pages — reported incomplete, honestly`, observed };
       }
-      return { pass: true, detail: `partition walk closed: ${p.terminal} terminal of ${p.attempted} attempted`, observed };
+      if (p.terminatedCleanly !== true) {
+        return fail('the cursor never reached a page with no new ids, so the log was not walked to the end', observed);
+      }
+      return { pass: true, detail: `cursor exhausted after ${p.pages} page(s), ${p.rowsReturned} rows returned across ${p.streams} stream(s)`, observed };
     }
     case 'roster': {
       observed.envelopeShape = d.envelopeShape;

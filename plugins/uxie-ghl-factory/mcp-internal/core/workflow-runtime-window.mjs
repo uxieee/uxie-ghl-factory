@@ -65,7 +65,13 @@ import { createHash } from 'node:crypto';
 import { AUDIT_CAPABILITIES } from './audit-capabilities.mjs';
 import { CODES, scrubSecrets } from './errors.mjs';
 
-export const RUNTIME_WINDOW_CONTRACT_VERSION = '1.0.0';
+// 2.0.0. The execution-log half of this contract changed shape when the endpoint's real
+// parameter surface was captured from the builder UI: the time-partition walk is replaced by
+// a cursor walk over a window the server now actually applies (`dateType=custom`), so
+// `pagination.logPartitions` becomes `pagination.logPages`, the `LOG_PARTITION_*` and
+// `LOG_WINDOW_LOWER_BOUND_UNEXPANDED` warnings are retired, and `pageSize`/`maxLogPartitions`/
+// `minPartitionMs` leave the input in favour of `logPageSize`/`maxLogPages`/`maxLogRetries`.
+export const RUNTIME_WINDOW_CONTRACT_VERSION = '2.0.0';
 
 // Pinned, not caller-selectable. The partition walk's whole notion of "terminal"
 // is "the page came back short", so the page size IS the completeness proof: a
@@ -85,7 +91,12 @@ export const RUNTIME_WINDOW_RESULT_KEYS = Object.freeze([
   'configurationBinding', 'complete', 'truncated', 'warnings',
 ]);
 
-export const LOG_PAGE_SIZE = 20;
+// The cursor makes page size a throughput knob rather than a correctness one: completeness
+// comes from walking to a page with no new ids, at ANY page size. Bounded 1..5000 because
+// that is the range measured live — `limit` is honoured exactly up to the true row count and
+// then clamps cleanly, with no cap found even at 10,000.
+export const LOG_PAGE_SIZE_DEFAULT = 100;
+export const LOG_PAGE_SIZE_MAX = 5000;
 export const ENROLLMENT_PAGE_SIZE = 20;   // fixedQueryValues.limit = '20' on the enrollment descriptor
 export const STEP_ROSTER_PAGE_SIZE = 50;  // numericQueryBounds.limit.max = 50 on details-by-step
 
@@ -111,9 +122,18 @@ export const RUNTIME_WINDOW_WARNINGS = Object.freeze({
   // expansion could not be applied. Upstream boundary semantics are undocumented; if the
   // lower bound is exclusive, an event landing exactly on fromDate is dropped upstream and
   // no local filter can recover it.
-  LOG_WINDOW_LOWER_BOUND_UNEXPANDED: 'LOG_WINDOW_LOWER_BOUND_UNEXPANDED',
-  LOG_PARTITION_SATURATED_AT_FLOOR: 'LOG_PARTITION_SATURATED_AT_FLOOR',
-  LOG_PARTITION_BUDGET_EXHAUSTED: 'LOG_PARTITION_BUDGET_EXHAUSTED',
+  // The cursor walk hit its page ceiling before the server ran out of rows. Replaces
+  // LOG_PARTITION_BUDGET_EXHAUSTED; the old code's sibling LOG_PARTITION_SATURATED_AT_FLOOR
+  // and LOG_WINDOW_LOWER_BOUND_UNEXPANDED are simply gone. Both described a walk that
+  // narrowed a window to find fewer rows — a strategy that could never terminate, because
+  // the window it was narrowing was never being applied (no `dateType`), so every page came
+  // back identically full however narrow the range got.
+  LOG_PAGE_BUDGET_EXHAUSTED: 'LOG_PAGE_BUDGET_EXHAUSTED',
+  // A page ended on a row that cannot produce the `referenceId` + `referenceCreatedAt` pair
+  // the cursor needs. Continuing on a half-reference is the trap this guards: the server
+  // answers 200 and re-serves the SAME page, so a walk would spin against an unchanging
+  // cursor and burn its whole budget while believing it was paging.
+  LOG_CURSOR_UNUSABLE: 'LOG_CURSOR_UNUSABLE',
   // The enrollment/step-roster equivalents of LOG_EVENT_ID_MISSING. Rows on these two
   // routes were keyed by CONTENT alone, so two identical id-less rows in one page collapsed
   // into one row with no warning at all — the same silent undercount the execution-log walk
@@ -148,10 +168,23 @@ export const RUNTIME_WINDOW_WARNINGS = Object.freeze({
 // the same default in two files is how a schema quietly starts handing the collector a
 // budget the collector's own validator would have refused.
 export const RUNTIME_WINDOW_DEFAULTS = Object.freeze({
-  maxLogPartitions: 256,
-  minPartitionMs: 1000,
+  logPageSize: LOG_PAGE_SIZE_DEFAULT,
+  maxLogPages: 200,
+  maxLogRetries: 3,
   maxEnrollmentPages: 200,
   maxStepRosterPages: 200,
+});
+
+// Inputs the time-partition design owned, which no longer describe anything. They are
+// REFUSED rather than ignored, and that distinction is the whole lesson of this rewrite: a
+// parameter that is accepted and does nothing is indistinguishable, from the caller's side,
+// from one that works — which is exactly how `fromDate` sat on this endpoint for months
+// doing nothing at all. A caller still passing `maxLogPartitions` holds a belief about how
+// this collector reaches completeness, and that belief is now wrong.
+export const RETIRED_RUNTIME_WINDOW_INPUTS = Object.freeze({
+  pageSize: 'the execution log is read by cursor now, at any page size; use logPageSize',
+  maxLogPartitions: 'there is no time-partition walk — the window is applied by the server via dateType=custom and the pages are walked by cursor; use maxLogPages',
+  minPartitionMs: 'there is no time-partition walk, so there is no partition floor to set',
 });
 const DEFAULTS = RUNTIME_WINDOW_DEFAULTS;
 
@@ -167,6 +200,14 @@ const invalidWindow = (detail) => {
 
 const isEpochMs = (value) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 const isNonEmptyString = (value) => typeof value === 'string' && value.trim() !== '';
+
+// A response worth asking for again. Deliberately narrow: 5xx and transport faults only.
+// A 401/403/429 must NOT be retried — the first is a dead credential, the second a refusal,
+// and the third is exactly what the circuit breaker exists to latch on. Retrying any of
+// those turns one honest failure into a burst against a location that already said no.
+const RETRYABLE_FAILURES = new Set(['HTTP_500', 'HTTP_502', 'HTTP_503', 'HTTP_504', 'TRANSPORT_FAILED']);
+export const isRetryable = (response) => RETRYABLE_FAILURES.has(response?.failureClass)
+  || (Number.isFinite(response?.status) && response.status >= 500);
 
 const boundedInteger = (value, { min, max, fallback, name }) => {
   if (value === undefined) return fallback;
@@ -204,8 +245,8 @@ export function validateRuntimeWindowInput(input = {}) {
   if (!isEpochMs(source.fromDate)) throw invalidWindow('fromDate must be a non-negative integer epoch-millisecond value');
   if (!isEpochMs(source.toDate) || source.toDate === 0) throw invalidWindow('toDate must be a positive integer epoch-millisecond value');
   if (source.fromDate >= source.toDate) throw invalidWindow('the window is half-open, so fromDate must be strictly less than toDate');
-  if (source.pageSize !== undefined && source.pageSize !== LOG_PAGE_SIZE) {
-    throw invalidWindow(`pageSize is pinned at ${LOG_PAGE_SIZE}; a larger page redefines what a terminal partition means and has not been proven`);
+  for (const [name, reason] of Object.entries(RETIRED_RUNTIME_WINDOW_INPUTS)) {
+    if (source[name] !== undefined) throw invalidWindow(`${name} is retired: ${reason}`);
   }
   if (source.contactId !== undefined && !isNonEmptyString(source.contactId)) {
     throw invalidWindow('contactId must be a non-empty string when supplied');
@@ -218,9 +259,9 @@ export function validateRuntimeWindowInput(input = {}) {
     contactId: source.contactId ?? null,
     eventTypes: stringList(source.eventTypes, 'eventTypes'),
     stepIds: stringList(source.stepIds, 'stepIds'),
-    pageSize: LOG_PAGE_SIZE,
-    maxLogPartitions: boundedInteger(source.maxLogPartitions, { min: 1, max: 2048, fallback: DEFAULTS.maxLogPartitions, name: 'maxLogPartitions' }),
-    minPartitionMs: boundedInteger(source.minPartitionMs, { min: 1, fallback: DEFAULTS.minPartitionMs, name: 'minPartitionMs' }),
+    logPageSize: boundedInteger(source.logPageSize, { min: 1, max: LOG_PAGE_SIZE_MAX, fallback: DEFAULTS.logPageSize, name: 'logPageSize' }),
+    maxLogPages: boundedInteger(source.maxLogPages, { min: 1, max: 2048, fallback: DEFAULTS.maxLogPages, name: 'maxLogPages' }),
+    maxLogRetries: boundedInteger(source.maxLogRetries, { min: 0, max: 10, fallback: DEFAULTS.maxLogRetries, name: 'maxLogRetries' }),
     maxEnrollmentPages: boundedInteger(source.maxEnrollmentPages, { min: 1, max: 1000, fallback: DEFAULTS.maxEnrollmentPages, name: 'maxEnrollmentPages' }),
     maxStepRosterPages: boundedInteger(source.maxStepRosterPages, { min: 1, max: 1000, fallback: DEFAULTS.maxStepRosterPages, name: 'maxStepRosterPages' }),
   };
@@ -573,7 +614,7 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
     perStepCounts: null,
     stepRosters: null,
     enrollmentTotals: null,
-    logPartitions: null,
+    logPages: null,
     enrollmentPages: null,
     stepRosterPages: null,
     definitionComplete: false,
@@ -594,11 +635,6 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
     runtimeEventsWalkFinished: false,
     stepRosterLoopFinished: false,
   };
-
-  // The one-millisecond lower-bound expansion cannot be applied at epoch 0, and reporting
-  // `expansionMs: 1` while clamping it was an internally contradictory receipt. Report
-  // what was actually applied.
-  const lowerBoundExpansionMs = config.fromDate > 0 ? 1 : 0;
 
   // Every read in this file goes through here. Recording the applied query and the
   // resolved route for EVERY response — successful or not — is what lets a reviewer
@@ -712,12 +748,19 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
       boundLocationId,
       workflowId,
       requestedWindow: { fromDate: config.fromDate, toDate: config.toDate, boundaries: '[)' },
+      // The window sent upstream is now the REQUESTED one, unexpanded. The old
+      // one-millisecond lower-bound expansion hedged against undocumented boundary
+      // semantics; those are documented now by measurement — BOTH bounds are inclusive on
+      // `createdAt`, proven to the exact millisecond — so the hedge is replaced by a stated
+      // fact. The half-open analytical filter is still applied locally on top, which is why
+      // a row landing exactly on `toDate` is fetched and then dropped.
       appliedWindow: {
-        fromDate: config.fromDate - lowerBoundExpansionMs,
+        fromDate: config.fromDate,
         toDate: config.toDate,
-        queryBoundaries: 'upstream-defined',
+        queryBoundaries: '[] inclusive on createdAt (measured)',
         analyticalFilter: '[)',
-        expansionMs: lowerBoundExpansionMs,
+        dateType: 'custom',
+        serverFiltered: true,
       },
       appliedQueries,
       filters: { contactId: config.contactId, eventTypes: config.eventTypes, stepIds: config.stepIds },
@@ -761,7 +804,7 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
         enrollmentTotals: progress.enrollmentTotals !== null && progress.enrollmentTotals.total !== null && componentClean('enrollment_totals'),
       },
       pagination: {
-        logPartitions: progress.logPartitions,
+        logPages: progress.logPages,
         enrollmentPages: progress.enrollmentPages,
         stepRosterPages: progress.stepRosterPages,
       },
@@ -900,12 +943,11 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
     // documents none). Completeness comes from TIME instead: query, and if the page came
     // back full — meaning the window is saturated and rows may be hidden behind it — split
     // the range and ask again until every partition returns short.
-    if (lowerBoundExpansionMs === 0) {
-      warn(RUNTIME_WINDOW_WARNINGS.LOG_WINDOW_LOWER_BOUND_UNEXPANDED, 'runtime_events',
-        'the requested window starts at epoch 0, so the one-millisecond lower-bound expansion could not be applied and an event landing exactly on fromDate cannot be proven present');
-    }
-    const logPartitions = { attempted: 0, terminal: 0, exhausted: false, budget: config.maxLogPartitions };
-    progress.logPartitions = logPartitions;
+    const logPages = {
+      pages: 0, streams: 0, limit: config.logPageSize, rowsReturned: 0,
+      exhausted: false, budget: config.maxLogPages, retries: 0, terminatedCleanly: false,
+    };
+    progress.logPages = logPages;
     const events = [];
     progress.runtimeEvents = events;
     const eventKeys = new Set();
@@ -963,99 +1005,134 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
       events.push({ id, timestamp, timestampField, unreadableTimestampFields, event: row });
     };
 
-    const visitPartition = async (from, to, eventType) => {
-      if (logWalkStopped) return;
-      // The budget is a per-walk TOTAL across every eventType stream (Task 2 carry-forward
-      // item 3), not a per-stream allowance: N event types are N independent walks drawing
-      // on one budget, and a per-stream budget would let 20 streams spend 20x the ceiling.
-      if (logPartitions.attempted >= logPartitions.budget) {
-        logPartitions.exhausted = true;
-        logWalkStopped = true;
-        warn(RUNTIME_WINDOW_WARNINGS.LOG_PARTITION_BUDGET_EXHAUSTED, 'runtime_events', `the log partition budget of ${logPartitions.budget} was spent with subwindows still unread`);
-        return;
+    // ONE page read, with a bounded retry. Wide windows on this endpoint intermittently
+    // answer HTTP 500 and then serve the identical request cleanly moments later — measured
+    // repeatedly, including 500/500/200/200 on four back-to-back identical calls. The shape
+    // is consistent with an expensive cold query timing out and then hitting a warm cache.
+    // Retrying is therefore not papering over a fault, it IS the documented contract; a
+    // walk that abandoned the window on the first 500 would report a partial audit for a
+    // workflow that is perfectly readable.
+    const readLogPage = async (query) => {
+      let response = await read('workflow_execution_logs', entityBindings, query);
+      for (let attempt = 1; attempt <= config.maxLogRetries && !response.ok && isRetryable(response); attempt += 1) {
+        logPages.retries += 1;
+        response = await read('workflow_execution_logs', entityBindings, query);
       }
-      const query = {
-        workflowId,
-        locationId: boundLocationId,
-        limit: String(LOG_PAGE_SIZE),
-        // The one-millisecond expansion exists because upstream boundary semantics are
-        // undocumented: an exclusive lower bound would drop an event landing exactly on
-        // fromDate. Retention back to the half-open analytical window happens locally. At
-        // `from === 0` the expansion cannot be applied at all, which is a warned-about
-        // incompleteness rather than a silent clamp (see LOG_WINDOW_LOWER_BOUND_UNEXPANDED).
-        fromDate: String(Math.max(0, from - 1)),
-        toDate: String(to),
-      };
-      if (config.contactId !== null) query.contactId = config.contactId;
-      if (eventType !== null) query.eventType = eventType;
+      return response;
+    };
 
-      logPartitions.attempted += 1;
-      const response = await read('workflow_execution_logs', entityBindings, query);
-      if (!response.ok) {
-        warnForFailure(response, 'runtime_events');
-        // The walk stops here rather than carrying on into sibling subwindows: after a
-        // failed partition the union is provably incomplete, and every further read spends
-        // budget against a location that has already refused one.
-        logWalkStopped = true;
-        return;
-      }
-      const rows = rowsOf(response.json, 'logs', 'data', 'rows');
-      if (rows === null) {
-        warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, 'runtime_events', 'the execution-log response carried no readable row list');
-        logWalkStopped = true;
-        return;
-      }
-      // Occurrence counting is scoped to THIS response: two id-less rows with identical
-      // content inside one page are two rows, and the same two rows echoed by an
-      // overlapping partition are the same two rows.
-      const idlessOccurrences = new Map();
-      for (const row of rows) {
-        const { timestamp, timestampField, unreadableTimestampFields } = readEventTime(row);
-        const contentHash = contentHashOf(row);
-        let occurrence = 0;
-        if (idOf(row) === null) {
-          occurrence = idlessOccurrences.get(contentHash) ?? 0;
-          idlessOccurrences.set(contentHash, occurrence + 1);
+    const walkStream = async (eventType) => {
+      // The reference pair carried between pages. BOTH halves are load-bearing: with
+      // `referenceId` alone the server returns page 1 again, forever, with no error — a
+      // silent non-advance that a page-count guard reads as healthy progress.
+      let reference = null;
+
+      while (!logWalkStopped) {
+        if (logPages.pages >= logPages.budget) {
+          logPages.exhausted = true;
+          logWalkStopped = true;
+          warn(RUNTIME_WINDOW_WARNINGS.LOG_PAGE_BUDGET_EXHAUSTED, 'runtime_events',
+            `the log page budget of ${logPages.budget} was spent before the cursor exhausted itself`);
+          return;
         }
-        // An unplaceable row is retained from whichever partition returned it; a placed row
-        // is retained only by the partition that actually owns its instant, so the expanded
-        // query range cannot widen the window by a millisecond.
-        if (timestamp === null) retainEvent(row, contentHash, occurrence, null, null, unreadableTimestampFields);
-        else if (timestamp >= from && timestamp < to) retainEvent(row, contentHash, occurrence, timestamp, timestampField, unreadableTimestampFields);
+        const query = {
+          workflowId,
+          locationId: boundLocationId,
+          limit: String(config.logPageSize),
+          // Pinned by the descriptor too, and sent explicitly so the receipt records the
+          // mode the window was read under rather than leaving it to be inferred.
+          dateType: 'custom',
+          // Both bounds are inclusive upstream; the half-open analytical filter is applied
+          // locally below, so a row landing exactly on toDate is fetched and then dropped.
+          fromDate: String(config.fromDate),
+          toDate: String(config.toDate),
+          action: reference === null ? 'first' : 'next',
+        };
+        if (reference !== null) {
+          query.referenceId = reference.id;
+          query.referenceCreatedAt = reference.createdAt;
+        }
+        if (config.contactId !== null) query.contactId = config.contactId;
+        if (eventType !== null) query.eventType = eventType;
+
+        logPages.pages += 1;
+        const response = await readLogPage(query);
+        if (!response.ok) {
+          warnForFailure(response, 'runtime_events');
+          logWalkStopped = true;
+          return;
+        }
+        const rows = rowsOf(response.json, 'logs', 'data', 'rows');
+        if (rows === null) {
+          warn(RUNTIME_WINDOW_WARNINGS.COMPONENT_READ_FAILED, 'runtime_events', 'the execution-log response carried no readable row list');
+          logWalkStopped = true;
+          return;
+        }
+        logPages.rowsReturned += rows.length;
+
+        const before = eventKeys.size;
+        const idlessOccurrences = new Map();
+        for (const row of rows) {
+          const { timestamp, timestampField, unreadableTimestampFields } = readEventTime(row);
+          const contentHash = contentHashOf(row);
+          let occurrence = 0;
+          if (idOf(row) === null) {
+            occurrence = idlessOccurrences.get(contentHash) ?? 0;
+            idlessOccurrences.set(contentHash, occurrence + 1);
+          }
+          // The window is re-checked HERE even though the server applied it. That is not
+          // redundancy: the server filter is a claim, and the whole reason this module
+          // exists is that a claim about a filter was believed for months without anyone
+          // testing the rows. Membership in [fromDate, toDate) is decided on the row's own
+          // timestamp, so a server that quietly widened or ignored the window cannot
+          // smuggle rows into the published set.
+          if (timestamp === null) retainEvent(row, contentHash, occurrence, null, null, unreadableTimestampFields);
+          else if (timestamp >= config.fromDate && timestamp < config.toDate) {
+            retainEvent(row, contentHash, occurrence, timestamp, timestampField, unreadableTimestampFields);
+          }
+        }
+
+        // TERMINATION. Every page re-serves the previous page's last row, so the last page
+        // of a walk is a degenerate one-row echo — `rows.length === 0` NEVER happens and a
+        // loop waiting for it runs until the budget kills it. "No new ids" is the only
+        // honest end condition, and it is also the completeness proof: the cursor was
+        // followed until it had nothing further to give.
+        if (rows.length === 0 || eventKeys.size === before) break;
+        const last = rows[rows.length - 1];
+        const nextId = idOf(last);
+        const nextCreatedAt = last?.createdAt ?? null;
+        // A page whose final row cannot supply BOTH halves of the reference pair cannot be
+        // continued. Sending a half-reference would silently re-read the same page, so the
+        // walk stops and says so rather than looping on an unchanging cursor.
+        if (nextId === null || nextCreatedAt === null || String(nextCreatedAt) === '') {
+          warn(RUNTIME_WINDOW_WARNINGS.LOG_CURSOR_UNUSABLE, 'runtime_events',
+            'a log page ended on a row carrying no usable id/createdAt pair, so the cursor cannot be advanced and the remaining pages are unread');
+          logWalkStopped = true;
+          return;
+        }
+        reference = { id: String(nextId), createdAt: String(nextCreatedAt) };
       }
-      if (rows.length < LOG_PAGE_SIZE) {
-        logPartitions.terminal += 1;
-        return;
-      }
-      if (to - from <= config.minPartitionMs) {
-        // A full page inside a window too narrow to split. The walk has provably NOT seen
-        // the whole window, and calling it terminal is how N of M executions disappear.
-        // The comparison is `<=`, not `<`: at exactly minPartitionMs the two halves would
-        // each be below the floor, so `<` recurses to a 1ms window and spends the entire
-        // partition budget on a read storm instead of reporting saturation.
-        // AGGREGATED: a wide window walked down to the floor saturates at EVERY leaf, so
-        // this fired once per leaf partition — 508 identical objects on a 1,019-partition
-        // walk. The count is the useful number; 508 copies of the sentence are not.
-        warnAggregated(RUNTIME_WINDOW_WARNINGS.LOG_PARTITION_SATURATED_AT_FLOOR, 'runtime_events', `a saturated partition of ${to - from}ms cannot be split below minPartitionMs=${config.minPartitionMs}`);
-        return;
-      }
-      const mid = Math.floor((from + to) / 2);
-      await visitPartition(from, mid, eventType);
-      await visitPartition(mid, to, eventType);
+      // Reaching here means the loop exited via the terminal `break` above — the cursor
+      // gave back a page with nothing new on it. EVERY other exit (budget spent, failed
+      // read, unreadable envelope, unusable cursor) `return`s early and leaves this false,
+      // which is what makes the flag a completeness proof rather than a lap counter.
+      logPages.terminatedCleanly = true;
     };
 
     // `eventType` is optional but NOT repeatable on the descriptor, so N requested event
-    // types cost N independent walks. They are walked in the order supplied so the emitted
-    // query sequence is reproducible.
+    // types cost N independent cursor walks, drawing on one shared page budget.
     const streams = config.eventTypes.length > 0 ? config.eventTypes : [null];
+    logPages.streams = streams.length;
+    // `terminatedCleanly` is an AND across every stream, not a snapshot of the last one: a
+    // run where stream 1 exhausted its budget and stream 2 walked out cleanly has not seen
+    // the whole log, and a flag that only remembered stream 2 would say it had.
+    logPages.terminatedCleanly = true;
     for (const eventType of streams) {
-      // A stopped walk stops EVERY stream: the budget is shared, and a failed or exhausted
-      // walk means the merged event set is already known-incomplete. Redundant with the
-      // same guard at the top of visitPartition (which would return immediately anyway) and
-      // kept because the intent belongs where the streams are enumerated, not only where a
-      // partition is visited.
       if (logWalkStopped) break;
-      await visitPartition(config.fromDate, config.toDate, eventType);
+      const before = logPages.terminatedCleanly;
+      logPages.terminatedCleanly = false;
+      await walkStream(eventType);
+      logPages.terminatedCleanly = before && logPages.terminatedCleanly;
     }
     // Ascending by instant with the unplaceable rows last. Array.prototype.sort is stable,
     // so rows sharing an instant keep first-seen order and two identical runs agree.
@@ -1069,7 +1146,7 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
     // walk sets logWalkStopped and has already warned on `runtime_events`, which
     // componentClean() catches. This flag exists solely to distinguish that from a walk a
     // thrown CIRCUIT_OPEN prevented from running at all, which `progress.runtimeEvents !==
-    // null` cannot, because the array is published before the first partition is read.
+    // null` cannot, because the array is published before the first page is read.
     progress.runtimeEventsWalkFinished = true;
 
     // --- 3. per-step counts -------------------------------------------------------

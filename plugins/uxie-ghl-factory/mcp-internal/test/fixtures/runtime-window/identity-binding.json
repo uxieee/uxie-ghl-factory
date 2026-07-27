@@ -1,294 +1,496 @@
 {
-  "_file": "Scenarios for response-side identity binding. The audit gateway has already done the inspection (audit-gateway.mjs inspectIdentity) and hands the collector an `identity` block plus `quarantined`/`failureClass`; these scenarios pin what the collector must DO with them.",
-  "_windowNote": "fromDate is non-zero throughout: a window starting at epoch 0 cannot receive the mandated 1ms lower-bound expansion and therefore carries LOG_WINDOW_LOWER_BOUND_UNEXPANDED, which would drown out the identity assertions these scenarios exist for.",
-  "scenarios": {
-    "record-without-location": {
-      "planBullet": "Returned record without a locationId",
-      "why": "Plan line 438: absence records bindingMethod 'request_scope'. That is a weaker claim than a native match but it is still evidence, so the events must be RETAINED and the window may still be complete - downgrading absence to a failure would make most of this API unreadable.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "no-loc-1", "_t": 1010, "startedExecutionAt": 1010 },
-        { "_id": "no-loc-2", "_t": 1020, "startedExecutionAt": 1020 }
-      ],
-      "identity": { "bindingMethod": "request_scope", "checked": [] },
-      "expect": {
-        "eventIds": ["no-loc-1", "no-loc-2"],
-        "eventCount": 2,
-        "bindingMethod": "request_scope",
-        "quarantined": false,
-        "inspectionIncomplete": false,
-        "complete": true,
-        "truncated": false,
-        "warningCodes": []
-      }
+ "_file": "Scenarios for response-side identity binding. The audit gateway has already done the inspection (audit-gateway.mjs inspectIdentity) and hands the collector an `identity` block plus `quarantined`/`failureClass`; these scenarios pin what the collector must DO with them.",
+ "_windowNote": "fromDate is non-zero throughout: a window starting at epoch 0 cannot receive the mandated 1ms lower-bound expansion and therefore carries LOG_WINDOW_LOWER_BOUND_UNEXPANDED, which would drown out the identity assertions these scenarios exist for.",
+ "scenarios": {
+  "record-without-location": {
+   "planBullet": "Returned record without a locationId",
+   "why": "Plan line 438: absence records bindingMethod 'request_scope'. That is a weaker claim than a native match but it is still evidence, so the events must be RETAINED and the window may still be complete - downgrading absence to a failure would make most of this API unreadable.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "no-loc-1",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "createdAt": 1010
     },
-
-    "record-with-native-location": {
-      "planBullet": "Returned record without a locationId (contrast case)",
-      "why": "The contrast that makes the request_scope scenario meaningful. When every read carried and matched a native identity the binding method must say 'native', otherwise 'request_scope' is just a constant and proves nothing.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "nat-1", "_t": 1010, "startedExecutionAt": 1010, "locationId": "LOC1", "workflowId": "wf-1" }
-      ],
-      "identity": { "bindingMethod": "native", "checked": ["locationId", "workflowId"] },
-      "expect": {
-        "eventIds": ["nat-1"],
-        "eventCount": 1,
-        "bindingMethod": "native",
-        "quarantined": false,
-        "inspectionIncomplete": false,
-        "complete": true,
-        "truncated": false,
-        "warningCodes": []
-      }
-    },
-
-    "mixed-binding-methods-across-components": {
-      "planBullet": "Returned record without a locationId (mixed case)",
-      "why": "'mixed' is the value REAL responses will overwhelmingly produce - some routes echo a locationId and some do not - and no fixture generated it, so the whole mixed branch was untested and a mutant collapsing it to 'native' or 'request_scope' survived. Here the log route binds natively while every other read binds by request scope, which is exactly the shape of a live run.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "mx-1", "_t": 1010, "startedExecutionAt": 1010, "locationId": "LOC1" }
-      ],
-      "identity": { "bindingMethod": "request_scope", "checked": [] },
-      "overrides": [
-        {
-          "capabilityId": "workflow_execution_logs",
-          "nth": 1,
-          "response": { "identity": { "bindingMethod": "native", "checked": ["locationId"] } }
-        }
-      ],
-      "expect": {
-        "eventIds": ["mx-1"],
-        "eventCount": 1,
-        "bindingMethod": "mixed",
-        "quarantined": false,
-        "inspectionIncomplete": false,
-        "complete": true,
-        "truncated": false,
-        "warningCodes": []
-      }
-    },
-
-    "record-with-conflicting-location": {
-      "planBullet": "Returned record with conflicting locationId",
-      "why": "Plan line 439: a conflicting identity QUARANTINES, it does not degrade to Partial. The gateway already returns ok:false + quarantined:true; the collector must drop the payload from the evidence set rather than merge another location's rows into this location's runtime window, and must say the window is not complete.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "wrong-loc", "_t": 1010, "startedExecutionAt": 1010, "locationId": "OTHER-LOC" }
-      ],
-      "overrides": [
-        {
-          "capabilityId": "workflow_execution_logs",
-          "nth": 1,
-          "response": {
-            "ok": false,
-            "status": 200,
-            "failureClass": "IDENTITY_CONFLICT",
-            "quarantined": true,
-            "identity": {
-              "bindingMethod": "native",
-              "checked": ["workflowId"],
-              "conflicts": [{ "field": "locationId", "expected": "LOC1", "actual": "OTHER-LOC" }]
-            }
-          }
-        }
-      ],
-      "expect": {
-        "eventCount": 0,
-        "quarantined": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["IDENTITY_CONFLICT_QUARANTINE"]
-      }
-    },
-
-    "identity-inspection-capped": {
-      "planBullet": "Returned record with conflicting locationId (incompleteness sibling)",
-      "why": "Task 2 carry-forward item 6: inspectionCapped and depthCapped return ok:false and must map to complete:false, NEVER to empty. A capped inspection means the guard switched itself off inside a legal page - the rows may be another location's and nothing proved otherwise. locationBinding.inspectionIncomplete must SAY so; it was never asserted anywhere, so a mutant that never set it survived.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "capped-1", "_t": 1010, "startedExecutionAt": 1010 }
-      ],
-      "overrides": [
-        {
-          "capabilityId": "workflow_execution_logs",
-          "nth": 1,
-          "response": {
-            "ok": false,
-            "status": 200,
-            "failureClass": "IDENTITY_INSPECTION_CAPPED",
-            "identity": { "bindingMethod": "mixed", "checked": ["locationId"], "inspectionCapped": true }
-          }
-        }
-      ],
-      "expect": {
-        "eventCount": 0,
-        "inspectionIncomplete": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["IDENTITY_INSPECTION_INCOMPLETE"]
-      }
-    },
-
-    "identity-depth-capped": {
-      "planBullet": "Returned record with conflicting locationId (incompleteness sibling)",
-      "why": "The depth-capped half of carry-forward item 6. Recorded on its own flag by the gateway because the operator response differs, but the verdict for the collector is identical: not a read.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "deep-1", "_t": 1010, "startedExecutionAt": 1010 }
-      ],
-      "overrides": [
-        {
-          "capabilityId": "workflow_execution_logs",
-          "nth": 1,
-          "response": {
-            "ok": false,
-            "status": 200,
-            "failureClass": "IDENTITY_DEPTH_CAPPED",
-            "identity": { "bindingMethod": "request_scope", "checked": [], "depthCapped": true }
-          }
-        }
-      ],
-      "expect": {
-        "eventCount": 0,
-        "inspectionIncomplete": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["IDENTITY_INSPECTION_INCOMPLETE"]
-      }
-    },
-
-    "identity-unreadable": {
-      "planBullet": "Returned record with conflicting locationId (incompleteness sibling)",
-      "why": "IDENTITY_UNREADABLE is the third of the three incompleteness classes and the only one whose signal reaches the collector through `identity.unreadable` rather than a boolean flag. Without a fixture, the `(identity.unreadable ?? []).length > 0` arm of the inspectionIncomplete test was never executed.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "unreadable-1", "_t": 1010, "startedExecutionAt": 1010 }
-      ],
-      "overrides": [
-        {
-          "capabilityId": "workflow_execution_logs",
-          "nth": 1,
-          "response": {
-            "ok": false,
-            "status": 200,
-            "failureClass": "IDENTITY_UNREADABLE",
-            "identity": { "bindingMethod": "native", "checked": ["locationId"], "unreadable": ["locationId"] }
-          }
-        }
-      ],
-      "expect": {
-        "eventCount": 0,
-        "inspectionIncomplete": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["IDENTITY_INSPECTION_INCOMPLETE"]
-      }
-    },
-
-    "component-auth-refused": {
-      "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
-      "why": "A 403 latches NOTHING on the shared circuit by design (carry-forward, circuit scoping), so the run continues and the OTHER components still read cleanly. The refused component must be recorded as incomplete rather than as an empty per-step count set, which would read as a workflow nobody is sitting in.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [
-        { "_id": "ok-1", "_t": 1010, "startedExecutionAt": 1010 }
-      ],
-      "overrides": [
-        {
-          "capabilityId": "workflow_count_per_step",
-          "nth": 1,
-          "response": { "ok": false, "status": 403, "failureClass": "AUTH_REJECTED", "json": { "message": "forbidden" } }
-        }
-      ],
-      "expect": {
-        "eventIds": ["ok-1"],
-        "eventCount": 1,
-        "perStepCountsNull": true,
-        "complete": false,
-        "warningCodes": ["COMPONENT_READ_FAILED"]
-      }
-    },
-
-    "definition-read-refused": {
-      "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
-      "why": "The `if (!detail.ok) warnForFailure(...)` guard on the three definition reads had no fixture at all, so deleting it survived: the definition would come back as three nulls with the window still complete:true. A definition that could not be read must also null the canonical hash - Task 7 binds a receipt to that hash, and a partial definition hashing to a complete-looking value would bind a receipt to evidence nobody collected.",
-      "input": { "fromDate": 1000, "toDate": 2000, "stepIds": ["step-1"] },
-      "corpus": [],
-      "overrides": [
-        {
-          "capabilityId": "workflow_detail",
-          "nth": 1,
-          "response": { "ok": false, "status": 500, "failureClass": "HTTP_500", "json": { "message": "detail unavailable" } }
-        }
-      ],
-      "expect": {
-        "definitionCanonicalHashNull": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["COMPONENT_READ_FAILED", "STEP_ROSTER_UNSEALED"],
-        "stepRosterCalls": 0,
-        "stepRosterContactsNull": ["step-1"]
-      }
-    },
-
-    "trigger-read-refused": {
-      "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
-      "why": "Each of the three definition reads needs its OWN refusal case. With only the detail read covered, dropping `if (!triggersResponse.ok) warnForFailure(...)` survives: the trigger list comes back null, the canonical hash is correctly null, but the FAILURE itself is never reported, so an auditor sees a definition with no triggers and no stated reason - which reads as a workflow nothing can start.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [],
-      "overrides": [
-        {
-          "capabilityId": "workflow_triggers",
-          "nth": 1,
-          "response": { "ok": false, "status": 403, "failureClass": "AUTH_REJECTED", "json": { "message": "forbidden" } }
-        }
-      ],
-      "expect": {
-        "definitionCanonicalHashNull": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["COMPONENT_READ_FAILED"],
-        "componentCompleteness": { "workflowDefinition": false, "runtimeEvents": true }
-      }
-    },
-
-    "sticky-note-read-refused": {
-      "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
-      "why": "The third definition read's refusal guard, for the same reason as the trigger one. A sticky-note read that was refused must not present as a workflow whose author left no notes.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [],
-      "overrides": [
-        {
-          "capabilityId": "workflow_sticky_notes",
-          "nth": 1,
-          "response": { "ok": false, "status": 503, "failureClass": "HTTP_503", "json": { "message": "unavailable" } }
-        }
-      ],
-      "expect": {
-        "definitionCanonicalHashNull": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["COMPONENT_READ_FAILED"],
-        "componentCompleteness": { "workflowDefinition": false, "runtimeEvents": true }
-      }
-    },
-
-    "unreadable-definition-envelopes": {
-      "planBullet": "Returned record without a locationId (envelope guard)",
-      "why": "Both the trigger and sticky-note responses come back ok:true with an envelope naming no array. rowsOf must return null, definitionComplete must be false, and the canonical hash must be null. Under the `return []` mutant all three read as an empty-but-successful definition, and the hash would be computed over two arrays that were never observed.",
-      "input": { "fromDate": 1000, "toDate": 2000 },
-      "corpus": [],
-      "overrides": [
-        { "capabilityId": "workflow_triggers", "nth": 1, "response": { "json": { "unexpectedEnvelope": true } } },
-        { "capabilityId": "workflow_sticky_notes", "nth": 1, "response": { "json": { "unexpectedEnvelope": true } } }
-      ],
-      "expect": {
-        "definitionCanonicalHashNull": true,
-        "complete": false,
-        "truncated": true,
-        "warningCodes": ["COMPONENT_READ_FAILED"]
-      }
+    {
+     "_id": "no-loc-2",
+     "_t": 1020,
+     "startedExecutionAt": 1020,
+     "createdAt": 1020
     }
+   ],
+   "identity": {
+    "bindingMethod": "request_scope",
+    "checked": []
+   },
+   "expect": {
+    "eventIds": [
+     "no-loc-1",
+     "no-loc-2"
+    ],
+    "eventCount": 2,
+    "bindingMethod": "request_scope",
+    "quarantined": false,
+    "inspectionIncomplete": false,
+    "complete": true,
+    "truncated": false,
+    "warningCodes": []
+   }
+  },
+  "record-with-native-location": {
+   "planBullet": "Returned record without a locationId (contrast case)",
+   "why": "The contrast that makes the request_scope scenario meaningful. When every read carried and matched a native identity the binding method must say 'native', otherwise 'request_scope' is just a constant and proves nothing.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "nat-1",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "locationId": "LOC1",
+     "workflowId": "wf-1",
+     "createdAt": 1010
+    }
+   ],
+   "identity": {
+    "bindingMethod": "native",
+    "checked": [
+     "locationId",
+     "workflowId"
+    ]
+   },
+   "expect": {
+    "eventIds": [
+     "nat-1"
+    ],
+    "eventCount": 1,
+    "bindingMethod": "native",
+    "quarantined": false,
+    "inspectionIncomplete": false,
+    "complete": true,
+    "truncated": false,
+    "warningCodes": []
+   }
+  },
+  "mixed-binding-methods-across-components": {
+   "planBullet": "Returned record without a locationId (mixed case)",
+   "why": "'mixed' is the value REAL responses will overwhelmingly produce - some routes echo a locationId and some do not - and no fixture generated it, so the whole mixed branch was untested and a mutant collapsing it to 'native' or 'request_scope' survived. Here the log route binds natively while every other read binds by request scope, which is exactly the shape of a live run.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "mx-1",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "locationId": "LOC1",
+     "createdAt": 1010
+    }
+   ],
+   "identity": {
+    "bindingMethod": "request_scope",
+    "checked": []
+   },
+   "overrides": [
+    {
+     "capabilityId": "workflow_execution_logs",
+     "nth": 1,
+     "response": {
+      "identity": {
+       "bindingMethod": "native",
+       "checked": [
+        "locationId"
+       ]
+      }
+     }
+    }
+   ],
+   "expect": {
+    "eventIds": [
+     "mx-1"
+    ],
+    "eventCount": 1,
+    "bindingMethod": "mixed",
+    "quarantined": false,
+    "inspectionIncomplete": false,
+    "complete": true,
+    "truncated": false,
+    "warningCodes": []
+   }
+  },
+  "record-with-conflicting-location": {
+   "planBullet": "Returned record with conflicting locationId",
+   "why": "Plan line 439: a conflicting identity QUARANTINES, it does not degrade to Partial. The gateway already returns ok:false + quarantined:true; the collector must drop the payload from the evidence set rather than merge another location's rows into this location's runtime window, and must say the window is not complete.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "wrong-loc",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "locationId": "OTHER-LOC",
+     "createdAt": 1010
+    }
+   ],
+   "overrides": [
+    {
+     "capabilityId": "workflow_execution_logs",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 200,
+      "failureClass": "IDENTITY_CONFLICT",
+      "quarantined": true,
+      "identity": {
+       "bindingMethod": "native",
+       "checked": [
+        "workflowId"
+       ],
+       "conflicts": [
+        {
+         "field": "locationId",
+         "expected": "LOC1",
+         "actual": "OTHER-LOC"
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "expect": {
+    "eventCount": 0,
+    "quarantined": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "IDENTITY_CONFLICT_QUARANTINE"
+    ]
+   }
+  },
+  "identity-inspection-capped": {
+   "planBullet": "Returned record with conflicting locationId (incompleteness sibling)",
+   "why": "Task 2 carry-forward item 6: inspectionCapped and depthCapped return ok:false and must map to complete:false, NEVER to empty. A capped inspection means the guard switched itself off inside a legal page - the rows may be another location's and nothing proved otherwise. locationBinding.inspectionIncomplete must SAY so; it was never asserted anywhere, so a mutant that never set it survived.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "capped-1",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "createdAt": 1010
+    }
+   ],
+   "overrides": [
+    {
+     "capabilityId": "workflow_execution_logs",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 200,
+      "failureClass": "IDENTITY_INSPECTION_CAPPED",
+      "identity": {
+       "bindingMethod": "mixed",
+       "checked": [
+        "locationId"
+       ],
+       "inspectionCapped": true
+      }
+     }
+    }
+   ],
+   "expect": {
+    "eventCount": 0,
+    "inspectionIncomplete": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "IDENTITY_INSPECTION_INCOMPLETE"
+    ]
+   }
+  },
+  "identity-depth-capped": {
+   "planBullet": "Returned record with conflicting locationId (incompleteness sibling)",
+   "why": "The depth-capped half of carry-forward item 6. Recorded on its own flag by the gateway because the operator response differs, but the verdict for the collector is identical: not a read.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "deep-1",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "createdAt": 1010
+    }
+   ],
+   "overrides": [
+    {
+     "capabilityId": "workflow_execution_logs",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 200,
+      "failureClass": "IDENTITY_DEPTH_CAPPED",
+      "identity": {
+       "bindingMethod": "request_scope",
+       "checked": [],
+       "depthCapped": true
+      }
+     }
+    }
+   ],
+   "expect": {
+    "eventCount": 0,
+    "inspectionIncomplete": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "IDENTITY_INSPECTION_INCOMPLETE"
+    ]
+   }
+  },
+  "identity-unreadable": {
+   "planBullet": "Returned record with conflicting locationId (incompleteness sibling)",
+   "why": "IDENTITY_UNREADABLE is the third of the three incompleteness classes and the only one whose signal reaches the collector through `identity.unreadable` rather than a boolean flag. Without a fixture, the `(identity.unreadable ?? []).length > 0` arm of the inspectionIncomplete test was never executed.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "unreadable-1",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "createdAt": 1010
+    }
+   ],
+   "overrides": [
+    {
+     "capabilityId": "workflow_execution_logs",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 200,
+      "failureClass": "IDENTITY_UNREADABLE",
+      "identity": {
+       "bindingMethod": "native",
+       "checked": [
+        "locationId"
+       ],
+       "unreadable": [
+        "locationId"
+       ]
+      }
+     }
+    }
+   ],
+   "expect": {
+    "eventCount": 0,
+    "inspectionIncomplete": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "IDENTITY_INSPECTION_INCOMPLETE"
+    ]
+   }
+  },
+  "component-auth-refused": {
+   "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
+   "why": "A 403 latches NOTHING on the shared circuit by design (carry-forward, circuit scoping), so the run continues and the OTHER components still read cleanly. The refused component must be recorded as incomplete rather than as an empty per-step count set, which would read as a workflow nobody is sitting in.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [
+    {
+     "_id": "ok-1",
+     "_t": 1010,
+     "startedExecutionAt": 1010,
+     "createdAt": 1010
+    }
+   ],
+   "overrides": [
+    {
+     "capabilityId": "workflow_count_per_step",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 403,
+      "failureClass": "AUTH_REJECTED",
+      "json": {
+       "message": "forbidden"
+      }
+     }
+    }
+   ],
+   "expect": {
+    "eventIds": [
+     "ok-1"
+    ],
+    "eventCount": 1,
+    "perStepCountsNull": true,
+    "complete": false,
+    "warningCodes": [
+     "COMPONENT_READ_FAILED"
+    ]
+   }
+  },
+  "definition-read-refused": {
+   "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
+   "why": "The `if (!detail.ok) warnForFailure(...)` guard on the three definition reads had no fixture at all, so deleting it survived: the definition would come back as three nulls with the window still complete:true. A definition that could not be read must also null the canonical hash - Task 7 binds a receipt to that hash, and a partial definition hashing to a complete-looking value would bind a receipt to evidence nobody collected.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000,
+    "stepIds": [
+     "step-1"
+    ]
+   },
+   "corpus": [],
+   "overrides": [
+    {
+     "capabilityId": "workflow_detail",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 500,
+      "failureClass": "HTTP_500",
+      "json": {
+       "message": "detail unavailable"
+      }
+     }
+    }
+   ],
+   "expect": {
+    "definitionCanonicalHashNull": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "COMPONENT_READ_FAILED",
+     "STEP_ROSTER_UNSEALED"
+    ],
+    "stepRosterCalls": 0,
+    "stepRosterContactsNull": [
+     "step-1"
+    ]
+   }
+  },
+  "trigger-read-refused": {
+   "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
+   "why": "Each of the three definition reads needs its OWN refusal case. With only the detail read covered, dropping `if (!triggersResponse.ok) warnForFailure(...)` survives: the trigger list comes back null, the canonical hash is correctly null, but the FAILURE itself is never reported, so an auditor sees a definition with no triggers and no stated reason - which reads as a workflow nothing can start.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [],
+   "overrides": [
+    {
+     "capabilityId": "workflow_triggers",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 403,
+      "failureClass": "AUTH_REJECTED",
+      "json": {
+       "message": "forbidden"
+      }
+     }
+    }
+   ],
+   "expect": {
+    "definitionCanonicalHashNull": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "COMPONENT_READ_FAILED"
+    ],
+    "componentCompleteness": {
+     "workflowDefinition": false,
+     "runtimeEvents": true
+    }
+   }
+  },
+  "sticky-note-read-refused": {
+   "planBullet": "Returned record with conflicting locationId (fail-closed sibling)",
+   "why": "The third definition read's refusal guard, for the same reason as the trigger one. A sticky-note read that was refused must not present as a workflow whose author left no notes.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [],
+   "overrides": [
+    {
+     "capabilityId": "workflow_sticky_notes",
+     "nth": 1,
+     "response": {
+      "ok": false,
+      "status": 503,
+      "failureClass": "HTTP_503",
+      "json": {
+       "message": "unavailable"
+      }
+     }
+    }
+   ],
+   "expect": {
+    "definitionCanonicalHashNull": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "COMPONENT_READ_FAILED"
+    ],
+    "componentCompleteness": {
+     "workflowDefinition": false,
+     "runtimeEvents": true
+    }
+   }
+  },
+  "unreadable-definition-envelopes": {
+   "planBullet": "Returned record without a locationId (envelope guard)",
+   "why": "Both the trigger and sticky-note responses come back ok:true with an envelope naming no array. rowsOf must return null, definitionComplete must be false, and the canonical hash must be null. Under the `return []` mutant all three read as an empty-but-successful definition, and the hash would be computed over two arrays that were never observed.",
+   "input": {
+    "fromDate": 1000,
+    "toDate": 2000
+   },
+   "corpus": [],
+   "overrides": [
+    {
+     "capabilityId": "workflow_triggers",
+     "nth": 1,
+     "response": {
+      "json": {
+       "unexpectedEnvelope": true
+      }
+     }
+    },
+    {
+     "capabilityId": "workflow_sticky_notes",
+     "nth": 1,
+     "response": {
+      "json": {
+       "unexpectedEnvelope": true
+      }
+     }
+    }
+   ],
+   "expect": {
+    "definitionCanonicalHashNull": true,
+    "complete": false,
+    "truncated": true,
+    "warningCodes": [
+     "COMPONENT_READ_FAILED"
+    ]
+   }
   }
+ }
 }

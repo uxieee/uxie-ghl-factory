@@ -57,7 +57,7 @@ const section = (heading) => {
 test('the audit profile section documents the exact runtime-window inputs and output', () => {
   const body = section('## Audit profile');
   for (const field of ['locationId', 'workflowId', 'fromDate', 'toDate', 'eventTypes', 'stepIds',
-    'maxLogPartitions', 'minPartitionMs', 'maxEnrollmentPages', 'maxStepRosterPages']) {
+    'logPageSize', 'maxLogPages', 'maxLogRetries', 'maxEnrollmentPages', 'maxStepRosterPages']) {
     assert.ok(body.includes(field), `the runtime-window input ${field} is undocumented`);
   }
   for (const field of ['runtimeEvents', 'enrollments', 'stepRosters', 'enrollmentTotals',
@@ -65,16 +65,28 @@ test('the audit profile section documents the exact runtime-window inputs and ou
     'componentCompleteness', 'capabilityVersion']) {
     assert.ok(body.includes(field), `the runtime-window output field ${field} is undocumented`);
   }
-  assert.match(body, /pageSize[^\n]*20/, 'the pinned page size must be stated');
+  // The three retired inputs must be named as retired, not quietly dropped from the prose:
+  // the reader who would otherwise keep passing them is exactly the reader this page has.
+  for (const retired of ['pageSize', 'maxLogPartitions', 'minPartitionMs']) {
+    assert.ok(body.includes(retired), `the retirement of ${retired} must be stated by name`);
+  }
+  assert.match(body, /retired and refused, not ignored/i,
+    'the README must say the retired inputs are REFUSED — silently ignoring them is the defect this replaced');
 });
 
-test('time-partition completeness and saturation behaviour are documented', () => {
+test('the dateType mode switch and cursor completeness are documented', () => {
   const body = section('## Audit profile');
   assert.match(body, /\[fromDate, toDate\)/, 'the half-open analytical window must be stated');
-  assert.match(body, /midpoint/i, 'the split rule must be stated');
-  assert.match(body, /saturat/i, 'saturation must be named');
-  assert.match(body, /minPartitionMs/, 'the partition floor must be named');
-  assert.match(body, /complete[^\n]*false/i, 'saturation must be tied to an incompleteness verdict');
+  // THE load-bearing sentence. A reader who takes one thing from this section must take away
+  // that the window does nothing without its switch — every mistake made on this endpoint
+  // came from assuming a parameter worked because it was accepted.
+  assert.match(body, /`dateType=custom`/, 'the mode switch must be named');
+  assert.match(body, /30-day default|now-30d/i, 'the silent default window must be stated');
+  assert.match(body, /cursor/i, 'the cursor walk must be described');
+  assert.match(body, /referenceCreatedAt/, 'the load-bearing second reference half must be named');
+  assert.match(body, /no new ids/i, 'the termination rule must be stated');
+  assert.match(body, /actionType/, 'the deliberately-unsent filter must be explained');
+  assert.match(body, /complete[^\n]*false/i, 'incompleteness must be tied to a verdict');
 });
 
 test('the short-lived elevated Bearer credential limitation is documented', () => {
@@ -164,12 +176,11 @@ test('the documented budget defaults and page sizes equal the code', async () =>
       `README must state ${name}'s real default of ${value}`,
     );
   }
-  for (const [label, value] of [['LOG_PAGE_SIZE', module.LOG_PAGE_SIZE],
+  for (const [label, value] of [['LOG_PAGE_SIZE_MAX', module.LOG_PAGE_SIZE_MAX],
     ['ENROLLMENT_PAGE_SIZE', module.ENROLLMENT_PAGE_SIZE],
     ['STEP_ROSTER_PAGE_SIZE', module.STEP_ROSTER_PAGE_SIZE]]) {
-    assert.ok(body.includes(String(value)), `README must state the pinned ${label} of ${value}`);
+    assert.ok(body.includes(String(value)), `README must state the ${label} of ${value}`);
   }
-  assert.match(body, /`pageSize`[^\n]*\b20\b/, 'the pinned execution-log page size must be stated');
 });
 
 test('the documented runtime-window output list equals the real contract, both directions', async () => {
@@ -177,7 +188,7 @@ test('the documented runtime-window output list equals the real contract, both d
   assert.ok(Array.isArray(RUNTIME_WINDOW_RESULT_KEYS) && RUNTIME_WINDOW_RESULT_KEYS.length > 0,
     'core/workflow-runtime-window.mjs must export RUNTIME_WINDOW_RESULT_KEYS so the README can be checked against it');
   const body = section('## Audit profile');
-  const outputParagraph = body.slice(body.indexOf('Output:'), body.indexOf('**Time-partition'));
+  const outputParagraph = body.slice(body.indexOf('Output:'), body.indexOf('**Execution-log completeness'));
   const documented = [...outputParagraph.matchAll(/`([A-Za-z][A-Za-z0-9]*)`/g)].map((match) => match[1]);
   assert.deepEqual([...documented].sort(), [...RUNTIME_WINDOW_RESULT_KEYS].sort(),
     'the documented output field list must equal the contract exactly — no omission, no invention');

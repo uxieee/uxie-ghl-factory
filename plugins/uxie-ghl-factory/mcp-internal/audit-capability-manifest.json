@@ -245,19 +245,45 @@
         "workflowId",
         "locationId",
         "limit",
+        "dateType",
         "fromDate",
-        "toDate"
+        "toDate",
+        "action"
       ],
       "optionalQueryKeys": [
         "contactId",
-        "eventType"
+        "eventType",
+        "referenceId",
+        "referenceCreatedAt"
       ],
       "repeatableQueryKeys": [],
       "fixedQueryValues": {
-        "limit": "20"
+        "dateType": "custom"
       },
-      "allowedQueryValues": {},
-      "numericQueryBounds": {},
+      "allowedQueryValues": {
+        "action": [
+          "first",
+          "next"
+        ],
+        "eventType": [
+          "added_to_workflow",
+          "enroll",
+          "step",
+          "success",
+          "waiting",
+          "wait_finished",
+          "skipped",
+          "failed",
+          "retry",
+          "finished"
+        ]
+      },
+      "numericQueryBounds": {
+        "limit": {
+          "min": 1,
+          "max": 5000
+        }
+      },
       "locationBinding": "query",
       "sealedBy": null
     },
@@ -558,5 +584,5 @@
       "sealedBy": "agent_studio_agent_discovery"
     }
   ],
-  "manifestHash": "sha256:a61f27940a0981083fed57308bec127bd4caa95a467f9750b8931ce64a055dd1"
+  "manifestHash": "sha256:590c594a3b7bcc5030961755468211ad73e944992f757f6b0ea627ab76d5287b"
 }

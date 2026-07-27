@@ -112,24 +112,80 @@ export const AUDIT_CAPABILITIES = Object.freeze([
     capabilityId: 'workflow_execution_logs',
     normalizedPath: '/workflows/logs/v2',
     queryBindings: { workflowId: 'workflowId' },
-    requiredQueryKeys: ['workflowId', 'locationId', 'limit', 'fromDate', 'toDate'],
-    optionalQueryKeys: ['contactId', 'eventType'],
-    // TASK 3 CONSTRAINT, recorded here so it is designed around rather than discovered:
-    // `eventType` is OPTIONAL but NOT repeatable, so it addresses exactly ONE event type
-    // per partition walk. Task 3's `eventTypes: z.array(z.string()).max(20)` therefore
-    // costs up to 20 INDEPENDENT partition walks, all drawing on the one
-    // `maxLogPartitions: 256` budget — i.e. as few as 12 partitions per event type before
-    // the budget is spent, which is not enough to reach a terminal partition on a busy
-    // workflow. Task 3 must either budget per event type or narrow the window.
+    requiredQueryKeys: ['workflowId', 'locationId', 'limit', 'dateType', 'fromDate', 'toDate', 'action'],
+    optionalQueryKeys: ['contactId', 'eventType', 'referenceId', 'referenceCreatedAt'],
+    // ⚠️ `dateType` IS THE MODE SWITCH, AND IT IS REQUIRED. This is the single most
+    // expensive thing ever learned about this endpoint, so it is pinned in policy rather
+    // than left to a caller.
     //
-    // A comma-joined `eventType=a,b,c` is deliberately NOT declared: that is an UNPROVEN
-    // upstream shape. If the backend does not split on commas it matches nothing and
-    // returns an empty page, which this rail would record as a legitimately empty window —
-    // the single worst failure mode available here. Proving it requires a live capture,
-    // a descriptor change, and tests; until then one call per event type is the honest cost.
-    // Page size is pinned at the one value the 20-row collector was proven against.
-    // A larger page would silently change what "terminal partition" means.
-    fixedQueryValues: { limit: '20' },
+    // `fromDate`/`toDate` were sent here for months and DID NOTHING, because without
+    // `dateType=custom` the backend ignores them and applies a ~30-DAY DEFAULT WINDOW,
+    // snapped to a day boundary rather than measured from the instant of the request.
+    //
+    // Measured across four workflows on 2026-07-27, a bare read returned 37 of 433 rows,
+    // 428 of 1000+, 201 of 643 and 176 of 242. Nothing about any of those reads looks wrong:
+    // HTTP 200, plausible rows, a page well short of the limit. They are simply a fraction
+    // of the history, silently.
+    //
+    // The day-snapping matters and was nearly missed. On the first (sparse) workflow the
+    // default was ID-SET-IDENTICAL to an explicit `now-30d` window — 37 either way — which
+    // read as "the default is now-30d, to the millisecond". On a denser workflow the two
+    // separate: 428 day-snapped versus 419 ms-precise. A coincidence on one account is not a
+    // rule; ("30 days back from the newest ROW" was a third hypothesis, refuted at 299 rows.)
+    //
+    // `dateType` is PINNED to 'custom' rather than merely allow-listed, because the preset
+    // values are a minefield: `today`/`yesterday`/`this_week`/`last_week`/`this_month`/
+    // `last_month`/`last_60_days`/`last_90_days` are recognised, while `all`, `all_time`,
+    // `alltime`, `last_7_days`, `last7days`, `last_15_days`, '' and ANY typo SILENTLY fall
+    // through to the 30-day default. `dateType=all` does not mean all history — it means
+    // thirty days. A rail that can express that value is a rail that can publish it as a
+    // complete audit, so this one cannot express it.
+    //
+    // Both bounds are INCLUSIVE (`fromDate <= createdAt <= toDate`, proven to the exact
+    // millisecond) and the server filters on `createdAt`. To read a true full history, pass
+    // `fromDate=0`.
+    fixedQueryValues: { dateType: 'custom' },
+    // The cursor is REAL and needs `action`. `action=first` opens the walk; `action=next`
+    // continues it, and `referenceCreatedAt` is LOAD-BEARING alongside `referenceId` —
+    // supply the id alone and page 2 comes back byte-identical to page 1, with no error and
+    // no progress. `referenceSequence` was measured inert in this shape and is deliberately
+    // NOT declared: an undeclared key cannot be sent, and a key that does nothing has no
+    // business in a receipt (see the fromDate lesson above).
+    //
+    // Every page RE-RETURNS the previous page's last row, so the walk dedupes by id and
+    // terminates on a page contributing ZERO NEW IDS — never on `rows.length === 0`, which
+    // does not occur.
+    allowedQueryValues: {
+      action: ['first', 'next'],
+      // The closed `IWorkflowLogStatus` enum from the recovered `models/WorkflowLog.ts`.
+      // Allow-listed because it is DOCUMENTED and closed; two values are live-verified
+      // (`finished`, `skipped`) and every returned row is echo-checked against the request.
+      eventType: [
+        'added_to_workflow', 'enroll', 'step', 'success', 'waiting',
+        'wait_finished', 'skipped', 'failed', 'retry', 'finished',
+      ],
+    },
+    // NO `actionType`, AND THAT IS A DELIBERATE REFUSAL, NOT AN OVERSIGHT. The UI's "All
+    // actions" dropdown really does send `actionType=<step type>` and it really does filter
+    // (`actionType=email` → 135 rows all `type:email`). It is not declared because its
+    // enum cannot be established from any source available here: the 383-entry builder
+    // catalog is a DIFFERENT vocabulary (it has `wait`; the logs want `wait_time`), the
+    // recovered `ActionLabels` map holds only 77 slugs and lacks live-observed values like
+    // `added_to_workflow`, and the UI's 379 option VALUES are not extractable from a
+    // production build. An unrecognised `actionType` returns `200 []` — the opposite
+    // failure direction from `dateType`, and just as silent.
+    //
+    // The deeper reason it stays undeclared is that SERVER-SIDE `actionType` CANNOT BE MADE
+    // SAFE HERE, even with an allow-list. Its only real benefit is fetching fewer pages —
+    // but the sole way to tell "this step type never ran" from "you spelled the slug wrong"
+    // is to compare against the unfiltered window, i.e. to fetch the very pages the filter
+    // existed to avoid. A validated `actionType` costs strictly more than no `actionType`.
+    //
+    // Nothing is lost: every retained row is published VERBATIM under `runtimeEvents[].event`,
+    // carrying its own `type`, so a consumer filters the returned array itself — over data
+    // whose completeness this rail has already established. This collector does NOT filter
+    // by type, and does not expose an input for it.
+    numericQueryBounds: { limit: { min: 1, max: 5000 } },
     locationBinding: 'query',
   }),
   descriptor({

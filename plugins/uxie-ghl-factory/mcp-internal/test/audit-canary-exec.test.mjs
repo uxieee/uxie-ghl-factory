@@ -28,7 +28,7 @@ const ok = (data) => ({ ok: true, data });
 const healthyWindow = (over = {}) => ok({
   complete: true,
   warnings: [],
-  pagination: { logPartitions: { attempted: 1, terminal: 1, streams: 1 } },
+  pagination: { logPages: { pages: 2, streams: 1, budget: 200, rowsReturned: 3, exhausted: false, terminatedCleanly: true } },
   enrollments: { rows: [], complete: true, windowScoped: true, contactFiltered: false },
   componentCompleteness: { enrollments: true },
   stepRosters: [],
@@ -41,7 +41,7 @@ test('the plan and the executable steps are the same seven reads, in the same or
   // approved plan would be the single worst outcome this file can prevent.
   assert.equal(CANARY_STEPS.length, 7);
   assert.deepEqual(CANARY_STEPS.map((s) => s.id), [
-    'registry', 'window-small', 'window-partitioned', 'roster',
+    'registry', 'window-small', 'window-wide', 'roster',
     'enrollments-and-roster', 'ai-bundle', 'honest-incompleteness',
   ]);
   for (const step of CANARY_STEPS) {
@@ -76,32 +76,53 @@ test('a tool answering ok:false fails its step and names the code', () => {
   assert.equal(verdict.observed.code, 'TOKEN_EXPIRED');
 });
 
-test('a partition walk that is not a full binary tree fails, even with ok:true', () => {
-  // THE POINT OF THE WHOLE FILE. `ok:true` is not proof: the client derives terminality from
-  // attempted === 2*terminal - streams, and a walk violating it has miscounted its own
-  // coverage. A canary that only checked `ok` would mint a receipt over that.
-  const bad = healthyWindow({ pagination: { logPartitions: { attempted: 9, terminal: 2, streams: 1 } } });
-  const verdict = judgeStep(stepById('window-partitioned'), bad);
+test('a log walk that never reached the end of the cursor fails, even with ok:true', () => {
+  // THE POINT OF THE WHOLE FILE. `ok:true` is not proof. This judge used to demand a
+  // full-binary-tree relation over partition counts — a property that could never hold
+  // against the real endpoint, which is why the two window steps were the two the first
+  // live canary failed. What it demands now is that the CURSOR WAS FOLLOWED TO EXHAUSTION:
+  // a page came back contributing no new ids, so the endpoint had nothing further to give.
+  const stalled = healthyWindow({
+    pagination: { logPages: { pages: 4, streams: 1, budget: 200, rowsReturned: 400, exhausted: false, terminatedCleanly: false } },
+  });
+  const verdict = judgeStep(stepById('window-wide'), stalled);
   assert.equal(verdict.pass, false);
-  assert.match(verdict.detail, /full binary tree/);
+  assert.match(verdict.detail, /not walked to the end/);
 
-  const good = healthyWindow({ pagination: { logPartitions: { attempted: 3, terminal: 2, streams: 1 } } });
-  assert.equal(judgeStep(stepById('window-partitioned'), good).pass, true);
+  const walked = healthyWindow({
+    pagination: { logPages: { pages: 4, streams: 1, budget: 200, rowsReturned: 400, exhausted: false, terminatedCleanly: true } },
+  });
+  assert.equal(judgeStep(stepById('window-wide'), walked).pass, true);
 });
 
-test('a window reporting no terminal partition fails, on its own merits', () => {
-  const none = healthyWindow({ pagination: { logPartitions: { attempted: 4, terminal: 0, streams: 1 } } });
-  assert.equal(judgeStep(stepById('window-small'), none).pass, false);
+test('a window that issued no execution-log page at all fails, on its own merits', () => {
+  // `{pages: 0, terminatedCleanly: true}` would sail past the cursor check — a walk that
+  // never ran has trivially "not failed to terminate". Only the `pages < 1` guard rejects
+  // it, which is what makes that line load-bearing rather than redundant.
+  const neverRead = healthyWindow({
+    pagination: { logPages: { pages: 0, streams: 0, budget: 200, rowsReturned: 0, exhausted: false, terminatedCleanly: true } },
+  });
+  const verdict = judgeStep(stepById('window-small'), neverRead);
+  assert.equal(verdict.pass, false, 'a window that read no log page cannot pass');
+  assert.match(verdict.detail, /no execution-log page/);
+});
 
-  // THE CASE THAT MAKES THE TERMINAL CHECK LOAD-BEARING, found by a mutation run: with
-  // {attempted:4, terminal:0, streams:1} above, deleting the terminal check STILL fails —
-  // the binary-tree invariant catches it, so the first assertion alone proves nothing about
-  // that line. {0,0,0} satisfies `attempted === 2*terminal - streams` perfectly, so only the
-  // terminal check can reject it. It is also a real shape: a walk that never ran at all.
-  const neverWalked = healthyWindow({ pagination: { logPartitions: { attempted: 0, terminal: 0, streams: 0 } } });
-  const verdict = judgeStep(stepById('window-small'), neverWalked);
-  assert.equal(verdict.pass, false, 'a window that never walked a partition cannot pass');
-  assert.match(verdict.detail, /no terminal log partition/);
+test('an exhausted page budget PASSES the canary, but only when it also warned', () => {
+  // Running out of budget is an honest outcome and a canary that failed on it would be
+  // demanding the rail lie about busy workflows. What must NOT pass is pagination and the
+  // warning vocabulary disagreeing about whether it happened.
+  const spent = { pages: 200, streams: 1, budget: 200, rowsReturned: 20000, exhausted: true, terminatedCleanly: false };
+  const honest = healthyWindow({
+    complete: false,
+    warnings: [{ code: 'LOG_PAGE_BUDGET_EXHAUSTED', component: 'runtime_events', detail: 'x', occurrences: 1, detailSamples: ['x'] }],
+    pagination: { logPages: spent },
+  });
+  assert.equal(judgeStep(stepById('window-wide'), honest).pass, true,
+    'reporting an exhausted budget honestly is a pass, not a failure');
+
+  const silent = healthyWindow({ pagination: { logPages: spent } });
+  assert.equal(judgeStep(stepById('window-wide'), silent).pass, false,
+    'pagination said the budget ran out and the warnings did not — that disagreement must fail');
 });
 
 test('a roster claiming complete without reconciling its own total fails', () => {

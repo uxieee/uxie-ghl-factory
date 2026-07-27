@@ -192,12 +192,18 @@ test('tools/call get_workflow_runtime_window returns the stable contract through
     }));
     assert.equal(contract.ok, true, JSON.stringify(contract).slice(0, 400));
     assert.deepEqual(Object.keys(contract.data).sort(), [...RESULT_KEYS].sort());
-    assert.equal(contract.data.contractVersion, '1.0.0');
+    assert.equal(contract.data.contractVersion, '2.0.0');
     assert.equal(contract.data.boundLocationId, LOC);
     assert.equal(contract.data.workflowId, WF);
     assert.deepEqual(contract.data.requestedWindow, { fromDate: 1_000, toDate: 2_000, boundaries: '[)' });
-    assert.equal(contract.data.appliedWindow.fromDate, 999, 'the one-millisecond expansion is part of the contract');
+    // The applied window EQUALS the requested one. The old one-millisecond lower-bound
+    // expansion hedged against undocumented upstream boundary semantics; those are now
+    // measured (both bounds inclusive on `createdAt`), so the hedge is gone and the server
+    // is asked for exactly the window that was requested.
+    assert.equal(contract.data.appliedWindow.fromDate, 1_000);
     assert.equal(contract.data.appliedWindow.toDate, 2_000);
+    assert.equal(contract.data.appliedWindow.dateType, 'custom');
+    assert.equal(contract.data.appliedWindow.serverFiltered, true);
     assert.equal(contract.data.complete, true);
     assert.equal(contract.data.truncated, false);
   });
