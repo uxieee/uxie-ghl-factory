@@ -570,9 +570,9 @@ var init_define_TOOL_CATALOG = __esm({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/code.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -725,9 +725,9 @@ var require_code = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/scope.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -871,9 +871,9 @@ var require_scope = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/codegen/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -1592,9 +1592,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/util.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "node_modules/ajv/dist/compile/util.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -1760,9 +1760,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/names.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "node_modules/ajv/dist/compile/names.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -1800,9 +1800,9 @@ var require_names = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/errors.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "node_modules/ajv/dist/compile/errors.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -1923,9 +1923,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/boolSchema.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -1975,9 +1975,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/rules.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "node_modules/ajv/dist/compile/rules.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2007,9 +2007,9 @@ var require_rules = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/applicability.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2031,9 +2031,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/dataType.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2216,9 +2216,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/defaults.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2254,9 +2254,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/code.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2388,9 +2388,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/keyword.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2507,9 +2507,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/subschema.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2591,9 +2591,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// node_modules/fast-deep-equal/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "node_modules/fast-deep-equal/index.js"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     init_define_TOOL_CATALOG();
     module.exports = function equal(a, b) {
@@ -2627,9 +2627,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// node_modules/json-schema-traverse/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "node_modules/json-schema-traverse/index.js"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     init_define_TOOL_CATALOG();
     var traverse = module.exports = function(schema2, opts, cb) {
@@ -2716,9 +2716,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/resolve.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2873,9 +2873,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/validate/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -3382,9 +3382,9 @@ var require_validate = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/validation_error.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -3399,9 +3399,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/ref_error.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -3417,9 +3417,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/compile/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "node_modules/ajv/dist/compile/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -3642,9 +3642,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/data.json
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -3661,9 +3661,9 @@ var require_data = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/utils.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     init_define_TOOL_CATALOG();
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
@@ -3975,9 +3975,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/fast-uri/lib/schemes.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     init_define_TOOL_CATALOG();
     var { isUUID } = require_utils();
@@ -4186,9 +4186,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// node_modules/fast-uri/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "node_modules/fast-uri/index.js"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     init_define_TOOL_CATALOG();
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, escapePreservingEscapes, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
@@ -4479,9 +4479,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/uri.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -4491,9 +4491,9 @@ var require_uri = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/core.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "node_modules/ajv/dist/core.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5103,9 +5103,9 @@ var require_core = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/id.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5119,9 +5119,9 @@ var require_id = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/ref.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5242,9 +5242,9 @@ var require_ref = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/core/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5264,9 +5264,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5297,9 +5297,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5326,9 +5326,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/ucs2length.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5353,9 +5353,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5386,9 +5386,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/pattern.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5424,9 +5424,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5454,9 +5454,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/required.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5537,9 +5537,9 @@ var require_required = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5567,9 +5567,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/runtime/equal.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5579,9 +5579,9 @@ var require_equal = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5647,9 +5647,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/const.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5677,9 +5677,9 @@ var require_const = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/enum.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5727,9 +5727,9 @@ var require_enum = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/validation/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5766,9 +5766,9 @@ var require_validation = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5820,9 +5820,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5878,9 +5878,9 @@ var require_items = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5896,9 +5896,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -5932,9 +5932,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/contains.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6027,9 +6027,9 @@ var require_contains = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6122,9 +6122,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6166,9 +6166,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6273,9 +6273,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/properties.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6332,9 +6332,9 @@ var require_properties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6407,9 +6407,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/not.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6439,9 +6439,9 @@ var require_not = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6457,9 +6457,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6516,9 +6516,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6544,9 +6544,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/if.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6614,9 +6614,9 @@ var require_if = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6633,9 +6633,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/applicator/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6682,9 +6682,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/format.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6773,9 +6773,9 @@ var require_format = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/format/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6785,9 +6785,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/metadata.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6809,9 +6809,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/draft7.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6832,9 +6832,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/types.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6847,9 +6847,9 @@ var require_types = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/vocabularies/discriminator/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -6953,9 +6953,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/refs/json-schema-draft-07.json
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -7110,9 +7110,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// node_modules/ajv/dist/ajv.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "node_modules/ajv/dist/ajv.js"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -7181,9 +7181,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/formats.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "node_modules/ajv-formats/dist/formats.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -7385,9 +7385,9 @@ var require_formats = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/limit.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "node_modules/ajv-formats/dist/limit.js"(exports) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -7458,9 +7458,9 @@ var require_limit = __commonJS({
   }
 });
 
-// node_modules/ajv-formats/dist/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -7504,28 +7504,28 @@ var require_dist = __commonJS({
 // stdio-audit.mjs
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/errors.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/util.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/util.js
 init_define_TOOL_CATALOG();
 var util;
 (function(util2) {
@@ -7660,7 +7660,7 @@ var getParsedType = (data2) => {
   }
 };
 
-// node_modules/zod/v3/ZodError.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -7774,7 +7774,7 @@ ZodError.create = (issues) => {
   return error51;
 };
 
-// node_modules/zod/v3/locales/en.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/locales/en.js
 var errorMap = (issue2, _ctx) => {
   let message;
   switch (issue2.code) {
@@ -7877,13 +7877,13 @@ var errorMap = (issue2, _ctx) => {
 };
 var en_default = errorMap;
 
-// node_modules/zod/v3/errors.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
 function getErrorMap() {
   return overrideErrorMap;
 }
 
-// node_modules/zod/v3/helpers/parseUtil.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/parseUtil.js
 init_define_TOOL_CATALOG();
 var makeIssue = (params) => {
   const { data: data2, path, errorMaps, issueData } = params;
@@ -7993,10 +7993,10 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
-// node_modules/zod/v3/types.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v3/helpers/errorUtil.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/helpers/errorUtil.js
 init_define_TOOL_CATALOG();
 var errorUtil;
 (function(errorUtil2) {
@@ -8004,7 +8004,7 @@ var errorUtil;
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// node_modules/zod/v3/types.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path, key) {
     this._cachedPath = [];
@@ -11407,10 +11407,10 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// node_modules/zod/v4/mini/external.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/external.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/index.js
 var core_exports2 = {};
 __export(core_exports2, {
   $ZodAny: () => $ZodAny,
@@ -11690,7 +11690,7 @@ __export(core_exports2, {
 });
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/core.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/core.js
 init_define_TOOL_CATALOG();
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
@@ -11768,13 +11768,13 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/util.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -12471,7 +12471,7 @@ var Class = class {
   }
 };
 
-// node_modules/zod/v4/core/errors.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/errors.js
 var initializer = (inst, def) => {
   inst.name = "$ZodError";
   Object.defineProperty(inst, "_zod", {
@@ -12610,7 +12610,7 @@ function prettifyError(error51) {
   return lines.join("\n");
 }
 
-// node_modules/zod/v4/core/parse.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/parse.js
 var _parse = (_Err) => (schema2, value, _ctx, _params) => {
   const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
   const result = schema2._zod.run({ value, issues: [] }, ctx);
@@ -12698,13 +12698,13 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/core/regexes.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/regexes.js
 var regexes_exports = {};
 __export(regexes_exports, {
   base64: () => base64,
@@ -12864,7 +12864,7 @@ var sha512_hex = /^[0-9a-fA-F]{128}$/;
 var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
-// node_modules/zod/v4/core/checks.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
@@ -13412,7 +13412,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// node_modules/zod/v4/core/doc.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/doc.js
 init_define_TOOL_CATALOG();
 var Doc = class {
   constructor(args = []) {
@@ -13449,7 +13449,7 @@ var Doc = class {
   }
 };
 
-// node_modules/zod/v4/core/versions.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/versions.js
 init_define_TOOL_CATALOG();
 var version = {
   major: 4,
@@ -13457,7 +13457,7 @@ var version = {
   patch: 3
 };
 
-// node_modules/zod/v4/core/schemas.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a3;
   inst ?? (inst = {});
@@ -15550,7 +15550,7 @@ function handleRefineResult(result, payload, input, inst) {
   }
 }
 
-// node_modules/zod/v4/locales/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/index.js
 var locales_exports = {};
 __export(locales_exports, {
   ar: () => ar_default,
@@ -15608,7 +15608,7 @@ __export(locales_exports, {
 });
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/ar.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ar.js
 init_define_TOOL_CATALOG();
 var error = () => {
   const Sizable = {
@@ -15716,7 +15716,7 @@ function ar_default() {
   };
 }
 
-// node_modules/zod/v4/locales/az.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/az.js
 init_define_TOOL_CATALOG();
 var error2 = () => {
   const Sizable = {
@@ -15823,7 +15823,7 @@ function az_default() {
   };
 }
 
-// node_modules/zod/v4/locales/be.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/be.js
 init_define_TOOL_CATALOG();
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
@@ -15981,7 +15981,7 @@ function be_default() {
   };
 }
 
-// node_modules/zod/v4/locales/bg.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/bg.js
 init_define_TOOL_CATALOG();
 var error4 = () => {
   const Sizable = {
@@ -16103,7 +16103,7 @@ function bg_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ca.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ca.js
 init_define_TOOL_CATALOG();
 var error5 = () => {
   const Sizable = {
@@ -16213,7 +16213,7 @@ function ca_default() {
   };
 }
 
-// node_modules/zod/v4/locales/cs.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/cs.js
 init_define_TOOL_CATALOG();
 var error6 = () => {
   const Sizable = {
@@ -16326,7 +16326,7 @@ function cs_default() {
   };
 }
 
-// node_modules/zod/v4/locales/da.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/da.js
 init_define_TOOL_CATALOG();
 var error7 = () => {
   const Sizable = {
@@ -16443,7 +16443,7 @@ function da_default() {
   };
 }
 
-// node_modules/zod/v4/locales/de.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/de.js
 init_define_TOOL_CATALOG();
 var error8 = () => {
   const Sizable = {
@@ -16553,7 +16553,7 @@ function de_default() {
   };
 }
 
-// node_modules/zod/v4/locales/el.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/el.js
 init_define_TOOL_CATALOG();
 var error9 = () => {
   const Sizable = {
@@ -16664,7 +16664,7 @@ function el_default() {
   };
 }
 
-// node_modules/zod/v4/locales/en.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/en.js
 init_define_TOOL_CATALOG();
 var error10 = () => {
   const Sizable = {
@@ -16778,7 +16778,7 @@ function en_default2() {
   };
 }
 
-// node_modules/zod/v4/locales/eo.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/eo.js
 init_define_TOOL_CATALOG();
 var error11 = () => {
   const Sizable = {
@@ -16889,7 +16889,7 @@ function eo_default() {
   };
 }
 
-// node_modules/zod/v4/locales/es.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/es.js
 init_define_TOOL_CATALOG();
 var error12 = () => {
   const Sizable = {
@@ -17023,7 +17023,7 @@ function es_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fa.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fa.js
 init_define_TOOL_CATALOG();
 var error13 = () => {
   const Sizable = {
@@ -17139,7 +17139,7 @@ function fa_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fi.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fi.js
 init_define_TOOL_CATALOG();
 var error14 = () => {
   const Sizable = {
@@ -17253,7 +17253,7 @@ function fi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr.js
 init_define_TOOL_CATALOG();
 var error15 = () => {
   const Sizable = {
@@ -17380,7 +17380,7 @@ function fr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/fr-CA.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/fr-CA.js
 init_define_TOOL_CATALOG();
 var error16 = () => {
   const Sizable = {
@@ -17489,7 +17489,7 @@ function fr_CA_default() {
   };
 }
 
-// node_modules/zod/v4/locales/he.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/he.js
 init_define_TOOL_CATALOG();
 var error17 = () => {
   const TypeNames = {
@@ -17685,7 +17685,7 @@ function he_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hr.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hr.js
 init_define_TOOL_CATALOG();
 var error18 = () => {
   const Sizable = {
@@ -17809,7 +17809,7 @@ function hr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hu.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hu.js
 init_define_TOOL_CATALOG();
 var error19 = () => {
   const Sizable = {
@@ -17919,7 +17919,7 @@ function hu_default() {
   };
 }
 
-// node_modules/zod/v4/locales/hy.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/hy.js
 init_define_TOOL_CATALOG();
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
@@ -18068,7 +18068,7 @@ function hy_default() {
   };
 }
 
-// node_modules/zod/v4/locales/id.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/id.js
 init_define_TOOL_CATALOG();
 var error21 = () => {
   const Sizable = {
@@ -18176,7 +18176,7 @@ function id_default() {
   };
 }
 
-// node_modules/zod/v4/locales/is.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/is.js
 init_define_TOOL_CATALOG();
 var error22 = () => {
   const Sizable = {
@@ -18287,7 +18287,7 @@ function is_default() {
   };
 }
 
-// node_modules/zod/v4/locales/it.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/it.js
 init_define_TOOL_CATALOG();
 var error23 = () => {
   const Sizable = {
@@ -18397,7 +18397,7 @@ function it_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ja.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ja.js
 init_define_TOOL_CATALOG();
 var error24 = () => {
   const Sizable = {
@@ -18506,7 +18506,7 @@ function ja_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ka.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ka.js
 init_define_TOOL_CATALOG();
 var error25 = () => {
   const Sizable = {
@@ -18620,10 +18620,10 @@ function ka_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/km.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/km.js
 init_define_TOOL_CATALOG();
 var error26 = () => {
   const Sizable = {
@@ -18735,12 +18735,12 @@ function km_default() {
   };
 }
 
-// node_modules/zod/v4/locales/kh.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/kh.js
 function kh_default() {
   return km_default();
 }
 
-// node_modules/zod/v4/locales/ko.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ko.js
 init_define_TOOL_CATALOG();
 var error27 = () => {
   const Sizable = {
@@ -18853,7 +18853,7 @@ function ko_default() {
   };
 }
 
-// node_modules/zod/v4/locales/lt.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/lt.js
 init_define_TOOL_CATALOG();
 var capitalizeFirstCharacter = (text) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -19058,7 +19058,7 @@ function lt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/mk.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/mk.js
 init_define_TOOL_CATALOG();
 var error29 = () => {
   const Sizable = {
@@ -19169,7 +19169,7 @@ function mk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ms.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ms.js
 init_define_TOOL_CATALOG();
 var error30 = () => {
   const Sizable = {
@@ -19278,7 +19278,7 @@ function ms_default() {
   };
 }
 
-// node_modules/zod/v4/locales/nl.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/nl.js
 init_define_TOOL_CATALOG();
 var error31 = () => {
   const Sizable = {
@@ -19390,7 +19390,7 @@ function nl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/no.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/no.js
 init_define_TOOL_CATALOG();
 var error32 = () => {
   const Sizable = {
@@ -19500,7 +19500,7 @@ function no_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ota.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ota.js
 init_define_TOOL_CATALOG();
 var error33 = () => {
   const Sizable = {
@@ -19611,7 +19611,7 @@ function ota_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ps.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ps.js
 init_define_TOOL_CATALOG();
 var error34 = () => {
   const Sizable = {
@@ -19727,7 +19727,7 @@ function ps_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pl.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pl.js
 init_define_TOOL_CATALOG();
 var error35 = () => {
   const Sizable = {
@@ -19838,7 +19838,7 @@ function pl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/pt.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/pt.js
 init_define_TOOL_CATALOG();
 var error36 = () => {
   const Sizable = {
@@ -19948,7 +19948,7 @@ function pt_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ro.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ro.js
 init_define_TOOL_CATALOG();
 var error37 = () => {
   const Sizable = {
@@ -20069,7 +20069,7 @@ function ro_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ru.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ru.js
 init_define_TOOL_CATALOG();
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
@@ -20227,7 +20227,7 @@ function ru_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sl.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sl.js
 init_define_TOOL_CATALOG();
 var error39 = () => {
   const Sizable = {
@@ -20338,7 +20338,7 @@ function sl_default() {
   };
 }
 
-// node_modules/zod/v4/locales/sv.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/sv.js
 init_define_TOOL_CATALOG();
 var error40 = () => {
   const Sizable = {
@@ -20450,7 +20450,7 @@ function sv_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ta.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ta.js
 init_define_TOOL_CATALOG();
 var error41 = () => {
   const Sizable = {
@@ -20562,7 +20562,7 @@ function ta_default() {
   };
 }
 
-// node_modules/zod/v4/locales/th.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/th.js
 init_define_TOOL_CATALOG();
 var error42 = () => {
   const Sizable = {
@@ -20674,7 +20674,7 @@ function th_default() {
   };
 }
 
-// node_modules/zod/v4/locales/tr.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/tr.js
 init_define_TOOL_CATALOG();
 var error43 = () => {
   const Sizable = {
@@ -20781,10 +20781,10 @@ function tr_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/locales/uk.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uk.js
 init_define_TOOL_CATALOG();
 var error44 = () => {
   const Sizable = {
@@ -20894,12 +20894,12 @@ function uk_default() {
   };
 }
 
-// node_modules/zod/v4/locales/ua.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ua.js
 function ua_default() {
   return uk_default();
 }
 
-// node_modules/zod/v4/locales/ur.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/ur.js
 init_define_TOOL_CATALOG();
 var error45 = () => {
   const Sizable = {
@@ -21011,7 +21011,7 @@ function ur_default() {
   };
 }
 
-// node_modules/zod/v4/locales/uz.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/uz.js
 init_define_TOOL_CATALOG();
 var error46 = () => {
   const Sizable = {
@@ -21123,7 +21123,7 @@ function uz_default() {
   };
 }
 
-// node_modules/zod/v4/locales/vi.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/vi.js
 init_define_TOOL_CATALOG();
 var error47 = () => {
   const Sizable = {
@@ -21233,7 +21233,7 @@ function vi_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-CN.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-CN.js
 init_define_TOOL_CATALOG();
 var error48 = () => {
   const Sizable = {
@@ -21344,7 +21344,7 @@ function zh_CN_default() {
   };
 }
 
-// node_modules/zod/v4/locales/zh-TW.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/zh-TW.js
 init_define_TOOL_CATALOG();
 var error49 = () => {
   const Sizable = {
@@ -21453,7 +21453,7 @@ function zh_TW_default() {
   };
 }
 
-// node_modules/zod/v4/locales/yo.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/locales/yo.js
 init_define_TOOL_CATALOG();
 var error50 = () => {
   const Sizable = {
@@ -21562,7 +21562,7 @@ function yo_default() {
   };
 }
 
-// node_modules/zod/v4/core/registries.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/registries.js
 init_define_TOOL_CATALOG();
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
@@ -21613,7 +21613,7 @@ function registry() {
 (_a2 = globalThis).__zod_globalRegistry ?? (_a2.__zod_globalRegistry = registry());
 var globalRegistry = globalThis.__zod_globalRegistry;
 
-// node_modules/zod/v4/core/api.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/api.js
 init_define_TOOL_CATALOG();
 // @__NO_SIDE_EFFECTS__
 function _string(Class2, params) {
@@ -22653,7 +22653,7 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   return inst;
 }
 
-// node_modules/zod/v4/core/to-json-schema.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/to-json-schema.js
 init_define_TOOL_CATALOG();
 function initializeContext(params) {
   let target = params?.target ?? "draft-2020-12";
@@ -23013,7 +23013,7 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
   return finalize(ctx, schema2);
 };
 
-// node_modules/zod/v4/core/json-schema-processors.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-processors.js
 init_define_TOOL_CATALOG();
 var formatMap = {
   guid: "uuid",
@@ -23558,7 +23558,7 @@ function toJSONSchema(input, params) {
   return finalize(ctx, input);
 }
 
-// node_modules/zod/v4/core/json-schema-generator.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema-generator.js
 init_define_TOOL_CATALOG();
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
@@ -23634,14 +23634,14 @@ var JSONSchemaGenerator = class {
   }
 };
 
-// node_modules/zod/v4/core/json-schema.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/parse.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/parse.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/mini/schemas.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/mini/schemas.js
 init_define_TOOL_CATALOG();
 var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   if (!inst._zod)
@@ -23688,7 +23688,7 @@ function object(shape, params) {
   return new ZodMiniObject(def);
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema2 = s;
   return !!schema2._zod;
@@ -23832,10 +23832,10 @@ function getLiteralValue(schema2) {
   return void 0;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 var external_exports = {};
 __export(external_exports, {
   $brand: () => $brand,
@@ -24079,7 +24079,7 @@ __export(external_exports, {
 });
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var schemas_exports2 = {};
 __export(schemas_exports2, {
   ZodAny: () => ZodAny2,
@@ -24251,7 +24251,7 @@ __export(schemas_exports2, {
 });
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/checks.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/checks.js
 var checks_exports2 = {};
 __export(checks_exports2, {
   endsWith: () => _endsWith,
@@ -24286,7 +24286,7 @@ __export(checks_exports2, {
 });
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/iso.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
 __export(iso_exports2, {
   ZodISODate: () => ZodISODate,
@@ -24328,10 +24328,10 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod/v4/classic/errors.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/errors.js
 init_define_TOOL_CATALOG();
 var initializer2 = (inst, issues) => {
   $ZodError.init(inst, issues);
@@ -24372,7 +24372,7 @@ var ZodRealError = /* @__PURE__ */ $constructor("ZodError", initializer2, {
   Parent: Error
 });
 
-// node_modules/zod/v4/classic/parse.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
@@ -24386,7 +24386,7 @@ var safeDecode2 = /* @__PURE__ */ _safeDecode(ZodRealError);
 var safeEncodeAsync2 = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 var safeDecodeAsync2 = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-// node_modules/zod/v4/classic/schemas.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/schemas.js
 var _installedGroups = /* @__PURE__ */ new WeakMap();
 function _installLazyMethods(inst, group, methods) {
   const proto = Object.getPrototypeOf(inst);
@@ -25676,7 +25676,7 @@ function preprocess(fn, schema2) {
   });
 }
 
-// node_modules/zod/v4/classic/compat.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/compat.js
 init_define_TOOL_CATALOG();
 var ZodIssueCode2 = {
   invalid_type: "invalid_type",
@@ -25703,7 +25703,7 @@ var ZodFirstPartyTypeKind2;
 /* @__PURE__ */ (function(ZodFirstPartyTypeKind3) {
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
-// node_modules/zod/v4/classic/from-json-schema.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/from-json-schema.js
 init_define_TOOL_CATALOG();
 var z = {
   ...schemas_exports2,
@@ -26184,7 +26184,7 @@ function fromJSONSchema(schema2, params) {
   return convertSchema(normalized, ctx);
 }
 
-// node_modules/zod/v4/classic/coerce.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/coerce.js
 var coerce_exports2 = {};
 __export(coerce_exports2, {
   bigint: () => bigint3,
@@ -26210,10 +26210,10 @@ function date4(params) {
   return _coercedDate(ZodDate2, params);
 }
 
-// node_modules/zod/v4/classic/external.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/v4/classic/external.js
 config(en_default2());
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -27744,19 +27744,19 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 init_define_TOOL_CATALOG();
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/index.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/Options.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Options.js
 init_define_TOOL_CATALOG();
 var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
 var defaultOptions = {
@@ -27791,7 +27791,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
   ...options
 };
 
-// node_modules/zod-to-json-schema/dist/esm/Refs.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/Refs.js
 init_define_TOOL_CATALOG();
 var getRefs = (options) => {
   const _options = getDefaultOptions(options);
@@ -27813,7 +27813,7 @@ var getRefs = (options) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 init_define_TOOL_CATALOG();
 function addErrorMessage(res, key, errorMessage, refs) {
   if (!refs?.errorMessages)
@@ -27830,7 +27830,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 init_define_TOOL_CATALOG();
 var getRelativePath = (pathA, pathB) => {
   let i = 0;
@@ -27841,13 +27841,13 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 init_define_TOOL_CATALOG();
 function parseAnyDef(refs) {
   if (refs.target !== "openAi") {
@@ -27864,7 +27864,7 @@ function parseAnyDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 init_define_TOOL_CATALOG();
 function parseArrayDef(def, refs) {
   const res = {
@@ -27889,7 +27889,7 @@ function parseArrayDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 init_define_TOOL_CATALOG();
 function parseBigintDef(def, refs) {
   const res = {
@@ -27936,7 +27936,7 @@ function parseBigintDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 init_define_TOOL_CATALOG();
 function parseBooleanDef() {
   return {
@@ -27944,19 +27944,19 @@ function parseBooleanDef() {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 init_define_TOOL_CATALOG();
 function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 init_define_TOOL_CATALOG();
 var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 init_define_TOOL_CATALOG();
 function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
@@ -28016,7 +28016,7 @@ var integerDateParser = (def, refs) => {
   return res;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 init_define_TOOL_CATALOG();
 function parseDefaultDef(_def, refs) {
   return {
@@ -28025,13 +28025,13 @@ function parseDefaultDef(_def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 init_define_TOOL_CATALOG();
 function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 init_define_TOOL_CATALOG();
 function parseEnumDef(def) {
   return {
@@ -28040,7 +28040,7 @@ function parseEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 init_define_TOOL_CATALOG();
 var isJsonSchema7AllOfType = (type) => {
   if ("type" in type && type.type === "string")
@@ -28083,7 +28083,7 @@ function parseIntersectionDef(def, refs) {
   } : void 0;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 init_define_TOOL_CATALOG();
 function parseLiteralDef(def, refs) {
   const parsedType2 = typeof def.value;
@@ -28104,13 +28104,13 @@ function parseLiteralDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 init_define_TOOL_CATALOG();
 var emojiRegex2 = void 0;
 var zodPatterns = {
@@ -28436,7 +28436,7 @@ function stringifyRegExpWithFlags(regex, refs) {
   return pattern;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -28488,7 +28488,7 @@ function parseRecordDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -28513,7 +28513,7 @@ function parseMapDef(def, refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 init_define_TOOL_CATALOG();
 function parseNativeEnumDef(def) {
   const object3 = def.values;
@@ -28528,7 +28528,7 @@ function parseNativeEnumDef(def) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 init_define_TOOL_CATALOG();
 function parseNeverDef(refs) {
   return refs.target === "openAi" ? void 0 : {
@@ -28539,7 +28539,7 @@ function parseNeverDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 init_define_TOOL_CATALOG();
 function parseNullDef(refs) {
   return refs.target === "openApi3" ? {
@@ -28550,10 +28550,10 @@ function parseNullDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 init_define_TOOL_CATALOG();
 var primitiveMappings = {
   ZodString: "string",
@@ -28622,7 +28622,7 @@ var asAnyOf = (def, refs) => {
   return anyOf.length ? { anyOf } : void 0;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -28654,7 +28654,7 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 init_define_TOOL_CATALOG();
 function parseNumberDef(def, refs) {
   const res = {
@@ -28704,7 +28704,7 @@ function parseNumberDef(def, refs) {
   return res;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 init_define_TOOL_CATALOG();
 function parseObjectDef(def, refs) {
   const forceOptionalIntoNullable = refs.target === "openAi";
@@ -28775,7 +28775,7 @@ function safeIsOptional(schema2) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 init_define_TOOL_CATALOG();
 var parseOptionalDef = (def, refs) => {
   if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
@@ -28795,7 +28795,7 @@ var parseOptionalDef = (def, refs) => {
   } : parseAnyDef(refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 init_define_TOOL_CATALOG();
 var parsePipelineDef = (def, refs) => {
   if (refs.pipeStrategy === "input") {
@@ -28816,13 +28816,13 @@ var parsePipelineDef = (def, refs) => {
   };
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 init_define_TOOL_CATALOG();
 function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 init_define_TOOL_CATALOG();
 function parseSetDef(def, refs) {
   const items = parseDef(def.valueType._def, {
@@ -28843,7 +28843,7 @@ function parseSetDef(def, refs) {
   return schema2;
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 init_define_TOOL_CATALOG();
 function parseTupleDef(def, refs) {
   if (def.rest) {
@@ -28872,7 +28872,7 @@ function parseTupleDef(def, refs) {
   }
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 init_define_TOOL_CATALOG();
 function parseUndefinedDef(refs) {
   return {
@@ -28880,19 +28880,19 @@ function parseUndefinedDef(refs) {
   };
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 init_define_TOOL_CATALOG();
 function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
-// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 init_define_TOOL_CATALOG();
 var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
@@ -28968,7 +28968,7 @@ var selectParser = (def, typeName, refs) => {
   }
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -29024,10 +29024,10 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
-// node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/parseTypes.js
 init_define_TOOL_CATALOG();
 
-// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 init_define_TOOL_CATALOG();
 var zodToJsonSchema = (schema2, options) => {
   const refs = getRefs(options);
@@ -29090,7 +29090,7 @@ var zodToJsonSchema = (schema2, options) => {
   return combined;
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t) {
   if (!t)
     return "draft-7";
@@ -29132,7 +29132,7 @@ function parseWithCompat(schema2, data2) {
   return result.data;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -30086,7 +30086,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 init_define_TOOL_CATALOG();
 var import_ajv = __toESM(require_ajv(), 1);
 var import_ajv_formats = __toESM(require_dist(), 1);
@@ -30155,7 +30155,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 init_define_TOOL_CATALOG();
 var ExperimentalServerTasks = class {
   constructor(_server) {
@@ -30369,7 +30369,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 init_define_TOOL_CATALOG();
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
@@ -30405,7 +30405,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -30785,7 +30785,7 @@ var Server = class extends Protocol {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 init_define_TOOL_CATALOG();
 var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema2) {
@@ -30800,10 +30800,10 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 init_define_TOOL_CATALOG();
 var TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 function validateToolName(name) {
@@ -30862,7 +30862,7 @@ function validateAndWarnToolName(name) {
   return result.isValid;
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 init_define_TOOL_CATALOG();
 var ExperimentalMcpServerTasks = class {
   constructor(_mcpServer) {
@@ -30878,10 +30878,10 @@ var ExperimentalMcpServerTasks = class {
   }
 };
 
-// node_modules/zod/index.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/zod/index.js
 init_define_TOOL_CATALOG();
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
   constructor(serverInfo, options) {
     this._registeredResources = {};
@@ -31673,11 +31673,11 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 init_define_TOOL_CATALOG();
 var ReadBuffer = class {
   append(chunk) {
@@ -31706,7 +31706,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// ../../../../../../Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin/plugins/uxie-ghl-factory/mcp-internal/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process3.stdin, _stdout = process3.stdout) {
     this._stdin = _stdin;
@@ -32660,11 +32660,12 @@ var inspectIdentity = (json2, expected, fields) => {
   let inspectionCapped = false;
   let depthCapped = false;
   const carriesIdentity = (record2) => fields.some(([field]) => Object.hasOwn(record2, field));
-  const scan = (record2) => {
+  const scan = (record2, insideRecord = false) => {
     let sawIdentity = false;
     let consumed = null;
     for (const [field, target] of fields) {
       if (!Object.hasOwn(record2, field)) continue;
+      if (insideRecord && target !== "locationId") continue;
       const raw = record2[field];
       const want = expected[target];
       if (want === null || want === void 0) continue;
@@ -32684,10 +32685,10 @@ var inspectIdentity = (json2, expected, fields) => {
     }
     return { sawIdentity, consumed };
   };
-  const visit = (value, depth, isArrayMember) => {
+  const visit = (value, depth, isArrayMember, insideRecord = false) => {
     if (Array.isArray(value)) {
       let fromArray = 0;
-      for (const item of value) fromArray += visit(item, depth, true);
+      for (const item of value) fromArray += visit(item, depth, true, insideRecord);
       return fromArray;
     }
     if (!value || typeof value !== "object") return 0;
@@ -32699,11 +32700,12 @@ var inspectIdentity = (json2, expected, fields) => {
       }
       inspected += 1;
     }
-    const { sawIdentity, consumed } = scan(value);
+    const { sawIdentity, consumed } = scan(value, insideRecord);
     let fromChildren = 0;
     const children = Object.values(value).filter((child) => child && typeof child === "object" && !consumed?.has(child));
+    const childrenAreInsideRecord = insideRecord || sawIdentity;
     if (depth < MAX_IDENTITY_DEPTH) {
-      for (const child of children) fromChildren += visit(child, depth + 1, false);
+      for (const child of children) fromChildren += visit(child, depth + 1, false, childrenAreInsideRecord);
     } else if (children.length > 0) {
       depthCapped = true;
     }
@@ -34371,11 +34373,9 @@ function cursorFromRow(row) {
   const referenceId = first(row._id, row.id, row.referenceId);
   const referenceCreatedAt = first(row.createdAt, row.referenceCreatedAt);
   const referenceSid = first(row.sid, row.referenceSid);
-  const referenceSequence = first(row.sequence, row.referenceSequence);
   if (usable(referenceId)) cursor.referenceId = String(referenceId);
   if (usable(referenceCreatedAt)) cursor.referenceCreatedAt = String(referenceCreatedAt);
   if (usable(referenceSid)) cursor.referenceSid = String(referenceSid);
-  if (usable(referenceSequence)) cursor.referenceSequence = String(referenceSequence);
   return cursor.referenceId === void 0 && cursor.referenceSid === void 0 ? null : cursor;
 }
 function pickStats(json2, workflowId) {

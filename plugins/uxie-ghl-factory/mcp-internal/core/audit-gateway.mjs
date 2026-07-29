@@ -358,11 +358,33 @@ const inspectIdentity = (json, expected, fields) => {
   // CONSUMED. A consumed child is an id wrapper, not a record: descending into
   // `{locationId:{$oid:LOC}}`'s wrapper would census it as an identity-free leaf and drag
   // a fully-native row down to 'mixed'.
-  const scan = (record) => {
+  const scan = (record, insideRecord = false) => {
     let sawIdentity = false;
     let consumed = null;
     for (const [field, target] of fields) {
       if (!Object.hasOwn(record, field)) continue;
+      /*
+       * 🔴 BELOW A ROW, ONLY THE TENANT BINDING IS JUDGED.
+       *
+       * `locationId` is tenant identity: a foreign one at ANY depth is a real leak and the
+       * depth-32 walk exists to catch it (measured: zero foreign locationIds on real payloads).
+       * `workflowId`, `stepId`, `currentStepId` and `agentId` are entity references WITHIN a
+       * tenant, and a row may legitimately name a different one in its own payload.
+       *
+       * MEASURED 2026-07-29 on a live client account, on a workflow whose job is to react to a reply
+       * to ANOTHER workflow and remove the contact from it. Its execution
+       * log rows carry the correct `workflowId` at row level and ALSO carry
+       * `meta.extraMeta.message.workflowId` naming the workflow the customer replied TO, because
+       * that is what the trigger is about. 49 such references in 100 rows quarantined the whole
+       * read, so the one workflow whose job is cross-referencing another reported ZERO runtime and
+       * looked like a workflow nobody used.
+       *
+       * This is the same defect the per-capability field filter above was written for, one level
+       * down: that fix stopped judging a capability on entities the REQUEST never addressed, and
+       * this one stops judging a row on entities its own PAYLOAD merely mentions. Restricting the
+       * depth instead would have blinded the tenant check, which is the one that must not blink.
+       */
+      if (insideRecord && target !== 'locationId') continue;
       const raw = record[field];
       const want = expected[target];
       if (want === null || want === undefined) continue;   // nothing typed to check against
@@ -395,12 +417,12 @@ const inspectIdentity = (json, expected, fields) => {
   // CONTAINER (an identity-free wrapper whose children are the records) from a LEAF
   // record with no identity. Only the latter is request-scope evidence; counting the
   // wrapper too would drag a fully-native row set down to "mixed".
-  const visit = (value, depth, isArrayMember) => {
+  const visit = (value, depth, isArrayMember, insideRecord = false) => {
     if (Array.isArray(value)) {
       let fromArray = 0;
       // Arrays are transparent for DEPTH but their members are records by position: a row
       // in a page is a record whether or not it happens to carry an id.
-      for (const item of value) fromArray += visit(item, depth, true);
+      for (const item of value) fromArray += visit(item, depth, true, insideRecord);
       return fromArray;
     }
     if (!value || typeof value !== 'object') return 0;
@@ -410,14 +432,21 @@ const inspectIdentity = (json, expected, fields) => {
       if (inspected >= MAX_IDENTITY_RECORDS) { inspectionCapped = true; return 0; }
       inspected += 1;
     }
-    const { sawIdentity, consumed } = scan(value);
+    const { sawIdentity, consumed } = scan(value, insideRecord);
     let fromChildren = 0;
     // Own enumerable properties only: a prototype-borne `data` is not payload.
     const children = Object.values(value).filter((child) => (
       child && typeof child === 'object' && !(consumed?.has(child))
     ));
+    /*
+     * Everything under a row that carried its own identity is that row's PAYLOAD, so the subtree
+     * is judged on the tenant binding alone. See the note in `scan`. An envelope that carried no
+     * identity is still structure, so its children stay fully checkable and a foreign row inside a
+     * bare `{data:[...]}` wrapper is caught exactly as before.
+     */
+    const childrenAreInsideRecord = insideRecord || sawIdentity;
     if (depth < MAX_IDENTITY_DEPTH) {
-      for (const child of children) fromChildren += visit(child, depth + 1, false);
+      for (const child of children) fromChildren += visit(child, depth + 1, false, childrenAreInsideRecord);
     } else if (children.length > 0) {
       // The bound stopped the walk with payload still underneath it. That is an
       // INCOMPLETE check, and it used to be completely silent: `{a:{b:{c:{d:{locationId:
