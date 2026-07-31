@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "Uxie GHL Factory",
     "shortDescription": "GoHighLevel operator skills for Codex",
-    "longDescription": "Skills that turn Codex into a competent GoHighLevel operator \u2014 design and build workflows, funnels, pipelines, and AI agents, run read-only account audits, and reverse-engineer GHL's internal APIs. Most skills call the GoHighLevel MCP server, which you configure separately in ~/.codex/config.toml (see the plugin README).",
+    "longDescription": "Skills that turn Codex into a competent GoHighLevel operator — design and build workflows, funnels, pipelines, and AI agents, run read-only account audits, and reverse-engineer GHL's internal APIs. Most skills call the GoHighLevel MCP server, which you configure separately in ~/.codex/config.toml (see the plugin README).",
     "developerName": "Xander Roque",
     "category": "Productivity",
     "defaultPrompt": [

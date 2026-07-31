@@ -3095,3 +3095,65 @@ test('R4: a space-padded asctime day is legal; a rolled-over or bogus one is nul
   assert.equal(await retryAfterOf({ 'retry-after': 'Wed Jan 15 25:00:00 2027' }), null);
   assert.equal(await retryAfterOf({ 'retry-after': 'Wed Foo 15 07:29:00 2027' }), null);
 });
+
+// ---------------------------------------------------------------------------
+// I1b: a row's PAYLOAD may name other entities in the same tenant
+// ---------------------------------------------------------------------------
+
+test('a nested cross-reference to another workflow is payload, not a conflict', async () => {
+  /*
+   * MEASURED 2026-07-29 on a live client account. The workflow is triggered by a customer replying
+   * to ANOTHER workflow and its first step removes them from that workflow, so its
+   * OWN execution-log rows carry the other workflow's id in their payload. 49 such references in
+   * 100 rows quarantined the read: the one workflow whose whole job is cross-referencing another
+   * reported zero runtime and read as a workflow nobody used.
+   */
+  const { result } = await logsRead(JSON.stringify([{
+    locationId: LOC,
+    workflowId: WF,
+    type: 'remove_from_workflow',
+    meta: {
+      removedFrom: { finishedWorkflows: ['wf-other'] },
+      extraMeta: {
+        message: { workflowId: 'wf-other' },
+        workflow: { id: 'wf-other' },
+      },
+    },
+  }]));
+
+  assert.deepEqual(result.identity.conflicts, [], 'a payload reference is not a contradiction');
+  assert.equal(result.quarantined, false);
+  assert.equal(result.ok, true);
+  // `mixed` because the payload sub-objects carry no identity of their own, which is the normal
+  // shape of any real row with nested `meta`. Only conflicts and quarantine matter here.
+  assert.equal(result.identity.bindingMethod, 'mixed');
+  assert.ok(result.identity.checked.includes('workflowId'), 'the ROW-level id was still checked');
+});
+
+test('a FOREIGN LOCATION nested in a row is still a conflict, at any depth', async () => {
+  // The tenant guard must not blink. This is the one identity that means "somebody else's data".
+  const { result } = await logsRead(JSON.stringify([{
+    locationId: LOC,
+    workflowId: WF,
+    meta: { extraMeta: { message: { locationId: 'LOC-OTHER' } } },
+  }]));
+
+  assert.equal(result.quarantined, true, 'a foreign locationId at depth must quarantine');
+  assert.equal(result.ok, false);
+  assert.equal(result.failureClass, 'IDENTITY_CONFLICT');
+  assert.ok(result.identity.conflicts.some((c) => c.field === 'locationId' && c.actual === 'LOC-OTHER'));
+});
+
+test('a foreign workflow at ROW level is still a conflict', async () => {
+  // Only the row's own payload is exempt. The row's own identity is authoritative as before.
+  const { result } = await logsRead(JSON.stringify([{ locationId: LOC, workflowId: 'wf-other' }]));
+  assert.equal(result.quarantined, true);
+  assert.equal(result.failureClass, 'IDENTITY_CONFLICT');
+});
+
+test('a foreign row inside a bare envelope is still caught', async () => {
+  // An envelope carries no identity, so its children stay fully checkable.
+  const { result } = await logsRead(JSON.stringify({ data: [{ workflowId: 'wf-other' }] }));
+  assert.equal(result.quarantined, true);
+  assert.equal(result.failureClass, 'IDENTITY_CONFLICT');
+});
