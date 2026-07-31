@@ -1452,10 +1452,27 @@ export async function collectWorkflowRuntimeWindow({ auditGateway, input } = {})
   }
 }
 
-// The complete cursor tuple, including referenceSequence — which the pre-existing walk
-// dropped, silently truncating a key the upstream orders by. Rows are not guaranteed to
-// name the fields the query does, so each key accepts the row-side name first and the
-// query-side echo second.
+// The cursor tuple. Rows are not guaranteed to name the fields the query does, so each key
+// accepts the row-side name first and the query-side echo second.
+//
+// 🔴 `referenceSequence` IS NOT SENT, and adding it breaks the walk outright. The upstream
+// rejects it by name:
+//
+//     HTTP 422 {"message":["property referenceSequence should not exist"]}
+//
+// MEASURED against a live account 2026-07-29 (one workflow, 61 enrollments): page 1
+// returns 200 with 20 rows, and EVERY page-2 request carrying `referenceSequence` 422s, with or
+// without the other keys and with `referenceCreatedAt` in either ISO or epoch form. Drop that one
+// key and the same request returns 200 with the next 20 rows.
+//
+// The comment this replaces said the key was added because "the pre-existing walk dropped it,
+// silently truncating a key the upstream orders by". The opposite was true: the upstream forbids
+// it, so adding it truncated every enrollment roster at page one on every workflow busy enough to
+// have a second page. It surfaced as COMPONENT_READ_FAILED on `enrollments`, which is honest but
+// reads as an upstream flake rather than a query this code builds wrong.
+//
+// The descriptor still lists `referenceSequence` under `optionalQueryKeys`, so the gateway would
+// pass it through; the guard has to be here, where the tuple is built.
 function cursorFromRow(row) {
   if (!row || typeof row !== 'object') return null;
   const usable = (value) => value !== undefined && value !== null && String(value).trim() !== '';
@@ -1464,11 +1481,9 @@ function cursorFromRow(row) {
   const referenceId = first(row._id, row.id, row.referenceId);
   const referenceCreatedAt = first(row.createdAt, row.referenceCreatedAt);
   const referenceSid = first(row.sid, row.referenceSid);
-  const referenceSequence = first(row.sequence, row.referenceSequence);
   if (usable(referenceId)) cursor.referenceId = String(referenceId);
   if (usable(referenceCreatedAt)) cursor.referenceCreatedAt = String(referenceCreatedAt);
   if (usable(referenceSid)) cursor.referenceSid = String(referenceSid);
-  if (usable(referenceSequence)) cursor.referenceSequence = String(referenceSequence);
   // An id or a sid is what the upstream actually pages on; a bare createdAt cannot
   // advance the walk, so a tuple without either is no cursor at all.
   return cursor.referenceId === undefined && cursor.referenceSid === undefined ? null : cursor;

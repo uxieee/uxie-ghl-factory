@@ -1354,20 +1354,36 @@ test('the first enrollment page carries action=first and no cursor key at all', 
   }
 });
 
-test('action=next forwards the COMPLETE cursor tuple including referenceSequence', async () => {
+test('action=next forwards the cursor tuple and NEVER referenceSequence', async () => {
+  /*
+   * 🔴 The upstream REJECTS this key by name:
+   *     HTTP 422 {"message":["property referenceSequence should not exist"]}
+   *
+   * MEASURED against a live account 2026-07-29 (one workflow, 61 enrollments): page 1
+   * returns 200 with 20 rows and every page-2 request carrying `referenceSequence` 422s, with or
+   * without the other keys and with `referenceCreatedAt` in ISO or epoch form. Drop that one key
+   * and the identical request returns 200 with the next 20 rows.
+   *
+   * This test previously asserted the OPPOSITE, on the belief that dropping the key silently
+   * truncated a sort the upstream ordered by. It truncated every enrollment roster at page one
+   * instead, on every workflow busy enough to have a second page, surfacing as
+   * COMPONENT_READ_FAILED rather than as a query this code builds wrong.
+   */
   const { gateway } = await runScenario(scenario(ENROLLMENT_FIXTURES, 'reference-sequence-forwarding'));
   const [, second] = callsTo(gateway, 'workflow_enrollment_search');
   assert.equal(second.query.action, 'next');
   assert.equal(String(second.query.referenceId), 'seq-19');
   assert.equal(Number(second.query.referenceCreatedAt), 519);
   assert.equal(String(second.query.referenceSid), 'sid-19');
-  assert.equal(Number(second.query.referenceSequence), 60);
+  assert.equal(Object.hasOwn(second.query, 'referenceSequence'), false,
+    'referenceSequence is rejected by the upstream and must never be sent');
 });
 
-test('a row naming the cursor referenceSequence rather than sequence still forwards it', async () => {
+test('a row carrying a sequence still pages, and still does not send it', async () => {
   const { gateway } = await runScenario(scenario(ENROLLMENT_FIXTURES, 'reference-sequence-alias'));
   const [, second] = callsTo(gateway, 'workflow_enrollment_search');
-  assert.equal(Number(second.query.referenceSequence), 777);
+  assert.equal(Object.hasOwn(second.query, 'referenceSequence'), false);
+  // The walk still advances: the id is what the upstream actually pages on.
   assert.equal(String(second.query.referenceId), 'alias-last');
 });
 

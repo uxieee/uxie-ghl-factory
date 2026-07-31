@@ -32688,11 +32688,12 @@ var inspectIdentity = (json2, expected, fields) => {
   let inspectionCapped = false;
   let depthCapped = false;
   const carriesIdentity = (record2) => fields.some(([field]) => Object.hasOwn(record2, field));
-  const scan = (record2) => {
+  const scan = (record2, insideRecord = false) => {
     let sawIdentity = false;
     let consumed = null;
     for (const [field, target] of fields) {
       if (!Object.hasOwn(record2, field)) continue;
+      if (insideRecord && target !== "locationId") continue;
       const raw = record2[field];
       const want = expected[target];
       if (want === null || want === void 0) continue;
@@ -32712,10 +32713,10 @@ var inspectIdentity = (json2, expected, fields) => {
     }
     return { sawIdentity, consumed };
   };
-  const visit = (value, depth, isArrayMember) => {
+  const visit = (value, depth, isArrayMember, insideRecord = false) => {
     if (Array.isArray(value)) {
       let fromArray = 0;
-      for (const item of value) fromArray += visit(item, depth, true);
+      for (const item of value) fromArray += visit(item, depth, true, insideRecord);
       return fromArray;
     }
     if (!value || typeof value !== "object") return 0;
@@ -32727,11 +32728,12 @@ var inspectIdentity = (json2, expected, fields) => {
       }
       inspected += 1;
     }
-    const { sawIdentity, consumed } = scan(value);
+    const { sawIdentity, consumed } = scan(value, insideRecord);
     let fromChildren = 0;
     const children = Object.values(value).filter((child) => child && typeof child === "object" && !consumed?.has(child));
+    const childrenAreInsideRecord = insideRecord || sawIdentity;
     if (depth < MAX_IDENTITY_DEPTH) {
-      for (const child of children) fromChildren += visit(child, depth + 1, false);
+      for (const child of children) fromChildren += visit(child, depth + 1, false, childrenAreInsideRecord);
     } else if (children.length > 0) {
       depthCapped = true;
     }
@@ -34399,11 +34401,9 @@ function cursorFromRow(row) {
   const referenceId = first(row._id, row.id, row.referenceId);
   const referenceCreatedAt = first(row.createdAt, row.referenceCreatedAt);
   const referenceSid = first(row.sid, row.referenceSid);
-  const referenceSequence = first(row.sequence, row.referenceSequence);
   if (usable(referenceId)) cursor.referenceId = String(referenceId);
   if (usable(referenceCreatedAt)) cursor.referenceCreatedAt = String(referenceCreatedAt);
   if (usable(referenceSid)) cursor.referenceSid = String(referenceSid);
-  if (usable(referenceSequence)) cursor.referenceSequence = String(referenceSequence);
   return cursor.referenceId === void 0 && cursor.referenceSid === void 0 ? null : cursor;
 }
 function pickStats(json2, workflowId) {
