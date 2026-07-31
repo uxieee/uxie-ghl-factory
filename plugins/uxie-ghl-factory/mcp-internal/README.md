@@ -81,6 +81,24 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `fast_forward_contacts` | read-only parked-enrollment preview; selective requeue only with `confirm: true` |
 | `raw_request` | GET escape hatch; non-GET methods require `confirm: true` and return partial-progress evidence |
 
+### The credential guard vs. signed storage URLs
+
+Every tool argument is scanned for credentials and every result is scrubbed, so a token can
+never reach the MCP transcript from either direction. One narrow exemption exists, and it is
+load-bearing: a GHL workflow document legitimately carries **signed Google storage URLs** —
+`fileUrl` at the top level, `attributes.previewUrl` on email steps — each ending in
+`?…&token=<uuid>`. The labelled-secret rule read that as a credential, so `raw_request` could
+not PUT back any document it had just GET'd, and the scrubber mangled the URLs on the way out.
+That removed the escape hatch for exactly the cases the typed tools do not cover, and stripping
+the fields is a one-way door: once `fileUrl` is gone you cannot PUT it back either.
+
+URLs on `firebasestorage.googleapis.com` / `storage.googleapis.com` are therefore exempt from
+the **labelled-value** rule only. They are storage pointers the API itself just handed us, not
+user secrets. The JWT (`ey…`) and `Bearer …` rules still apply everywhere, including *inside* a
+storage-shaped URL — a firebase download token is a UUID and is never JWT-shaped, so nothing
+real is smuggled out through the exemption. `test/raw-request-storage-url.test.mjs` holds both
+halves of that line.
+
 ## Error contract
 
 Every tool returns `{ ok, code?, detail?, remediation?, data? }`. Codes are stable and

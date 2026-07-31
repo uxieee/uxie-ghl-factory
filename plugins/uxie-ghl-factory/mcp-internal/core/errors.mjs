@@ -119,6 +119,42 @@ const SECRET_KEYS = new Set([
 ]);
 const isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, '').toLowerCase());
 
+// A GHL workflow document legitimately carries SIGNED STORAGE URLS: `fileUrl` at the top
+// level and `attributes.previewUrl` on email steps. Both end in `?…&token=<uuid>`, which
+// LABELED_SECRET reads as a credential — so the guard refused to let raw_request PUT back
+// any document it had just GET'd, and scrubSecrets mangled the URLs on the way out. The
+// escape hatch could not round-trip, and stripping the fields is a one-way door (once
+// `fileUrl` is gone you cannot PUT it back either).
+//
+// These are storage POINTERS the API itself just handed us, not user secrets, so their
+// query params are exempt from the LABELED scan. The exemption is deliberately narrow: it
+// covers only the two Google storage hosts, only the labelled-value rule, and NEVER the
+// JWT or `Bearer …` rules — a real credential smuggled inside a storage-shaped URL is
+// still caught, because a firebase download token is a UUID and never `ey…`-shaped.
+const SIGNED_STORAGE_URL = /https:\/\/(?:firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/[^\s"'<>\\,;)]+/g;
+
+// Split `text` into signed-storage-URL runs and everything else, mapping each with its own
+// function and re-joining. One walker so the scan and the scrub cannot drift apart.
+const partitionStorageUrls = (text, outside, inUrl) => {
+  let out = '';
+  let last = 0;
+  for (const m of text.matchAll(SIGNED_STORAGE_URL)) {
+    out += outside(text.slice(last, m.index)) + inUrl(m[0]);
+    last = m.index + m[0].length;
+  }
+  return out + outside(text.slice(last));
+};
+
+const hasSecretText = (text) => {
+  let found = false;
+  partitionStorageUrls(
+    text,
+    (s) => { if (TOKENISH_SCAN.test(s) || LABELED_SECRET_SCAN.test(s) || BEARER_SECRET_SCAN.test(s)) found = true; return ''; },
+    (u) => { if (TOKENISH_SCAN.test(u) || BEARER_SECRET_SCAN.test(u)) found = true; return ''; },
+  );
+  return found;
+};
+
 const scrub = (s) => {
   if (s == null) return s;
   const text = String(s);
@@ -128,18 +164,18 @@ const scrub = (s) => {
   } catch {
     // Non-JSON error text is handled by the credential-pattern scrub below.
   }
-  return text
-    .replace(TOKENISH, '<redacted>')
-    .replace(LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`)
-    .replace(BEARER_SECRET, 'Bearer <redacted>');
+  const tokenish = (t) => t.replace(TOKENISH, '<redacted>').replace(BEARER_SECRET, 'Bearer <redacted>');
+  return partitionStorageUrls(
+    text,
+    (t) => tokenish(t).replace(LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`),
+    tokenish,
+  );
 };
 
 export function containsSecrets(value, key = '') {
   if (isSecretKey(key)) return true;
   if (value == null) return false;
-  if (typeof value === 'string') {
-    return TOKENISH_SCAN.test(value) || LABELED_SECRET_SCAN.test(value) || BEARER_SECRET_SCAN.test(value);
-  }
+  if (typeof value === 'string') return hasSecretText(value);
   if (Array.isArray(value)) return value.some((item) => containsSecrets(item, key));
   if (typeof value === 'object') {
     return Object.entries(value).some(([childKey, item]) => (
