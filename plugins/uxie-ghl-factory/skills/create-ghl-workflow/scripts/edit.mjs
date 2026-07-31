@@ -34,7 +34,13 @@
 //   Found ~always, and "~always" silently reroutes live contacts in the exception case.
 //   Not needed when nothing follows the anchor, or when the container has one branch.
 //   { "op":"deleteStep",      "stepId":"<id>" }
-//   { "op":"modifyStep",      "stepId":"<id>", "attrPatch": {...} }
+//   { "op":"modifyStep",      "stepId":"<id>", "attrPatch": {...}, "stepPatch": {"name":"..."} }
+//     attrPatch merges into `attributes`; stepPatch merges into the step's TOP LEVEL. It
+//     refuses the graph fields (id/type/parent/parentKey/next/order) — those have their own
+//     ops, which keep the graph consistent.
+//   { "op":"renameStep",      "stepId":"<id>", "name":"..." }   # a step's `name` is a SIBLING
+//     of `attributes`, so attrPatch could never reach it — a re-pointed step used to be stuck
+//     with a label that lied about what it does.
 //   { "op":"setStepDisabled", "stepId":"<id>", "disabled":true|false }
 //   { "op":"disableStepsByType", "type":"internal_notification", "disabled":true|false }
 //   { "op":"moveStep",        "stepId":"<id>", "afterId":"<id>" }

@@ -160,13 +160,49 @@ export function insertAfter(templates, newStep, afterId) {
   return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [...modified], deletedSteps: [] } };
 }
 
+// Fields that ARE the graph. They have dedicated ops (moveStep/insertAfter/deleteStep/
+// repairParentKeys) which maintain the invariants — pointers, scope, ordering — that a
+// blind shallow-merge would quietly break. A top-level patch is a door to a step's LABEL,
+// not to its wiring, so it refuses these outright rather than trusting the caller.
+export const PROTECTED_STEP_FIELDS = new Set(['id', 'type', 'parent', 'parentKey', 'next', 'order']);
+
+function assertPatchableFields(stepPatch, opLabel) {
+  const bad = Object.keys(stepPatch ?? {}).filter((k) => PROTECTED_STEP_FIELDS.has(k));
+  if (bad.length)
+    throw new Error(
+      `${opLabel}: refusing to patch graph field(s) ${bad.map((k) => `'${k}'`).join(', ')} — `
+      + `those are the step's wiring, not its content. Use moveStep/insertAfter/insertBefore/deleteStep/`
+      + `repairParentKeys, which keep the graph consistent.`);
+}
+
 // Modify an existing step's attributes in place (shallow-merge the patch). Emits the
 // step in modifiedSteps so the server re-persists just that step.
-export function modifyStep(templates, stepId, attrPatch) {
+//
+// `stepPatch` is the optional TOP-LEVEL merge. It exists because a step's `name` is a
+// SIBLING of `attributes`, not a member of it — so for a long time no op in the whole
+// vocabulary could rename a step, and an edit that repointed an "Update opportunity,
+// Signed Won" step at a different stage could not fix the now-lying label it left behind.
+// Graph fields are refused (see PROTECTED_STEP_FIELDS); everything else merges shallowly.
+export function modifyStep(templates, stepId, attrPatch, stepPatch) {
   const found = templates.find((t) => t.id === stepId);
   if (!found) return { templates, diff: emptyDiff() };
-  const out = templates.map((t) => (t.id === stepId ? { ...t, attributes: { ...t.attributes, ...attrPatch } } : t));
+  assertPatchableFields(stepPatch, 'modifyStep');
+  const out = templates.map((t) => (t.id === stepId
+    ? { ...t, ...(stepPatch ?? {}), attributes: { ...t.attributes, ...attrPatch } }
+    : t));
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
+}
+
+// Rename a step. The name is what every downstream reader — the canvas, an export, the
+// next human — uses to know what the step does, so leaving it stale after a modifyStep is
+// worse than leaving it generic. Whole-templates commit means this needs no transport
+// work: the renamed step round-trips like any other modification (proven live on the UK
+// account 2026-07-31 — version 14→15, 8 steps intact, attributes byte-identical, the
+// workflow stayed published).
+export function renameStep(templates, stepId, name) {
+  if (typeof name !== 'string' || name.trim() === '')
+    throw new Error(`renameStep: 'name' must be a non-empty string (got ${JSON.stringify(name)})`);
+  return modifyStep(templates, stepId, {}, { name });
 }
 
 // Native GHL per-action pause. The flag lives at the template root (never in

@@ -2,7 +2,7 @@
 // existing workflow's templates[]. No I/O — scripts/edit.mjs does the GET/PUT and passes
 // the fresh templates in. Keeping this pure makes the op sequencing + diff-merge testable.
 import {
-  appendStep, deleteStep, insertAfter, modifyStep, appendToBranch, moveStep,
+  appendStep, deleteStep, insertAfter, modifyStep, renameStep, appendToBranch, moveStep,
   addBranch, deleteContainer, setStepDisabled, disableStepsByType,
   appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
   insertBefore, insertSubgraphBefore, prependStep,
@@ -155,6 +155,7 @@ const OP_REQUIRED_ARGS = {
   appendToBranch: ['step', 'branchEntryId'],
   deleteStep: ['stepId'],
   modifyStep: ['stepId'],
+  renameStep: ['stepId', 'name'],
   setStepDisabled: ['stepId'],
   disableStepsByType: ['type'],
   moveStep: ['stepId', 'afterId'],
@@ -169,6 +170,7 @@ const OP_ARG_ALIASES = {
   node: 'step', newStep: 'step', action: 'step',
   id: 'stepId', targetId: 'stepId', afterStepId: 'afterId', beforeStepId: 'beforeId',
   branchId: 'branchEntryId', container: 'containerId',
+  newName: 'name', stepName: 'name', label: 'name', title: 'name',
 };
 
 export function checkOpShape(op) {
@@ -217,7 +219,10 @@ export function applyOp(templates, op, { ctx, idGen }) {
     }
     case 'deleteStep': return deleteStep(templates, op.stepId);
     case 'repairParentKeys': { const { templates: t, diff } = repairParentKeys(templates); return { templates: t, diff }; }
-    case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {});
+    // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
+    // it refuses graph fields — see PROTECTED_STEP_FIELDS.
+    case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
+    case 'renameStep': return renameStep(templates, op.stepId, op.name);
     case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);
     case 'disableStepsByType': return disableStepsByType(templates, op.type, op.disabled);
     case 'moveStep': return moveStep(templates, op.stepId, op.afterId);

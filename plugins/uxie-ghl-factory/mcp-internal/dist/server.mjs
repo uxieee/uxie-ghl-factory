@@ -31918,6 +31918,31 @@ var SECRET_KEYS = /* @__PURE__ */ new Set([
   "sessioncredentials"
 ]);
 var isSecretKey = (key) => SECRET_KEYS.has(String(key).replace(/[-_\s]/g, "").toLowerCase());
+var SIGNED_STORAGE_URL = /https:\/\/(?:firebasestorage\.googleapis\.com|storage\.googleapis\.com)\/[^\s"'<>\\,;)]+/g;
+var partitionStorageUrls = (text, outside, inUrl) => {
+  let out = "";
+  let last = 0;
+  for (const m of text.matchAll(SIGNED_STORAGE_URL)) {
+    out += outside(text.slice(last, m.index)) + inUrl(m[0]);
+    last = m.index + m[0].length;
+  }
+  return out + outside(text.slice(last));
+};
+var hasSecretText = (text) => {
+  let found = false;
+  partitionStorageUrls(
+    text,
+    (s) => {
+      if (TOKENISH_SCAN.test(s) || LABELED_SECRET_SCAN.test(s) || BEARER_SECRET_SCAN.test(s)) found = true;
+      return "";
+    },
+    (u) => {
+      if (TOKENISH_SCAN.test(u) || BEARER_SECRET_SCAN.test(u)) found = true;
+      return "";
+    }
+  );
+  return found;
+};
 var scrub = (s) => {
   if (s == null) return s;
   const text = String(s);
@@ -31926,14 +31951,17 @@ var scrub = (s) => {
     if (structured && typeof structured === "object") return JSON.stringify(scrubSecrets(structured));
   } catch {
   }
-  return text.replace(TOKENISH, "<redacted>").replace(LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`).replace(BEARER_SECRET, "Bearer <redacted>");
+  const tokenish = (t) => t.replace(TOKENISH, "<redacted>").replace(BEARER_SECRET, "Bearer <redacted>");
+  return partitionStorageUrls(
+    text,
+    (t) => tokenish(t).replace(LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`),
+    tokenish
+  );
 };
 function containsSecrets(value, key = "") {
   if (isSecretKey(key)) return true;
   if (value == null) return false;
-  if (typeof value === "string") {
-    return TOKENISH_SCAN.test(value) || LABELED_SECRET_SCAN.test(value) || BEARER_SECRET_SCAN.test(value);
-  }
+  if (typeof value === "string") return hasSecretText(value);
   if (Array.isArray(value)) return value.some((item) => containsSecrets(item, key));
   if (typeof value === "object") {
     return Object.entries(value).some(([childKey, item]) => containsSecrets(childKey) || containsSecrets(item, childKey));
@@ -76478,11 +76506,25 @@ function insertAfter(templates, newStep, afterId) {
   out.push(step);
   return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [...modified], deletedSteps: [] } };
 }
-function modifyStep(templates, stepId, attrPatch) {
+var PROTECTED_STEP_FIELDS = /* @__PURE__ */ new Set(["id", "type", "parent", "parentKey", "next", "order"]);
+function assertPatchableFields(stepPatch, opLabel) {
+  const bad = Object.keys(stepPatch ?? {}).filter((k) => PROTECTED_STEP_FIELDS.has(k));
+  if (bad.length)
+    throw new Error(
+      `${opLabel}: refusing to patch graph field(s) ${bad.map((k) => `'${k}'`).join(", ")} \u2014 those are the step's wiring, not its content. Use moveStep/insertAfter/insertBefore/deleteStep/repairParentKeys, which keep the graph consistent.`
+    );
+}
+function modifyStep(templates, stepId, attrPatch, stepPatch) {
   const found = templates.find((t) => t.id === stepId);
   if (!found) return { templates, diff: emptyDiff() };
-  const out = templates.map((t) => t.id === stepId ? { ...t, attributes: { ...t.attributes, ...attrPatch } } : t);
+  assertPatchableFields(stepPatch, "modifyStep");
+  const out = templates.map((t) => t.id === stepId ? { ...t, ...stepPatch ?? {}, attributes: { ...t.attributes, ...attrPatch } } : t);
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
+}
+function renameStep(templates, stepId, name) {
+  if (typeof name !== "string" || name.trim() === "")
+    throw new Error(`renameStep: 'name' must be a non-empty string (got ${JSON.stringify(name)})`);
+  return modifyStep(templates, stepId, {}, { name });
 }
 function setDisabledWhere(templates, matches, disabled) {
   const desired = disabled === true;
@@ -77386,6 +77428,7 @@ var OP_REQUIRED_ARGS = {
   appendToBranch: ["step", "branchEntryId"],
   deleteStep: ["stepId"],
   modifyStep: ["stepId"],
+  renameStep: ["stepId", "name"],
   setStepDisabled: ["stepId"],
   disableStepsByType: ["type"],
   moveStep: ["stepId", "afterId"],
@@ -77402,7 +77445,11 @@ var OP_ARG_ALIASES = {
   afterStepId: "afterId",
   beforeStepId: "beforeId",
   branchId: "branchEntryId",
-  container: "containerId"
+  container: "containerId",
+  newName: "name",
+  stepName: "name",
+  label: "name",
+  title: "name"
 };
 function checkOpShape(op) {
   const required2 = OP_REQUIRED_ARGS[op?.op];
@@ -77444,8 +77491,12 @@ function applyOp(templates, op, { ctx, idGen }) {
       const { templates: t, diff } = repairParentKeys(templates);
       return { templates: t, diff };
     }
+    // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
+    // it refuses graph fields — see PROTECTED_STEP_FIELDS.
     case "modifyStep":
-      return modifyStep(templates, op.stepId, op.attrPatch ?? {});
+      return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
+    case "renameStep":
+      return renameStep(templates, op.stepId, op.name);
     case "setStepDisabled":
       return setStepDisabled(templates, op.stepId, op.disabled);
     case "disableStepsByType":

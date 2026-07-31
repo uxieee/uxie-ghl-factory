@@ -271,7 +271,9 @@ workflow). `--dry-run` computes + prints the diff without sending the PUT. The e
 `insertBefore`
 (each takes a `step: {type,name,attributes}` compiled from IR — a linear step **or a
 container**, see "Adding containers" below), `deleteStep`,
-`modifyStep` (`attrPatch`), `moveStep`, `addBranch` (`{containerId,name,conditions}`),
+`modifyStep` (`attrPatch` for `attributes`, plus an optional `stepPatch` for TOP-LEVEL
+fields), `renameStep` (`{stepId,name}`), `moveStep`, `addBranch`
+(`{containerId,name,conditions}`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
 (`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
 (see "Editing TRIGGERS" below). The disable operations use GHL's native top-level
@@ -284,6 +286,25 @@ internal notifications:
   { "op": "insertAfter", "afterId": "abc", "step": { "type": "sms", "name": "Nudge", "attributes": { "body": "Still there?" } } },
   { "op": "deleteStep", "stepId": "xyz" },
   { "op": "disableStepsByType", "type": "internal_notification", "disabled": true }
+] }
+```
+
+A step's `name` is a **sibling of `attributes`**, not a member of it, so `attrPatch` alone
+can never rename anything — that is what `renameStep` (and `modifyStep`'s `stepPatch`) is
+for. Re-pointing a step without fixing its label leaves a name that actively lies to the
+next reader: an "Update opportunity, Signed Won" whose stage and status have both been
+changed is worse than a generic name. Both doors refuse the GRAPH fields (`id`, `type`,
+`parent`, `parentKey`, `next`, `order`) — those have dedicated ops that keep the graph
+consistent. A rename needs no transport work: the commit sends whole templates, so the
+step round-trips like any other modification (live-proven on the UK account 2026-07-31 —
+version 14→15, 8 steps intact, `fileUrl` preserved, attributes byte-identical, the
+workflow stayed published).
+
+```json
+{ "ops": [
+  { "op": "modifyStep", "stepId": "abc", "attrPatch": { "stageId": "…", "status": "lost" },
+    "stepPatch": { "name": "Update opportunity, Lost" } },
+  { "op": "renameStep", "stepId": "xyz", "name": "Tag: nurture exhausted" }
 ] }
 ```
 
