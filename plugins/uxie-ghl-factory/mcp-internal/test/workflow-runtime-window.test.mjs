@@ -2520,7 +2520,12 @@ test('get_workflow_logs keeps its full enrollment walk and totals behaviour', as
   assert.equal(result.ok, true);
   assert.equal(result.data.enrollments.length, 5);
   assert.equal(result.data.enrollmentsComplete, true);
-  assert.equal(result.data.enrollmentPages, 3);
+  // FOUR requests for three pages of rows: the walk no longer treats a short page as proof of
+  // exhaustion, it spends one more request to see the server return nothing. That is the rule
+  // the log walk already follows, and dropping it here is what let a roster stall look complete.
+  // The dedupe and re-served-page behaviour this protects is covered in read-tools.test.mjs,
+  // against a fake that honours the cursor — this one only pins the totals wiring.
+  assert.equal(result.data.enrollmentPages, 4);
   assert.equal(result.data.enrollmentStats.total, 5);
   assert.equal(result.data.enrollmentStats.source, 'enroll-stats-cache');
 });

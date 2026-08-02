@@ -961,7 +961,29 @@ export const TOOLS = [
       // a busy workflow. The roster endpoint reports isLocationRateLimited when
       // throttled; that page may be partial, so we stop and flag it.
       const rosterOf = (json) => json?.rows ?? json?.statuses ?? (Array.isArray(json) ? json : []);
+      // `action=next` is INCLUSIVE of the cursor row: it re-returns the referenced row as the
+      // page's first row, so a page carries at most `limit - 1` genuinely NEW rows. At limit=1
+      // it carries none, the cursor recomputes to the same _id, and the walk cannot advance —
+      // it just re-reads page one until the page cap stops it.
+      //
+      // MEASURED live on Grom UK yoQVVJFp6wyjxcxilA2H 2026-08-02. `02.5 Submitted for Review`
+      // (fd0f444f, enrolled by pipeline_stage_updated with an opportunity-scoped sourceId) and
+      // `08 Lead Nurture` (0c13ae43, contact_tag, contact-scoped) BOTH re-serve the same row at
+      // limit=1, and fd0f444f advances normally at limit=2 — one echoed row plus one new one.
+      // So the stall is the page size, not the enrollment's source, which the reported symptom
+      // (50 copies of one opportunity-sourced record) made it look like.
+      //
+      // Paging the roster at >= 2 keeps forward progress structurally possible. It is scoped to
+      // the walk: a single-page read returns whatever the caller asked for.
+      const rosterLimit = args.allEnrollments ? Math.max(limit, 2) : limit;
+      // The cap is a backstop against an unbounded walk, so it cannot rely on the schema default
+      // having been applied — a caller reaching the handler directly would otherwise compare
+      // against undefined and loop forever.
+      const pageCap = Number.isFinite(args.maxEnrollmentPages) && args.maxEnrollmentPages > 0
+        ? args.maxEnrollmentPages
+        : 50;
       const enrollments = [];
+      const seenIds = new Set();
       let action = 'first';
       let cursor = null;
       let pages = 0;
@@ -970,19 +992,38 @@ export const TOOLS = [
       for (;;) {
         const q = withFilters(base);
         q.set('action', action);
-        q.set('limit', String(limit));
+        q.set('limit', String(rosterLimit));
         if (cursor?.referenceId) q.set('referenceId', cursor.referenceId);
         if (cursor?.referenceCreatedAt) q.set('referenceCreatedAt', String(cursor.referenceCreatedAt));
         if (cursor?.referenceSid) q.set('referenceSid', cursor.referenceSid);
         const page = await gw.call('GET', `/workflows/status/search/workflow-with-filter?${q}`);
         if (!page.ok) return fromHttp(page.status, page.json);
         const batch = rosterOf(page.json);
-        enrollments.push(...batch);
+        // Drop the echoed cursor row rather than counting it again. Rows without an id cannot be
+        // de-duplicated — keying those on content would collapse two genuinely distinct rows into
+        // one — so they are always retained, and they always count as progress.
+        let fresh = 0;
+        for (const row of batch) {
+          const id = row?._id ?? row?.id;
+          const key = id === undefined || id === null ? '' : String(id);
+          if (key !== '' && seenIds.has(key)) continue;
+          if (key !== '') seenIds.add(key);
+          enrollments.push(row);
+          fresh += 1;
+        }
         pages += 1;
         if (page.json?.isLocationRateLimited) { rateLimited = true; enrollmentsComplete = false; break; }
         if (!args.allEnrollments) break;
-        if (batch.length < limit) break; // short page = last page
-        if (pages >= args.maxEnrollmentPages) { enrollmentsComplete = false; break; }
+        if (batch.length === 0) break; // the server ran out of rows
+        // A page that contributed nothing new cannot move the cursor, so continuing would re-read
+        // it until the cap. A SHORT such page is simply the tail — only the echoed row was left,
+        // which is what exhaustion looks like here. A FULL one means the walk is genuinely stuck,
+        // and saying so beats reporting the cap's worth of copies as a roster.
+        if (fresh === 0) {
+          if (batch.length >= rosterLimit) enrollmentsComplete = false;
+          break;
+        }
+        if (pages >= pageCap) { enrollmentsComplete = false; break; }
         const last = batch[batch.length - 1];
         const next = {
           referenceId: last?._id ?? last?.id,

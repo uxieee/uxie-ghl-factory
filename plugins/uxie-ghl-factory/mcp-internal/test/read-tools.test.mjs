@@ -158,14 +158,14 @@ test('get_workflow_logs forwards contact/date/event filters to both logs and the
   }
 });
 
-test('get_workflow_logs walks the enrollment roster to completion when allEnrollments is set', async () => {
-  // Two full pages then a short page; the cursor must advance on _id.
-  const pages = [
-    { rows: [{ _id: 'a' }, { _id: 'b' }] },
-    { rows: [{ _id: 'c' }, { _id: 'd' }] },
-    { rows: [{ _id: 'e' }] },
-  ];
-  let hit = 0;
+// A roster gateway that behaves the way the LIVE endpoint was measured to behave on
+// Grom UK 2026-08-02: responses are keyed `statuses`, and `action=next` is INCLUSIVE of
+// the cursor row — it re-returns the referenced row as the page's first row. A page
+// therefore carries at most `limit - 1` genuinely new rows.
+//
+// The fake this replaces served pages from an array by call index and ignored the cursor
+// entirely, so it could not express a re-served page and reported a spinning walk as green.
+function rosterGw(rows, options = {}) {
   const gw = {
     calls: [], loc: 'L', uid: 'u',
     call: async (method, path) => {
@@ -173,22 +173,106 @@ test('get_workflow_logs walks the enrollment roster to completion when allEnroll
       if (path.includes('logs/v2')) return { status: 200, ok: true, json: { logs: [] } };
       if (path.includes('count-per-step')) return { status: 200, ok: true, json: { counts: [] } };
       if (path.includes('workflow-with-filter')) {
-        // action=first has no referenceId; every subsequent page must carry one.
-        if (hit > 0) assert.match(path, /referenceId=/, 'next page must carry a cursor');
-        return { status: 200, ok: true, json: pages[hit++] };
+        const query = new URL(`http://x${path}`).searchParams;
+        const limit = Number(query.get('limit'));
+        // A server that never advances however the cursor is built — the shape a walk
+        // must refuse to ride to the page cap.
+        if (options.stuck) {
+          return { status: 200, ok: true, json: { statuses: rows.slice(0, limit), count: limit } };
+        }
+        const reference = query.get('referenceId');
+        let start = 0;
+        if (query.get('action') === 'next') {
+          assert.ok(reference, 'next page must carry a cursor');
+          start = rows.findIndex((row) => row._id === reference);
+          assert.ok(start >= 0, `cursor ${reference} must name a known row`);
+        }
+        const page = rows.slice(start, start + limit);
+        return { status: 200, ok: true, json: { statuses: page, count: page.length } };
       }
       return { status: 404, ok: false, json: {} };
     },
   };
+  return gw;
+}
+
+const ids = (result) => result.data.enrollments.map((row) => row._id);
+
+test('get_workflow_logs walks the enrollment roster to completion when allEnrollments is set', async () => {
+  const rows = [{ _id: 'a' }, { _id: 'b' }, { _id: 'c' }, { _id: 'd' }, { _id: 'e' }];
   const result = await tool('get_workflow_logs').handler(
     { locationId: 'L', workflowId: 'w1', limit: 2, allEnrollments: true },
-    deps(gw),
+    deps(rosterGw(rows)),
   );
 
   assert.equal(result.ok, true);
-  assert.equal(result.data.enrollments.length, 5);
+  assert.deepEqual(ids(result), ['a', 'b', 'c', 'd', 'e']);
   assert.equal(result.data.enrollmentsComplete, true);
-  assert.equal(result.data.enrollmentPages, 3);
+});
+
+test('get_workflow_logs de-duplicates the row every next page echoes back', async () => {
+  const rows = [{ _id: 'a' }, { _id: 'b' }, { _id: 'c' }, { _id: 'd' }, { _id: 'e' }];
+  const result = await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', limit: 2, allEnrollments: true },
+    deps(rosterGw(rows)),
+  );
+
+  const seen = ids(result);
+  assert.equal(new Set(seen).size, seen.length, 'the echoed cursor row must not be counted twice');
+});
+
+test('get_workflow_logs still advances at limit=1, where every page is pure echo', async () => {
+  // The reported defect. limit=1 means a next page carries limit-1 = ZERO new rows, so the
+  // cursor recomputes to the same _id forever and the old walk returned maxEnrollmentPages
+  // copies of one record. Measured live against both an opportunity-sourced workflow
+  // (fd0f444f) and a contact-sourced one (0c13ae43) — it is the page size, not the source.
+  const rows = [{ _id: 'a' }, { _id: 'b' }, { _id: 'c' }];
+  const result = await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', limit: 1, allEnrollments: true },
+    deps(rosterGw(rows)),
+  );
+
+  assert.deepEqual(ids(result), ['a', 'b', 'c'], 'a 3-row roster must read as 3 rows, not 1 repeated');
+  assert.equal(result.data.enrollmentsComplete, true);
+});
+
+test('get_workflow_logs stops on a page that contributes no new ids instead of walking to the cap', async () => {
+  const rows = [{ _id: 'a' }, { _id: 'b' }];
+  const result = await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', limit: 2, allEnrollments: true, maxEnrollmentPages: 50 },
+    deps(rosterGw(rows, { stuck: true })),
+  );
+
+  assert.deepEqual(ids(result), ['a', 'b'], 'a stuck server must not inflate the roster');
+  assert.equal(result.data.enrollmentsComplete, false, 'a walk that could not advance is not complete');
+  assert.ok(result.data.enrollmentPages < 50, 'the page cap must not be the thing that stops it');
+});
+
+test('get_workflow_logs retains id-less roster rows rather than collapsing them', async () => {
+  // Two genuinely distinct rows with no _id are indistinguishable by content; keying the
+  // dedupe on content would silently undercount them (ENROLLMENT_ROW_ID_MISSING).
+  const gw = gwStub({
+    'logs/v2': { logs: [] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { statuses: [{ contactId: undefined }, { contactId: undefined }], count: 2 },
+  });
+  const result = await tool('get_workflow_logs').handler(
+    { locationId: 'L', workflowId: 'w1', limit: 20 },
+    deps(gw),
+  );
+
+  assert.equal(result.data.enrollments.length, 2, 'id-less rows must both survive');
+});
+
+test('get_workflow_logs reads a roster keyed `statuses`, which is what the live endpoint returns', async () => {
+  const gw = gwStub({
+    'logs/v2': { logs: [] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { statuses: [{ _id: 'a' }], count: 1 },
+  });
+  const result = await tool('get_workflow_logs').handler({ locationId: 'L', workflowId: 'w1' }, deps(gw));
+
+  assert.deepEqual(ids(result), ['a']);
 });
 
 test('get_workflow_logs flags an incomplete roster when the account is rate limited', async () => {
