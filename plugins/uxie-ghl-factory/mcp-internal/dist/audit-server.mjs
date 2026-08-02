@@ -80575,7 +80575,10 @@ var TOOLS2 = [
       if (!logs.ok) return fromHttp(logs.status, logs.json);
       if (!counts.ok) return fromHttp(counts.status, counts.json);
       const rosterOf = (json2) => json2?.rows ?? json2?.statuses ?? (Array.isArray(json2) ? json2 : []);
+      const rosterLimit = args.allEnrollments ? Math.max(limit, 2) : limit;
+      const pageCap = Number.isFinite(args.maxEnrollmentPages) && args.maxEnrollmentPages > 0 ? args.maxEnrollmentPages : 50;
       const enrollments = [];
+      const seenIds = /* @__PURE__ */ new Set();
       let action = "first";
       let cursor = null;
       let pages = 0;
@@ -80584,14 +80587,22 @@ var TOOLS2 = [
       for (; ; ) {
         const q = withFilters(base);
         q.set("action", action);
-        q.set("limit", String(limit));
+        q.set("limit", String(rosterLimit));
         if (cursor?.referenceId) q.set("referenceId", cursor.referenceId);
         if (cursor?.referenceCreatedAt) q.set("referenceCreatedAt", String(cursor.referenceCreatedAt));
         if (cursor?.referenceSid) q.set("referenceSid", cursor.referenceSid);
         const page = await gw.call("GET", `/workflows/status/search/workflow-with-filter?${q}`);
         if (!page.ok) return fromHttp(page.status, page.json);
         const batch = rosterOf(page.json);
-        enrollments.push(...batch);
+        let fresh = 0;
+        for (const row of batch) {
+          const id = row?._id ?? row?.id;
+          const key = id === void 0 || id === null ? "" : String(id);
+          if (key !== "" && seenIds.has(key)) continue;
+          if (key !== "") seenIds.add(key);
+          enrollments.push(row);
+          fresh += 1;
+        }
         pages += 1;
         if (page.json?.isLocationRateLimited) {
           rateLimited = true;
@@ -80599,8 +80610,12 @@ var TOOLS2 = [
           break;
         }
         if (!args.allEnrollments) break;
-        if (batch.length < limit) break;
-        if (pages >= args.maxEnrollmentPages) {
+        if (batch.length === 0) break;
+        if (fresh === 0) {
+          if (batch.length >= rosterLimit) enrollmentsComplete = false;
+          break;
+        }
+        if (pages >= pageCap) {
           enrollmentsComplete = false;
           break;
         }
