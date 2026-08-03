@@ -159,6 +159,54 @@ Notes:
 > fields (`name`, `source`) stay strings with `dataType:"TEXT"`. Ground truth:
 > `factory-findings-2026-07-18/opportunity-monetaryvalue-plugin-bug.md`.
 
+### The opportunity field picker — all 9 standard fields
+
+Both `create_opportunity` and `update_opportunity` accept these, on either authoring path
+(`updates: [{field,value}]` or the name path `attributes: { … }`). Author key == emitted
+`filterField` for everything except `stageId` → `pipelineStageId`.
+
+| author key / `filterField` | picker label | `valueFieldType` | `dataType` | requires |
+|---|---|---|---|---|
+| `pipelineId` | Pipeline | `select` | `SINGLE_OPTIONS` | — (create takes it as a top-level attr, not a field) |
+| `stageId` → `pipelineStageId` | Pipeline Stage | `select` | `SINGLE_OPTIONS` | `pipelineId` in the same step |
+| `name` | Opportunity Name | `string` | `TEXT` | — |
+| `source` | Opportunity Source | `string` | `TEXT` | — |
+| `value` → `monetaryValue` | Opportunity Value | `numerical` | `NUMERICAL` | — |
+| `status` | Status | `select` | `SINGLE_OPTIONS` | one of `open` / `won` / `lost` / `abandoned` |
+| `lostReasonId` | Lost Reason | `select` | `SINGLE_OPTIONS` | **`status: "lost"` in the same step** |
+| `forecastExpectedCloseDate` | Expected Close Date | `date` | `DATE` | — |
+| `forecastProbability` | Forecast Probability | `numerical` | `NUMERICAL` | — |
+
+Ground truth is the builder's OWN picker definition — the `standardFieldMappingOptions()`
+function that ships inside the `internal_update_opportunity` / `internal_create_opportunity`
+marketplace assets — pinned in `catalog/opp-field-rulebook.json`. The engine's other table,
+`catalog/opp-field-shapes.json`, is a live *corpus* count and only ever knew the first six;
+authoring any of the last three used to throw `OPP_FIELD_UNKNOWN` before a single network
+call, i.e. the engine reported a GHL limitation that does not exist (live, Grom UK
+2026-08-03). The two files are merged in `engine/opp-shapes.mjs`; the corpus never loses.
+
+> **`lostReasonId` REQUIRES `status: "lost"` in the same step.** Not a UI nicety — the
+> builder's own generator enforces it twice: `handleStatusField()` disables the Lost Reason
+> option until a `status` entry reads `lost`, and `checkForDependantOptions()` **splices an
+> existing `lostReasonId` entry straight out of `__customInputFields__`** when status is
+> absent or anything else. So a lost reason authored on its own saves, round-trips clean, and
+> evaporates — the exact class `EMPTY_STEP` and `OPP_UNASSOCIATED` exist to catch. The
+> compiler fails closed with `IRError OPP_LOST_REASON_NO_LOST_STATUS`, including when the
+> status is a `{{merge-field}}` (unprovable at compile time). The value is a lost-reason
+> **id**, not a label. Both mechanisms are identical in the create and the update asset, so
+> the rule is the same for both steps.
+>
+> ```json
+> { "ref": "lost1", "kind": "action", "type": "update_opportunity", "name": "Mark lost",
+>   "attributes": { "status": "lost", "lostReasonId": "LOST_REASON_ID" } }
+> ```
+
+`forecastExpectedCloseDate` and `forecastProbability` are shipped from the rulebook but
+**not live-harvested**. The date value is passed through exactly as authored — the picker
+post-processes with `moment(value).format()` and suggests `DD-MMM-YYYY` / `YYYY-MM-DD`, but
+no live blob has been read back, so the compiler does not guess a normalisation. Harvest one
+before relying on a specific date format.
+
 ### `allowBackward` — the silent [skipped] trap
 
 > **Any stage move that can run BACKWARD needs `allowBackward: true`, or it silently does

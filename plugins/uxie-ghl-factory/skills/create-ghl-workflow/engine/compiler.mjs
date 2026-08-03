@@ -2,7 +2,7 @@
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
-import { checkOppFieldShape, STANDARD_OPP_FIELDS, OPP_SHAPES } from './opp-shapes.mjs';
+import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
 
 function attributesFor(node, ctx) {
@@ -91,14 +91,65 @@ function oppField(filterField, value, dataType, valueFieldType) {
   if (dataType !== undefined) f.dataType = dataType;   // absence is legal; never inject a dialect
   return f;
 }
+// Emit a standard opportunity field on the NAME-authoring path, using the shape the builder's
+// own picker assigns it. The name path (unlike updates[]) has always emitted an explicit
+// dataType, so this keeps that contract for the fields added 2026-08-03 too.
+function stdOppField(filterField, value) {
+  const { valueFieldType, dataType } = defaultOppFieldShape(filterField);
+  return oppField(filterField, value, dataType, valueFieldType);
+}
+
+// `lostReasonId` is meaningless — and actively deleted — without `status: 'lost'` in the SAME
+// step. This is not a UI nicety. The builder's own field-picker generator (shipped inside the
+// action asset, see catalog/opp-field-rulebook.json) enforces it twice:
+//   handleStatusField()        disables the Lost Reason option unless a status entry exists
+//                              whose value is 'lost'
+//   checkForDependantOptions() SPLICES an existing lostReasonId entry straight out of
+//                              __customInputFields__ when status is absent or not 'lost'
+// Identical code in the create asset and the update asset. Live-confirmed in the UI on Grom UK
+// 2026-08-03: the Lost Reason picker only appears once Status is set to Lost.
+// So a step carrying a lost reason without the lost status is the exact failure class
+// EMPTY_STEP / OPP_UNASSOCIATED exist to prevent — it saves, it round-trips, and the reason
+// silently evaporates. Fail loud at compile instead.
+// Also puts status BEFORE the lost reason, which is the only order the builder can produce
+// (fidelity, not correctness — the generator's lookups are findIndex-based, order-independent).
+function enforceLostReasonPrerequisite(f, ref, stepType) {
+  const lostAt = f.findIndex((x) => x.filterField === 'lostReasonId');
+  if (lostAt === -1) return;
+  const statusAt = f.findIndex((x) => x.filterField === 'status');
+  const statusVal = statusAt === -1 ? undefined : f[statusAt].value;
+  if (statusAt === -1 || String(statusVal).toLowerCase() !== 'lost')
+    throw new IRError('OPP_LOST_REASON_NO_LOST_STATUS',
+      `${stepType} '${ref}' sets 'lostReasonId' but ${
+        statusAt === -1
+          ? "the step has no 'status' field"
+          : `the step's status is '${statusVal}', not 'lost'`
+      }. GHL only accepts a lost reason on an opportunity being marked LOST: the builder `
+      + `disables the Lost Reason picker until Status is 'lost', and DELETES an existing `
+      + `lostReasonId entry when it isn't — so this step would save, round-trip clean, and `
+      + `drop the reason. Set status to 'lost' in the same step${
+        statusAt === -1 ? '' : ", or drop 'lostReasonId'"
+      }.${
+        statusVal !== undefined && /\{\{/.test(String(statusVal))
+          ? " (A merge-field status can't be proven to be 'lost' at compile time — author the "
+            + 'literal status on the step that sets the lost reason.)'
+          : ''
+      }`);
+  if (statusAt > lostAt) f.splice(lostAt, 0, f.splice(statusAt, 1)[0]);
+}
 // create_opportunity's author keys, mirroring UPDATE_OPP_AUTHOR_KEYS below. Without this
 // guard the generic checkAttrKeys pass is skipped wholesale for this type (it validates
 // against the EMITTED keys, none of which an author writes here), so a typo — or the
 // natural mistake of writing the GHL-side spellings `pipeline_id` / `pipeline_stage_id` —
 // dropped SILENTLY and produced an opportunity with no pipeline and no stage. It built
 // clean, verified clean, and the builder showed no error. Live-diagnosed 2026-07-25 on AU.
+// lostReasonId / forecastExpectedCloseDate / forecastProbability added 2026-08-03 — they are
+// in the builder's picker for BOTH create and update (the create asset carries the same
+// standardFieldMappingOptions() table, lost-reason gate included) but were missing from the
+// engine's field table. Author key == emitted filterField for all three; no alias is invented.
 const CREATE_OPP_AUTHOR_KEYS = new Set([
   'pipelineId', 'stageId', 'status', 'name', 'source', 'value',
+  'lostReasonId', 'forecastExpectedCloseDate', 'forecastProbability',
   'pipeline', 'stage',    // pre-resolve name path (resolve.mjs → pipelineId/stageId)
 ]);
 const CREATE_OPP_ALIASES = {
@@ -129,8 +180,12 @@ function createOpportunityAttributes(a, ref, ctx) {
   if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
   if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
   f.push(oppField('status', a.status ?? 'open', 'SINGLE_OPTIONS', 'select'));
+  if (a.lostReasonId != null) f.push(stdOppField('lostReasonId', a.lostReasonId));
   if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
   if (a.value != null) f.push(oppField('monetaryValue', a.value, 'NUMERICAL', 'numerical'));
+  if (a.forecastExpectedCloseDate != null) f.push(stdOppField('forecastExpectedCloseDate', a.forecastExpectedCloseDate));
+  if (a.forecastProbability != null) f.push(stdOppField('forecastProbability', a.forecastProbability));
+  enforceLostReasonPrerequisite(f, ref, 'create_opportunity');
   for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   return { pipelineId: a.pipelineId, type: 'internal_create_opportunity', __customInputFields__: f, __customInputs__: {} };
 }
@@ -157,6 +212,8 @@ function createOpportunityAttributes(a, ref, ctx) {
 // 2026-07-16 "move to Deposit Paid that never moved anything").
 const UPDATE_OPP_AUTHOR_KEYS = new Set([
   'updates', 'pipelineId', 'stageId', 'status', 'name', 'source', 'value', 'allowBackward',
+  // added 2026-08-03 — see CREATE_OPP_AUTHOR_KEYS. Author key == emitted filterField.
+  'lostReasonId', 'forecastExpectedCloseDate', 'forecastProbability',
   'pipeline', 'stage',    // pre-resolve name path (resolve.mjs → pipelineId/stageId)
 ]);
 const UPDATE_OPP_ALIASES = { pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_id: 'pipelineId', monetaryValue: 'value' };
@@ -168,7 +225,7 @@ const UPDATE_OPP_ALIASES = { pipelineStageId: 'stageId', stage_id: 'stageId', pi
 function resolveOppUpdateField(u, ref, ctx) {
   const ff = u.field;
   if (STANDARD_OPP_FIELDS.has(ff)) {
-    const vft = u.valueFieldType ?? OPP_SHAPES.fields[ff].valueFieldType.allowed[0];
+    const vft = u.valueFieldType ?? defaultOppFieldShape(ff).valueFieldType;
     const f = oppField(ff, u.value, u.dataType, vft);   // dataType omitted unless authored
     checkOppFieldShape(f, { ref, warn: ctx?.warn });
     return f;
@@ -211,9 +268,12 @@ function updateOpportunityAttributes(a, ref, ctx) {
     if (a.pipelineId != null) f.push(oppField('pipelineId', a.pipelineId, 'SINGLE_OPTIONS', 'select'));
     if (a.stageId != null) f.push(oppField('pipelineStageId', a.stageId, 'SINGLE_OPTIONS', 'select'));
     if (a.status != null) f.push(oppField('status', a.status, 'SINGLE_OPTIONS', 'select'));
+    if (a.lostReasonId != null) f.push(stdOppField('lostReasonId', a.lostReasonId));
     if (a.name != null) f.push(oppField('name', a.name, 'TEXT', 'string'));
     if (a.source != null) f.push(oppField('source', a.source, 'TEXT', 'string'));
     if (a.value != null) f.push(oppField('monetaryValue', a.value, 'NUMERICAL', 'numerical'));
+    if (a.forecastExpectedCloseDate != null) f.push(stdOppField('forecastExpectedCloseDate', a.forecastExpectedCloseDate));
+    if (a.forecastProbability != null) f.push(stdOppField('forecastProbability', a.forecastProbability));
     for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
   }
   if (!f.length)
@@ -221,6 +281,8 @@ function updateOpportunityAttributes(a, ref, ctx) {
       `update_opportunity '${ref}' has nothing to update — it would compile to ` +
       `__customInputFields__:[] and no-op at runtime while round-tripping clean. Author either ` +
       `attributes.updates:[{field,value}] or the name path attributes:{pipeline,stage,status,...}.`);
+  // Runs before the pipeline reorder below so the final unshift still lands pipeline at [0].
+  enforceLostReasonPrerequisite(f, ref, 'update_opportunity');
   // A stage write REQUIRES its pipeline, on either authoring path. GHL scopes the stage
   // picker to a pipeline, so a stage-only step renders as a DISABLED node in the builder
   // and never runs (live-confirmed 2026-07-25 on AU: a move-stage step authored with

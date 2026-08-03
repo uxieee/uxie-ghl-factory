@@ -1,6 +1,14 @@
 // Dev tool. Regenerate catalog/opp-field-shapes.json from the research corpus.
 // Usage: node scripts/gen-opp-shapes.mjs /path/to/ghl-internal-api-research/samples/by-location
 // NEVER point this at an account the factory has built — see the spec's freeze-date constraint.
+//
+// SCOPE: this file is the CORPUS artifact only — what shapes were observed, counted per
+// (field, key). It is NOT the field list. The field list lives in catalog/opp-field-rulebook.json
+// (the builder's own picker definition) and the two are merged in engine/opp-shapes.mjs.
+// Keep it that way: a corpus regen must never be able to shorten STANDARD_OPP_FIELDS again.
+// That is exactly how lostReasonId went missing — it is a real picker field that no sampled
+// account had written, so the engine threw OPP_FIELD_UNKNOWN on it before any network call.
+// Do not hand-add rulebook fields here; they would be wiped on the next run.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
