@@ -1,5 +1,37 @@
 {
-  "_note": "update_appointment_status — verified live 2026-07-16/17f. WHICH appointment it targets is IMPLICIT and cannot be named: in an appointment-triggered workflow it acts on the TRIGGERING appointment (safe); entered ANY other way (e.g. payment_received, a tag) GHL acts on the appointment with the LATEST START TIME the contact is carrying — NOT most-recently-created, NOT the paid product's appointment (proven by controlled A/B, 2026-07-17f). If a contact can hold >1 appointment, do NOT rely on this: either make the workflow appointment-triggered, or target explicitly via custom_code (GET /contacts/{id}/appointments, pick the one you mean, PUT /calendars/events/appointments/{id}) — see catalog/step-examples/custom_code.json. An API PUT to that endpoint DOES fire status triggers. status_type is 'confirmed' | 'cancelled'. NOTE: GHL has NO native 'rescheduled' status — detect a reschedule by triggering on the appointment event with no status filter plus an if_else on {conditionType:'appointment', conditionSubType:'appointmentRescheduled', conditionOperator:'is', conditionValue:'true'}.",
+  "_variantRules": {
+    "_note": "This example is a SINGLE harvested capture, so for each attribute below it pins ONE value of a closed set GHL itself declares. The other values are real and are NOT demonstrated here \u2014 do not read this example as evidence that they do not exist. `declaredValues` is quoted from the recovered builder source named in `source`; where a variant takes different companion fields, this catalog has no capture of them. See update_contact_field.json for the worked case that motivated these annotations.",
+    "rules": [
+      {
+        "attribute": "status_type",
+        "declaredValues": [
+          "new",
+          "confirmed",
+          "cancelled",
+          "showed",
+          "noshow",
+          "invalid"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/AppointmentStatus.ts::AppointmentStatusType",
+        "silentIfWrong": true,
+        "note": "SILENT-CLASS, and doubly so: the sibling `category` attribute selects WHICH union applies. category 'appointment' -> AppointmentStatusType (the six above); the rental union is ['unconfirmed','booked','partial','active','completed','cancelled'] (AppointmentStatus.ts::RentalBookingStatusType). `cancelled` is the ONLY value valid in both, so a status borrowed from the wrong union is a silent mismatch. This example pins category 'appointment' + status 'confirmed'.",
+        "pinnedByThisExample": "confirmed"
+      },
+      {
+        "attribute": "category",
+        "declaredValues": [
+          "appointment",
+          "service_booking",
+          "rental_booking"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/AppointmentStatus.ts::IAppointmentStatus",
+        "silentIfWrong": true,
+        "note": "SILENT-CLASS, and it is the SELECTOR for status_type's union: 'appointment' and 'service_booking' both take AppointmentStatusType (ServiceBookingStatusType is a type ALIAS of it, not a parallel set); 'rental_booking' takes RentalBookingStatusType ['unconfirmed','booked','partial','active','completed','cancelled']. 'cancelled' is the only value valid in both. The field is OPTIONAL, so it can also be absent. The validator does NOT check status_type against category, so a mismatch saves and round-trips clean.",
+        "pinnedByThisExample": "appointment"
+      }
+    ]
+  },
+  "_note": "update_appointment_status \u2014 verified live 2026-07-16/17f. WHICH appointment it targets is IMPLICIT and cannot be named: in an appointment-triggered workflow it acts on the TRIGGERING appointment (safe); entered ANY other way (e.g. payment_received, a tag) GHL acts on the appointment with the LATEST START TIME the contact is carrying \u2014 NOT most-recently-created, NOT the paid product's appointment (proven by controlled A/B, 2026-07-17f). If a contact can hold >1 appointment, do NOT rely on this: either make the workflow appointment-triggered, or target explicitly via custom_code (GET /contacts/{id}/appointments, pick the one you mean, PUT /calendars/events/appointments/{id}) \u2014 see catalog/step-examples/custom_code.json. An API PUT to that endpoint DOES fire status triggers. status_type is one of 'new' | 'confirmed' | 'cancelled' | 'showed' | 'noshow' | 'invalid' (recovered-source AppointmentStatus.ts::AppointmentStatusType) \u2014 an earlier note here claimed it was only confirmed|cancelled, which was read off a single harvested example and is WRONG. Separately, when the sibling `category` is a rental booking the applicable union is instead 'unconfirmed' | 'booked' | 'partial' | 'active' | 'completed' | 'cancelled' (RentalBookingStatusType); 'cancelled' is the only value valid in both, so a status borrowed from the wrong union is a silent mismatch. NOTE: GHL has NO native 'rescheduled' status \u2014 detect a reschedule by triggering on the appointment event with no status filter plus an if_else on {conditionType:'appointment', conditionSubType:'appointmentRescheduled', conditionOperator:'is', conditionValue:'true'}.",
   "id": "<uuid-001>",
   "order": 2,
   "attributes": {

@@ -1,4 +1,28 @@
 {
+  "_variantRules": {
+    "_note": "This example is a SINGLE harvested capture, so for each attribute below it pins ONE value of a closed set GHL itself declares. The other values are real and are NOT demonstrated here — do not read this example as evidence that they do not exist. `declaredValues` is quoted from the recovered builder source named in `source`; where a variant takes different companion fields, this catalog has no capture of them. See update_contact_field.json for the worked case that motivated these annotations.",
+    "rules": [
+      {
+        "attribute": "event_type",
+        "declaredValues": [
+          "funnel_event",
+          "lead_event",
+          "instagram_dm"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/FacebookConversationApi.ts::EventType",
+        "pinnedByThisExample": "lead_event"
+      },
+      {
+        "attribute": "connection_type",
+        "declaredValues": [
+          "INTEGRATION",
+          "AD_MANAGER"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/FacebookConversationApi.ts::ConnectionType",
+        "pinnedByThisExample": "INTEGRATION"
+      }
+    ]
+  },
   "_note": "REDACTED 2026-07-17. access_token and pixel_id are live Meta credentials — placeholders only, never commit real ones. Both values are per-account: get the System User access token from Meta Business Settings and the pixel id from Events Manager. This file is a SHAPE reference (gen-catalog reads its key set, not its values).",
   "id": "<uuid-001>",
   "order": 0,

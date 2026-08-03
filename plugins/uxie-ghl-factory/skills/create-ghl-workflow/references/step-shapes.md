@@ -8,6 +8,62 @@ The builder only opens a step's editor panel if the step matches the shape the b
 2. Copy its EXACT key set. Change only values inside `attributes`.
 3. Generate a fresh `id` (uuid). Set `next`/`parentKey` for position (null for a single/last step).
 
+## The other half of the rule: a harvested example pins ONE variant of a multi-valued field
+
+"Mirror the harvested step" protects you from inventing keys. It does **not** protect you
+from copying the wrong *value* of a key whose value is a **discriminator** — a closed set
+where each member makes the step do a materially different thing. There is exactly one
+example per type in `catalog/step-examples/`, so for every such field the catalog teaches
+one member and is silent about the rest. Mirroring is then actively misleading: it looks
+like the shape, and it is the wrong behaviour.
+
+**The worked case — `update_contact_field.actionType`.** GHL declares
+`type ActionType = 'update_field_data' | 'clear_field_data'`
+(`recovered-source/src/models/actions/ContactField.ts`), confirmed in the builder dropdown
+live 2026-08-03:
+
+| Intent | `actionType` |
+|---|---|
+| Write a value into a field | `update_field_data` |
+| Empty a field | `clear_field_data` |
+
+Getting it wrong is **silent**. `update_field_data` with `value: ""` is a write of nothing,
+not a clear — it appears to be a no-op, so the stale value survives, and nothing raises an
+error: the step saves, round-trips clean, and renders fine. Found live in a client account
+2026-08-03 as a step named "Blank <outcome field>" that had almost certainly never
+blanked anything, so each call's outcome was read against the previous call's stale result.
+The engine now warns on both mismatches (`CONTACT_FIELD_CLEAR_MISMATCH` and its mirror
+`CONTACT_FIELD_CLEAR_HAS_VALUE`) — **advisory only**, because GHL's own
+`updateContactFieldValidator` grades this warning-level and an empty write may be deliberate.
+
+**This is a class, not one field.** 16 attributes across 12 step types pin one value of a
+union GHL's own source declares. Each affected example now carries a `_variantRules` block
+listing the full declared set, its source, and whether a wrong pick is silent. The
+silent-class ones — where the step runs, reports nothing, and simply does the wrong thing:
+
+| Step | Attribute | Example pins | Full set |
+|---|---|---|---|
+| `update_contact_field` | `actionType` | `clear_field_data` | `update_field_data`, `clear_field_data` |
+| `dnd_contact` | `dnd_contact` | `enable` | `enable`, `disable`, `enable_specific`, `disable_specific` |
+| `chatgpt` | `memoryKey` | `action` | `location`, `workflow`, `workflow_status`, `action`, `custom` |
+| `math_operation` | `selectFieldtype` / `updateFieldType` | `numerical` | `numerical`, `date` |
+| `update_appointment_status` | `status_type` | `confirmed` | `new`, `confirmed`, `cancelled`, `showed`, `noshow`, `invalid` |
+
+`dnd_contact` is the sharpest of these: the `_specific` pair scopes DND to selected
+*channels*, and plain `enable` DNDs everything, so the wrong pick silently kills all
+outbound comms for the contact. Neither `_specific` value appears anywhere in the 186-step
+corpus — the catalog had no way to know they existed.
+
+`update_appointment_status` is the second trap: the sibling `category` attribute selects
+*which* union applies (appointment vs rental booking), and `cancelled` is the only value
+valid in both. A note in that example previously asserted the set was `confirmed | cancelled`
+— read off the single capture, and wrong; corrected 2026-08-04.
+
+**So:** before authoring any enum-shaped attribute, check the example's `_variantRules`
+block, and if the field is not covered there, read the union out of
+`sniffs/bundle/recovered-source/src/models/actions/` rather than assuming the one captured
+value is the only one.
+
 ## Don't-invent fields — add these ONLY if the harvested step has them
 
 `cat`, `parent`, `sibling`, `nodeType`, `comments`, `workflowsActionType`

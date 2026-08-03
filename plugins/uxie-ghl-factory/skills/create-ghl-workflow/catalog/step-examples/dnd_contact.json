@@ -1,4 +1,22 @@
 {
+  "_variantRules": {
+    "_note": "This example is a SINGLE harvested capture, so for each attribute below it pins ONE value of a closed set GHL itself declares. The other values are real and are NOT demonstrated here — do not read this example as evidence that they do not exist. `declaredValues` is quoted from the recovered builder source named in `source`; where a variant takes different companion fields, this catalog has no capture of them. See update_contact_field.json for the worked case that motivated these annotations.",
+    "rules": [
+      {
+        "attribute": "dnd_contact",
+        "declaredValues": [
+          "enable",
+          "disable",
+          "enable_specific",
+          "disable_specific"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/ContactDND.ts::DNDType",
+        "silentIfWrong": true,
+        "note": "SILENT-CLASS. The `_specific` pair scopes DND to selected CHANNELS; plain `enable` DNDs everything. Authoring `enable` where `enable_specific` was meant silently kills all outbound comms for the contact and raises nothing. The 186-step corpus only ever saw enable/disable, so the `_specific` pair is invisible to every other source in this catalog.",
+        "pinnedByThisExample": "enable"
+      }
+    ]
+  },
   "id": "<uuid-001>",
   "order": 0,
   "attributes": {

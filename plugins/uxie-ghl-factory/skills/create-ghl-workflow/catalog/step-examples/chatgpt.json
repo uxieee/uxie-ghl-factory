@@ -1,4 +1,36 @@
 {
+  "_variantRules": {
+    "_note": "This example is a SINGLE harvested capture, so for each attribute below it pins ONE value of a closed set GHL itself declares. The other values are real and are NOT demonstrated here — do not read this example as evidence that they do not exist. `declaredValues` is quoted from the recovered builder source named in `source`; where a variant takes different companion fields, this catalog has no capture of them. See update_contact_field.json for the worked case that motivated these annotations.",
+    "rules": [
+      {
+        "attribute": "actionType",
+        "declaredValues": [
+          "analyze_text_sentiment",
+          "classify_text",
+          "summarize_text",
+          "translate_content",
+          "custom"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/premium-actions/ChatGPT.ts::IChatGPTActionTypes",
+        "note": "The example pins `custom` (free-prompt mode). The four preset modes take different companion fields, none of which are captured here.",
+        "pinnedByThisExample": "custom"
+      },
+      {
+        "attribute": "memoryKey",
+        "declaredValues": [
+          "location",
+          "workflow",
+          "workflow_status",
+          "action",
+          "custom"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/premium-actions/ChatGPT.ts::IMemoryKeyCategory",
+        "silentIfWrong": true,
+        "note": "SILENT-CLASS. This is the SCOPE of the conversation memory. The wrong scope silently shares memory across contacts/workflows or isolates it from where it was meant to accumulate — no error either way.",
+        "pinnedByThisExample": "action"
+      }
+    ]
+  },
   "id": "<uuid-001>",
   "stepIndex": 1,
   "order": 0,

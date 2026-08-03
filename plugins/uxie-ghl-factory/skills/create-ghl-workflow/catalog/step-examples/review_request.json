@@ -1,4 +1,20 @@
 {
+  "_variantRules": {
+    "_note": "This example is a SINGLE harvested capture, so for each attribute below it pins ONE value of a closed set GHL itself declares. The other values are real and are NOT demonstrated here — do not read this example as evidence that they do not exist. `declaredValues` is quoted from the recovered builder source named in `source`; where a variant takes different companion fields, this catalog has no capture of them. See update_contact_field.json for the worked case that motivated these annotations.",
+    "rules": [
+      {
+        "attribute": "review_type",
+        "declaredValues": [
+          "sms",
+          "email",
+          "whatsapp"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/ReviewRequest.ts::ReviewType",
+        "note": "The corpus only ever saw sms/email; `whatsapp` is declared in source but uncaptured.",
+        "pinnedByThisExample": "sms"
+      }
+    ]
+  },
   "id": "<uuid-001>",
   "order": 2,
   "attributes": {

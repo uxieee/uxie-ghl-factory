@@ -1,4 +1,55 @@
 {
+  "_rule": "update_contact_field carries a TWO-VALUE discriminator, `actionType`, confirmed in the builder's own dropdown (live 2026-08-03). Use `update_field_data` when WRITING a value into a field. Use `clear_field_data` when EMPTYING one. Getting it wrong is SILENT: `update_field_data` with `value: \"\"` is a write of nothing, not a clear — it appears to be a no-op, the stale value survives, and nothing raises an error (the step saves, round-trips clean, and renders fine in the builder). Found live in a client account 2026-08-03: a step named \"Blank <outcome field>\" was `update_field_data` with `value: \"\"`, so it very likely never blanked anything and the next call's outcome was read against the previous call's stale result.",
+  "_variants": {
+    "clear_field_data": {
+      "when": "Emptying a field. `value` is ignored in this mode — GHL blanks the field regardless, so anything written there is discarded silently. The corpus convention is to send it as \"\".",
+      "example": {
+        "id": "<uuid-001>",
+        "order": 0,
+        "attributes": {
+          "type": "update_contact_field",
+          "actionType": "clear_field_data",
+          "fields": [
+            {
+              "field": "em3R3rToFy8N0oYcJDwE",
+              "value": "",
+              "title": "HB Timezone",
+              "type": "string",
+              "date": ""
+            }
+          ]
+        },
+        "name": "Update contact field",
+        "type": "update_contact_field"
+      },
+      "provenance": "Harvested from a real clearing step. This is the shape the top-level envelope of this file carries, and the one gen-catalog.mjs derives attrKeys from."
+    },
+    "update_field_data": {
+      "when": "Writing a value into a field. Every fields[] entry needs a non-empty `value`, OR `date: \"currentDate\"` (the sentinel meaning \"stamp execution time\", which supplies the value in its place). GHL's own updateContactFieldValidator pushes `value_required` for any entry that has neither — at result level *warning*, so the workflow still publishes with the write silently doing nothing.",
+      "example": {
+        "id": "<uuid-002>",
+        "order": 0,
+        "attributes": {
+          "type": "update_contact_field",
+          "actionType": "update_field_data",
+          "fields": [
+            {
+              "field": "em3R3rToFy8N0oYcJDwE",
+              "value": "{{message.body}}",
+              "title": "HB Timezone",
+              "type": "string",
+              "date": ""
+            }
+          ]
+        },
+        "name": "Update contact field",
+        "type": "update_contact_field"
+      },
+      "provenance": "Same attrKeys and same fields[] entry shape as the clear variant — the ONLY difference is `actionType` and a populated `value`. Composed from the clear capture plus reference/steps/og/update_contact_field.md (bundle-derived shape + validator rules); the fields[] shape itself is corpus-attested at 186 occurrences across 53 workflows in 4 locations."
+    }
+  },
+  "_engineCheck": "contact-field-shapes.mjs::checkContactFieldShape warns (never throws) on both mismatches: `update_field_data` where every field is empty with no currentDate (CONTACT_FIELD_CLEAR_MISMATCH), and `clear_field_data` carrying a non-empty value (CONTACT_FIELD_CLEAR_HAS_VALUE). Advisory because GHL grades this warning-level and the caller may have a reason.",
+  "_envelopeNote": "The top-level node below is the untouched harvested capture and MUST stay a single node envelope: gen-catalog.mjs derives this type's attrKeys/premium/container flags from `attributes` and a handful of sibling keys, and ignores the underscore-prefixed annotations above.",
   "id": "<uuid-001>",
   "order": 0,
   "attributes": {
