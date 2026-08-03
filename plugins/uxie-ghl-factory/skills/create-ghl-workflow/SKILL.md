@@ -241,6 +241,7 @@ wrong stage. Every guard below exists because that happened on a live account (2
 | `COND_SHAPE` | A dead opportunity-stage condition spelling | A branch that publishes clean and never evaluates |
 | `ATTR_KEY` | An invented attribute key on a verified-live type | A step that saves and renders blank |
 | `OPP_UNASSOCIATED` | `update_opportunity` with no proven opportunity on its path | A stage move that no-ops at runtime |
+| `OPP_LOST_REASON_NO_LOST_STATUS` | `lostReasonId` on a step whose `status` isn't literally `lost` | The builder **deletes** the lost-reason entry on open — the step saves, round-trips clean, and records no reason |
 
 **`kind:` is an accepted alias for `type:` on the finder containers** (`find_opportunity`,
 `find_contact`, `lc_merge_contact`) — both spellings keep their `onFound`/`onNotFound`
