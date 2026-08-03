@@ -1,4 +1,18 @@
 {
+  "_variantRules": {
+    "_note": "This example is a SINGLE harvested capture, so for each attribute below it pins ONE value of a closed set GHL itself declares. The other values are real and are NOT demonstrated here — do not read this example as evidence that they do not exist. `declaredValues` is quoted from the recovered builder source named in `source`; where a variant takes different companion fields, this catalog has no capture of them. See update_contact_field.json for the worked case that motivated these annotations.",
+    "rules": [
+      {
+        "attribute": "method",
+        "declaredValues": [
+          "GET",
+          "POST"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/Webhook.ts::MethodType",
+        "pinnedByThisExample": "POST"
+      }
+    ]
+  },
   "id": "<uuid-001>",
   "order": 0,
   "attributes": {

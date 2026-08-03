@@ -992,9 +992,9 @@ var require_codegen = __commonJS({
       }
     };
     var Label = class extends Node {
-      constructor(label) {
+      constructor(label2) {
         super();
-        this.label = label;
+        this.label = label2;
         this.names = {};
       }
       render({ _n }) {
@@ -1002,14 +1002,14 @@ var require_codegen = __commonJS({
       }
     };
     var Break = class extends Node {
-      constructor(label) {
+      constructor(label2) {
         super();
-        this.label = label;
+        this.label = label2;
         this.names = {};
       }
       render({ _n }) {
-        const label = this.label ? ` ${this.label}` : "";
-        return `break${label};` + _n;
+        const label2 = this.label ? ` ${this.label}` : "";
+        return `break${label2};` + _n;
       }
     };
     var Throw = class extends Node {
@@ -1421,12 +1421,12 @@ var require_codegen = __commonJS({
         return this._endBlockNode(For);
       }
       // `label` statement
-      label(label) {
-        return this._leafNode(new Label(label));
+      label(label2) {
+        return this._leafNode(new Label(label2));
       }
       // `break` statement
-      break(label) {
-        return this._leafNode(new Break(label));
+      break(label2) {
+        return this._leafNode(new Break(label2));
       }
       // `return` statement
       return(value) {
@@ -31954,7 +31954,7 @@ var scrub = (s) => {
   const tokenish = (t) => t.replace(TOKENISH, "<redacted>").replace(BEARER_SECRET, "Bearer <redacted>");
   return partitionStorageUrls(
     text,
-    (t) => tokenish(t).replace(LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`),
+    (t) => tokenish(t).replace(LABELED_SECRET, (_match, label2, separator) => `${label2}${separator} <redacted>`),
     tokenish
   );
 };
@@ -35935,6 +35935,61 @@ function checkAgainstRulebook(field, ref) {
   }
 }
 
+// ../skills/create-ghl-workflow/engine/contact-field-shapes.mjs
+init_define_TOOL_CATALOG();
+var CONTACT_FIELD_ACTION_TYPES = ["update_field_data", "clear_field_data"];
+var DEFAULT_CONTACT_FIELD_ACTION_TYPE = "update_field_data";
+var CLEAR_HINT = "Use actionType:'clear_field_data' to empty a field and actionType:'update_field_data' to write one.";
+function isEmptyFieldValue(value) {
+  if (value === void 0 || value === null || value === "") return true;
+  return Array.isArray(value) && value.length === 0;
+}
+function fieldSuppliesNoValue(field) {
+  return isEmptyFieldValue(field?.value) && field?.date !== "currentDate";
+}
+var label = (field, index) => {
+  const id = field?.field;
+  const title = field?.title;
+  if (id && title) return `${id} ("${title}")`;
+  return id || title || `fields[${index}]`;
+};
+function checkContactFieldShape(attrs, { ref = "?", warn } = {}) {
+  if (!warn) return;
+  const fields = Array.isArray(attrs?.fields) ? attrs.fields : [];
+  if (!fields.length) return;
+  const declared = attrs?.actionType;
+  const actionType = declared ?? DEFAULT_CONTACT_FIELD_ACTION_TYPE;
+  const where = `update_contact_field '${ref}'`;
+  if (declared != null && !CONTACT_FIELD_ACTION_TYPES.includes(declared)) {
+    warn(`CONTACT_FIELD_ACTION_TYPE_UNKNOWN: ${where} declares actionType '${declared}', which is neither of the two the builder offers (${CONTACT_FIELD_ACTION_TYPES.join(", ")}). GHL stores an unrecognised discriminator as authored and the step saves clean, so a typo here is silent. ` + CLEAR_HINT);
+    return;
+  }
+  const blank = fields.filter(fieldSuppliesNoValue);
+  if (actionType === "update_field_data") {
+    if (!blank.length) return;
+    const named = blank.map((f) => label(f, fields.indexOf(f))).join(", ");
+    const viaDefault = declared == null ? ` (actionType is absent, which GHL defaults to '${DEFAULT_CONTACT_FIELD_ACTION_TYPE}')` : "";
+    if (blank.length === fields.length) {
+      warn(`CONTACT_FIELD_CLEAR_MISMATCH: ${where} is '${actionType}'${viaDefault} but EVERY field it writes carries an empty value with no 'currentDate' \u2014 [${named}]. That is almost certainly meant to be a clear: an empty '${DEFAULT_CONTACT_FIELD_ACTION_TYPE}' write appears to be a no-op, so the stale value survives and nothing raises an error. ${CLEAR_HINT} If the empty write is intentional, this warning is advisory only \u2014 nothing was blocked.`);
+    } else {
+      warn(`CONTACT_FIELD_EMPTY_VALUE: ${where} is '${actionType}' and ${blank.length} of ${fields.length} field(s) carry an empty value with no 'currentDate' \u2014 [${named}]. GHL's own updateContactFieldValidator flags each of these 'value_required'; they will not be cleared, they will simply not be written. ${CLEAR_HINT}`);
+    }
+    return;
+  }
+  const populated = fields.filter((f) => !isEmptyFieldValue(f?.value));
+  if (!populated.length) return;
+  warn(`CONTACT_FIELD_CLEAR_HAS_VALUE: ${where} is 'clear_field_data' but ${populated.length} of ${fields.length} field(s) carry a non-empty value \u2014 [${populated.map((f) => `${label(f, fields.indexOf(f))}=${JSON.stringify(f.value)}`).join(", ")}]. A clear BLANKS the field and ignores the value, so anything authored here is discarded silently. ` + CLEAR_HINT);
+}
+function lintContactFieldTemplates(templates, stepIds, warn) {
+  if (!warn) return;
+  const wanted = stepIds == null ? null : new Set(stepIds);
+  for (const step of templates ?? []) {
+    if (step?.type !== "update_contact_field") continue;
+    if (wanted && !wanted.has(step.id)) continue;
+    checkContactFieldShape(step.attributes ?? {}, { ref: step.name ?? step.id ?? "?", warn });
+  }
+}
+
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
 init_define_TOOL_CATALOG();
 var CATALOG_CORRECTIONS = {
@@ -36139,7 +36194,10 @@ function attributesFor(node, ctx) {
   if (node.type === "internal_notification") return internalNotificationAttributes(node.attributes ?? {}, ctx);
   if (node.type === "create_opportunity") return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
   if (node.type === "update_opportunity") return updateOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
-  return normalizeAttrs(node, node.attributes ?? {}, ctx);
+  const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
+  if (node.type === "update_contact_field")
+    checkContactFieldShape(out, { ref: node.ref ?? node.name ?? "?", warn: ctx?.warn });
+  return out;
 }
 function normalizeAttrs(node, attrs, ctx) {
   const meta3 = ctx?.catalog?.step(node.type);
@@ -77142,7 +77200,7 @@ var UPSTREAM_LABELED_SECRET = /\b((?:authorization|token|jwt|api[-_ ]?(?:key|sec
 function scrubUpstream(value, key = "") {
   if (UPSTREAM_SECRET_KEY.test(String(key))) return "<redacted>";
   if (typeof value === "string") {
-    return value.replace(UPSTREAM_TOKENISH, "<redacted>").replace(UPSTREAM_LABELED_SECRET, (_match, label, separator) => `${label}${separator} <redacted>`).replace(UPSTREAM_BEARER, "Bearer <redacted>");
+    return value.replace(UPSTREAM_TOKENISH, "<redacted>").replace(UPSTREAM_LABELED_SECRET, (_match, label2, separator) => `${label2}${separator} <redacted>`).replace(UPSTREAM_BEARER, "Bearer <redacted>");
   }
   if (Array.isArray(value)) return value.map((item) => scrubUpstream(item));
   if (value && typeof value === "object") {
@@ -81276,6 +81334,7 @@ var TOOLS2 = [
         existingTriggers = listed.triggers;
       }
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
       const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
         assumeAssociated: args.assumeAssociated === true
       });

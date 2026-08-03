@@ -1,4 +1,43 @@
 {
+  "_variantRules": {
+    "_note": "This example is a SINGLE harvested capture, so for each attribute below it pins ONE value of a closed set GHL itself declares. The other values are real and are NOT demonstrated here — do not read this example as evidence that they do not exist. `declaredValues` is quoted from the recovered builder source named in `source`; where a variant takes different companion fields, this catalog has no capture of them. See update_contact_field.json for the worked case that motivated these annotations.",
+    "rules": [
+      {
+        "attribute": "selectFieldtype",
+        "declaredValues": [
+          "numerical",
+          "date"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/MathOperations.ts::FieldType",
+        "silentIfWrong": true,
+        "note": "SILENT-CLASS. The type hint decides how the operand is parsed; the wrong one on a date field yields a garbage or zero result rather than an error.",
+        "pinnedByThisExample": "numerical"
+      },
+      {
+        "attribute": "updateFieldType",
+        "declaredValues": [
+          "numerical",
+          "date"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/MathOperations.ts::FieldType",
+        "silentIfWrong": true,
+        "note": "SILENT-CLASS — same as selectFieldtype, on the write side.",
+        "pinnedByThisExample": "numerical"
+      },
+      {
+        "attribute": "operator",
+        "declaredValues": [
+          "add",
+          "div",
+          "mul",
+          "sub"
+        ],
+        "source": "sniffs/bundle/recovered-source/src/models/actions/MathOperations.ts::OperatorType",
+        "note": "Not pinned by this example; recorded so the closed set is known.",
+        "pinnedByThisExample": null
+      }
+    ]
+  },
   "id": "<uuid-001>",
   "order": 0,
   "attributes": {

@@ -3,6 +3,7 @@
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
+import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
 
 function attributesFor(node, ctx) {
@@ -19,7 +20,12 @@ function attributesFor(node, ctx) {
   //   - attributes.type  (mirrors the step type — present on ~all linear action types)
   //   - __customInputs__  (the internal-action field envelope — present on INTERNAL types)
   // Both are catalog-gated so we never inject a field the verified-live example lacks.
-  return normalizeAttrs(node, node.attributes ?? {}, ctx);
+  const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
+  // Advisory only — see contact-field-shapes.mjs for why this warns rather than throws.
+  // Runs on the compiled attrs (post-normalize) so it sees exactly what will be sent.
+  if (node.type === 'update_contact_field')
+    checkContactFieldShape(out, { ref: node.ref ?? node.name ?? '?', warn: ctx?.warn });
+  return out;
 }
 
 // Fill structural attribute fields from the catalog's verified-live shape. Only

@@ -24,6 +24,7 @@ import {
   partitionOps,
   planTriggerOps,
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
+import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
@@ -1600,6 +1601,12 @@ export const TOOLS = [
       }
 
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      // Steps this edit ADDED were compiled through compile(), which already ran the
+      // update_contact_field actionType advisory via ctx.warn. `modifyStep` merges an
+      // attrPatch straight onto a stored step and never reaches the compiler, so the
+      // modified set is linted here — scoped to it, so pre-existing steps the caller did
+      // not touch stay out of the preview.
+      lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
       const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
         assumeAssociated: args.assumeAssociated === true,
       });
