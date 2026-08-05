@@ -47,7 +47,7 @@ never make live calls; the caller/executor attaches auth and issues the HTTP req
 | Conversation AI | `/ai-employees/*` | `POST /ai-employees/employees` | `PUT` **merges** partial bodies | `convai-compiler.mjs` |
 | Voice AI | `/voice-ai/*` | `POST /voice-ai/agents` (near-empty; server auto-generates a default) | `PUT ...?publishAgent=true&mode=update` **full-replace** | `voiceai-compiler.mjs` |
 | Agent Studio | `/agent-studio/super-agent/*` | `POST /agent-studio/super-agents/build` (NL-prompt, SSE) | `PUT /agent-studio/super-agent/agents/:id` **full-replace** | `studio-compiler.mjs` |
-| Knowledge Base (rich-text) | `/knowledge-base/rich-text/` | `POST` (async — response is `status:"training"`; poll until `"trained"`) | — | `kb-compiler.mjs` |
+| Knowledge Base (rich-text) | `/knowledge-base/rich-text/` | `POST` (async — response is `status:"training"`; poll until `"trained"`) | `PUT /knowledge-base/rich-text/:id` **full-replace**; send `content`, the server derives `contentMarkdown` and re-embeds automatically | `kb-compiler.mjs` |
 
 **Auth is `token-id`** (a Google `securetoken` JWT), **NOT** the workflow-builder's
 `Authorization: Bearer` scheme — this is a different, service-dependent auth surface.
@@ -78,6 +78,7 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 |---|---|
 | Conversation AI — create, read, delete, `humanHandOver` action | **Live-create-proven** (engine → internal API → real agent → verified → deleted) |
 | Knowledge Base — rich-text create | **Live-proven** |
+| Knowledge Base — rich-text **update** (`PUT /knowledge-base/rich-text/:id`) | **Live-proven 2026-08-05 (AU account):** validated on a throwaway doc in an unreferenced KB, then applied to a live 25-chunk document → re-read byte-identical, re-embedded to 31/31 chunks, `status: trained`. Full-replace; send `content`, the server derives `contentMarkdown`. |
 | Voice AI — agent create + full-replace update | **FULLY LIVE-PROVEN end-to-end (2026-07-21, GROM AU): create → full-replace update → verified re-read, `agentName` persisted, agent deleted.** `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` then applies the config. Three bugs had to be fixed to get here — see `mcp-internal/README.md` §"Live proof ledger — AI agent tools". |
 | Agent Studio — Super Agent create (SSE build) + full-replace update | **FULLY LIVE-PROVEN end-to-end (2026-07-21, GROM AU): SSE build → terminal `agent_saved`/`done` → follow-up PUT → verified re-read → `ok:true, verified:true`, canary deleted.** SSE is real (200 `text/event-stream`, ~16.5s, 757 chunks). ⚠️ Tool needs BOTH `systemPrompt` (IR) and `buildPrompt` (build message). Verification asserts only identity (name/systemPrompt) — triggers/actions are AI-generated, not asserted. |
 

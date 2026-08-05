@@ -51,6 +51,36 @@ export function compileRichTextDoc(doc, { locationId } = {}) {
   };
 }
 
+// PUT /knowledge-base/rich-text/:id — FULL-REPLACE update of an existing document.
+// Live-proven 2026-08-05 (AU account): validated on a throwaway document in an unreferenced
+// knowledge base, then applied to a live 25-chunk document, which re-read byte-identical to
+// the intended content.
+//
+// Three things the create path does NOT tell you:
+//   1. The body is the SAME shape as create ({locationId, knowledgeBaseId, title, content})
+//      and it REPLACES the document — there is no partial/merge form.
+//   2. Send `content` (HTML). The server re-derives `contentMarkdown` from it. Writing
+//      `contentMarkdown` directly is silently discarded, so an author who edits only the
+//      markdown gets a 200 and no change.
+//   3. It re-chunks and re-embeds automatically — no separate retrain call. The response
+//      returns `status:"training"`; poll `statusPoll` until `"trained"` exactly as for create.
+//      A 25-chunk document re-embedded in ~10s in the proving run.
+export function compileRichTextUpdate(id, doc, { locationId } = {}) {
+  if (typeof id !== 'string' || id.length === 0) throw new IRError('MISSING_FIELD', 'compileRichTextUpdate requires a non-empty id');
+  const norm = parseRichTextDocIR(doc);
+  const body = {
+    locationId,
+    knowledgeBaseId: norm.knowledgeBaseId,
+    title: norm.title,
+    content: norm.contentHtml,
+  };
+  return {
+    update: { method: 'PUT', path: `/knowledge-base/rich-text/${id}`, body },
+    statusPoll: { method: 'GET', path: `/knowledge-base/rich-text/${id}/status` },
+    authHeader: AUTH_HEADER,
+  };
+}
+
 // DELETE /knowledge-base/rich-text/:id (knowledge-base-internal.md's delete op).
 export function compileRichTextDelete(id) {
   if (typeof id !== 'string' || id.length === 0) throw new IRError('MISSING_FIELD', 'compileRichTextDelete requires a non-empty id');

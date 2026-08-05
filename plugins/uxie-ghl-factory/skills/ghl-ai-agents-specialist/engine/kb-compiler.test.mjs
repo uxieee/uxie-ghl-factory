@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compileRichTextDoc, compileRichTextDelete, compileKbTableUpload, compileKbFileUpload, AUTH_HEADER } from './kb-compiler.mjs';
+import { compileRichTextDoc, compileRichTextUpdate, compileRichTextDelete, compileKbTableUpload, compileKbFileUpload, AUTH_HEADER } from './kb-compiler.mjs';
 import { IRError } from './convai-ir.mjs';
 
 // Matches captures/knowledge-base-richtext.json's create request_body field-for-field.
@@ -59,6 +59,40 @@ test('compileRichTextDoc: empty-string title rejected', () => {
 test('compileRichTextDoc: missing knowledgeBaseId rejected', () => {
   const { knowledgeBaseId, ...noKb } = doc;
   assert.throws(() => compileRichTextDoc(noKb, { locationId: 'LOC' }), (e) => e.code === 'SCHEMA');
+});
+
+// PUT /knowledge-base/rich-text/:id — full-replace update, live-proven 2026-08-05.
+test('compileRichTextUpdate: builds a full-replace PUT with the create body shape', () => {
+  const { update, statusPoll, authHeader } = compileRichTextUpdate('HAphQ9LdSsQLLIsEElaj', doc, { locationId: 'wdzEoUZnXO9tB3PPzcot' });
+  assert.equal(update.method, 'PUT');
+  assert.equal(update.path, '/knowledge-base/rich-text/HAphQ9LdSsQLLIsEElaj');
+  assert.deepEqual(update.body, {
+    locationId: 'wdzEoUZnXO9tB3PPzcot',
+    knowledgeBaseId: 'tJdoJJkFGwqhsWKmHLEd',
+    title: 'TEST-CAP-KB',
+    content: doc.contentHtml,
+  });
+  // update re-embeds asynchronously exactly like create, so the caller still polls
+  assert.equal(statusPoll.method, 'GET');
+  assert.equal(statusPoll.path, '/knowledge-base/rich-text/HAphQ9LdSsQLLIsEElaj/status');
+  assert.equal(authHeader, 'ai');
+});
+
+// The server derives contentMarkdown from `content`; a body carrying only markdown would
+// 200 and change nothing. Guard that the compiler always emits `content`.
+test('compileRichTextUpdate: emits content (HTML), never contentMarkdown', () => {
+  const { update } = compileRichTextUpdate('ID', doc, { locationId: 'LOC' });
+  assert.ok('content' in update.body);
+  assert.ok(!('contentMarkdown' in update.body));
+});
+
+test('compileRichTextUpdate: requires a non-empty id', () => {
+  assert.throws(() => compileRichTextUpdate(undefined, doc, { locationId: 'LOC' }), (e) => e.code === 'MISSING_FIELD');
+  assert.throws(() => compileRichTextUpdate('', doc, { locationId: 'LOC' }), (e) => e.code === 'MISSING_FIELD');
+});
+
+test('compileRichTextUpdate: applies the same IR validation as create', () => {
+  assert.throws(() => compileRichTextUpdate('ID', { ...doc, contentHtml: '' }, { locationId: 'LOC' }), (e) => e instanceof IRError);
 });
 
 // Matches knowledge-base-internal.md's delete op: DELETE /knowledge-base/rich-text/:id
