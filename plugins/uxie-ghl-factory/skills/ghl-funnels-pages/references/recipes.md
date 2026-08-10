@@ -23,26 +23,35 @@ this file must first pass both gates in
 `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`.
 
 > ⚠️ **`autosave` saves a DRAFT — it does not publish.** Every write recipe here
-> lands on the draft and is served by the `/preview/{pageId}` URL, while the
-> **public URL keeps serving the previous content**. Publishing is a SEPARATE
-> call — recipe 7. See "Draft vs published" below before reporting any page live.
+> lands on the draft, while the **public URL keeps serving the previous content**.
+> Publishing is a SEPARATE call — recipe 7. See "Draft vs published" below before
+> reporting any page live.
 
-> 🔴 **A funnel built entirely through this API cannot currently be finished.** The
-> funnel document it produces is malformed in some way the builder rejects: the UI
-> detail view hangs on a spinner forever, and `autosave` 422s on the new page — so
-> there is no version to publish. **Build the funnel + first page through the UI, then
-> use these recipes to write content into it.** Full detail and the exact UI click-path
-> in §9 below. Live-confirmed on AU 2026-07-25.
+> 🟢 **Adding a step + page to an EXISTING funnel works end to end.** Proven live
+> 2026-08-10 on a real client funnel with a real custom domain attached — not a
+> probe funnel. The full order, all six steps required:
+>
+> `create-step` (§2) → `builder/autosave` (§4) → `builder/get-versions` (§7) →
+> `builder/publish-version` (§7) → **`funnel/funnel-page/{pageId}` (§10)** →
+> verify the **public URL**.
+>
+> **§10 is not optional** — without it the page is live, correct and unreachable
+> (see the two-paths warning in §10). This supersedes the previous banner here, which
+> claimed an API-created page "can never be published". That was wrong; §2 and §9
+> explain what the 422 actually was.
+
+> ⚠️ **`funnel/create` (§1) is still unproven** — the 2026-07-25 spinner-hang was
+> never re-tested. Create the **funnel** in the UI (§9 click-path); create its
+> **steps and pages** via these recipes.
 
 ## 0. Draft vs published — read before reporting a page shipped
 
 `POST /funnels/builder/autosave/{pageId}` returns `201` and writes the **draft**.
 That is the full extent of what every write recipe in this file does *except*
-recipe 7.
+recipes 7 and 10.
 
-- `https://<funnel-domain>/preview/{pageId}` → serves your new content immediately.
 - `https://<funnel-domain>/<funnel-path>/<page-path>` (the **public** URL) →
-  keeps serving the OLD content.
+  keeps serving the OLD content until you publish.
 
 This is a genuine publish gate, **not CDN cache**: the public URL was polled with
 cache-busted requests for 4+ minutes and never changed (observed live 2026-07-21).
@@ -51,10 +60,22 @@ Confirmed at the data layer 2026-07-19: an `autosave` creates a version stamped
 **`pageType: "draft"`** (visible via `GET /funnels/builder/get-versions?pageId=`).
 Publishing flips that same version to **`pageType: "live"`**.
 
-**Therefore:** a `201` from `autosave` plus a green `/preview/` check means *"the
-draft is correct"*, NOT *"the customer sees it"*. Verifying only the preview URL
-is how a push gets reported as succeeded while the customer still sees the old
-page. Finish the job with recipe 7, or say plainly that publishing is outstanding.
+**Therefore:** a `201` from `autosave` means *"the draft is correct"*, NOT *"the
+customer sees it"*. Finish the job with recipe 7, or say plainly that publishing is
+outstanding.
+
+### 🔴 `/preview/{pageId}` is not a verification route on a domained funnel
+
+`https://<funnel-domain>/preview/{pageId}` **301s to the funnel's first step** — even
+for a page that is published, correct and serving fine on its public URL. Live-observed
+2026-08-10. Earlier revisions of this file told you to verify against `/preview/`; on a
+domained funnel that produces a **false failure report**.
+
+**Verify on the public URL** (`https://<domain>/<funnel-path>/<page-path>`), and make
+sure the page path is the one you think it is — recipe 10.
+
+The old preview-vs-public split still describes the *draft* state on a funnel with no
+domain, but do not build a verification step on it.
 
 ---
 
@@ -89,13 +110,79 @@ back as `updated_by` on the version). It is **required** — omitting it 422s.
 (`GET /funnels/page/{pageId}`) mirrors it under `versionHistory[].pageType`.
 
 **Known limits:**
-- Proven at the DATA layer: the version flips `draft → live` and the page doc
-  agrees. The probe funnel had **no domain attached**, so serving-from-the-public-URL
-  was NOT separately confirmed. Verify the public URL on a funnel that has a domain
-  before telling a client the page is live.
+- ✅ **Serving from the public URL is CONFIRMED** (2026-08-10, on a funnel with a
+  real custom domain attached) — **conditional on the page path being right
+  (recipe 10)**. This closes the 2026-07-19 "no domain attached,
+  serving not confirmed" caveat that stood here.
+- Publishing is **not** the last step. A published page whose page path still carries
+  the `create-step` `-page` suffix is unreachable at the URL you expect. Run recipe 10,
+  then fetch the public URL.
+- Do **not** verify with `/preview/{pageId}` on a domained funnel — it 301s to the
+  funnel's first step even for a known-good page (§0).
 - Related endpoints on the same service, seen in the bundle but NOT exercised:
   `POST /funnels/builder/restore-version` (same `{pageId, versionId, userId}` shape)
   and `POST /funnels/builder/delete-version-history-data`.
+
+---
+
+## 10. Set the PAGE path (required — the public URL resolves this, not the step url)
+
+**Purpose:** set the path the public URL actually serves the page at. **This is a
+required final step of every create sequence**, not optional polish.
+
+**Status: live-proven 2026-08-10** on a real client funnel with a real custom domain
+attached. Endpoint captured from the UI's own request (gear on the control thumbnail →
+"Edit page details" → Save), not guessed.
+
+### 🔴 A funnel step has TWO paths
+
+| Thing | Where its path lives | Edited in the UI via |
+|---|---|---|
+| the **step** | `step.url`, set in the `create-step` payload (§2) | step settings |
+| the **page** (the CONTROL variation) | its own separate **Path** field | gear on the control thumbnail → "Edit page details" |
+
+**The PAGE path is the one the public URL resolves.** And `create-step`
+**auto-appends `-page`** to the page path it derives from `step.url`.
+
+So a step created with `url: "followup"` yields a page path of **`/followup-page`**,
+while **`/followup` 301s to the funnel's first step**. The page is live, correct and
+unreachable — a correct build that looks exactly like a broken publish.
+
+Corroborating evidence on the same funnel: the attendance step's `url` is
+`/attend-pagee` while its page path is `/attend` — and **`/attend` is the URL that
+serves**. The two drift apart freely; never infer one from the other.
+
+**Endpoint:** `POST /funnels/funnel/funnel-page/{pageId}`
+```json
+{ "url": "/followup", "name": "Follow-Up" }
+```
+`→ 201`
+
+**Required IDs:** `pageId` (server-assigned by `create-step`, §2). Note the funnel id
+and location id are **not** in this body — the path param carries the whole address.
+
+**Availability pre-check (what the UI does first):**
+```
+GET /funnels/funnel/funnel-step-page-url?name=&path=&type=page&domain=<funnel domain>
+```
+The UI fires this before the POST as an availability check. Captured as a request only —
+its **response shape was not recorded**, so do not branch on it. It is safe to skip the
+pre-check and rely on the POST, but if you do call it, treat any parse of its body as
+unverified.
+
+**Verification:** fetch the **public URL** `https://<domain>/<funnel-path>/<new-path>`
+and confirm your content (and that it is a `200`, not a `301` to the first step).
+`GET /funnels/page/{pageId}` also reflects the new `url`. **Do not verify with
+`/preview/{pageId}`** — §0.
+
+**Known limits:**
+- Proven for the CONTROL variation of a step. Split-test variations
+  (`split: true`, non-control pages) were not exercised — don't assume the same call
+  addresses them.
+- Only `url` and `name` were sent. Other "page details" fields the UI form exposes were
+  not captured; don't invent keys for them.
+- Whether this call needs a leading `/` is not independently tested — the captured
+  request sent `"/followup"`, with the slash. Send it the way the UI did.
 
 ---
 
@@ -145,12 +232,17 @@ uuid v4 (you generate this before calling create-step — the server does not).
 confirm the funnel doc exists with the name you set.
 
 **Known limits:**
-- 🔴 **The funnel this creates cannot be opened in the UI** — the detail view hangs
-  on a spinner indefinitely, while UI-created funnels in the same account open
+- ⚠️ **The funnel this creates could not be opened in the UI** — the detail view hung
+  on a spinner indefinitely, while UI-created funnels in the same account opened
   instantly. The call returns `201` and the funnel doc exists, so this looks like
-  success and is not. Combined with the page-save 422 in recipe 2, an
-  API-created funnel cannot be completed. **Create funnels through the UI (§9)**
-  and use these recipes to write into them. Live-confirmed on AU 2026-07-25.
+  success and is not. Live-observed on AU 2026-07-25 and **never re-tested since**.
+  **Create funnels through the UI (§9)** and use these recipes to write into them.
+  - Scope note (2026-08-10): the *other* half of the old conclusion — that the page
+    could then never be saved or published — **was wrong**, and was a body-shape
+    error in the caller (§2, §9). That correction does **not** clear this defect.
+    Whether the spinner-hang was the same caller mistake, a real malformed funnel
+    doc, or since fixed by GHL is **unknown**. Treat `funnel/create` as unproven
+    until someone re-runs it and opens the result in the UI.
 - `type` is only proven as `"funnel"` — no other value was tested; don't
   invent alternatives (e.g. a `"website"` type).
 - Proven live on GROM Digital AU (funnel `RipeI1dmKTAtdKQSbBVy`) — "proven" here
@@ -185,26 +277,38 @@ page object comes back with a server-assigned `_id` — that is your `pageId`.
 `GET /funnels/funnel/fetch/{funnelId}?locationId={loc}` and confirm the new
 step appears in the funnel's `steps[]` array (`{id,name,pages:[pageId],sequence,type,url}`).
 
+🔴 **`step.url` is NOT the page's public path.** `create-step` **auto-appends `-page`**
+to the page path it derives from `step.url` — a step created with `url: "followup"`
+yields a page at `/followup-page`, and `/followup` 301s to the funnel's first step.
+**Every `create-step` must be followed by recipe 10** to set the real page path, or the
+page ships live, correct and unreachable.
+
 **Known limits:**
 - `"optin_funnel_page"` is the only proven `step.type`. `pages: []` is sent
   empty in every proven call — its purpose beyond that isn't explored;
   don't invent contents for it.
-- Proven live (page `pWOizhNP5hBqHtVNLgfu`).
-- 🔴 **The page this creates cannot be saved to.** `POST /funnels/builder/autosave/{pageId}`
-  **422s** on it — including when the body is a byte-for-byte echo of the page's
-  own `GET /funnels/builder/page/data?pageId=` response, unmodified. No autosave
-  means no version, and `publish-version` has nothing to target, so **an
-  API-created page can never be published**. Live-confirmed on AU 2026-07-25.
-  Create the step through the UI instead (§9).
-- This CORRECTS the previous guidance here, which said to start from a real
-  `page/data` response "either the new page's own, or a known-good existing
-  page". The new page's own data is exactly the case that fails. If you are
-  writing content, the source page must be a **known-good EXISTING page** —
-  and the target page must be one the UI created.
-- The freshly created page's *default* section/row/col skeleton was never
-  independently exercised, and the 422 above is the likely reason: the
-  skeleton appears to be missing something the save validator requires.
-  Treat "build a page's content from nothing but this recipe" as unproven.
+- Proven live (page `pWOizhNP5hBqHtVNLgfu`; re-proven end to end 2026-08-10 on a
+  client funnel with a real custom domain).
+- ✅ **The page this creates CAN be saved to and published.** This corrects the
+  previous entry here, which said `autosave` 422s on an API-created page — including
+  on an unmodified echo of its own `page/data` — and concluded that **"an API-created
+  page can never be published"**. That conclusion was **wrong**.
+  - The 422 is a plain **body-shape** error, and its message says so:
+    `pageData should not be empty, pageVersion should not be empty`.
+  - `autosave` does **not** accept a `page/data` response directly. It wants the
+    **recipe-4 envelope**: `{funnelId, pageData:{sections, settings, general,
+    pageStyles, trackingCode, fontsForPreview, popups, popupsList},
+    pageVersion:<int>, pageType:"draft", manualSave:true, integrations:{…}}`.
+    A raw `page/data` echo fails because **the wrapper is missing**, not because the
+    page is malformed.
+  - Wrapped correctly, `autosave` returns `201` on a page created **seconds earlier**
+    by `create-step`. Live-proven 2026-08-10.
+- Consequently the old advice that a content source "must be a known-good EXISTING
+  page, and the target must be one the UI created" is **withdrawn**. The new page's own
+  `page/data` is a fine source — wrap it before you send it.
+- Still unexercised: the freshly created page's *default* section/row/col skeleton as
+  a basis for building content from nothing. The 2026-08-10 proof wrapped real
+  `pageData`; "build a page's content from nothing but this recipe" remains unproven.
 
 ---
 
@@ -283,16 +387,22 @@ page): for each `section` in `pageData.sections`:
 
 **Required IDs:** `pageId`, `funnelId` (both from recipes 1–2); a source
 `pageData` to clone (either the new page's own current data, or an existing
-known-good page's structure).
+known-good page's structure) — **wrapped in the envelope above**, which is the
+whole of what the old "API-created pages 422" finding actually was (§2).
 
-**Verification:** fetch the live rendered preview,
-`https://<funnel-domain>/preview/{pageId}?z=<cache-bust>`, and confirm (a)
-your HTML/marker is present in the response, and (b) the section/content
+**Verification:** publish first (recipe 7), set the page path (recipe 10), then fetch
+the **public URL** `https://<domain>/<funnel-path>/<page-path>?z=<cache-bust>` and
+confirm (a) your HTML/marker is present in the response, and (b) the section/content
 elements measure `0,0` padding (i.e. edge-to-edge).
 
-This verifies the **draft only**. To report on what the customer sees, fetch the
-**public** URL too and state the result explicitly — an unchanged public URL is
-expected here, not a failure (§0).
+🔴 **Do not verify with `https://<funnel-domain>/preview/{pageId}`.** Earlier revisions
+of this recipe told you to, and on a **domained** funnel that is a false-failure trap:
+preview **301s to the funnel's first step** even for a known-good published page
+(live-observed 2026-08-10, §0).
+
+If you have only saved the draft and not published, say so plainly — an unchanged public
+URL at that point is expected, not a failure (§0). Do not report the page as shipped off
+the `201`.
 
 **Known limits:**
 - Proven end-to-end for a page whose entire body is a single `c-custom-code`
@@ -342,8 +452,9 @@ of a funnel at once (analytics snippets, global custom markup).
 **Verification:** `GET /funnels/funnel/fetch/{funnelId}?locationId={loc}` and
 confirm `trackingCodeHead`/`trackingCodeBody` match verbatim what you sent
 (these two field names come directly from the funnel-doc shape documented in
-recipe 3) — or fetch any page in the funnel's rendered preview and confirm
-the markup appears in `<head>`/before `</body>`.
+recipe 3) — or fetch any **published** page of the funnel at its **public URL** and
+confirm the markup appears in `<head>`/before `</body>`. Do not use `/preview/{pageId}`
+on a domained funnel (§0).
 
 **Known limits:**
 - 🔴 **Empty strings are IGNORED, not applied.** Sending `domainId: ""` and
@@ -386,10 +497,14 @@ that page only.
 first (recipe 3) and only replace `trackingCode`; leave `sections`, `settings`,
 etc. as read.
 
-**Verification:** fetch the page's rendered preview and confirm the
-injected markers are present in `<head>` and before `</body>` respectively
-(the proven script polls the live preview URL and checks
-`indexOf(marker) < indexOf("</head>")` / `< lastIndexOf("</body>")`).
+**Verification:** publish (recipe 7), confirm the page path (recipe 10), then fetch the
+**public URL** and confirm the injected markers are present in `<head>` and before
+`</body>` respectively — the check the proven script runs is
+`indexOf(marker) < indexOf("</head>")` / `< lastIndexOf("</body>")`.
+
+⚠️ That script polled the **preview** URL, which was valid on the domainless probe
+funnel it was written against but is a **false-failure trap on a domained funnel**
+(§0). Point the same assertion at the public URL.
 
 **Known limits:** same `pageVersion` gotcha as recipe 4.
 
@@ -435,8 +550,9 @@ auth step above):**
    current `pageData` unchanged) to force GHL to re-render the preview,
    which reads `meta` fresh at render time.
 
-**Verification (if ever run):** fetch the rendered preview and confirm
-title/description/keywords appear in the served `<head>`.
+**Verification (if ever run):** fetch the published page at its **public URL** and
+confirm title/description/keywords appear in the served `<head>`. (`/preview/{pageId}`
+is not reliable on a domained funnel — §0.)
 
 **Known limits:**
 - Genuinely needs two different tokens — the only recipe in this file that
@@ -446,39 +562,49 @@ title/description/keywords appear in the served `<head>`.
 
 ---
 
-## 9. 🔴 API-created funnels are MALFORMED — build through the UI
+## 9. Create the FUNNEL in the UI; create its STEPS and PAGES via the API
 
-**All findings in this section live-confirmed on AU 2026-07-25.**
+**Superseded in part on 2026-08-10.** This section previously read "🔴 API-created
+funnels are MALFORMED" and asserted four compounding defects. **Two of the four were
+wrong** — they were one body-shape mistake in the caller, restated twice. The corrected
+status:
 
-Standing up a funnel purely through recipes 1 + 2 produces a funnel document the
-builder will not work with. Four separate defects compound into one conclusion:
-**the create path is not usable end to end today.**
+| # | Original claim (2026-07-25) | Status |
+|---|---|---|
+| 1 | `POST /funnels/funnel/create` produces a funnel the UI cannot render — detail view hangs on a spinner indefinitely, while UI-created funnels open instantly. | ⚠️ **STANDS, un-retested.** Not reproduced or refuted since. Create funnels in the UI. |
+| 2 | `POST /funnels/builder/autosave/{pageId}` **422s** on a new page, even on an unmodified echo of its own `page/data`. | ❌ **WRONG.** The 422 is a body-shape error (`pageData should not be empty, pageVersion should not be empty`) — `autosave` needs the **recipe-4 envelope**, and a raw `page/data` echo lacks the wrapper. Wrapped, it `201`s on a page created seconds earlier by `create-step`. |
+| 3 | No autosave → no version → **"an API-created page can never be published."** | ❌ **WRONG**, and downstream of #2. The full sequence §2 → §4 → §7 → §10 → public URL is live-proven 2026-08-10 on a domained funnel. |
+| 4 | `POST /funnels/funnel/update-settings` silently ignores empty strings (recipe 5a). | ✅ **STANDS.** Fields cannot be cleared; `chatWidgetId: ""` never attaches or detaches a widget. |
+
+**The lesson worth keeping:** #2 and #3 were shipped as a hard "impossible" on the
+strength of a 422 whose own message named the cause. A 4xx that names two missing body
+fields is a **caller** defect until the body is proven correct — read the error text
+before concluding the platform is broken.
+
+New defects found 2026-08-10, not in the original table:
 
 | # | Defect | Effect |
 |---|---|---|
-| 1 | `POST /funnels/funnel/create` + `create-step` produces a funnel the UI cannot render — the detail view hangs on a spinner indefinitely. UI-created funnels in the same account open instantly. | The funnel is unusable in the app. |
-| 2 | `POST /funnels/builder/autosave/{pageId}` **422s** on the new page, even when the body is an unmodified echo of that page's own `GET /funnels/builder/page/data?pageId=` response. | No draft version is ever created. |
-| 3 | No autosave means no version, and `publish-version` targets a **version**. | **An API-created page can never be published.** |
-| 4 | `POST /funnels/funnel/update-settings` silently ignores empty strings (recipe 5a). | Fields cannot be cleared; `chatWidgetId: ""` never attaches or detaches a widget. |
+| 5 | A step's `url` and its CONTROL page's Path are **two different paths**, and `create-step` auto-appends `-page` to the page path. | The public URL 301s to the funnel's first step. Page is live, correct, unreachable. **Fix with recipe 10.** |
+| 6 | `/preview/{pageId}` 301s to the funnel's first step on a **domained** funnel, even for a known-good page. | Preview-based verification reports a **false failure**. Verify on the public URL (§0). |
 
-Defects 1 and 2 are very likely the same root cause: the API-created documents are
-missing something the builder and the save validator both require. What that is has
-**not** been identified — do not guess at it by diffing an API-created page against a
-UI-created one and inventing fields; that is how the wrong conclusion gets shipped.
-Until a committed capture proves the missing piece, use the UI path.
+### The UI path for the funnel container (defect 1 stands)
 
-### The UI path, which works end to end
+Only the funnel container needs this. The minimum:
 
 `Sites → Funnels → New funnel → From blank`
 → funnel renders correctly
-→ `Add new step or import` (give it a name + path)
 → funnel `Settings` tab → pick **Domain** from the dropdown → pick **Chat widget** → Save
-→ step `Overview` → `Create from blank` → opens `/location/{loc}/page-builder/{pageId}`
-   (an iframe named `funnel-builder`)
-→ Publish.
 
-Once the funnel and its first page exist this way, recipes 3–7 work against them
-normally: read `page/data`, mutate, `autosave`, `publish-version`.
+Once a healthy funnel exists, **every step and page under it can be built via the API**:
+`create-step` (§2) → `autosave` (§4) → `get-versions` + `publish-version` (§7) →
+`funnel-page/{pageId}` (§10) → verify the public URL. Live-proven 2026-08-10.
+
+The rest of the old click-path is still the correct **manual** route if you want it:
+`Add new step or import` (name + path) → step `Overview` → `Create from blank` → opens
+`/location/{loc}/page-builder/{pageId}` (an iframe named `funnel-builder`) → Publish.
+The gear on the control thumbnail → **"Edit page details"** is the UI equivalent of
+recipe 10, and is where that endpoint was captured.
 
 ### Chat widgets
 
