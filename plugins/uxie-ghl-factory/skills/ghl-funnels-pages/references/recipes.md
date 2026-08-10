@@ -32,17 +32,18 @@ this file must first pass both gates in
 > probe funnel. The full order, all six steps required:
 >
 > `create-step` (§2) → `builder/autosave` (§4) → `builder/get-versions` (§7) →
-> `builder/publish-version` (§7) → **`funnel/funnel-page/{pageId}` (§10)** →
-> verify the **public URL**.
+> `builder/publish-version` (§7) → **§10's THREE path calls** → verify the **public URL**.
 >
-> **§10 is not optional** — without it the page is live, correct and unreachable
-> (see the two-paths warning in §10). This supersedes the previous banner here, which
-> claimed an API-created page "can never be published". That was wrong; §2 and §9
-> explain what the 422 actually was.
+> **§10 is not optional, and it is not one call.** The public URL is resolved from the
+> `funnel_lookup` routing table, not from the page doc — so setting the page doc's url
+> alone leaves the live route on the old path, silently. §10 has the model and the
+> sequence. This supersedes the previous banner, which claimed an API-created page
+> "can never be published"; that was wrong (§2, §9).
 
-> ⚠️ **`funnel/create` (§1) is still unproven** — the 2026-07-25 spinner-hang was
-> never re-tested. Create the **funnel** in the UI (§9 click-path); create its
-> **steps and pages** via these recipes.
+> ✅ **`funnel/create` (§1) retested 2026-08-10 — the spinner-hang did NOT reproduce.**
+> The funnel opened in the UI instantly and fully interactive. Failure-to-reproduce is
+> not proof the original was false (§1 states the limit), but there is no longer a known
+> reason to route funnel creation to the UI.
 
 ## 0. Draft vs published — read before reporting a page shipped
 
@@ -66,10 +67,12 @@ outstanding.
 
 ### 🔴 `/preview/{pageId}` is not a verification route on a domained funnel
 
-`https://<funnel-domain>/preview/{pageId}` **301s to the funnel's first step** — even
-for a page that is published, correct and serving fine on its public URL. Live-observed
-2026-08-10. Earlier revisions of this file told you to verify against `/preview/`; on a
-domained funnel that produces a **false failure report**.
+`https://<funnel-domain>/preview/{pageId}` **does not serve the page.** Observed twice on
+2026-08-10, with two different failure shapes on two different accounts: a **301 to the
+funnel's first step** on one, and a plain **404** on GROM AU (`aus.gromdigital.com` and
+`go.gromdigital.com`, both for pages that were serving fine on their public URL). Either
+way it is not a verification route. Earlier revisions of this file told you to verify
+against `/preview/`; on a domained funnel that produces a **false failure report**.
 
 **Verify on the public URL** (`https://<domain>/<funnel-path>/<page-path>`), and make
 sure the page path is the one you think it is — recipe 10.
@@ -117,72 +120,104 @@ back as `updated_by` on the version). It is **required** — omitting it 422s.
 - Publishing is **not** the last step. A published page whose page path still carries
   the `create-step` `-page` suffix is unreachable at the URL you expect. Run recipe 10,
   then fetch the public URL.
-- Do **not** verify with `/preview/{pageId}` on a domained funnel — it 301s to the
-  funnel's first step even for a known-good page (§0).
+- Do **not** verify with `/preview/{pageId}` on a domained funnel — it 404s or 301s
+  depending on the account, even for a known-good page (§0).
 - Related endpoints on the same service, seen in the bundle but NOT exercised:
   `POST /funnels/builder/restore-version` (same `{pageId, versionId, userId}` shape)
   and `POST /funnels/builder/delete-version-history-data`.
 
 ---
 
-## 10. Set the PAGE path (required — the public URL resolves this, not the step url)
+## 10. Set a page's public path — THREE calls, not one
 
-**Purpose:** set the path the public URL actually serves the page at. **This is a
-required final step of every create sequence**, not optional polish.
+**Purpose:** change the path the public URL serves a page at.
 
-**Status: live-proven 2026-08-10** on a real client funnel with a real custom domain
-attached. Endpoint captured from the UI's own request (gear on the control thumbnail →
-"Edit page details" → Save), not guessed.
+**Status: live-proven on GROM AU 2026-08-10**, captured from the UI's own requests
+(gear on the control thumbnail → "Edit page details" → Save) with a full non-GET
+network observer. ⚠️ **This recipe was published on 2026-08-10 with only the third call
+and was WRONG** — the page doc updated and the public URL did not move. Corrected the
+same day.
 
-### 🔴 A funnel step has TWO paths
+### The routing model — read this first
 
-| Thing | Where its path lives | Edited in the UI via |
+The public URL is **not** resolved from the page doc's `url` field. It is resolved from
+a separate routing collection, `funnel_lookup`, which holds **one row per entity**:
+
+```
+GET /funnels/lookup/type/{entityId}
+  → { data: { _id, path, pathLowercase, type, typeId, domain, funnelId, locationId, steps[], ... } }
+```
+
+Live on one funnel, all three rows on the same domain:
+
+| `type` | `typeId` | `path` | serves? |
+|---|---|---|---|
+| `funnel` | funnelId | `/zz-test-chat` | 200 |
+| `step`   | stepId (the uuid you generated) | `/chat` | 200 |
+| `page`   | pageId | `/chat-final` | 200 |
+
+**So the step url and the page path are BOTH live aliases for the same page** — they are
+independent rows, and both 200. A path with no row 404s (`/bogus-zz-9999` → 404, so the
+domain is not a catch-all).
+
+> ⚠️ An earlier version of this section said "the PAGE path is the one the public URL
+> resolves, not the step url". That is **not** what a settled funnel shows: on an
+> untouched two-step funnel, step `/pilotprogram/book` and page `/book/pilotprogram-page`
+> both returned 200 with the **same** `<title>`. Treat them as aliases.
+
+### The sequence
+
+1. **Read the lookup row** to get its id:
+   `GET /funnels/lookup/type/{pageId}` → `data._id` is the `lookupId`.
+2. **Move the route** — this is the call that changes what the public URL serves:
+   `PUT /funnels/lookup/{lookupId}` body `{"path":"/new-path"}` → `200`
+3. **Update the page doc** so the builder and page metadata agree:
+   `POST /funnels/funnel/funnel-page/{pageId}` body `{"url":"/new-path","name":"<page name>"}` → `201`
+
+🔴 **Step 3 alone is the trap.** Firing only the POST updates `GET /funnels/page/{pageId}`
+to the new url while the public URL **keeps serving the old path** — proven by polling
+for 2 minutes: page doc read `/chat-page`, the live 200 was still the previous path, and
+`/chat-page` itself returned 404 the whole time. The page doc and the live route diverge
+**silently**, and nothing in the response tells you.
+
+### Availability pre-check — and the `ok` trap
+
+```
+GET /funnels/funnel/funnel-step-page-url?name=<name>&path=<urlencoded>&type=page&domain=<funnel domain>
+  → 200 { "uniqueUrl": "/what-you-will-actually-get", "ok": true, "traceId": "..." }
+```
+
+🔴 **`ok: true` does NOT mean the path is free.** It came back `true` for a path that was
+already taken. The real signal is **whether `uniqueUrl` equals the path you asked for**:
+
+| asked | `uniqueUrl` | meaning |
 |---|---|---|
-| the **step** | `step.url`, set in the `create-step` payload (§2) | step settings |
-| the **page** (the CONTROL variation) | its own separate **Path** field | gear on the control thumbnail → "Edit page details" |
+| `/definitely-free-xyz-123` | `/definitely-free-xyz-123` | free |
+| `/chat` (taken) | `/chat-359115` | taken — server offers a suffixed alternative |
+| `/zz-probe-path` (taken) | `/zz-probe-path-974500` | taken |
 
-**The PAGE path is the one the public URL resolves.** And `create-step`
-**auto-appends `-page`** to the page path it derives from `step.url`.
+The dedup suffix is a **random 6-digit number**, not `-page`. A real funnel carries
+`/book/pilotprogram-page-147917`, which is this mechanism's fingerprint. This is a
+**different** mechanism from `create-step`'s `-page` suffix (§2) — do not conflate them.
 
-So a step created with `url: "followup"` yields a page path of **`/followup-page`**,
-while **`/followup` 301s to the funnel's first step**. The page is live, correct and
-unreachable — a correct build that looks exactly like a broken publish.
+**Required IDs:** `pageId`, plus the `lookupId` from step 1. Neither funnelId nor
+locationId appears in any of the three bodies.
 
-Corroborating evidence on the same funnel: the attendance step's `url` is
-`/attend-pagee` while its page path is `/attend` — and **`/attend` is the URL that
-serves**. The two drift apart freely; never infer one from the other.
-
-**Endpoint:** `POST /funnels/funnel/funnel-page/{pageId}`
-```json
-{ "url": "/followup", "name": "Follow-Up" }
-```
-`→ 201`
-
-**Required IDs:** `pageId` (server-assigned by `create-step`, §2). Note the funnel id
-and location id are **not** in this body — the path param carries the whole address.
-
-**Availability pre-check (what the UI does first):**
-```
-GET /funnels/funnel/funnel-step-page-url?name=&path=&type=page&domain=<funnel domain>
-```
-The UI fires this before the POST as an availability check. Captured as a request only —
-its **response shape was not recorded**, so do not branch on it. It is safe to skip the
-pre-check and rely on the POST, but if you do call it, treat any parse of its body as
-unverified.
-
-**Verification:** fetch the **public URL** `https://<domain>/<funnel-path>/<new-path>`
-and confirm your content (and that it is a `200`, not a `301` to the first step).
-`GET /funnels/page/{pageId}` also reflects the new `url`. **Do not verify with
-`/preview/{pageId}`** — §0.
+**Verification:** fetch the **public URL** and confirm `200` plus your content. ⚠️ The
+page doc read-back is **stale for a few seconds** after the POST — an immediate
+`GET /funnels/page/{pageId}` returned the OLD url, and the correct one seconds later.
+Do not conclude the write failed from one immediate read (same trap as `funnel/list`
+after a delete, §8). Do **not** verify with `/preview/{pageId}` (§0).
 
 **Known limits:**
-- Proven for the CONTROL variation of a step. Split-test variations
-  (`split: true`, non-control pages) were not exercised — don't assume the same call
-  addresses them.
-- Only `url` and `name` were sent. Other "page details" fields the UI form exposes were
-  not captured; don't invent keys for them.
-- Whether this call needs a leading `/` is not independently tested — the captured
-  request sent `"/followup"`, with the slash. Send it the way the UI did.
+- Proven for the CONTROL variation. Split-test variations were not exercised.
+- Only `path` was sent to the PUT, and only `url` + `name` to the POST. Other fields on
+  either document were not exercised — don't invent keys.
+- Retiring a path is not instant: a replaced path kept serving `200` for a short window
+  before going `404`. Don't treat an old URL still answering as a failed change.
+- A page in a funnel with **no domain attached** has **no lookup row at all**
+  (`GET /funnels/lookup/type/{pageId}` → `404`). Routing rows appear to be created per
+  domain, so this recipe only applies once the funnel has a domain.
 
 ---
 
@@ -232,17 +267,19 @@ uuid v4 (you generate this before calling create-step — the server does not).
 confirm the funnel doc exists with the name you set.
 
 **Known limits:**
-- ⚠️ **The funnel this creates could not be opened in the UI** — the detail view hung
-  on a spinner indefinitely, while UI-created funnels in the same account opened
-  instantly. The call returns `201` and the funnel doc exists, so this looks like
-  success and is not. Live-observed on AU 2026-07-25 and **never re-tested since**.
-  **Create funnels through the UI (§9)** and use these recipes to write into them.
-  - Scope note (2026-08-10): the *other* half of the old conclusion — that the page
-    could then never be saved or published — **was wrong**, and was a body-shape
-    error in the caller (§2, §9). That correction does **not** clear this defect.
-    Whether the spinner-hang was the same caller mistake, a real malformed funnel
-    doc, or since fixed by GHL is **unknown**. Treat `funnel/create` as unproven
-    until someone re-runs it and opens the result in the UI.
+- ✅ **RETESTED 2026-08-10 — the UI spinner-hang does NOT reproduce.** A funnel created
+  by this call on GROM AU opened in the UI **instantly and fully interactive**: title,
+  Steps/Stats/Sales/Security/Events/Settings tabs, the step list, the CONTROL panel with
+  "Use existing"/"Create from blank", and the correct "Please add a domain in the
+  settings to see your Funnel live!" notice. A step created into it via §2 also rendered.
+  The 2026-07-25 observation that this endpoint yields a funnel the UI cannot render is
+  therefore **not reproducible today**.
+  - Honest limit: a failure to reproduce is **not** proof the original observation was
+    false. Whether GHL fixed it, or it was environmental, or the original was a caller
+    artefact, is **unknown**. What is established is that `funnel/create` +
+    `create-step` produced a fully usable funnel on 2026-08-10.
+  - Test artefact kept per instruction, NOT deleted:
+    `ZZ TEST funnel-create probe 2026-08-10 (safe to keep)`.
 - `type` is only proven as `"funnel"` — no other value was tested; don't
   invent alternatives (e.g. a `"website"` type).
 - Proven live on GROM Digital AU (funnel `RipeI1dmKTAtdKQSbBVy`) — "proven" here
@@ -277,11 +314,14 @@ page object comes back with a server-assigned `_id` — that is your `pageId`.
 `GET /funnels/funnel/fetch/{funnelId}?locationId={loc}` and confirm the new
 step appears in the funnel's `steps[]` array (`{id,name,pages:[pageId],sequence,type,url}`).
 
-🔴 **`step.url` is NOT the page's public path.** `create-step` **auto-appends `-page`**
-to the page path it derives from `step.url` — a step created with `url: "followup"`
-yields a page at `/followup-page`, and `/followup` 301s to the funnel's first step.
-**Every `create-step` must be followed by recipe 10** to set the real page path, or the
-page ships live, correct and unreachable.
+🔴 **`step.url` is NOT the page's path.** `create-step` **auto-appends `-page`** to the
+page path it derives from `step.url`. Re-proven from scratch 2026-08-10: sent
+`step.url: "followup"` → funnel doc step url `/followup`, page doc url **`/followup-page`**.
+Two other funnels in the same account show the same fingerprint (`/chat` → `/chat-page`).
+The suffix is the literal string `-page`, NOT the random dedup number from §10.
+
+**Every `create-step` whose page must answer on a chosen path must be followed by
+recipe 10 — all THREE of its calls.** The page doc's url alone does not route.
 
 **Known limits:**
 - `"optin_funnel_page"` is the only proven `step.type`. `pages: []` is sent
@@ -571,7 +611,7 @@ status:
 
 | # | Original claim (2026-07-25) | Status |
 |---|---|---|
-| 1 | `POST /funnels/funnel/create` produces a funnel the UI cannot render — detail view hangs on a spinner indefinitely, while UI-created funnels open instantly. | ⚠️ **STANDS, un-retested.** Not reproduced or refuted since. Create funnels in the UI. |
+| 1 | `POST /funnels/funnel/create` produces a funnel the UI cannot render — detail view hangs on a spinner indefinitely, while UI-created funnels open instantly. | ❌ **DID NOT REPRODUCE 2026-08-10.** Retested on GROM AU: the API-created funnel opened instantly and fully interactive, and an API-created step in it rendered. Not proof the original was false — cause unknown — but no known reason remains to route funnel creation to the UI. |
 | 2 | `POST /funnels/builder/autosave/{pageId}` **422s** on a new page, even on an unmodified echo of its own `page/data`. | ❌ **WRONG.** The 422 is a body-shape error (`pageData should not be empty, pageVersion should not be empty`) — `autosave` needs the **recipe-4 envelope**, and a raw `page/data` echo lacks the wrapper. Wrapped, it `201`s on a page created seconds earlier by `create-step`. |
 | 3 | No autosave → no version → **"an API-created page can never be published."** | ❌ **WRONG**, and downstream of #2. The full sequence §2 → §4 → §7 → §10 → public URL is live-proven 2026-08-10 on a domained funnel. |
 | 4 | `POST /funnels/funnel/update-settings` silently ignores empty strings (recipe 5a). | ✅ **STANDS.** Fields cannot be cleared; `chatWidgetId: ""` never attaches or detaches a widget. |
@@ -586,11 +626,13 @@ New defects found 2026-08-10, not in the original table:
 | # | Defect | Effect |
 |---|---|---|
 | 5 | A step's `url` and its CONTROL page's Path are **two different paths**, and `create-step` auto-appends `-page` to the page path. | The public URL 301s to the funnel's first step. Page is live, correct, unreachable. **Fix with recipe 10.** |
-| 6 | `/preview/{pageId}` 301s to the funnel's first step on a **domained** funnel, even for a known-good page. | Preview-based verification reports a **false failure**. Verify on the public URL (§0). |
+| 6 | `/preview/{pageId}` does not serve — **301** to the first step on one account, **404** on another, both for pages serving fine publicly. | Preview-based verification reports a **false failure**. Verify on the public URL (§0). |
+| 7 | The public URL resolves from the **`funnel_lookup`** routing table (one row per funnel/step/page), NOT from the page doc's `url`. | `POST funnel-page/{pageId}` alone updates the page doc while the live route keeps the old path, **silently**. Recipe 10 needs all three calls. |
+| 8 | `funnel-step-page-url` returns **`ok: true` for a path that is already taken**. | Reading `ok` as availability is always wrong; compare `uniqueUrl` to what you asked (§10). |
 
-### The UI path for the funnel container (defect 1 stands)
+### The UI path for the funnel container (optional since defect 1 stopped reproducing)
 
-Only the funnel container needs this. The minimum:
+Still the safest route if you want a human to pick the domain. The minimum:
 
 `Sites → Funnels → New funnel → From blank`
 → funnel renders correctly
