@@ -59,6 +59,14 @@ function marketplaceAttributes(node, ctx) {
   // meta.attrKeys the way the native path is — that gate reads the native catalog, which
   // by definition does not describe a third-party app.
   out.type = node.type;
+  // The native path injects __customInputs__ via normalizeAttrs when the catalog
+  // says usesCustomInputs — marketplace bypasses that path entirely (there is no
+  // native catalog meta for a third-party type), so it must inject its own copy.
+  // Live-confirmed 2026-08-16 (Jing Spa): the stored step carries
+  // attributes.__customInputs__ = {} even though the app's own `inputs` list never
+  // declares that key. Only fill when the author left it out — never clobber an
+  // author-supplied value.
+  if (out.__customInputs__ === undefined) out.__customInputs__ = {};
 
   const blank = (v) => v === undefined || v === null
     || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0);
@@ -1412,6 +1420,20 @@ export function compile(ir, ctx) {
 
   // situational injection (catalog-gated); parent/sibling/nodeType already set structurally
   let stepIndex = 0;
+  // Marketplace stepIndex is a SEPARATE, DELIBERATELY DIFFERENT rule from the premium
+  // stepIndex just above — do not "unify" them.
+  //   - premium stepIndex: a single GLOBAL running index over every template in the
+  //     workflow, gated by the native catalog's `premium` flag.
+  //   - marketplace stepIndex: a PER-ACTION-KEY, 1-based occurrence counter — the Nth
+  //     time THIS key appears, not the Nth template overall. Two different marketplace
+  //     keys interleaved must NOT share a counter (a wait_step between two
+  //     send_outbound_whatsapp_message steps does not consume a WhatsApp slot).
+  // Live-confirmed 2026-08-16 (Jing Spa): the one send_outbound_whatsapp_message step
+  // carries stepIndex:1 and workflow.meta.stepIndexCounter reads
+  // {send_outbound_whatsapp_message: 1} — same counter, recorded twice: running on the
+  // step, final tally at workflow level. marketplaceStepIndexCounter below feeds both
+  // t.stepIndex here AND autoSaveBody.meta.stepIndexCounter further down.
+  const marketplaceStepIndexCounter = new Map();
   for (const t of templates) {
     const meta = ctx.catalog.step(t.type);
     if (meta && meta.situational?.includes('workflowsActionType') && !('workflowsActionType' in t))
@@ -1421,6 +1443,14 @@ export function compile(ir, ctx) {
     // custom_webhook, custom_code, ai_agent, chatgpt, google_sheets, the *_formatter
     // family, appointment_booking, find_or_create_contact, conversationai_objective.
     if (meta?.premium && !('stepIndex' in t)) t.stepIndex = stepIndex;
+    // A marketplace type is never in the native catalog (meta is undefined above), so
+    // the premium branch never fires for it — this is why marketplace needs its own
+    // rule rather than reusing `meta?.premium`.
+    if (t.isMarketplaceAction === true && !('stepIndex' in t)) {
+      const next = (marketplaceStepIndexCounter.get(t.type) ?? 0) + 1;
+      marketplaceStepIndexCounter.set(t.type, next);
+      t.stepIndex = next;
+    }
     stepIndex += 1;
   }
 
@@ -1457,6 +1487,13 @@ export function compile(ir, ctx) {
     autoSaveSession: { workflowId: wid, id: sessionId, userId: ctx.uid, version: 1 },
     createdSteps, modifiedSteps: [], deletedSteps: [],
     workflowData: { templates },
+    // Only present when the workflow actually HAS marketplace steps — a native-only
+    // build must emit exactly the autoSaveBody it emitted before this fix, with no new
+    // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
+    // above for what this map records and why it's per-key.
+    ...(marketplaceStepIndexCounter.size > 0
+      ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter) } }
+      : {}),
   };
 
   const triggerBodies = norm.triggers.map((t) => buildTrigger(t, ctx, wid));
