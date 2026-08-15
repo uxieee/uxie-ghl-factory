@@ -18,7 +18,7 @@ import {
 } from './audit-configuration.mjs';
 import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
-import { fetchActionSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
+import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
   applyOps,
   partitionOps,
@@ -832,23 +832,29 @@ export const TOOLS = [
       const triggerList = Array.isArray(trg?.json) ? trg.json : (trg?.json?.triggers ?? trg?.json?.data ?? []);
       const triggerTypes = triggerList.map((t) => t?.type).filter(Boolean);
 
-      const actionSchema = await fetchActionSchema((m, p) => gw.call(m, p), args.locationId);
-      if (!actionSchema) {
+      // One fetch, two SEPARATE maps — parseActionSchema and parseTriggerSchema never
+      // share a namespace (a real observed collision, `contact_engagement_score`, exists
+      // as both an action and a trigger in the live catalog; see parseActionSchema's
+      // docstring). Same request the tool always made — zero new network calls.
+      let actionSchema = null;
+      let triggerSchema = null;
+      try {
+        const assetsResp = await gw.call('GET',
+          `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+        if (assetsResp?.ok && assetsResp.json) {
+          actionSchema = parseActionSchema(assetsResp.json);
+          triggerSchema = parseTriggerSchema(assetsResp.json);
+        }
+      } catch {
+        actionSchema = null;
+      }
+      if (!actionSchema || !actionSchema.size) {
         return fail(CODES.VALIDATION_FAILED,
           'Could not fetch the action schema, so no check was performed.',
           'Retry; if it persists the assets endpoint may be unavailable for this location.');
       }
 
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
-      // Steps are actions, never triggers — but actionSchema now also carries trigger
-      // entries (parseActionSchema merges assets.triggers into the same map, so
-      // marketplaceDrift's trigger lookups work). Exclude kind:'trigger' entries here so a
-      // step type that happened to collide with a trigger key can never inflate
-      // stepsDescribed/count as "described" for a source that never described any step.
-      const isStepSchema = (t) => {
-        const spec = actionSchema.get(t.type);
-        return spec != null && spec.kind !== 'trigger';
-      };
       return ok({
         workflowId: args.workflowId,
         name: body.json?.name,
@@ -859,12 +865,12 @@ export const TOOLS = [
         headline: `Resolve ${errors.length} Errors`,
         // Marketplace TRIGGER-only version/templateId drift (see the tool description for
         // why actions are out of scope). A separate key, deliberately never folded into
-        // errorCount above.
-        marketplaceDrift: marketplaceDrift(triggerList, actionSchema),
+        // errorCount above. Consumes triggerSchema, never actionSchema.
+        marketplaceDrift: marketplaceDrift(triggerList, triggerSchema),
         coverage: {
           schemaTypes: actionSchema.size,
-          stepsDescribed: templates.filter(isStepSchema).length,
-          stepsNotDescribed: templates.filter((t) => !isStepSchema(t)).length,
+          stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
+          stepsNotDescribed: templates.filter((t) => !actionSchema.has(t.type)).length,
           note: 'Steps not described by the marketplace catalog (core native actions) are SKIPPED, '
             + 'not asserted clean. A zero errorCount is not proof the workflow is publishable.',
         },

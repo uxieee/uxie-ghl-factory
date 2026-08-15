@@ -36275,6 +36275,10 @@ function parseActionSchema(assets) {
       });
     }
   }
+  return byType;
+}
+function parseTriggerSchema(assets) {
+  const byType = /* @__PURE__ */ new Map();
   for (const app of assets?.triggers ?? []) {
     for (const trigger of app?.triggers ?? []) {
       if (!trigger?.key) continue;
@@ -36282,23 +36286,17 @@ function parseActionSchema(assets) {
         type: trigger.key,
         app: app.appName,
         version: trigger.version,
-        templateId: trigger.templateId,
-        fields: [],
-        requiredFields: [],
-        requiredTriggers: [],
-        isPremium: false,
-        isMultipath: false,
-        kind: "trigger"
+        templateId: trigger.templateId
       });
     }
   }
   return byType;
 }
-function marketplaceDrift(storedTriggers, schema2) {
+function marketplaceDrift(storedTriggers, triggerSchema) {
   const out = [];
   for (const t of storedTriggers ?? []) {
     if (t?.masterType !== "marketplace") continue;
-    const spec = schema2?.get?.(t.type);
+    const spec = triggerSchema?.get?.(t.type);
     if (!spec) continue;
     if (t.templateId && spec.templateId && t.templateId !== spec.templateId) {
       out.push({
@@ -80922,8 +80920,21 @@ var TOOLS2 = [
       const trg = await gw.call("GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
       const triggerList = Array.isArray(trg?.json) ? trg.json : trg?.json?.triggers ?? trg?.json?.data ?? [];
       const triggerTypes = triggerList.map((t) => t?.type).filter(Boolean);
-      const actionSchema = await fetchActionSchema((m, p) => gw.call(m, p), args.locationId);
-      if (!actionSchema) {
+      let actionSchema = null;
+      let triggerSchema = null;
+      try {
+        const assetsResp = await gw.call(
+          "GET",
+          `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`
+        );
+        if (assetsResp?.ok && assetsResp.json) {
+          actionSchema = parseActionSchema(assetsResp.json);
+          triggerSchema = parseTriggerSchema(assetsResp.json);
+        }
+      } catch {
+        actionSchema = null;
+      }
+      if (!actionSchema || !actionSchema.size) {
         return fail(
           CODES.VALIDATION_FAILED,
           "Could not fetch the action schema, so no check was performed.",
@@ -80931,10 +80942,6 @@ var TOOLS2 = [
         );
       }
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
-      const isStepSchema = (t) => {
-        const spec = actionSchema.get(t.type);
-        return spec != null && spec.kind !== "trigger";
-      };
       return ok({
         workflowId: args.workflowId,
         name: body.json?.name,
@@ -80945,12 +80952,12 @@ var TOOLS2 = [
         headline: `Resolve ${errors.length} Errors`,
         // Marketplace TRIGGER-only version/templateId drift (see the tool description for
         // why actions are out of scope). A separate key, deliberately never folded into
-        // errorCount above.
-        marketplaceDrift: marketplaceDrift(triggerList, actionSchema),
+        // errorCount above. Consumes triggerSchema, never actionSchema.
+        marketplaceDrift: marketplaceDrift(triggerList, triggerSchema),
         coverage: {
           schemaTypes: actionSchema.size,
-          stepsDescribed: templates.filter(isStepSchema).length,
-          stepsNotDescribed: templates.filter((t) => !isStepSchema(t)).length,
+          stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
+          stepsNotDescribed: templates.filter((t) => !actionSchema.has(t.type)).length,
           note: "Steps not described by the marketplace catalog (core native actions) are SKIPPED, not asserted clean. A zero errorCount is not proof the workflow is publishable."
         }
       });

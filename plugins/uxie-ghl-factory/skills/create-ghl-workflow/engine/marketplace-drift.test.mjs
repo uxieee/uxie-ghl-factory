@@ -5,9 +5,13 @@
 // is `id, stepIndex, order, attributes, name, type, isMarketplaceAction`. No version
 // anywhere. There is nothing stored on the action side to compare against, so there is
 // nothing to detect there.
+//
+// parseActionSchema and parseTriggerSchema are kept as SEPARATE maps on purpose — see the
+// last test in this file for the real, observed collision (`contact_engagement_score`)
+// that makes a shared map unsafe.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseActionSchema, marketplaceDrift } from './action-schema.mjs';
+import { parseActionSchema, parseTriggerSchema, marketplaceDrift, missingForStep } from './action-schema.mjs';
 
 const assets = {
   actions: [{ appName: 'App', actions: [{ key: 'act_a', version: '1.0', templateId: 'T1', inputs: [] }] }],
@@ -22,7 +26,7 @@ test('parseActionSchema retains version and templateId', () => {
 
 test('a stored trigger at an older version is reported as drift', () => {
   const stored = [{ type: 'trg_a', name: 'In', masterType: 'marketplace', version: '1.1', templateId: 'T2' }];
-  const drift = marketplaceDrift(stored, parseActionSchema(assets));
+  const drift = marketplaceDrift(stored, parseTriggerSchema(assets));
   assert.equal(drift.length, 1);
   assert.equal(drift[0].kind, 'version');
   assert.equal(drift[0].stored.version, '1.1');
@@ -31,18 +35,18 @@ test('a stored trigger at an older version is reported as drift', () => {
 
 test('a changed templateId is reported', () => {
   const stored = [{ type: 'trg_a', name: 'In', masterType: 'marketplace', version: '1.3', templateId: 'OLD' }];
-  const drift = marketplaceDrift(stored, parseActionSchema(assets));
+  const drift = marketplaceDrift(stored, parseTriggerSchema(assets));
   assert.equal(drift[0].kind, 'templateId');
 });
 
 test('a matching trigger is not drift', () => {
   const stored = [{ type: 'trg_a', name: 'In', masterType: 'marketplace', version: '1.3', templateId: 'T2' }];
-  assert.deepEqual(marketplaceDrift(stored, parseActionSchema(assets)), []);
+  assert.deepEqual(marketplaceDrift(stored, parseTriggerSchema(assets)), []);
 });
 
 test('a non-marketplace trigger is ignored entirely', () => {
   const stored = [{ type: 'contact_tag', name: 'Tagged', masterType: 'highlevel' }];
-  assert.deepEqual(marketplaceDrift(stored, parseActionSchema(assets)), []);
+  assert.deepEqual(marketplaceDrift(stored, parseTriggerSchema(assets)), []);
 });
 
 // The scoping is enforced by construction, not incidentally: a stored marketplace ACTION
@@ -61,5 +65,40 @@ test('a stored marketplace ACTION produces no drift entry — actions carry no v
     type: 'act_a',
     isMarketplaceAction: true,
   };
-  assert.deepEqual(marketplaceDrift([storedAction], parseActionSchema(assets)), []);
+  assert.deepEqual(marketplaceDrift([storedAction], parseTriggerSchema(assets)), []);
+});
+
+// 🔴 REGRESSION — this is the real bug, not a synthetic worst-case. Measured against the
+// live GHL catalog (2026-08-16): 319 action keys, 162 trigger keys, exactly ONE collision —
+// `contact_engagement_score` — 1 of 481 total keys. It is a real action (required inputs:
+// operator, points) AND a real trigger (0 inputs). Earlier in this task, parseActionSchema
+// briefly merged both sections into one map; because triggers were parsed second, the
+// trigger entry (fields: []) silently overwrote the action entry, and
+// `missingForStep`/`checkWorkflow` stopped reporting the two required fields for this type
+// — check_workflow would have reported clean while the builder showed "Resolve 2 Errors".
+// parseActionSchema and parseTriggerSchema must stay two separate maps so this is
+// structurally impossible, not just handled by precedence. Do NOT re-merge them.
+test('a key that is BOTH an action and a trigger keeps its ACTION required-fields', () => {
+  const collidingAssets = {
+    actions: [{
+      appName: 'App',
+      actions: [{
+        key: 'contact_engagement_score',
+        inputs: [
+          { field: 'operator', title: 'Operator', required: true, fieldType: 'select' },
+          { field: 'points', title: 'Points', required: true, fieldType: 'numerical' },
+        ],
+      }],
+    }],
+    triggers: [{
+      appName: 'App',
+      triggers: [{ key: 'contact_engagement_score', inputs: [] }],
+    }],
+  };
+  const actionSchema = parseActionSchema(collidingAssets);
+  assert.deepEqual(actionSchema.get('contact_engagement_score').requiredFields, ['operator', 'points']);
+
+  const missing = missingForStep({ id: 's1', name: 'n', type: 'contact_engagement_score', attributes: {} }, actionSchema);
+  assert.equal(missing.length, 2, 'the trigger entry must never shadow the action required fields');
+  assert.deepEqual(missing.map((m) => m.field).sort(), ['operator', 'points']);
 });
