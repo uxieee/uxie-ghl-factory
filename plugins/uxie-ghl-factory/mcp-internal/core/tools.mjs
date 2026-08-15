@@ -1313,10 +1313,12 @@ export const TOOLS = [
       'List the third-party marketplace apps INSTALLED in a sub-account, with each app\'s triggers and '
       + 'actions — key, version, templateId, and the full customVars / inputs schema — proof: documented; '
       + 'risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two '
-      + 'endpoints, so the list is complete by construction (two read-only GETs). Use it for account recon, to '
-      + 'confirm an app is installed before building a workflow that references it, and to read the current '
-      + 'version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus '
-      + 'keys and versions only — a single app\'s full schema is large.'),
+      + 'endpoints, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports '
+      + '`complete:false` with that leg\'s data as null (never a silently empty list) and names which leg '
+      + 'failed in `sources`, so a partial read can never be misread as "this app has none". Use it for '
+      + 'account recon, to confirm an app is installed before building a workflow that references it, and to '
+      + 'read the current version/templateId a marketplace step must bind to. compact:true (the default) '
+      + 'returns identity plus keys and versions only — a single app\'s full schema is large.'),
     inputSchema: schema({
       locationId: z.string(),
       type: z.enum(['triggers', 'actions', 'both']).default('both'),
@@ -1332,26 +1334,43 @@ export const TOOLS = [
       const want = args.type ?? 'both';
       // The module endpoint lives on the AI host, which needs the dual credential rail.
       const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      // Each leg reports its own outcome rather than collapsing straight to rows, the same
+      // convention get_ai_configuration_bundle uses for its three components: a leg that
+      // was never asked for is 'skipped' (not a defect, does not touch `complete`); a leg
+      // that was asked for and came back non-ok is 'failed' (does count against `complete`,
+      // and MUST publish rows:null — coercing that to [] would read as "this account has no
+      // triggers/actions", the exact false-empty sentence audit-configuration.mjs already
+      // warns about). Only a leg that was actually read end to end is 'ok'.
       const page = async (type) => {
-        if (want !== 'both' && want !== type) return [];
+        if (want !== 'both' && want !== type) return { status: 'skipped', rows: null };
         const r = await gw.call('GET',
           `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`);
-        if (!r?.ok) return null;
-        return Array.isArray(r.json) ? r.json : (r.json?.modules ?? r.json?.data ?? []);
+        if (!r?.ok) return { status: 'failed', rows: null };
+        return { status: 'ok', rows: Array.isArray(r.json) ? r.json : (r.json?.modules ?? r.json?.data ?? []) };
       };
-      const actions = await page('actions');
-      const triggers = await page('triggers');
-      if (actions === null && triggers === null) {
+      const actionsPage = await page('actions');
+      const triggersPage = await page('triggers');
+      if (actionsPage.status === 'failed' && triggersPage.status === 'failed') {
         return fail(CODES.VALIDATION_FAILED,
           'the marketplace module endpoint could not be read, so no app list was produced.',
           'Retry; if it persists, confirm the token file carries both the Bearer JWT and token-id.');
       }
+      const sources = { actions: actionsPage.status, triggers: triggersPage.status };
+      // 'skipped' is a caller choice (type:'triggers'/'actions'), not an outage — only a
+      // 'failed' leg may falsify the "complete by construction" claim in the description.
+      const complete = actionsPage.status !== 'failed' && triggersPage.status !== 'failed';
+      const actions = actionsPage.rows;
+      const triggers = triggersPage.rows;
       const apps = parseInstalledModules({ actions: actions ?? [], triggers: triggers ?? [] });
 
       // Re-walk the raw rows for the per-key schema — parseInstalledModules keeps identity
       // plus key lists, deliberately, so the index stays cheap for the compiler.
       const schemaFor = (rows, appId, field) => {
-        const row = (rows ?? []).find((a) => a.appId === appId);
+        // rows is null for a skipped or failed leg: there is no read to re-walk, and an app
+        // that legitimately has zero entries for this field is indistinguishable from a leg
+        // we never got to read, so this must stay null rather than default to [].
+        if (rows === null) return null;
+        const row = rows.find((a) => a.appId === appId);
         return (row?.[field] ?? []).map((item) => (args.compact === false
           ? { key: item.key, version: item.version, templateId: item.templateId,
               inputs: item.inputs ?? [], customVars: item.customVars ?? [],
@@ -1371,6 +1390,8 @@ export const TOOLS = [
 
       return ok({
         locationId: args.locationId,
+        complete,
+        sources,
         appCount: out.length,
         apps: out,
         note: args.compact === false ? undefined

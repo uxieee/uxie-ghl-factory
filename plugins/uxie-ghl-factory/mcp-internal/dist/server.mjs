@@ -405,7 +405,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_marketplace_apps: {
-        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two endpoints, so the list is complete by construction (two read-only GETs). Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
+        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two endpoints, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
         risk: "read",
         proof: "documented",
         proofFloor: "documented",
@@ -81272,7 +81272,7 @@ var TOOLS2 = [
     name: "list_marketplace_apps",
     description: describe3(
       "list_marketplace_apps",
-      "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two endpoints, so the list is complete by construction (two read-only GETs). Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large."
+      "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two endpoints, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -81289,26 +81289,31 @@ var TOOLS2 = [
       const want = args.type ?? "both";
       const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
       const page = async (type) => {
-        if (want !== "both" && want !== type) return [];
+        if (want !== "both" && want !== type) return { status: "skipped", rows: null };
         const r = await gw.call(
           "GET",
           `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`
         );
-        if (!r?.ok) return null;
-        return Array.isArray(r.json) ? r.json : r.json?.modules ?? r.json?.data ?? [];
+        if (!r?.ok) return { status: "failed", rows: null };
+        return { status: "ok", rows: Array.isArray(r.json) ? r.json : r.json?.modules ?? r.json?.data ?? [] };
       };
-      const actions = await page("actions");
-      const triggers = await page("triggers");
-      if (actions === null && triggers === null) {
+      const actionsPage = await page("actions");
+      const triggersPage = await page("triggers");
+      if (actionsPage.status === "failed" && triggersPage.status === "failed") {
         return fail(
           CODES.VALIDATION_FAILED,
           "the marketplace module endpoint could not be read, so no app list was produced.",
           "Retry; if it persists, confirm the token file carries both the Bearer JWT and token-id."
         );
       }
+      const sources = { actions: actionsPage.status, triggers: triggersPage.status };
+      const complete = actionsPage.status !== "failed" && triggersPage.status !== "failed";
+      const actions = actionsPage.rows;
+      const triggers = triggersPage.rows;
       const apps = parseInstalledModules({ actions: actions ?? [], triggers: triggers ?? [] });
       const schemaFor = (rows, appId, field) => {
-        const row = (rows ?? []).find((a) => a.appId === appId);
+        if (rows === null) return null;
+        const row = rows.find((a) => a.appId === appId);
         return (row?.[field] ?? []).map((item) => args.compact === false ? {
           key: item.key,
           version: item.version,
@@ -81331,6 +81336,8 @@ var TOOLS2 = [
       }));
       return ok({
         locationId: args.locationId,
+        complete,
+        sources,
         appCount: out.length,
         apps: out,
         note: args.compact === false ? void 0 : "compact:true \u2014 keys and versions only. Pass compact:false for the full inputs/customVars schema."
