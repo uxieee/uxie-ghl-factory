@@ -188,6 +188,15 @@ test('an operator GHL does not offer is fatal', () => {
   }), ctx()), (e) => e.code === 'MARKETPLACE_FILTER_OPERATOR' && /eq/.test(e.message));
 });
 
+test('a marketplace filter with no operator is fatal, not silently unmatched', () => {
+  n = 0;
+  assert.throws(() => compile(irTrigger({
+    marketplace: true, type: 'imessage_t', name: 'iMessage In',
+    filters: [{ field: 'payload.message.text', title: 'Message', type: 'string',
+                value: ['Book now'] }],
+  }), ctx()), (e) => e.code === 'MARKETPLACE_FILTER_OPERATOR' && /operator/i.test(e.message));
+});
+
 test('substring-colliding filter values warn but still build', () => {
   n = 0;
   const warnings = [];
