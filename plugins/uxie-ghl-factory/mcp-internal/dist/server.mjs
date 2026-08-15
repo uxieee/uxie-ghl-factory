@@ -35596,6 +35596,8 @@ var KNOWN_NODE_KEYS = /* @__PURE__ */ new Set([
   "assocGuaranteed",
   "disabled",
   "advanceCanvasMeta",
+  "marketplace",
+  // third-party app step (see marketplace.mjs)
   "config",
   "window",
   "waitType",
@@ -36184,8 +36186,100 @@ function isSupplied(type, key, attrs) {
   return (f.presence ? suppliedPresence : suppliedNonEmpty)(attrs ?? {}, key);
 }
 
+// ../skills/create-ghl-workflow/engine/action-schema.mjs
+init_define_TOOL_CATALOG();
+var PSEUDO_FIELDS = /* @__PURE__ */ new Set(["DYNAMIC"]);
+function isBlank(v) {
+  if (v === void 0 || v === null) return true;
+  if (typeof v === "string") return v.trim() === "";
+  if (Array.isArray(v)) return v.length === 0;
+  return false;
+}
+function coerceDefault(raw, fieldType) {
+  if (raw === void 0 || raw === null || raw === "") return void 0;
+  if (fieldType === "checkbox" || fieldType === "toggle") {
+    if (raw === true || raw === false) return raw;
+    if (raw === "true") return true;
+    if (raw === "false") return false;
+    return void 0;
+  }
+  if (fieldType === "numerical") {
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : void 0;
+  }
+  return raw;
+}
+function parseActionSchema(assets) {
+  const byType = /* @__PURE__ */ new Map();
+  for (const app of assets?.actions ?? []) {
+    for (const action of app?.actions ?? []) {
+      if (!action?.key || !Array.isArray(action.inputs)) continue;
+      const fields = action.inputs.filter((f) => f?.field && !PSEUDO_FIELDS.has(f.field)).map((f) => ({
+        field: f.field,
+        title: f.title ?? f.field,
+        required: f.required === true,
+        fieldType: f.fieldType,
+        default: coerceDefault(f.value, f.fieldType)
+      }));
+      byType.set(action.key, {
+        type: action.key,
+        app: app.appName,
+        section: action.section,
+        fields,
+        requiredFields: fields.filter((f) => f.required).map((f) => f.field),
+        requiredTriggers: action.requiredTriggers ?? [],
+        isPremium: action.additionalConfig?.isPremium === true,
+        isMultipath: action.branchesConfig != null
+      });
+    }
+  }
+  return byType;
+}
+function missingForStep(step, schema2) {
+  const spec = schema2?.get?.(step?.type);
+  if (!spec) return [];
+  return spec.fields.filter((f) => f.required && isBlank((step.attributes ?? {})[f.field])).map((f) => ({
+    field: f.field,
+    title: f.title,
+    message: `"${f.title}" is a required field`
+  }));
+}
+function checkWorkflow(templates, schema2, { triggerTypes } = {}) {
+  const errors = [];
+  for (const step of templates ?? []) {
+    const missing = missingForStep(step, schema2);
+    if (missing.length) {
+      errors.push({ stepId: step.id, step: step.name, type: step.type, messages: missing.map((m) => m.message), fields: missing.map((m) => m.field) });
+    }
+    if (triggerTypes) {
+      const need = schema2?.get?.(step.type)?.requiredTriggers ?? [];
+      if (need.length && !need.some((t) => triggerTypes.includes(t))) {
+        errors.push({
+          stepId: step.id,
+          step: step.name,
+          type: step.type,
+          messages: [`'${step.type}' requires one of these triggers: ${need.join(", ")} \u2014 this workflow has [${triggerTypes.join(", ") || "none"}]`],
+          fields: []
+        });
+      }
+    }
+  }
+  return errors;
+}
+async function fetchActionSchema(call, loc) {
+  try {
+    const r = await call("GET", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+    if (!r?.ok || !r.json) return null;
+    const schema2 = parseActionSchema(r.json);
+    return schema2.size ? schema2 : null;
+  } catch {
+    return null;
+  }
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
+  if (node.marketplace === true) return marketplaceAttributes(node, ctx);
   if (node.kind === "wait") return waitAttributes(node);
   if (node.type === "email") return emailAttributes(node, ctx);
   if (node.type === "custom_webhook") return webhookAttributes(node.attributes ?? {}, node.ref);
@@ -36197,6 +36291,51 @@ function attributesFor(node, ctx) {
   const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
   if (node.type === "update_contact_field")
     checkContactFieldShape(out, { ref: node.ref ?? node.name ?? "?", warn: ctx?.warn });
+  return out;
+}
+var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
+  "__customInputs__",
+  "__dynamicAttachments__",
+  "__customInputFields__",
+  "type"
+]);
+function marketplaceEntry(node, ctx) {
+  const entry = ctx?.marketplace?.get?.(node.type);
+  if (!entry)
+    throw new IRError(
+      "MARKETPLACE_KEY_UNKNOWN",
+      `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available app in this location publishes that key. Run list_marketplace_apps for this locationId to see what is actually there, or drop the marketplace flag if you meant a native step.`
+    );
+  if (!entry.installed)
+    throw new IRError(
+      "MARKETPLACE_APP_NOT_INSTALLED",
+      `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", which is NOT installed in this location. The step would save and never run. Install the app in the sub-account first.`
+    );
+  return entry;
+}
+function marketplaceAttributes(node, ctx) {
+  const entry = marketplaceEntry(node, ctx);
+  const out = { ...node.attributes ?? {} };
+  out.type = node.type;
+  const blank = (v) => v === void 0 || v === null || typeof v === "string" && v.trim() === "" || Array.isArray(v) && v.length === 0;
+  for (const f of entry.inputs) {
+    if (!f?.field || f.value === void 0 || !blank(out[f.field])) continue;
+    const coerced = coerceDefault(f.value, f.fieldType);
+    if (coerced === void 0) continue;
+    out[f.field] = coerced;
+    ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' blank; filled it with the value "${entry.appName}" declares in its own schema (${coerced}). Confirm this is what you intend.`);
+  }
+  const missing = entry.inputs.filter((f) => f?.required === true && f.field && f.field !== "DYNAMIC" && blank(out[f.field])).map((f) => f.field);
+  if (missing.length)
+    throw new IRError(
+      "MARKETPLACE_REQUIRED_FIELD",
+      `marketplace step '${node.ref}' (${node.type}, "${entry.appName}") is missing required input(s): ${missing.join(", ")}. The builder would show "Resolve N Errors".`
+    );
+  const declared = new Set(entry.inputs.map((f) => f?.field).filter(Boolean));
+  for (const key of Object.keys(out)) {
+    if (MARKETPLACE_ENVELOPE_KEYS.has(key) || declared.has(key)) continue;
+    ctx?.warn?.(`marketplace step '${node.ref}' (${node.type}) sets '${key}', which "${entry.appName}" does not declare in its inputs. It will be stored verbatim; confirm the key is right.`);
+  }
   return out;
 }
 function normalizeAttrs(node, attrs, ctx) {
@@ -37089,6 +37228,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
+    if (n.marketplace === true) tmpl.isMarketplaceAction = true;
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl));
   });
@@ -37102,6 +37242,32 @@ function casingLint({ triggerBodies, autoSaveBody }) {
   }
   if (autoSaveBody && ("location_id" in autoSaveBody || "company_id" in autoSaveBody))
     throw new IRError("CASING", "workflow body must use camelCase locationId/companyId");
+}
+var MARKETPLACE_OPERATORS = /* @__PURE__ */ new Set(["string-contains-any-of", "is-not-empty"]);
+function checkMarketplaceFilters(triggers, ctx) {
+  const values = [];
+  for (const t of triggers) {
+    if (t.marketplace !== true) continue;
+    for (const f of t.filters ?? []) {
+      if (!f.operator)
+        throw new IRError(
+          "MARKETPLACE_FILTER_OPERATOR",
+          `trigger '${t.name ?? t.type}' filters '${f.field}' with no operator. A marketplace filter requires one \u2014 GHL's marketplace filter component offers only ${[...MARKETPLACE_OPERATORS].join(" and ")}. A condition saved without an operator saves clean and never matches.`
+        );
+      if (!MARKETPLACE_OPERATORS.has(f.operator))
+        throw new IRError(
+          "MARKETPLACE_FILTER_OPERATOR",
+          `trigger '${t.name ?? t.type}' filters '${f.field}' with operator '${f.operator}', which GHL's marketplace filter component does not offer. The only operators are ${[...MARKETPLACE_OPERATORS].join(" and ")}. An unsupported operator saves and never matches.`
+        );
+      for (const v of [].concat(f.value ?? [])) if (typeof v === "string" && v) values.push(v);
+    }
+  }
+  for (const a of values) {
+    for (const b of values) {
+      if (a !== b && b.includes(a))
+        ctx?.warn?.(`marketplace trigger filter values overlap: '${a}' is a substring of '${b}'. Marketplace filters match by substring only, so anything matching '${b}' also fires '${a}'.`);
+    }
+  }
 }
 var ARRAY_OPS = /* @__PURE__ */ new Set([
   "is-any-of",
@@ -37146,14 +37312,21 @@ function expandFilter(f, rows) {
 function buildTrigger(t, ctx, wid) {
   const meta3 = ctx.catalog.trigger(t.type);
   const rows = meta3?.filterRows ?? [];
-  const conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
+  let conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
+  let marketplaceFields = {};
+  if (t.marketplace === true) {
+    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx);
+    marketplaceFields = { version: entry.version, templateId: entry.templateId };
+    conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
+  }
   return {
     status: "draft",
     workflowId: wid,
     schedule_config: {},
     conditions,
     type: t.type,
-    masterType: t.masterType ?? meta3?.masterType ?? "highlevel",
+    masterType: t.marketplace === true ? "marketplace" : t.masterType ?? meta3?.masterType ?? "highlevel",
+    ...marketplaceFields,
     name: t.name,
     actions: [{ workflow_id: wid, type: "add_to_workflow" }],
     // Marketplace triggers carry their schema flavour on the stored document. The builder
@@ -37173,6 +37346,7 @@ function buildTrigger(t, ctx, wid) {
 }
 function compile(ir, ctx) {
   const norm2 = parseIR(ir);
+  checkMarketplaceFilters(norm2.triggers, ctx);
   const oppTriggerTypes = new Set(
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === "opportunities")
   );
@@ -37192,7 +37366,7 @@ function compile(ir, ctx) {
       `${missing.length} authored node(s) never reached the built payload: ${missing.join(", ")}. They were silently discarded \u2014 without this check the build would have reported a clean round-trip for an incomplete workflow. Usually this means a node carries a child scope (onFound/onEvent/\u2026) that its type has no container handler for.`
     );
   if (!ctx.allowUnknownStepTypes) {
-    const unknown2 = [...new Set(templates.filter((t) => !ctx.catalog.step(t.type)).map((t) => t.type))];
+    const unknown2 = [...new Set(templates.filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type)).map((t) => t.type))];
     if (unknown2.length) {
       const known = ctx.catalog.allSteps();
       const near = (bad) => known.filter((k) => k.includes(bad) || bad.includes(k)).slice(0, 3);
@@ -77096,95 +77270,72 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   };
 }
 
-// ../skills/create-ghl-workflow/engine/action-schema.mjs
+// ../skills/create-ghl-workflow/engine/marketplace.mjs
 init_define_TOOL_CATALOG();
-var PSEUDO_FIELDS = /* @__PURE__ */ new Set(["DYNAMIC"]);
-function isBlank(v) {
-  if (v === void 0 || v === null) return true;
-  if (typeof v === "string") return v.trim() === "";
-  if (Array.isArray(v)) return v.length === 0;
-  return false;
-}
-function coerceDefault(raw, fieldType) {
-  if (raw === void 0 || raw === null || raw === "") return void 0;
-  if (fieldType === "checkbox" || fieldType === "toggle") {
-    if (raw === true || raw === false) return raw;
-    if (raw === "true") return true;
-    if (raw === "false") return false;
-    return void 0;
-  }
-  if (fieldType === "numerical") {
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : void 0;
-  }
-  return raw;
-}
-function parseActionSchema(assets) {
-  const byType = /* @__PURE__ */ new Map();
+var entryFrom = (kind, appName, raw) => ({
+  kind,
+  key: raw.key,
+  appName,
+  version: raw.version,
+  templateId: raw.templateId,
+  inputs: Array.isArray(raw.inputs) ? raw.inputs : [],
+  customVars: Array.isArray(raw.customVars) ? raw.customVars : [],
+  branchesConfig: raw.branchesConfig ?? null,
+  info: raw.info ?? null
+});
+function parseMarketplaceAssets(assets) {
+  const byKey = /* @__PURE__ */ new Map();
   for (const app of assets?.actions ?? []) {
     for (const action of app?.actions ?? []) {
-      if (!action?.key || !Array.isArray(action.inputs)) continue;
-      const fields = action.inputs.filter((f) => f?.field && !PSEUDO_FIELDS.has(f.field)).map((f) => ({
-        field: f.field,
-        title: f.title ?? f.field,
-        required: f.required === true,
-        fieldType: f.fieldType,
-        default: coerceDefault(f.value, f.fieldType)
-      }));
-      byType.set(action.key, {
-        type: action.key,
-        app: app.appName,
-        section: action.section,
-        fields,
-        requiredFields: fields.filter((f) => f.required).map((f) => f.field),
-        requiredTriggers: action.requiredTriggers ?? [],
-        isPremium: action.additionalConfig?.isPremium === true,
-        isMultipath: action.branchesConfig != null
-      });
+      if (action?.key) byKey.set(action.key, entryFrom("action", app.appName, action));
     }
   }
-  return byType;
-}
-function missingForStep(step, schema2) {
-  const spec = schema2?.get?.(step?.type);
-  if (!spec) return [];
-  return spec.fields.filter((f) => f.required && isBlank((step.attributes ?? {})[f.field])).map((f) => ({
-    field: f.field,
-    title: f.title,
-    message: `"${f.title}" is a required field`
-  }));
-}
-function checkWorkflow(templates, schema2, { triggerTypes } = {}) {
-  const errors = [];
-  for (const step of templates ?? []) {
-    const missing = missingForStep(step, schema2);
-    if (missing.length) {
-      errors.push({ stepId: step.id, step: step.name, type: step.type, messages: missing.map((m) => m.message), fields: missing.map((m) => m.field) });
-    }
-    if (triggerTypes) {
-      const need = schema2?.get?.(step.type)?.requiredTriggers ?? [];
-      if (need.length && !need.some((t) => triggerTypes.includes(t))) {
-        errors.push({
-          stepId: step.id,
-          step: step.name,
-          type: step.type,
-          messages: [`'${step.type}' requires one of these triggers: ${need.join(", ")} \u2014 this workflow has [${triggerTypes.join(", ") || "none"}]`],
-          fields: []
-        });
-      }
+  for (const app of assets?.triggers ?? []) {
+    for (const trigger of app?.triggers ?? []) {
+      if (trigger?.key) byKey.set(trigger.key, entryFrom("trigger", app.appName, trigger));
     }
   }
-  return errors;
+  return byKey;
 }
-async function fetchActionSchema(call, loc) {
-  try {
-    const r = await call("GET", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
-    if (!r?.ok || !r.json) return null;
-    const schema2 = parseActionSchema(r.json);
-    return schema2.size ? schema2 : null;
-  } catch {
-    return null;
+function parseInstalledModules({ triggers = [], actions = [] } = {}) {
+  const byAppId = /* @__PURE__ */ new Map();
+  const absorb = (rows, field) => {
+    for (const app of rows ?? []) {
+      if (!app?.appId) continue;
+      const existing = byAppId.get(app.appId) ?? {
+        appId: app.appId,
+        appName: app.name,
+        companyName: app.companyName,
+        totalInstallations: app.totalInstallations,
+        averageRating: app.averageRating,
+        isInstalled: app.isInstalled === true,
+        keys: []
+      };
+      existing.isInstalled = existing.isInstalled || app.isInstalled === true;
+      for (const item of app[field] ?? []) if (item?.key) existing.keys.push(item.key);
+      byAppId.set(app.appId, existing);
+    }
+  };
+  absorb(actions, "actions");
+  absorb(triggers, "triggers");
+  return byAppId;
+}
+function buildMarketplaceIndex({ assets, modules } = {}) {
+  const schema2 = parseMarketplaceAssets(assets);
+  const apps = parseInstalledModules(modules ?? {});
+  const appIdByKey = /* @__PURE__ */ new Map();
+  for (const app of apps.values()) for (const key of app.keys) appIdByKey.set(key, app.appId);
+  const joined = /* @__PURE__ */ new Map();
+  for (const [key, entry] of schema2) {
+    const appId = appIdByKey.get(key);
+    const app = appId ? apps.get(appId) : void 0;
+    joined.set(key, { ...entry, appId: appId ?? null, installed: app?.isInstalled === true });
   }
+  return {
+    get: (key) => joined.get(key),
+    all: () => [...joined.values()],
+    installedApps: () => [...apps.values()].filter((a) => a.isInstalled)
+  };
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
@@ -77270,6 +77421,29 @@ async function fetchEntities(gw) {
     agents
   };
 }
+async function fetchMarketplace(call, loc) {
+  const empty2 = { assets: null, modules: { actions: [], triggers: [] } };
+  const get = async (path) => {
+    try {
+      const r = await call("GET", path);
+      return r?.ok ? r.json : null;
+    } catch {
+      return null;
+    }
+  };
+  const assets = await get(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const page = (type) => `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
+  const actions = await get(page("actions"));
+  const triggers = await get(page("triggers"));
+  if (!assets && !actions && !triggers) return empty2;
+  return {
+    assets,
+    modules: {
+      actions: Array.isArray(actions) ? actions : actions?.modules ?? actions?.data ?? [],
+      triggers: Array.isArray(triggers) ? triggers : triggers?.modules ?? triggers?.data ?? []
+    }
+  };
+}
 function collectEmailTemplates(ir) {
   const out = [];
   const walk2 = (nodes) => {
@@ -77327,6 +77501,11 @@ async function orchestrate(ir, gw, opts = {}) {
     return response;
   };
   const entities = await fetchEntities(gw);
+  let usesMarketplace = (ir.triggers ?? []).some((t) => t.marketplace === true);
+  walkNodes(ir.graph ?? [], (n) => {
+    if (n.marketplace === true) usesMarketplace = true;
+  });
+  const marketplace = usesMarketplace ? buildMarketplaceIndex(await fetchMarketplace(call, loc)) : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
   const resolvers = buildResolvers(entities);
   const { unresolved } = resolveIR(ir, resolvers);
   report.unresolved = unresolved;
@@ -77377,6 +77556,7 @@ async function orchestrate(ir, gw, opts = {}) {
       companyAge: 0,
       idGen: makeUuidV4,
       catalog,
+      marketplace,
       customFields: entities.customFields,
       warn: (msg) => report.warnings.push(msg),
       // §5: an account-wide email sender default. Reachable two ways — programmatically via
