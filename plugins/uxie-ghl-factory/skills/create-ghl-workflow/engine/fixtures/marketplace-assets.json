@@ -1,0 +1,125 @@
+{
+  "actions": [
+    {
+      "appName": "myCRMSIM - SMS, iMessage & WhatsApp",
+      "actions": [
+        {
+          "_id": "6818a3f0ed65ba038f3f4561",
+          "templateId": "01JTG3GNCCGBMXS0BY7NE3XY91",
+          "branchesConfig": {},
+          "customVars": [],
+          "customVarsJson": {
+            "message": "Event successfully sent to SQS",
+            "messageId": "9203c59d-67ed-43a9-96e6-305218dc96ac"
+          },
+          "info": {
+            "name": "Send iMessage",
+            "description": "Send iMessage",
+            "summary": "use this action to send iMessage.",
+            "icon": "fa-commenting",
+            "screenshots": []
+          },
+          "inputs": [
+            {
+              "field": "to_phone",
+              "title": "to_phone",
+              "required": true,
+              "fieldType": "phone",
+              "helpText": "to phone number",
+              "value": "{{contact.phone_raw}}",
+              "altersDynamicField": false
+            },
+            {
+              "field": "message",
+              "title": "Message",
+              "required": true,
+              "fieldType": "textarea",
+              "placeholder": "Add your message here",
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            },
+            {
+              "field": "attachment",
+              "title": "Attachment",
+              "required": false,
+              "fieldType": "attachment",
+              "altersDynamicField": false
+            },
+            {
+              "field": "file_url",
+              "title": "Files thruogh url",
+              "required": false,
+              "fieldType": "string",
+              "helpText": "Add url of file you want to send",
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            },
+            {
+              "field": "conversation_provider",
+              "title": "conversation_provider",
+              "required": true,
+              "fieldType": "string",
+              "value": "65f0a76d7aabd6ba4decd979",
+              "altersDynamicField": false
+            }
+          ],
+          "key": "imessage_a",
+          "version": "1.5"
+        }
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "appName": "myCRMSIM - SMS, iMessage & WhatsApp",
+      "triggers": [
+        {
+          "_id": "6818a1a9ed65ba038f1f840d",
+          "templateId": "01JTG30GR5C99TGPCJA8Z5899R",
+          "customVars": [
+            {
+              "reference": "phone",
+              "name": "phone",
+              "fieldType": "string"
+            },
+            {
+              "reference": "message",
+              "name": "message",
+              "fieldType": "string"
+            },
+            {
+              "reference": "id",
+              "name": "id",
+              "fieldType": "string"
+            },
+            {
+              "reference": "isMe",
+              "name": "isMe",
+              "fieldType": "string"
+            },
+            {
+              "reference": "device_id",
+              "name": "device_id",
+              "fieldType": "string"
+            },
+            {
+              "reference": "workspace_id",
+              "name": "workspace_id",
+              "fieldType": "numerical"
+            }
+          ],
+          "filters": [],
+          "info": {
+            "name": "iMessage",
+            "description": "When iMessage is received.",
+            "summary": "When iMessage is received.",
+            "icon": "fa-commenting",
+            "screenshots": []
+          },
+          "key": "imessage_t",
+          "version": "1.4"
+        }
+      ]
+    }
+  ]
+}
