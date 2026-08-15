@@ -1337,7 +1337,7 @@ export const TOOLS = [
       'List the third-party marketplace apps INSTALLED in a sub-account, with each app\'s triggers and '
       + 'actions — key, version, templateId, and the full customVars / inputs schema — proof: documented; '
       + 'risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two '
-      + 'endpoints, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports '
+      + 'reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports '
       + '`complete:false` with that leg\'s data as null (never a silently empty list) and names which leg '
       + 'failed in `sources`, so a partial read can never be misread as "this app has none". Use it for '
       + 'account recon, to confirm an app is installed before building a workflow that references it, and to '
