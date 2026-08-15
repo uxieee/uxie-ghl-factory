@@ -36357,6 +36357,7 @@ function marketplaceAttributes(node, ctx) {
   const entry = marketplaceEntry(node, ctx);
   const out = { ...node.attributes ?? {} };
   out.type = node.type;
+  if (out.__customInputs__ === void 0) out.__customInputs__ = {};
   const blank = (v) => v === void 0 || v === null || typeof v === "string" && v.trim() === "" || Array.isArray(v) && v.length === 0;
   for (const f of entry.inputs) {
     if (!f?.field || f.value === void 0 || !blank(out[f.field])) continue;
@@ -37417,11 +37418,17 @@ function compile(ir, ctx) {
     }
   }
   let stepIndex = 0;
+  const marketplaceStepIndexCounter = /* @__PURE__ */ new Map();
   for (const t of templates) {
     const meta3 = ctx.catalog.step(t.type);
     if (meta3 && meta3.situational?.includes("workflowsActionType") && !("workflowsActionType" in t))
       t.workflowsActionType = "INTERNAL";
     if (meta3?.premium && !("stepIndex" in t)) t.stepIndex = stepIndex;
+    if (t.isMarketplaceAction === true && !("stepIndex" in t)) {
+      const next = (marketplaceStepIndexCounter.get(t.type) ?? 0) + 1;
+      marketplaceStepIndexCounter.set(t.type, next);
+      t.stepIndex = next;
+    }
     stepIndex += 1;
   }
   const wid = ctx.idGen();
@@ -37484,7 +37491,12 @@ function compile(ir, ctx) {
     createdSteps,
     modifiedSteps: [],
     deletedSteps: [],
-    workflowData: { templates }
+    workflowData: { templates },
+    // Only present when the workflow actually HAS marketplace steps — a native-only
+    // build must emit exactly the autoSaveBody it emitted before this fix, with no new
+    // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
+    // above for what this map records and why it's per-key.
+    ...marketplaceStepIndexCounter.size > 0 ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter) } } : {}
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
