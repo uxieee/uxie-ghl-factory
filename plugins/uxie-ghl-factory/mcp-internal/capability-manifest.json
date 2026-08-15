@@ -235,6 +235,16 @@
     "path": "/ai-employees/employees/search"
   },
   {
+    "tool": "list_marketplace_apps",
+    "method": "GET",
+    "path": "/marketplace/core/search/module?type=triggers&isInstalled=true"
+  },
+  {
+    "tool": "list_marketplace_apps",
+    "method": "GET",
+    "path": "/marketplace/core/search/module?type=actions&isInstalled=true"
+  },
+  {
     "tool": "list_courses",
     "method": "GET",
     "path": "/membership/locations/{loc}/products?doNotIncludeOffers=true&sendCustomizations=true"

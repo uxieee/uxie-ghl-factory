@@ -357,6 +357,28 @@
       "entities-voice-ai-agents-list"
     ]
   },
+  "list_marketplace_apps": {
+    "description": "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions — key, version, templateId, and the full customVars / inputs schema — proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two endpoints, so the list is complete by construction (two read-only GETs). Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only — a single app's full schema is large.",
+    "risk": "read",
+    "proof": "documented",
+    "proofFloor": "documented",
+    "proofRows": [
+      "marketplace-modules-triggers-list",
+      "marketplace-modules-actions-list"
+    ],
+    "proofFloorRows": [
+      "marketplace-modules-triggers-list",
+      "marketplace-modules-actions-list"
+    ],
+    "riskRows": [
+      "marketplace-modules-triggers-list",
+      "marketplace-modules-actions-list"
+    ],
+    "rows": [
+      "marketplace-modules-triggers-list",
+      "marketplace-modules-actions-list"
+    ]
+  },
   "build_course": {
     "description": "Build course \u2014 proof: live-runtime (2026-07-19), floor: documented; risk: write",
     "risk": "write",
