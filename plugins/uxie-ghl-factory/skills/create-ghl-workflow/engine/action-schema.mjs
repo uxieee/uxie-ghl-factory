@@ -85,12 +85,13 @@ export function coerceDefault(raw, fieldType) {
 // Flatten the app-grouped payload into type -> spec. The response nests actions under
 // `actions[].actions[]` (apps, then their actions), which is easy to miss.
 //
-// Also parses `assets.triggers` into the SAME map, so a trigger's type resolves through
-// one lookup alongside actions (marketplaceDrift below needs this). Trigger entries carry
-// `kind: 'trigger'` and empty `fields`/`requiredFields` — a workflow STEP's `type` never
-// resolves to a trigger entry in practice, but `kind` lets callers exclude trigger entries
-// from step-shaped counts (e.g. check_workflow's `coverage.stepsDescribed`) defensively,
-// in case a step type and a trigger key ever collide.
+// ACTIONS ONLY. Do not fold `assets.triggers` into this map — 🔴 a real, OBSERVED
+// collision exists in the live GHL catalog: `contact_engagement_score` is BOTH an action
+// (required inputs: operator, points) AND a trigger (0 inputs) — 1 of 481 keys measured
+// against the live catalog, 2026-08-16. A shared map lets one silently shadow the other
+// depending on parse order; `missingForStep`/`checkWorkflow` need the ACTION'S required
+// fields for that key, always, with no such thing as "the trigger won on this run".
+// See `parseTriggerSchema` below for the separate trigger-only map.
 export function parseActionSchema(assets) {
   const byType = new Map();
   for (const app of assets?.actions ?? []) {
@@ -119,6 +120,15 @@ export function parseActionSchema(assets) {
       });
     }
   }
+  return byType;
+}
+
+// TRIGGERS ONLY — deliberately a separate map from parseActionSchema, not a shared
+// namespace. See that function's docstring for the observed action/trigger key collision
+// (`contact_engagement_score`) that makes a shared map unsafe. `marketplaceDrift` is this
+// map's only consumer.
+export function parseTriggerSchema(assets) {
+  const byType = new Map();
   for (const app of assets?.triggers ?? []) {
     for (const trigger of app?.triggers ?? []) {
       if (!trigger?.key) continue;
@@ -127,12 +137,6 @@ export function parseActionSchema(assets) {
         app: app.appName,
         version: trigger.version,
         templateId: trigger.templateId,
-        fields: [],
-        requiredFields: [],
-        requiredTriggers: [],
-        isPremium: false,
-        isMultipath: false,
-        kind: 'trigger',
       });
     }
   }
@@ -156,11 +160,15 @@ export function parseActionSchema(assets) {
 // Reported SEPARATELY from checkWorkflow's error list, never folded into errorCount: that
 // headline is a live-proven exact reproduction of the builder's own panel, and mixing our
 // own findings into it would destroy the property that makes it trustworthy.
-export function marketplaceDrift(storedTriggers, schema) {
+//
+// Takes the TRIGGER map from `parseTriggerSchema`, not `parseActionSchema` — the two are
+// kept separate on purpose (see parseActionSchema's docstring for why a shared map is
+// unsafe: `contact_engagement_score` is a real, observed collision).
+export function marketplaceDrift(storedTriggers, triggerSchema) {
   const out = [];
   for (const t of storedTriggers ?? []) {
     if (t?.masterType !== 'marketplace') continue;
-    const spec = schema?.get?.(t.type);
+    const spec = triggerSchema?.get?.(t.type);
     if (!spec) continue;
     if (t.templateId && spec.templateId && t.templateId !== spec.templateId) {
       out.push({ type: t.type, name: t.name, kind: 'templateId',
