@@ -71,9 +71,13 @@ from the live index, and every condition with `id === field` (a marketplace cond
 addresses the event payload by dotted path, not a catalog field id).
 
 **Filter fields come from the app's own `filters[]` schema — read it, don't derive it.**
-Look up the trigger's declared filters via `list_marketplace_apps` (or the assets endpoint
-directly) rather than guessing from `customVars`; see `docs/marketplace-rail.md` §5 for why
-an earlier draft of this feature got that backwards.
+Read it from the ASSETS endpoint (`GET /workflows-marketplace/location/{loc}/assets`) —
+**not** `list_marketplace_apps`. That tool reads the MODULE endpoint (install truth), and
+its `schemaFor` projection (`mcp-internal/core/tools.mjs`) emits `key, version, templateId,
+inputs, customVars, branchesConfig, info` — no `filters`. The module payload may not even
+carry `filters[]` at all; only the assets response is confirmed to. Don't guess from
+`customVars` either; see `docs/marketplace-rail.md` §5 for why an earlier draft of this
+feature got that backwards.
 
 **Operator vocabulary is exactly two values, and there is no equals:**
 
