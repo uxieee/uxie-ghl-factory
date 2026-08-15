@@ -7,6 +7,7 @@ import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
 
 function attributesFor(node, ctx) {
+  if (node.marketplace === true) return marketplaceAttributes(node, ctx);
   if (node.kind === 'wait') return waitAttributes(node);
   if (node.type === 'email') return emailAttributes(node, ctx);
   if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {}, node.ref);
@@ -25,6 +26,69 @@ function attributesFor(node, ctx) {
   // Runs on the compiled attrs (post-normalize) so it sees exactly what will be sent.
   if (node.type === 'update_contact_field')
     checkContactFieldShape(out, { ref: node.ref ?? node.name ?? '?', warn: ctx?.warn });
+  return out;
+}
+
+// Envelope keys the builder stores on a marketplace step but no app `inputs` list
+// declares. They are structural, so they are never "unknown".
+const MARKETPLACE_ENVELOPE_KEYS = new Set([
+  '__customInputs__', '__dynamicAttachments__', '__customInputFields__', 'type',
+]);
+
+// Resolve a marketplace node against the live per-location index, or fail closed.
+// An uninstalled app is fatal: the step saves, and then never runs.
+export function marketplaceEntry(node, ctx) {
+  const entry = ctx?.marketplace?.get?.(node.type);
+  if (!entry)
+    throw new IRError('MARKETPLACE_KEY_UNKNOWN',
+      `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available `
+      + `app in this location publishes that key. Run list_marketplace_apps for this locationId to `
+      + `see what is actually there, or drop the marketplace flag if you meant a native step.`);
+  if (!entry.installed)
+    throw new IRError('MARKETPLACE_APP_NOT_INSTALLED',
+      `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", which is NOT installed in this `
+      + `location. The step would save and never run. Install the app in the sub-account first.`);
+  return entry;
+}
+
+function marketplaceAttributes(node, ctx) {
+  const entry = marketplaceEntry(node, ctx);
+  const out = { ...(node.attributes ?? {}) };
+  // The live shape always repeats the step type inside attributes. This is NOT gated on
+  // meta.attrKeys the way the native path is — that gate reads the native catalog, which
+  // by definition does not describe a third-party app.
+  out.type = node.type;
+
+  const blank = (v) => v === undefined || v === null
+    || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0);
+
+  // Some inputs carry a structural default in the app's own schema (an internal
+  // provider id, a merge-tag like {{contact.phone_raw}}) that a human author would
+  // never hand-write — mirrors the native path's structural-field fill (see
+  // normalizeAttrs above). Only fills when the author left the field blank.
+  for (const f of entry.inputs) {
+    if (f?.field && f.value !== undefined && blank(out[f.field])) out[f.field] = f.value;
+  }
+
+  // Required inputs, fail-closed. Same semantics as action-schema.mjs: absent AND empty
+  // both count as missing, because the builder rejects both.
+  const missing = entry.inputs
+    .filter((f) => f?.required === true && f.field && f.field !== 'DYNAMIC' && blank(out[f.field]))
+    .map((f) => f.field);
+  if (missing.length)
+    throw new IRError('MARKETPLACE_REQUIRED_FIELD',
+      `marketplace step '${node.ref}' (${node.type}, "${entry.appName}") is missing required `
+      + `input(s): ${missing.join(', ')}. The builder would show "Resolve N Errors".`);
+
+  // Unknown keys WARN rather than throw: `connected_phone` in the live capture maps to a
+  // DYNAMIC pseudo-field that `inputs` does not list under that name, so a hard allowlist
+  // would reject a shape the builder accepts.
+  const declared = new Set(entry.inputs.map((f) => f?.field).filter(Boolean));
+  for (const key of Object.keys(out)) {
+    if (MARKETPLACE_ENVELOPE_KEYS.has(key) || declared.has(key)) continue;
+    ctx?.warn?.(`marketplace step '${node.ref}' (${node.type}) sets '${key}', which "${entry.appName}" `
+      + `does not declare in its inputs. It will be stored verbatim; confirm the key is right.`);
+  }
   return out;
 }
 
@@ -1110,6 +1174,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // Root-scope linear steps stay lean; steps inside a branch carry `parent`
     // (= the branch-entry id) while `parentKey` advances along the chain.
     const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
+    if (n.marketplace === true) tmpl.isMarketplaceAction = true;
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl));
   });
@@ -1247,7 +1312,12 @@ export function compile(ir, ctx) {
   // "harvest a live example and extend the catalog" path, where the author KNOWS the type
   // is real and the catalog is behind.
   if (!ctx.allowUnknownStepTypes) {
-    const unknown = [...new Set(templates.filter((t) => !ctx.catalog.step(t.type)).map((t) => t.type))];
+    // Marketplace steps are validated by marketplaceEntry() against the live
+    // per-location index, not the offline native catalog — so this offline scan
+    // must not also judge them, or every installed third-party app would 404 here.
+    const unknown = [...new Set(templates
+      .filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type))
+      .map((t) => t.type))];
     if (unknown.length) {
       const known = ctx.catalog.allSteps();
       const near = (bad) => known.filter((k) => k.includes(bad) || bad.includes(k)).slice(0, 3);
