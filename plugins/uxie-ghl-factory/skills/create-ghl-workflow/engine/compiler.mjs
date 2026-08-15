@@ -1216,6 +1216,35 @@ export function casingLint({ triggerBodies, autoSaveBody }) {
     throw new IRError('CASING', 'workflow body must use camelCase locationId/companyId');
 }
 
+// GHL's own filter component offers exactly two operators on a marketplace trigger's
+// string filters. There is NO equals. An unsupported operator saves clean and then never
+// matches, so it is fatal rather than advisory.
+const MARKETPLACE_OPERATORS = new Set(['string-contains-any-of', 'is-not-empty']);
+
+function checkMarketplaceFilters(triggers, ctx) {
+  const values = [];
+  for (const t of triggers) {
+    if (t.marketplace !== true) continue;
+    for (const f of t.filters ?? []) {
+      if (f.operator && !MARKETPLACE_OPERATORS.has(f.operator))
+        throw new IRError('MARKETPLACE_FILTER_OPERATOR',
+          `trigger '${t.name ?? t.type}' filters '${f.field}' with operator '${f.operator}', which GHL's `
+          + `marketplace filter component does not offer. The only operators are `
+          + `${[...MARKETPLACE_OPERATORS].join(' and ')}. An unsupported operator saves and never matches.`);
+      for (const v of [].concat(f.value ?? [])) if (typeof v === 'string' && v) values.push(v);
+    }
+  }
+  // Every marketplace trigger match is a SUBSTRING match, so one label containing another
+  // double-fires. Warn — the author may have meant it.
+  for (const a of values) {
+    for (const b of values) {
+      if (a !== b && b.includes(a))
+        ctx?.warn?.(`marketplace trigger filter values overlap: '${a}' is a substring of '${b}'. `
+          + `Marketplace filters match by substring only, so anything matching '${b}' also fires '${a}'.`);
+    }
+  }
+}
+
 // Operators that take an array value (the compiler wraps a scalar automatically).
 const ARRAY_OPS = new Set(['is-any-of', 'is-in-array', 'contains-any', 'contains-none',
   'string-contains-any-of', 'string-matches-any-of']);
@@ -1273,11 +1302,22 @@ function expandFilter(f, rows) {
 export function buildTrigger(t, ctx, wid) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
-  const conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
+  let conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
+  let marketplaceFields = {};
+  if (t.marketplace === true) {
+    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx);
+    marketplaceFields = { version: entry.version, templateId: entry.templateId };
+    // A marketplace condition addresses the event payload by dotted path, and the stored
+    // shape carries `id` and `field` as the SAME string.
+    conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
+  }
   return {
     status: 'draft', workflowId: wid, schedule_config: {},
     conditions,
-    type: t.type, masterType: t.masterType ?? meta?.masterType ?? 'highlevel', name: t.name,
+    type: t.type,
+    masterType: t.marketplace === true ? 'marketplace' : (t.masterType ?? meta?.masterType ?? 'highlevel'),
+    ...marketplaceFields,
+    name: t.name,
     actions: [{ workflow_id: wid, type: 'add_to_workflow' }],
     // Marketplace triggers carry their schema flavour on the stored document. The builder
     // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
@@ -1294,6 +1334,7 @@ export function buildTrigger(t, ctx, wid) {
 
 export function compile(ir, ctx) {
   const norm = parseIR(ir);
+  checkMarketplaceFilters(norm.triggers, ctx);
   // update_opportunity needs an associated opportunity at runtime — enforce the
   // invariant with the catalog-derived set of opportunity-attaching triggers.
   const oppTriggerTypes = new Set(
