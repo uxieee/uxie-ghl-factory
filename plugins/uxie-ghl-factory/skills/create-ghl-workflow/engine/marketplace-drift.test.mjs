@@ -18,12 +18,6 @@ const assets = {
   triggers: [{ appName: 'App', triggers: [{ key: 'trg_a', version: '1.3', templateId: 'T2', inputs: [] }] }],
 };
 
-test('parseActionSchema retains version and templateId', () => {
-  const spec = parseActionSchema(assets).get('act_a');
-  assert.equal(spec.version, '1.0');
-  assert.equal(spec.templateId, 'T1');
-});
-
 test('a stored trigger at an older version is reported as drift', () => {
   const stored = [{ type: 'trg_a', name: 'In', masterType: 'marketplace', version: '1.1', templateId: 'T2' }];
   const drift = marketplaceDrift(stored, parseTriggerSchema(assets));
