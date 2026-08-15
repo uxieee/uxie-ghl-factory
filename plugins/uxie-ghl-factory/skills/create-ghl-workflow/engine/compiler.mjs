@@ -5,6 +5,7 @@ import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCond
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
+import { coerceDefault } from './action-schema.mjs';
 
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -66,8 +67,14 @@ function marketplaceAttributes(node, ctx) {
   // provider id, a merge-tag like {{contact.phone_raw}}) that a human author would
   // never hand-write — mirrors the native path's structural-field fill (see
   // normalizeAttrs above). Only fills when the author left the field blank.
+  // Defaults arrive as STRINGS regardless of declared type (action-schema.mjs's
+  // coerceDefault comment: `value: "true"` on a checkbox) — reuse that coercion
+  // rather than trusting the literal, or a checkbox/numerical default round-trips
+  // as the wrong JS type.
   for (const f of entry.inputs) {
-    if (f?.field && f.value !== undefined && blank(out[f.field])) out[f.field] = f.value;
+    if (!f?.field || f.value === undefined || !blank(out[f.field])) continue;
+    const coerced = coerceDefault(f.value, f.fieldType);
+    if (coerced !== undefined) out[f.field] = coerced;
   }
 
   // Required inputs, fail-closed. Same semantics as action-schema.mjs: absent AND empty

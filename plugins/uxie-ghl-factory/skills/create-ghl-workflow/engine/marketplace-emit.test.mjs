@@ -82,3 +82,55 @@ test('a node WITHOUT the flag still takes the native path unchanged', () => {
   const step = built.autoSaveBody.workflowData.templates[0];
   assert.equal(step.isMarketplaceAction, undefined);
 });
+
+// A required input with NO schema default (message: no `value` key on this action, unlike
+// to_phone / conversation_provider) cannot be masked by the auto-fill, so omitting it must
+// still fail closed with MARKETPLACE_REQUIRED_FIELD.
+test('a required input with no schema default throws MARKETPLACE_REQUIRED_FIELD', () => {
+  n = 0;
+  assert.throws(() => compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'imessage_a',
+    name: 'Send iMessage', attributes: {},
+  }), ctx()), (e) => e.code === 'MARKETPLACE_REQUIRED_FIELD' && /message/.test(e.message));
+});
+
+// The shared fixture has no checkbox/numerical default, so this builds its own tiny
+// inline schema rather than editing fixtures/marketplace-assets.json. Field defaults
+// arrive as strings regardless of declared type (GHL's own convention, see
+// action-schema.mjs's coerceDefault) — the fill must coerce by fieldType, not store
+// the literal string, or a checkbox/numerical default round-trips as the wrong JS type.
+const INLINE_ASSETS = {
+  actions: [{
+    appName: 'Coerce Co',
+    actions: [{
+      key: 'coerce_test_action', version: '1.0', templateId: 'TPL-COERCE',
+      inputs: [
+        { field: 'enabled', title: 'Enabled', required: true, fieldType: 'checkbox', value: 'true' },
+        { field: 'count', title: 'Count', required: true, fieldType: 'numerical', value: '5' },
+        { field: 'label', title: 'Label', required: true, fieldType: 'string' },
+      ],
+    }],
+  }],
+  triggers: [],
+};
+const INLINE_MODULES = {
+  actions: [{
+    appId: 'app-coerce', name: 'Coerce Co', companyName: 'Coerce Co', isInstalled: true,
+    actions: [{ key: 'coerce_test_action' }],
+  }],
+  triggers: [],
+};
+
+test('a checkbox/numerical schema default is type-coerced, not stored as a raw string', () => {
+  n = 0;
+  const idx = buildMarketplaceIndex({ assets: INLINE_ASSETS, modules: INLINE_MODULES });
+  const built = compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'coerce_test_action',
+    name: 'Coerce Test', attributes: { label: 'x' },
+  }), ctx({ marketplace: idx }));
+  const attrs = built.autoSaveBody.workflowData.templates[0].attributes;
+  assert.equal(attrs.enabled, true);
+  assert.equal(typeof attrs.enabled, 'boolean');
+  assert.equal(attrs.count, 5);
+  assert.equal(typeof attrs.count, 'number');
+});
