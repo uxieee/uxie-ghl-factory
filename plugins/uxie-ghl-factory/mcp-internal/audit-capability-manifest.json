@@ -8,7 +8,8 @@
     "get_workflow",
     "export_workflow",
     "get_workflow_runtime_window",
-    "get_ai_configuration_bundle"
+    "get_ai_configuration_bundle",
+    "list_marketplace_apps"
   ],
   "capabilities": [
     {
@@ -582,7 +583,46 @@
       "numericQueryBounds": {},
       "locationBinding": "query",
       "sealedBy": "agent_studio_agent_discovery"
+    },
+    {
+      "tool": "list_marketplace_apps",
+      "capabilityId": "marketplace_module_search",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/marketplace/core/search/module",
+      "pathBindings": {},
+      "queryBindings": {},
+      "requiredQueryKeys": [
+        "locationId",
+        "type",
+        "isInstalled",
+        "skip",
+        "limit"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {
+        "isInstalled": "true"
+      },
+      "allowedQueryValues": {
+        "type": [
+          "triggers",
+          "actions"
+        ]
+      },
+      "numericQueryBounds": {
+        "skip": {
+          "min": 0
+        },
+        "limit": {
+          "min": 1,
+          "max": 200
+        }
+      },
+      "locationBinding": "query",
+      "sealedBy": null
     }
   ],
-  "manifestHash": "sha256:590c594a3b7bcc5030961755468211ad73e944992f757f6b0ea627ab76d5287b"
+  "manifestHash": "sha256:037e7b75adba7dea6df9197e0178d7a0a96e96ad01deb142fc5f519561cb3ce7"
 }

@@ -7,6 +7,7 @@ export const AUDIT_TOOL_NAMES = Object.freeze([
   'export_workflow',
   'get_workflow_runtime_window',
   'get_ai_configuration_bundle',
+  'list_marketplace_apps',
 ]);
 
 export function toolsForProfile(profile, tools = TOOLS) {

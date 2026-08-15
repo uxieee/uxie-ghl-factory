@@ -1326,8 +1326,7 @@ export const TOOLS = [
       compact: z.boolean().default(true),
     }),
     capabilities: [
-      { method: 'GET', path: '/marketplace/core/search/module?type=triggers&isInstalled=true' },
-      { method: 'GET', path: '/marketplace/core/search/module?type=actions&isInstalled=true' },
+      { method: 'GET', path: '/marketplace/core/search/module' },
     ],
     handler: async (args, deps) => guard(async () => {
       const loc = encodeURIComponent(args.locationId);

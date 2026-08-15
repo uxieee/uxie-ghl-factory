@@ -41,6 +41,7 @@ test('audit profile exposes the exact read-only set', () => {
     'export_workflow',
     'get_workflow_runtime_window',
     'get_ai_configuration_bundle',
+    'list_marketplace_apps',
   ]);
   const selected = toolsForProfile('audit', futureTools);
   assert.deepEqual(selected.map((tool) => tool.name), AUDIT_TOOL_NAMES);

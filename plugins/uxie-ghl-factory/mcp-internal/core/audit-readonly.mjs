@@ -1,11 +1,12 @@
 // The audit process's SECOND lock.
 //
 // The first lock is the registry filter: `toolsForProfile('audit')` decides which tools the
-// audit server publishes. That lock is real — the committed bundle lists exactly six tools —
-// but it is the ONLY one, and it is a filter over a registry rather than a property of the
-// artefact. `dist/audit-server.mjs` still CONTAINS every write handler as unreachable code,
-// because `core/tools.mjs` declares all of them in one array literal and esbuild has nothing
-// to tree-shake. The audit bundle is in fact slightly LARGER than the full server.
+// audit server publishes. That lock is real — the committed bundle lists exactly the
+// AUDIT_TOOL_NAMES allowlist — but it is the ONLY one, and it is a filter over a registry
+// rather than a property of the artefact. `dist/audit-server.mjs` still CONTAINS every write
+// handler as unreachable code, because `core/tools.mjs` declares all of them in one array
+// literal and esbuild has nothing to tree-shake. The audit bundle is in fact slightly LARGER
+// than the full server.
 //
 // So this lock sits underneath every tool instead of beside them: whatever the registry
 // publishes, and whatever a future refactor does to it, nothing but a GET to an approved

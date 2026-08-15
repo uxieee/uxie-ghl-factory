@@ -243,6 +243,11 @@ const MINIMAL_REQUESTS = {
     },
     query: { locationId: LOC },
   },
+  marketplace_module_search: {
+    capabilityId: 'marketplace_module_search',
+    typedBindings: { locationId: LOC },
+    query: { locationId: LOC, type: 'triggers', isInstalled: 'true', skip: 0, limit: 100 },
+  },
 };
 
 const queryString = (url) => String(url).split('?').slice(1).join('?');
@@ -1651,6 +1656,9 @@ test('every capability emits exactly the host, path, and query its descriptor de
       'productId=superagent', 'sortBy=lastUpdated', 'sortOrder=desc',
     ]],
     agent_studio_agent_detail: [`${SERVICES}/agent-studio/super-agent/agents/agent-1`, [`locationId=${LOC}`]],
+    marketplace_module_search: [`${SERVICES}/marketplace/core/search/module`, [
+      'isInstalled=true', 'limit=100', `locationId=${LOC}`, 'skip=0', 'type=triggers',
+    ]],
   };
 
   for (const capability of AUDIT_CAPABILITIES) {
