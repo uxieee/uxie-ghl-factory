@@ -110,8 +110,10 @@ export function parseActionSchema(assets) {
         type: action.key,
         app: app.appName,
         section: action.section,
-        version: action.version,
-        templateId: action.templateId,
+        // No `version`/`templateId` here, deliberately: drift is TRIGGER-ONLY (see
+        // marketplaceDrift below) — a stored marketplace ACTION step records no version to
+        // compare against in the first place, so retaining these on the action entry would
+        // be dead data implying a comparison this schema never performs.
         fields,
         requiredFields: fields.filter((f) => f.required).map((f) => f.field),
         requiredTriggers: action.requiredTriggers ?? [],
