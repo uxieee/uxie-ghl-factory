@@ -55,9 +55,20 @@ export function parseMarketplaceTriggers(assets) {
 
 // The module payloads are per-app arrays; an app appears in both responses, so merge
 // its key lists rather than letting the second overwrite the first.
+//
+// 🔴 actionKeys and triggerKeys are kept as TWO SEPARATE lists, never one shared `keys[]`
+// — the same collision class documented at the top of this file. A key that is BOTH an
+// action and a trigger (`contact_engagement_score`) can belong to DIFFERENT apps: one app
+// publishes it as an action, a different app publishes it as a trigger. A single mixed
+// `keys[]` folded both into one list per app, which fed a single shared key→appId map
+// downstream (see `buildMarketplaceIndex`) — that map could resolve an action lookup to
+// the app that actually owns the *trigger* half of the collision, silently reporting an
+// uninstalled action's app as installed. See buildMarketplaceIndex's docstring for the
+// full reproduction. Each list is deduped — an app can appear once per field across the
+// merge, and a duplicate key in the raw payload must not produce a duplicate list entry.
 export function parseInstalledModules({ triggers = [], actions = [] } = {}) {
   const byAppId = new Map();
-  const absorb = (rows, field) => {
+  const absorb = (rows, field, listKey) => {
     for (const app of rows ?? []) {
       if (!app?.appId) continue;
       const existing = byAppId.get(app.appId) ?? {
@@ -67,26 +78,52 @@ export function parseInstalledModules({ triggers = [], actions = [] } = {}) {
         totalInstallations: app.totalInstallations,
         averageRating: app.averageRating,
         isInstalled: app.isInstalled === true,
-        keys: [],
+        actionKeys: [],
+        triggerKeys: [],
       };
       existing.isInstalled = existing.isInstalled || app.isInstalled === true;
-      for (const item of app[field] ?? []) if (item?.key) existing.keys.push(item.key);
+      for (const item of app[field] ?? []) {
+        if (item?.key && !existing[listKey].includes(item.key)) existing[listKey].push(item.key);
+      }
       byAppId.set(app.appId, existing);
     }
   };
-  absorb(actions, 'actions');
-  absorb(triggers, 'triggers');
+  absorb(actions, 'actions', 'actionKeys');
+  absorb(triggers, 'triggers', 'triggerKeys');
   return byAppId;
 }
 
+// Join install truth back onto the schema, KIND-AWARE — never one shared key→appId map.
+//
+// 🔴 REAL, OBSERVED collision class (same one documented at the top of this file, but this
+// is the install-JOIN half of it, not the schema half): action-space and trigger-space are
+// separate namespaces that can share a key string, AND — the part a single shared map gets
+// wrong — the two halves of a collision can belong to DIFFERENT apps entirely. Example:
+//   app A publishes 'shared_key' as an ACTION and is NOT installed
+//   app B publishes 'shared_key' as a TRIGGER and IS installed
+// A single `appIdByKey` map built from a mixed keys[] list would resolve 'shared_key' to
+// app B for BOTH the action lookup and the trigger lookup — so `get('shared_key', 'action')`
+// would report `installed: true` and `appId: app-B`, even though the app that actually
+// publishes that key as an action was never installed. `MARKETPLACE_APP_NOT_INSTALLED`
+// would never fire, and the compiler would emit a step for an app the location does not
+// have — exactly the failure the module endpoint exists to prevent.
+//
+// The fix: two separate appId maps, one per kind, each built ONLY from that kind's key
+// list. An action entry's `appId`/`installed` can only ever come from an app that
+// publishes that key AS AN ACTION; a trigger entry's, only from an app that publishes it
+// AS A TRIGGER.
 export function buildMarketplaceIndex({ assets, modules } = {}) {
   const actionSchema = parseMarketplaceActions(assets);
   const triggerSchema = parseMarketplaceTriggers(assets);
   const apps = parseInstalledModules(modules ?? {});
-  const appIdByKey = new Map();
-  for (const app of apps.values()) for (const key of app.keys) appIdByKey.set(key, app.appId);
+  const appIdByKind = { action: new Map(), trigger: new Map() };
+  for (const app of apps.values()) {
+    for (const key of app.actionKeys) appIdByKind.action.set(key, app.appId);
+    for (const key of app.triggerKeys) appIdByKind.trigger.set(key, app.appId);
+  }
 
-  const join = (schema) => {
+  const join = (schema, kind) => {
+    const appIdByKey = appIdByKind[kind];
     const joined = new Map();
     for (const [key, entry] of schema) {
       const appId = appIdByKey.get(key);
@@ -95,7 +132,7 @@ export function buildMarketplaceIndex({ assets, modules } = {}) {
     }
     return joined;
   };
-  const byKind = { action: join(actionSchema), trigger: join(triggerSchema) };
+  const byKind = { action: join(actionSchema, 'action'), trigger: join(triggerSchema, 'trigger') };
 
   return {
     // `kind` is REQUIRED — must be exactly 'action' or 'trigger'. Action and trigger
@@ -111,7 +148,5 @@ export function buildMarketplaceIndex({ assets, modules } = {}) {
       }
       return byKind[kind].get(key);
     },
-    all: () => [...byKind.action.values(), ...byKind.trigger.values()],
-    installedApps: () => [...apps.values()].filter((a) => a.isInstalled),
   };
 }
