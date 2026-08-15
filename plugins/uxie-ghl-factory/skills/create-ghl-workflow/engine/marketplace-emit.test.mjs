@@ -150,3 +150,67 @@ test('a checkbox/numerical schema default is type-coerced, not stored as a raw s
   assert.equal(attrs.count, 5);
   assert.equal(typeof attrs.count, 'number');
 });
+
+const irTrigger = (trigger) => ({ name: 'wf', triggers: [trigger], graph: [] });
+
+test('a marketplace trigger emits masterType, version and templateId', () => {
+  n = 0;
+  const built = compile(irTrigger({
+    marketplace: true, type: 'imessage_t', name: 'iMessage In',
+    filters: [{ field: 'payload.message.text', title: 'Message', type: 'string',
+                operator: 'string-contains-any-of', value: ['Book now please'] }],
+  }), ctx());
+  const t = built.triggerBodies[0];
+  assert.equal(t.masterType, 'marketplace');
+  assert.equal(t.version, '1.4');
+  assert.equal(t.templateId, '01JTG30GR5C99TGPCJA8Z5899R');
+});
+
+test('a marketplace condition carries id identical to field', () => {
+  n = 0;
+  const built = compile(irTrigger({
+    marketplace: true, type: 'imessage_t', name: 'iMessage In',
+    filters: [{ field: 'payload.message.text', title: 'Message', type: 'string',
+                operator: 'string-contains-any-of', value: ['Book now please'] }],
+  }), ctx());
+  const cond = built.triggerBodies[0].conditions[0];
+  assert.equal(cond.id, 'payload.message.text');
+  assert.equal(cond.field, 'payload.message.text');
+  assert.deepEqual(cond.value, ['Book now please']);
+});
+
+test('an operator GHL does not offer is fatal', () => {
+  n = 0;
+  assert.throws(() => compile(irTrigger({
+    marketplace: true, type: 'imessage_t', name: 'iMessage In',
+    filters: [{ field: 'payload.message.text', title: 'Message', type: 'string',
+                operator: 'eq', value: ['Book now'] }],
+  }), ctx()), (e) => e.code === 'MARKETPLACE_FILTER_OPERATOR' && /eq/.test(e.message));
+});
+
+test('substring-colliding filter values warn but still build', () => {
+  n = 0;
+  const warnings = [];
+  const built = compile({
+    name: 'wf', graph: [],
+    triggers: [
+      { marketplace: true, type: 'imessage_t', name: 'A',
+        filters: [{ field: 'payload.message.text', title: 'Message', type: 'string',
+                    operator: 'string-contains-any-of', value: ['Book now'] }] },
+      { marketplace: true, type: 'imessage_t', name: 'B',
+        filters: [{ field: 'payload.message.text', title: 'Message', type: 'string',
+                    operator: 'string-contains-any-of', value: ['Book now please'] }] },
+    ],
+  }, ctx({ warn: (w) => warnings.push(w) }));
+  assert.equal(built.triggerBodies.length, 2);
+  assert.ok(warnings.some((w) => /Book now/.test(w) && /substring|overlap/i.test(w)));
+});
+
+test('a NON-marketplace trigger is untouched', () => {
+  n = 0;
+  const built = compile(irTrigger({ type: 'contact_tag', name: 'Tagged' }), ctx());
+  const t = built.triggerBodies[0];
+  assert.equal(t.masterType, 'highlevel');
+  assert.equal(t.version, undefined);
+  assert.equal(t.templateId, undefined);
+});
