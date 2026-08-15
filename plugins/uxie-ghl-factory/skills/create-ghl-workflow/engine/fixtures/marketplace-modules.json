@@ -1,0 +1,388 @@
+{
+  "actions": [
+    {
+      "_id": "69d485490221c239fc6b822d",
+      "appId": "65a908766a9bd0008de6ee04",
+      "name": "myCRMSIM - SMS, iMessage & WhatsApp",
+      "logoUrl": "https://msgsndr-private.storage.googleapis.com/marketplace/apps/65a908766a9bd0008de6ee04/e28e26b1-1c26-4765-8399-1299c11f43fd.png",
+      "companyName": "JAG Digital",
+      "isPaid": false,
+      "isFreemium": false,
+      "totalInstallations": 68764,
+      "averageRating": 4.7,
+      "totalReviews": 12,
+      "contact": {
+        "name": "",
+        "email": ""
+      },
+      "createdAt": "2026-04-07T04:17:13.741Z",
+      "isInstalled": true,
+      "tagline": "",
+      "actions": [
+        {
+          "_id": "6818a3f0ed65ba038f3f4561",
+          "templateId": "01JTG3GNCCGBMXS0BY7NE3XY91",
+          "appId": "65a908766a9bd0008de6ee04",
+          "branchesConfig": {},
+          "customVars": [],
+          "customVarsJson": {
+            "message": "Event successfully sent to SQS",
+            "messageId": "9203c59d-67ed-43a9-96e6-305218dc96ac"
+          },
+          "info": {
+            "name": "Send iMessage",
+            "description": "Send iMessage",
+            "summary": "use this action to send iMessage.",
+            "icon": "fa-commenting",
+            "screenshots": []
+          },
+          "inputs": [
+            {
+              "field": "to_phone",
+              "title": "to_phone",
+              "required": true,
+              "fieldType": "phone",
+              "helpText": "to phone number",
+              "value": "{{contact.phone_raw}}",
+              "altersDynamicField": false
+            },
+            {
+              "field": "message",
+              "title": "Message",
+              "required": true,
+              "fieldType": "textarea",
+              "placeholder": "Add your message here",
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            },
+            {
+              "field": "attachment",
+              "title": "Attachment",
+              "required": false,
+              "fieldType": "attachment",
+              "altersDynamicField": false
+            },
+            {
+              "field": "file_url",
+              "title": "Files thruogh url",
+              "required": false,
+              "fieldType": "string",
+              "helpText": "Add url of file you want to send",
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            },
+            {
+              "field": "conversation_provider",
+              "title": "conversation_provider",
+              "required": true,
+              "fieldType": "string",
+              "value": "65f0a76d7aabd6ba4decd979",
+              "altersDynamicField": false
+            }
+          ],
+          "key": "imessage_a",
+          "version": "1.5",
+          "isInstalled": true
+        }
+      ]
+    },
+    {
+      "_id": "6803f76b47eeb448d9cd2a30",
+      "appId": "6803f76b47eeb448d9cd2a30",
+      "name": "Blooio",
+      "logoUrl": "https://msgsndr-private.storage.googleapis.com/marketplace/apps/6803f76b47eeb448d9cd2a30/a11d9f0a-2bf9-4d5d-9b58-8ac2fa2e5b7f.png",
+      "companyName": "Blooio",
+      "isPaid": false,
+      "isFreemium": false,
+      "totalInstallations": 347,
+      "averageRating": 0,
+      "totalReviews": 0,
+      "contact": {
+        "name": "",
+        "email": ""
+      },
+      "createdAt": "2025-04-19T19:20:11.157Z",
+      "isInstalled": true,
+      "tagline": "",
+      "actions": [
+        {
+          "_id": "682392b5e00a516425d13480",
+          "templateId": "01JV437RS5XV1NS73DDQDDY74S",
+          "appId": "6803f76b47eeb448d9cd2a30",
+          "branchesConfig": {},
+          "customVars": [],
+          "customVarsJson": {
+            "success": true,
+            "messageId": "_VW3B4Mtb5PRCXBWMNoBL",
+            "status": 200
+          },
+          "info": {
+            "name": "Send Message - Blooio.com",
+            "description": "This action sends iMessages to iPhone users. And will default to RCS/SMS if the user does not have an iPhone.",
+            "icon": "fa-comment",
+            "screenshots": []
+          },
+          "inputs": [
+            {
+              "field": "phone_number",
+              "title": "Phone",
+              "required": true,
+              "fieldType": "phone",
+              "helpText": "Put the phone/email of the person you need to send the message to. iMessage is only supported when a phone is provided",
+              "placeholder": "",
+              "value": "{{contact.phone}}",
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            },
+            {
+              "field": "effect",
+              "title": "Effect",
+              "required": false,
+              "fieldType": "select",
+              "helpText": "The effect the message will send with. If it's an RCS or SMS, it will ignore this value. Can't use an effect there. Sorry.",
+              "altersDynamicField": false,
+              "options": [
+                {
+                  "label": "Slam",
+                  "value": "slam"
+                },
+                {
+                  "label": "Loud",
+                  "value": "loud"
+                },
+                {
+                  "label": "Gentle",
+                  "value": "gentle"
+                },
+                {
+                  "label": "Invisible Ink",
+                  "value": "invisible-ink"
+                },
+                {
+                  "label": "Echo",
+                  "value": "echo"
+                },
+                {
+                  "label": "Spotlight",
+                  "value": "spotlight"
+                },
+                {
+                  "label": "Balloons",
+                  "value": "balloons"
+                },
+                {
+                  "label": "Confetti",
+                  "value": "confetti"
+                },
+                {
+                  "label": "Love",
+                  "value": "love"
+                },
+                {
+                  "label": "Lasers",
+                  "value": "lasers"
+                },
+                {
+                  "label": "Fireworks",
+                  "value": "fireoworks"
+                },
+                {
+                  "label": "Celebration",
+                  "value": "celebration"
+                },
+                {
+                  "label": "None",
+                  "value": "none"
+                }
+              ]
+            },
+            {
+              "field": "message",
+              "title": "Message",
+              "required": false,
+              "fieldType": "textarea",
+              "helpText": "Enter the message you'd like to send",
+              "validations": [],
+              "altersDynamicField": false
+            },
+            {
+              "field": "attachment_file",
+              "title": "Attachment File",
+              "required": false,
+              "fieldType": "attachment",
+              "validations": [],
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            },
+            {
+              "field": "attachment_url",
+              "title": "Attachment URL",
+              "required": false,
+              "fieldType": "textarea",
+              "helpText": "If you'd like to attach a file that GHL doesn't support you can upload it somewhere else and put the URL here. Multiple urls are supported. Separated by a comma",
+              "value": "",
+              "validations": [],
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            }
+          ],
+          "key": "send_smart_message",
+          "version": "1.5",
+          "isInstalled": true
+        },
+        {
+          "_id": "68b054db6d8327f2dc3c7cf1",
+          "templateId": "01K3QG2WZ1ET1NWF9Y6JG449EX",
+          "appId": "6803f76b47eeb448d9cd2a30",
+          "branchesConfig": {},
+          "customVars": [],
+          "customVarsJson": {
+            "success": true,
+            "reactionSent": "love",
+            "status": 200
+          },
+          "info": {
+            "name": "React To Last Message",
+            "description": "Reacts to the last message in the conversation",
+            "icon": "fa-angellist",
+            "screenshots": []
+          },
+          "inputs": [
+            {
+              "field": "reaction",
+              "title": "Reaction",
+              "required": true,
+              "fieldType": "select",
+              "helpText": "Select from the available reactions to react to the last message",
+              "validations": [],
+              "altersDynamicField": false,
+              "allowCustomInputPicker": false,
+              "options": [
+                {
+                  "label": "Love",
+                  "value": "love",
+                  "description": "Reacts with \"Love\"",
+                  "disabled": false
+                },
+                {
+                  "label": "Like",
+                  "value": "like",
+                  "description": "Reacts with \"Like/Thumbs up\"",
+                  "disabled": false
+                },
+                {
+                  "label": "Dislike",
+                  "value": "dislike",
+                  "description": "Reacts with \"Dislike/Thumbs down\"",
+                  "disabled": false
+                },
+                {
+                  "label": "Laugh",
+                  "value": "laugh",
+                  "description": "Reacts with \"Laugh/haha\"",
+                  "disabled": false
+                },
+                {
+                  "label": "Emphasize",
+                  "value": "emphasize",
+                  "description": "Reacts with \"Emphasize/!!\"",
+                  "disabled": false
+                },
+                {
+                  "label": "Question",
+                  "value": "question",
+                  "description": "Reacts with \"question/?\"",
+                  "disabled": false
+                }
+              ]
+            },
+            {
+              "field": "add_or_remove",
+              "title": "Add/Remove",
+              "required": true,
+              "fieldType": "toggle",
+              "helpText": "Choose either to add or remove the reaction",
+              "value": "",
+              "validations": [],
+              "altersDynamicField": false,
+              "allowCustomInputPicker": true
+            }
+          ],
+          "key": "react_to_last_message",
+          "version": "1.0",
+          "isInstalled": true
+        }
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "_id": "69d485490221c239fc6b822d",
+      "appId": "65a908766a9bd0008de6ee04",
+      "name": "myCRMSIM - SMS, iMessage & WhatsApp",
+      "logoUrl": "https://msgsndr-private.storage.googleapis.com/marketplace/apps/65a908766a9bd0008de6ee04/e28e26b1-1c26-4765-8399-1299c11f43fd.png",
+      "companyName": "JAG Digital",
+      "isPaid": false,
+      "isFreemium": false,
+      "totalInstallations": 68764,
+      "averageRating": 4.7,
+      "totalReviews": 12,
+      "contact": {
+        "name": "",
+        "email": ""
+      },
+      "createdAt": "2026-04-07T04:17:13.741Z",
+      "isInstalled": true,
+      "tagline": "",
+      "triggers": [
+        {
+          "_id": "6818a1a9ed65ba038f1f840d",
+          "templateId": "01JTG30GR5C99TGPCJA8Z5899R",
+          "appId": "65a908766a9bd0008de6ee04",
+          "customVars": [
+            {
+              "reference": "phone",
+              "name": "phone",
+              "fieldType": "string"
+            },
+            {
+              "reference": "message",
+              "name": "message",
+              "fieldType": "string"
+            },
+            {
+              "reference": "id",
+              "name": "id",
+              "fieldType": "string"
+            },
+            {
+              "reference": "isMe",
+              "name": "isMe",
+              "fieldType": "string"
+            },
+            {
+              "reference": "device_id",
+              "name": "device_id",
+              "fieldType": "string"
+            },
+            {
+              "reference": "workspace_id",
+              "name": "workspace_id",
+              "fieldType": "numerical"
+            }
+          ],
+          "info": {
+            "name": "iMessage",
+            "description": "When iMessage is received.",
+            "summary": "When iMessage is received.",
+            "icon": "fa-commenting",
+            "screenshots": []
+          },
+          "key": "imessage_t",
+          "version": "1.4",
+          "isInstalled": true
+        }
+      ]
+    }
+  ]
+}
