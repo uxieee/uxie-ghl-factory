@@ -64,8 +64,10 @@ function isBlank(v) {
 }
 
 // Field defaults arrive as STRINGS regardless of type (`value: "true"` on a checkbox), so
-// coerce by the declared fieldType rather than trusting the literal.
-function coerceDefault(raw, fieldType) {
+// coerce by the declared fieldType rather than trusting the literal. Exported so callers
+// outside this module (e.g. compiler.mjs's marketplace path) reuse the same coercion
+// instead of duplicating it.
+export function coerceDefault(raw, fieldType) {
   if (raw === undefined || raw === null || raw === '') return undefined;
   if (fieldType === 'checkbox' || fieldType === 'toggle') {
     if (raw === true || raw === false) return raw;
