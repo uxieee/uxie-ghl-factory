@@ -18,7 +18,7 @@ import {
 } from './audit-configuration.mjs';
 import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
-import { fetchActionSchema, checkWorkflow } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
+import { fetchActionSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
   applyOps,
   partitionOps,
@@ -804,7 +804,12 @@ export const TOOLS = [
       + 'on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets '
       + 'catalog the builder itself validates against). NOTE: that catalog omits core native actions '
       + '(add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means '
-      + '"nothing found in the 240 types it describes", not "provably publishable".'),
+      + '"nothing found in the 240 types it describes", not "provably publishable". Also reports '
+      + '`marketplaceDrift`: whether a stored marketplace TRIGGER\'s version/templateId matches what is '
+      + 'installed now — TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all '
+      + '(live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, '
+      + 'isMarketplaceAction — nothing to compare an action against). Always a separate key, never folded '
+      + 'into `errorCount`.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -835,6 +840,15 @@ export const TOOLS = [
       }
 
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+      // Steps are actions, never triggers — but actionSchema now also carries trigger
+      // entries (parseActionSchema merges assets.triggers into the same map, so
+      // marketplaceDrift's trigger lookups work). Exclude kind:'trigger' entries here so a
+      // step type that happened to collide with a trigger key can never inflate
+      // stepsDescribed/count as "described" for a source that never described any step.
+      const isStepSchema = (t) => {
+        const spec = actionSchema.get(t.type);
+        return spec != null && spec.kind !== 'trigger';
+      };
       return ok({
         workflowId: args.workflowId,
         name: body.json?.name,
@@ -843,10 +857,14 @@ export const TOOLS = [
         errorCount: errors.length,
         errors,
         headline: `Resolve ${errors.length} Errors`,
+        // Marketplace TRIGGER-only version/templateId drift (see the tool description for
+        // why actions are out of scope). A separate key, deliberately never folded into
+        // errorCount above.
+        marketplaceDrift: marketplaceDrift(triggerList, actionSchema),
         coverage: {
           schemaTypes: actionSchema.size,
-          stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
-          stepsNotDescribed: templates.filter((t) => !actionSchema.has(t.type)).length,
+          stepsDescribed: templates.filter(isStepSchema).length,
+          stepsNotDescribed: templates.filter((t) => !isStepSchema(t)).length,
           note: 'Steps not described by the marketplace catalog (core native actions) are SKIPPED, '
             + 'not asserted clean. A zero errorCount is not proof the workflow is publishable.',
         },
