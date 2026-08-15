@@ -405,3 +405,42 @@ test('a marketplace TRIGGER using an action-only key names the real problem, not
   }), ctx()), (e) => e.code === 'MARKETPLACE_KEY_UNKNOWN'
     && /published in this location as a\s*marketplace action/.test(e.message));
 });
+
+// --- CROSS-APP collision: the install gate itself, not the schema split -----------------
+//
+// Reproduces the case a same-appId collision fixture cannot catch: app A publishes
+// 'shared_key' as an ACTION and is NOT installed; a different app, app B, publishes the
+// SAME 'shared_key' as a TRIGGER and IS installed. Before the kind-separated appId join
+// (marketplace.mjs), a single shared key→appId map would resolve the action lookup to app
+// B — the app that happens to be installed — and MARKETPLACE_APP_NOT_INSTALLED would never
+// fire, letting a step for an uninstalled app compile clean. This test proves it still
+// fails closed. See marketplace.test.mjs's CROSS_APP_ASSETS/CROSS_APP_MODULES for the full
+// comment on why the collision is real in the live catalog and the join is global across
+// apps, not per-app.
+const CROSS_APP_ASSETS = {
+  actions: [{
+    appName: 'Uninstalled Scoring App',
+    actions: [{ key: 'shared_key', version: '1.0', templateId: 'TPL-A-ACTION', inputs: [] }],
+  }],
+  triggers: [{
+    appName: 'Installed Inbox App',
+    triggers: [{ key: 'shared_key', version: '1.0', templateId: 'TPL-B-TRIGGER', inputs: [] }],
+  }],
+};
+const CROSS_APP_MODULES = {
+  actions: [],
+  triggers: [{
+    appId: 'app-B', name: 'Installed Inbox App', companyName: 'Installed Inbox App',
+    isInstalled: true, triggers: [{ key: 'shared_key' }],
+  }],
+};
+const crossAppMarketplace = buildMarketplaceIndex({ assets: CROSS_APP_ASSETS, modules: CROSS_APP_MODULES });
+
+test('cross-app collision: compiling a marketplace STEP of the key fails closed, not inheriting the OTHER app\'s install', () => {
+  n = 0;
+  assert.throws(() => compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'shared_key',
+    name: 'Score', attributes: {},
+  }), ctx({ marketplace: crossAppMarketplace })),
+    (e) => e.code === 'MARKETPLACE_APP_NOT_INSTALLED' && /not installed/i.test(e.message));
+});

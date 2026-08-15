@@ -37,7 +37,19 @@ test('module parse yields app identity and install truth', () => {
   assert.equal(app.isInstalled, true);
   assert.equal(app.companyName, 'JAG Digital');
   assert.ok(app.totalInstallations > 0);
-  assert.ok(app.keys.includes('imessage_a'));
+  assert.ok(app.actionKeys.includes('imessage_a'));
+});
+
+// actionKeys and triggerKeys are kept SEPARATE, deliberately — not one shared `keys[]`.
+// This is what lets buildMarketplaceIndex build kind-separated appId maps below; a single
+// mixed list would re-introduce the cross-app collision bug (see the fixture further down).
+test('module parse keeps actionKeys and triggerKeys as separate lists', () => {
+  const apps = parseInstalledModules(MODULES);
+  const app = apps.get('65a908766a9bd0008de6ee04');
+  assert.ok(app.actionKeys.includes('imessage_a'));
+  assert.ok(!app.actionKeys.includes('imessage_t'));
+  assert.ok(app.triggerKeys.includes('imessage_t'));
+  assert.ok(!app.triggerKeys.includes('imessage_a'));
 });
 
 test('index joins schema to install truth', () => {
@@ -127,4 +139,59 @@ test('contact_engagement_score: get(key, "trigger") returns the TRIGGER entry, n
   assert.equal(trigger.kind, 'trigger');
   assert.equal(trigger.templateId, 'TPL-SCORE-TRIGGER');
   assert.deepEqual(trigger.inputs, []);
+});
+
+// --- CROSS-APP collision: the install gate's OWN bug, not the schema split's ------------
+//
+// The two fixtures above (COLLISION_ASSETS/COLLISION_MODULES) put both halves of the
+// `contact_engagement_score` collision under the SAME appId ('app-score') — which proves
+// the SCHEMA maps (parseMarketplaceActions/parseMarketplaceTriggers) don't shadow each
+// other, but proves NOTHING about the install JOIN, because a single shared key→appId map
+// would still resolve correctly when both kinds happen to belong to one app.
+//
+// The install join is GLOBAL ACROSS APPS: in the live catalog, nothing guarantees the
+// action half and the trigger half of a colliding key belong to the same app. This fixture
+// reproduces the case that actually breaks a shared appIdByKey map: app A publishes
+// 'shared_key' as an ACTION and is NOT installed (so it never appears in the module
+// response — the real module endpoint is queried with isInstalled=true); app B publishes
+// 'shared_key' as a TRIGGER and IS installed. A shared map would let app B's install
+// status leak onto the action lookup, silently defeating MARKETPLACE_APP_NOT_INSTALLED.
+const CROSS_APP_ASSETS = {
+  actions: [{
+    appName: 'Uninstalled Scoring App',
+    actions: [{
+      key: 'shared_key', version: '1.0', templateId: 'TPL-A-ACTION', inputs: [],
+    }],
+  }],
+  triggers: [{
+    appName: 'Installed Inbox App',
+    triggers: [{
+      key: 'shared_key', version: '1.0', templateId: 'TPL-B-TRIGGER', inputs: [],
+    }],
+  }],
+};
+// App A is deliberately ABSENT here — it is not installed, so the real
+// `isInstalled=true` module endpoint would never return it.
+const CROSS_APP_MODULES = {
+  actions: [],
+  triggers: [{
+    appId: 'app-B', name: 'Installed Inbox App', companyName: 'Installed Inbox App',
+    isInstalled: true, triggers: [{ key: 'shared_key' }],
+  }],
+};
+
+test('cross-app collision: an uninstalled action does not inherit a different app\'s install truth', () => {
+  const index = buildMarketplaceIndex({ assets: CROSS_APP_ASSETS, modules: CROSS_APP_MODULES });
+  const action = index.get('shared_key', 'action');
+  assert.equal(action.installed, false, 'app A is not installed — must not inherit app B\'s isInstalled:true');
+  assert.notEqual(action.appId, 'app-B', 'must never resolve to the OTHER app that happens to share the key');
+  assert.ok(action.appId === null || action.appId === undefined,
+    'app A never appears in the module response (not installed), so there is no appId to resolve to');
+});
+
+test('cross-app collision: the installed trigger resolves to its OWN app, unaffected', () => {
+  const index = buildMarketplaceIndex({ assets: CROSS_APP_ASSETS, modules: CROSS_APP_MODULES });
+  const trigger = index.get('shared_key', 'trigger');
+  assert.equal(trigger.installed, true);
+  assert.equal(trigger.appId, 'app-B');
 });
