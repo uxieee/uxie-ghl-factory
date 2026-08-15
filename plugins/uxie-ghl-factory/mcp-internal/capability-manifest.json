@@ -237,12 +237,7 @@
   {
     "tool": "list_marketplace_apps",
     "method": "GET",
-    "path": "/marketplace/core/search/module?type=triggers&isInstalled=true"
-  },
-  {
-    "tool": "list_marketplace_apps",
-    "method": "GET",
-    "path": "/marketplace/core/search/module?type=actions&isInstalled=true"
+    "path": "/marketplace/core/search/module"
   },
   {
     "tool": "list_courses",

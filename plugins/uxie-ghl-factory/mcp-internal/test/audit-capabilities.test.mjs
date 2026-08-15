@@ -53,6 +53,7 @@ const CAPABILITY_ORDER = [
   'conversation_ai_agent_detail',
   'agent_studio_agent_discovery',
   'agent_studio_agent_detail',
+  'marketplace_module_search',
 ];
 
 // Descriptor defaults. Every plan-derived value is still written out literally below.
@@ -253,6 +254,22 @@ const EXPECTED = {
     locationBinding: 'query',
     sealedBy: 'agent_studio_agent_discovery',
   }),
+  // ONE endpoint called twice with different `type` values, not two endpoints — the
+  // original two-descriptor design collided in buildAuditManifest's path-collision guard,
+  // since both would-be descriptors normalized to the same bare path. `type` is modelled
+  // with `allowedQueryValues`, the same mechanism `workflow_roster_list.status` already
+  // uses for a query value that legitimately varies per call.
+  marketplace_module_search: descriptor({
+    capabilityId: 'marketplace_module_search',
+    host: 'services',
+    authRail: 'ai',
+    normalizedPath: '/marketplace/core/search/module',
+    requiredQueryKeys: ['locationId', 'type', 'isInstalled', 'skip', 'limit'],
+    fixedQueryValues: { isInstalled: 'true' },
+    allowedQueryValues: { type: ['triggers', 'actions'] },
+    numericQueryBounds: { skip: { min: 0 }, limit: { min: 1, max: 200 } },
+    locationBinding: 'query',
+  }),
 };
 
 // Canonicalize both sides identically: sort object keys and sort string arrays so
@@ -421,7 +438,7 @@ test('every descriptor is schema-valid', () => {
   }
 });
 
-test('the descriptor set is exactly the 16 planned capability IDs, in plan order', () => {
+test('the descriptor set is exactly the 17 planned capability IDs, in plan order', () => {
   assert.deepEqual(AUDIT_CAPABILITIES.map((c) => c.capabilityId), CAPABILITY_ORDER);
 });
 

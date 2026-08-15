@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TOOLS } from '../core/tools.mjs';
+import { AUDIT_TOOL_NAMES, toolsForProfile } from '../core/audit-profile.mjs';
+import { AUDIT_CAPABILITIES } from '../core/audit-capabilities.mjs';
 
 const tool = TOOLS.find((t) => t.name === 'list_marketplace_apps');
 
@@ -108,4 +110,27 @@ test('both legs failing still fails the whole call explicitly, unchanged', async
   };
   const res = await tool.handler({ locationId: 'LOC', type: 'both', compact: true }, failBoth);
   assert.equal(res.ok, false, 'both legs failing must still surface as an explicit tool failure');
+});
+
+test('list_marketplace_apps is in the audit profile', () => {
+  assert.ok(AUDIT_TOOL_NAMES.includes('list_marketplace_apps'));
+  const selected = toolsForProfile('audit');
+  assert.ok(selected.some((t) => t.name === 'list_marketplace_apps'));
+});
+
+// The tool declares ONE bare-path capability, not two: `/marketplace/core/search/module`
+// is one endpoint called twice with different `type` values, so it binds to exactly one
+// audit descriptor. `allowedQueryValues.type` is what now carries the "both call shapes
+// (triggers and actions) are permitted" guarantee that a two-descriptor design used to
+// carry — losing this assertion would silently narrow the descriptor to a single `type`
+// without any test noticing.
+test('its audit capability descriptor exists on the ai rail and permits both type values', () => {
+  assert.equal(tool.capabilities.length, 1, 'the endpoint is called twice with different query values, not twice-declared');
+  const cap = AUDIT_CAPABILITIES.find((c) => c.capabilityId === 'marketplace_module_search');
+  assert.ok(cap, 'marketplace_module_search descriptor must exist');
+  assert.equal(cap.method, 'GET');
+  assert.equal(cap.authRail, 'ai');
+  assert.equal(cap.host, 'services');
+  assert.equal(cap.locationBinding, 'query');
+  assert.deepEqual([...cap.allowedQueryValues.type].sort(), ['actions', 'triggers']);
 });

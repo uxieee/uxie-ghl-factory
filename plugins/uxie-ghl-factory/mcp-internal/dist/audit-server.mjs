@@ -32451,6 +32451,24 @@ var AUDIT_CAPABILITIES = Object.freeze([
     requiredQueryKeys: ["locationId"],
     locationBinding: "query",
     sealedBy: "agent_studio_agent_discovery"
+  }),
+  // ONE endpoint called twice with different `type` values, not two endpoints. Modelling
+  // this as two descriptors (`marketplace_module_triggers` / `marketplace_module_actions`,
+  // both declaring `normalizedPath: '/marketplace/core/search/module'`) collided in
+  // buildAuditManifest's path-collision guard — correctly, since a bare path can only ever
+  // bind to one descriptor. `type` is the query VALUE that varies per call, which is exactly
+  // what `allowedQueryValues` exists to express, the same way `workflow_roster_list` allows
+  // `status` to be either `published` or `draft` from one descriptor.
+  descriptor({
+    capabilityId: "marketplace_module_search",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/marketplace/core/search/module",
+    requiredQueryKeys: ["locationId", "type", "isInstalled", "skip", "limit"],
+    fixedQueryValues: { isInstalled: "true" },
+    allowedQueryValues: { type: ["triggers", "actions"] },
+    numericQueryBounds: { skip: { min: 0 }, limit: { min: 1, max: 200 } },
+    locationBinding: "query"
   })
 ]);
 var BY_ID = new Map(AUDIT_CAPABILITIES.map((capability) => [capability.capabilityId, capability]));
@@ -81281,8 +81299,7 @@ var TOOLS2 = [
       compact: external_exports.boolean().default(true)
     }),
     capabilities: [
-      { method: "GET", path: "/marketplace/core/search/module?type=triggers&isInstalled=true" },
-      { method: "GET", path: "/marketplace/core/search/module?type=actions&isInstalled=true" }
+      { method: "GET", path: "/marketplace/core/search/module" }
     ],
     handler: async (args, deps) => guard(async () => {
       const loc = encodeURIComponent(args.locationId);
@@ -82261,7 +82278,8 @@ var AUDIT_TOOL_NAMES = Object.freeze([
   "get_workflow",
   "export_workflow",
   "get_workflow_runtime_window",
-  "get_ai_configuration_bundle"
+  "get_ai_configuration_bundle",
+  "list_marketplace_apps"
 ]);
 function toolsForProfile(profile, tools = TOOLS2) {
   if (profile !== "audit") throw new Error("UNKNOWN_TOOL_PROFILE");
