@@ -36265,6 +36265,8 @@ function parseActionSchema(assets) {
         type: action.key,
         app: app.appName,
         section: action.section,
+        version: action.version,
+        templateId: action.templateId,
         fields,
         requiredFields: fields.filter((f) => f.required).map((f) => f.field),
         requiredTriggers: action.requiredTriggers ?? [],
@@ -36273,7 +36275,52 @@ function parseActionSchema(assets) {
       });
     }
   }
+  for (const app of assets?.triggers ?? []) {
+    for (const trigger of app?.triggers ?? []) {
+      if (!trigger?.key) continue;
+      byType.set(trigger.key, {
+        type: trigger.key,
+        app: app.appName,
+        version: trigger.version,
+        templateId: trigger.templateId,
+        fields: [],
+        requiredFields: [],
+        requiredTriggers: [],
+        isPremium: false,
+        isMultipath: false,
+        kind: "trigger"
+      });
+    }
+  }
   return byType;
+}
+function marketplaceDrift(storedTriggers, schema2) {
+  const out = [];
+  for (const t of storedTriggers ?? []) {
+    if (t?.masterType !== "marketplace") continue;
+    const spec = schema2?.get?.(t.type);
+    if (!spec) continue;
+    if (t.templateId && spec.templateId && t.templateId !== spec.templateId) {
+      out.push({
+        type: t.type,
+        name: t.name,
+        kind: "templateId",
+        stored: { version: t.version, templateId: t.templateId },
+        installed: { version: spec.version, templateId: spec.templateId }
+      });
+      continue;
+    }
+    if (t.version && spec.version && t.version !== spec.version) {
+      out.push({
+        type: t.type,
+        name: t.name,
+        kind: "version",
+        stored: { version: t.version, templateId: t.templateId },
+        installed: { version: spec.version, templateId: spec.templateId }
+      });
+    }
+  }
+  return out;
 }
 function missingForStep(step, schema2) {
   const spec = schema2?.get?.(step?.type);
@@ -80854,7 +80901,7 @@ var TOOLS2 = [
     name: "check_workflow",
     description: describe3(
       "check_workflow",
-      `Read-only pre-flight: reproduce the workflow builder's "Resolve N Errors" list for an existing workflow, without opening the UI (proof: live-reproduction 2026-07-27 \u2014 matched the builder exactly on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL's OWN action schema (the marketplace assets catalog the builder itself validates against). NOTE: that catalog omits core native actions (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means "nothing found in the 240 types it describes", not "provably publishable".`
+      'Read-only pre-flight: reproduce the workflow builder\'s "Resolve N Errors" list for an existing workflow, without opening the UI (proof: live-reproduction 2026-07-27 \u2014 matched the builder exactly on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets catalog the builder itself validates against). NOTE: that catalog omits core native actions (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means "nothing found in the 240 types it describes", not "provably publishable". Also reports `marketplaceDrift`: whether a stored marketplace TRIGGER\'s version/templateId matches what is installed now \u2014 TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all (live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, isMarketplaceAction \u2014 nothing to compare an action against). Always a separate key, never folded into `errorCount`.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -80884,6 +80931,10 @@ var TOOLS2 = [
         );
       }
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
+      const isStepSchema = (t) => {
+        const spec = actionSchema.get(t.type);
+        return spec != null && spec.kind !== "trigger";
+      };
       return ok({
         workflowId: args.workflowId,
         name: body.json?.name,
@@ -80892,10 +80943,14 @@ var TOOLS2 = [
         errorCount: errors.length,
         errors,
         headline: `Resolve ${errors.length} Errors`,
+        // Marketplace TRIGGER-only version/templateId drift (see the tool description for
+        // why actions are out of scope). A separate key, deliberately never folded into
+        // errorCount above.
+        marketplaceDrift: marketplaceDrift(triggerList, actionSchema),
         coverage: {
           schemaTypes: actionSchema.size,
-          stepsDescribed: templates.filter((t) => actionSchema.has(t.type)).length,
-          stepsNotDescribed: templates.filter((t) => !actionSchema.has(t.type)).length,
+          stepsDescribed: templates.filter(isStepSchema).length,
+          stepsNotDescribed: templates.filter((t) => !isStepSchema(t)).length,
           note: "Steps not described by the marketplace catalog (core native actions) are SKIPPED, not asserted clean. A zero errorCount is not proof the workflow is publishable."
         }
       });

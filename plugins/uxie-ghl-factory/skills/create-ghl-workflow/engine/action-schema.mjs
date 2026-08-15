@@ -84,6 +84,13 @@ export function coerceDefault(raw, fieldType) {
 
 // Flatten the app-grouped payload into type -> spec. The response nests actions under
 // `actions[].actions[]` (apps, then their actions), which is easy to miss.
+//
+// Also parses `assets.triggers` into the SAME map, so a trigger's type resolves through
+// one lookup alongside actions (marketplaceDrift below needs this). Trigger entries carry
+// `kind: 'trigger'` and empty `fields`/`requiredFields` — a workflow STEP's `type` never
+// resolves to a trigger entry in practice, but `kind` lets callers exclude trigger entries
+// from step-shaped counts (e.g. check_workflow's `coverage.stepsDescribed`) defensively,
+// in case a step type and a trigger key ever collide.
 export function parseActionSchema(assets) {
   const byType = new Map();
   for (const app of assets?.actions ?? []) {
@@ -102,6 +109,8 @@ export function parseActionSchema(assets) {
         type: action.key,
         app: app.appName,
         section: action.section,
+        version: action.version,
+        templateId: action.templateId,
         fields,
         requiredFields: fields.filter((f) => f.required).map((f) => f.field),
         requiredTriggers: action.requiredTriggers ?? [],
@@ -110,7 +119,62 @@ export function parseActionSchema(assets) {
       });
     }
   }
+  for (const app of assets?.triggers ?? []) {
+    for (const trigger of app?.triggers ?? []) {
+      if (!trigger?.key) continue;
+      byType.set(trigger.key, {
+        type: trigger.key,
+        app: app.appName,
+        version: trigger.version,
+        templateId: trigger.templateId,
+        fields: [],
+        requiredFields: [],
+        requiredTriggers: [],
+        isPremium: false,
+        isMultipath: false,
+        kind: 'trigger',
+      });
+    }
+  }
   return byType;
+}
+
+// Marketplace apps version independently of us. A workflow stores whatever version was
+// current when it was built; the installed app moves on. This compares the two — but
+// TRIGGER-ONLY, by evidence, not by choice.
+//
+// 🔴 SCOPE: a stored marketplace TRIGGER carries `version` and `templateId`
+// (live-captured, JING SPA account, 2026-08-16). A stored marketplace ACTION step does
+// NOT — its complete key set is `id, stepIndex, order, attributes, name, type,
+// isMarketplaceAction`. No version anywhere, not at step level, not inside `attributes`.
+// There is nothing stored to compare an action against, so there is nothing to detect.
+// This function only ever looks at `masterType === 'marketplace'`, a field that exists on
+// stored triggers and does not exist on stored action steps at all — so an action object
+// passed in here is excluded by construction, not by an incidental filter that could later
+// be loosened by mistake.
+//
+// Reported SEPARATELY from checkWorkflow's error list, never folded into errorCount: that
+// headline is a live-proven exact reproduction of the builder's own panel, and mixing our
+// own findings into it would destroy the property that makes it trustworthy.
+export function marketplaceDrift(storedTriggers, schema) {
+  const out = [];
+  for (const t of storedTriggers ?? []) {
+    if (t?.masterType !== 'marketplace') continue;
+    const spec = schema?.get?.(t.type);
+    if (!spec) continue;
+    if (t.templateId && spec.templateId && t.templateId !== spec.templateId) {
+      out.push({ type: t.type, name: t.name, kind: 'templateId',
+        stored: { version: t.version, templateId: t.templateId },
+        installed: { version: spec.version, templateId: spec.templateId } });
+      continue;
+    }
+    if (t.version && spec.version && t.version !== spec.version) {
+      out.push({ type: t.type, name: t.name, kind: 'version',
+        stored: { version: t.version, templateId: t.templateId },
+        installed: { version: spec.version, templateId: spec.templateId } });
+    }
+  }
+  return out;
 }
 
 // Which required fields a single step is missing, phrased the way the builder phrases it.
