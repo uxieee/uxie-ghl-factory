@@ -30,6 +30,22 @@ test('a marketplace action emits isMarketplaceAction and mirrors attributes.type
   assert.equal(step.attributes.message, 'hi');
 });
 
+test('the schema-default fill writes the exact declared values, and warns for each', () => {
+  n = 0;
+  const warnings = [];
+  const built = compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'imessage_a',
+    name: 'Send iMessage', attributes: { message: 'hi' },
+  }), ctx({ warn: (w) => warnings.push(w) }));
+  const attrs = built.autoSaveBody.workflowData.templates[0].attributes;
+  // Exact values, not just "the required check didn't throw" — a transposition bug
+  // writing the right values to the wrong fields would otherwise pass silently.
+  assert.equal(attrs.to_phone, '{{contact.phone_raw}}');
+  assert.equal(attrs.conversation_provider, '65f0a76d7aabd6ba4decd979');
+  assert.ok(warnings.some((w) => /MARKETPLACE_DEFAULT_FILLED/.test(w) && /to_phone/.test(w)));
+  assert.ok(warnings.some((w) => /MARKETPLACE_DEFAULT_FILLED/.test(w) && /conversation_provider/.test(w)));
+});
+
 test('envelope keys survive the attribute-key check', () => {
   n = 0;
   const built = compile(irWith({
