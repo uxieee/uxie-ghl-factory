@@ -223,3 +223,92 @@ test('a NON-marketplace trigger is untouched', () => {
   assert.equal(t.version, undefined);
   assert.equal(t.templateId, undefined);
 });
+
+// --- Task 5 fixes: stepIndex, __customInputs__, meta.stepIndexCounter -----------------
+//
+// Live-confirmed 2026-08-16 (Jing Spa, docs/superpowers/notes/2026-08-16-marketplace-
+// live-evidence.md): a stored marketplace step carries a per-action-key stepIndex, and
+// the workflow body carries a matching meta.stepIndexCounter map.
+
+// Two marketplace apps with no required inputs, so these tests isolate the
+// stepIndex/counter/customInputs behaviour without also exercising the
+// required-field/default-fill machinery covered elsewhere in this file.
+const COUNTER_ASSETS = {
+  actions: [{
+    appName: 'WhatsApp Sync',
+    actions: [
+      { key: 'send_outbound_whatsapp_message', version: '1.0', templateId: 'TPL-WA', inputs: [] },
+      { key: 'wait_step', version: '1.0', templateId: 'TPL-WAIT', inputs: [] },
+    ],
+  }],
+  triggers: [],
+};
+const COUNTER_MODULES = {
+  actions: [{
+    appId: 'app-counter', name: 'WhatsApp Sync', companyName: 'WhatsApp Sync', isInstalled: true,
+    actions: [{ key: 'send_outbound_whatsapp_message' }, { key: 'wait_step' }],
+  }],
+  triggers: [],
+};
+const counterMarketplace = buildMarketplaceIndex({ assets: COUNTER_ASSETS, modules: COUNTER_MODULES });
+
+test('a single marketplace step emits stepIndex:1 and meta.stepIndexCounter {key:1}', () => {
+  n = 0;
+  const built = compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'send_outbound_whatsapp_message',
+    name: 'Send WhatsApp', attributes: {},
+  }), ctx({ marketplace: counterMarketplace }));
+  const step = built.autoSaveBody.workflowData.templates[0];
+  assert.equal(step.stepIndex, 1);
+  assert.deepEqual(built.autoSaveBody.meta.stepIndexCounter, { send_outbound_whatsapp_message: 1 });
+});
+
+test('per-key stepIndex: two send_outbound_whatsapp_message steps around one wait_step count independently', () => {
+  n = 0;
+  const built = compile({
+    name: 'wf', triggers: [],
+    graph: [
+      { ref: 'a', kind: 'action', marketplace: true, type: 'send_outbound_whatsapp_message', name: 'A', attributes: {} },
+      { ref: 'b', kind: 'action', marketplace: true, type: 'wait_step', name: 'B', attributes: {} },
+      { ref: 'c', kind: 'action', marketplace: true, type: 'send_outbound_whatsapp_message', name: 'C', attributes: {} },
+    ],
+  }, ctx({ marketplace: counterMarketplace }));
+  const [stepA, stepB, stepC] = built.autoSaveBody.workflowData.templates;
+  // Per-key, not global: B (a different key) does NOT consume a slot from A/C's counter.
+  assert.equal(stepA.stepIndex, 1);
+  assert.equal(stepB.stepIndex, 1);
+  assert.equal(stepC.stepIndex, 2);
+  assert.deepEqual(built.autoSaveBody.meta.stepIndexCounter, {
+    send_outbound_whatsapp_message: 2,
+    wait_step: 1,
+  });
+});
+
+test('__customInputs__ defaults to {} when the author omits it', () => {
+  n = 0;
+  const built = compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'imessage_a',
+    name: 'Send iMessage', attributes: { message: 'hi' },
+  }), ctx());
+  const attrs = built.autoSaveBody.workflowData.templates[0].attributes;
+  assert.deepEqual(attrs.__customInputs__, {});
+});
+
+test('__customInputs__ is PRESERVED when the author supplies a non-empty value', () => {
+  n = 0;
+  const built = compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'imessage_a',
+    name: 'Send iMessage',
+    attributes: { message: 'hi', __customInputs__: { foo: 'bar' } },
+  }), ctx());
+  const attrs = built.autoSaveBody.workflowData.templates[0].attributes;
+  assert.deepEqual(attrs.__customInputs__, { foo: 'bar' });
+});
+
+test('a native-only workflow emits NO meta key on autoSaveBody', () => {
+  n = 0;
+  const built = compile(irWith({
+    ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['x'] },
+  }), ctx());
+  assert.equal('meta' in built.autoSaveBody, false);
+});
