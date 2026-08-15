@@ -405,7 +405,7 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_marketplace_apps: {
-        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two endpoints, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
+        description: "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
         risk: "read",
         proof: "documented",
         proofFloor: "documented",
@@ -36265,8 +36265,10 @@ function parseActionSchema(assets) {
         type: action.key,
         app: app.appName,
         section: action.section,
-        version: action.version,
-        templateId: action.templateId,
+        // No `version`/`templateId` here, deliberately: drift is TRIGGER-ONLY (see
+        // marketplaceDrift below) — a stored marketplace ACTION step records no version to
+        // compare against in the first place, so retaining these on the action entry would
+        // be dead data implying a comparison this schema never performs.
         fields,
         requiredFields: fields.filter((f) => f.required).map((f) => f.field),
         requiredTriggers: action.requiredTriggers ?? [],
@@ -77403,7 +77405,7 @@ function parseMarketplaceTriggers(assets) {
 }
 function parseInstalledModules({ triggers = [], actions = [] } = {}) {
   const byAppId = /* @__PURE__ */ new Map();
-  const absorb = (rows, field) => {
+  const absorb = (rows, field, listKey) => {
     for (const app of rows ?? []) {
       if (!app?.appId) continue;
       const existing = byAppId.get(app.appId) ?? {
@@ -77413,24 +77415,31 @@ function parseInstalledModules({ triggers = [], actions = [] } = {}) {
         totalInstallations: app.totalInstallations,
         averageRating: app.averageRating,
         isInstalled: app.isInstalled === true,
-        keys: []
+        actionKeys: [],
+        triggerKeys: []
       };
       existing.isInstalled = existing.isInstalled || app.isInstalled === true;
-      for (const item of app[field] ?? []) if (item?.key) existing.keys.push(item.key);
+      for (const item of app[field] ?? []) {
+        if (item?.key && !existing[listKey].includes(item.key)) existing[listKey].push(item.key);
+      }
       byAppId.set(app.appId, existing);
     }
   };
-  absorb(actions, "actions");
-  absorb(triggers, "triggers");
+  absorb(actions, "actions", "actionKeys");
+  absorb(triggers, "triggers", "triggerKeys");
   return byAppId;
 }
 function buildMarketplaceIndex({ assets, modules } = {}) {
   const actionSchema = parseMarketplaceActions(assets);
   const triggerSchema = parseMarketplaceTriggers(assets);
   const apps = parseInstalledModules(modules ?? {});
-  const appIdByKey = /* @__PURE__ */ new Map();
-  for (const app of apps.values()) for (const key of app.keys) appIdByKey.set(key, app.appId);
-  const join2 = (schema2) => {
+  const appIdByKind = { action: /* @__PURE__ */ new Map(), trigger: /* @__PURE__ */ new Map() };
+  for (const app of apps.values()) {
+    for (const key of app.actionKeys) appIdByKind.action.set(key, app.appId);
+    for (const key of app.triggerKeys) appIdByKind.trigger.set(key, app.appId);
+  }
+  const join2 = (schema2, kind) => {
+    const appIdByKey = appIdByKind[kind];
     const joined = /* @__PURE__ */ new Map();
     for (const [key, entry] of schema2) {
       const appId = appIdByKey.get(key);
@@ -77439,7 +77448,7 @@ function buildMarketplaceIndex({ assets, modules } = {}) {
     }
     return joined;
   };
-  const byKind = { action: join2(actionSchema), trigger: join2(triggerSchema) };
+  const byKind = { action: join2(actionSchema, "action"), trigger: join2(triggerSchema, "trigger") };
   return {
     // `kind` is REQUIRED — must be exactly 'action' or 'trigger'. Action and trigger
     // keys are NOT one namespace (see parseMarketplaceActions's docstring for the
@@ -77454,9 +77463,7 @@ function buildMarketplaceIndex({ assets, modules } = {}) {
         );
       }
       return byKind[kind].get(key);
-    },
-    all: () => [...byKind.action.values(), ...byKind.trigger.values()],
-    installedApps: () => [...apps.values()].filter((a) => a.isInstalled)
+    }
   };
 }
 
@@ -81389,7 +81396,7 @@ var TOOLS2 = [
     name: "list_marketplace_apps",
     description: describe3(
       "list_marketplace_apps",
-      "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two endpoints, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large."
+      "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: documented; risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
