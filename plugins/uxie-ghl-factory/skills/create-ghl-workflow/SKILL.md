@@ -557,6 +557,9 @@ The orchestrator prints exactly what it did. Check it:
   with attribute keys and filter fields; `scripts/query-catalog-cli.mjs` searches it.
 - `references/build-recipe.md` / `references/step-shapes.md` — endpoint/payload truth
   and the mirror-don't-invent doctrine (background; the engine already applies them).
+- `references/marketplace-steps.md` — authoring a third-party (marketplace) trigger or
+  action with `marketplace: true`: the install check, required-field/operator guards,
+  the trigger-only drift limitation, and the `contact_engagement_score` key collision.
 - `references/discovery.md` — how to look up / create a missing account dependency
   (forms, custom fields, calendars, …) via the MCP after an `ABORTED` report.
 - `scripts/edit.mjs` — edit-mode entry point (GET → apply ops → plain-PUT commit).

@@ -73,6 +73,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `get_ai_configuration_bundle` | Conversation AI + Voice AI + Agent Studio discovery and detail (see **Audit profile**) |
 | `get_contacts_at_step` | contacts parked at or processed by one step, paginated to the reported total |
 | `list_account_entities` | pipelines, calendars, users, forms, custom fields, AI agents |
+| `list_marketplace_apps` | third-party apps INSTALLED in a location, with each app's triggers/actions — `key`, `version`, `templateId`, full `customVars`/`inputs` schema (`compact:true` by default) |
 | `list_courses` | course summaries with status and available chapter/lesson/offer counts |
 | `build_course` | no-call validation preview; confirmed course build with created IDs, verification and cleanup evidence |
 | `build_workflow` | draft creation and verification; never publishes |
@@ -120,17 +121,17 @@ machine-branchable:
 
 A second, structurally read-only entry point (`stdio-audit.mjs`, bundled as
 `dist/audit-server.mjs`) for the weekly whole-account auditor. It is a separate server with a
-separate registry, not a flag on the full one, and it publishes exactly six tools:
+separate registry, not a flag on the full one, and it publishes exactly seven tools:
 `auth_status`, `list_workflows_complete`, `get_workflow`, `export_workflow`,
-`get_workflow_runtime_window`, `get_ai_configuration_bundle`.
+`get_workflow_runtime_window`, `get_ai_configuration_bundle`, `list_marketplace_apps`.
 
-Only three of those six carry the audit evidence contract. `list_workflows_complete`,
+Only three of those seven carry the audit evidence contract. `list_workflows_complete`,
 `get_workflow_runtime_window` and `get_ai_configuration_bundle` go through the audit gateway,
 so they get capability-descriptor validation, response identity inspection, the shared limiter
-and the shared circuit. `get_workflow` and `export_workflow` are the ordinary read tools: in
-the audit process they have the read-only wrapper below them and nothing else, so a rate limit
-during one of them neither latches the circuit nor is recorded as evidence. `auth_status`
-makes no request at all.
+and the shared circuit. `get_workflow`, `export_workflow` and `list_marketplace_apps` are the
+ordinary read tools: in the audit process they have the read-only wrapper below them and
+nothing else, so a rate limit during one of them neither latches the circuit nor is recorded
+as evidence. `auth_status` makes no request at all.
 
 ### What is excluded, and what that does and does not mean
 
@@ -143,7 +144,7 @@ count, and `get_contacts_at_step` reports `complete: true` unconditionally.
 
 Read-only-ness rests on TWO independent locks:
 
-1. **The registry filter.** `toolsForProfile('audit')` selects the six tools from a literal.
+1. **The registry filter.** `toolsForProfile('audit')` selects the seven tools from a literal.
    No environment variable and no argv input can widen it.
 2. **A gateway wrapper** (`core/audit-readonly.mjs`), installed under every tool because every
    tool obtains its gateway from `deps.makeGw` and `stdio-audit.mjs` is the only construction
