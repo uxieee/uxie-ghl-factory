@@ -1226,7 +1226,19 @@ function checkMarketplaceFilters(triggers, ctx) {
   for (const t of triggers) {
     if (t.marketplace !== true) continue;
     for (const f of t.filters ?? []) {
-      if (f.operator && !MARKETPLACE_OPERATORS.has(f.operator))
+      // A marketplace trigger has no catalog filterRows, so expandFilter never runs to
+      // backfill a default operator the way a native trigger's filters do. A missing
+      // operator is therefore not "unspecified, fill it in" — it is the exact same fatal
+      // shape as an unsupported one: the condition saves with no operator key at all and
+      // never matches. Fold both into one throw rather than defaulting, which would invent
+      // author intent (e.g. silently matching on a phrase nobody wrote).
+      if (!f.operator)
+        throw new IRError('MARKETPLACE_FILTER_OPERATOR',
+          `trigger '${t.name ?? t.type}' filters '${f.field}' with no operator. A marketplace filter `
+          + `requires one — GHL's marketplace filter component offers only `
+          + `${[...MARKETPLACE_OPERATORS].join(' and ')}. A condition saved without an operator saves `
+          + `clean and never matches.`);
+      if (!MARKETPLACE_OPERATORS.has(f.operator))
         throw new IRError('MARKETPLACE_FILTER_OPERATOR',
           `trigger '${t.name ?? t.type}' filters '${f.field}' with operator '${f.operator}', which GHL's `
           + `marketplace filter component does not offer. The only operators are `
