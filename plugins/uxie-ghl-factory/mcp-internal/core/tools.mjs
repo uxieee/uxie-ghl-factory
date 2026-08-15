@@ -28,6 +28,7 @@ import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engi
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
+import { parseInstalledModules } from '../../skills/create-ghl-workflow/engine/marketplace.mjs';
 import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
 import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
 import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
@@ -1304,6 +1305,77 @@ export const TOOLS = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       return ok(await fetchEntities(gw));
+    }, args),
+  },
+  {
+    name: 'list_marketplace_apps',
+    description: describe('list_marketplace_apps',
+      'List the third-party marketplace apps INSTALLED in a sub-account, with each app\'s triggers and '
+      + 'actions — key, version, templateId, and the full customVars / inputs schema — proof: documented; '
+      + 'risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two '
+      + 'endpoints, so the list is complete by construction (two read-only GETs). Use it for account recon, to '
+      + 'confirm an app is installed before building a workflow that references it, and to read the current '
+      + 'version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus '
+      + 'keys and versions only — a single app\'s full schema is large.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      type: z.enum(['triggers', 'actions', 'both']).default('both'),
+      appId: z.string().optional(),
+      compact: z.boolean().default(true),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/marketplace/core/search/module?type=triggers&isInstalled=true' },
+      { method: 'GET', path: '/marketplace/core/search/module?type=actions&isInstalled=true' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const loc = encodeURIComponent(args.locationId);
+      const want = args.type ?? 'both';
+      // The module endpoint lives on the AI host, which needs the dual credential rail.
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const page = async (type) => {
+        if (want !== 'both' && want !== type) return [];
+        const r = await gw.call('GET',
+          `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`);
+        if (!r?.ok) return null;
+        return Array.isArray(r.json) ? r.json : (r.json?.modules ?? r.json?.data ?? []);
+      };
+      const actions = await page('actions');
+      const triggers = await page('triggers');
+      if (actions === null && triggers === null) {
+        return fail(CODES.VALIDATION_FAILED,
+          'the marketplace module endpoint could not be read, so no app list was produced.',
+          'Retry; if it persists, confirm the token file carries both the Bearer JWT and token-id.');
+      }
+      const apps = parseInstalledModules({ actions: actions ?? [], triggers: triggers ?? [] });
+
+      // Re-walk the raw rows for the per-key schema — parseInstalledModules keeps identity
+      // plus key lists, deliberately, so the index stays cheap for the compiler.
+      const schemaFor = (rows, appId, field) => {
+        const row = (rows ?? []).find((a) => a.appId === appId);
+        return (row?.[field] ?? []).map((item) => (args.compact === false
+          ? { key: item.key, version: item.version, templateId: item.templateId,
+              inputs: item.inputs ?? [], customVars: item.customVars ?? [],
+              branchesConfig: item.branchesConfig ?? null, info: item.info ?? null }
+          : { key: item.key, version: item.version }));
+      };
+
+      const out = [...apps.values()]
+        .filter((a) => !args.appId || a.appId === args.appId)
+        .map((a) => ({
+          appId: a.appId, appName: a.appName, companyName: a.companyName,
+          totalInstallations: a.totalInstallations, averageRating: a.averageRating,
+          isInstalled: a.isInstalled,
+          actions: schemaFor(actions, a.appId, 'actions'),
+          triggers: schemaFor(triggers, a.appId, 'triggers'),
+        }));
+
+      return ok({
+        locationId: args.locationId,
+        appCount: out.length,
+        apps: out,
+        note: args.compact === false ? undefined
+          : 'compact:true — keys and versions only. Pass compact:false for the full inputs/customVars schema.',
+      });
     }, args),
   },
   {
