@@ -110,26 +110,32 @@ Two shapes worth knowing before you build:
   a per-key occurrence counter that the builder renders as the step's `#N` canvas prefix.
   The engine emits this for you; you never author it directly.
 
-## ⚠️ A key collision to know about: `contact_engagement_score`
+## A key collision handled by design: `contact_engagement_score`
 
-The live catalog has exactly one key that is **both** an action and a trigger:
-`contact_engagement_score` (action: required `operator`/`points`; trigger: no required
-inputs). A schema parser that keeps action and trigger entries in **one shared map** keyed
-only by `key` lets one silently overwrite the other depending on parse order — and the
-losing side's real required-field list disappears with it. Concretely, if the trigger entry
-wins, an authored **action** node of that type resolves against a schema with zero required
-inputs, so `operator`/`points` go unenforced.
+The live catalog has exactly one key (of 481 measured) that is **both** an action and a
+trigger: `contact_engagement_score` (action: required `operator`/`points`; trigger: no
+required inputs). Action and trigger keys are not one namespace, so `engine/marketplace.mjs`
+keeps them in **two separate maps** (`parseMarketplaceActions` / `parseMarketplaceTriggers`)
+joined behind a single index whose `get(key, kind)` requires the caller to state which kind
+it wants — `kind` is `'action'` or `'trigger'`, with no default and no "whichever exists"
+fallback. `marketplaceEntry(node, ctx, kind)` in `compiler.mjs` calls it that way from both
+sides: the STEP path (`marketplaceAttributes`) always asks for `'action'`; the TRIGGER path
+(`buildTrigger`) always asks for `'trigger'`. So an authored **action** node of type
+`contact_engagement_score` always resolves against the action's schema (`operator`/`points`
+enforced), and an authored **trigger** node of the same type always resolves against the
+trigger's schema (its own `templateId`, never the action's) — regardless of collision.
 
-This is not hypothetical — `check_workflow`'s drift path (`action-schema.mjs`) hit exactly
-this bug when it briefly shared one map, and was fixed by splitting into two separate maps
-(`parseActionSchema` / `parseTriggerSchema`; see `docs/marketplace-rail.md` §6 for the full
-account). **The build-time resolver this page documents (`engine/marketplace.mjs`,
-`buildMarketplaceIndex` → `parseMarketplaceAssets`) still uses one shared `byKey` map with
-triggers parsed after actions** — the same shape of risk, not yet independently verified
-fixed on that path as of this writing. If you author a marketplace **action** whose `type`
-is `contact_engagement_score` (or any future colliding key), verify the resolved
-`entry.inputs` actually reflects the action's schema, not the trigger's, before trusting
-the required-field enforcement.
+This mirrors the same fix already applied to `check_workflow`'s drift path
+(`action-schema.mjs`'s `parseActionSchema` / `parseTriggerSchema` split; see
+`docs/marketplace-rail.md` §6 for the full account) and closes the matching gap that used to
+exist on this build-time resolver, where a single shared `byKey` map let triggers (parsed
+second) silently overwrite actions on this exact key. If a lookup fails for a key that
+*does* exist under the other kind, `MARKETPLACE_KEY_UNKNOWN`'s message says so explicitly
+(e.g. "is only published in this location as a marketplace trigger" when an action lookup
+was requested) rather than the generic "no app publishes that key" — the tell for an author
+who put a trigger key on a step, or vice versa. See `engine/marketplace.test.mjs` and
+`engine/marketplace-emit.test.mjs` for the collision proof (inline fixture, both directions,
+action-required-fields-enforced and trigger-templateId-correct).
 
 ## Discovery and errors, at a glance
 

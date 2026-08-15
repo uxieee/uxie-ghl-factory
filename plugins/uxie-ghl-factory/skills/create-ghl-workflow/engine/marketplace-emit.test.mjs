@@ -312,3 +312,96 @@ test('a native-only workflow emits NO meta key on autoSaveBody', () => {
   }), ctx());
   assert.equal('meta' in built.autoSaveBody, false);
 });
+
+// --- contact_engagement_score: the real, observed action/trigger key collision ---------
+//
+// Measured against the live GHL catalog (319 action keys, 162 trigger keys), 2026-08-16:
+// `contact_engagement_score` is the ONE key (of 481 total) that exists as BOTH an action
+// (required inputs: operator, points) AND a trigger (0 inputs). Before the kind-aware
+// index, `.get(key)` on this key silently resolved to whichever kind was parsed last
+// (the trigger), so a marketplace STEP of this key skipped required-field enforcement
+// entirely, and a marketplace TRIGGER of a colliding key where the action won emitted the
+// wrong templateId. These two tests prove both directions now resolve correctly.
+const COLLISION_ASSETS = {
+  actions: [{
+    appName: 'Engagement Scoring',
+    actions: [{
+      key: 'contact_engagement_score', version: '2.0', templateId: 'TPL-SCORE-ACTION',
+      inputs: [
+        { field: 'operator', title: 'Operator', required: true, fieldType: 'string' },
+        { field: 'points', title: 'Points', required: true, fieldType: 'numerical' },
+      ],
+    }],
+  }],
+  triggers: [{
+    appName: 'Engagement Scoring',
+    triggers: [{
+      key: 'contact_engagement_score', version: '1.0', templateId: 'TPL-SCORE-TRIGGER',
+      inputs: [],
+    }],
+  }],
+};
+const COLLISION_MODULES = {
+  actions: [{
+    appId: 'app-score', name: 'Engagement Scoring', companyName: 'Engagement Scoring',
+    isInstalled: true, actions: [{ key: 'contact_engagement_score' }],
+  }],
+  triggers: [{
+    appId: 'app-score', name: 'Engagement Scoring', companyName: 'Engagement Scoring',
+    isInstalled: true, triggers: [{ key: 'contact_engagement_score' }],
+  }],
+};
+const collisionMarketplace = buildMarketplaceIndex({ assets: COLLISION_ASSETS, modules: COLLISION_MODULES });
+
+test('a marketplace STEP of the colliding key enforces the ACTION\'s required fields', () => {
+  n = 0;
+  assert.throws(() => compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'contact_engagement_score',
+    name: 'Score', attributes: {},
+  }), ctx({ marketplace: collisionMarketplace })),
+    (e) => e.code === 'MARKETPLACE_REQUIRED_FIELD'
+      && /operator/.test(e.message) && /points/.test(e.message));
+});
+
+test('a marketplace STEP of the colliding key builds when the ACTION\'s required fields are supplied', () => {
+  n = 0;
+  const built = compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'contact_engagement_score',
+    name: 'Score', attributes: { operator: 'add', points: 5 },
+  }), ctx({ marketplace: collisionMarketplace }));
+  const attrs = built.autoSaveBody.workflowData.templates[0].attributes;
+  assert.equal(attrs.operator, 'add');
+  assert.equal(attrs.points, 5);
+});
+
+test('a marketplace TRIGGER of the colliding key emits the TRIGGER\'s templateId, not the action\'s', () => {
+  n = 0;
+  const built = compile(irTrigger({
+    marketplace: true, type: 'contact_engagement_score', name: 'Score Trigger', filters: [],
+  }), ctx({ marketplace: collisionMarketplace }));
+  const t = built.triggerBodies[0];
+  assert.equal(t.templateId, 'TPL-SCORE-TRIGGER');
+  assert.equal(t.version, '1.0');
+});
+
+// An author who flags marketplace:true on a STEP using a key that only exists as a
+// TRIGGER (imessage_t, from the shared fixture) gets a message explaining the real
+// problem — not the generic "no app publishes that key" — because the kind-aware lookup
+// can tell the key exists, just under the other kind.
+test('a marketplace STEP using a trigger-only key names the real problem, not a generic miss', () => {
+  n = 0;
+  assert.throws(() => compile(irWith({
+    ref: 'a', kind: 'action', marketplace: true, type: 'imessage_t',
+    name: 'Wrong Slot', attributes: {},
+  }), ctx()), (e) => e.code === 'MARKETPLACE_KEY_UNKNOWN'
+    && /published in this location as a\s*marketplace trigger/.test(e.message));
+});
+
+// Same in the other direction: a marketplace TRIGGER using an action-only key.
+test('a marketplace TRIGGER using an action-only key names the real problem, not a generic miss', () => {
+  n = 0;
+  assert.throws(() => compile(irTrigger({
+    marketplace: true, type: 'imessage_a', name: 'Wrong Slot', filters: [],
+  }), ctx()), (e) => e.code === 'MARKETPLACE_KEY_UNKNOWN'
+    && /published in this location as a\s*marketplace action/.test(e.message));
+});

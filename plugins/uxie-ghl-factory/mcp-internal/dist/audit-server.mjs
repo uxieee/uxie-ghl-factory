@@ -36384,13 +36384,16 @@ var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
   "__customInputFields__",
   "type"
 ]);
-function marketplaceEntry(node, ctx) {
-  const entry = ctx?.marketplace?.get?.(node.type);
-  if (!entry)
+function marketplaceEntry(node, ctx, kind) {
+  const entry = ctx?.marketplace?.get?.(node.type, kind);
+  if (!entry) {
+    const otherKind = kind === "action" ? "trigger" : "action";
+    const existsAsOtherKind = ctx?.marketplace?.get?.(node.type, otherKind);
     throw new IRError(
       "MARKETPLACE_KEY_UNKNOWN",
-      `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available app in this location publishes that key. Run list_marketplace_apps for this locationId to see what is actually there, or drop the marketplace flag if you meant a native step.`
+      existsAsOtherKind ? `'${node.type}' on '${node.ref}' is flagged marketplace:true and was looked up as a marketplace ${kind}, but '${node.type}' is only published in this location as a marketplace ${otherKind}. This node is using a ${otherKind} key in a ${kind} slot \u2014 fix the type, or move this node to where a ${otherKind} key belongs.` : `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available marketplace ${kind} in this location publishes that key. Run list_marketplace_apps for this locationId to see what is actually there, or drop the marketplace flag if you meant a native step.`
     );
+  }
   if (!entry.installed)
     throw new IRError(
       "MARKETPLACE_APP_NOT_INSTALLED",
@@ -36399,7 +36402,7 @@ function marketplaceEntry(node, ctx) {
   return entry;
 }
 function marketplaceAttributes(node, ctx) {
-  const entry = marketplaceEntry(node, ctx);
+  const entry = marketplaceEntry(node, ctx, "action");
   const out = { ...node.attributes ?? {} };
   out.type = node.type;
   if (out.__customInputs__ === void 0) out.__customInputs__ = {};
@@ -37401,7 +37404,7 @@ function buildTrigger(t, ctx, wid) {
   let conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
   let marketplaceFields = {};
   if (t.marketplace === true) {
-    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx);
+    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
     conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
   }
@@ -77380,13 +77383,17 @@ var entryFrom = (kind, appName, raw) => ({
   branchesConfig: raw.branchesConfig ?? null,
   info: raw.info ?? null
 });
-function parseMarketplaceAssets(assets) {
+function parseMarketplaceActions(assets) {
   const byKey = /* @__PURE__ */ new Map();
   for (const app of assets?.actions ?? []) {
     for (const action of app?.actions ?? []) {
       if (action?.key) byKey.set(action.key, entryFrom("action", app.appName, action));
     }
   }
+  return byKey;
+}
+function parseMarketplaceTriggers(assets) {
+  const byKey = /* @__PURE__ */ new Map();
   for (const app of assets?.triggers ?? []) {
     for (const trigger of app?.triggers ?? []) {
       if (trigger?.key) byKey.set(trigger.key, entryFrom("trigger", app.appName, trigger));
@@ -77418,19 +77425,37 @@ function parseInstalledModules({ triggers = [], actions = [] } = {}) {
   return byAppId;
 }
 function buildMarketplaceIndex({ assets, modules } = {}) {
-  const schema2 = parseMarketplaceAssets(assets);
+  const actionSchema = parseMarketplaceActions(assets);
+  const triggerSchema = parseMarketplaceTriggers(assets);
   const apps = parseInstalledModules(modules ?? {});
   const appIdByKey = /* @__PURE__ */ new Map();
   for (const app of apps.values()) for (const key of app.keys) appIdByKey.set(key, app.appId);
-  const joined = /* @__PURE__ */ new Map();
-  for (const [key, entry] of schema2) {
-    const appId = appIdByKey.get(key);
-    const app = appId ? apps.get(appId) : void 0;
-    joined.set(key, { ...entry, appId: appId ?? null, installed: app?.isInstalled === true });
-  }
+  const join2 = (schema2) => {
+    const joined = /* @__PURE__ */ new Map();
+    for (const [key, entry] of schema2) {
+      const appId = appIdByKey.get(key);
+      const app = appId ? apps.get(appId) : void 0;
+      joined.set(key, { ...entry, appId: appId ?? null, installed: app?.isInstalled === true });
+    }
+    return joined;
+  };
+  const byKind = { action: join2(actionSchema), trigger: join2(triggerSchema) };
   return {
-    get: (key) => joined.get(key),
-    all: () => [...joined.values()],
+    // `kind` is REQUIRED — must be exactly 'action' or 'trigger'. Action and trigger
+    // keys are NOT one namespace (see parseMarketplaceActions's docstring for the
+    // observed `contact_engagement_score` collision); the caller must always say which
+    // one it means. There is deliberately no default/fallback/"whichever exists" path —
+    // a silent fallback is how the original bug (triggers always winning a collision)
+    // survived undetected. Every caller of `.get` on this index must pass kind.
+    get: (key, kind) => {
+      if (kind !== "action" && kind !== "trigger") {
+        throw new Error(
+          `marketplace index .get(key, kind) requires kind to be 'action' or 'trigger', got ${JSON.stringify(kind)}`
+        );
+      }
+      return byKind[kind].get(key);
+    },
+    all: () => [...byKind.action.values(), ...byKind.trigger.values()],
     installedApps: () => [...apps.values()].filter((a) => a.isInstalled)
   };
 }

@@ -38,13 +38,33 @@ const MARKETPLACE_ENVELOPE_KEYS = new Set([
 
 // Resolve a marketplace node against the live per-location index, or fail closed.
 // An uninstalled app is fatal: the step saves, and then never runs.
-export function marketplaceEntry(node, ctx) {
-  const entry = ctx?.marketplace?.get?.(node.type);
-  if (!entry)
+//
+// `kind` ('action' | 'trigger') is REQUIRED and comes from the CALL SITE, never guessed:
+// action and trigger keys are not one namespace — `contact_engagement_score` is a REAL,
+// observed collision in the live catalog (an action with required inputs AND a trigger
+// with none). marketplaceAttributes (the STEP path) always asks for 'action'; buildTrigger
+// (the TRIGGER path) always asks for 'trigger'. See marketplace.mjs's buildMarketplaceIndex
+// for the split index this depends on.
+export function marketplaceEntry(node, ctx, kind) {
+  const entry = ctx?.marketplace?.get?.(node.type, kind);
+  if (!entry) {
+    // An author who wrote marketplace:true on a key that belongs to the OTHER kind (a
+    // trigger key on a step, or vice versa) gets a message that says so, not the generic
+    // "nothing publishes that key" — that collision is exactly what this check exists to
+    // catch.
+    const otherKind = kind === 'action' ? 'trigger' : 'action';
+    const existsAsOtherKind = ctx?.marketplace?.get?.(node.type, otherKind);
     throw new IRError('MARKETPLACE_KEY_UNKNOWN',
-      `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available `
-      + `app in this location publishes that key. Run list_marketplace_apps for this locationId to `
-      + `see what is actually there, or drop the marketplace flag if you meant a native step.`);
+      existsAsOtherKind
+        ? `'${node.type}' on '${node.ref}' is flagged marketplace:true and was looked up as a `
+          + `marketplace ${kind}, but '${node.type}' is only published in this location as a `
+          + `marketplace ${otherKind}. This node is using a ${otherKind} key in a ${kind} slot — `
+          + `fix the type, or move this node to where a ${otherKind} key belongs.`
+        : `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available `
+          + `marketplace ${kind} in this location publishes that key. Run list_marketplace_apps for `
+          + `this locationId to see what is actually there, or drop the marketplace flag if you `
+          + `meant a native step.`);
+  }
   if (!entry.installed)
     throw new IRError('MARKETPLACE_APP_NOT_INSTALLED',
       `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", which is NOT installed in this `
@@ -53,7 +73,8 @@ export function marketplaceEntry(node, ctx) {
 }
 
 function marketplaceAttributes(node, ctx) {
-  const entry = marketplaceEntry(node, ctx);
+  // A marketplace STEP is always an action key — never a trigger key.
+  const entry = marketplaceEntry(node, ctx, 'action');
   const out = { ...(node.attributes ?? {}) };
   // The live shape always repeats the step type inside attributes. This is NOT gated on
   // meta.attrKeys the way the native path is — that gate reads the native catalog, which
@@ -1325,7 +1346,8 @@ export function buildTrigger(t, ctx, wid) {
   let conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
   let marketplaceFields = {};
   if (t.marketplace === true) {
-    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx);
+    // A marketplace TRIGGER is always a trigger key — never an action key.
+    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, 'trigger');
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
     // A marketplace condition addresses the event payload by dotted path, and the stored
     // shape carries `id` and `field` as the SAME string.
