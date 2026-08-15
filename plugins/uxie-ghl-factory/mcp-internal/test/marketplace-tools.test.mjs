@@ -20,7 +20,7 @@ const deps = (captured) => ({
   makeGw: () => ({
     call: async (method, path) => {
       captured.push(path);
-      return { ok: true, status: 200, json: path.includes('type=actions') ? [APP] : [APP] };
+      return { ok: true, status: 200, json: [APP] };
     },
   }),
 });
