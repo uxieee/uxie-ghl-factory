@@ -71,10 +71,28 @@ function marketplaceAttributes(node, ctx) {
   // coerceDefault comment: `value: "true"` on a checkbox) — reuse that coercion
   // rather than trusting the literal, or a checkbox/numerical default round-trips
   // as the wrong JS type.
+  //
+  // Where this value actually comes from, and what is still unverified: at runtime
+  // `entry.inputs` is `ctx.marketplace`'s live join against
+  // `/workflows-marketplace/location/{loc}/assets` for the TARGET location — not a
+  // baked snapshot (`fixtures/marketplace-assets.json` is a test fixture only). So
+  // the default written here is whatever that location's own API returns for this
+  // app right now. What is NOT yet verified is whether that value is the same one
+  // GHL's own builder UI pre-fills into the field when a human adds this step —
+  // Task 5 carries a live-verification item for that gap.
+  //
+  // Filling a REQUIRED, non-empty field inside a check whose job is to fail closed
+  // is a real, silent risk on its own (e.g. conversation_provider is an opaque
+  // internal id) — so unlike the undeclared-key warning below, this one fires on
+  // every field the fill populates, unconditionally, not just on a surprising key.
   for (const f of entry.inputs) {
     if (!f?.field || f.value === undefined || !blank(out[f.field])) continue;
     const coerced = coerceDefault(f.value, f.fieldType);
-    if (coerced !== undefined) out[f.field] = coerced;
+    if (coerced === undefined) continue;
+    out[f.field] = coerced;
+    ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' `
+      + `blank; filled it with the value "${entry.appName}" declares in its own schema (${coerced}). `
+      + `Confirm this is what you intend.`);
   }
 
   // Required inputs, fail-closed. Same semantics as action-schema.mjs: absent AND empty
