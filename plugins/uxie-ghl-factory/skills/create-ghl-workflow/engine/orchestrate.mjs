@@ -25,6 +25,8 @@ import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
 import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
+import { buildMarketplaceIndex } from './marketplace.mjs';
+import { walkNodes } from './ir.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -112,6 +114,32 @@ export async function fetchEntities(gw) {
   };
 }
 
+// Gather both marketplace sources for one location. Never throws — a build must not fail
+// because an optional enrichment was unavailable, matching fetchActionSchema's contract.
+// The two module reads are on the AI host; the caller's gateway routes them.
+export async function fetchMarketplace(call, loc) {
+  const empty = { assets: null, modules: { actions: [], triggers: [] } };
+  const get = async (path) => {
+    try {
+      const r = await call('GET', path);
+      return r?.ok ? r.json : null;
+    } catch { return null; }
+  };
+  const assets = await get(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const page = (type) =>
+    `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
+  const actions = await get(page('actions'));
+  const triggers = await get(page('triggers'));
+  if (!assets && !actions && !triggers) return empty;
+  return {
+    assets,
+    modules: {
+      actions: Array.isArray(actions) ? actions : (actions?.modules ?? actions?.data ?? []),
+      triggers: Array.isArray(triggers) ? triggers : (triggers?.modules ?? triggers?.data ?? []),
+    },
+  };
+}
+
 // email nodes carrying an inline template spec: attributes._template {title, html, previewText}
 function collectEmailTemplates(ir) {
   const out = [];
@@ -162,6 +190,17 @@ export async function orchestrate(ir, gw, opts = {}) {
 
   // 1. resolve names → ids
   const entities = await fetchEntities(gw);
+  // Only fetch when the IR asks for it: a native build must remain network-identical to
+  // what it was before marketplace support existed. Walk every scope (branches, paths,
+  // onEvent/onTimeout/onFound/…) rather than string-scanning the serialized IR — a
+  // marketplace step nested inside an if/else branch must still be found, and an attribute
+  // string that merely CONTAINS the text `"marketplace":true` (a pasted JSON body in a
+  // custom_webhook step, say) must NOT be mistaken for one.
+  let usesMarketplace = (ir.triggers ?? []).some((t) => t.marketplace === true);
+  walkNodes(ir.graph ?? [], (n) => { if (n.marketplace === true) usesMarketplace = true; });
+  const marketplace = usesMarketplace
+    ? buildMarketplaceIndex(await fetchMarketplace(call, loc))
+    : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
   const resolvers = buildResolvers(entities);
   const { unresolved } = resolveIR(ir, resolvers);
   report.unresolved = unresolved;
@@ -209,7 +248,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   //    land in report.aborted like the other failure modes — not a raw throw.
   let built;
   try {
-    built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog,
+    built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog, marketplace,
       customFields: entities.customFields, warn: (msg) => report.warnings.push(msg),
       // §5: an account-wide email sender default. Reachable two ways — programmatically via
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
