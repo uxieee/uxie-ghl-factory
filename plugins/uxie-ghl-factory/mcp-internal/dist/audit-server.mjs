@@ -587,6 +587,42 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "ai-studio-agent-build"
         ]
+      },
+      get_contact_ai_status: {
+        description: "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-08-08)",
+        proofFloor: "live-runtime (2026-08-08)",
+        proofRows: [
+          "ai-convai-contact-config-read"
+        ],
+        proofFloorRows: [
+          "ai-convai-contact-config-read"
+        ],
+        riskRows: [
+          "ai-convai-contact-config-read"
+        ],
+        rows: [
+          "ai-convai-contact-config-read"
+        ]
+      },
+      set_contact_ai_status: {
+        description: "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-08-08)",
+        proofFloor: "live-runtime (2026-08-08)",
+        proofRows: [
+          "ai-convai-contact-config-update"
+        ],
+        proofFloorRows: [
+          "ai-convai-contact-config-update"
+        ],
+        riskRows: [
+          "ai-convai-contact-config-update"
+        ],
+        rows: [
+          "ai-convai-contact-config-update"
+        ]
       }
     };
   }
@@ -80735,6 +80771,74 @@ function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) 
     }
   };
 }
+var AI_BASE2 = "https://services.leadconnectorhq.com";
+var CONTACT_AI_CONFIGS_PATH = "/conversations-ai/employeeConfigs";
+var CONTACT_AI_STATUSES = ["active", "inactive"];
+var CONTACT_AI_TIME_UNITS = ["hour", "day"];
+var contactAiConfigQuery = ({ locationId, contactId, conversationId }) => {
+  const query = new URLSearchParams({ locationId, contactId });
+  if (typeof conversationId === "string" && conversationId.length > 0) {
+    query.set("conversationId", conversationId);
+  }
+  return `${CONTACT_AI_CONFIGS_PATH}?${query.toString()}`;
+};
+var summarizeContactAiConfig = (config2) => ({
+  configId: config2?.id ?? null,
+  status: config2?.status ?? null,
+  sleepingTill: config2?.sleepingTill ?? null,
+  reactivateAfterTimeValue: config2?.reactivateAfterTimeValue ?? null,
+  reactivateAfterTimeUnit: config2?.reactivateAfterTimeUnit ?? null,
+  assignedEmployeeId: config2?.assignedEmployee?.id ?? null,
+  updatedAt: config2?.updatedAt ?? null
+});
+function compileContactAiIntent({ status, reactivateAfterTimeValue, reactivateAfterTimeUnit }) {
+  if (!CONTACT_AI_STATUSES.includes(status)) {
+    return { error: fail(
+      CODES.VALIDATION_FAILED,
+      'status must be "active" or "inactive" (value withheld)',
+      'Pass status:"inactive" to silence the bot for this contact, or status:"active" to switch it back on.'
+    ) };
+  }
+  const unitGiven = reactivateAfterTimeUnit !== void 0 && reactivateAfterTimeUnit !== null;
+  const valueGiven = reactivateAfterTimeValue !== void 0 && reactivateAfterTimeValue !== null;
+  if (unitGiven && !CONTACT_AI_TIME_UNITS.includes(reactivateAfterTimeUnit)) {
+    return { error: fail(
+      CODES.VALIDATION_FAILED,
+      'reactivateAfterTimeUnit must be "hour" or "day" (value withheld)',
+      'Both units are live-verified. Pass one of them, or omit the pair entirely for "off until switched back on".'
+    ) };
+  }
+  if (unitGiven && !valueGiven) {
+    return { error: fail(
+      CODES.VALIDATION_FAILED,
+      "reactivateAfterTimeUnit was given without reactivateAfterTimeValue",
+      "A unit has no meaning without a number. Pass both, or omit both for an indefinite switch-off."
+    ) };
+  }
+  if (valueGiven && status === "active") {
+    return { error: fail(
+      CODES.VALIDATION_FAILED,
+      'a reactivation window was given alongside status:"active"',
+      'The reactivation window only means anything while the bot is off, and its behaviour alongside "active" was never captured. Pass status:"inactive" with the window, or status:"active" alone.'
+    ) };
+  }
+  if (!valueGiven) {
+    return {
+      data: { status, reactivateAfterTimeValue: null, reactivateAfterTimeUnit: null },
+      expectSleeping: false
+    };
+  }
+  return {
+    data: {
+      status,
+      reactivateAfterTimeValue,
+      // 0 is accepted and read as "never" (live-verified as `0` + `hour`), so a bare 0 is
+      // passed through with the unit it was captured with rather than rewritten to nulls.
+      reactivateAfterTimeUnit: unitGiven ? reactivateAfterTimeUnit : "hour"
+    },
+    expectSleeping: reactivateAfterTimeValue > 0
+  };
+}
 var HTTP_METHOD_TOKEN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
 function normalizeHttpMethod(method) {
   if (typeof method !== "string") return null;
@@ -80856,6 +80960,130 @@ var TOOLS2 = [
         "Agent Studio creation did not complete and verify.",
         "This unproven SSE path may have partially created a canary. Inspect data.created and clean it up before retrying."
       ), data2);
+    }, args)
+  },
+  {
+    name: "get_contact_ai_status",
+    description: describe3(
+      "get_contact_ai_status",
+      "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read"
+    ) + ". This is the sparkles toggle in the conversation composer (Conversation AI Bot \u2192 Active/Inactive \u2192 Reactivate after N). Returns configId, status, sleepingTill, the reactivation pair and the assigned employee id. NOT purely read-only: the GET AUTO-CREATES the config when the contact has none, which is exactly why it works on a contact that has never been messaged and why it is the way to obtain the configId that set_contact_ai_status writes to. conversationId is optional \u2014 omitted and empty both return the same config.",
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      contactId: external_exports.string(),
+      conversationId: external_exports.string().optional().describe("Optional \u2014 the config is per-contact, not per-conversation")
+    }),
+    capabilities: [{ method: "GET", path: "/conversations-ai/employeeConfigs" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const response = await gw.call("GET", contactAiConfigQuery(args), void 0, { base: AI_BASE2 });
+      if (!response.ok) return fromHttp(response.status, response.json);
+      return ok({ ...summarizeContactAiConfig(response.json), config: response.json });
+    }, args)
+  },
+  {
+    name: "set_contact_ai_status",
+    description: describe3(
+      "set_contact_ai_status",
+      "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: write"
+    ) + ". This is how you silence one agent for one contact while testing a live account, without touching the agent, the workflows, or DND. DND is the method this replaces and it is worse on every count: it blocks the whole channel including your own real outbound, and set within a second of a send it makes the send itself fail. This touches only the bot, for only this contact. Resolves the configId itself via the read (which creates the config if the contact has none), then reads the state back after the write and reports it \u2014 a clean 200 is not proof. Omitting the reactivation pair means OFF INDEFINITELY, which the API allows and the UI forbids (the UI forces a reactivation of at least 1). The PUT REPLACES that pair rather than merging it, so this tool always sends the whole intent. Confirmation-gated: without confirm:true it previews the exact body and makes no call at all.",
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      contactId: external_exports.string(),
+      // Modeled as a free string, not z.enum, for the same reason as list_workflows#status:
+      // the SDK's invalid_enum_value error echoes the received value BEFORE our scrubber
+      // runs. The allowed set is enforced in compileContactAiIntent, downstream of the scrub.
+      status: external_exports.string().describe('"active" or "inactive"'),
+      conversationId: external_exports.string().optional(),
+      reactivateAfterTimeValue: external_exports.number().int().nonnegative().nullable().optional().describe("Omit (or null, or 0) for off indefinitely \u2014 the API allows what the UI forbids"),
+      reactivateAfterTimeUnit: external_exports.string().optional().describe('"hour" or "day" \u2014 both live-verified'),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/conversations-ai/employeeConfigs" },
+      { method: "PUT", path: "/conversations-ai/employeeConfigs/{configId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const intent = compileContactAiIntent(args);
+      if (intent.error) return intent.error;
+      const preview = {
+        method: "PUT",
+        path: `${CONTACT_AI_CONFIGS_PATH}/{configId}`,
+        configIdResolvedBy: `GET ${contactAiConfigQuery(args)}`,
+        body: { locationId: args.locationId, data: intent.data },
+        note: intent.expectSleeping ? "The bot goes off and reactivates itself after the given window." : "The bot goes off indefinitely \u2014 no reactivation is scheduled (sleepingTill: null)."
+      };
+      if (args.confirm !== true) {
+        return withFailureData(fail(
+          CODES.CONFIRM_REQUIRED,
+          "Per-contact Conversation AI toggle preview is ready; no gateway call and no write were made.",
+          "Review data.preview, then repeat the same arguments with confirm:true to apply it."
+        ), { preview });
+      }
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const configQuery = contactAiConfigQuery(args);
+      const partialProgress = { write: { phase: "employeeConfig_put", attempted: false, acknowledged: false, ambiguous: false } };
+      const readBefore = await gw.call("GET", configQuery, void 0, { base: AI_BASE2 });
+      if (!readBefore.ok) return fromHttp(readBefore.status, readBefore.json);
+      const before = summarizeContactAiConfig(readBefore.json);
+      if (typeof before.configId !== "string" || before.configId.length === 0) {
+        return withFailureData(
+          fail(
+            CODES.ENGINE_ABORT,
+            "the employeeConfigs read returned no config id, so there is no write route to take",
+            "There is exactly one write route and it needs the id. Inspect data.before; nothing was written."
+          ),
+          { preview, before }
+        );
+      }
+      partialProgress.write.attempted = true;
+      const write = await safeGatewayCall(() => gw.call(
+        "PUT",
+        `${CONTACT_AI_CONFIGS_PATH}/${encodeURIComponent(before.configId)}`,
+        { locationId: args.locationId, data: intent.data },
+        { base: AI_BASE2 }
+      ));
+      if (write.threw) {
+        partialProgress.write.ambiguous = true;
+        return withFailureData({
+          ...write.failure,
+          remediation: "URGENT: the toggle was attempted but not acknowledged, so this contact's bot may be in either state. Re-read with get_contact_ai_status before retrying."
+        }, { preview, before, partialProgress });
+      }
+      if (!write.value.ok) {
+        return withFailureData(fromHttp(write.value.status, write.value.json), { preview, before, partialProgress });
+      }
+      partialProgress.write.acknowledged = true;
+      const readAfter = await gw.call("GET", configQuery, void 0, { base: AI_BASE2 });
+      if (!readAfter.ok) {
+        return withFailureData(fromHttp(readAfter.status, readAfter.json), {
+          preview,
+          before,
+          partialProgress,
+          note: "The write was acknowledged but could not be verified \u2014 the observed state is unknown."
+        });
+      }
+      const after = summarizeContactAiConfig(readAfter.json);
+      const sleeping = typeof after.sleepingTill === "string" && after.sleepingTill.length > 0;
+      const mismatches = [];
+      if (after.status !== intent.data.status) {
+        mismatches.push(`status is "${after.status}", not the requested "${intent.data.status}"`);
+      }
+      if (intent.expectSleeping && !sleeping) {
+        mismatches.push("a reactivation window was requested but sleepingTill came back empty");
+      }
+      if (!intent.expectSleeping && sleeping) {
+        mismatches.push(`no reactivation was requested but sleepingTill came back as ${after.sleepingTill}`);
+      }
+      const data2 = { preview, before, after, partialProgress, applied: mismatches.length === 0, mismatches };
+      return data2.applied ? ok(data2) : withFailureData(
+        fail(
+          CODES.ENGINE_ABORT,
+          `the write was accepted but the read-back disagrees with the intent: ${mismatches.join("; ")}`,
+          "URGENT: this contact's bot is in a state you did not ask for. Inspect data.after and re-issue the full intent \u2014 the reactivation pair is replaced, not merged, so a partial retry will not repair it."
+        ),
+        data2
+      );
     }, args)
   },
   {

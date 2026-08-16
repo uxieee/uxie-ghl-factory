@@ -540,5 +540,41 @@
     "rows": [
       "ai-studio-agent-build"
     ]
+  },
+  "get_contact_ai_status": {
+    "description": "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-08-08)",
+    "proofFloor": "live-runtime (2026-08-08)",
+    "proofRows": [
+      "ai-convai-contact-config-read"
+    ],
+    "proofFloorRows": [
+      "ai-convai-contact-config-read"
+    ],
+    "riskRows": [
+      "ai-convai-contact-config-read"
+    ],
+    "rows": [
+      "ai-convai-contact-config-read"
+    ]
+  },
+  "set_contact_ai_status": {
+    "description": "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-08-08)",
+    "proofFloor": "live-runtime (2026-08-08)",
+    "proofRows": [
+      "ai-convai-contact-config-update"
+    ],
+    "proofFloorRows": [
+      "ai-convai-contact-config-update"
+    ],
+    "riskRows": [
+      "ai-convai-contact-config-update"
+    ],
+    "rows": [
+      "ai-convai-contact-config-update"
+    ]
   }
 }
