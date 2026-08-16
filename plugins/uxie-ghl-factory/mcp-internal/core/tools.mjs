@@ -1575,7 +1575,10 @@ export const TOOLS = [
     name: 'list_marketplace_apps',
     description: describe('list_marketplace_apps',
       'List the third-party marketplace apps INSTALLED in a sub-account, with each app\'s triggers and '
-      + 'actions — key, version, templateId, and the full customVars / inputs schema — proof: documented; '
+      + 'actions — key, version, templateId, and the full customVars / inputs schema — proof: live-runtime '
+      + '(2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and '
+      + 'returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked '
+      + 'gateway, not live-invoked); '
       + 'risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two '
       + 'reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports '
       + '`complete:false` with that leg\'s data as null (never a silently empty list) and names which leg '
