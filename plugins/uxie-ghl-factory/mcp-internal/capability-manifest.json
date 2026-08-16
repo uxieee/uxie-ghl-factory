@@ -50,6 +50,21 @@
     "path": "/agent-studio/super-agent/agents/{agentId}"
   },
   {
+    "tool": "get_contact_ai_status",
+    "method": "GET",
+    "path": "/conversations-ai/employeeConfigs"
+  },
+  {
+    "tool": "set_contact_ai_status",
+    "method": "GET",
+    "path": "/conversations-ai/employeeConfigs"
+  },
+  {
+    "tool": "set_contact_ai_status",
+    "method": "PUT",
+    "path": "/conversations-ai/employeeConfigs/{configId}"
+  },
+  {
     "tool": "list_workflows",
     "method": "GET",
     "path": "/workflow/{loc}/list"

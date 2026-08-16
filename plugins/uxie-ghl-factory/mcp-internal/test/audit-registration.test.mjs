@@ -560,18 +560,23 @@ test('processAuditPacing hands out the SAME limiter and circuit for the life of 
 // 4. the normal server is untouched
 // ---------------------------------------------------------------------------
 
-test('the full 23-tool registry and the normal stdio entry point are unchanged', () => {
+test('the full 25-tool registry and the normal stdio entry point are unchanged', () => {
   // 21 -> 22 when this branch merged main at 0.14.0, which added `check_workflow`.
   // 22 -> 23 for Task 7, which added `list_marketplace_apps` (read-only, registered
-  // immediately after `list_account_entities`). The literal list is kept rather than
-  // relaxed to a subset check: the claim is that the audit profile takes nothing AWAY,
-  // and only an exact list can catch a tool silently disappearing from the full server.
-  // A merge that drops one should fail here, loudly, which is why the count moves by
-  // hand and never by `TOOLS.length`.
-  assert.equal(TOOLS.length, 23, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // immediately after `list_account_entities`).
+  // 23 -> 25: restoring `get_contact_ai_status` and `set_contact_ai_status`, shipped in
+  // published 0.20.0 but never committed to this repo (source only existed inside the
+  // installed plugin cache). Recovered verbatim and registered immediately after
+  // `create_studio_agent`, their original relative position, before `list_workflows`.
+  // The literal list is kept rather than relaxed to a subset check: the claim is that the
+  // audit profile takes nothing AWAY, and only an exact list can catch a tool silently
+  // disappearing from the full server. A merge that drops one should fail here, loudly,
+  // which is why the count moves by hand and never by `TOOLS.length`.
+  assert.equal(TOOLS.length, 25, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
-    'create_studio_agent', 'list_workflows', 'get_workflow', 'check_workflow', 'export_workflow',
+    'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
+    'list_workflows', 'get_workflow', 'check_workflow', 'export_workflow',
     'get_workflow_logs', 'get_workflow_runtime_window', 'list_workflows_complete',
     'get_ai_configuration_bundle', 'get_contacts_at_step', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
