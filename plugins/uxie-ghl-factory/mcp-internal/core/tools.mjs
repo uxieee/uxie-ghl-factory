@@ -2755,6 +2755,130 @@ export const TOOLS = [
       return ok(data);
     }, args),
   },
+  // Custom-field FOLDERS. A different surface from everything above: the write lives on the
+  // AI host (services.leadconnectorhq.com), not the workflow backend — but on the plain
+  // Bearer rail, NOT the dual-credential `ai` rail. Verified live 2026-08-18 by sending the
+  // captured call with the `token-id` header REMOVED: still 201. That matters, because
+  // rail:'ai' would demand an agency-admin token-id this endpoint never needed, and every
+  // caller holding only a location JWT would have been locked out of a write that works.
+  //
+  // Reads are available on BOTH hosts and answer under `customFieldFolders` — NOT
+  // `customFields`, which is the sibling key for the FIELDS themselves and comes back empty
+  // for a folder query. Reading the wrong key makes a freshly created folder look like it
+  // was never created.
+  {
+    name: 'create_custom_field_folder',
+    description: `${describe('create_custom_field_folder', 'Create custom field folder — risk: write')}. `
+      + 'Create a folder to group custom fields in, on the contact or opportunity object. Preview by '
+      + 'default; pass confirm:true to write. `model` must be "contact" or "opportunity" — the server '
+      + 'rejects anything else outright (other models such as "business" exist on EXISTING folders but '
+      + 'cannot be created here). Folder names are UNIQUE per location: creating one that already exists '
+      + 'fails and this tool reports the existing folder\'s id rather than a bare 400, so a re-run is safe '
+      + 'and tells you what to reuse. The create returns the full stored record, which is then confirmed '
+      + 'by reading the folder list back.',
+    inputSchema: schema({
+      locationId: z.string(),
+      name: z.string(),
+      model: z.string().default('contact'),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'POST', path: '/locations/{loc}/customFields' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (typeof args.name !== 'string' || args.name.trim() === '') {
+        return fail(CODES.VALIDATION_FAILED, 'name must be a non-empty string',
+          'Pass the folder name to create.');
+      }
+      // Checked here as well as upstream: the server's own 400 is clear, but spending a
+      // write to learn a typo is worse than refusing locally, and the accepted set is short
+      // and stable enough to state.
+      const model = args.model ?? 'contact';
+      if (!['contact', 'opportunity'].includes(model)) {
+        return fail(CODES.VALIDATION_FAILED,
+          `model must be "contact" or "opportunity" (got ${JSON.stringify(model)})`,
+          'Custom-field folders can only be created on the contact or opportunity object.');
+      }
+
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const folderQuery = (forModel) => new URLSearchParams({
+        parentId: '', skip: '0', limit: '1000', documentType: 'folder',
+        model: forModel, query: '', includeStandards: 'true',
+      });
+      // `customFieldFolders`, never `customFields` — see the note above this tool.
+      const listFolders = async (forModel) => {
+        const response = await gw.call(
+          'GET', `/locations/${loc}/customFields/search?${folderQuery(forModel)}`,
+          undefined, { base: AI_BASE });
+        return { response, folders: recordsFrom(response.json, 'customFieldFolders') };
+      };
+
+      const existingList = await listFolders(model);
+      if (!existingList.response.ok) return fromHttp(existingList.response.status, existingList.response.json);
+      // Names are unique per location, so a collision is knowable BEFORE the write. Reporting
+      // it from the preview costs nothing and turns a failed run into an answer.
+      const clash = existingList.folders.find((folder) => folder.name === args.name);
+      const preview = {
+        creates: { name: args.name, model, documentType: 'folder' },
+        existingFolders: existingList.folders.map((folder) => ({ id: folder.id, name: folder.name, model: folder.model })),
+        ...(clash ? { alreadyExists: { id: clash.id, name: clash.name, model: clash.model } } : {}),
+      };
+      if (clash) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED,
+            `a ${model} custom-field folder named '${args.name}' already exists (id ${clash.id})`,
+            'Folder names are unique per location. Reuse that id, or create the folder under a different name. Nothing was written.'),
+          { preview },
+        );
+      }
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Custom-field folder preview is ready; no write was sent.',
+            'Review data.preview, then repeat the request with confirm:true to create it.'),
+          { preview },
+        );
+      }
+
+      const created = await gw.call(
+        'POST', `/locations/${loc}/customFields`,
+        { documentType: 'folder', model, name: args.name },
+        { base: AI_BASE });
+      if (!created.ok) {
+        // The server's own uniqueness check is the authority — the pre-check above can lose a
+        // race, and it hands back the existing id, which is more useful than the raw status.
+        const existingId = created.json?.meta?.existingId;
+        if (existingId) {
+          return withFailureData(
+            fail(CODES.VALIDATION_FAILED,
+              `a custom-field folder named '${args.name}' already exists (id ${existingId})`,
+              'Folder names are unique per location. Reuse that id, or pick a different name.'),
+            { preview, existingId },
+          );
+        }
+        return fromHttp(created.status, created.json);
+      }
+      const folder = created.json?.customFieldFolder ?? null;
+      const folderId = folder?.id ?? folder?._id ?? null;
+      if (!folderId) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, 'Folder create returned 2xx but no folder record.',
+            'Re-read the custom-field folders before retrying — a retry would attempt a second folder of the same name.'),
+          { preview, response: created.json ?? null },
+        );
+      }
+      const after = await listFolders(model);
+      const verified = after.response.ok
+        && after.folders.some((row) => (row.id ?? row._id) === folderId);
+      return ok({
+        folderId,
+        folder,
+        verified,
+        ...(verified ? {} : { note: 'Created, but the folder did not appear in the folder list on read-back. Confirm before filing fields into it.' }),
+      });
+    }, args),
+  },
   {
     name: 'fast_forward_contacts',
     description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step (proof: engine source).'),

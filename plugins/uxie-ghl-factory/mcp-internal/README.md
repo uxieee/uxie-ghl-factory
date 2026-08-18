@@ -83,6 +83,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `create_workflow_folder` | read-only preview; creation requires `confirm: true`, verified by read-back |
 | `duplicate_workflow` | read-only preview; duplication requires `confirm: true`; clone lands DRAFT with triggers cloned but INACTIVE |
 | `move_workflows` | read-only preview naming the destination folder; moving requires `confirm: true`, refuses published workflows without `allowPublished: true`, verifies `parentId` by read-back |
+| `create_custom_field_folder` | read-only preview listing existing folders; creation requires `confirm: true`; duplicate names are caught before the write and report the existing id |
 | `fast_forward_contacts` | read-only parked-enrollment preview; selective requeue only with `confirm: true` |
 | `raw_request` | GET escape hatch; non-GET methods require `confirm: true` and return partial-progress evidence |
 
@@ -107,6 +108,28 @@ fans out one call per workflow to move OUT to root — and verifies either way b
 `company_id` / `company_age` are accepted but not required on the folder-create or duplicate
 bodies (verified by omitting both; the server fills them from the location), so no tool asks a
 caller for them and none spends a read fetching them.
+
+### Custom-field folders: AI host, Bearer rail
+
+`create_custom_field_folder` is the one write that leaves the workflow backend. It targets
+`services.leadconnectorhq.com` — but on the **plain Bearer rail, not the dual-credential
+`ai` rail.** The browser call that was captured carried a `token-id`; resending it with that
+header removed still returned 201, so the tool does not ask for one. Requiring it would have
+locked out every caller holding only a location JWT, for a write that never needed it.
+
+Two more facts the tool hides, both measured:
+
+- **`model` is `contact` or `opportunity`, and nothing else.** The server answers anything
+  else with `400 Model value need to be either 'contact' or 'opportunity'`. Other models
+  (e.g. `business`) exist on folders already in an account but cannot be created here, so
+  the tool refuses them locally rather than spending a request to learn that.
+- **Folder names are unique per location per model.** A duplicate is a `400 Folder already
+  exists` carrying `meta.existingId`; the tool checks before writing AND handles the raced
+  case, reporting the existing folder's id either way instead of a bare status.
+
+🔴 Folder reads answer under **`customFieldFolders`**, not the sibling `customFields` key —
+that one holds the FIELDS and comes back empty for a folder query, which makes a folder that
+*was* created look like it never was.
 
 ### The credential guard vs. signed storage URLs
 

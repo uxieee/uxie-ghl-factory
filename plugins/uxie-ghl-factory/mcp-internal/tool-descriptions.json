@@ -667,5 +667,26 @@
       "workflow-move-single",
       "workflow-move-subject-read"
     ]
+  },
+  "create_custom_field_folder": {
+    "description": "Create custom field folder — proof: live-runtime (2026-08-18); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-08-18)",
+    "proofFloor": "live-runtime (2026-08-18)",
+    "proofRows": [
+      "entities-custom-field-folder-create",
+      "entities-custom-field-folder-list"
+    ],
+    "proofFloorRows": [
+      "entities-custom-field-folder-create",
+      "entities-custom-field-folder-list"
+    ],
+    "riskRows": [
+      "entities-custom-field-folder-create"
+    ],
+    "rows": [
+      "entities-custom-field-folder-create",
+      "entities-custom-field-folder-list"
+    ]
   }
 }

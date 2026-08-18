@@ -11,6 +11,45 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.26.0] — 2026-08-18
+
+### Added
+
+- **`create_custom_field_folder`** — create a folder to group custom fields under, on the
+  contact or opportunity object. Confirm-gated like the rest of the write rail, and it
+  returns the full stored record (the create response carries one, unlike the workflow
+  writes that hand back a bare id), confirmed by reading the folder list back.
+
+### Documented
+
+Everything here was measured, including the negative cases:
+
+- **AI host, but the plain Bearer rail.** The write targets
+  `services.leadconnectorhq.com`, not the workflow backend. The captured browser call
+  carried a `token-id`; resending it with that header removed still returned 201, so the
+  tool does not ask for one — requiring it would have locked out every caller holding only a
+  location JWT, for a write that never needed it.
+- **`model` is `contact` or `opportunity`, and nothing else** — the server rejects anything
+  else outright. Other models (e.g. `business`) exist on folders already in an account but
+  cannot be created, so the tool refuses them locally rather than spending a request.
+- **Folder names are unique per location per model.** A duplicate returns
+  `400 Folder already exists` with `meta.existingId`. The tool checks before writing *and*
+  handles the raced case, reporting the existing folder's id either way — so a re-run tells
+  you what to reuse instead of just failing.
+- 🔴 **Folder reads answer under `customFieldFolders`, not `customFields`.** The sibling key
+  holds the FIELDS and comes back empty for a folder query, which makes a folder that *was*
+  created look like it never was. This cost a wrong conclusion during capture and is now
+  pinned by a test.
+
+### Proof
+
+Live round-trip through the real handler: preview (no write) → create, verified by read-back
+→ duplicate name caught with the existing id → bad model refused without a request →
+`opportunity` model created. Both throwaway folders deleted afterwards; the account finished
+on the five folders it started with.
+
+Suites: 757 MCP tests, 469 engine tests.
+
 ## [0.25.0] — 2026-08-18
 
 Two independent rails, developed in parallel and released together. 0.24.0 was claimed by
