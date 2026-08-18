@@ -550,6 +550,56 @@
     "path": "/workflow/{loc}/{wid}"
   },
   {
+    "tool": "list_workflow_folders",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "create_workflow_folder",
+    "method": "POST",
+    "path": "/workflow/{loc}/directory"
+  },
+  {
+    "tool": "create_workflow_folder",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "duplicate_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "duplicate_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "duplicate_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}"
+  },
+  {
+    "tool": "move_workflows",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "move_workflows",
+    "method": "GET",
+    "path": "/workflow/{loc}/list"
+  },
+  {
+    "tool": "move_workflows",
+    "method": "PUT",
+    "path": "/workflow/{loc}/move"
+  },
+  {
+    "tool": "move_workflows",
+    "method": "PUT",
+    "path": "/workflow/{loc}/move-directory/{wid}"
+  },
+  {
     "tool": "fast_forward_contacts",
     "method": "GET",
     "path": "/workflows/status/search/count-per-step"
