@@ -193,6 +193,104 @@ export function modifyStep(templates, stepId, attrPatch, stepPatch) {
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
 }
 
+// Graph fields a RETYPE preserves byte-for-byte. This list is the whole safety argument
+// for the op: a retype changes what a step DOES, never where it sits, so there is zero
+// graph churn — no delete-and-reinsert, no rewiring, no re-parenting. Anything that
+// walked into this workflow before the edit walks the identical path after it.
+export const RETYPE_PRESERVED_FIELDS = ['id', 'order', 'next', 'parent', 'parentKey'];
+
+// Retype an existing step IN PLACE: swap its `type` and its ENTIRE `attributes` object,
+// keeping the five graph fields above untouched.
+//
+// Why this is a dedicated op and not a relaxation of modifyStep's PROTECTED_STEP_FIELDS:
+// `type` sits in that set because changing it WITHOUT replacing `attributes` in the same
+// operation leaves an invalid step — the old type's attribute keys stranded under a new
+// type that has no idea what they mean. A dedicated op can REQUIRE the replacement (the
+// driver refuses a retypeStep with no `attributes`), so the hazard cannot occur; loosening
+// modifyStep would have made a fail-closed guard conditional, which is how such guards
+// stop being ones. It also reads as what it is in a preview and a diff.
+//
+// `compiledEntry` is a freshly compiled step for the NEW type — the same compile() output
+// an add op splices in, so a retyped step is byte-identical to a newly built one of that
+// type (marketplace resolution, required-input enforcement, envelope keys and all).
+//
+// ATTRIBUTES ARE REPLACED, NEVER MERGED — that is the point. A merge leaves the old type's
+// keys behind: converting an `sms` to a WhatsApp marketplace step with a merge strands a
+// stale `body` next to the new `message`, and the builder renders whichever it finds.
+// The same argument applies one level up, at the step's TOP level: the base here is the
+// compiled entry, not the old step, so a structural field the OLD type carried and the new
+// one does not (`workflowsActionType`, a native `stepIndex`) is dropped rather than
+// inherited. The one deliberate carry-over is `advanceCanvasMeta` — the native pause flag
+// is orthogonal to type, and a disabled step must not silently switch itself back on.
+export function retypeStep(templates, stepId, compiledEntry) {
+  const old = templates.find((t) => t.id === stepId);
+  if (!old) return { templates, diff: emptyDiff() };
+  // A container's `next` is its BRANCH ARRAY. Retyping one would either strand its branch
+  // entries under a type that has no branches, or overwrite the array outright — the same
+  // orphan-the-subgraph failure insertAfter refuses.
+  if (Array.isArray(old.next))
+    throw new Error(`retypeStep: '${old.name ?? stepId}' is a container — its next[] is branch wiring, `
+      + `not content, and no retype can carry a branch set across types. Delete and rebuild it instead.`);
+  const next = { ...compiledEntry };
+  for (const k of RETYPE_PRESERVED_FIELDS) {
+    if (k in old) next[k] = old[k]; else delete next[k];
+  }
+  if (old.advanceCanvasMeta !== undefined) next.advanceCanvasMeta = old.advanceCanvasMeta;
+  // Fail CLOSED on the invariant rather than merely intending it. This is the check the
+  // hand-rolled migration script ran before it would commit, kept here so the engine can
+  // never quietly acquire a code path that moves a step while claiming to retype it.
+  const drifted = RETYPE_PRESERVED_FIELDS
+    .filter((k) => JSON.stringify(old[k] ?? null) !== JSON.stringify(next[k] ?? null));
+  if (drifted.length)
+    throw new Error(`retypeStep: graph field(s) ${drifted.map((k) => `'${k}'`).join(', ')} changed on `
+      + `'${old.name ?? stepId}' — a retype must leave the graph byte-identical. Refusing to commit.`);
+  return {
+    templates: templates.map((t) => (t.id === stepId ? next : t)),
+    diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] },
+  };
+}
+
+// The marketplace step counter, read off a templates[] array.
+//
+// 🔴 `meta.stepIndexCounter[<action key>]` is a HIGH-WATER MARK, not a running total.
+// ACCUMULATING onto the stored value across edits sends it to 24 for 12 steps (live-caught
+// on a hand-rolled client migration), and the builder renders the canvas `#N` prefix off
+// `stepIndex` — so a wrong counter is visible, wrong numbering on the canvas. Recomputing
+// from the templates themselves is the only shape that is idempotent across re-runs.
+export function marketplaceStepIndexCounter(templates) {
+  const counter = new Map();
+  for (const t of templates ?? []) {
+    if (t?.isMarketplaceAction !== true || !t.type) continue;
+    counter.set(t.type, Math.max(counter.get(t.type) ?? 0, Number(t.stepIndex) || 0));
+  }
+  return counter;
+}
+
+// Renumber every marketplace step's `stepIndex` as a PER-ACTION-KEY, 1-based occurrence
+// counter in templates order — the same rule compiler.mjs applies on the build path (see
+// its marketplaceStepIndexCounter comment for why this is deliberately NOT the global
+// premium stepIndex). The build path can count as it emits; an edit cannot, because a
+// step spliced into an existing workflow has to be numbered against the steps ALREADY
+// there — a standalone compile always hands back `stepIndex: 1`, which would collide with
+// the first stored step of the same key.
+//
+// Returns the ids whose stepIndex actually moved so the caller can mark them modified: a
+// step whose number changed but which never appears in modifiedSteps is a change the
+// server is never asked to persist.
+export function assignMarketplaceStepIndexes(templates) {
+  const running = new Map();
+  const changed = [];
+  const out = (templates ?? []).map((t) => {
+    if (t?.isMarketplaceAction !== true || !t.type) return t;
+    const n = (running.get(t.type) ?? 0) + 1;
+    running.set(t.type, n);
+    if (t.stepIndex === n) return t;
+    changed.push(t.id);
+    return { ...t, stepIndex: n };
+  });
+  return { templates: out, changed, counter: running };
+}
+
 // Rename a step. The name is what every downstream reader — the canvas, an export, the
 // next human — uses to know what the step does, so leaving it stale after a modifyStep is
 // worse than leaving it generic. Whole-templates commit means this needs no transport
@@ -746,6 +844,20 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         + `. Contacts taking the terminating branch reach the end of the workflow and nothing downstream runs. `
         + `Confirm that is intended (or attach steps to it / re-run with a different attachTailTo), then pass deadBranchAcknowledged:true.`);
   }
+  // meta.stepIndexCounter, per marketplace action key. Emitted ONLY when this edit
+  // actually touched a marketplace step: a native edit on a workflow that happens to
+  // contain marketplace steps must not rewrite metadata it had no reason to look at, and
+  // a native edit on a native workflow must send exactly the body it sent before this
+  // feature existed (`...fresh` carries any pre-existing meta through untouched either way).
+  //
+  // MERGED over the stored map rather than replacing it — a key whose steps this edit
+  // deleted keeps its stored entry, which is what the builder does too. And it is set to
+  // the HIGH-WATER MARK read back off the templates, never accumulated onto the stored
+  // number: see marketplaceStepIndexCounter.
+  const counter = marketplaceStepIndexCounter(newTemplates);
+  const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+  const editTouchedMarketplace = newTemplates
+    .some((t) => t.isMarketplaceAction === true && touched.has(t.id));
   return {
     ...fresh,
     updatedBy: uid,
@@ -753,6 +865,10 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
     version: fresh.version,
     triggersChanged: false,
     workflowData: { templates: newTemplates },
+    ...(counter.size > 0 && editTouchedMarketplace
+      ? { meta: { ...(fresh.meta ?? {}),
+        stepIndexCounter: { ...(fresh.meta?.stepIndexCounter ?? {}), ...Object.fromEntries(counter) } } }
+      : {}),
     createdSteps: diff.createdSteps, modifiedSteps: diff.modifiedSteps, deletedSteps: diff.deletedSteps,
   };
 }

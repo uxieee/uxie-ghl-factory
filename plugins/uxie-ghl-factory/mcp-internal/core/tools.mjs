@@ -16,11 +16,12 @@ import {
   validateAiBundleInput,
   validateRosterInput,
 } from './audit-configuration.mjs';
-import { fetchEntities, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
+import { fetchEntities, fetchMarketplace, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
   applyOps,
+  opsUseMarketplace,
   partitionOps,
   planTriggerOps,
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
@@ -28,7 +29,7 @@ import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engi
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
-import { parseInstalledModules } from '../../skills/create-ghl-workflow/engine/marketplace.mjs';
+import { buildMarketplaceIndex, parseInstalledModules } from '../../skills/create-ghl-workflow/engine/marketplace.mjs';
 import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
 import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
 import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
@@ -1869,6 +1870,9 @@ export const TOOLS = [
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
+      // Marketplace index — read ONLY when an op carries marketplace:true.
+      { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
+      { method: 'GET', path: '/marketplace/core/search/module' },
       { method: 'GET', path: '/locations/{loc}/tags' },
       { method: 'POST', path: '/locations/{loc}/tags' },
       { method: 'PUT', path: '/workflow/{loc}/{wid}' },
@@ -1941,6 +1945,15 @@ export const TOOLS = [
         args.ops,
         beforeTemplates.map((step) => step.id),
       );
+      // The marketplace index, gated exactly the way orchestrate() gates it on the build
+      // path: fetched ONLY when an op actually carries marketplace:true (walked over the
+      // ops' step subgraphs, never string-scanned — see opsUseMarketplace). A native edit
+      // therefore stays network-identical to what it was before this feature existed, and
+      // still gets a real (empty) index, so an unresolvable key raises the engine's own
+      // MARKETPLACE_KEY_UNKNOWN rather than a `.get is not a function` crash.
+      const marketplace = opsUseMarketplace(args.ops)
+        ? buildMarketplaceIndex(await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId))
+        : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
       const ctx = {
         loc: args.locationId,
         cid: undefined,
@@ -1948,6 +1961,7 @@ export const TOOLS = [
         companyAge: 0,
         idGen,
         catalog: loadCatalog(),
+        marketplace,
         ...(customFields !== undefined ? { customFields } : {}),
         warn: (message) => warnings.push(message),
       };

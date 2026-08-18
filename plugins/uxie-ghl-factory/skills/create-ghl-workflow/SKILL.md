@@ -273,7 +273,8 @@ workflow). `--dry-run` computes + prints the diff without sending the PUT. The e
 (each takes a `step: {type,name,attributes}` compiled from IR — a linear step **or a
 container**, see "Adding containers" below), `deleteStep`,
 `modifyStep` (`attrPatch` for `attributes`, plus an optional `stepPatch` for TOP-LEVEL
-fields), `renameStep` (`{stepId,name}`), `moveStep`, `addBranch`
+fields), `renameStep` (`{stepId,name}`), `retypeStep` (`{stepId,step}` — change what a step
+IS, see "Retyping a step" below), `moveStep`, `addBranch`
 (`{containerId,name,conditions}`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
 (`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
@@ -308,6 +309,49 @@ workflow stayed published).
   { "op": "renameStep", "stepId": "xyz", "name": "Tag: nurture exhausted" }
 ] }
 ```
+
+### Retyping a step (including native → marketplace)
+
+`retypeStep` changes what an EXISTING step is, in place, without touching the graph:
+
+```json
+{ "ops": [
+  { "op": "retypeStep", "stepId": "0a711d75-…",
+    "step": { "kind": "action", "marketplace": true, "type": "send_outbound_whatsapp_message",
+      "name": "Thanks for coming in",
+      "attributes": { "message": "Hi {{contact.first_name}}, …", "attachment": "",
+        "connected_phone": "", "__dynamicAttachments__": {}, "__customInputs__": {} } } }
+] }
+```
+
+The step's `id`, `order`, `next`, `parent` and `parentKey` are preserved **byte-for-byte** —
+that is the whole safety argument, and the op fails closed if any of them moves. No
+delete-and-reinsert, no rewiring, so anything mid-flight walks the identical path after the
+edit. It is a separate op rather than a `type` hole in `modifyStep` because a retype
+**requires** a full `attributes` replacement, and only a dedicated op can enforce that.
+
+`attributes` are **REPLACED, never merged.** A merge would strand the old type's keys under
+the new one — converting an `sms` to a WhatsApp marketplace action with a merge leaves a
+stale `body` sitting beside the new `message`. The same rule applies to the step's TOP
+level: a structural field the old type carried and the new one does not
+(`workflowsActionType`, a native `stepIndex`) is dropped. The one carry-over is
+`advanceCanvasMeta` — a disabled step must not silently switch itself back on.
+
+Retyping a CONTAINER is refused: its `next` is a branch array, and no retype can carry a
+branch set across types. Delete it and splice a new one in.
+
+**Marketplace steps work on the edit path**, with the same guards the build path applies
+(install check, required inputs, envelope keys) — `references/marketplace-steps.md` has the
+authoring contract. The per-location marketplace index is fetched only when an op actually
+carries `marketplace: true`, so a native edit issues exactly the requests it always has.
+The engine renumbers `stepIndex` per action key across the whole workflow and writes
+`meta.stepIndexCounter` as a high-water mark; the builder renders that as the canvas `#N`
+prefix, which is the cheap visual proof the metadata took. Live-proven 2026-08-18 on a
+draft workflow in a real AU clinic account with the goghl.ai app installed: 2 `sms` steps →
+2 `send_outbound_whatsapp_message`, version 1→2, 10 steps unchanged, all five graph fields
+byte-identical across every step, `#1`/`#2` rendered on the canvas, and the step editor
+opened as "Send Whatsapp Message" with the body intact and the merge field still a live
+chip.
 
 For a newly compiled workflow, put `disabled: true` directly on any IR step node. This
 emits the same native flag; false/absent means enabled. See
