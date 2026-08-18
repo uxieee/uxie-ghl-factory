@@ -4,6 +4,13 @@ A third-party app installed on a sub-account (e.g. a WhatsApp/iMessage bridge, a
 can publish its own triggers and actions into the builder, alongside the native catalog.
 The engine builds these too — you opt in explicitly with `marketplace: true` on the node.
 
+**Both paths carry the rail: a fresh build AND an edit of a workflow that already exists.**
+On the edit path (`edit_workflow`, `scripts/edit.mjs`) the same `marketplace: true` node
+goes into any add op, and `retypeStep` converts an EXISTING native step into a marketplace
+one in place — see "Editing an existing workflow" in SKILL.md. Every guard on this page
+applies identically on both. The per-location index is fetched only when an op actually
+carries the flag, so a native edit stays network-identical to what it was before.
+
 For the underlying endpoint shapes and the reverse-engineering evidence this is built on,
 see the research corpus: `docs/marketplace-rail.md` in `ghl-internal-api-research`. This
 page is the authoring-syntax half; that one is the wire-shape half.
@@ -112,7 +119,13 @@ Two shapes worth knowing before you build:
   action to compare a schema version against.
 - The workflow body carries `meta.stepIndexCounter`, keyed by **action key**, incrementing
   a per-key occurrence counter that the builder renders as the step's `#N` canvas prefix.
-  The engine emits this for you; you never author it directly.
+  The engine emits this for you; you never author it directly. 🔴 It is a **HIGH-WATER
+  MARK, not a running total** — accumulating onto the stored number sends it to 24 for 12
+  steps (live-caught on a hand-rolled migration before the engine owned this path). On the
+  edit path the engine recomputes both the per-step `stepIndex` and this counter from the
+  final templates, so it is idempotent across re-runs, and any step whose number moved is
+  reported in `modifiedSteps` so the server actually persists it. Correct `#N` numbering on
+  the canvas is the cheap visual proof the metadata took.
 
 ## A key collision handled by design: `contact_engagement_score`
 

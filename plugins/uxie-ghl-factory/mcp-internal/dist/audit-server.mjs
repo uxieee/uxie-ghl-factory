@@ -37504,15 +37504,15 @@ function compile(ir, ctx) {
     }
   }
   let stepIndex = 0;
-  const marketplaceStepIndexCounter = /* @__PURE__ */ new Map();
+  const marketplaceStepIndexCounter2 = /* @__PURE__ */ new Map();
   for (const t of templates) {
     const meta3 = ctx.catalog.step(t.type);
     if (meta3 && meta3.situational?.includes("workflowsActionType") && !("workflowsActionType" in t))
       t.workflowsActionType = "INTERNAL";
     if (meta3?.premium && !("stepIndex" in t)) t.stepIndex = stepIndex;
     if (t.isMarketplaceAction === true && !("stepIndex" in t)) {
-      const next = (marketplaceStepIndexCounter.get(t.type) ?? 0) + 1;
-      marketplaceStepIndexCounter.set(t.type, next);
+      const next = (marketplaceStepIndexCounter2.get(t.type) ?? 0) + 1;
+      marketplaceStepIndexCounter2.set(t.type, next);
       t.stepIndex = next;
     }
     stepIndex += 1;
@@ -37582,7 +37582,7 @@ function compile(ir, ctx) {
     // build must emit exactly the autoSaveBody it emitted before this fix, with no new
     // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
     // above for what this map records and why it's per-key.
-    ...marketplaceStepIndexCounter.size > 0 ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter) } } : {}
+    ...marketplaceStepIndexCounter2.size > 0 ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } } : {}
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
@@ -77021,6 +77021,47 @@ function modifyStep(templates, stepId, attrPatch, stepPatch) {
   const out = templates.map((t) => t.id === stepId ? { ...t, ...stepPatch ?? {}, attributes: { ...t.attributes, ...attrPatch } } : t);
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
 }
+var RETYPE_PRESERVED_FIELDS = ["id", "order", "next", "parent", "parentKey"];
+function retypeStep(templates, stepId, compiledEntry) {
+  const old = templates.find((t) => t.id === stepId);
+  if (!old) return { templates, diff: emptyDiff() };
+  if (Array.isArray(old.next))
+    throw new Error(`retypeStep: '${old.name ?? stepId}' is a container \u2014 its next[] is branch wiring, not content, and no retype can carry a branch set across types. Delete and rebuild it instead.`);
+  const next = { ...compiledEntry };
+  for (const k of RETYPE_PRESERVED_FIELDS) {
+    if (k in old) next[k] = old[k];
+    else delete next[k];
+  }
+  if (old.advanceCanvasMeta !== void 0) next.advanceCanvasMeta = old.advanceCanvasMeta;
+  const drifted = RETYPE_PRESERVED_FIELDS.filter((k) => JSON.stringify(old[k] ?? null) !== JSON.stringify(next[k] ?? null));
+  if (drifted.length)
+    throw new Error(`retypeStep: graph field(s) ${drifted.map((k) => `'${k}'`).join(", ")} changed on '${old.name ?? stepId}' \u2014 a retype must leave the graph byte-identical. Refusing to commit.`);
+  return {
+    templates: templates.map((t) => t.id === stepId ? next : t),
+    diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] }
+  };
+}
+function marketplaceStepIndexCounter(templates) {
+  const counter = /* @__PURE__ */ new Map();
+  for (const t of templates ?? []) {
+    if (t?.isMarketplaceAction !== true || !t.type) continue;
+    counter.set(t.type, Math.max(counter.get(t.type) ?? 0, Number(t.stepIndex) || 0));
+  }
+  return counter;
+}
+function assignMarketplaceStepIndexes(templates) {
+  const running = /* @__PURE__ */ new Map();
+  const changed = [];
+  const out = (templates ?? []).map((t) => {
+    if (t?.isMarketplaceAction !== true || !t.type) return t;
+    const n = (running.get(t.type) ?? 0) + 1;
+    running.set(t.type, n);
+    if (t.stepIndex === n) return t;
+    changed.push(t.id);
+    return { ...t, stepIndex: n };
+  });
+  return { templates: out, changed, counter: running };
+}
 function renameStep(templates, stepId, name) {
   if (typeof name !== "string" || name.trim() === "")
     throw new Error(`renameStep: 'name' must be a non-empty string (got ${JSON.stringify(name)})`);
@@ -77379,8 +77420,8 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   if (opts.assumeAssociated !== true && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
   if (opts.allowDanglingParentKeys !== true) {
-    const touched = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
-    const bad = danglingParentKeys(newTemplates).filter((d) => touched.has(d.id));
+    const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+    const bad = danglingParentKeys(newTemplates).filter((d) => touched2.has(d.id));
     if (bad.length)
       throw new IRError(
         "DANGLING_PARENTKEY",
@@ -77395,6 +77436,9 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         risks.map((r) => `'${r.name}' routes the workflow's existing steps down ${r.carrying.map((b) => `'${b}'`).join(", ")} while ${r.deadEnded.map((b) => `'${b}'`).join(", ")} ${r.deadEnded.length > 1 ? "terminate" : "terminates"} immediately at END`).join("; ") + `. Contacts taking the terminating branch reach the end of the workflow and nothing downstream runs. Confirm that is intended (or attach steps to it / re-run with a different attachTailTo), then pass deadBranchAcknowledged:true.`
       );
   }
+  const counter = marketplaceStepIndexCounter(newTemplates);
+  const touched = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+  const editTouchedMarketplace = newTemplates.some((t) => t.isMarketplaceAction === true && touched.has(t.id));
   return {
     ...fresh,
     updatedBy: uid,
@@ -77402,6 +77446,10 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
     version: fresh.version,
     triggersChanged: false,
     workflowData: { templates: newTemplates },
+    ...counter.size > 0 && editTouchedMarketplace ? { meta: {
+      ...fresh.meta ?? {},
+      stepIndexCounter: { ...fresh.meta?.stepIndexCounter ?? {}, ...Object.fromEntries(counter) }
+    } } : {},
     createdSteps: diff.createdSteps,
     modifiedSteps: diff.modifiedSteps,
     deletedSteps: diff.deletedSteps
@@ -77864,6 +77912,17 @@ function partitionOps(ops) {
   for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : stepOps).push(op);
   return { stepOps, triggerOps };
 }
+function opsUseMarketplace(ops) {
+  let uses = false;
+  const mark = (node) => {
+    if (node?.marketplace === true) uses = true;
+  };
+  for (const op of ops ?? []) {
+    mark(op?.trigger);
+    if (op?.step) walkNodes([op.step], mark);
+  }
+  return uses;
+}
 function resolveTrigger(op, existing) {
   const list = existing ?? [];
   const idOf3 = (t) => t.id ?? t._id;
@@ -77961,6 +78020,7 @@ var OP_REQUIRED_ARGS = {
   appendToBranch: ["step", "branchEntryId"],
   deleteStep: ["stepId"],
   modifyStep: ["stepId"],
+  retypeStep: ["stepId", "step"],
   renameStep: ["stepId", "name"],
   setStepDisabled: ["stepId"],
   disableStepsByType: ["type"],
@@ -78028,6 +78088,18 @@ function applyOp(templates, op, { ctx, idGen }) {
     // it refuses graph fields — see PROTECTED_STEP_FIELDS.
     case "modifyStep":
       return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
+    // A retype REPLACES the step's whole attribute set, so `step.attributes` is
+    // MANDATORY — that requirement is the entire reason this is its own op rather than a
+    // hole in modifyStep's PROTECTED_STEP_FIELDS. Absent is refused; an explicit `{}` is
+    // allowed, because "this type takes no attributes" is a real, deliberate answer.
+    case "retypeStep": {
+      if (op.step?.attributes === void 0)
+        throw new Error(`retypeStep: '${op.stepId}' needs a full 'attributes' object on 'step'. A retype REPLACES attributes, never merges them \u2014 without one the new type would inherit the old type's keys (an sms 'body' stranded beside a whatsapp 'message'). Pass the complete attribute set for '${op.step?.type ?? "?"}', or {} if it takes none.`);
+      const sub = compileSubgraph(op.step, ctx);
+      if (sub.isContainer)
+        throw new Error(`retypeStep: '${op.step.type}' is a container \u2014 it compiles to a whole subgraph (entry + branch entries), which cannot replace a single step in place. Use deleteStep plus one of the subgraph splices.`);
+      return retypeStep(templates, op.stepId, sub.entry);
+    }
     case "renameStep":
       return renameStep(templates, op.stepId, op.name);
     case "setStepDisabled":
@@ -78054,7 +78126,15 @@ function applyOps(templates, ops, { ctx, idGen }) {
     tpls = r.templates;
     diff = mergeDiff(diff, r.diff);
   }
-  return { templates: tpls, diff: normalizeDiff(diff) };
+  const norm2 = normalizeDiff(diff);
+  const touched = /* @__PURE__ */ new Set([...norm2.createdSteps, ...norm2.modifiedSteps]);
+  if (tpls.some((t) => t?.isMarketplaceAction === true && touched.has(t.id))) {
+    const renumbered = assignMarketplaceStepIndexes(tpls);
+    tpls = renumbered.templates;
+    if (renumbered.changed.length)
+      norm2.modifiedSteps = [.../* @__PURE__ */ new Set([...norm2.modifiedSteps, ...renumbered.changed])];
+  }
+  return { templates: tpls, diff: norm2 };
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
@@ -81884,6 +81964,9 @@ var TOOLS2 = [
       { method: "GET", path: "/locations/{loc}/customFields/search" },
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/trigger" },
+      // Marketplace index — read ONLY when an op carries marketplace:true.
+      { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
+      { method: "GET", path: "/marketplace/core/search/module" },
       { method: "GET", path: "/locations/{loc}/tags" },
       { method: "POST", path: "/locations/{loc}/tags" },
       { method: "PUT", path: "/workflow/{loc}/{wid}" },
@@ -81945,6 +82028,7 @@ var TOOLS2 = [
         args.ops,
         beforeTemplates.map((step) => step.id)
       );
+      const marketplace = opsUseMarketplace(args.ops) ? buildMarketplaceIndex(await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId)) : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
       const ctx = {
         loc: args.locationId,
         cid: void 0,
@@ -81952,6 +82036,7 @@ var TOOLS2 = [
         companyAge: 0,
         idGen,
         catalog: loadCatalog(),
+        marketplace,
         ...customFields !== void 0 ? { customFields } : {},
         warn: (message) => warnings.push(message)
       };

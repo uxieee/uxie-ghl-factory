@@ -497,6 +497,16 @@
   {
     "tool": "edit_workflow",
     "method": "GET",
+    "path": "/workflows-marketplace/location/{loc}/assets"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/marketplace/core/search/module"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
     "path": "/locations/{loc}/tags"
   },
   {

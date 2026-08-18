@@ -6,8 +6,10 @@ import {
   addBranch, deleteContainer, setStepDisabled, disableStepsByType,
   appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
   insertBefore, insertSubgraphBefore, prependStep,
+  retypeStep, assignMarketplaceStepIndexes,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
+import { walkNodes } from './ir.mjs';
 
 // Triggers live in a SEPARATE document from workflowData.templates, with their own CRUD
 // endpoints — so a trigger op can't be a templates→templates function like the step ops.
@@ -18,6 +20,26 @@ export function partitionOps(ops) {
   const stepOps = [], triggerOps = [];
   for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : stepOps).push(op);
   return { stepOps, triggerOps };
+}
+
+// Does this edit reference the marketplace rail at all? The caller uses this to decide
+// whether to fetch the per-location marketplace index into ctx — the same gate the build
+// path applies in orchestrate() (`usesMarketplace`), for the same reason: an edit that
+// touches nothing third-party must stay network-identical to what it was before this
+// feature existed, with no extra GETs.
+//
+// Walk the ops' step SUBGRAPHS — never string-scan the serialized ops. A marketplace step
+// nested inside an if/else branch of an added container must still be found, and an
+// attribute string that merely CONTAINS the text `"marketplace":true` (a pasted JSON body
+// in a custom_webhook step, say) must NOT be mistaken for one.
+export function opsUseMarketplace(ops) {
+  let uses = false;
+  const mark = (node) => { if (node?.marketplace === true) uses = true; };
+  for (const op of ops ?? []) {
+    mark(op?.trigger);
+    if (op?.step) walkNodes([op.step], mark);
+  }
+  return uses;
 }
 
 // Resolve which existing trigger an op targets: an explicit triggerId, or a {name}/{type}
@@ -155,6 +177,7 @@ const OP_REQUIRED_ARGS = {
   appendToBranch: ['step', 'branchEntryId'],
   deleteStep: ['stepId'],
   modifyStep: ['stepId'],
+  retypeStep: ['stepId', 'step'],
   renameStep: ['stepId', 'name'],
   setStepDisabled: ['stepId'],
   disableStepsByType: ['type'],
@@ -222,6 +245,23 @@ export function applyOp(templates, op, { ctx, idGen }) {
     // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
     // it refuses graph fields — see PROTECTED_STEP_FIELDS.
     case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
+    // A retype REPLACES the step's whole attribute set, so `step.attributes` is
+    // MANDATORY — that requirement is the entire reason this is its own op rather than a
+    // hole in modifyStep's PROTECTED_STEP_FIELDS. Absent is refused; an explicit `{}` is
+    // allowed, because "this type takes no attributes" is a real, deliberate answer.
+    case 'retypeStep': {
+      if (op.step?.attributes === undefined)
+        throw new Error(`retypeStep: '${op.stepId}' needs a full 'attributes' object on 'step'. `
+          + `A retype REPLACES attributes, never merges them — without one the new type would `
+          + `inherit the old type's keys (an sms 'body' stranded beside a whatsapp 'message'). `
+          + `Pass the complete attribute set for '${op.step?.type ?? '?'}', or {} if it takes none.`);
+      const sub = compileSubgraph(op.step, ctx);
+      if (sub.isContainer)
+        throw new Error(`retypeStep: '${op.step.type}' is a container — it compiles to a whole `
+          + `subgraph (entry + branch entries), which cannot replace a single step in place. `
+          + `Use deleteStep plus one of the subgraph splices.`);
+      return retypeStep(templates, op.stepId, sub.entry);
+    }
     case 'renameStep': return renameStep(templates, op.stepId, op.name);
     case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);
     case 'disableStepsByType': return disableStepsByType(templates, op.type, op.disabled);
@@ -244,5 +284,23 @@ export function applyOps(templates, ops, { ctx, idGen }) {
     tpls = r.templates;
     diff = mergeDiff(diff, r.diff);
   }
-  return { templates: tpls, diff: normalizeDiff(diff) };
+  const norm = normalizeDiff(diff);
+  // A marketplace step's `stepIndex` is a per-action-key occurrence counter over the WHOLE
+  // workflow, and the builder renders it as the canvas `#N` prefix. Each op compiles its
+  // step standalone, so every added/retyped marketplace step arrives numbered `1` — it can
+  // only be numbered correctly once all the ops have landed and the final step order is
+  // known. Renumber here, at the one choke point both callers (the MCP tool and the edit
+  // CLI) share, rather than in either of them.
+  //
+  // Gated on this edit having TOUCHED a marketplace step: a purely native edit — even on a
+  // workflow that happens to contain marketplace steps elsewhere — leaves their numbering
+  // exactly as stored.
+  const touched = new Set([...norm.createdSteps, ...norm.modifiedSteps]);
+  if (tpls.some((t) => t?.isMarketplaceAction === true && touched.has(t.id))) {
+    const renumbered = assignMarketplaceStepIndexes(tpls);
+    tpls = renumbered.templates;
+    if (renumbered.changed.length)
+      norm.modifiedSteps = [...new Set([...norm.modifiedSteps, ...renumbered.changed])];
+  }
+  return { templates: tpls, diff: norm };
 }
