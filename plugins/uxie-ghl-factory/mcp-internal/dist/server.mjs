@@ -623,6 +623,97 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "ai-convai-contact-config-update"
         ]
+      },
+      list_workflow_folders: {
+        description: "List workflow folders \u2014 proof: live-runtime (2026-08-18); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-08-18)",
+        proofFloor: "live-runtime (2026-08-18)",
+        proofRows: [
+          "workflow-folder-list"
+        ],
+        proofFloorRows: [
+          "workflow-folder-list"
+        ],
+        riskRows: [
+          "workflow-folder-list"
+        ],
+        rows: [
+          "workflow-folder-list"
+        ]
+      },
+      create_workflow_folder: {
+        description: "Create workflow folder \u2014 proof: live-runtime (2026-08-18); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-08-18)",
+        proofFloor: "live-runtime (2026-08-18)",
+        proofRows: [
+          "workflow-folder-create",
+          "workflow-folder-list-for-create"
+        ],
+        proofFloorRows: [
+          "workflow-folder-create",
+          "workflow-folder-list-for-create"
+        ],
+        riskRows: [
+          "workflow-folder-create"
+        ],
+        rows: [
+          "workflow-folder-create",
+          "workflow-folder-list-for-create"
+        ]
+      },
+      duplicate_workflow: {
+        description: "Duplicate workflow \u2014 proof: live-runtime (2026-08-18); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-08-18)",
+        proofFloor: "live-runtime (2026-08-18)",
+        proofRows: [
+          "workflow-duplicate",
+          "workflow-duplicate-source-read",
+          "workflow-duplicate-trigger-read"
+        ],
+        proofFloorRows: [
+          "workflow-duplicate",
+          "workflow-duplicate-source-read",
+          "workflow-duplicate-trigger-read"
+        ],
+        riskRows: [
+          "workflow-duplicate"
+        ],
+        rows: [
+          "workflow-duplicate",
+          "workflow-duplicate-source-read",
+          "workflow-duplicate-trigger-read"
+        ]
+      },
+      move_workflows: {
+        description: "Move workflows between folders and root \u2014 proof: live-runtime (2026-08-18); risk: write",
+        risk: "write",
+        proof: "live-runtime (2026-08-18)",
+        proofFloor: "live-runtime (2026-08-18)",
+        proofRows: [
+          "workflow-move-batch",
+          "workflow-move-folder-resolve",
+          "workflow-move-single",
+          "workflow-move-subject-read"
+        ],
+        proofFloorRows: [
+          "workflow-move-batch",
+          "workflow-move-folder-resolve",
+          "workflow-move-single",
+          "workflow-move-subject-read"
+        ],
+        riskRows: [
+          "workflow-move-batch",
+          "workflow-move-single"
+        ],
+        rows: [
+          "workflow-move-batch",
+          "workflow-move-folder-resolve",
+          "workflow-move-single",
+          "workflow-move-subject-read"
+        ]
       }
     };
   }
@@ -82389,10 +82480,7 @@ var TOOLS2 = [
   // spends a read fetching them.
   {
     name: "list_workflow_folders",
-    description: describe3(
-      "list_workflow_folders",
-      'List the workflow FOLDERS in a sub-account, with each folder\'s id and name (proof: live-runtime 2026-08-18; risk: read). Folders are `type: "directory"` on the list endpoint \u2014 `type: "folder"` silently returns an empty set. Pass parentId to list the CONTENTS of one folder instead; that response also carries the folder\'s own name, which is the only way to confirm a folder id means what you think before filing anything into it.'
-    ),
+    description: `${describe3("list_workflow_folders", "List workflow folders \u2014 risk: read")}. List the workflow FOLDERS in a sub-account, with each folder's id and name. Folders are \`type: "directory"\` on the list endpoint \u2014 \`type: "folder"\` silently returns an empty set. Pass parentId to list the CONTENTS of one folder instead; that response also carries the folder's own name, which is the only way to confirm a folder id means what you think before filing anything into it.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       parentId: external_exports.string().optional(),
@@ -82428,10 +82516,7 @@ var TOOLS2 = [
   },
   {
     name: "create_workflow_folder",
-    description: describe3(
-      "create_workflow_folder",
-      "Create a workflow folder (proof: live-runtime 2026-08-18; risk: write). Preview by default; pass confirm:true to write. Returns the new folder id, verified by reading it back out of the folder list \u2014 the create response is a bare id and echoes nothing else."
-    ),
+    description: `${describe3("create_workflow_folder", "Create workflow folder \u2014 risk: write")}. Preview by default; pass confirm:true to write. Returns the new folder id, verified by reading it back out of the folder list \u2014 the create response is a bare id and echoes nothing else.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       name: external_exports.string(),
@@ -82493,10 +82578,7 @@ var TOOLS2 = [
   },
   {
     name: "duplicate_workflow",
-    description: describe3(
-      "duplicate_workflow",
-      `Duplicate a workflow (proof: live-runtime 2026-08-18; risk: write). Preview by default; pass confirm:true to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed straight into a folder with parentId. TRIGGERS DO CLONE \u2014 name, type and conditions all carry over \u2014 but they land active:false and only start firing after a draft->published cycle, so a freshly duplicated workflow enrols nobody until it is published. (The clone's triggersFilePath ends in "NaN" rather than a version integer; that is cosmetic \u2014 the trigger records themselves are present and readable.) The create response is a bare id, so the clone is read back and returned as a record.`
-    ),
+    description: `${describe3("duplicate_workflow", "Duplicate workflow \u2014 risk: write")}. Preview by default; pass confirm:true to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed straight into a folder with parentId. TRIGGERS DO CLONE \u2014 name, type and conditions all carry over \u2014 but they land active:false and only start firing after a draft->published cycle, so a freshly duplicated workflow enrols nobody until it is published. (The clone's triggersFilePath ends in "NaN" rather than a version integer; that is cosmetic \u2014 the trigger records themselves are present and readable.) The create response is a bare id, so the clone is read back and returned as a record.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -82592,10 +82674,7 @@ var TOOLS2 = [
   },
   {
     name: "move_workflows",
-    description: describe3(
-      "move_workflows",
-      'File workflows into a folder, or move them back to root (proof: live-runtime 2026-08-18; risk: write). Preview by default; pass confirm:true to write. Pass parentId for a folder, or toRoot:true for root \u2014 the two are different endpoints upstream: the batch move CANNOT reach root (parentId null, "" and "root" all 404), so root moves fan out one call per workflow. PUBLISHED workflows are refused unless allowPublished:true, because moving a live workflow is how a production automation ends up filed in a staging folder. Every move is verified by reading parentId back off each record \u2014 the move endpoint returns only "Updated successfully", which proves nothing on its own.'
-    ),
+    description: `${describe3("move_workflows", "Move workflows between folders and root \u2014 risk: write")}. File workflows into a folder, or move them back to root. Preview by default; pass confirm:true to write. Pass parentId for a folder, or toRoot:true for root \u2014 the two are different endpoints upstream: the batch move CANNOT reach root (parentId null, "" and "root" all 404), so root moves fan out one call per workflow. PUBLISHED workflows are refused unless allowPublished:true, because moving a live workflow is how a production automation ends up filed in a staging folder. Every move is verified by reading parentId back off each record \u2014 the move endpoint returns only "Updated successfully", which proves nothing on its own.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowIds: external_exports.array(external_exports.string()),

@@ -2427,11 +2427,11 @@ export const TOOLS = [
   // spends a read fetching them.
   {
     name: 'list_workflow_folders',
-    description: describe('list_workflow_folders',
-      'List the workflow FOLDERS in a sub-account, with each folder\'s id and name (proof: live-runtime 2026-08-18; risk: read). '
+    description: `${describe('list_workflow_folders', 'List workflow folders — risk: read')}. `
+      + 'List the workflow FOLDERS in a sub-account, with each folder\'s id and name. '
       + 'Folders are `type: "directory"` on the list endpoint — `type: "folder"` silently returns an empty set. '
       + 'Pass parentId to list the CONTENTS of one folder instead; that response also carries the folder\'s own '
-      + 'name, which is the only way to confirm a folder id means what you think before filing anything into it.'),
+      + 'name, which is the only way to confirm a folder id means what you think before filing anything into it.',
     inputSchema: schema({
       locationId: z.string(),
       parentId: z.string().optional(),
@@ -2469,10 +2469,10 @@ export const TOOLS = [
   },
   {
     name: 'create_workflow_folder',
-    description: describe('create_workflow_folder',
-      'Create a workflow folder (proof: live-runtime 2026-08-18; risk: write). Preview by default; '
+    description: `${describe('create_workflow_folder', 'Create workflow folder — risk: write')}. `
+      + 'Preview by default; '
       + 'pass confirm:true to write. Returns the new folder id, verified by reading it back out of the '
-      + 'folder list — the create response is a bare id and echoes nothing else.'),
+      + 'folder list — the create response is a bare id and echoes nothing else.',
     inputSchema: schema({
       locationId: z.string(),
       name: z.string(),
@@ -2524,14 +2524,14 @@ export const TOOLS = [
   },
   {
     name: 'duplicate_workflow',
-    description: describe('duplicate_workflow',
-      'Duplicate a workflow (proof: live-runtime 2026-08-18; risk: write). Preview by default; pass confirm:true '
+    description: `${describe('duplicate_workflow', 'Duplicate workflow — risk: write')}. `
+      + 'Preview by default; pass confirm:true '
       + 'to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed '
       + 'straight into a folder with parentId. TRIGGERS DO CLONE — name, type and conditions all carry over — but '
       + 'they land active:false and only start firing after a draft->published cycle, so a freshly duplicated '
       + 'workflow enrols nobody until it is published. (The clone\'s triggersFilePath ends in "NaN" rather than a '
       + 'version integer; that is cosmetic — the trigger records themselves are present and readable.) '
-      + 'The create response is a bare id, so the clone is read back and returned as a record.'),
+      + 'The create response is a bare id, so the clone is read back and returned as a record.',
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -2613,14 +2613,14 @@ export const TOOLS = [
   },
   {
     name: 'move_workflows',
-    description: describe('move_workflows',
-      'File workflows into a folder, or move them back to root (proof: live-runtime 2026-08-18; risk: write). '
+    description: `${describe('move_workflows', 'Move workflows between folders and root — risk: write')}. `
+      + 'File workflows into a folder, or move them back to root. '
       + 'Preview by default; pass confirm:true to write. Pass parentId for a folder, or toRoot:true for root — '
       + 'the two are different endpoints upstream: the batch move CANNOT reach root (parentId null, "" and "root" '
       + 'all 404), so root moves fan out one call per workflow. PUBLISHED workflows are refused unless '
       + 'allowPublished:true, because moving a live workflow is how a production automation ends up filed in a '
       + 'staging folder. Every move is verified by reading parentId back off each record — the move endpoint '
-      + 'returns only "Updated successfully", which proves nothing on its own.'),
+      + 'returns only "Updated successfully", which proves nothing on its own.',
     inputSchema: schema({
       locationId: z.string(),
       workflowIds: z.array(z.string()),
