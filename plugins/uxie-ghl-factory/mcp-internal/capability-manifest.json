@@ -600,6 +600,16 @@
     "path": "/workflow/{loc}/move-directory/{wid}"
   },
   {
+    "tool": "create_custom_field_folder",
+    "method": "GET",
+    "path": "/locations/{loc}/customFields/search"
+  },
+  {
+    "tool": "create_custom_field_folder",
+    "method": "POST",
+    "path": "/locations/{loc}/customFields"
+  },
+  {
     "tool": "fast_forward_contacts",
     "method": "GET",
     "path": "/workflows/status/search/count-per-step"
