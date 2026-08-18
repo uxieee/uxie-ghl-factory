@@ -572,7 +572,12 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
   // audit profile takes nothing AWAY, and only an exact list can catch a tool silently
   // disappearing from the full server. A merge that drops one should fail here, loudly,
   // which is why the count moves by hand and never by `TOOLS.length`.
-  assert.equal(TOOLS.length, 25, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 25 -> 29: the workflow ORGANISATION rail — list_workflow_folders,
+  // create_workflow_folder, duplicate_workflow, move_workflows — registered together
+  // immediately after `publish_workflow`. All four are outside the audit profile: three
+  // are writes, and the read (`list_workflow_folders`) is not part of the frozen audit
+  // evidence contract.
+  assert.equal(TOOLS.length, 29, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -580,7 +585,8 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
     'get_workflow_logs', 'get_workflow_runtime_window', 'list_workflows_complete',
     'get_ai_configuration_bundle', 'get_contacts_at_step', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
-    'publish_workflow', 'fast_forward_contacts', 'raw_request',
+    'publish_workflow', 'list_workflow_folders', 'create_workflow_folder',
+    'duplicate_workflow', 'move_workflows', 'fast_forward_contacts', 'raw_request',
   ]);
   const normal = stripComments(readFileSync(NORMAL_ENTRY, 'utf8'));
   assert.equal(

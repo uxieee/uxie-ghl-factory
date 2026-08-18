@@ -576,5 +576,96 @@
     "rows": [
       "ai-convai-contact-config-update"
     ]
+  },
+  "list_workflow_folders": {
+    "description": "List workflow folders — proof: live-runtime (2026-08-18); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-08-18)",
+    "proofFloor": "live-runtime (2026-08-18)",
+    "proofRows": [
+      "workflow-folder-list"
+    ],
+    "proofFloorRows": [
+      "workflow-folder-list"
+    ],
+    "riskRows": [
+      "workflow-folder-list"
+    ],
+    "rows": [
+      "workflow-folder-list"
+    ]
+  },
+  "create_workflow_folder": {
+    "description": "Create workflow folder — proof: live-runtime (2026-08-18); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-08-18)",
+    "proofFloor": "live-runtime (2026-08-18)",
+    "proofRows": [
+      "workflow-folder-create",
+      "workflow-folder-list-for-create"
+    ],
+    "proofFloorRows": [
+      "workflow-folder-create",
+      "workflow-folder-list-for-create"
+    ],
+    "riskRows": [
+      "workflow-folder-create"
+    ],
+    "rows": [
+      "workflow-folder-create",
+      "workflow-folder-list-for-create"
+    ]
+  },
+  "duplicate_workflow": {
+    "description": "Duplicate workflow — proof: live-runtime (2026-08-18); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-08-18)",
+    "proofFloor": "live-runtime (2026-08-18)",
+    "proofRows": [
+      "workflow-duplicate",
+      "workflow-duplicate-source-read",
+      "workflow-duplicate-trigger-read"
+    ],
+    "proofFloorRows": [
+      "workflow-duplicate",
+      "workflow-duplicate-source-read",
+      "workflow-duplicate-trigger-read"
+    ],
+    "riskRows": [
+      "workflow-duplicate"
+    ],
+    "rows": [
+      "workflow-duplicate",
+      "workflow-duplicate-source-read",
+      "workflow-duplicate-trigger-read"
+    ]
+  },
+  "move_workflows": {
+    "description": "Move workflows between folders and root — proof: live-runtime (2026-08-18); risk: write",
+    "risk": "write",
+    "proof": "live-runtime (2026-08-18)",
+    "proofFloor": "live-runtime (2026-08-18)",
+    "proofRows": [
+      "workflow-move-batch",
+      "workflow-move-folder-resolve",
+      "workflow-move-single",
+      "workflow-move-subject-read"
+    ],
+    "proofFloorRows": [
+      "workflow-move-batch",
+      "workflow-move-folder-resolve",
+      "workflow-move-single",
+      "workflow-move-subject-read"
+    ],
+    "riskRows": [
+      "workflow-move-batch",
+      "workflow-move-single"
+    ],
+    "rows": [
+      "workflow-move-batch",
+      "workflow-move-folder-resolve",
+      "workflow-move-single",
+      "workflow-move-subject-read"
+    ]
   }
 }
