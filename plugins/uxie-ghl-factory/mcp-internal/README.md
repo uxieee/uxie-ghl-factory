@@ -79,8 +79,34 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `build_workflow` | draft creation and verification; never publishes |
 | `edit_workflow` | read-only preview; writes require `confirm: true` and never publish |
 | `publish_workflow` | read-only publish preview; publishing requires `confirm: true` |
+| `list_workflow_folders` | workflow folders (`type=directory`), or one folder's contents plus its own name |
+| `create_workflow_folder` | read-only preview; creation requires `confirm: true`, verified by read-back |
+| `duplicate_workflow` | read-only preview; duplication requires `confirm: true`; clone lands DRAFT with triggers cloned but INACTIVE |
+| `move_workflows` | read-only preview naming the destination folder; moving requires `confirm: true`, refuses published workflows without `allowPublished: true`, verifies `parentId` by read-back |
 | `fast_forward_contacts` | read-only parked-enrollment preview; selective requeue only with `confirm: true` |
 | `raw_request` | GET escape hatch; non-GET methods require `confirm: true` and return partial-progress evidence |
+
+### Workflow folders: two upstream quirks the tools hide
+
+Both verified live 2026-08-18, including the negative cases.
+
+**Folders are `type: "directory"`.** The workflow list endpoint serves folders and workflows
+from one route, discriminated by `type`. `?type=folder` is not rejected — it returns `count: 0`,
+which is indistinguishable from "this account has no folders", and is why the folder list was
+believed not to exist. `list_workflow_folders` sends `type=directory`; passing `parentId`
+instead lists that folder's contents and echoes `folderName`, which is the only way to confirm a
+folder id means what you think before filing anything into it.
+
+**The batch move cannot reach root.** `PUT /workflow/{loc}/move` takes many ids in one call but
+requires a real folder: `parentId` of `null`, `""` and the sentinel `"root"` all return
+404 `Parent directory not found`. Only the single-item `PUT /workflow/{loc}/move-directory/{id}`
+accepts `parentId: null`. So `move_workflows` sends one batch call to file INTO a folder and
+fans out one call per workflow to move OUT to root — and verifies either way by reading
+`parentId` back off each record, because both routes answer only `{"msg":"Updated successfully"}`.
+
+`company_id` / `company_age` are accepted but not required on the folder-create or duplicate
+bodies (verified by omitting both; the server fills them from the location), so no tool asks a
+caller for them and none spends a read fetching them.
 
 ### The credential guard vs. signed storage URLs
 

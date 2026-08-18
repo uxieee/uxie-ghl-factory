@@ -2404,6 +2404,343 @@ export const TOOLS = [
       return ok(data);
     }, args),
   },
+  // ---------------------------------------------------------------------------
+  // Workflow ORGANISATION: folders, duplication, filing.
+  //
+  // Every route below was recovered from the workflows-list bundle
+  // (`sniffs/bundle/recovered-source/src/services/WorkflowService.ts` in the research
+  // corpus) and then verified LIVE 2026-08-18 against a real sub-account, including the
+  // negative cases. Two facts that the source alone would not have settled, and which the
+  // shape of these tools depends on:
+  //
+  //   - Folders are `type: 'directory'` — NOT 'folder'. `?type=folder` returns count 0,
+  //     which reads exactly like "this account has no folders" and is why the folder list
+  //     was believed not to exist at all.
+  //   - The BULK move (`PUT /move`) cannot move anything to root: parentId null, '' and
+  //     the sentinel 'root' all 404 "Parent directory not found". Only the SINGLE-item
+  //     `PUT /move-directory/{id}` accepts `parentId: null`. move_workflows therefore uses
+  //     one batch call to file INTO a folder and fans out per id to move OUT to root.
+  //
+  // `company_id` / `company_age` are accepted but NOT required on either write (verified
+  // by omitting both: the server fills them from the location and the created record comes
+  // back carrying the right values), so no tool here makes a caller supply them and none
+  // spends a read fetching them.
+  {
+    name: 'list_workflow_folders',
+    description: describe('list_workflow_folders',
+      'List the workflow FOLDERS in a sub-account, with each folder\'s id and name (proof: live-runtime 2026-08-18; risk: read). '
+      + 'Folders are `type: "directory"` on the list endpoint — `type: "folder"` silently returns an empty set. '
+      + 'Pass parentId to list the CONTENTS of one folder instead; that response also carries the folder\'s own '
+      + 'name, which is the only way to confirm a folder id means what you think before filing anything into it.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      parentId: z.string().optional(),
+      limit: z.number().default(100),
+      offset: z.number().default(0),
+    }),
+    capabilities: [{ method: 'GET', path: '/workflow/{loc}/list' }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const q = new URLSearchParams({
+        limit: String(args.limit ?? 100), offset: String(args.offset ?? 0),
+        sortBy: 'name', sortOrder: 'asc',
+      });
+      // No parentId => list the folders themselves. With one => list that folder's contents,
+      // which is also how the folder's NAME is confirmed (the response echoes folderName).
+      if (args.parentId === undefined) q.set('type', 'directory');
+      else q.set('parentId', args.parentId);
+      const r = await gw.call('GET', `/workflow/${loc}/list?${q}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = (r.json?.rows ?? []).map((row) => ({
+        id: row.id ?? row._id,
+        name: row.name,
+        type: row.type,
+        parentId: row.parentId ?? null,
+        ...(row.type === 'workflow' ? { status: row.status ?? null } : {}),
+      }));
+      return ok({
+        count: r.json?.count ?? rows.length,
+        ...(args.parentId === undefined
+          ? { folders: rows }
+          : { folderId: args.parentId, folderName: r.json?.folderName ?? null, contents: rows }),
+      });
+    }, args),
+  },
+  {
+    name: 'create_workflow_folder',
+    description: describe('create_workflow_folder',
+      'Create a workflow folder (proof: live-runtime 2026-08-18; risk: write). Preview by default; '
+      + 'pass confirm:true to write. Returns the new folder id, verified by reading it back out of the '
+      + 'folder list — the create response is a bare id and echoes nothing else.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      name: z.string(),
+      parentId: z.string().optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'POST', path: '/workflow/{loc}/directory' },
+      { method: 'GET', path: '/workflow/{loc}/list' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (typeof args.name !== 'string' || args.name.trim() === '') {
+        return fail(CODES.VALIDATION_FAILED, 'name must be a non-empty string',
+          'Pass the folder name to create.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const preview = { creates: { name: args.name, parentId: args.parentId ?? null } };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Folder create preview is ready; no write was sent.',
+            'Repeat the request with confirm:true to create it.'),
+          { preview },
+        );
+      }
+      const created = await gw.call('POST', `/workflow/${loc}/directory`, {
+        type: 'directory', name: args.name, updatedBy: gw.uid, parentId: args.parentId ?? null,
+      });
+      if (!created.ok) return fromHttp(created.status, created.json);
+      const folderId = created.json?.id ?? created.json?._id ?? null;
+      if (!folderId) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, 'Folder create returned 2xx but no folder id.',
+            'Run list_workflow_folders to see whether the folder was created before retrying — a retry would create a second one.'),
+          { preview, response: created.json ?? null },
+        );
+      }
+      // The POST echoes ONLY the id, so it proves nothing about the stored record. Read the
+      // folder back and confirm the name that actually landed.
+      const listed = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
+      const hit = (listed.json?.rows ?? []).find((row) => (row.id ?? row._id) === folderId);
+      return ok({
+        folderId,
+        verified: Boolean(hit),
+        folder: hit ? { id: folderId, name: hit.name, parentId: hit.parentId ?? null } : null,
+        ...(hit ? {} : { note: 'Created, but the folder did not appear in the folder list on read-back. Confirm before filing anything into it.' }),
+      });
+    }, args),
+  },
+  {
+    name: 'duplicate_workflow',
+    description: describe('duplicate_workflow',
+      'Duplicate a workflow (proof: live-runtime 2026-08-18; risk: write). Preview by default; pass confirm:true '
+      + 'to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed '
+      + 'straight into a folder with parentId. TRIGGERS DO CLONE — name, type and conditions all carry over — but '
+      + 'they land active:false and only start firing after a draft->published cycle, so a freshly duplicated '
+      + 'workflow enrols nobody until it is published. (The clone\'s triggersFilePath ends in "NaN" rather than a '
+      + 'version integer; that is cosmetic — the trigger records themselves are present and readable.) '
+      + 'The create response is a bare id, so the clone is read back and returned as a record.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      newName: z.string(),
+      parentId: z.string().optional(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'POST', path: '/workflow/{loc}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (typeof args.newName !== 'string' || args.newName.trim() === '') {
+        return fail(CODES.VALIDATION_FAILED, 'newName must be a non-empty string',
+          'Pass the name for the duplicate.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const sourceResponse = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!sourceResponse.ok) return fromHttp(sourceResponse.status, sourceResponse.json);
+      const source = sourceResponse.json;
+      const sourceTriggers = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      const sourceTriggerCount = sourceTriggers.response.ok ? sourceTriggers.triggers.length : null;
+
+      const preview = {
+        source: {
+          id: args.workflowId, name: source?.name ?? null, status: source?.status ?? null,
+          steps: source?.workflowData?.templates?.length ?? null, triggers: sourceTriggerCount,
+        },
+        creates: { name: args.newName, parentId: args.parentId ?? null, status: 'draft' },
+        note: 'Duplicating READS the source; the source workflow is never modified.',
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Duplicate preview is ready; no write was sent.',
+            'Review data.preview, then repeat the request with confirm:true to duplicate.'),
+          { preview },
+        );
+      }
+
+      const created = await gw.call('POST', `/workflow/${loc}`, {
+        new_workflow_name: args.newName,
+        parentId: args.parentId ?? null,
+        workflow_id: args.workflowId,
+      });
+      if (!created.ok) return fromHttp(created.status, created.json);
+      const newId = created.json?.id ?? created.json?._id ?? null;
+      if (!newId) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, 'Duplicate returned 2xx but no workflow id.',
+            'Run list_workflows to see whether a copy was created before retrying — a retry would create a second one. Nothing is ever deleted for you.'),
+          { preview, response: created.json ?? null },
+        );
+      }
+      const cloneResponse = await getWorkflow(gw, args.locationId, newId);
+      const clone = cloneResponse.ok ? cloneResponse.json : null;
+      const cloneTriggers = await listWorkflowTriggers(gw, args.locationId, newId);
+      const cloneTriggerList = cloneTriggers.response.ok ? cloneTriggers.triggers : [];
+      return ok({
+        workflowId: newId,
+        preview,
+        workflow: clone ? {
+          id: newId, name: clone.name, status: clone.status, version: clone.version,
+          parentId: clone.parentId ?? null, originType: clone.originType ?? null,
+          steps: clone.workflowData?.templates?.length ?? null,
+        } : null,
+        triggers: {
+          source: sourceTriggerCount,
+          clone: cloneTriggerList.length,
+          match: sourceTriggerCount === null ? null : sourceTriggerCount === cloneTriggerList.length,
+          inactive: cloneTriggerList.filter((trigger) => trigger.active !== true).length,
+          note: 'Cloned triggers land active:false. They fire only after the clone is published.',
+        },
+        verified: Boolean(clone),
+        builderUrl: `https://app.gohighlevel.com/v2/location/${loc}/automation/workflow/${encodeURIComponent(newId)}`,
+      });
+    }, args),
+  },
+  {
+    name: 'move_workflows',
+    description: describe('move_workflows',
+      'File workflows into a folder, or move them back to root (proof: live-runtime 2026-08-18; risk: write). '
+      + 'Preview by default; pass confirm:true to write. Pass parentId for a folder, or toRoot:true for root — '
+      + 'the two are different endpoints upstream: the batch move CANNOT reach root (parentId null, "" and "root" '
+      + 'all 404), so root moves fan out one call per workflow. PUBLISHED workflows are refused unless '
+      + 'allowPublished:true, because moving a live workflow is how a production automation ends up filed in a '
+      + 'staging folder. Every move is verified by reading parentId back off each record — the move endpoint '
+      + 'returns only "Updated successfully", which proves nothing on its own.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowIds: z.array(z.string()),
+      parentId: z.string().optional(),
+      toRoot: z.boolean().default(false),
+      allowPublished: z.boolean().default(false),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/list' },
+      { method: 'PUT', path: '/workflow/{loc}/move' },
+      { method: 'PUT', path: '/workflow/{loc}/move-directory/{wid}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const ids = Array.isArray(args.workflowIds) ? args.workflowIds : [];
+      if (!ids.length) {
+        return fail(CODES.VALIDATION_FAILED, 'workflowIds must contain at least one workflow id',
+          'Pass the ids to move.');
+      }
+      const toRoot = args.toRoot === true;
+      if (toRoot === Boolean(args.parentId)) {
+        return fail(CODES.VALIDATION_FAILED,
+          toRoot ? 'pass either parentId or toRoot:true, not both' : 'a destination is required',
+          'Pass parentId to file into a folder, or toRoot:true to move to root.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+
+      // Resolve the DESTINATION by name before touching anything. A folder id that does not
+      // resolve, or resolves to a folder whose name the caller did not expect, is the whole
+      // "filed into the wrong folder" failure mode — so the name travels in the preview.
+      let destination = { toRoot: true, parentId: null, name: '(root)' };
+      if (!toRoot) {
+        const folders = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
+        if (!folders.ok) return fromHttp(folders.status, folders.json);
+        const hit = (folders.json?.rows ?? []).find((row) => (row.id ?? row._id) === args.parentId);
+        if (!hit) {
+          return withFailureData(
+            fail(CODES.VALIDATION_FAILED,
+              'the destination folder id does not exist in this sub-account',
+              'Run list_workflow_folders to get a real folder id. Nothing was moved.'),
+            { knownFolders: (folders.json?.rows ?? []).map((row) => ({ id: row.id ?? row._id, name: row.name })) },
+          );
+        }
+        destination = { toRoot: false, parentId: args.parentId, name: hit.name };
+      }
+
+      // Read every subject up front: the preview names each workflow and its status, and the
+      // published guard needs the status before any write.
+      const subjects = [];
+      for (const id of ids) {
+        const response = await getWorkflow(gw, args.locationId, id);
+        if (!response.ok) return fromHttp(response.status, response.json);
+        subjects.push({
+          id, name: response.json?.name ?? null,
+          status: response.json?.status ?? null,
+          parentIdBefore: response.json?.parentId ?? null,
+        });
+      }
+      const published = subjects.filter((subject) => subject.status === 'published');
+      const preview = { destination, moves: subjects, publishedCount: published.length };
+
+      if (published.length && args.allowPublished !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED,
+            `${published.length} of ${subjects.length} workflow(s) are PUBLISHED: `
+            + `${published.map((subject) => `'${subject.name ?? subject.id}'`).join(', ')}. Nothing was moved.`,
+            'Moving a live workflow reorganises production. Drop them from workflowIds, or pass allowPublished:true with confirm:true if the move is intended.'),
+          { preview },
+        );
+      }
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Move preview is ready; no write was sent.',
+            'Review data.preview — especially destination.name — then repeat the request with confirm:true.'),
+          { preview },
+        );
+      }
+
+      const writes = [];
+      if (destination.toRoot) {
+        // No batch route reaches root; one call per workflow is the only way.
+        for (const subject of subjects) {
+          const response = await gw.call('PUT', `/workflow/${loc}/move-directory/${encodeURIComponent(subject.id)}`, { parentId: null });
+          writes.push({ id: subject.id, status: response.status, ok: response.ok });
+        }
+      } else {
+        const response = await gw.call('PUT', `/workflow/${loc}/move`, {
+          parentId: destination.parentId, type: 'workflow', updatedBy: gw.uid, workflowIds: ids,
+        });
+        writes.push({ ids, status: response.status, ok: response.ok, batch: true });
+      }
+
+      // "Updated successfully" is all the endpoint says. Read parentId back off each record.
+      const verified = [];
+      for (const subject of subjects) {
+        const response = await getWorkflow(gw, args.locationId, subject.id);
+        const parentIdAfter = response.ok ? (response.json?.parentId ?? null) : undefined;
+        verified.push({
+          id: subject.id, name: subject.name,
+          parentIdBefore: subject.parentIdBefore,
+          parentIdAfter: parentIdAfter === undefined ? null : parentIdAfter,
+          readable: response.ok,
+          moved: response.ok && (parentIdAfter ?? null) === destination.parentId,
+        });
+      }
+      const failed = verified.filter((row) => !row.moved);
+      const data = { destination, writes, verified, movedCount: verified.length - failed.length, failed };
+      if (failed.length) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT,
+            `${failed.length} of ${verified.length} workflow(s) did not read back in the destination.`,
+            'Inspect data.verified. Nothing is deleted or retried for you; re-issue the move for the ids that did not land.'),
+          data,
+        );
+      }
+      return ok(data);
+    }, args),
+  },
   {
     name: 'fast_forward_contacts',
     description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step (proof: engine source).'),
