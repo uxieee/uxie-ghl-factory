@@ -34,6 +34,13 @@
 //   Found ~always, and "~always" silently reroutes live contacts in the exception case.
 //   Not needed when nothing follows the anchor, or when the container has one branch.
 //   { "op":"deleteStep",      "stepId":"<id>" }
+//   { "op":"retypeStep",      "stepId":"<id>", "step": {type,name,attributes} }
+//     Changes what an EXISTING step IS — its type and its WHOLE attribute set — while
+//     preserving id/order/next/parent/parentKey byte-for-byte (it fails closed if any of
+//     them moves). `attributes` is REQUIRED and REPLACES, never merges: a merge would
+//     strand the old type's keys under the new one (an sms `body` beside a whatsapp
+//     `message`). Takes `marketplace: true` like the add ops, so this is the native →
+//     third-party conversion path. Containers are refused.
 //   { "op":"modifyStep",      "stepId":"<id>", "attrPatch": {...}, "stepPatch": {"name":"..."} }
 //     attrPatch merges into `attributes`; stepPatch merges into the step's TOP LEVEL. It
 //     refuses the graph fields (id/type/parent/parentKey/next/order) — those have their own
@@ -69,7 +76,9 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { editCommitBody, shouldActivateTriggers, triggerActivationBody } from '../engine/edit.mjs';
-import { applyOps, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
+import { applyOps, opsUseMarketplace, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
+import { buildMarketplaceIndex } from '../engine/marketplace.mjs';
+import { fetchMarketplace } from '../engine/orchestrate.mjs';
 import { loadCatalog } from '../engine/catalog.mjs';
 import { makeUuidV4 } from '../engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../engine/tags.mjs';
@@ -130,8 +139,15 @@ try {
 // fail) — or a shape/classification warning captured during compile is silently swallowed.
 const warnings = [];
 const flushWarnings = () => { for (const w of warnings) console.warn('warn:', w); };
+// Marketplace index, gated the same way the build path gates it (orchestrate()'s
+// `usesMarketplace`): fetched ONLY when an op actually carries marketplace:true, so a
+// native edit issues exactly the requests it always has. An empty index is still a real
+// index, so an unresolvable key raises MARKETPLACE_KEY_UNKNOWN rather than crashing.
+const marketplace = opsUseMarketplace(ops)
+  ? buildMarketplaceIndex(await fetchMarketplace(call, LOC))
+  : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
 const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuidV4, catalog: loadCatalog(),
-  customFields, warn: (msg) => warnings.push(msg) };
+  marketplace, customFields, warn: (msg) => warnings.push(msg) };
 
 const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
