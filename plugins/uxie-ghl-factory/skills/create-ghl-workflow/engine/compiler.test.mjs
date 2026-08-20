@@ -34,7 +34,12 @@ test('linear chain wires next/parentKey/order and lean envelope', () => {
   const { autoSaveBody } = compile(linearIR, ctx());
   const t = autoSaveBody.workflowData.templates;
   assert.equal(t.length, 3);
-  assert.equal(t[0].parentKey, null);
+  // The root head must OMIT parentKey, not set it to null. GHL never emits null: across 310
+  // live workflows / 3,958 nodes `parentKey === null` occurs 0 times, and 309/310 entry nodes
+  // omit the key. A UI-built entry node captured 2026-08-21 has no parentKey property at all.
+  // A server check shaped like `!node.parentKey` cannot tell null from absent.
+  // See docs/superpowers/notes/2026-08-21-workflow-shape-findings.md F1.
+  assert.ok(!('parentKey' in t[0]), 'root head must omit parentKey entirely, not emit null');
   assert.equal(t[0].next, t[1].id);
   assert.equal(t[1].parentKey, t[0].id);
   assert.equal(t[1].next, t[2].id);
@@ -44,7 +49,10 @@ test('linear chain wires next/parentKey/order and lean envelope', () => {
   assert.deepEqual(t[1].attributes.startAfter, { type: 'days', value: 1, when: 'after' });
   assert.equal(t[1].attributes.hybridActionType, 'wait');   // waits carry hybrid flags (real shape)
   assert.deepEqual(t[1].attributes.transitions, []);         // linear wait: empty transitions
-  assert.deepEqual(Object.keys(t[0]).sort(), ['attributes', 'id', 'name', 'next', 'order', 'parentKey', 'type']);
+  // root head: no parentKey in the key set at all (see the F1 note above)
+  assert.deepEqual(Object.keys(t[0]).sort(), ['attributes', 'id', 'name', 'next', 'order', 'type']);
+  // ...but a non-root node still carries it — the strip must be root-only.
+  assert.equal(t[1].parentKey, t[0].id);
   assert.deepEqual(autoSaveBody.createdSteps, t.map((s) => s.id));
   assert.deepEqual(autoSaveBody.modifiedSteps, []);
 });

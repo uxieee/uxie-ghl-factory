@@ -263,3 +263,74 @@ test('orchestrate: no senderDefault anywhere falls back to {{location.*}}', asyn
   await orchestrate(emailIR(), gw);
   assert.equal(savedEmail(calls).attributes.from_name, '{{location.name}}');
 });
+
+// ── Asset pre-flight (validate-assets) ──────────────────────────────────────────────────
+// GHL's own reference validator, called before the create. Live-proven on GROM AU
+// 2026-08-21; see docs/superpowers/notes/2026-08-21-workflow-shape-findings.md F3.
+
+// Wrap mockGateway so /validate-assets returns a chosen verdict instead of falling through.
+function withAssetVerdict(base, verdict) {
+  const inner = base.gw.call;
+  base.gw.call = async (method, path, body) => {
+    if (method === 'POST' && path.includes('/validate-assets')) {
+      base.calls.push({ method, path, body });
+      return { ok: true, status: 200, json: verdict };
+    }
+    return inner(method, path, body);
+  };
+  return base;
+}
+
+const ASSET_ERR = {
+  ruleId: 'ASSET_USER_NOT_FOUND', assetType: 'user', assetId: 'GONE',
+  message: 'Referenced User does not exist or does not belong to this location.',
+  severity: 'error', stepId: 'S1', stepName: 'Assign', stepType: 'assign_user',
+};
+
+test('asset pre-flight ABORTS before the workflow is created', async () => {
+  const mock = withAssetVerdict(mockGateway({ tags: ['new-tag'] }), { errors: [ASSET_ERR], warnings: [] });
+  const report = await orchestrate(tagIR(), mock.gw);
+
+  assert.equal(report.failurePhase, 'validate_assets');
+  assert.match(report.aborted, /Referenced User does not exist/);
+  assert.equal(report.wid, null, 'no workflow id — nothing was created');
+
+  // the decisive assertion: no workflow POST ever went out
+  const wfCreate = mock.calls.findIndex((c) => c.method === 'POST' && /\/workflow\/[^/]+$/.test(c.path));
+  assert.equal(wfCreate, -1, 'workflow must NOT be created when an asset reference is bad');
+
+  // and the check ran before any create attempt
+  const preflight = mock.calls.findIndex((c) => c.path.includes('/validate-assets'));
+  assert.ok(preflight !== -1, 'pre-flight actually ran');
+});
+
+test('asset pre-flight warnings are reported but do NOT block the build', async () => {
+  const warn = { ...ASSET_ERR, severity: 'warning', message: 'Soft problem.' };
+  const mock = withAssetVerdict(mockGateway({ tags: ['new-tag'] }), { errors: [], warnings: [warn] });
+  const report = await orchestrate(tagIR(), mock.gw);
+
+  assert.equal(report.aborted, null);
+  assert.equal(report.wid, 'WID_1');
+  assert.ok(report.warnings.some((w) => /Soft problem/.test(w)), 'warning surfaced in the report');
+});
+
+test('ignoreAssetErrors builds anyway, and still records what GHL objected to', async () => {
+  const mock = withAssetVerdict(mockGateway({ tags: ['new-tag'] }), { errors: [ASSET_ERR], warnings: [] });
+  const report = await orchestrate(tagIR(), mock.gw, { ignoreAssetErrors: true });
+
+  assert.equal(report.aborted, null);
+  assert.equal(report.wid, 'WID_1');
+  assert.equal(report.assetPreflight.errors.length, 1, 'the objection is still on the record');
+});
+
+test('FAIL-OPEN: an unreachable pre-flight endpoint does not block a good build', async () => {
+  // mockGateway's fallthrough returns {} — an unrecognised shape, which must degrade to
+  // "skipped" rather than becoming a new way for a previously-working build to die.
+  const { gw } = mockGateway({ tags: ['new-tag'] });
+  const report = await orchestrate(tagIR(), gw);
+
+  assert.equal(report.aborted, null);
+  assert.equal(report.wid, 'WID_1');
+  assert.equal(report.assetPreflight.checked, false);
+  assert.ok(report.assetPreflight.skipped, 'records why it was skipped');
+});

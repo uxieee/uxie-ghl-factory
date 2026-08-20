@@ -27,6 +27,7 @@ import { requiredKeysFor, isSupplied } from './required-fields.mjs';
 import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 import { buildMarketplaceIndex } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
+import { validateAssets, describeFinding } from './asset-preflight.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -268,6 +269,28 @@ export async function orchestrate(ir, gw, opts = {}) {
   report.authored = built.authored;
   report.compiled = built.compiled;
   const ph = built._wid;
+
+  // ── Asset pre-flight ────────────────────────────────────────────────────────────────────
+  // Ask GHL's own reference validator about this build BEFORE creating anything, so a step
+  // pointing at a deleted calendar / removed user / missing workflow is a named, pre-write
+  // abort instead of a workflow that saves clean and silently misbehaves. Reference-only —
+  // it does NOT check field shapes (see asset-preflight.mjs). Fail-open: if the endpoint is
+  // unreachable the build proceeds and the report says it was skipped.
+  const assetCheck = await validateAssets(call, loc, {
+    templates: built.autoSaveBody?.workflowData?.templates,
+    triggers: built.triggerBodies,
+    companyId: built.autoSaveBody?.companyId,
+  });
+  report.assetPreflight = assetCheck;
+  for (const w of assetCheck.warnings ?? []) report.warnings.push(`asset: ${describeFinding(w)}`);
+  if (assetCheck.errors?.length && opts.ignoreAssetErrors !== true) {
+    report.failurePhase = 'validate_assets';
+    report.aborted = `GHL rejected ${assetCheck.errors.length} asset reference(s) before any write: `
+      + assetCheck.errors.map(describeFinding).join('; ')
+      + '. Create the missing objects, correct the references, or pass ignoreAssetErrors to build anyway.';
+    return report;
+  }
+
   const c = await callAt('workflow_create', 'POST', `/workflow/${loc}`, built.createBody);
   if (!c) return report;
   const WID = c.json?.id || c.json?._id;

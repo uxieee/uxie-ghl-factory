@@ -35,7 +35,9 @@ const tag = (name, t) => ({ type: 'add_contact_tag', name, attributes: { tags: [
 // a fetched-back linear workflow: head -> update_opportunity (already compiled shape,
 // as it would come back from GET — the update's fields live in __customInputFields__)
 const linearWf = () => [
-  { id: 's1', type: 'add_contact_tag', name: 'Head', next: 's2', parentKey: null, order: 0, attributes: { tags: ['a'] } },
+  // Root head OMITS parentKey — that is how GHL actually stores it (309/310 entry nodes across
+  // 310 live workflows; 0 occurrences of parentKey:null). See notes/2026-08-21-...-findings.md F1.
+  { id: 's1', type: 'add_contact_tag', name: 'Head', next: 's2', order: 0, attributes: { tags: ['a'] } },
   { id: 's2', type: 'internal_update_opportunity', name: 'Move to Deposit Pending', next: null, parentKey: 's1', order: 1,
     workflowsActionType: 'INTERNAL',
     attributes: { allowBackward: false, type: 'internal_update_opportunity', __customInputs__: {},

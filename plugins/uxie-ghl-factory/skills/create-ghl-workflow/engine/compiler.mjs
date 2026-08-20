@@ -1232,6 +1232,16 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl));
   });
+  // GHL OMITS `parentKey` on a root-scope entry node — it never emits null. Proven three ways
+  // (2026-08-21): across 310 live workflows / 3,958 nodes `parentKey === null` occurs 0 times;
+  // 309/310 entry nodes omit the key; and a UI-built entry node captured from the builder's own
+  // PUT carries no parentKey property at all. A server check shaped like `!node.parentKey`
+  // cannot distinguish null from absent, so emitting null risks a graph rejection the builder
+  // itself would never provoke. Stripped here once rather than at each of the ~20 emission
+  // sites above; every reader (edit.mjs, edit-driver.mjs) already tests `null || undefined`.
+  // Only the root scope is affected — a nested scope passes a non-null parentScopeId, so its
+  // entry node keeps a real parentKey. See notes/2026-08-21-workflow-shape-findings.md F1.
+  for (const t of templates) if (t.parentKey === null) delete t.parentKey;
   return { templates, entryId: ids[0] ?? null };
 }
 
