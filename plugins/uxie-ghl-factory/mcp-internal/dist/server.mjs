@@ -37737,7 +37737,7 @@ var catalog_data_default = {
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
   ],
-  stepCount: 383,
+  stepCount: 385,
   triggerCount: 204,
   stepCapabilities: {
     isDisabled: {
@@ -41600,17 +41600,20 @@ var catalog_data_default = {
       beta: false,
       display_name: "wait",
       requiredFields: [
-        "appointmentCondition",
         "appointmentSpecificStep",
         "appointmentStartAfter",
         "appointmentStartAfter.value",
         "appointmentStartAfter.when",
+        "channel",
         "condition",
         "condition.branches",
+        "condition.branches[].segments",
+        "condition.branches[].segments[].conditions",
         "emailEventSteps",
         "emailEventTypes",
         "link",
         "name",
+        "repliedBy",
         "reply",
         "startAfter",
         "startAfter.value",
@@ -41758,6 +41761,23 @@ var catalog_data_default = {
         "paths"
       ]
     },
+    workflow_ai_generate_image: {
+      type: "workflow_ai_generate_image",
+      kind: "step",
+      confidence: "bundle-derived",
+      situational: [],
+      premium: true,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: false,
+      section: "external_ai_models",
+      display_name: "workflow.actions.generateImageAI.defaultActionName",
+      requiredFields: [
+        "brandBoardId",
+        "brandVoiceId"
+      ],
+      attrKeys: []
+    },
     create_custom_object: {
       type: "create_custom_object",
       kind: "step",
@@ -41767,7 +41787,7 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "customObjects",
+      section: "custom_objects",
       display_name: "create_object",
       requiredFields: [],
       attrKeys: []
@@ -41781,7 +41801,7 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "customObjects",
+      section: "custom_objects",
       display_name: "update_object",
       requiredFields: [],
       attrKeys: []
@@ -41795,7 +41815,7 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "customObjects",
+      section: "custom_objects",
       display_name: "clear_object_fields",
       requiredFields: [],
       attrKeys: []
@@ -41904,6 +41924,20 @@ var catalog_data_default = {
       requiredFields: [
         "commentResponse"
       ],
+      attrKeys: []
+    },
+    loop: {
+      type: "loop",
+      kind: "step",
+      confidence: "bundle-derived",
+      situational: [],
+      premium: false,
+      beta: false,
+      isMultipathContainer: false,
+      usesCustomInputs: false,
+      section: "internal",
+      display_name: "loop",
+      requiredFields: [],
       attrKeys: []
     },
     update_custom_value: {
@@ -42018,7 +42052,7 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "payment",
+      section: "payments",
       display_name: "stripe_one_time_charge",
       requiredFields: [
         "amount",
@@ -66022,15 +66056,6 @@ Rules to Follow:
         }
       ]
     },
-    conv_ai_trigger: {
-      type: "conv_ai_trigger",
-      kind: "trigger",
-      masterType: "highlevel",
-      category: "events",
-      premium: false,
-      confidence: "verified-live",
-      example: "catalog/trigger-examples/conv_ai_trigger.json"
-    },
     conv_ai_autonomous_trigger: {
       type: "conv_ai_autonomous_trigger",
       kind: "trigger",
@@ -67108,6 +67133,14 @@ Rules to Follow:
         }
       ],
       display_name: "Lead Created"
+    },
+    conv_ai_trigger: {
+      type: "conv_ai_trigger",
+      kind: "trigger",
+      category: null,
+      masterType: "highlevel",
+      example: "catalog/trigger-examples/conv_ai_trigger.json",
+      confidence: "verified-live"
     },
     proposal_estimate_update: {
       type: "proposal_estimate_update",

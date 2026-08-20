@@ -4,7 +4,7 @@
 > Regenerate: `node scripts/query-catalog-cli.mjs --md > references/capabilities.md`
 > Look one type up (full shape card): `node scripts/query-catalog-cli.mjs <term>`
 
-**383 step types / 204 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
+**385 step types / 204 trigger types.** This index — not your recall of "what GHL supports" — is the capability truth. NEVER tell the user a step or trigger "isn't supported", and never substitute a webhook/custom-code workaround for a native action, without searching here first.
 
 **Native pause (every step type):** set IR `disabled: true` to emit top-level `advanceCanvasMeta.isDisabled: true`. This is the same per-action pause used by GHL's ⏸ button; it preserves the step config and skips that step at runtime.
 
@@ -58,7 +58,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `conversationai_end` — attrs: `message`, `sleepEnabled`, `sleepDuration`, `sleepUnit`, `type`, `__customInputs__`
 - ⚑ `conversationai_services_booking` — attrs: `conversationai_services`, `conversationai_booking_description`, `type`, `__customInputs__`
 
-### customObjects
+### custom_objects
 - ◐ `clear_custom_object_fields`
 - ◐ `create_custom_object`
 - ◐ `update_custom_object`
@@ -69,6 +69,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### external_ai_models
 - ✅ `chatgpt` — attrs: `type`, `apiKey`, `event`, `model`, `temperature`, `promptText`, `actionType`, `actionParams`, `memoryKey`, `excludeFromHistory`, `excludeInstructionsFromHistory`, `instructions`; premium
+- ◐ `workflow_ai_generate_image` — premium
 
 ### internal
 - ✅ `add_to_workflow` — attrs: `input_trigger_params`, `type`, `workflow_id`
@@ -79,6 +80,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `event_start_date` — attrs: `type`, `event_start_type`, `value`
 - ✅ `goto` — attrs: `targetNodeId`, `type`
 - ✅ `if_else` — attrs: `else`; container → IR kind `if_else`
+- ◐ `loop`
 - ✅ `math_operation` — attrs: `selectField`, `selectFieldtype`, `sourceCustomValueId`, `updateField`, `updateFieldType`, `targetCustomValueId`, `operators`
 - ◐ `number_formatter`
 - ✅ `remove_from_workflow` — attrs: `type`, `workflow_id`
@@ -136,7 +138,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `update_conversation_ai_status` — attrs: `assignedEmployeeId`, `status`, `type`, `__customInputs__`
 - ✅ `workflow_ai_decision_maker` — attrs: `instructions`, `information`, `type`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `ai_decision`
 
-### payment
+### payments
 - ◐ `stripe_one_time_charge`
 
 ### send_data
@@ -390,7 +392,6 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 ### events
 - ✅ `call_status` (highlevel) — filters: Call Status (`call_status`), Custom Disposition (`custom_disposition`), Call Direction (`message.direction`), In Workflow (`workflow.id`)
 - ◐ `conv_ai_autonomous_trigger` (highlevel)
-- ✅ `conv_ai_trigger` (highlevel)
 - ✅ `customer_reply` (highlevel) — filters: Replied to Workflow (`workflow.id`), Reply channel (`message.type`), Contains phrase (`message.body`), Exact match phrase (`message.body`), Intent type (`message.body`), Has Tag (`contact.tags`), Doesn (`contact.tags`)
 - ▫ `external_tracking` (internal)
 - ✅ `facebook_lead_gen` (highlevel) — filters: Page Is (`facebook.pageId`)
@@ -432,6 +433,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### other
 - ✅ `affiliate_new_lead` (internal) — filters: In campaign (`campaign.id`), Has Tag (`contact.tags`), Doesn (`contact.tags`)
+- ✅ `conv_ai_trigger` (highlevel)
 - ✅ `proposal_estimate_update` (internal) — filters: Status (`status`), Value (`value`), Recipient type (`recipientType`), Template (`documentCreatedByTemplateId`), [Deprecated]Document Type (`document_type`)
 
 ### payments
