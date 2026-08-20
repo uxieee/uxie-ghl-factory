@@ -37471,6 +37471,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
     templates.push(withStepDisabled(n, tmpl));
   });
+  for (const t of templates) if (t.parentKey === null) delete t.parentKey;
   return { templates, entryId: ids[0] ?? null };
 }
 function casingLint({ triggerBodies, autoSaveBody }) {
@@ -77663,6 +77664,52 @@ function buildMarketplaceIndex({ assets, modules } = {}) {
   };
 }
 
+// ../skills/create-ghl-workflow/engine/asset-preflight.mjs
+init_define_TOOL_CATALOG();
+var EMPTY = Object.freeze([]);
+function normalizeFinding(f) {
+  if (!f || typeof f !== "object") return { message: String(f), severity: "error" };
+  return {
+    ruleId: f.ruleId ?? null,
+    assetType: f.assetType ?? null,
+    assetId: f.assetId ?? null,
+    message: f.message ?? "",
+    severity: f.severity ?? "error",
+    stepId: f.stepId ?? null,
+    stepName: f.stepName ?? null,
+    stepType: f.stepType ?? null
+  };
+}
+function describeFinding(f) {
+  const where = f.stepName || f.stepType || f.stepId || "workflow";
+  const what = f.message || f.ruleId || "asset problem";
+  const id = f.assetId ? ` (${f.assetType ?? "asset"} ${f.assetId})` : "";
+  return `${where}: ${what}${id}`;
+}
+async function validateAssets(call, loc, { templates, triggers, companyId } = {}) {
+  if (!Array.isArray(templates)) return { checked: false, skipped: "no templates to validate", errors: EMPTY, warnings: EMPTY };
+  const reqBody = { templates, triggers: Array.isArray(triggers) ? triggers : [] };
+  if (companyId) reqBody.companyId = companyId;
+  let res;
+  try {
+    res = await call("POST", `/workflow/${encodeURIComponent(loc)}/validate-assets`, reqBody);
+  } catch (e) {
+    return { checked: false, skipped: `transport failed: ${e?.message ?? String(e)}`, errors: EMPTY, warnings: EMPTY };
+  }
+  if (!res || res.ok !== true) {
+    return { checked: false, skipped: `endpoint returned ${res?.status ?? "no response"}`, errors: EMPTY, warnings: EMPTY };
+  }
+  const body = res.json;
+  if (!body || typeof body !== "object" || !Array.isArray(body.errors) && !Array.isArray(body.warnings)) {
+    return { checked: false, skipped: "unrecognised response shape", errors: EMPTY, warnings: EMPTY };
+  }
+  return {
+    checked: true,
+    errors: (body.errors ?? []).map(normalizeFinding),
+    warnings: (body.warnings ?? []).map(normalizeFinding)
+  };
+}
+
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
 function missingRequiredFields(step) {
   const keys = requiredKeysFor(step?.type);
@@ -77903,6 +77950,18 @@ async function orchestrate(ir, gw, opts = {}) {
   report.authored = built.authored;
   report.compiled = built.compiled;
   const ph = built._wid;
+  const assetCheck = await validateAssets(call, loc, {
+    templates: built.autoSaveBody?.workflowData?.templates,
+    triggers: built.triggerBodies,
+    companyId: built.autoSaveBody?.companyId
+  });
+  report.assetPreflight = assetCheck;
+  for (const w of assetCheck.warnings ?? []) report.warnings.push(`asset: ${describeFinding(w)}`);
+  if (assetCheck.errors?.length && opts.ignoreAssetErrors !== true) {
+    report.failurePhase = "validate_assets";
+    report.aborted = `GHL rejected ${assetCheck.errors.length} asset reference(s) before any write: ` + assetCheck.errors.map(describeFinding).join("; ") + ". Create the missing objects, correct the references, or pass ignoreAssetErrors to build anyway.";
+    return report;
+  }
   const c = await callAt("workflow_create", "POST", `/workflow/${loc}`, built.createBody);
   if (!c) return report;
   const WID = c.json?.id || c.json?._id;
