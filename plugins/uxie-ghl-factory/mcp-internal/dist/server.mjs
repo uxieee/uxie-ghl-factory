@@ -37979,6 +37979,11 @@ var catalog_data_default = {
     "sniffs/bundle/workflow-rules.json",
     "sniffs/bundle/model-defaults.json",
     "sniffs/bundle/model-defaults-replay.json",
+    "sniffs/bundle/ifelse-conditions.json",
+    "sniffs/bundle/trigger-seeds.json",
+    "sniffs/bundle/trigger-incompatible-actions.json",
+    "sniffs/bundle/merge-tags.json",
+    "sniffs/bundle/i18n-en.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
@@ -38686,7 +38691,5140 @@ var catalog_data_default = {
         ],
         skippableWhenAlreadyPublished: true
       }
+    ],
+    disabledActionsByTrigger: {
+      conv_ai_trigger: [
+        "find_contact",
+        "create_update_contact",
+        "update_contact_field",
+        "sms",
+        "call",
+        "voicemail",
+        "messenger",
+        "instagram-dm",
+        "manual-sms",
+        "manual-call",
+        "gmb",
+        "conversation_ai",
+        "fb_interactive_messenger",
+        "ig_interactive_messenger",
+        "respond_on_comment",
+        "whatsapp_24h_window",
+        "send_whatsapp_flow",
+        "live_chat_response",
+        "tiktok-dm",
+        "conversation_aii",
+        "whatsapp_media",
+        "send_whatsapp_message",
+        "chat_interactive_button",
+        "whatsapp_v2",
+        "whatsapp_interactive_messages",
+        "appointment_booking_conversation_ai",
+        "update_conversation_ai_status",
+        "appointment_booking",
+        "log-external-call",
+        "workflow_goal",
+        "workflow_split",
+        "update_custom_value",
+        "add_appointment_booking_ai_bot",
+        "send_to_eliza",
+        "update_appointment_status",
+        "calendars_create_appointment_note",
+        "calendars_generate_one_time_booking_link",
+        "add_to_affiliate_manager",
+        "update_affiliate",
+        "add_to_affiliate_campaign",
+        "remove_from_affiliate_campaign",
+        "am-add-lead",
+        "am-add-manual-commission",
+        "ivr_gather",
+        "ivr_say",
+        "ivr_connect_call",
+        "ivr_hangup",
+        "ivr_collect_voicemail",
+        "membership_grant_offer",
+        "membership_revoke_offer",
+        "custom-push-notification",
+        "grant-group-access",
+        "revoke-group-access",
+        "grant-private-channel-access",
+        "revoke-private-channel-access",
+        "grant_user_group_gamification_points",
+        "issue_certificates_workflow",
+        "workflow_ai",
+        "Voice AI"
+      ]
+    }
+  },
+  ifElseConditions: {
+    groups: [
+      {
+        value: "contact_detail",
+        label: {
+          i18nKey: "contact_details"
+        },
+        conditions: [
+          {
+            value: "last_appointment",
+            label: {
+              i18nKey: "last_appointment_at"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          },
+          {
+            value: "full_name_lower_case",
+            label: {
+              i18nKey: "full_name"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "first_name_lower_case",
+            label: {
+              i18nKey: "first_name"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "last_name_lower_case",
+            label: {
+              i18nKey: "last_name"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "email",
+            label: {
+              i18nKey: "email"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "phone",
+            label: {
+              i18nKey: "phone"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "company_name",
+            label: {
+              i18nKey: "company_name"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "full_address",
+            label: {
+              i18nKey: "full_address"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "address1",
+            label: {
+              i18nKey: "address_1"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "assigned_to",
+            label: {
+              i18nKey: "assigned_user_label"
+            },
+            operatorType: "multiselect",
+            valueType: "multiselect"
+          },
+          {
+            value: "city",
+            label: {
+              i18nKey: "city"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "state",
+            label: {
+              i18nKey: "state"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "country",
+            label: {
+              i18nKey: "country"
+            },
+            operatorType: "select",
+            valueType: "select"
+          },
+          {
+            value: "timezone",
+            label: {
+              i18nKey: "time_zone"
+            },
+            operatorType: "select",
+            valueType: "select"
+          },
+          {
+            value: "postal_code",
+            label: {
+              i18nKey: "postal_code"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "date_of_birth",
+            label: {
+              i18nKey: "date_of_birth"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          },
+          {
+            value: "source",
+            label: {
+              i18nKey: "source"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "website",
+            label: {
+              i18nKey: "website"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "tags",
+            label: {
+              i18nKey: "tags"
+            },
+            operatorType: "multiselect",
+            valueType: "multiselect"
+          },
+          {
+            value: "type",
+            label: {
+              i18nKey: "contact_type"
+            },
+            operatorType: "select",
+            valueType: "select"
+          },
+          {
+            value: "dnd_channels",
+            label: {
+              i18nKey: "dnd_enabled_channels"
+            },
+            operatorType: "multiselect",
+            valueType: "multiselect"
+          },
+          {
+            value: "is_valid_whatsapp",
+            label: {
+              i18nKey: "valid_whatsapp"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          },
+          {
+            value: "valid_email",
+            label: {
+              i18nKey: "valid_email"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          }
+        ]
+      },
+      {
+        value: "date_time",
+        label: {
+          i18nKey: "date_time"
+        },
+        conditions: [
+          {
+            value: "day_week",
+            label: {
+              i18nKey: "current_day_of_week"
+            },
+            operatorType: "date",
+            valueType: "week"
+          },
+          {
+            value: "day_month",
+            label: {
+              i18nKey: "current_day_of_month"
+            },
+            operatorType: "date",
+            valueType: "month_date"
+          },
+          {
+            value: "month",
+            label: {
+              i18nKey: "current_month"
+            },
+            operatorType: "date",
+            valueType: "month"
+          },
+          {
+            value: "year",
+            label: {
+              i18nKey: "current_year"
+            },
+            operatorType: "date",
+            valueType: "year"
+          },
+          {
+            value: "time",
+            label: {
+              i18nKey: "current_hour"
+            },
+            operatorType: "date",
+            valueType: "time"
+          },
+          {
+            value: "quarter_hour",
+            label: {
+              i18nKey: "time_of_the_day"
+            },
+            operatorType: "date",
+            valueType: "quarter_hour"
+          }
+        ]
+      },
+      {
+        value: "contact_reply",
+        label: {
+          i18nKey: "contact_reply"
+        },
+        conditions: [
+          {
+            value: "contact_replied",
+            label: {
+              i18nKey: "contact_replied"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          },
+          {
+            value: "message.body",
+            label: {
+              i18nKey: "replied_message"
+            },
+            operatorType: "string",
+            valueType: "string",
+            id: "message-contains-phrase",
+            placeHolder: {
+              i18nKey: "type_word_phrase"
+            }
+          },
+          {
+            value: "matches_intent",
+            label: {
+              i18nKey: "intent_type"
+            },
+            operatorType: "select",
+            valueType: "contact_intent",
+            id: "message-contains-intent",
+            placeHolder: {
+              i18nKey: "select_intent"
+            }
+          }
+        ]
+      },
+      {
+        value: "inbound_email",
+        label: {
+          i18nKey: "inbound_trigger"
+        },
+        conditions: [
+          {
+            value: "email.to",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterMailbox"
+            },
+            operatorType: "email_array",
+            valueType: "string"
+          },
+          {
+            value: "email.fromEmail",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterFrom"
+            },
+            operatorType: "email_array",
+            valueType: "string"
+          },
+          {
+            value: "email.ccAddresses",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterCc"
+            },
+            operatorType: "email_array",
+            valueType: "string"
+          },
+          {
+            value: "email.subject",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterSubject"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "email.bodyPlain",
+            label: {
+              i18nKey: "inbound_email.body_plain"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "email.fromName",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterFromName"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "email.bodyHtml",
+            label: {
+              i18nKey: "inbound_email.body_full_plain"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "email.messageId",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterMessageId"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "email.dateAdded",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterDateAdded"
+            },
+            operatorType: "date",
+            valueType: "date"
+          },
+          {
+            value: "email.hasAttachments",
+            label: {
+              i18nKey: "workflow.triggerOptions.inboundEmailFilterHasAttachments"
+            },
+            operatorType: "yes_no",
+            valueType: "yes_no"
+          }
+        ]
+      },
+      {
+        value: "trigger",
+        label: {
+          i18nKey: "workflow_trigger"
+        },
+        conditions: []
+      },
+      {
+        value: "appointment",
+        label: {
+          i18nKey: "appointment"
+        },
+        conditions: [
+          {
+            value: "appointmentRescheduled",
+            label: {
+              i18nKey: "rescheduled"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          },
+          {
+            value: "isRunningAsGuest",
+            label: {
+              i18nKey: "is_running_as_guest"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          },
+          {
+            value: "startTime",
+            label: {
+              i18nKey: "start_date"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          },
+          {
+            value: "endTime",
+            label: {
+              i18nKey: "end_date"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          }
+        ]
+      },
+      {
+        value: "service_booking",
+        label: {
+          i18nKey: "service_booking"
+        },
+        conditions: [
+          {
+            value: "serviceBookingRescheduled",
+            label: {
+              i18nKey: "rescheduled"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          },
+          {
+            value: "startTime",
+            label: {
+              i18nKey: "start_date"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          },
+          {
+            value: "endTime",
+            label: {
+              i18nKey: "end_date"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          }
+        ]
+      },
+      {
+        value: "rental_booking",
+        label: {
+          i18nKey: "rental_booking"
+        },
+        conditions: [
+          {
+            value: "rentalBookingRescheduled",
+            label: {
+              i18nKey: "rescheduled"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          },
+          {
+            value: "startTime",
+            label: {
+              i18nKey: "start_date"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          },
+          {
+            value: "endTime",
+            label: {
+              i18nKey: "end_date"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          }
+        ]
+      },
+      {
+        value: "workflow_contact",
+        label: {
+          i18nKey: "workflow_contact"
+        },
+        conditions: []
+      },
+      {
+        value: "notes",
+        label: {
+          i18nKey: "note"
+        },
+        conditions: [
+          {
+            value: "note_body",
+            label: {
+              i18nKey: "note_description"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "created_by_name",
+            label: {
+              i18nKey: "notes.created_by_name"
+            },
+            operatorType: "string",
+            valueType: "string"
+          }
+        ]
+      },
+      {
+        value: "ai_bot_booked_appointment",
+        label: {
+          i18nKey: "ai_bot"
+        },
+        conditions: []
+      },
+      {
+        value: "events",
+        label: {
+          i18nKey: "events"
+        },
+        conditions: [
+          {
+            value: "email_event",
+            label: {
+              i18nKey: "email_event"
+            },
+            operatorType: "event",
+            valueType: "select"
+          },
+          {
+            value: "link_clicked",
+            label: {
+              i18nKey: "trigger_link_clicked"
+            },
+            operatorType: "event",
+            valueType: "select"
+          }
+        ]
+      },
+      {
+        value: "opportunities",
+        label: {
+          i18nKey: "opportunities"
+        },
+        conditions: [
+          {
+            value: "name",
+            label: {
+              i18nKey: "opportunity_name"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "status",
+            label: {
+              i18nKey: "opportunity_status"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "pipelineId",
+            label: {
+              i18nKey: "pipeline"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "pipelineStageId",
+            label: {
+              i18nKey: "pipeline_stage"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "monetaryParsedValue",
+            label: {
+              i18nKey: "lead_value"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "forecastExpectedCloseDate",
+            label: {
+              i18nKey: "expected_close_date"
+            },
+            operatorType: "date",
+            valueType: "date"
+          },
+          {
+            value: "forecastProbability",
+            label: {
+              i18nKey: "forecast_probability"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "lostReasonId",
+            label: {
+              i18nKey: "lost_reason"
+            },
+            operatorType: "select",
+            valueType: "select"
+          },
+          {
+            value: "source",
+            label: {
+              i18nKey: "source"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "assignedTo",
+            label: {
+              i18nKey: "opportunity_owner_label"
+            },
+            operatorType: "multiselect",
+            valueType: "multiselect"
+          },
+          {
+            value: "followers",
+            label: {
+              i18nKey: "opportunity_follower_label"
+            },
+            operatorType: "multiselect",
+            valueType: "multiselect"
+          }
+        ]
+      },
+      {
+        value: "shopify",
+        label: {
+          i18nKey: "shopify"
+        },
+        conditions: [
+          {
+            value: "item.id",
+            label: {
+              i18nKey: "product_id"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "item.title",
+            label: {
+              i18nKey: "product_name"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "order.total_cart_price",
+            label: {
+              i18nKey: "total_cart_price"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "order.total_discounts",
+            label: {
+              i18nKey: "total_discount"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "order.total_shipping_price",
+            label: {
+              i18nKey: "total_shipping_price"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "order.total_price",
+            label: {
+              i18nKey: "total_price"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "order.billing_address.province",
+            label: {
+              i18nKey: "billing_province"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "order.billing_address.zip",
+            label: {
+              i18nKey: "billing_zip"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "order.billing_address.country",
+            label: {
+              i18nKey: "billing_country"
+            },
+            operatorType: "string",
+            valueType: "string"
+          },
+          {
+            value: "order.requires_shipping",
+            label: {
+              i18nKey: "requires_shipping"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          }
+        ]
+      },
+      {
+        value: "invoice",
+        label: {
+          i18nKey: "invoice"
+        },
+        conditions: [
+          {
+            value: "invoice.status",
+            label: {
+              i18nKey: "status"
+            },
+            operatorType: "select",
+            valueType: "select"
+          },
+          {
+            value: "invoice.total_discount",
+            label: {
+              i18nKey: "discount_value"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "invoice.due_date",
+            label: {
+              i18nKey: "due_date"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker"
+          },
+          {
+            value: "invoice.liveMode",
+            label: {
+              i18nKey: "live_mode"
+            },
+            operatorType: "select",
+            valueType: "boolean"
+          },
+          {
+            value: "invoice.subtotal",
+            label: {
+              i18nKey: "subtotal"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "invoice.total_discount_price",
+            label: {
+              i18nKey: "total_discount_price"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "invoice.total_price",
+            label: {
+              i18nKey: "total_price"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "invoice.number",
+            label: {
+              i18nKey: "invoice_number"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          }
+        ]
+      },
+      {
+        value: "event",
+        label: {
+          i18nKey: "event"
+        },
+        conditions: [
+          {
+            value: "{{event.type}}",
+            label: {
+              i18nKey: "type"
+            },
+            operatorType: "select",
+            valueType: "select",
+            id: "{{event.type}}"
+          },
+          {
+            value: "{{event.id}}",
+            label: {
+              i18nKey: "event_name"
+            },
+            operatorType: "select",
+            valueType: "select",
+            id: "{{event.id}}"
+          },
+          {
+            value: "{{event.start_time_iso}}",
+            label: {
+              i18nKey: "event_start"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker",
+            id: "{{event.start_time_iso}}"
+          },
+          {
+            value: "{{event.end_time_iso}}",
+            label: {
+              i18nKey: "event_end"
+            },
+            operatorType: "date",
+            valueType: "datetimepicker",
+            id: "{{event.end_time_iso}}"
+          },
+          {
+            value: "{{event.timezone}}",
+            label: {
+              i18nKey: "timezone"
+            },
+            operatorType: "string",
+            valueType: "string",
+            id: "{{event.timezone}}"
+          },
+          {
+            value: "event.location",
+            label: {
+              i18nKey: "location"
+            },
+            operatorType: null,
+            valueType: null,
+            id: "event.location",
+            children: [
+              {
+                label: {
+                  i18nKey: "location_type"
+                },
+                id: "{{event.location.type}}",
+                value: "{{event.location.type}}",
+                condition_operator: "select",
+                condition_value_type: "select"
+              },
+              {
+                label: {
+                  i18nKey: "in_person"
+                },
+                id: "event.location.inperson",
+                value: "event.location.inperson",
+                children: [
+                  {
+                    label: {
+                      i18nKey: "venue"
+                    },
+                    id: "{{event.location.inperson.venue_name}}",
+                    value: "{{event.location.inperson.venue_name}}",
+                    condition_operator: "string",
+                    condition_value_type: "string"
+                  },
+                  {
+                    label: {
+                      i18nKey: "address"
+                    },
+                    id: "{{event.location.inperson.address}}",
+                    value: "{{event.location.inperson.address}}",
+                    condition_operator: "string",
+                    condition_value_type: "string"
+                  },
+                  {
+                    label: {
+                      i18nKey: "city"
+                    },
+                    id: "{{event.location.inperson.city}}",
+                    value: "{{event.location.inperson.city}}",
+                    condition_operator: "string",
+                    condition_value_type: "string"
+                  },
+                  {
+                    label: {
+                      i18nKey: "state"
+                    },
+                    id: "{{event.location.inperson.state}}",
+                    value: "{{event.location.inperson.state}}",
+                    condition_operator: "string",
+                    condition_value_type: "string"
+                  },
+                  {
+                    label: {
+                      i18nKey: "postal_code"
+                    },
+                    id: "{{event.location.inperson.postal_code}}",
+                    value: "{{event.location.inperson.postal_code}}",
+                    condition_operator: "string",
+                    condition_value_type: "string"
+                  }
+                ]
+              },
+              {
+                label: {
+                  i18nKey: "online_meeting"
+                },
+                id: "event.location.online",
+                value: "event.location.online",
+                children: [
+                  {
+                    label: {
+                      i18nKey: "meeting_url"
+                    },
+                    id: "{{event.location.online.url}}",
+                    value: "{{event.location.online.url}}",
+                    condition_operator: "string",
+                    condition_value_type: "string"
+                  },
+                  {
+                    label: {
+                      i18nKey: "meeting_title"
+                    },
+                    id: "{{event.location.online.title}}",
+                    value: "{{event.location.online.title}}",
+                    condition_operator: "string",
+                    condition_value_type: "string"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            value: "event.ticket",
+            label: {
+              i18nKey: "ticket"
+            },
+            operatorType: null,
+            valueType: null,
+            id: "event.ticket",
+            children: [
+              {
+                label: {
+                  i18nKey: "ticket_count"
+                },
+                id: "{{event.ticket.count}}",
+                value: "{{event.ticket.count}}",
+                condition_operator: "numerical",
+                condition_value_type: "numerical"
+              },
+              {
+                label: {
+                  i18nKey: "ticket_names"
+                },
+                id: "{{event.ticket.names}}",
+                value: "{{event.ticket.names}}",
+                condition_operator: "string",
+                condition_value_type: "string"
+              },
+              {
+                label: {
+                  i18nKey: "ticket_type"
+                },
+                id: "{{event.ticket.ids}}",
+                value: "{{event.ticket.ids}}",
+                condition_operator: "event_ticket",
+                condition_value_type: "multiselect"
+              }
+            ]
+          },
+          {
+            value: "event.checkin",
+            label: {
+              i18nKey: "check_in"
+            },
+            operatorType: null,
+            valueType: null,
+            id: "event.checkin",
+            children: [
+              {
+                label: {
+                  i18nKey: "check_in_status"
+                },
+                id: "{{event.checkin.status}}",
+                value: "{{event.checkin.status}}",
+                condition_operator: "select",
+                condition_value_type: "select"
+              },
+              {
+                label: {
+                  i18nKey: "method"
+                },
+                id: "{{event.checkin.method}}",
+                value: "{{event.checkin.method}}",
+                condition_operator: "select",
+                condition_value_type: "select"
+              },
+              {
+                label: {
+                  i18nKey: "checked_in_at"
+                },
+                id: "{{event.checkin.checked_in_at}}",
+                value: "{{event.checkin.checked_in_at}}",
+                condition_operator: "date",
+                condition_value_type: "datetimepicker"
+              },
+              {
+                label: {
+                  i18nKey: "checked_in_by"
+                },
+                id: "{{event.checkin.checked_in_by.id}}",
+                value: "{{event.checkin.checked_in_by.id}}",
+                condition_operator: "multiselect_extended",
+                condition_value_type: "multiselect"
+              }
+            ]
+          },
+          {
+            value: "event.registration",
+            label: {
+              i18nKey: "registration"
+            },
+            operatorType: null,
+            valueType: null,
+            id: "event.registration",
+            children: [
+              {
+                label: {
+                  i18nKey: "registration_status"
+                },
+                id: "{{event.registration.status}}",
+                value: "{{event.registration.status}}",
+                condition_operator: "select",
+                condition_value_type: "select"
+              },
+              {
+                label: {
+                  i18nKey: "payment_status"
+                },
+                id: "{{event.registration.payment_status}}",
+                value: "{{event.registration.payment_status}}",
+                condition_operator: "select",
+                condition_value_type: "select"
+              },
+              {
+                label: {
+                  i18nKey: "attendee_type"
+                },
+                id: "{{event.registration.attendee_type}}",
+                value: "{{event.registration.attendee_type}}",
+                condition_operator: "select",
+                condition_value_type: "select"
+              },
+              {
+                label: {
+                  i18nKey: "booked_by"
+                },
+                id: "{{event.registration.booked_by}}",
+                value: "{{event.registration.booked_by}}",
+                condition_operator: "select",
+                condition_value_type: "select"
+              }
+            ]
+          },
+          {
+            value: "event.order",
+            label: {
+              i18nKey: "order"
+            },
+            operatorType: null,
+            valueType: null,
+            id: "event.order",
+            children: [
+              {
+                label: {
+                  i18nKey: "order_id"
+                },
+                id: "{{event.order.id}}",
+                value: "{{event.order.id}}",
+                condition_operator: "string",
+                condition_value_type: "string"
+              },
+              {
+                label: {
+                  i18nKey: "order_total"
+                },
+                id: "{{event.order.total}}",
+                value: "{{event.order.total}}",
+                condition_operator: "numerical",
+                condition_value_type: "numerical"
+              },
+              {
+                label: {
+                  i18nKey: "currency"
+                },
+                id: "{{event.order.currency}}",
+                value: "{{event.order.currency}}",
+                condition_operator: "string",
+                condition_value_type: "string"
+              },
+              {
+                label: {
+                  i18nKey: "transaction_id"
+                },
+                id: "{{event.transaction.id}}",
+                value: "{{event.transaction.id}}",
+                condition_operator: "string",
+                condition_value_type: "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        value: "order",
+        label: {
+          i18nKey: "order"
+        },
+        conditions: [
+          {
+            value: "source",
+            label: {
+              i18nKey: "order_source"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "line_item_global_product_ids",
+            label: {
+              i18nKey: "product"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "payment_gateway",
+            label: {
+              i18nKey: "payment_gateway"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "total_price",
+            label: {
+              i18nKey: "order_total"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "line_item_product_submission_types",
+            label: {
+              i18nKey: "submission_type"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "funnel_id",
+            label: {
+              i18nKey: "funnel"
+            },
+            operatorType: null,
+            valueType: null
+          }
+        ]
+      },
+      {
+        value: "payment",
+        label: {
+          i18nKey: "payment"
+        },
+        conditions: [
+          {
+            value: "source",
+            label: {
+              i18nKey: "source"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "global_product_ids",
+            label: {
+              i18nKey: "product"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "funnel.id",
+            label: {
+              i18nKey: "funnel"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "website.id",
+            label: {
+              i18nKey: "website"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "calendar.id",
+            label: {
+              i18nKey: "calendar"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "form.id",
+            label: {
+              i18nKey: "form"
+            },
+            operatorType: null,
+            valueType: null
+          },
+          {
+            value: "total_amount",
+            label: {
+              i18nKey: "amount"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          },
+          {
+            value: "payment_status",
+            label: {
+              i18nKey: "payment_status"
+            },
+            operatorType: null,
+            valueType: null
+          }
+        ]
+      },
+      {
+        value: "video_event",
+        label: {
+          i18nKey: "video_tracking"
+        },
+        conditions: [
+          {
+            value: "funnelId",
+            label: {
+              i18nKey: "funnel"
+            },
+            operatorType: "multiselect_without_empty",
+            valueType: "multiselect"
+          },
+          {
+            value: "videoId",
+            label: {
+              i18nKey: "video"
+            },
+            operatorType: "multiselect_without_empty",
+            valueType: "multiselect"
+          },
+          {
+            value: "duration",
+            label: {
+              i18nKey: "video_duration_percent"
+            },
+            operatorType: "numerical",
+            valueType: "numerical"
+          }
+        ]
+      },
+      {
+        value: "membership",
+        label: {
+          i18nKey: "courses"
+        },
+        conditions: [
+          {
+            value: "product.id",
+            label: {
+              i18nKey: "product"
+            },
+            operatorType: "multiselect_without_empty",
+            valueType: "multiselect"
+          },
+          {
+            value: "category.id",
+            label: {
+              i18nKey: "category"
+            },
+            operatorType: "multiselect_without_empty",
+            valueType: "multiselect"
+          },
+          {
+            value: "lesson.id",
+            label: {
+              i18nKey: "lesson"
+            },
+            operatorType: "multiselect_without_empty",
+            valueType: "multiselect"
+          }
+        ]
+      },
+      {
+        value: "custom_values",
+        label: {
+          i18nKey: "custom_values"
+        },
+        conditions: []
+      },
+      {
+        value: "inboundWebhookRequest",
+        label: {
+          i18nKey: "inbound_webhook_trigger"
+        },
+        conditions: []
+      },
+      {
+        value: "sheet",
+        label: {
+          i18nKey: "google_sheets_lookup"
+        },
+        conditions: []
+      },
+      {
+        value: "datetime_formatter",
+        label: {
+          i18nKey: "date_time_formatter"
+        },
+        conditions: []
+      },
+      {
+        value: "number_formatter",
+        label: {
+          i18nKey: "number_formatter"
+        },
+        conditions: []
+      },
+      {
+        value: "task-notification",
+        label: {
+          i18nKey: "add_task"
+        },
+        conditions: []
+      },
+      {
+        value: "text_formatter",
+        label: {
+          i18nKey: "text_formatter"
+        },
+        conditions: []
+      },
+      {
+        value: "math_operation",
+        label: {
+          i18nKey: "math_operation"
+        },
+        conditions: []
+      },
+      {
+        value: "custom_webhook",
+        label: {
+          i18nKey: "custom_webhook"
+        },
+        conditions: []
+      },
+      {
+        value: "chatgpt",
+        label: {
+          i18nKey: "gpt"
+        },
+        conditions: []
+      },
+      {
+        value: "array_functions",
+        label: {
+          i18nKey: "array_functions"
+        },
+        conditions: []
+      },
+      {
+        value: "custom_code",
+        label: {
+          i18nKey: "custom_code"
+        },
+        conditions: []
+      },
+      {
+        value: "ai_agent",
+        label: {
+          i18nKey: "ai_agent"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:campaign",
+        label: {
+          i18nKey: "campaign_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:campaignId",
+        label: {
+          i18nKey: "campaign_id_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:mediumId",
+        label: {
+          i18nKey: "medium_id_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:utmContent",
+        label: {
+          i18nKey: "utm_content_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:utmMedium",
+        label: {
+          i18nKey: "utm_medium_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:medium",
+        label: {
+          i18nKey: "medium_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:utmTerm",
+        label: {
+          i18nKey: "utm_term_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:utmSource",
+        label: {
+          i18nKey: "utm_source_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:sessionSource",
+        label: {
+          i18nKey: "session_source_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:utmCampaign",
+        label: {
+          i18nKey: "utm_campaign_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:utmKeyword",
+        label: {
+          i18nKey: "utm_keyword_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:utmMatchtype",
+        label: {
+          i18nKey: "utm_match_type_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:adGroupId",
+        label: {
+          i18nKey: "ad_group_id_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "first_attribution:adId",
+        label: {
+          i18nKey: "ad_id_first_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:campaign",
+        label: {
+          i18nKey: "campaign_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:campaignId",
+        label: {
+          i18nKey: "campaign_id_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:mediumId",
+        label: {
+          i18nKey: "medium_id_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:utmContent",
+        label: {
+          i18nKey: "utm_content_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:utmMedium",
+        label: {
+          i18nKey: "utm_medium_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:medium",
+        label: {
+          i18nKey: "medium_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:utmTerm",
+        label: {
+          i18nKey: "term_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:utmSource",
+        label: {
+          i18nKey: "source_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:sessionSource",
+        label: {
+          i18nKey: "session_source_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:utmCampaign",
+        label: {
+          i18nKey: "utm_campaign_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:utmKeyword",
+        label: {
+          i18nKey: "utm_keyword_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:utmMatchtype",
+        label: {
+          i18nKey: "utm_match_type_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:adGroupId",
+        label: {
+          i18nKey: "ad_group_id_last_attribution"
+        },
+        conditions: []
+      },
+      {
+        value: "last_attribution:adId",
+        label: {
+          i18nKey: "ad_id_last_attribution"
+        },
+        conditions: []
+      }
+    ],
+    operatorTable: {
+      string: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        },
+        {
+          value: "contain",
+          label: {
+            i18nKey: "contains"
+          }
+        },
+        {
+          value: "notContain",
+          label: {
+            i18nKey: "does_not_contain"
+          }
+        },
+        {
+          value: "is-any-of",
+          label: {
+            i18nKey: "is_any_of_comma_separated"
+          }
+        },
+        {
+          value: "is-none-of",
+          label: {
+            i18nKey: "is_none_of_comma_separated"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      contact_reply: [
+        {
+          value: "message.body",
+          label: {
+            i18nKey: "contains_phrase_op"
+          }
+        },
+        {
+          value: "message.body",
+          label: {
+            i18nKey: "exact_match_phrase_op"
+          }
+        },
+        {
+          value: "message.body",
+          label: {
+            i18nKey: "intent_type_op"
+          }
+        }
+      ],
+      multiselect: [
+        {
+          value: "index-of-true",
+          label: {
+            i18nKey: "includes"
+          }
+        },
+        {
+          value: "index-of-false",
+          label: {
+            i18nKey: "does_not_include"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      radio: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      select: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      tags: [
+        {
+          value: "index-of-true",
+          label: {
+            i18nKey: "includes"
+          }
+        },
+        {
+          value: "index-of-false",
+          label: {
+            i18nKey: "does_not_include"
+          }
+        }
+      ],
+      yes_no: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        }
+      ],
+      email_array: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "contains-any",
+          label: {
+            i18nKey: "is_any_of_comma_separated"
+          }
+        },
+        {
+          value: "contains-none",
+          label: {
+            i18nKey: "is_none_of_comma_separated"
+          }
+        },
+        {
+          value: "array-matches-any-fragment",
+          label: {
+            i18nKey: "contains_comma_separated"
+          }
+        },
+        {
+          value: "array-not-matches-any-fragment",
+          label: {
+            i18nKey: "does_not_contain_comma_separated"
+          }
+        }
+      ],
+      numerical: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "equal_to"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "not_equal_to"
+          }
+        },
+        {
+          value: ">",
+          label: {
+            i18nKey: "greater_than"
+          }
+        },
+        {
+          value: ">=",
+          label: {
+            i18nKey: "greater_than_or_equal"
+          }
+        },
+        {
+          value: "<",
+          label: {
+            i18nKey: "less_than"
+          }
+        },
+        {
+          value: "<=",
+          label: {
+            i18nKey: "less_than_or_equal"
+          }
+        },
+        {
+          value: "between",
+          label: {
+            i18nKey: "between"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      opportunity_numerical: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "equal_to"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "not_equal_to"
+          }
+        },
+        {
+          value: ">",
+          label: {
+            i18nKey: "greater_than"
+          }
+        },
+        {
+          value: ">=",
+          label: {
+            i18nKey: "greater_than_or_equal"
+          }
+        },
+        {
+          value: "<",
+          label: {
+            i18nKey: "less_than"
+          }
+        },
+        {
+          value: "<=",
+          label: {
+            i18nKey: "less_than_or_equal"
+          }
+        },
+        {
+          value: "between",
+          label: {
+            i18nKey: "between"
+          }
+        }
+      ],
+      date: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        },
+        {
+          value: ">",
+          label: {
+            i18nKey: "is_after"
+          }
+        },
+        {
+          value: ">=",
+          label: {
+            i18nKey: "is_on_or_after"
+          }
+        },
+        {
+          value: "<",
+          label: {
+            i18nKey: "is_before"
+          }
+        },
+        {
+          value: "<=",
+          label: {
+            i18nKey: "is_on_or_before"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      datefield: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      file: [
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      event: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        },
+        {
+          value: "timeout",
+          label: {
+            i18nKey: "timed_out"
+          }
+        }
+      ],
+      event_ticket: [
+        {
+          value: "contains-any",
+          label: {
+            i18nKey: "is_any_of"
+          }
+        },
+        {
+          value: "contains-none",
+          label: {
+            i18nKey: "is_none_of"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ],
+      multiselect_without_empty: [
+        {
+          value: "is-any-of",
+          label: {
+            i18nKey: "is_any_of"
+          }
+        },
+        {
+          value: "is-none-of",
+          label: {
+            i18nKey: "is_none_of"
+          }
+        }
+      ],
+      string_without_empty: [
+        {
+          value: "==",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "!=",
+          label: {
+            i18nKey: "is_not"
+          }
+        }
+      ],
+      array_to_string: [
+        {
+          value: "is-in-array",
+          label: {
+            i18nKey: "is"
+          }
+        },
+        {
+          value: "is-not-in-array",
+          label: {
+            i18nKey: "is_not"
+          }
+        }
+      ],
+      value_change_options: [
+        {
+          value: "has-changed",
+          label: {
+            i18nKey: "has_changed"
+          }
+        },
+        {
+          value: "==",
+          label: {
+            i18nKey: "has_changed_to"
+          }
+        }
+      ],
+      checkbox: [],
+      multiselect_extended: [
+        {
+          value: "is-any-of",
+          label: {
+            i18nKey: "is_any_of"
+          }
+        },
+        {
+          value: "is-none-of",
+          label: {
+            i18nKey: "is_none_of"
+          }
+        },
+        {
+          value: "has_value",
+          label: {
+            i18nKey: "is_not_empty_op"
+          }
+        },
+        {
+          value: "has_no_value",
+          label: {
+            i18nKey: "is_empty"
+          }
+        }
+      ]
+    },
+    fieldTypeMap: {
+      LARGE_TEXT: "string",
+      TEXT: "string",
+      PHONE: "string",
+      URL: "string",
+      RICH_TEXT: "string",
+      NUMERICAL: "numerical",
+      MONETORY: "numerical",
+      MULTIPLE_OPTIONS: "multiselect",
+      CHECKBOX: "multiselect",
+      RADIO: "select",
+      SINGLE_OPTIONS: "select",
+      USER: "select",
+      DATE: "date",
+      DATE_TIME: "date",
+      TEXTBOX_LIST: "textbox_list",
+      FILE_UPLOAD: "file",
+      SIGNATURE: "file",
+      __default__: "string"
+    },
+    dateFieldOperators: [
+      "today",
+      "tomorrow",
+      "yesterday",
+      "on",
+      "after",
+      "before",
+      "afterDate",
+      "beforeDate",
+      "inTheNext",
+      "inTheLast"
     ]
+  },
+  mergeTags: {
+    namespaces: {
+      phoneCall: 22,
+      contact: 60,
+      right_now: 16,
+      location: 12,
+      location_owner: 3,
+      message: 3,
+      user: 10,
+      appointment: 21,
+      calendar: 1,
+      membership_contact: 3,
+      inboundEmail: 8,
+      mailgun_email_event: 3,
+      document: 15,
+      note: 3,
+      form_data: 13,
+      survey_data: 12,
+      order: 43,
+      invoice: 41,
+      membership: 10,
+      event: 48,
+      payment: 35,
+      subscription: 12,
+      refund: 8,
+      opportunity: 12,
+      inboundWebhookRequest: 1,
+      voice_ai: 3,
+      conversations_ai: 2
+    },
+    dynamicNamespacesNote: "Static {{merge tags}} the builder picker offers, with label/type/group. Dynamic namespaces (custom fields, inbound webhook paths, internal-action outputs, custom values) are per-account and NOT enumerable here \u2014 validation must treat unknown tags in those namespaces as unknowable, not wrong.",
+    tags: [
+      {
+        tag: "{{phoneCall.direction}}",
+        label: "Phone Call Direction",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.duration}}",
+        label: "Phone Call Duration",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.from}}",
+        label: "Phone Call From",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.to}}",
+        label: "Phone Call To",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.fromCity}}",
+        label: "Phone Call From City",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.fromState}}",
+        label: "Phone Call From State",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.fromCountry}}",
+        label: "Phone Call From Country",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.fromZip}}",
+        label: "Phone Call From Zip",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.toCity}}",
+        label: "Phone Call To City",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.toState}}",
+        label: "Phone Call To State",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.toZip}}",
+        label: "Phone Call To Zip",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.toCountry}}",
+        label: "Phone Call To Country",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.answeredBy.phone}}",
+        label: "Phone Call Answered By Phone",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.answeredBy.user.name}}",
+        label: "Phone Call Answered By User Name",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.answeredBy.user.id}}",
+        label: "Phone Call Answered By User Id",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.answeredBy.device}}",
+        label: "Phone Call Answered By Device",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.user.id}}",
+        label: "Phone Call User Id",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.user.name}}",
+        label: "Phone Call User Name",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.startTime}}",
+        label: "Phone Call Start Time",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.endTime}}",
+        label: "Phone Call End Time",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.callStatus}}",
+        label: "Phone Call Status",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{phoneCall.dispositions}}",
+        label: "Phone Call Dispositions",
+        type: "TEXT",
+        group: null
+      },
+      {
+        tag: "{{contact.name}}",
+        label: "Full Name",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.first_name}}",
+        label: "First Name",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.last_name}}",
+        label: "Last Name",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.phone_raw}}",
+        label: "Phone (raw format)",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.company_name}}",
+        label: "Company Name",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.full_address}}",
+        label: "Full Address",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.address1}}",
+        label: "Address 1",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.city}}",
+        label: "City",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.state}}",
+        label: "State",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.country}}",
+        label: "Country",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.postal_code}}",
+        label: "Postal Code",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.timezone}}",
+        label: "Timezone",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.timezone_raw}}",
+        label: "Timezone (raw format)",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.date_of_birth}}",
+        label: "Date of birth",
+        type: "DATE",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.source}}",
+        label: "Source",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.type}}",
+        label: "Contact Type",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.website}}",
+        label: "Website",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.id}}",
+        label: "ID",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.second}}",
+        label: "Second",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.minute}}",
+        label: "Minute",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.hour}}",
+        label: "Hour 24h format",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.hour_ampm}}",
+        label: "Hour AM/PM format",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.time}}",
+        label: "Time 24h format",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.time_ampm}}",
+        label: "Time AM/PM format",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.ampm}}",
+        label: "AM/PM",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.day}}",
+        label: "Day",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.day_of_week}}",
+        label: "Day of the week extended English",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.month}}",
+        label: "Month",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.month_name}}",
+        label: "Name of Month",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.month_english}}",
+        label: "Month extended English",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.year}}",
+        label: "Year",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.middle_endian_date}}",
+        label: "Date (month/day/year)",
+        type: "DATE",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.little_endian_date}}",
+        label: "Date (day/month/year)",
+        type: "DATE",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{right_now.date}}",
+        label: "Date",
+        type: "DATE",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.name}}",
+        label: "Name",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.full_address}}",
+        label: "Full Address",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.address}}",
+        label: "Address Line 1",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.city}}",
+        label: "City",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.state}}",
+        label: "State",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.country}}",
+        label: "Country",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.postal_code}}",
+        label: "Postal Code",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.phone_raw}}",
+        label: "Phone (raw format)",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.website}}",
+        label: "Website",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location.logo_url}}",
+        label: "Logo URL",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location_owner.first_name}}",
+        label: "First name",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location_owner.last_name}}",
+        label: "Last name",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{location_owner.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{contact.facebookLeadId}}",
+        label: "Facebook Lead Id",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{message.body}}",
+        label: "Message Body",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{message.subject}}",
+        label: "Message Subject",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{message.attachments}}",
+        label: "Message Attachments",
+        type: "TEXT",
+        group: "contactOptions"
+      },
+      {
+        tag: "{{user.name}}",
+        label: "Full Name",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.first_name}}",
+        label: "First Name",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.last_name}}",
+        label: "Last Name",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.phone_raw}}",
+        label: "Phone (raw format)",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.email_signature}}",
+        label: "Signature",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.calendar_link}}",
+        label: "Calendar Link",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.twilio_phone_number}}",
+        label: "Twilio Phone",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{user.id}}",
+        label: "ID",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.id}}",
+        label: "ID",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.title}}",
+        label: "Title",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.start_time}}",
+        label: "Start Date Time",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.only_start_date}}",
+        label: "Start Date",
+        type: "DATE",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.only_start_time}}",
+        label: "Start Time",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.end_time}}",
+        label: "End Date Time",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.only_end_date}}",
+        label: "End Date",
+        type: "DATE",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.only_end_time}}",
+        label: "End Time",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.day_of_week}}",
+        label: "Day of the week",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.month}}",
+        label: "Month",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.month_name}}",
+        label: "Name of Month",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.timezone}}",
+        label: "Timezone",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.cancellation_link}}",
+        label: "Cancellation Link",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.reschedule_link}}",
+        label: "Reschedule Link",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.meeting_location}}",
+        label: "Meeting Location",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.notes}}",
+        label: "Notes",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.cancellation_reason}}",
+        label: "Cancellation Reason",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.add_to_google_calendar}}",
+        label: "Add to Google Calendar",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.add_to_ical_outlook}}",
+        label: "Add to iCal/Outlook",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.recurring.repeats}}",
+        label: "Repeats",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.recurring.times_to_repeat}}",
+        label: "Times to Repeat",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{calendar.name}}",
+        label: "Name",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{membership_contact.login_url}}",
+        label: "Login URL (Magic Link)",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{contact.engagement_score}}",
+        label: "Engagement Score",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{inboundEmail.messageId}}",
+        label: {
+          i18nKey: "inbound_email.message_id"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{inboundEmail.subject}}",
+        label: {
+          i18nKey: "inbound_email.subject"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{inboundEmail.bodyPlain}}",
+        label: {
+          i18nKey: "inbound_email.body_plain"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{inboundEmail.bodyFullPlain}}",
+        label: {
+          i18nKey: "inbound_email.body_full_plain"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{inboundEmail.fromEmail}}",
+        label: {
+          i18nKey: "inbound_email.from_email"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{inboundEmail.fromName}}",
+        label: {
+          i18nKey: "inbound_email.from_name"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{inboundEmail.cc}}",
+        label: {
+          i18nKey: "inbound_email.cc"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{inboundEmail.dateAdded}}",
+        label: {
+          i18nKey: "inbound_email.date"
+        },
+        type: "TEXT",
+        group: "getInboundEmailOptions"
+      },
+      {
+        tag: "{{mailgun_email_event.messageId}}",
+        label: {
+          i18nKey: "mailgun_email_event.message_id"
+        },
+        type: "TEXT",
+        group: "getMailgunEmailEventOptions"
+      },
+      {
+        tag: "{{mailgun_email_event.campaignStatusId}}",
+        label: {
+          i18nKey: "mailgun_email_event.campaign_status_id"
+        },
+        type: "TEXT",
+        group: "getMailgunEmailEventOptions"
+      },
+      {
+        tag: "{{mailgun_email_event.event}}",
+        label: {
+          i18nKey: "mailgun_email_event.event"
+        },
+        type: "TEXT",
+        group: "getMailgunEmailEventOptions"
+      },
+      {
+        tag: "{{document.name}}",
+        label: "Docs & Contracts",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.totalAmount}}",
+        label: "Name",
+        type: "NUMERICAL",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.type}}",
+        label: "Total Amount",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.url}}",
+        label: "Type",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.previewUrl}}",
+        label: "URL",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.pdfLink}}",
+        label: "Preview URL",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.currencySymbol}}",
+        label: "PDF Link",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.currencyCode}}",
+        label: "Currency Symbol",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.recipient.firstName}}",
+        label: "Currency Code",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.recipient.lastName}}",
+        label: "Recipient First Name",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.recipient.email}}",
+        label: "Recipient Last Name",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.recipient.phoneNumber}}",
+        label: "Recipient Email",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.recipient.country}}",
+        label: "Recipient Phone Number",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.declinedReasonBody}}",
+        label: "Recipient Country",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.declinedReasons}}",
+        label: "Decline Reason Body",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{note.body}}",
+        label: {
+          i18nKey: "notes.description"
+        },
+        type: "TEXT",
+        group: "getNoteOptions"
+      },
+      {
+        tag: "{{note.bodyHtml}}",
+        label: {
+          i18nKey: "notes.description_html"
+        },
+        type: "TEXT",
+        group: "getNoteOptions"
+      },
+      {
+        tag: "{{note.createdByName}}",
+        label: {
+          i18nKey: "notes.created_by_name"
+        },
+        type: "TEXT",
+        group: "getNoteOptions"
+      },
+      {
+        tag: "{{form_data.full_name}}",
+        label: "Full Name",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.first_name}}",
+        label: "First Name",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.last_name}}",
+        label: "Last Name",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.organization}}",
+        label: "Organization",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.address}}",
+        label: "Address 1",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.city}}",
+        label: "City",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.state}}",
+        label: "State",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.postal_code}}",
+        label: "Postal Code",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.date_of_birth}}",
+        label: "Date of birth",
+        type: "DATE",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.website}}",
+        label: "Website",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{form_data.source}}",
+        label: "Source",
+        type: "TEXT",
+        group: "getFormOptions"
+      },
+      {
+        tag: "{{survey_data.full_name}}",
+        label: "Full Name",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.first_name}}",
+        label: "First Name",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.last_name}}",
+        label: "Last Name",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.organization}}",
+        label: "Organization",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.address}}",
+        label: "Address 1",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.city}}",
+        label: "City",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.state}}",
+        label: "State",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.postal_code}}",
+        label: "Postal Code",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.date_of_birth}}",
+        label: "Date of birth",
+        type: "DATE",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{survey_data.source}}",
+        label: "Source",
+        type: "TEXT",
+        group: "getSurveyOptions"
+      },
+      {
+        tag: "{{membership_contact.email}}",
+        label: "Email",
+        type: null,
+        group: "getContactCredentials"
+      },
+      {
+        tag: "{{membership_contact.offer_title}}",
+        label: "Offer Title",
+        type: null,
+        group: "getContactCredentials"
+      },
+      {
+        tag: "{{contact.attributionSource.sessionSource}}",
+        label: "Session Source",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{ contact.attributionSource.url }}",
+        label: "URL",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.campaign}}",
+        label: "Campaign",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.utmSource}}",
+        label: "UTM Source",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.utmMedium}}",
+        label: "UTM Medium",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.medium}}",
+        label: "Medium",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.mediumId}}",
+        label: "Medium ID",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.utmContent}}",
+        label: "UTM Content",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.referrer}}",
+        label: "Referrer",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.campaignId}}",
+        label: "Campaign Id",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.fbclid}}",
+        label: "FB ClickId",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.gclid}}",
+        label: "Google ClickId",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.gaClientId}}",
+        label: "Google Client Id",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.utmCampaign}}",
+        label: "UTM Campaign",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.utmKeyword}}",
+        label: "UTM Keyword",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.utmMatchtype}}",
+        label: "UTM Match Type",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.utmTerm}}",
+        label: "UTM Term",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.adGroupId}}",
+        label: "Ad Group ID",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.attributionSource.adId}}",
+        label: "Ad ID",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.sessionSource}}",
+        label: "Session Source",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{ contact.lastAttributionSource.url }}",
+        label: "URL",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.campaign}}",
+        label: "Campaign",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.utmSource}}",
+        label: "UTM Source",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.utmMedium}}",
+        label: "UTM Medium",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.medium}}",
+        label: "Medium",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.mediumId}}",
+        label: "Medium ID",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.utmContent}}",
+        label: "UTM Content",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.referrer}}",
+        label: "Referrer",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.campaignId}}",
+        label: "Campaign Id",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.fbclid}}",
+        label: "FB ClickId",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.gclid}}",
+        label: "Google ClickId",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.gaClientId}}",
+        label: "Google Client Id",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.utmCampaign}}",
+        label: "UTM Campaign",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.utmKeyword}}",
+        label: "UTM Keyword",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.utmMatchtype}}",
+        label: "UTM Match Type",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.utmTerm}}",
+        label: "UTM Term",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.adGroupId}}",
+        label: "Ad Group ID",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{contact.lastAttributionSource.adId}}",
+        label: "Ad ID",
+        type: "TEXT",
+        group: "getAttributionFields"
+      },
+      {
+        tag: "{{order.number}}",
+        label: "Number",
+        type: "NUMERICAL",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.created_on}}",
+        label: "Created On",
+        type: "DATE",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.customer.first_name}}",
+        label: "First Name",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.customer.last_name}}",
+        label: "Last Name",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.customer.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.customer.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.items.ids}}",
+        label: "IDs",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.items.titles}}",
+        label: "Titles",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.total_discounts}}",
+        label: "Total discounts",
+        type: "NUMERICAL",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.discount_code}}",
+        label: "Discount Code",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.total_price}}",
+        label: "Total Price",
+        type: "NUMERICAL",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.subtotal_price}}",
+        label: "Subtotal Price",
+        type: "NUMERICAL",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.total_shipping_price}}",
+        label: "Total Shipping Price",
+        type: "NUMERICAL",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.total_cart_price}}",
+        label: "Total Cart Price",
+        type: "NUMERICAL",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.order_status_url}}",
+        label: "Order Status URL",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.abandoned_checkout_url}}",
+        label: "Abandoned Checkout URL",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.shipping_address}}",
+        label: "Shipping Address",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.billing_address}}",
+        label: "Billing Address",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.has_discount}}",
+        label: "Has Discount",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.currency_code}}",
+        label: "Currency Code",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.currency}}",
+        label: "Currency",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{order.requires_shipping}}",
+        label: "Requires Shipping",
+        type: "TEXT",
+        group: "getShopifyFields"
+      },
+      {
+        tag: "{{invoice.contact_name}}",
+        label: "Contact Name",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.currency}}",
+        label: "Currency",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.due_date}}",
+        label: "Due Date",
+        type: "DATE",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.total_discount}}",
+        label: "Discount Value",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.issue_date}}",
+        label: "Issue Date",
+        type: "DATE",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.liveMode}}",
+        label: "Live Mode",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.sender_name}}",
+        label: "Sender Name",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.sender_email}}",
+        label: "Sender E-mail",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.status}}",
+        label: "Status",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.subtotal}}",
+        label: "Subtotal",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.total_discount_price}}",
+        label: "Total Discount Price",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.number}}",
+        label: "Invoice Number",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.total_price}}",
+        label: "Total Price",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{invoice.url}}",
+        label: "URL",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.name }}",
+        label: "Name",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.phone }}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.address }}",
+        label: "Address",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.city }}",
+        label: "City",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.state }}",
+        label: "State",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.country }}",
+        label: "Country",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.website }}",
+        label: "Website",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.company.logo }}",
+        label: "Logo",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.name }}",
+        label: "Name",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.first_name }}",
+        label: "First Name",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.last_name }}",
+        label: "Last Name",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.phone }}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.email }}",
+        label: "Email",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.company }}",
+        label: "Company",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.address }}",
+        label: "Address",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.city }}",
+        label: "City",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.state }}",
+        label: "State",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.customer.postal_code }}",
+        label: "Postal code",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.name }}",
+        label: "Name",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.currency_code }}",
+        label: "Currency Code",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.currency_symbol }}",
+        label: "Currency Symbol",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.discount_amount }}",
+        label: "Discount Amount",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.tax_amount }}",
+        label: "Tax Amount",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.total_amount }}",
+        label: "Total Amount",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.title }}",
+        label: "Title",
+        type: "TEXT",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.amount_due }}",
+        label: "Amount Due",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{ invoice.amount_paid }}",
+        label: "Amount Paid",
+        type: "NUMERICAL",
+        group: "getInvoiceFields"
+      },
+      {
+        tag: "{{membership.support.email}}",
+        label: "Support Email",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.support.phone}}",
+        label: "Support Phone",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.support.site_name}}",
+        label: "Site Name",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.login_url}}",
+        label: "Login URL (Magic Link)",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.product.title}}",
+        label: "Product Title",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.category.title}}",
+        label: "Category Title",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.lesson.title}}",
+        label: "Lesson Title",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.lesson.url}}",
+        label: "Lesson URL",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.category.url}}",
+        label: "Category URL",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{membership.product.url}}",
+        label: "Product URL",
+        type: null,
+        group: "getMembershipFields"
+      },
+      {
+        tag: "{{event.name}}",
+        label: {
+          i18nKey: "workflow.eventMenu.name"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.summary}}",
+        label: {
+          i18nKey: "workflow.eventMenu.summary"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.description}}",
+        label: {
+          i18nKey: "workflow.eventMenu.description"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.description_text}}",
+        label: {
+          i18nKey: "workflow.eventMenu.descriptionText"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.start_time}}",
+        label: {
+          i18nKey: "workflow.eventMenu.startDateTime"
+        },
+        type: "DATE",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.end_time}}",
+        label: {
+          i18nKey: "workflow.eventMenu.endDateTime"
+        },
+        type: "DATE",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.start_time_iso}}",
+        label: {
+          i18nKey: "workflow.eventMenu.startDateTimeIso"
+        },
+        type: "DATE",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.end_time_iso}}",
+        label: {
+          i18nKey: "workflow.eventMenu.endDateTimeIso"
+        },
+        type: "DATE",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.only_start_date}}",
+        label: {
+          i18nKey: "workflow.eventMenu.startDate"
+        },
+        type: "DATE",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.only_start_time}}",
+        label: {
+          i18nKey: "workflow.eventMenu.startTime"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.only_end_date}}",
+        label: {
+          i18nKey: "workflow.eventMenu.endDate"
+        },
+        type: "DATE",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.only_end_time}}",
+        label: {
+          i18nKey: "workflow.eventMenu.endTime"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.timezone}}",
+        label: {
+          i18nKey: "workflow.eventMenu.timezone"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.date_time}}",
+        label: {
+          i18nKey: "workflow.eventMenu.dateTimeRange"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.url}}",
+        label: {
+          i18nKey: "workflow.eventMenu.url"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.type}}",
+        label: {
+          i18nKey: "workflow.eventMenu.type"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.status}}",
+        label: {
+          i18nKey: "workflow.eventMenu.status"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.id}}",
+        label: {
+          i18nKey: "workflow.eventMenu.eventId"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.attendee_id}}",
+        label: {
+          i18nKey: "workflow.eventMenu.attendeeId"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.type}}",
+        label: {
+          i18nKey: "workflow.eventMenu.type"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.inperson.full_address}}",
+        label: {
+          i18nKey: "workflow.eventMenu.fullAddress"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.inperson.venue_name}}",
+        label: {
+          i18nKey: "workflow.eventMenu.venueName"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.inperson.address}}",
+        label: {
+          i18nKey: "workflow.eventMenu.address"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.inperson.city}}",
+        label: {
+          i18nKey: "workflow.eventMenu.city"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.inperson.state}}",
+        label: {
+          i18nKey: "workflow.eventMenu.state"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.inperson.postal_code}}",
+        label: {
+          i18nKey: "workflow.eventMenu.postalCode"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.inperson.google_location}}",
+        label: {
+          i18nKey: "workflow.eventMenu.googleLocation"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.online.attendee_page}}",
+        label: {
+          i18nKey: "workflow.eventMenu.attendeePage"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.online.title}}",
+        label: {
+          i18nKey: "workflow.eventMenu.title"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.location.online.url}}",
+        label: {
+          i18nKey: "workflow.eventMenu.url"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.ticket.count}}",
+        label: {
+          i18nKey: "workflow.eventMenu.count"
+        },
+        type: "NUMERICAL",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.ticket.names}}",
+        label: {
+          i18nKey: "workflow.eventMenu.names"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.ticket.qr_links}}",
+        label: {
+          i18nKey: "workflow.eventMenu.qrLinks"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.ticket.pdf_link}}",
+        label: {
+          i18nKey: "workflow.eventMenu.pdfLink"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.checkin.status}}",
+        label: {
+          i18nKey: "workflow.eventMenu.status"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.checkin.checked_in_at}}",
+        label: {
+          i18nKey: "workflow.eventMenu.checkedInAt"
+        },
+        type: "DATE",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.checkin.method}}",
+        label: {
+          i18nKey: "workflow.eventMenu.method"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.checkin.checked_in_by.name}}",
+        label: {
+          i18nKey: "workflow.eventMenu.name"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.checkin.checked_in_by.id}}",
+        label: {
+          i18nKey: "workflow.eventMenu.id"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.checkin.checked_in_by.type}}",
+        label: {
+          i18nKey: "workflow.eventMenu.type"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.order.id}}",
+        label: {
+          i18nKey: "workflow.eventMenu.orderId"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.order.total}}",
+        label: {
+          i18nKey: "workflow.eventMenu.orderTotal"
+        },
+        type: "NUMERICAL",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.order.currency}}",
+        label: {
+          i18nKey: "workflow.eventMenu.orderCurrency"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.transaction.id}}",
+        label: {
+          i18nKey: "workflow.eventMenu.transactionId"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.registration.status}}",
+        label: {
+          i18nKey: "workflow.eventMenu.registrationStatus"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.registration.payment_status}}",
+        label: {
+          i18nKey: "workflow.eventMenu.paymentStatus"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.registration.attendee_type}}",
+        label: {
+          i18nKey: "workflow.eventMenu.attendeeType"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{event.registration.booked_by}}",
+        label: {
+          i18nKey: "workflow.eventMenu.bookedBy"
+        },
+        type: "TEXT",
+        group: "getEventOptions"
+      },
+      {
+        tag: "{{order.source}}",
+        label: "Order Source",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.currency_symbol}}",
+        label: "Currency Symbol",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.customer.id}}",
+        label: "Id",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.customer.name}}",
+        label: "Name",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.customer.full_address}}",
+        label: "Full Address",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.customer.city}}",
+        label: "City",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.customer.state}}",
+        label: "State",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.customer.country}}",
+        label: "Country",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.customer.postal_code}}",
+        label: "Postal Code",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.billing_address.full_name}}",
+        label: "Full Name",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.billing_address.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.billing_address.address}}",
+        label: "Address",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.billing_address.city}}",
+        label: "City",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.billing_address.state}}",
+        label: "State",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.billing_address.country}}",
+        label: "Country",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.billing_address.postal_code}}",
+        label: "Postal Code",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.total_discount}}",
+        label: "Total Discount",
+        type: "NUMERICAL",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.payment_gateway}}",
+        label: "Payment Gateway",
+        type: "TEXT",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{order.miscellaneous_charges}}",
+        label: "Miscellaneous Charges",
+        type: "NUMERICAL",
+        group: "getOrderOptions"
+      },
+      {
+        tag: "{{payment.source}}",
+        label: "Source",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.currency_symbol}}",
+        label: "Currency Symbol",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.currency_code}}",
+        label: "Currency Code",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.id}}",
+        label: "Id",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.first_name}}",
+        label: "First Name",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.last_name}}",
+        label: "Last Name",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.name}}",
+        label: "Name",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.email}}",
+        label: "Email",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.phone}}",
+        label: "Phone",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.address}}",
+        label: "Full Address",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.city}}",
+        label: "City",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.state}}",
+        label: "State",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.country}}",
+        label: "Country",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.customer.postal_code}}",
+        label: "Postal Code",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.name}}",
+        label: "Name",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.number}}",
+        label: "Number",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.issue_date}}",
+        label: "Issue Date",
+        type: "DATE",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.due_date}}",
+        label: "Due Date",
+        type: "DATE",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.url}}",
+        label: "URL",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.recorded_by}}",
+        label: "Recorded By",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.amount_due}}",
+        label: "Amount Due",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.invoice.amount_paid}}",
+        label: "Amount Paid",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.sub_total_amount}}",
+        label: "Sub Total",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.discount_amount}}",
+        label: "Discount Amount",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.coupon_code}}",
+        label: "Coupon Code",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.tax_amount}}",
+        label: "Tax Amount",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.created_on}}",
+        label: "Created on",
+        type: "DATE",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.total_amount}}",
+        label: "Total Amount",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.tip}}",
+        label: "Tip",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.transaction_id}}",
+        label: "Transaction Id",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.payment_status}}",
+        label: "Status",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.gateway}}",
+        label: "Gateway",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.card.last4}}",
+        label: "Card Last 4",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.card.brand}}",
+        label: "Card Brand",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{payment.method}}",
+        label: "Method",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.source}}",
+        label: "Source",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.currency_symbol}}",
+        label: "Currency Symbol",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.currency_code}}",
+        label: "Currency Code",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.sub_total_amount}}",
+        label: "Sub Total",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.discount_amount}}",
+        label: "Discount Amount",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.tax_amount}}",
+        label: "Tax Amount",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.total_amount}}",
+        label: "Total Amount",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.created_on}}",
+        label: "Created On",
+        type: "DATE",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.coupon_code}}",
+        label: "Coupon Code",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.id}}",
+        label: "Subscription Id",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.status}}",
+        label: "Subscription Status",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{subscription.global_product.name}}",
+        label: "Product Name",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.transaction.entitySourceType}}",
+        label: "Source",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.currency_symbol}}",
+        label: "Currency Symbol",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.currency_code}}",
+        label: "Currency Code",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.transaction.id}}",
+        label: "Transaction Id",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.id}}",
+        label: "Refund Id",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.amount}}",
+        label: "Refund Amount",
+        type: "NUMERICAL",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.status}}",
+        label: "Refund Status",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{refund.transaction.status}}",
+        label: "Refund Type",
+        type: "TEXT",
+        group: "getPaymentOptions"
+      },
+      {
+        tag: "{{opportunity.id}}",
+        label: "Opportunity (ID)",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.name}}",
+        label: "Opportunity (Name)",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.pipeline_name}}",
+        label: "Pipeline Name",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.stage_name}}",
+        label: "Stage Name",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.status}}",
+        label: "Status",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.lead_value}}",
+        label: "Opportunity Value",
+        type: "NUMERICAL",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.forecast_expected_close_date}}",
+        label: "Expected Close Date",
+        type: "DATE",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.forecast_probability}}",
+        label: "Forecast Probability",
+        type: "NUMERICAL",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.lost_reason}}",
+        label: "Lost Reason",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.source}}",
+        label: "Source",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.assignedTo}}",
+        label: "Assigned To (ID)",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{opportunity.assignedToUsersName}}",
+        label: "Assigned To (Name)",
+        type: "TEXT",
+        group: "getOpportunityOptions"
+      },
+      {
+        tag: "{{order.line_items}}",
+        label: "Line Items",
+        type: null,
+        group: "getCustomCodeOptions"
+      },
+      {
+        tag: "{{order.shipping_lines}}",
+        label: "Shipping Lines",
+        type: null,
+        group: "getCustomCodeOptions"
+      },
+      {
+        tag: "{{inboundWebhookRequest}}",
+        label: "Inbound Webhook Trigger",
+        type: null,
+        group: "getInboundWebhookOptionsFromCache"
+      },
+      {
+        tag: "{{voice_ai.duration}}",
+        label: "Duration",
+        type: "TEXT",
+        group: "getVoiceAIOptions"
+      },
+      {
+        tag: "{{voice_ai.summary}}",
+        label: "Summary",
+        type: "TEXT",
+        group: "getVoiceAIOptions"
+      },
+      {
+        tag: "{{voice_ai.transcript}}",
+        label: "Transcript",
+        type: "TEXT",
+        group: "getVoiceAIOptions"
+      },
+      {
+        tag: "{{conversations_ai.summary}}",
+        label: "Summary",
+        type: "TEXT",
+        group: "getConversationAIOptions"
+      },
+      {
+        tag: "{{conversations_ai.transcript}}",
+        label: "Transcript",
+        type: "TEXT",
+        group: "getConversationAIOptions"
+      }
+    ]
+  },
+  i18n: {
+    loop_unsupported_action_error: "{action} cannot be placed inside a Loop. Move it outside the loop.",
+    loop_empty_body_error: '"{name}" has no actions inside it. Add at least one action inside the loop, or remove the loop.',
+    loop_unsupported_wait_error: "Conditional wait steps cannot be placed inside a Loop. Move them outside the loop or switch to a time-based wait.",
+    contact_details: "Contact details",
+    last_appointment_at: "Last appointment at",
+    full_name: "Full name",
+    first_name: "First name",
+    last_name: "Last name",
+    email: "Email",
+    phone: "Phone",
+    company_name: "Company name",
+    full_address: "Full address",
+    address_1: "Address 1",
+    assigned_user_label: "Assigned user",
+    city: "City",
+    state: "State",
+    country: "Country",
+    time_zone: "Time zone",
+    postal_code: "Postal code",
+    date_of_birth: "Date of birth",
+    source: "Source",
+    website: "Website",
+    tags: "Tags",
+    contact_type: "Contact type",
+    dnd_enabled_channels: "DND enabled channels",
+    valid_whatsapp: "Valid WhatsApp",
+    valid_email: "Valid email",
+    date_time: "Date/Time",
+    current_day_of_week: "Current Day of week",
+    current_day_of_month: "Current Day of month",
+    current_month: "Current month",
+    current_year: "Current year",
+    current_hour: "Current hour",
+    time_of_the_day: "Time of the day",
+    contact_reply: "Contact reply",
+    contact_replied: "Contact replied",
+    replied_message: "Replied message",
+    type_word_phrase: "Type word/phrase",
+    intent_type: "Intent type",
+    select_intent: "Select intent",
+    inbound_trigger: "Inbound email",
+    workflow_trigger: "Workflow trigger",
+    appointment: "Appointment",
+    rescheduled: "Rescheduled",
+    is_running_as_guest: "Is running as guest",
+    start_date: "Start date",
+    end_date: "End date",
+    service_booking: "Service booking",
+    rental_booking: "Rental booking",
+    workflow_contact: "Workflow contact",
+    note: "Note",
+    note_description: "Note description",
+    ai_bot: "AI Bot",
+    events: "Events",
+    email_event: "Email event",
+    trigger_link_clicked: "Trigger link clicked",
+    opportunities: "Opportunities",
+    opportunity_name: "Opportunity name",
+    opportunity_status: "Opportunity status",
+    pipeline: "Pipeline",
+    pipeline_stage: "Pipeline stage",
+    lead_value: "Lead value",
+    expected_close_date: "Expected close date",
+    forecast_probability: "Forecast probability",
+    lost_reason: "Lost reason",
+    opportunity_owner_label: "Opportunity owner",
+    opportunity_follower_label: "Opportunity follower",
+    shopify: "Ecommerce stores",
+    product_id: "Product ID",
+    product_name: "Product name",
+    total_cart_price: "Total cart price",
+    total_discount: "Total discount",
+    total_shipping_price: "Total shipping price",
+    total_price: "Total price",
+    billing_province: "Billing province",
+    billing_zip: "Billing ZIP",
+    billing_country: "Billing country",
+    requires_shipping: "Requires shipping",
+    invoice: "Invoice",
+    status: "Status",
+    discount_value: "Discount value",
+    due_date: "Due date",
+    live_mode: "Live mode",
+    subtotal: "Subtotal",
+    total_discount_price: "Total discount price",
+    invoice_number: "Invoice number",
+    event: "Event",
+    type: "Type",
+    event_name: "Event name",
+    event_start: "Event start",
+    event_end: "Event end",
+    timezone: "Timezone",
+    location: "Location",
+    location_type: "Location type",
+    in_person: "In-person",
+    venue: "Venue",
+    address: "Address",
+    online_meeting: "Online",
+    meeting_url: "Meeting URL",
+    meeting_title: "Meeting title",
+    ticket: "Ticket",
+    ticket_count: "Ticket count",
+    ticket_names: "Ticket names",
+    ticket_type: "Ticket type",
+    check_in: "Check-in",
+    check_in_status: "Check-in status",
+    method: "Method",
+    checked_in_at: "Checked-in at",
+    checked_in_by: "Checked-in by",
+    registration: "Registration",
+    registration_status: "Registration status",
+    payment_status: "Payment status",
+    attendee_type: "Attendee type",
+    booked_by: "Booked by",
+    order: "Order",
+    order_id: "Order ID",
+    order_total: "Order total",
+    currency: "Currency",
+    transaction_id: "Transaction ID",
+    order_source: "Order source",
+    product: "Product",
+    payment_gateway: "Payment gateway",
+    submission_type: "Submission type",
+    funnel: "Funnel",
+    payment: "Payment",
+    calendar: "Calendar",
+    form: "Form",
+    amount: "Amount",
+    video_tracking: "Video tracking",
+    video: "Video",
+    video_duration_percent: "Video duration (%)",
+    courses: "Courses",
+    category: "Category",
+    lesson: "Lesson",
+    custom_values: "Custom values",
+    inbound_webhook_trigger: "Inbound webhook trigger",
+    google_sheets_lookup: "Google Sheets lookup",
+    date_time_formatter: "Date/time formatter",
+    number_formatter: "Number formatter",
+    add_task: "Add task",
+    text_formatter: "Text formatter",
+    math_operation: "Math operation",
+    custom_webhook: "Custom webhook",
+    gpt: "GPT",
+    array_functions: "Array formatter",
+    custom_code: "Custom code",
+    ai_agent: "AI Agent",
+    campaign_first_attribution: "Campaign (First Attribution)",
+    campaign_id_first_attribution: "Campaign ID(First Attribution)",
+    medium_id_first_attribution: "Medium ID(First Attribution)",
+    utm_content_first_attribution: "UTM Content (First Attribution)",
+    utm_medium_first_attribution: "UTM Medium (First Attribution)",
+    medium_first_attribution: "Medium (First Attribution)",
+    utm_term_first_attribution: "UTM Term (First Attribution)",
+    utm_source_first_attribution: "UTM Source (First Attribution)",
+    session_source_first_attribution: "Session Source (First Attribution)",
+    utm_campaign_first_attribution: "UTM Campaign (First Attribution)",
+    utm_keyword_first_attribution: "UTM Keyword (First Attribution)",
+    utm_match_type_first_attribution: "UTM Match Type (First Attribution)",
+    ad_group_id_first_attribution: "Ad Group ID (First Attribution)",
+    ad_id_first_attribution: "Ad ID (First Attribution)",
+    campaign_last_attribution: "Campaign (Last Attribution)",
+    campaign_id_last_attribution: "Campaign ID(Last Attribution)",
+    medium_id_last_attribution: "Medium ID(Last Attribution)",
+    utm_content_last_attribution: "UTM Content (Last Attribution)",
+    utm_medium_last_attribution: "UTM Medium (Last Attribution)",
+    medium_last_attribution: "Medium (Last Attribution)",
+    term_last_attribution: "Term (Last Attribution)",
+    source_last_attribution: "Source (Last Attribution)",
+    session_source_last_attribution: "Session Source (Last Attribution)",
+    utm_campaign_last_attribution: "UTM Campaign (Last Attribution)",
+    utm_keyword_last_attribution: "UTM Keyword (Last Attribution)",
+    utm_match_type_last_attribution: "UTM Match Type (Last Attribution)",
+    ad_group_id_last_attribution: "Ad Group ID (Last Attribution)",
+    ad_id_last_attribution: "Ad ID (Last Attribution)",
+    is: "Is",
+    is_not: "Is not",
+    contains: "Contains",
+    does_not_contain: "Does not contain",
+    is_any_of_comma_separated: "Is any of (comma separated)",
+    is_none_of_comma_separated: "Is none of (comma separated)",
+    is_not_empty_op: "Is not empty",
+    is_empty: "Is empty",
+    contains_phrase_op: "Contains phrase",
+    exact_match_phrase_op: "Exact match phrase",
+    intent_type_op: "Intent type",
+    includes: "Includes",
+    does_not_include: "Does not include",
+    contains_comma_separated: "Contains (comma separated)",
+    does_not_contain_comma_separated: "Does not contain (comma separated)",
+    equal_to: "Equal to",
+    not_equal_to: "Not equal to",
+    greater_than: "Greater than",
+    greater_than_or_equal: "Greater than or equal to",
+    less_than: "Less than",
+    less_than_or_equal: "Less than or equal to",
+    between: "Between",
+    is_after: "Is after",
+    is_on_or_after: "Is on or after",
+    is_before: "Is before",
+    is_on_or_before: "Is on or before",
+    timed_out: "Timed out",
+    is_any_of: "Is any of",
+    is_none_of: "Is none of",
+    has_changed: "Has changed",
+    has_changed_to: "Has changed to",
+    scheduler_interval_required: "Scheduler interval is required",
+    ivr_phone_number_required: "At least one phone number is required for IVR"
   },
   stepCount: 385,
   triggerCount: 204,
@@ -78761,6 +83899,24 @@ Rules to Follow:
           }
         ],
         shapeRules: []
+      },
+      seededFilters: {
+        filterClass: "DNDFilter",
+        method: "addMandatoryFilters",
+        rows: [
+          {
+            field: "contact.dnd_direction",
+            operator: "==",
+            type: "select",
+            options: [
+              "inbound",
+              "outbound"
+            ],
+            position: "first",
+            onlyWhenAbsent: true
+          }
+        ],
+        source: "models/Triggers/Filters/DNDFilter.ts addMandatoryFilters"
       }
     },
     contact_tag: {
@@ -79139,6 +84295,12 @@ Rules to Follow:
             severity: "warning"
           }
         ]
+      },
+      seededFilters: {
+        filterClass: "SchedulerTriggerFilter",
+        method: "addMandatoryFilter",
+        rows: [],
+        source: "models/Triggers/Filters/SchedulerTriggerFilter.ts addMandatoryFilters"
       }
     },
     call_status: {
@@ -79348,7 +84510,8 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      }
+      },
+      loadMigration: "ContactReplyFilter.migrateMessageBody"
     },
     inbound_trigger: {
       type: "inbound_trigger",
@@ -79383,7 +84546,19 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      }
+      },
+      seededFilters: {
+        filterClass: null,
+        method: "addNewFilter",
+        rows: [
+          {
+            emptyRow: true,
+            note: "an empty filter row is added when the trigger has none"
+          }
+        ],
+        source: null
+      },
+      loadMigration: "(triggerMain: TriggerMain) => {"
     },
     conv_ai_autonomous_trigger: {
       type: "conv_ai_autonomous_trigger",
@@ -79428,7 +84603,8 @@ Rules to Follow:
         ],
         customFieldSweeps: [],
         shapeRules: []
-      }
+      },
+      loadMigration: "FormSubmissionFilter.migrateFormsFilter"
     },
     survey_submission: {
       type: "survey_submission",
@@ -79467,7 +84643,8 @@ Rules to Follow:
         ],
         customFieldSweeps: [],
         shapeRules: []
-      }
+      },
+      loadMigration: "SurveySubmissionFilter.migrateSurveysFilter"
     },
     trigger_link: {
       type: "trigger_link",
@@ -79544,7 +84721,14 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      }
+      },
+      seededFilters: {
+        filterClass: "FacebookLeadGenFilter",
+        method: "addMandatoryFilter",
+        rows: [],
+        source: "models/Triggers/Filters/FacebookLeadGenFilter.ts addMandatoryFilters"
+      },
+      loadMigration: "FacebookLeadGenFilter.migrateFormsFilter"
     },
     tik_tok_form_submitted: {
       type: "tik_tok_form_submitted",
@@ -79579,7 +84763,8 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      }
+      },
+      loadMigration: "TikTokFilter.migrateFormsFilter"
     },
     video_event: {
       type: "video_event",
@@ -79651,7 +84836,8 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      }
+      },
+      filterClass: "TwilioValidationFilter"
     },
     appointment: {
       type: "appointment",
@@ -79778,6 +84964,20 @@ Rules to Follow:
           }
         ],
         shapeRules: []
+      },
+      seededFilters: {
+        filterClass: "AppointmentFilter",
+        method: "addMandatoryFilters",
+        rows: [
+          {
+            field: "appointment.eventType",
+            operator: "==",
+            type: "select",
+            position: "first",
+            onlyWhenAbsent: true
+          }
+        ],
+        source: "models/Triggers/Filters/AppointmentFilter.ts addMandatoryFilters"
       }
     },
     customer_appointment: {
@@ -80633,7 +85833,8 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      }
+      },
+      filterClass: "MembershipOfferAccessFilter"
     },
     offer_access_granted: {
       type: "offer_access_granted",
@@ -80928,6 +86129,17 @@ Rules to Follow:
           }
         ],
         shapeRules: []
+      },
+      seededFilters: {
+        filterClass: null,
+        method: "addNewFilter",
+        rows: [
+          {
+            emptyRow: true,
+            note: "an empty filter row is added when the trigger has none"
+          }
+        ],
+        source: null
       }
     },
     payment_received: {
@@ -81031,7 +86243,8 @@ Rules to Follow:
         ],
         customFieldSweeps: [],
         shapeRules: []
-      }
+      },
+      loadMigration: "PaymentReceived.migrateFormsFilter"
     },
     two_step_form_submission: {
       type: "two_step_form_submission",
@@ -81201,6 +86414,17 @@ Rules to Follow:
           }
         ],
         shapeRules: []
+      },
+      seededFilters: {
+        filterClass: null,
+        method: "addNewFilter",
+        rows: [
+          {
+            emptyRow: true,
+            note: "an empty filter row is added when the trigger has none"
+          }
+        ],
+        source: null
       }
     },
     shopify_order_placed: {
@@ -81317,6 +86541,20 @@ Rules to Follow:
             note: "the BACKEND blocks this at save (dedupeFeBeErrors)"
           }
         ]
+      },
+      seededFilters: {
+        filterClass: "IVRIncomingCallFilter",
+        method: "addMandatoryFilters",
+        rows: [
+          {
+            field: "inbound_number",
+            operator: "contains-any",
+            type: "MULTI_SELECT",
+            position: "first",
+            onlyWhenAbsent: true
+          }
+        ],
+        source: "models/Triggers/Filters/IVRIncomingCallFilter.ts addMandatoryFilters"
       }
     },
     facebook_comment_on_post: {
@@ -81341,7 +86579,22 @@ Rules to Follow:
         integrations: [
           "facebook"
         ]
-      }
+      },
+      seededFilters: {
+        filterClass: "UserCommentsOnPostFilter",
+        method: "addMandatoryFilter",
+        rows: [
+          {
+            field: "fb.pageId",
+            operator: "==",
+            type: "select",
+            position: "appended",
+            fromDispatchArg: true
+          }
+        ],
+        source: "models/Triggers/Filters/UserCommentsOnPostFilter.ts addMandatoryFilters"
+      },
+      loadMigration: "(triggerMain: TriggerMain) => UserCommentsOnPostFilter.migrateMessageBody(triggerMain, 'fb')"
     },
     ig_comment_on_post: {
       type: "ig_comment_on_post",
@@ -81365,7 +86618,22 @@ Rules to Follow:
         integrations: [
           "instagram"
         ]
-      }
+      },
+      seededFilters: {
+        filterClass: "UserCommentsOnPostFilter",
+        method: "addMandatoryFilter",
+        rows: [
+          {
+            field: "ig.pageId",
+            operator: "==",
+            type: "select",
+            position: "appended",
+            fromDispatchArg: true
+          }
+        ],
+        source: "models/Triggers/Filters/UserCommentsOnPostFilter.ts addMandatoryFilters"
+      },
+      loadMigration: "(triggerMain: TriggerMain) => UserCommentsOnPostFilter.migrateMessageBody(triggerMain, 'ig')"
     },
     conv_ai_trigger: {
       type: "conv_ai_trigger",
@@ -81377,7 +86645,68 @@ Rules to Follow:
       example: "catalog/trigger-examples/conv_ai_trigger.json",
       filterChecks: {
         provenZero: "no-ghl-trigger-validator"
-      }
+      },
+      disabledActions: [
+        "find_contact",
+        "create_update_contact",
+        "update_contact_field",
+        "sms",
+        "call",
+        "voicemail",
+        "messenger",
+        "instagram-dm",
+        "manual-sms",
+        "manual-call",
+        "gmb",
+        "conversation_ai",
+        "fb_interactive_messenger",
+        "ig_interactive_messenger",
+        "respond_on_comment",
+        "whatsapp_24h_window",
+        "send_whatsapp_flow",
+        "live_chat_response",
+        "tiktok-dm",
+        "conversation_aii",
+        "whatsapp_media",
+        "send_whatsapp_message",
+        "chat_interactive_button",
+        "whatsapp_v2",
+        "whatsapp_interactive_messages",
+        "appointment_booking_conversation_ai",
+        "update_conversation_ai_status",
+        "appointment_booking",
+        "log-external-call",
+        "workflow_goal",
+        "workflow_split",
+        "update_custom_value",
+        "add_appointment_booking_ai_bot",
+        "send_to_eliza",
+        "update_appointment_status",
+        "calendars_create_appointment_note",
+        "calendars_generate_one_time_booking_link",
+        "add_to_affiliate_manager",
+        "update_affiliate",
+        "add_to_affiliate_campaign",
+        "remove_from_affiliate_campaign",
+        "am-add-lead",
+        "am-add-manual-commission",
+        "ivr_gather",
+        "ivr_say",
+        "ivr_connect_call",
+        "ivr_hangup",
+        "ivr_collect_voicemail",
+        "membership_grant_offer",
+        "membership_revoke_offer",
+        "custom-push-notification",
+        "grant-group-access",
+        "revoke-group-access",
+        "grant-private-channel-access",
+        "revoke-private-channel-access",
+        "grant_user_group_gamification_points",
+        "issue_certificates_workflow",
+        "workflow_ai",
+        "Voice AI"
+      ]
     },
     affiliate_new_lead: {
       type: "affiliate_new_lead",
@@ -92175,8 +97504,14 @@ function evaluateWorkflowRules(doc, rules) {
       }
     }
   }
+  const A = [];
+  for (const [trigType, acts] of Object.entries(rules?.disabledActionsByTrigger ?? {})) {
+    if (!hasTrigger(trigType)) continue;
+    const bad = new Set(acts);
+    for (const t of T) if (bad.has(t.type)) A.push({ rule: "inCompatibleActions", message: `'${t.name ?? t.id}' (${t.type}) is greyed out in the builder while a '${trigType}' trigger is present \u2014 the UI cannot produce this combination` });
+  }
   const notEvaluable = ["inboundWebhookTriggerValidator (builder module state)", "validateIfElseCondition (workflow_ai-authored only)"];
-  return { findings: F, notEvaluable };
+  return { findings: F, advisories: A, notEvaluable };
 }
 function rulesNeedTriggers(templates, rules) {
   const V = rules?.vocab ?? {};
@@ -92193,7 +97528,8 @@ function rulesNeedTriggers(templates, rules) {
 }
 function checkWorkflowRules(doc, rules, opts = {}) {
   if (!rules || opts.skipWorkflowRules === true) return [];
-  const { findings } = evaluateWorkflowRules(doc, rules);
+  const { findings, advisories } = evaluateWorkflowRules(doc, rules);
+  for (const a of advisories ?? []) opts.warn?.(`WORKFLOW_RULE_SOFT: [${a.rule}] ${a.message}`);
   const skip = Array.isArray(opts.skipWorkflowRules) ? new Set(opts.skipWorkflowRules) : /* @__PURE__ */ new Set();
   const live = findings.filter((f) => !skip.has(f.rule));
   if (!live.length) return [];
@@ -92452,7 +97788,7 @@ async function orchestrate(ir, gw, opts = {}) {
     checkWorkflowRules(
       { templates: built.autoSaveBody?.workflowData?.templates, triggers: built.triggerBodies, publishing: opts.publish === true },
       catalog.workflowRules,
-      { skipWorkflowRules: opts.skipWorkflowRules }
+      { skipWorkflowRules: opts.skipWorkflowRules, warn: (m) => report.warnings.push(m) }
     );
   } catch (e) {
     report.failurePhase = "workflow_rules";
@@ -96743,7 +102079,7 @@ var TOOLS2 = [
       checkWorkflowRules(
         { templates, triggers: existingTriggers, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === "published" },
         ctx.catalog?.workflowRules,
-        { skipWorkflowRules: args.skipWorkflowRules }
+        { skipWorkflowRules: args.skipWorkflowRules, warn: ctx.warn }
       );
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,

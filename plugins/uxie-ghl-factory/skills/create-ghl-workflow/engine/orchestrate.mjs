@@ -289,7 +289,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // together; that is only true here. Hatch: opts.skipWorkflowRules.
   try {
     checkWorkflowRules({ templates: built.autoSaveBody?.workflowData?.templates, triggers: built.triggerBodies, publishing: opts.publish === true },
-      catalog.workflowRules, { skipWorkflowRules: opts.skipWorkflowRules });
+      catalog.workflowRules, { skipWorkflowRules: opts.skipWorkflowRules, warn: (m) => report.warnings.push(m) });
   } catch (e) {
     report.failurePhase = 'workflow_rules';
     report.aborted = `${e.code ?? 'WORKFLOW_RULE'}: ${e.message}`;

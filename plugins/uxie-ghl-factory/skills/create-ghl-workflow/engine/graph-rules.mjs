@@ -171,8 +171,18 @@ export function evaluateWorkflowRules(doc, rules) {
     }
   }
 
+  // ── ADVISORY (ui-disabled): combinations the UI cannot produce because the picker greys the
+  // action out while the trigger is present (TriggerMain.inCompatibleActions) — nothing refuses
+  // them on save, so these WARN rather than block. Vocab: catalog.workflowRules.disabledActionsByTrigger.
+  const A = [];
+  for (const [trigType, acts] of Object.entries(rules?.disabledActionsByTrigger ?? {})) {
+    if (!hasTrigger(trigType)) continue;
+    const bad = new Set(acts);
+    for (const t of T) if (bad.has(t.type)) A.push({ rule: 'inCompatibleActions', message: `'${t.name ?? t.id}' (${t.type}) is greyed out in the builder while a '${trigType}' trigger is present — the UI cannot produce this combination` });
+  }
+
   const notEvaluable = ['inboundWebhookTriggerValidator (builder module state)', 'validateIfElseCondition (workflow_ai-authored only)'];
-  return { findings: F, notEvaluable };
+  return { findings: F, advisories: A, notEvaluable };
 }
 
 /**
@@ -196,7 +206,8 @@ export function rulesNeedTriggers(templates, rules) {
  */
 export function checkWorkflowRules(doc, rules, opts = {}) {
   if (!rules || opts.skipWorkflowRules === true) return [];
-  const { findings } = evaluateWorkflowRules(doc, rules);
+  const { findings, advisories } = evaluateWorkflowRules(doc, rules);
+  for (const a of advisories ?? []) opts.warn?.(`WORKFLOW_RULE_SOFT: [${a.rule}] ${a.message}`);
   const skip = Array.isArray(opts.skipWorkflowRules) ? new Set(opts.skipWorkflowRules) : new Set();
   const live = findings.filter((f) => !skip.has(f.rule));
   if (!live.length) return [];

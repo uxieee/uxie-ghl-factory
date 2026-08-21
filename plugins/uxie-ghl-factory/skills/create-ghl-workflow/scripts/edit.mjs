@@ -177,7 +177,7 @@ const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, all
 // purely because of the trigger above it) — one GET, same oracle GHL's builder runs pre-save.
 { const trig = rulesNeedTriggers(templates, ctx.catalog?.workflowRules) || triggerOps.length ? await listTriggers() : [];
   checkWorkflowRules({ templates, triggers: trig, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === 'published' },
-    ctx.catalog?.workflowRules, { skipWorkflowRules: process.argv.includes('--skip-workflow-rules') }); }
+    ctx.catalog?.workflowRules, { skipWorkflowRules: process.argv.includes('--skip-workflow-rules'), warn: ctx.warn }); }
 const plan = triggerOps.length
   ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
   : [];
