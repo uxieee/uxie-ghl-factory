@@ -36204,7 +36204,7 @@ var SETTINGS_SPEC = Object.freeze({
   workflowNote: { ui: "Workflow note (Notes panel)", def: null, type: "note" },
   eventStartDate: { ui: "(deprecated) event start date", def: "", type: "string" },
   removeContactFromLastStep: { ui: "(no control; always true)", def: true, type: "boolean" },
-  scheduledPauseDates: { ui: "Scheduled pause dates", def: [], type: "array" },
+  scheduledPauseDates: { ui: "Pause workflow (DERIVED \u2014 see scheduled-pause/config)", def: [], type: "array" },
   statsView: { ui: "Stats view toggle (meta.statsView)", def: false, type: "boolean" }
 });
 var KNOWN_SETTINGS_KEYS = new Set(Object.keys(SETTINGS_SPEC));
@@ -36317,7 +36317,7 @@ function normalizeSettings(settings, ctx = {}) {
   if (!Array.isArray(scheduledPauseDates)) {
     refuse("SETTINGS_VALUE", `settings.scheduledPauseDates must be an array`);
     scheduledPauseDates = [];
-  } else if (scheduledPauseDates.length) warn(`settings.scheduledPauseDates: ${scheduledPauseDates.length} entr${scheduledPauseDates.length === 1 ? "y" : "ies"} passed through UNVERIFIED \u2014 the corpus has 0 non-empty examples, so the entry shape is not proven`);
+  } else if (scheduledPauseDates.length) warn(`settings.scheduledPauseDates is a DERIVED read-only view (live-proven 2026-08-22): the server computes it from the location's pause configs when the GET carries ?includeScheduledPauseInfo=true, and ignores it on writes. To actually pause, POST /workflow/{loc}/scheduled-pause/config {pauseStartTime, pauseEndTime (epoch ms, window \u2265 24h), isAnnual, workflowIds:[\u2026]} \u2014 these ${scheduledPauseDates.length} entr${scheduledPauseDates.length === 1 ? "y" : "ies"} will not create a pause`);
   const body = {
     allowMultiple: bool("allowMultiple"),
     allowMultipleOpportunity: bool("allowMultipleOpportunity"),
