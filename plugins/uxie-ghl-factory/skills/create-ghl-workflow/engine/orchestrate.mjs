@@ -75,7 +75,7 @@ export async function fetchEntities(gw) {
     .filter((value) => value && typeof value === 'object' && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -115,6 +115,9 @@ export async function fetchEntities(gw) {
     g(`/payments/coupon/list?${new URLSearchParams({ altId: String(loc), altType: 'location', limit: '100' })}`),
     g(`/phone-system/numbers?${locationQuery()}`),
     g(`/funnels/funnel/list?${locationQuery({ type: 'funnel', offset: '0', limit: '200' })}`),
+    // G7/G18: connected Facebook pages (facebook.pageId trigger filters) + document/estimate templates
+    g(`/integrations/facebook/${locationPath}/pages?getAll=true`),
+    g(`/proposals/templates?${locationQuery({ limit: '100' })}`),
   ]);
   // `employees` is the live key on the search route (`{employees, totalCount, count}`);
   // `agents` is kept ahead of it because the Voice leg still answers under that key, and a
@@ -143,6 +146,8 @@ export async function fetchEntities(gw) {
     coupons: recordsFrom(cpL?.data, cpL).map((x) => ({ id: x._id || x.id, name: x.name, code: x.code })),
     phoneNumbers: recordsFrom(phL?.phoneNumbers, phL).map((x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })),
     funnels: recordsFrom(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name })),
+    fbPages: recordsFrom(fbL?.pages, fbL).map((x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })),
+    documentTemplates: recordsFrom(dtL?.data, dtL).map((x) => ({ id: x._id || x.id, name: x.name })),
   };
 }
 
@@ -247,6 +252,7 @@ export async function orchestrate(ir, gw, opts = {}) {
     smsTemplates: entities.smsTemplates?.length ?? 0, emailTemplates: entities.emailTemplates?.length ?? 0,
     products: entities.products?.length ?? 0, coupons: entities.coupons?.length ?? 0,
     phoneNumbers: entities.phoneNumbers?.length ?? 0, funnels: entities.funnels?.length ?? 0,
+    fbPages: entities.fbPages?.length ?? 0, documentTemplates: entities.documentTemplates?.length ?? 0,
     users: entities.users.length, forms: entities.forms.length, agents: entities.agents.length };
 
   // 2. ABORT on missing account-level deps (don't build something broken)

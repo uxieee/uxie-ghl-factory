@@ -221,6 +221,7 @@ test('fetchEntities degrades malformed and failed endpoint payloads to empty arr
     pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
     workflows: [], customValues: [], triggerLinks: [], offers: [], membershipProducts: [],
     smsTemplates: [], emailTemplates: [], products: [], coupons: [], phoneNumbers: [], funnels: [],
+    fbPages: [], documentTemplates: [],
   });
 });
 
@@ -237,7 +238,7 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
 
   const queryValue = new URLSearchParams({ locationId }).toString();
   const pathValue = encodeURIComponent(locationId);
-  assert.equal(calls.length, 18);
+  assert.equal(calls.length, 20);
   // legs that carry the location in the PATH (must be encodeURIComponent'd there)
   const pathLegs = [
     new RegExp(`^/locations/${pathValue}/customFields/search\\?`),
@@ -246,6 +247,7 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
     new RegExp(`^/membership/locations/${pathValue}/offers$`),
     new RegExp(`^/membership/locations/${pathValue}/products\\?`),
     new RegExp(`^/locations/${pathValue}/templates\\?`),
+    new RegExp(`^/integrations/facebook/${pathValue}/pages\\?`),
   ];
   // the coupons leg carries the location as altId= (that endpoint's own contract)
   const altValue = new URLSearchParams({ altId: locationId }).toString();

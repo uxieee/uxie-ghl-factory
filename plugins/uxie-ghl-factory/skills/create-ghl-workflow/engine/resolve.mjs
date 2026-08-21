@@ -58,6 +58,8 @@ export function buildResolvers(raw = {}) {
     couponId: (q) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q)?.id,
     phoneNumber: (q) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q)?.number,
     funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id,
+    fbPageId: (q) => byName(raw.fbPages, [(x) => x.name])(q)?.id,
+    documentTemplateId: (q) => byName(raw.documentTemplates, [(x) => x.name])(q)?.id,
   };
 }
 
@@ -80,6 +82,8 @@ function resolveFilterValue(field, value, r) {
     if (field === 'workflow.id') return r.workflowId(v) ?? v;                      // customer_reply
     if (field === 'payment.global_product_ids') return r.productId(v) ?? v;        // payment_received
     if (field === 'twoStepOrderForm.funnelId') return r.funnelId(v) ?? v;          // two-step order form
+    if (field === 'video.funnelId') return r.funnelId(v) ?? v;                     // video_event
+    if (field === 'facebook.pageId') return r.fbPageId(v) ?? v;                    // facebook_lead_gen
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -170,6 +174,11 @@ export function resolveIR(ir, r) {
     if (['sms', 'manual-sms', 'whatsapp', 'messenger', 'instagram-dm', 'fb_interactive_messenger', 'ig_interactive_messenger'].includes(type) && a.template && !a.template_id) {
       a.template_id = need(r.smsTemplateId(a.template), `${type}.template`, a.template);
       if (a.template_id) delete a.template;
+    }
+    // proposals/estimates: document TEMPLATE name → templateId (G18)
+    if (type === 'proposals_estimates_send_document' && a.template && !a.templateId) {
+      a.templateId = need(r.documentTemplateId(a.template), 'proposals_estimates_send_document.template', a.template);
+      if (a.templateId) delete a.template;
     }
     // update_contact_field / create_update_contact: a fields[] entry whose `field` is a
     // human custom-field NAME (not a standard field, not already an id) → resolve to id.

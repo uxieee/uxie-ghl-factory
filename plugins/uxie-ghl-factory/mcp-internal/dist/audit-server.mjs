@@ -99942,7 +99942,9 @@ function buildResolvers(raw = {}) {
     productId: (q) => byName(raw.products, [(x) => x.name])(q)?.id,
     couponId: (q) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q)?.id,
     phoneNumber: (q) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q)?.number,
-    funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id
+    funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id,
+    fbPageId: (q) => byName(raw.fbPages, [(x) => x.name])(q)?.id,
+    documentTemplateId: (q) => byName(raw.documentTemplates, [(x) => x.name])(q)?.id
   };
 }
 var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
@@ -99961,6 +99963,8 @@ function resolveFilterValue(field, value, r) {
     if (field === "workflow.id") return r.workflowId(v) ?? v;
     if (field === "payment.global_product_ids") return r.productId(v) ?? v;
     if (field === "twoStepOrderForm.funnelId") return r.funnelId(v) ?? v;
+    if (field === "video.funnelId") return r.funnelId(v) ?? v;
+    if (field === "facebook.pageId") return r.fbPageId(v) ?? v;
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -100039,6 +100043,10 @@ function resolveIR(ir, r) {
     if (["sms", "manual-sms", "whatsapp", "messenger", "instagram-dm", "fb_interactive_messenger", "ig_interactive_messenger"].includes(type) && a.template && !a.template_id) {
       a.template_id = need(r.smsTemplateId(a.template), `${type}.template`, a.template);
       if (a.template_id) delete a.template;
+    }
+    if (type === "proposals_estimates_send_document" && a.template && !a.templateId) {
+      a.templateId = need(r.documentTemplateId(a.template), "proposals_estimates_send_document.template", a.template);
+      if (a.templateId) delete a.template;
     }
     if ((type === "update_contact_field" || type === "create_update_contact") && Array.isArray(a.fields)) {
       for (const f of a.fields) {
@@ -101123,7 +101131,7 @@ async function fetchEntities(gw) {
   const recordsFrom2 = (...values) => arrayFrom(...values).filter((value) => value && typeof value === "object" && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -101170,7 +101178,10 @@ async function fetchEntities(gw) {
     g(`/products/?${locationQuery({ limit: "100" })}`),
     g(`/payments/coupon/list?${new URLSearchParams({ altId: String(loc), altType: "location", limit: "100" })}`),
     g(`/phone-system/numbers?${locationQuery()}`),
-    g(`/funnels/funnel/list?${locationQuery({ type: "funnel", offset: "0", limit: "200" })}`)
+    g(`/funnels/funnel/list?${locationQuery({ type: "funnel", offset: "0", limit: "200" })}`),
+    // G7/G18: connected Facebook pages (facebook.pageId trigger filters) + document/estimate templates
+    g(`/integrations/facebook/${locationPath}/pages?getAll=true`),
+    g(`/proposals/templates?${locationQuery({ limit: "100" })}`)
   ]);
   const agents = [
     ...recordsFrom2(agS?.agents, agS?.data, agS),
@@ -101197,7 +101208,9 @@ async function fetchEntities(gw) {
     products: recordsFrom2(prL?.products, prL).map((x) => ({ id: x._id || x.id, name: x.name })),
     coupons: recordsFrom2(cpL?.data, cpL).map((x) => ({ id: x._id || x.id, name: x.name, code: x.code })),
     phoneNumbers: recordsFrom2(phL?.phoneNumbers, phL).map((x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })),
-    funnels: recordsFrom2(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name }))
+    funnels: recordsFrom2(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name })),
+    fbPages: recordsFrom2(fbL?.pages, fbL).map((x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })),
+    documentTemplates: recordsFrom2(dtL?.data, dtL).map((x) => ({ id: x._id || x.id, name: x.name }))
   };
 }
 async function fetchMarketplace(call, loc) {
@@ -101304,6 +101317,8 @@ async function orchestrate(ir, gw, opts = {}) {
     coupons: entities.coupons?.length ?? 0,
     phoneNumbers: entities.phoneNumbers?.length ?? 0,
     funnels: entities.funnels?.length ?? 0,
+    fbPages: entities.fbPages?.length ?? 0,
+    documentTemplates: entities.documentTemplates?.length ?? 0,
     users: entities.users.length,
     forms: entities.forms.length,
     agents: entities.agents.length
