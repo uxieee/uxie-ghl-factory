@@ -3,6 +3,7 @@
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
+import { checkGoghlSyntax } from './goghl.mjs';
 import { checkStepOutputRefs } from './step-outputs.mjs';
 import { normalizeSettings } from './settings.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
@@ -1627,6 +1628,9 @@ export function compile(ir, ctx) {
   // step-output references ({{custom_webhook.N.*}}, {{chatgpt.N.*}}, …): does the producer exist,
   // and is a referenced webhook actually saving its response? (step-outputs.mjs; advisory)
   checkStepOutputRefs(templates, ctx);
+  // GoGHL interactive-message syntax (#btn/#list) + spintax — a malformed line sends as
+  // literal text to the contact (goghl.mjs; advisory, hatch skipGoghlCheck)
+  checkGoghlSyntax(templates, ctx);
   // OBJECT-BASED workflows: the picker offers ONLY these actions (utils/workflows.ts
   // objectBasedInternalActionMap + objectBasedCrossEntityActionMap, recovered 2026-08-22) —
   // anything else is un-producible in the UI and unproven at runtime for object records.

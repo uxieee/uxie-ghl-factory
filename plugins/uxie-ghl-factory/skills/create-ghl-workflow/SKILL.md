@@ -695,6 +695,7 @@ The orchestrator prints exactly what it did. Check it:
 
 ## Resources
 
+- `references/goghl-whatsapp.md` — the GoGHL.ai WhatsApp app: its 10 actions/11 triggers, the `#btn`/`#list` interactive syntax (compile-linted), spintax rules, and the ban-protection discipline (drip timings, 5-phase warm-up, the mandatory failure/disconnect monitor workflow). Read it before ANY WhatsApp build on an account using GoGHL.
 - `references/drawer-parity.md` — what the UI's config DRAWERS write that models alone don't say: per-type stamps, normalizations and traps (assign_user's agreeing quad, webhook's unguarded url, custom_code's online-only output, the find_contact presence flip, attribute-discarding drawers…). Read it before hand-crafting attributes for a type the examples don't cover.
 
 - `scripts/build.mjs` — **the entry point.** IR → verified draft, deps handled.
