@@ -75,6 +75,16 @@ export function renderCard(e) {
     if (e.display_name && norm(e.display_name) !== norm(e.type)) lines.push(`  display: ${e.display_name}`);
     if (e.attrKeys?.length) lines.push(`  attrs: ${e.attrKeys.join(', ')}`);
     if (e.requiredFields?.length) lines.push(`  required: ${e.requiredFields.join(', ')}`);
+    // Declared surface from GHL's model interface (catalog `modelFields`). The enums line is
+    // the allowed-value list for every discriminator the interface declares — the closed set
+    // an author must pick from, which no example can show.
+    if (e.modelFields?.fields?.length) {
+      const mf = e.modelFields;
+      const req = mf.required?.length ? `; declared-required: ${mf.required.join(', ')}` : '';
+      lines.push(`  model: ${mf.interface} — ${mf.fields.length} declared fields${req}`);
+      const enums = mf.fields.filter((f) => f.members?.length).map((f) => `${f.name}=${f.members.join('|')}`);
+      if (enums.length) lines.push(`  enums: ${enums.join('  ')}`);
+    }
     if (flags.length) lines.push(`  flags: ${flags.join('; ')}`);
     if (e.example) lines.push(`  example: ${e.example}`);
     lines.push(`  IR: { ref, kind: ${IR_KIND[e.type] ?? 'action'}, type: ${e.type}, name, attributes: { … } }`);
@@ -126,7 +136,12 @@ export function renderMarkdown(d) {
     out.push('', `### ${sec}`);
     for (const s of list.sort((a, b) => a.type.localeCompare(b.type))) {
       const bits = [];
-      if (s.attrKeys?.length) bits.push(`attrs: \`${s.attrKeys.join('`, `')}\``);
+      if (s.attrKeys?.length) {
+        // The card carries the full list; the index stays scannable. `wait` has 57.
+        const shown = s.attrKeys.slice(0, 12);
+        const more = s.attrKeys.length - shown.length;
+        bits.push(`attrs: \`${shown.join('\`, \`')}\`${more > 0 ? ` +${more} more (see card)` : ''}`);
+      }
       if (s.isMultipathContainer) bits.push(`container → IR kind \`${IR_KIND[s.type] ?? s.type}\``);
       if (s.premium) bits.push('premium');
       out.push(`- ${TIER_MARK[s.confidence]} \`${s.type}\`${bits.length ? ' — ' + bits.join('; ') : ''}`);

@@ -13,10 +13,10 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 ## Native steps — by section (with authorable attribute keys)
 
 ### affiliate
-- ◐ `add_to_affiliate_campaign`
+- ◐ `add_to_affiliate_campaign` — attrs: `name`, `campaign_id`
 - ◐ `add_to_affiliate_manager`
-- ◐ `remove_from_affiliate_campaign`
-- ◐ `update_affiliate`
+- ◐ `remove_from_affiliate_campaign` — attrs: `name`, `campaign_id`
+- ◐ `update_affiliate` — attrs: `name`, `affiliate_state`
 
 ### appointments
 - ✅ `update_appointment_status` — attrs: `category`, `type`, `status_type`
@@ -24,32 +24,32 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 ### communication
 - ✅ `call` — attrs: `timeout`, `whisper_message`, `disable_detect_voicemail`, `call_connect`
 - ◐ `conversation_ai`
-- ✅ `email` — attrs: `html`, `from_name`, `from_email`, `subject`, `attachments`
+- ✅ `email` — attrs: `html`, `from_name`, `from_email`, `subject`, `attachments`, `preHeader`, `template_id`, `cc`, `bcc`, `templatesource`, `to`, `testEmails` +18 more (see card)
 - ◐ `fb_interactive_messenger`
 - ◐ `gmb`
 - ◐ `ig_interactive_messenger`
-- ◐ `instagram-dm`
-- ✅ `internal_notification` — attrs: `type`, `sms`
+- ◐ `instagram-dm` — attrs: `body`, `template_id`, `attachments`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
+- ✅ `internal_notification` — attrs: `type`, `sms`, `email`, `whatsapp`, `notification`, `userType`, `selectedUser`
 - ✅ `manual-call` — attrs: `assignedUser`, `standardAssignedUser`
 - ✅ `manual-sms` — attrs: `body`, `assignedUser`, `standardAssignedUser`, `attachments`
-- ◐ `messenger`
+- ◐ `messenger` — attrs: `body`, `template_id`, `attachments`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
 - ◐ `respond_on_comment`
-- ✅ `review_request` — attrs: `type`, `review_type`
-- ✅ `slack_message` — attrs: `action`, `integration`, `channel`, `text`, `type`; premium
-- ✅ `sms` — attrs: `body`, `attachments`
+- ✅ `review_request` — attrs: `type`, `review_type`, `overrideReviewLink`
+- ✅ `slack_message` — attrs: `action`, `integration`, `channel`, `text`, `type`, `userSource`; premium
+- ✅ `sms` — attrs: `body`, `attachments`, `template_id`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
 - ✅ `voice_ai_outbound_call` — attrs: `agentId`, `fromPhoneNumber`, `outboundGuidelines`, `type`, `__customInputs__`
-- ✅ `voicemail`
+- ✅ `voicemail` — attrs: `attachment`
 
 ### contact
-- ✅ `add_contact_tag` — attrs: `tags`
-- ✅ `add_notes` — attrs: `html`, `type`
+- ✅ `add_contact_tag` — attrs: `tags`, `removeAll`, `customTags`
+- ✅ `add_notes` — attrs: `html`, `type`, `title`, `color`
 - ✅ `assign_user` — attrs: `only_unassigned_contact`, `total_index`, `traffic_split`, `traffic_weightage`, `traffic_index`, `user_list`, `type`, `customUserList`
-- ✅ `copy_contact_to_subaccount` — attrs: `type`, `newLocations`, `withTags`, `withCustomFields`, `tags`, `updateIfExists`; premium
+- ✅ `copy_contact_to_subaccount` — attrs: `type`, `newLocations`, `withTags`, `withCustomFields`, `tags`, `updateIfExists`, `customTags`; premium
 - ✅ `create_update_contact` — attrs: `type`, `fields`
-- ✅ `dnd_contact` — attrs: `type`, `dnd_contact`
+- ✅ `dnd_contact` — attrs: `type`, `dnd_contact`, `specific_channels`, `dnd_direction`
 - ✅ `find_contact` — attrs: `type`, `fields`, `convertToMultipath`, `name`, `cat`, `isHybridAction`, `hybridActionType`, `transitions`; container → IR kind `find_contact (onFound/onNotFound)`
 - ✅ `remove_assigned_user` — attrs: `type`
-- ✅ `remove_contact_tag` — attrs: `tags`, `type`
+- ✅ `remove_contact_tag` — attrs: `tags`, `type`, `removeAll`, `customTags`
 - ✅ `update_contact_field` — attrs: `type`, `actionType`, `fields`
 
 ### conversation_ai
@@ -58,58 +58,57 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `conversationai_end` — attrs: `message`, `sleepEnabled`, `sleepDuration`, `sleepUnit`, `type`, `__customInputs__`
 - ⚑ `conversationai_services_booking` — attrs: `conversationai_services`, `conversationai_booking_description`, `type`, `__customInputs__`
 
-### custom_objects
+### customObjects
 - ◐ `clear_custom_object_fields`
 - ◐ `create_custom_object`
 - ◐ `update_custom_object`
 
 ### eliza
-- ◐ `add_appointment_booking_ai_bot`
+- ◐ `add_appointment_booking_ai_bot` — attrs: `calendar_id`, `timeout_time`, `send_first_message`, `no_confirmation_message`, `send_success_message`, `success_message`, `success_message_template_id`, `first_message`, `template_id`
 - ◐ `send_to_eliza`
 
 ### external_ai_models
 - ✅ `chatgpt` — attrs: `type`, `apiKey`, `event`, `model`, `temperature`, `promptText`, `actionType`, `actionParams`, `memoryKey`, `excludeFromHistory`, `excludeInstructionsFromHistory`, `instructions`; premium
-- ◐ `workflow_ai_generate_image` — premium
 
 ### internal
 - ✅ `add_to_workflow` — attrs: `input_trigger_params`, `type`, `workflow_id`
-- ◐ `array_functions`
+- ◐ `array_functions` — attrs: `name`, `action`, `referenceObject`, `referenceMappings`, `referencePath`, `format_as_text`, `selectedArray`
 - ✅ `custom_code` — attrs: `code`, `language`, `inputData`, `output`; premium
 - ✅ `datetime_formatter` — attrs: `type`, `action`, `format`; premium
 - ✅ `drip` — attrs: `batchSize`, `interval`, `type`
-- ✅ `event_start_date` — attrs: `type`, `event_start_type`, `value`
-- ✅ `goto` — attrs: `targetNodeId`, `type`
+- ✅ `event_start_date` — attrs: `type`, `event_start_type`, `value`, `recurring_type`, `recurring_time`
+- ✅ `goto` — attrs: `targetNodeId`, `type`, `loopIdentified`
 - ✅ `if_else` — attrs: `else`; container → IR kind `if_else`
 - ◐ `loop`
-- ✅ `math_operation` — attrs: `selectField`, `selectFieldtype`, `sourceCustomValueId`, `updateField`, `updateFieldType`, `targetCustomValueId`, `operators`
-- ◐ `number_formatter`
-- ✅ `remove_from_workflow` — attrs: `type`, `workflow_id`
+- ✅ `math_operation` — attrs: `selectField`, `selectFieldtype`, `sourceCustomValueId`, `updateField`, `updateFieldType`, `targetCustomValueId`, `operators`, `operator`, `value`
+- ◐ `number_formatter` — attrs: `action`
+- ✅ `remove_from_workflow` — attrs: `type`, `workflow_id`, `includeCurrent`, `allWorkflows`
 - ✅ `text_formatter` — attrs: `type`, `extras`, `formatterType`, `field`; premium
-- ◐ `update_custom_value`
-- ✅ `wait` — attrs: `type`, `startAfter`
+- ◐ `update_custom_value` — attrs: `name`, `custom_value_id`, `current_value`, `new_value`
+- ✅ `wait` — attrs: `type`, `startAfter`, `window`, `condition`, `appointmentStartAfter`, `appointmentCondition`, `appointmentSpecificStep`, `reply`, `replyLabel`, `emailEventSteps`, `emailEventStepsLabel`, `emailEventTypes` +45 more (see card)
 - ✅ `workflow_goal` — attrs: `op`, `segments`, `type`, `action`
-- ✅ `workflow_split` — attrs: `name`, `cat`, `transitions`, `type`, `paths`, `condition`, `extras`; container → IR kind `split`
+- ✅ `workflow_split` — attrs: `name`, `cat`, `transitions`, `type`, `paths`, `condition`, `extras`, `distributionType`; container → IR kind `split`
 
 ### ivr
 - ◐ `ivr_collect_voicemail`
-- ◐ `ivr_connect_call`
+- ◐ `ivr_connect_call` — attrs: `timeout`, `timeLimit`, `record`, `detectVoicemail`, `isSayPlayOn`, `sayPlayAttributes`, `userId`, `users`, `customNumbers`
 - ◐ `ivr_gather`
 - ◐ `ivr_hangup`
 - ◐ `ivr_say`
 
 ### marketing
 - ✅ `facebook_add_to_custom_audience` — attrs: `type`, `facebook_account_id`, `facebook_custom_audience_id`
-- ✅ `facebook_conversion_api` — attrs: `type`, `event_type`, `access_token`, `currency`, `connection_type`, `customMapping`, `isCustomMappingEnabled`, `pixel_id`, `stage_name`
+- ✅ `facebook_conversion_api` — attrs: `type`, `event_type`, `access_token`, `currency`, `connection_type`, `customMapping`, `isCustomMappingEnabled`, `pixel_id`, `stage_name`, `event_name`, `value`, `facebook_page` +2 more (see card)
 - ◐ `facebook_remove_from_custom_audience`
-- ◐ `google_adword`
-- ◐ `google_analytics`
+- ◐ `google_adword` — attrs: `conversion_type`, `conversion_name`, `conversion_action_id`, `isCustomMappingEnabled`, `customMapping`, `conversion_value`, `currency`
+- ◐ `google_analytics` — attrs: `action_type`, `event_action`, `event_category`, `event_label`, `event_value`, `ga4_event_value`, `tracking_id`, `measurement_id`, `event`, `api_secret`
 
 ### membership
 - ✅ `membership_grant_offer` — attrs: `type`, `offer_id`
-- ◐ `membership_revoke_offer`
+- ◐ `membership_revoke_offer` — attrs: `offer_id`
 
 ### opportunity
-- ✅ `create_opportunity` — attrs: `type`, `pipeline_id`, `opportunity_status`, `opportunity_name`, `opportunity_source`, `monetary_value`
+- ✅ `create_opportunity` — attrs: `type`, `pipeline_id`, `opportunity_status`, `opportunity_name`, `opportunity_source`, `monetary_value`, `pipeline_stage_id`, `lostReasonId`, `allow_backward`, `allow_multiple`, `fields`
 - ✅ `remove_opportunity` — attrs: `type`, `opportunity_to_be_found`, `pipeline_id`
 
 ### other
@@ -123,7 +122,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `conversationai_transfer_bot` — attrs: `assignedEmployeeId`, `type`, `__customInputs__`
 - ✅ `edit_conversation` — attrs: `read`, `type`, `__customInputs__`
 - ✅ `find_opportunity` — attrs: `sorting`, `type`, `__customInputFields__`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `find_opportunity (onFound/onNotFound)`
-- ✅ `find_or_create_contact` — attrs: `emailLabel`, `emailAddress`, `namePrefix`, `names`, `middleName`, `lastName`, `nameSuffix`, `organizationName`, `jobTitle`, `phoneLabel`, `phoneNumber`, `addressLabel`, `country`, `poBox`, `city`, `postalCode`, `region`, `streetAddress`, `type`, `__customInputs__`; premium
+- ✅ `find_or_create_contact` — attrs: `emailLabel`, `emailAddress`, `namePrefix`, `names`, `middleName`, `lastName`, `nameSuffix`, `organizationName`, `jobTitle`, `phoneLabel`, `phoneNumber`, `addressLabel` +8 more (see card); premium
 - ✅ `internal_create_opportunity` — attrs: `pipelineId`, `type`, `__customInputs__`, `__customInputFields__`
 - ✅ `internal_update_opportunity` — attrs: `allowBackward`, `type`, `__customInputFields__`, `__customInputs__`
 - ✅ `internal-add-contact-followers` — attrs: `users`, `type`, `__customInputs__`
@@ -138,16 +137,17 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `update_conversation_ai_status` — attrs: `assignedEmployeeId`, `status`, `type`, `__customInputs__`
 - ✅ `workflow_ai_decision_maker` — attrs: `instructions`, `information`, `type`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `ai_decision`
 
-### payments
-- ◐ `stripe_one_time_charge`
+### payment
+- ◐ `stripe_one_time_charge` — attrs: `amount`, `currency`, `description`, `stripe_customer_id`
 
 ### send_data
-- ✅ `custom_webhook` — attrs: `event`, `method`, `url`, `body`, `headers`, `parameters`, `authorization`, `saveResponse`, `webhookResponse`; premium
-- ✅ `google_sheets` — attrs: `type`, `action`, `account`, `drive`, `spreadsheet`, `sheet`, `columnRange`, `values`, `sheetHeaders`, `options`; premium
+- ✅ `custom_webhook` — attrs: `event`, `method`, `url`, `body`, `headers`, `parameters`, `authorization`, `saveResponse`, `webhookResponse`, `runSingleAction`; premium
+- ✅ `google_sheets` — attrs: `type`, `action`, `account`, `drive`, `spreadsheet`, `sheet`, `columnRange`, `values`, `sheetHeaders`, `options`, `targetRow`, `rowCount`; premium
 - ✅ `webhook` — attrs: `method`, `url`, `customData`, `headers`
 
 ### workflow_ai
 - ✅ `ai_agent` — attrs: `prompt`, `structuredResponse`, `model`, `tools`, `outputFormat`, `outputDescription`, `memoryEnabled`; premium
+- ◐ `workflow_ai_generate_image` — attrs: `model`, `prompt`, `additionalSettings`; premium
 
 ## Containers / control flow (IR node kinds)
 
@@ -392,6 +392,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 ### events
 - ✅ `call_status` (highlevel) — filters: Call Status (`call_status`), Custom Disposition (`custom_disposition`), Call Direction (`message.direction`), In Workflow (`workflow.id`)
 - ◐ `conv_ai_autonomous_trigger` (highlevel)
+- ✅ `conv_ai_trigger` (highlevel)
 - ✅ `customer_reply` (highlevel) — filters: Replied to Workflow (`workflow.id`), Reply channel (`message.type`), Contains phrase (`message.body`), Exact match phrase (`message.body`), Intent type (`message.body`), Has Tag (`contact.tags`), Doesn (`contact.tags`)
 - ▫ `external_tracking` (internal)
 - ✅ `facebook_lead_gen` (highlevel) — filters: Page Is (`facebook.pageId`)
@@ -433,7 +434,6 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### other
 - ✅ `affiliate_new_lead` (internal) — filters: In campaign (`campaign.id`), Has Tag (`contact.tags`), Doesn (`contact.tags`)
-- ✅ `conv_ai_trigger` (highlevel)
 - ✅ `proposal_estimate_update` (internal) — filters: Status (`status`), Value (`value`), Recipient type (`recipientType`), Template (`documentCreatedByTemplateId`), [Deprecated]Document Type (`document_type`)
 
 ### payments
