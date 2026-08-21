@@ -1982,6 +1982,9 @@ export const TOOLS = [
       lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
       const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
         assumeAssociated: args.assumeAssociated === true,
+        // Closes the modifyStep enforcement bypass: field rules run over the steps THIS edit
+        // touched, at the same commit point as the parentKey and step-reference checks.
+        catalog: ctx.catalog, warn: ctx.warn,
       });
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
