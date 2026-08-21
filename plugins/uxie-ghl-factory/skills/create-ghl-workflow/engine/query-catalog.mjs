@@ -102,6 +102,19 @@ export function renderCard(e) {
       const warns = [...new Set(Object.values(v).flatMap((s) => s.warning ?? []))];
       if (warns.length) lines.push(`  soft (GHL warning-level, ${warns.length}): ${warns.slice(0, 12).join(', ')}${warns.length > 12 ? ' …' : ''}`);
     }
+    // Availability gate (catalog `gate`). Listed in the registry ≠ usable on this location. Say
+    // it before the IR line so an agent does not promise an action the client cannot see.
+    if (e.gate) {
+      const g = e.gate;
+      const scope = g.kind === 'registry'
+        ? [g.onlyStaging && 'staging only', g.locationIds?.length && `${g.locationIds.length} allowlisted location(s)`, g.companyIds?.length && `${g.companyIds.length} allowlisted company(ies)`].filter(Boolean).join(', ')
+        : g.note;
+      lines.push(`  ⛔ gate (${g.kind}): ${scope}${g.source ? ` — ${g.source}` : ''}`);
+      if (g.unsupportedInside) {
+        const u = g.unsupportedInside;
+        lines.push(`  inside a ${e.type} body, NOT allowed: actions ${u.actions.join(', ')}; wait types ${u.waitTypes.join(', ')}`);
+      }
+    }
     if (flags.length) lines.push(`  flags: ${flags.join('; ')}`);
     if (e.example) lines.push(`  example: ${e.example}`);
     lines.push(`  IR: { ref, kind: ${IR_KIND[e.type] ?? 'action'}, type: ${e.type}, name, attributes: { … } }`);
