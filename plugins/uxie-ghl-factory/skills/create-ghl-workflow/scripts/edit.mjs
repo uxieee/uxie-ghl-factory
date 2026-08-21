@@ -68,6 +68,10 @@
 //   (SETTINGS_KEY / SETTINGS_VALUE — see engine/settings.mjs; --skip-settings-check demotes to
 //   warnings). `window: null` switches "Specific time" off. A settings-only edit still PUTs.
 //
+// STICKY-NOTE ops (a SEPARATE resource: POST/PATCH /workflows/sticky-note — see engine/sticky-notes.mjs):
+//   { "op":"addStickyNote",    "note": { "content":"…(HTML or text)", "color":"yellow", "x":320, "y":180, "width":400, "height":400 } }
+//   { "op":"updateStickyNote", "noteId":"<_id from export_workflow>", "note": { "color":"green" } }   # partial
+//
 // TRIGGER ops (triggers live in a SEPARATE document with their own CRUD endpoints — they
 // are applied after the step commit, not through workflowData.templates):
 //   { "op":"addTrigger",    "trigger": {type,name,filters:[...]} }
@@ -86,6 +90,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { editCommitBody, shouldActivateTriggers, triggerActivationBody } from '../engine/edit.mjs';
 import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
+import { planStickyNoteOp } from '../engine/sticky-notes.mjs';
 import { buildMarketplaceIndex } from '../engine/marketplace.mjs';
 import { fetchMarketplace } from '../engine/orchestrate.mjs';
 import { loadCatalog } from '../engine/catalog.mjs';
@@ -174,8 +179,9 @@ const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuid
 const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
 
-const { stepOps, triggerOps, settingsOps } = partitionOps(ops);
-const settingsPatch = mergeSettingsOps(settingsOps);   // Settings-tab keys (updateSettings ops), merged over the stored doc at commit
+const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(ops);
+const settingsPatch = mergeSettingsOps(settingsOps);
+const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: LOC, wid: WID, skipStickyCheck: process.argv.includes('--skip-sticky-check') }));   // separate resource: POST/PATCH /workflows/sticky-note   // Settings-tab keys (updateSettings ops), merged over the stored doc at commit
 const listTriggers = async () => {
   const tr = (await call('GET', `/workflow/${LOC}/trigger?workflowId=${WID}`)).json;
   return Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || []);
@@ -213,6 +219,7 @@ if (dryRun) {
   }
   if (settingsPatch) console.log('settings:', JSON.stringify(Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === 'statsView' ? body.meta?.statsView : body[k]]))));
   for (const r of plan) console.log(`trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
+  for (const r of stickyPlan) console.log(`sticky note: ${r.op} ${r.method} ${r.path}`, JSON.stringify(r.body).slice(0, 200));
   if (plan.length) console.log('activation:', fresh.status === 'published'
     ? 'draft→published cycle WILL run (workflow is published)'
     : `SKIPPED — workflow is '${fresh.status}'; triggers activate when you publish`);
@@ -240,6 +247,12 @@ if (stepOps.length || settingsPatch) {
     console.log(sv ? `SERVER VALIDATION (${sv.validationType}): ${describeServerFindings(sv)}` : 'body: ' + JSON.stringify(put.json).slice(0, 240));
     flushWarnings(); process.exit(2);
   }
+}
+
+// sticky notes — a separate resource; one request each, recorded never dropped
+for (const r of stickyPlan) {
+  const res = await call(r.method, r.path, r.body);
+  console.log(`${r.op}: ${r.method} ${r.path.split('?')[0]} → ${res.status} ${res.ok ? 'OK' : 'FAIL'}`, res.ok ? `_id=${res.json?._id ?? '?'}` : JSON.stringify(res.json ?? '').slice(0, 200));
 }
 
 let triggerFailed = false;

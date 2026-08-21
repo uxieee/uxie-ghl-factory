@@ -18,6 +18,7 @@
 // The caller supplies a `gw` gateway: { call(method,path,body[,base]), loc, uid }.
 // `call` returns { status, ok, json }. Kept transport-agnostic so it's testable.
 import { compile } from './compiler.mjs';
+import { planStickyNotes } from './sticky-notes.mjs';
 import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
@@ -164,7 +165,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // only compares SENT vs GOT — both were 8. `authored` is the only number tied to what the
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
-    authored: 0, compiled: 0, steps: 0, warnings: [],
+    authored: 0, compiled: 0, steps: 0, warnings: [], stickyNotes: { planned: 0, posted: 0, failed: [] },
     triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false,
     aborted: null, failurePhase: null, failureHttp: null };
   const callAt = async (failurePhase, method, path, body) => {
@@ -310,6 +311,12 @@ export async function orchestrate(ir, gw, opts = {}) {
     return report;
   }
 
+  // STICKY NOTES (sticky-notes.mjs): a separate resource the builder creates the moment a note
+  // is placed — validated BEFORE any write so a bad note aborts like a bad step would.
+  let notePlans = [];
+  try { notePlans = planStickyNotes(ir.stickyNotes, { loc, wid: ph, skipStickyCheck: opts.skipStickyCheck }); report.stickyNotes.planned = notePlans.length; }
+  catch (e) { report.failurePhase = 'compile'; report.aborted = `sticky notes rejected (${e.code ?? 'STICKY_NOTE'}): ${e.message}`; return report; }
+
   const c = await callAt('workflow_create', 'POST', `/workflow/${loc}`, built.createBody);
   if (!c) return report;
   const WID = c.json?.id || c.json?._id;
@@ -335,6 +342,15 @@ export async function orchestrate(ir, gw, opts = {}) {
     if (r?.ok) report.triggers.posted++;
     else report.triggers.failed.push({ type: tb.type, name: tb.name, status: r?.status,
       error: JSON.stringify(r?.json ?? '').slice(0, 160) });
+  }
+
+  // sticky notes — one POST each (live: POST /workflows/sticky-note?locationId= → 201), after the
+  // document exists; a failure is RECORDED, never silently dropped, and never aborts the build
+  for (const np of notePlans) {
+    const r = await callAt('sticky_note_create', np.method, np.path, swap(np.body));
+    if (!r) return report;
+    if (r.ok) report.stickyNotes.posted++;
+    else report.stickyNotes.failed.push({ ref: np.ref, status: r.status, error: JSON.stringify(r.json ?? '').slice(0, 160) });
   }
 
   // 5. round-trip verify

@@ -27,6 +27,7 @@ import {
   partitionOps,
   planTriggerOps,
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
+import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky-notes.mjs';
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
@@ -1885,6 +1886,9 @@ export const TOOLS = [
       { method: 'POST', path: '/workflow/{loc}/trigger' },
       { method: 'PUT', path: '/workflow/{loc}/trigger/{tid}' },
       { method: 'DELETE', path: '/workflow/{loc}/trigger/{tid}' },
+      // Sticky notes (addStickyNote / updateStickyNote ops) — a separate resource, not the document.
+      { method: 'POST', path: '/workflows/sticky-note' },
+      { method: 'PATCH', path: '/workflows/sticky-note' },
     ],
     handler: async (args, deps) => guard(async () => {
       if (!Array.isArray(args.ops) || args.ops.length === 0) {
@@ -1971,9 +1975,12 @@ export const TOOLS = [
         ...(customFields !== undefined ? { customFields } : {}),
         warn: (message) => warnings.push(message),
       };
-      const { stepOps, triggerOps, settingsOps } = partitionOps(args.ops);
+      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(args.ops);
       // Settings-tab keys (updateSettings ops) — merged over the stored document at commit.
       const settingsPatch = mergeSettingsOps(settingsOps);
+      // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad
+      // note fails the preview, written after the step commit and trigger writes.
+      const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       // triggers are needed for trigger ops AND for the trigger-aware workflow-level rules (an
       // action can be illegal purely because of the trigger above it) — but only when the
@@ -2025,6 +2032,7 @@ export const TOOLS = [
         preview.settings = Object.fromEntries(Object.keys(settingsPatch)
           .map((k) => [k, k === 'statsView' ? (commitBody.meta?.statsView ?? false) : commitBody[k]]));
       }
+      if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
 
       if (args.confirm !== true) {
         return withFailureData(
@@ -2042,6 +2050,7 @@ export const TOOLS = [
         tags: { planned: tagsToCreate.length, created: [] },
         stepCommitted: false,
         triggerWrites: { planned: triggerPlan.length, applied: 0 },
+        stickyNotes: { planned: stickyPlan.length, applied: 0, ids: [] },
         verification: {
           attempted: false,
           completed: false,
@@ -2178,6 +2187,23 @@ export const TOOLS = [
         }
       }
 
+      for (const request of stickyPlan) {
+        const noteCall = await attemptWrite(
+          'sticky_note_write',
+          () => gw.call(request.method, request.path, request.body),
+        );
+        if (noteCall.threw || !noteCall.value.ok) {
+          return partialFailure(
+            noteCall.threw ? noteCall.failure : fromHttp(noteCall.value.status, noteCall.value.json),
+            'sticky_note_write',
+            'Step/trigger writes are already committed; only the sticky-note write failed. Re-run the remaining sticky-note ops alone.',
+          );
+        }
+        partialProgress.stickyNotes.applied++;
+        const id = noteCall.value.json?._id ?? noteCall.value.json?.id ?? null;
+        if (id) partialProgress.stickyNotes.ids.push(id);
+      }
+
       partialProgress.verification.attempted = true;
       const roundTripCall = await safeGatewayCall(
         () => getWorkflow(gw, args.locationId, args.workflowId),
@@ -2206,6 +2232,8 @@ export const TOOLS = [
         diff,
         createdTags: partialProgress.tags.created,
         triggerChangesApplied: partialProgress.triggerWrites.applied,
+        stickyNotesApplied: partialProgress.stickyNotes.applied,
+        stickyNoteIds: partialProgress.stickyNotes.ids,
         requiresPublish: triggerPlan.length > 0,
         publishInstruction: triggerPlan.length
           ? 'Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.'

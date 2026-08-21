@@ -254,6 +254,26 @@ settings:
   carrying these keys; `window` and `meta.statsView` round-trip exactly.
 - Hatch: `skipSettingsCheck: true` in the build ctx turns the refusals into warnings.
 
+### Sticky notes (the canvas note layer) — `stickyNotes:` at the top level of the IR
+
+Sticky notes are a **separate resource** from the workflow document (the builder creates one the
+moment it is placed); the engine creates them right after the workflow exists and reports
+`sticky notes: N/N placed`.
+
+```yaml
+stickyNotes:
+  - { content: "Why this workflow exists and who owns it", color: yellow, x: 320, y: 180 }
+  - { content: "<p><b>Review</b> the SMS copy monthly</p>", color: blue, width: 400, height: 400 }
+```
+
+- `content` is HTML in the builder (bold/italic/lists/links/images); plain text is wrapped in `<p>`.
+  Cap 5,000 chars. `color` is one of the 10 swatches `yellow, blue, green, orange, cyan, gray, teal,
+  purple, fuchsia, rose`. Defaults 400×400 at the UI's first placement; minimum 150×80.
+- Edit ops: `{ "op":"addStickyNote", "note":{…} }` and `{ "op":"updateStickyNote", "noteId":"<_id>",
+  "note":{ color: green } }` (partial). Read them back with `export_workflow` (`stickyNotes[]`).
+- Live-proven 2026-08-22: `POST /workflows/sticky-note?locationId=` (201) and
+  `PATCH /workflows/sticky-note?_id=&locationId=` (200). Hatch: `skipStickyCheck`.
+
 ### The engine fails LOUD rather than silently dropping intent
 
 A build that reports success while doing nothing at runtime is the worst failure this tool
