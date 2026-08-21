@@ -37867,6 +37867,14 @@ function buildTrigger(t, ctx, wid) {
   const meta3 = ctx.catalog.trigger(t.type);
   const rows = meta3?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
+  if (ctx?.skipTriggerSeeds !== true) {
+    const seedRows = (ctx?.catalog?.trigger?.(t.type)?.seededFilters?.rows ?? []).filter((r) => r.verdict === "seed-confirmed" && r.seedRow?.field);
+    for (const r of seedRows.reverse()) {
+      if (conditions.some((c) => c?.field === r.seedRow.field)) continue;
+      const { field, operator, type, title, value } = r.seedRow;
+      conditions.unshift({ operator, field, ...value !== null && value !== void 0 ? { value } : {}, ...title ? { title } : {}, ...type ? { type } : {} });
+    }
+  }
   let marketplaceFields = {};
   if (t.marketplace === true) {
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
@@ -38066,6 +38074,7 @@ var catalog_data_default = {
     "sniffs/bundle/ifelse-conditions.json",
     "sniffs/bundle/ifelse-conditions-replay.json",
     "sniffs/bundle/trigger-seeds.json",
+    "sniffs/bundle/trigger-seeds-replay.json",
     "sniffs/bundle/trigger-incompatible-actions.json",
     "sniffs/bundle/merge-tags.json",
     "sniffs/bundle/i18n-en.json",
@@ -84012,7 +84021,11 @@ Rules to Follow:
               "outbound"
             ],
             position: "first",
-            onlyWhenAbsent: true
+            onlyWhenAbsent: true,
+            verdict: "insufficient-corpus",
+            presentPct: null,
+            firstPct: null,
+            seedRow: null
           }
         ],
         source: "models/Triggers/Filters/DNDFilter.ts addMandatoryFilters"
@@ -85073,7 +85086,18 @@ Rules to Follow:
             operator: "==",
             type: "select",
             position: "first",
-            onlyWhenAbsent: true
+            onlyWhenAbsent: true,
+            verdict: "seed-confirmed",
+            presentPct: 95,
+            firstPct: 95,
+            seedRow: {
+              field: "appointment.eventType",
+              operator: "==",
+              type: "select",
+              title: "Event Type",
+              value: "normal",
+              valueDominance: 95
+            }
           }
         ],
         source: "models/Triggers/Filters/AppointmentFilter.ts addMandatoryFilters"
@@ -86650,7 +86674,11 @@ Rules to Follow:
             operator: "contains-any",
             type: "MULTI_SELECT",
             position: "first",
-            onlyWhenAbsent: true
+            onlyWhenAbsent: true,
+            verdict: "insufficient-corpus",
+            presentPct: null,
+            firstPct: null,
+            seedRow: null
           }
         ],
         source: "models/Triggers/Filters/IVRIncomingCallFilter.ts addMandatoryFilters"
@@ -86688,7 +86716,11 @@ Rules to Follow:
             operator: "==",
             type: "select",
             position: "appended",
-            fromDispatchArg: true
+            fromDispatchArg: true,
+            verdict: "insufficient-corpus",
+            presentPct: null,
+            firstPct: null,
+            seedRow: null
           }
         ],
         source: "models/Triggers/Filters/UserCommentsOnPostFilter.ts addMandatoryFilters"
@@ -86727,7 +86759,11 @@ Rules to Follow:
             operator: "==",
             type: "select",
             position: "appended",
-            fromDispatchArg: true
+            fromDispatchArg: true,
+            verdict: "insufficient-corpus",
+            presentPct: null,
+            firstPct: null,
+            seedRow: null
           }
         ],
         source: "models/Triggers/Filters/UserCommentsOnPostFilter.ts addMandatoryFilters"

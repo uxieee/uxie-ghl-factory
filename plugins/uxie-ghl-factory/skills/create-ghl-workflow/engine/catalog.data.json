@@ -16,6 +16,7 @@
   "sniffs/bundle/ifelse-conditions.json",
   "sniffs/bundle/ifelse-conditions-replay.json",
   "sniffs/bundle/trigger-seeds.json",
+  "sniffs/bundle/trigger-seeds-replay.json",
   "sniffs/bundle/trigger-incompatible-actions.json",
   "sniffs/bundle/merge-tags.json",
   "sniffs/bundle/i18n-en.json",
@@ -45947,7 +45948,11 @@
        "outbound"
       ],
       "position": "first",
-      "onlyWhenAbsent": true
+      "onlyWhenAbsent": true,
+      "verdict": "insufficient-corpus",
+      "presentPct": null,
+      "firstPct": null,
+      "seedRow": null
      }
     ],
     "source": "models/Triggers/Filters/DNDFilter.ts addMandatoryFilters"
@@ -47008,7 +47013,18 @@
       "operator": "==",
       "type": "select",
       "position": "first",
-      "onlyWhenAbsent": true
+      "onlyWhenAbsent": true,
+      "verdict": "seed-confirmed",
+      "presentPct": 95,
+      "firstPct": 95,
+      "seedRow": {
+       "field": "appointment.eventType",
+       "operator": "==",
+       "type": "select",
+       "title": "Event Type",
+       "value": "normal",
+       "valueDominance": 95
+      }
      }
     ],
     "source": "models/Triggers/Filters/AppointmentFilter.ts addMandatoryFilters"
@@ -48585,7 +48601,11 @@
       "operator": "contains-any",
       "type": "MULTI_SELECT",
       "position": "first",
-      "onlyWhenAbsent": true
+      "onlyWhenAbsent": true,
+      "verdict": "insufficient-corpus",
+      "presentPct": null,
+      "firstPct": null,
+      "seedRow": null
      }
     ],
     "source": "models/Triggers/Filters/IVRIncomingCallFilter.ts addMandatoryFilters"
@@ -48623,7 +48643,11 @@
       "operator": "==",
       "type": "select",
       "position": "appended",
-      "fromDispatchArg": true
+      "fromDispatchArg": true,
+      "verdict": "insufficient-corpus",
+      "presentPct": null,
+      "firstPct": null,
+      "seedRow": null
      }
     ],
     "source": "models/Triggers/Filters/UserCommentsOnPostFilter.ts addMandatoryFilters"
@@ -48662,7 +48686,11 @@
       "operator": "==",
       "type": "select",
       "position": "appended",
-      "fromDispatchArg": true
+      "fromDispatchArg": true,
+      "verdict": "insufficient-corpus",
+      "presentPct": null,
+      "firstPct": null,
+      "seedRow": null
      }
     ],
     "source": "models/Triggers/Filters/UserCommentsOnPostFilter.ts addMandatoryFilters"
