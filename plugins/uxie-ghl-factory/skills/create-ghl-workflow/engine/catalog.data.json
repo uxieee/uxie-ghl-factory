@@ -7420,9 +7420,9 @@
    "requiredFields": [],
    "attrKeys": [],
    "gate": {
-    "kind": "locationAllowlist",
+    "kind": "pickerAllowlist",
     "source": "utils/loop.helper.ts → isLoopActionEnabled()",
-    "note": "renders only for GHL-internal/staging accounts or the 36 locationIds on LOOP_ACTION_WHITELIST_LOCATION_IDS (grew by one id between the two 2026-08-21 captures; GROM AU is NOT on it). LOOP_PAUSE_ACTION_ENABLED is false.",
+    "note": "the PICKER offers Loop only to GHL-internal/staging accounts or the 36 locationIds on LOOP_ACTION_WHITELIST_LOCATION_IDS (GROM AU is NOT on it). The gate is client-side ONLY — live-probed 2026-08-21 on GROM AU (wf 3e65924f): the server stored a bare loop node verbatim AND the builder rendered it as a full container (body slot, loop-end edge, no error panel). So the engine can build a loop on any location; an agent should say the client cannot ADD more loops in the UI. RUNTIME execution on a non-allowlisted location is NOT proven (drafts only). LOOP_PAUSE_ACTION_ENABLED is false.",
     "unsupportedInside": {
      "actions": [
       "loop",
