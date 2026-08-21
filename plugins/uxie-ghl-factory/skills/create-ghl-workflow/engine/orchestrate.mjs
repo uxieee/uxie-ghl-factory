@@ -193,7 +193,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // only compares SENT vs GOT — both were 8. `authored` is the only number tied to what the
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
-    authored: 0, compiled: 0, steps: 0, warnings: [], stickyNotes: { planned: 0, posted: 0, failed: [] },
+    authored: 0, compiled: 0, steps: 0, warnings: [], stickyNotes: { planned: 0, posted: 0, failed: [] }, readiness: [],
     triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false,
     aborted: null, failurePhase: null, failureHttp: null };
   const callAt = async (failurePhase, method, path, body) => {
@@ -335,6 +335,17 @@ export async function orchestrate(ir, gw, opts = {}) {
     companyId: built.autoSaveBody?.companyId,
   });
   report.assetPreflight = assetCheck;
+  // ACCOUNT-READINESS (G15, advisory): will the channels/types this workflow uses actually
+  // FUNCTION on this location? Read-only signals, never blocks; unverifiable planes say so.
+  try {
+    const rPlan = planReadinessChecks({
+      templates: built.autoSaveBody?.workflowData?.templates ?? [],
+      triggerTypes: (built.triggerBodies ?? []).map((t) => t.type),
+      settings: ir.settings ?? {}, catalog,
+    });
+    report.readiness = rPlan.length ? await runReadinessChecks(rPlan, gw) : [];
+    for (const c of report.readiness) if (c.ok === false) report.warnings.push(`readiness: ${c.detail} (needed by ${c.why.join('; ')})`);
+  } catch (e) { report.readiness = [{ key: 'readiness', checked: false, ok: null, detail: `pre-flight failed to run: ${e.message}`, why: [] }]; }
   for (const w of assetCheck.warnings ?? []) report.warnings.push(`asset: ${describeFinding(w)}`);
   if (assetCheck.errors?.length && opts.ignoreAssetErrors !== true) {
     report.failurePhase = 'validate_assets';

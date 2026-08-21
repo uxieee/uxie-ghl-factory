@@ -101183,6 +101183,7 @@ async function orchestrate(ir, gw, opts = {}) {
     steps: 0,
     warnings: [],
     stickyNotes: { planned: 0, posted: 0, failed: [] },
+    readiness: [],
     triggers: { posted: 0, failed: [] },
     verify: { pass: 0, issues: [] },
     published: false,
@@ -101320,6 +101321,18 @@ async function orchestrate(ir, gw, opts = {}) {
     companyId: built.autoSaveBody?.companyId
   });
   report.assetPreflight = assetCheck;
+  try {
+    const rPlan = planReadinessChecks({
+      templates: built.autoSaveBody?.workflowData?.templates ?? [],
+      triggerTypes: (built.triggerBodies ?? []).map((t) => t.type),
+      settings: ir.settings ?? {},
+      catalog
+    });
+    report.readiness = rPlan.length ? await runReadinessChecks(rPlan, gw) : [];
+    for (const c2 of report.readiness) if (c2.ok === false) report.warnings.push(`readiness: ${c2.detail} (needed by ${c2.why.join("; ")})`);
+  } catch (e) {
+    report.readiness = [{ key: "readiness", checked: false, ok: null, detail: `pre-flight failed to run: ${e.message}`, why: [] }];
+  }
   for (const w of assetCheck.warnings ?? []) report.warnings.push(`asset: ${describeFinding(w)}`);
   if (assetCheck.errors?.length && opts.ignoreAssetErrors !== true) {
     report.failurePhase = "validate_assets";
