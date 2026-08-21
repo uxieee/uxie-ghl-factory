@@ -1554,6 +1554,7 @@ export function compile(ir, ctx) {
   const S = normalizeSettings(norm.settings, ctx).body;
   const createBody = {
     name: norm.name, status: 'draft', parentId: null, updatedBy: ctx.uid,
+    ...(norm.customObjectType ? { customObjectType: norm.customObjectType } : {}),
     modifiedSteps: [], deletedSteps: [], createdSteps: [], senderAddress: S.senderAddress,
     stopOnResponse: S.stopOnResponse, allowMultiple: S.allowMultiple, allowMultipleOpportunity: S.allowMultipleOpportunity,
     autoMarkAsRead: S.autoMarkAsRead, eventStartDate: S.eventStartDate, timezone: '',
@@ -1567,6 +1568,9 @@ export function compile(ir, ctx) {
     // A FLOW_BUILDER_BOT's flow workflow persists with workflowType:"agent" (live capture
     // recon-flow-workflow-full.json). Plain workflows omit it. type stays "workflow".
     ...(norm.workflowType ? { workflowType: norm.workflowType } : {}),
+    // OBJECT-BASED workflow (G8): the create/save carry the schema key top-level
+    // (utils/create-workflow-blank.ts; isObjectBasedWF tests startsWith('custom_objects.')).
+    ...(norm.customObjectType ? { customObjectType: norm.customObjectType } : {}),
     permission: 380, permissionMeta: { canRead: true, canWrite: true },
     creationSource: 'builder', originType: 'user', isTriggerBucketMigrated: true, deleted: false,
     timezone: S.timezone,
@@ -1623,6 +1627,23 @@ export function compile(ir, ctx) {
   // step-output references ({{custom_webhook.N.*}}, {{chatgpt.N.*}}, …): does the producer exist,
   // and is a referenced webhook actually saving its response? (step-outputs.mjs; advisory)
   checkStepOutputRefs(templates, ctx);
+  // OBJECT-BASED workflows: the picker offers ONLY these actions (utils/workflows.ts
+  // objectBasedInternalActionMap + objectBasedCrossEntityActionMap, recovered 2026-08-22) —
+  // anything else is un-producible in the UI and unproven at runtime for object records.
+  if (norm.customObjectType && ctx?.skipObjectRules !== true) {
+    const OBJECT_ALLOWED = new Set(['if_else', 'email', 'wait', 'update_custom_value', 'goto',
+      'datetime_formatter', 'number_formatter', 'text_formatter', 'math_operation', 'custom_code',
+      'add_to_workflow', 'remove_from_workflow', 'remove_from_all_workflows', 'array_functions',
+      'drip', 'add_notes', 'transition']);
+    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
+    if (bad.length)
+      throw new IRError('OBJECT_STEP',
+        `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm.customObjectType}): `
+        + bad.map((t) => `'${t.name ?? t.id}' (${t.type})`).join(', ')
+        + `. The builder's picker offers only: ${[...OBJECT_ALLOWED].filter((x) => x !== 'transition').join(', ')}. `
+        + `Remove them, target a contact workflow instead, or pass skipObjectRules: true.`);
+    for (const tb of []) void tb;
+  }
   enforceTemplates(templates, ctx?.catalog, ctx);
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path

@@ -221,7 +221,7 @@ test('fetchEntities degrades malformed and failed endpoint payloads to empty arr
     pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
     workflows: [], customValues: [], triggerLinks: [], offers: [], membershipProducts: [],
     smsTemplates: [], emailTemplates: [], products: [], coupons: [], phoneNumbers: [], funnels: [],
-    fbPages: [], documentTemplates: [],
+    fbPages: [], documentTemplates: [], objects: [],
   });
 });
 
@@ -238,7 +238,7 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
 
   const queryValue = new URLSearchParams({ locationId }).toString();
   const pathValue = encodeURIComponent(locationId);
-  assert.equal(calls.length, 20);
+  assert.equal(calls.length, 21);
   // legs that carry the location in the PATH (must be encodeURIComponent'd there)
   const pathLegs = [
     new RegExp(`^/locations/${pathValue}/customFields/search\\?`),

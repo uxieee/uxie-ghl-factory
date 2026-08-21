@@ -60,6 +60,11 @@ export function buildResolvers(raw = {}) {
     funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id,
     fbPageId: (q) => byName(raw.fbPages, [(x) => x.name])(q)?.id,
     documentTemplateId: (q) => byName(raw.documentTemplates, [(x) => x.name])(q)?.id,
+    // G8: object schema key by key ('custom_objects.pet' or 'pet') or label ('Pet'/'Pets')
+    customObjectKey: (q) => {
+      const hit = byName(raw.objects, [(o) => o.key, (o) => String(o.key ?? '').replace(/^custom_objects\./, ''), (o) => o.singular, (o) => o.plural])(q);
+      return hit?.key;
+    },
   };
 }
 
@@ -105,6 +110,14 @@ function walk(nodes, visit) {
 // (alongside or instead of the id field); the resolver fills the id field.
 export function resolveIR(ir, r) {
   const unresolved = [];
+  // OBJECT-BASED workflow (G8): `object: "Pet" | "custom_objects.pet"` → customObjectType.
+  // The create/save carry it top-level (utils/create-workflow-blank.ts); the compiler enforces
+  // the object-workflow action allow-list.
+  if (ir.object && !ir.customObjectType) {
+    const key = r.customObjectKey?.(ir.object);
+    if (key) { ir.customObjectType = key; delete ir.object; }
+    else unresolved.push({ where: 'workflow.object', name: ir.object });
+  }
   // settings.senderAddress.from_number may name a number by its TITLE ("GROM Digital AU") —
   // resolve to the E.164 value the doc stores (G9). A merge tag or +digits passes through.
   const fn = ir.settings?.senderAddress?.from_number;
