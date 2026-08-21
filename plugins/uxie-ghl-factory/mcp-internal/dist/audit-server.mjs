@@ -36808,6 +36808,42 @@ Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true 
   );
 }
 
+// ../skills/create-ghl-workflow/engine/merge-tags.mjs
+init_define_TOOL_CATALOG();
+var TOKEN = /\{\{\s*([A-Za-z_][\w]*)(\.[^{}]*)?\s*\}\}/g;
+function evaluateMergeTags(templates, mergeTags) {
+  if (!mergeTags?.tags) return [];
+  const known = new Set(mergeTags.tags.map((t) => String(t.tag).replace(/\s+/g, "")));
+  const closed = new Set(mergeTags.closedNamespaces ?? []);
+  const out = [];
+  const walk2 = (v, cb) => {
+    if (typeof v === "string") cb(v);
+    else if (Array.isArray(v)) v.forEach((x) => walk2(x, cb));
+    else if (v && typeof v === "object") Object.values(v).forEach((x) => walk2(x, cb));
+  };
+  for (const t of templates ?? []) {
+    if (!t?.attributes || t.type === "transition") continue;
+    const where = `'${t.name ?? t.id}' (${t.type})`;
+    walk2(t.attributes, (s) => {
+      const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
+      if (opens !== closes) out.push({ where, kind: "unbalanced", msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? "\u2026" : ""}"` });
+      for (const m of s.matchAll(TOKEN)) {
+        const ns = m[1], full = `{{${ns}${(m[2] ?? "").replace(/\s+/g, "")}}}`;
+        if (!closed.has(ns) || known.has(full)) continue;
+        const near = mergeTags.tags.filter((x) => String(x.tag).startsWith(`{{${ns}.`)).map((x) => x.tag).slice(0, 4).join(", ");
+        out.push({ where, kind: "unknown", msg: `${full} is not a picker variable in the closed namespace '${ns}' (known: ${near}${near ? ", \u2026" : ""}) \u2014 it will render literally at runtime` });
+      }
+    });
+  }
+  return out;
+}
+function checkMergeTags(templates, catalog, ctx) {
+  if (ctx?.skipMergeTagCheck === true) return [];
+  const F = evaluateMergeTags(templates, catalog?.mergeTags);
+  for (const f of F) ctx?.warn?.(`MERGE_TAG_SOFT: ${f.where}: ${f.msg}`);
+  return F;
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -37884,7 +37920,8 @@ function buildTrigger(t, ctx, wid) {
   for (const r of meta3?.filterChecks?.shapeRules ?? []) {
     const row = conditions.find((c) => c.field === r.field);
     const empty2 = !row || row.value == null || row.value === "" || Array.isArray(row.value) && !row.value.length;
-    if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}`);
+    const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` \u2014 GHL: "${ctx.catalog.i18n[r.i18n]}"` : "";
+    if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}${ghlText}`);
   }
   return {
     status: "draft",
@@ -38027,6 +38064,7 @@ function compile(ir, ctx) {
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
   applyUiDefaults(templates, ctx?.catalog, ctx);
   checkIfElseVocab(templates, ctx?.catalog, ctx);
+  checkMergeTags(templates, ctx?.catalog, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
@@ -38077,6 +38115,7 @@ var catalog_data_default = {
     "sniffs/bundle/trigger-seeds-replay.json",
     "sniffs/bundle/trigger-incompatible-actions.json",
     "sniffs/bundle/merge-tags.json",
+    "sniffs/bundle/merge-tags-replay.json",
     "sniffs/bundle/i18n-en.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
@@ -43722,7 +43761,38 @@ var catalog_data_default = {
         type: "TEXT",
         group: "getConversationAIOptions"
       }
-    ]
+    ],
+    closedNamespaces: [
+      "calendar",
+      "document",
+      "message",
+      "phoneCall",
+      "right_now",
+      "user"
+    ],
+    openNamespaces: [
+      "affiliate_new_lead",
+      "ai_agent",
+      "ai_field",
+      "appointment",
+      "cancellation_link",
+      "chatgpt",
+      "contact",
+      "contactMethod",
+      "conversationai_objective",
+      "custom_code",
+      "custom_values",
+      "custom_webhook",
+      "datetime_formatter",
+      "inboundWebhookRequest",
+      "location",
+      "opportunity",
+      "reschedule_link",
+      "task",
+      "text_formatter",
+      "trigger_link"
+    ],
+    corpusTokens: 4890
   },
   i18n: {
     loop_unsupported_action_error: "{action} cannot be placed inside a Loop. Move it outside the loop.",

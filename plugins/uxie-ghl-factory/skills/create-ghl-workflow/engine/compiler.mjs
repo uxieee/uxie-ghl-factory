@@ -10,6 +10,7 @@ import { enforceTemplates } from './enforce.mjs';
 import { checkStepRefs } from './graph-refs.mjs';
 import { applyUiDefaults } from './ui-defaults.mjs';
 import { checkIfElseVocab } from './ifelse-vocab.mjs';
+import { checkMergeTags } from './merge-tags.mjs';
 
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -1408,7 +1409,9 @@ export function buildTrigger(t, ctx, wid) {
   for (const r of (meta?.filterChecks?.shapeRules ?? [])) {
     const row = conditions.find((c) => c.field === r.field);
     const empty = !row || row.value == null || row.value === '' || (Array.isArray(row.value) && !row.value.length);
-    if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}`);
+    // quote the builder's own wording when the catalog carries it (i18n, from the compiled chunk)
+    const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` — GHL: "${ctx.catalog.i18n[r.i18n]}"` : '';
+    if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}${ghlText}`);
   }
   return {
     status: 'draft', workflowId: wid, schedule_config: {},
@@ -1588,6 +1591,8 @@ export function compile(ir, ctx) {
   // if/else conditions against the picker's vocabulary (ifelse-vocab.mjs) — GHL has NO validator
   // for if/else; a wrong subtype/operator saves clean and matches wrongly at runtime
   checkIfElseVocab(templates, ctx?.catalog, ctx);
+  // merge tags: unknown key in a CLOSED namespace / unbalanced braces → advisory (merge-tags.mjs)
+  checkMergeTags(templates, ctx?.catalog, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path
