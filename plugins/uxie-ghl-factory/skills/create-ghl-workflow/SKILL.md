@@ -286,6 +286,26 @@ stickyNotes:
 - **Action notes** (the node ⋯ → Notes popover) are a node key: `notes: ["Owner: Sarah", "Copy reviewed 2026-08"]` →
   `comments[]` on the step (`{id, userId, timestamp, comment}` newest-first), saved with the workflow.
 
+### Step outputs — referencing what an earlier step PRODUCED
+
+`{{custom_webhook.N.response.…}}`, `{{chatgpt.N.response}}`, `{{custom_code.N.output.<key>}}`,
+`{{datetime_formatter.N.date}}`, `{{number_formatter.N.result}}`, `{{text_formatter.N.result}}`,
+`{{math_operation.N.result}}`, `{{array_functions.N.result}}`, `{{ai_agent.N.response}}`,
+`{{[task-notification].N.title}}` — and the same `N.field` as if/else conditionSubType under the
+matching condition group. **`N` is the step's per-type `stepIndex`** (1-based, minted at
+creation), NOT its position; the engine numbers producers automatically and warns when a
+reference has no matching producer. Rules that bite:
+
+- **`custom_webhook` outputs only exist when `saveResponse: true`** and a successful test
+  request was saved (the drawer blocks Save on that) — the engine warns otherwise. Same idea
+  for `custom_code` (fields = keys of its run-test `output`).
+- Outputs are offered from ANCESTOR steps only (never sibling branches).
+- ⚠ Deleting the highest-numbered step of a type REBASES GHL's counter — a later step of the
+  same type reuses that `N`, and stale references silently rebind to it.
+- `inboundWebhookRequest.<path>` (the inbound-webhook trigger's payload) and marketplace
+  TRIGGER outputs carry **no `N`**; marketplace ACTION outputs are `{{<actionType>.N.<reference>}}`
+  from the app's declared customVars.
+
 ### The engine fails LOUD rather than silently dropping intent
 
 A build that reports success while doing nothing at runtime is the worst failure this tool
