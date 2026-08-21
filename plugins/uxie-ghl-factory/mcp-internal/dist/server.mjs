@@ -39520,7 +39520,8 @@ var catalog_data_default = {
             members: [
               "add_contact_tag",
               "remove_contact_tag"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "tags",
@@ -39940,7 +39941,15 @@ var catalog_data_default = {
           {
             name: "actionType",
             optional: false,
-            type: "IChatGPTActionTypes"
+            type: "union",
+            members: [
+              "analyze_text_sentiment",
+              "classify_text",
+              "summarize_text",
+              "translate_content",
+              "custom"
+            ],
+            via: "IChatGPTActionTypes"
           },
           {
             name: "actionParams",
@@ -40540,7 +40549,14 @@ var catalog_data_default = {
           {
             name: "opportunity_status",
             optional: false,
-            type: "Status"
+            type: "union",
+            members: [
+              "open",
+              "won",
+              "lost",
+              "abandoned"
+            ],
+            via: "Status"
           },
           {
             name: "lostReasonId",
@@ -40692,12 +40708,23 @@ var catalog_data_default = {
           {
             name: "event",
             optional: false,
-            type: "EventType"
+            type: "union",
+            members: [
+              "funnel_event",
+              "lead_event",
+              "instagram_dm"
+            ],
+            via: "EventType"
           },
           {
             name: "method",
             optional: false,
-            type: "MethodType"
+            type: "union",
+            members: [
+              "GET",
+              "POST"
+            ],
+            via: "MethodType"
           },
           {
             name: "url",
@@ -40785,7 +40812,13 @@ var catalog_data_default = {
           {
             name: "action",
             optional: false,
-            type: "DateTimeFormatterActions"
+            type: "union",
+            members: [
+              "format_date",
+              "format_datetime",
+              "compare_dates"
+            ],
+            via: "DateTimeFormatterActions"
           }
         ]
       }
@@ -40830,12 +40863,28 @@ var catalog_data_default = {
           {
             name: "dnd_contact",
             optional: false,
-            type: "DNDType"
+            type: "union",
+            members: [
+              "enable",
+              "disable",
+              "enable_specific",
+              "disable_specific"
+            ],
+            via: "DNDType"
           },
           {
             name: "specific_channels",
             optional: false,
-            type: "IDNDMessageTypes[]"
+            type: "union[]",
+            members: [
+              "Call",
+              "SMS",
+              "Email",
+              "WhatsApp",
+              "FB",
+              "GMB"
+            ],
+            via: "IDNDMessageTypes"
           },
           {
             name: "dnd_direction",
@@ -40844,7 +40893,8 @@ var catalog_data_default = {
             members: [
               "inbound",
               "outbound"
-            ]
+            ],
+            via: "inline"
           }
         ]
       }
@@ -41033,7 +41083,8 @@ var catalog_data_default = {
               "other",
               "email-builder",
               "snippet"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "to",
@@ -41103,7 +41154,14 @@ var catalog_data_default = {
           {
             name: "templateCreationMode",
             optional: true,
-            type: "TemplateCreationMode"
+            type: "union",
+            members: [
+              "smart-builder",
+              "template-gallery",
+              "quick-compose",
+              "existing"
+            ],
+            via: "TemplateCreationMode"
           },
           {
             name: "customSubtypeId",
@@ -41113,7 +41171,14 @@ var catalog_data_default = {
           {
             name: "emailRecipients",
             optional: true,
-            type: "EmailRecipientMode"
+            type: "union",
+            members: [
+              "enrolled_contacts",
+              "most_recently_associated",
+              "earliest_associated",
+              "all_associated_contacts"
+            ],
+            via: "EmailRecipientMode"
           },
           {
             name: "associationLabels",
@@ -41133,7 +41198,12 @@ var catalog_data_default = {
           {
             name: "assignedOwners",
             optional: true,
-            type: "AssignedOwner[]"
+            type: "union[]",
+            members: [
+              "contact_owner",
+              "opportunity_owner"
+            ],
+            via: "AssignedOwner"
           },
           {
             name: "alsoNotifyContactFollowers",
@@ -41198,12 +41268,23 @@ var catalog_data_default = {
           {
             name: "event_start_type",
             optional: false,
-            type: "EventStartType"
+            type: "union",
+            members: [
+              "datetime",
+              "custom_field",
+              "recurring"
+            ],
+            via: "EventStartType"
           },
           {
             name: "recurring_type",
             optional: true,
-            type: "RecurringType"
+            type: "union",
+            members: [
+              "day_week",
+              "day_month"
+            ],
+            via: "RecurringType"
           },
           {
             name: "recurring_time",
@@ -41283,7 +41364,13 @@ var catalog_data_default = {
           {
             name: "event_type",
             optional: false,
-            type: "EventType"
+            type: "union",
+            members: [
+              "funnel_event",
+              "lead_event",
+              "instagram_dm"
+            ],
+            via: "EventType"
           },
           {
             name: "access_token",
@@ -41333,7 +41420,12 @@ var catalog_data_default = {
           {
             name: "connection_type",
             optional: true,
-            type: "ConnectionType"
+            type: "union",
+            members: [
+              "INTEGRATION",
+              "AD_MANAGER"
+            ],
+            via: "ConnectionType"
           },
           {
             name: "isCustomMappingEnabled",
@@ -42015,7 +42107,14 @@ var catalog_data_default = {
           {
             name: "type",
             optional: false,
-            type: "NotificationType"
+            type: "union",
+            members: [
+              "email",
+              "sms",
+              "whatsapp",
+              "notification"
+            ],
+            via: "NotificationType"
           },
           {
             name: "email",
@@ -42040,7 +42139,13 @@ var catalog_data_default = {
           {
             name: "userType",
             optional: false,
-            type: "UserType"
+            type: "union",
+            members: [
+              "all",
+              "assign",
+              "user"
+            ],
+            via: "UserType"
           },
           {
             name: "selectedUser",
@@ -42259,7 +42364,12 @@ var catalog_data_default = {
           {
             name: "selectFieldtype",
             optional: false,
-            type: "FieldType"
+            type: "union",
+            members: [
+              "numerical",
+              "date"
+            ],
+            via: "FieldType"
           },
           {
             name: "sourceCustomValueId",
@@ -42274,7 +42384,12 @@ var catalog_data_default = {
           {
             name: "updateFieldType",
             optional: true,
-            type: "FieldType"
+            type: "union",
+            members: [
+              "numerical",
+              "date"
+            ],
+            via: "FieldType"
           },
           {
             name: "targetCustomValueId",
@@ -42284,7 +42399,12 @@ var catalog_data_default = {
           {
             name: "operators",
             optional: false,
-            type: "Operator[]"
+            type: "union[]",
+            members: [
+              "and",
+              "or"
+            ],
+            via: "Operator"
           },
           {
             name: "operator",
@@ -42446,7 +42566,8 @@ var catalog_data_default = {
             members: [
               "add_contact_tag",
               "remove_contact_tag"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "tags",
@@ -42574,7 +42695,8 @@ var catalog_data_default = {
             members: [
               "all",
               "previous"
-            ]
+            ],
+            via: "inline"
           }
         ]
       }
@@ -42615,7 +42737,13 @@ var catalog_data_default = {
           {
             name: "review_type",
             optional: false,
-            type: "ReviewType"
+            type: "union",
+            members: [
+              "sms",
+              "email",
+              "whatsapp"
+            ],
+            via: "ReviewType"
           },
           {
             name: "overrideReviewLink",
@@ -42791,7 +42919,12 @@ var catalog_data_default = {
           {
             name: "assignedOwners",
             optional: true,
-            type: "AssignedOwner[]"
+            type: "union[]",
+            members: [
+              "contact_owner",
+              "opportunity_owner"
+            ],
+            via: "AssignedOwner"
           },
           {
             name: "alsoNotifyContactFollowers",
@@ -42902,7 +43035,26 @@ var catalog_data_default = {
           {
             name: "formatterType",
             optional: false,
-            type: "TextFormatterTypes"
+            type: "union",
+            members: [
+              "upper_case",
+              "lower_case",
+              "title_case",
+              "capitalize",
+              "default_value",
+              "trim",
+              "trim_whitespace",
+              "replace_text",
+              "find",
+              "word_count",
+              "length",
+              "split_text",
+              "remove_html_tags",
+              "extract_email",
+              "extract_phone_number",
+              "extract_url"
+            ],
+            via: "TextFormatterTypes"
           },
           {
             name: "extras",
@@ -42965,7 +43117,8 @@ var catalog_data_default = {
               "appointment",
               "service_booking",
               "rental_booking"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "status_type",
@@ -43012,7 +43165,13 @@ var catalog_data_default = {
           {
             name: "actionType",
             optional: false,
-            type: "ActionType"
+            type: "union",
+            members: [
+              "update_field_data",
+              "add_field_data",
+              "clear_field_data"
+            ],
+            via: "ActionType"
           },
           {
             name: "fields",
@@ -43210,7 +43369,23 @@ var catalog_data_default = {
           {
             name: "type",
             optional: false,
-            type: "WaitType"
+            type: "union",
+            members: [
+              "time",
+              "specific_date",
+              "condition",
+              "reply",
+              "appointment",
+              "service_booking",
+              "rental_booking",
+              "attendee_event_date",
+              "overdue",
+              "link_clicked",
+              "email_event",
+              "user_replied",
+              "recurring_schedule"
+            ],
+            via: "WaitType"
           },
           {
             name: "window",
@@ -43235,7 +43410,14 @@ var catalog_data_default = {
           {
             name: "appointmentCondition",
             optional: true,
-            type: "appointmentConditionType"
+            type: "union",
+            members: [
+              "skip",
+              "next",
+              "specific-step",
+              "exit"
+            ],
+            via: "appointmentConditionType"
           },
           {
             name: "appointmentSpecificStep",
@@ -43314,7 +43496,8 @@ var catalog_data_default = {
             members: [
               "AM",
               "PM"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "specificDateProceed",
@@ -43324,7 +43507,8 @@ var catalog_data_default = {
               "on",
               "before",
               "after"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "specificDateOffsetDays",
@@ -43350,7 +43534,8 @@ var catalog_data_default = {
               "exit",
               "specific_step",
               "skip"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "specificDateStep",
@@ -43369,7 +43554,8 @@ var catalog_data_default = {
             members: [
               "standard",
               "dynamic"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "recurringFrequency",
@@ -43379,7 +43565,8 @@ var catalog_data_default = {
               "weekly",
               "monthly",
               "yearly"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "recurringWeeklyDays",
@@ -43393,7 +43580,8 @@ var catalog_data_default = {
             members: [
               "day",
               "nth_weekday"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "recurringMonthlyDay",
@@ -43442,7 +43630,8 @@ var catalog_data_default = {
             members: [
               "AM",
               "PM"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "recurringProceed",
@@ -43452,7 +43641,8 @@ var catalog_data_default = {
               "on",
               "before",
               "after"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "recurringOffsetDays",
@@ -43481,7 +43671,8 @@ var catalog_data_default = {
             members: [
               "standard",
               "dynamic"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "dynamicUnit",
@@ -43495,7 +43686,8 @@ var catalog_data_default = {
             members: [
               "standard",
               "dynamic"
-            ]
+            ],
+            via: "inline"
           },
           {
             name: "timeoutBranchName",
@@ -43577,7 +43769,12 @@ var catalog_data_default = {
           {
             name: "method",
             optional: false,
-            type: "MethodType"
+            type: "union",
+            members: [
+              "GET",
+              "POST"
+            ],
+            via: "MethodType"
           },
           {
             name: "url",
@@ -43707,7 +43904,12 @@ var catalog_data_default = {
           {
             name: "op",
             optional: false,
-            type: "Operator"
+            type: "union",
+            members: [
+              "and",
+              "or"
+            ],
+            via: "Operator"
           },
           {
             name: "action",
@@ -43765,12 +43967,25 @@ var catalog_data_default = {
           {
             name: "condition",
             optional: false,
-            type: "SplitCondition"
+            type: "union",
+            members: [
+              "random-split",
+              "even-split",
+              "conditional-split"
+            ],
+            via: "SplitCondition"
           },
           {
             name: "distributionType",
             optional: true,
-            type: "SplitDistributionType"
+            type: "union",
+            members: [
+              "split-indefinitely",
+              "current-date",
+              "contacts-split",
+              "contacts-completed-goal"
+            ],
+            via: "SplitDistributionType"
           },
           {
             name: "extras",
@@ -43817,7 +44032,16 @@ var catalog_data_default = {
           {
             name: "model",
             optional: true,
-            type: "GenerateImageAIModel"
+            type: "union",
+            members: [
+              "gpt-image-2",
+              "gpt-image-1.5",
+              "gpt-image-1-mini",
+              "gemini-3.1-flash-image",
+              "gemini-3-pro-image",
+              "gemini-2.5-flash-image"
+            ],
+            via: "GenerateImageAIModel"
           },
           {
             name: "prompt",
@@ -43968,7 +44192,12 @@ var catalog_data_default = {
           {
             name: "assignedOwners",
             optional: true,
-            type: "AssignedOwner[]"
+            type: "union[]",
+            members: [
+              "contact_owner",
+              "opportunity_owner"
+            ],
+            via: "AssignedOwner"
           },
           {
             name: "alsoNotifyContactFollowers",
@@ -44082,7 +44311,12 @@ var catalog_data_default = {
           {
             name: "assignedOwners",
             optional: true,
-            type: "AssignedOwner[]"
+            type: "union[]",
+            members: [
+              "contact_owner",
+              "opportunity_owner"
+            ],
+            via: "AssignedOwner"
           },
           {
             name: "alsoNotifyContactFollowers",
@@ -44288,7 +44522,15 @@ var catalog_data_default = {
           {
             name: "action",
             optional: false,
-            type: "NumberFormatterActions"
+            type: "union",
+            members: [
+              "string_to_number",
+              "string_to_formatted_number",
+              "number_to_phone",
+              "number_to_currency",
+              "random_number"
+            ],
+            via: "NumberFormatterActions"
           }
         ]
       }
@@ -44351,7 +44593,16 @@ var catalog_data_default = {
           {
             name: "action",
             optional: false,
-            type: "ArrayFunctionsActions"
+            type: "union",
+            members: [
+              "find",
+              "filter",
+              "math_functions",
+              "line_items",
+              "find_by_index",
+              "format_as_text"
+            ],
+            via: "ArrayFunctionsActions"
           },
           {
             name: "referenceObject",
@@ -44598,7 +44849,13 @@ var catalog_data_default = {
           {
             name: "action_type",
             optional: false,
-            type: "ActionType"
+            type: "union",
+            members: [
+              "update_field_data",
+              "add_field_data",
+              "clear_field_data"
+            ],
+            via: "ActionType"
           },
           {
             name: "event_action",
@@ -44794,7 +45051,8 @@ var catalog_data_default = {
             members: [
               "active",
               "inactive"
-            ]
+            ],
+            via: "inline"
           }
         ]
       }
