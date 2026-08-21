@@ -39457,6 +39457,286 @@ var catalog_data_default = {
             },
             operatorType: "select",
             valueType: "boolean"
+          },
+          {
+            value: "first_attribution:campaign",
+            label: {
+              i18nKey: "campaign_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:campaignId",
+            label: {
+              i18nKey: "campaign_id_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:mediumId",
+            label: {
+              i18nKey: "medium_id_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:utmContent",
+            label: {
+              i18nKey: "utm_content_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:utmMedium",
+            label: {
+              i18nKey: "utm_medium_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:medium",
+            label: {
+              i18nKey: "medium_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:utmTerm",
+            label: {
+              i18nKey: "utm_term_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:utmSource",
+            label: {
+              i18nKey: "utm_source_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:sessionSource",
+            label: {
+              i18nKey: "session_source_first_attribution"
+            },
+            operatorType: "select",
+            valueType: "sessionSource",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:utmCampaign",
+            label: {
+              i18nKey: "utm_campaign_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:utmKeyword",
+            label: {
+              i18nKey: "utm_keyword_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:utmMatchtype",
+            label: {
+              i18nKey: "utm_match_type_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:adGroupId",
+            label: {
+              i18nKey: "ad_group_id_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "first_attribution:adId",
+            label: {
+              i18nKey: "ad_id_first_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact First Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:campaign",
+            label: {
+              i18nKey: "campaign_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:campaignId",
+            label: {
+              i18nKey: "campaign_id_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:mediumId",
+            label: {
+              i18nKey: "medium_id_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:utmContent",
+            label: {
+              i18nKey: "utm_content_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:utmMedium",
+            label: {
+              i18nKey: "utm_medium_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:medium",
+            label: {
+              i18nKey: "medium_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:utmTerm",
+            label: {
+              i18nKey: "term_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:utmSource",
+            label: {
+              i18nKey: "source_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:sessionSource",
+            label: {
+              i18nKey: "session_source_last_attribution"
+            },
+            operatorType: "select",
+            valueType: "sessionSource",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:utmCampaign",
+            label: {
+              i18nKey: "utm_campaign_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:utmKeyword",
+            label: {
+              i18nKey: "utm_keyword_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:utmMatchtype",
+            label: {
+              i18nKey: "utm_match_type_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:adGroupId",
+            label: {
+              i18nKey: "ad_group_id_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
+          },
+          {
+            value: "last_attribution:adId",
+            label: {
+              i18nKey: "ad_id_last_attribution"
+            },
+            operatorType: "string",
+            valueType: "string",
+            section: "Contact Last Attribution",
+            provenance: "live-capture-2026-08-22"
           }
         ]
       },
@@ -40686,202 +40966,6 @@ var catalog_data_default = {
         value: "ai_agent",
         label: {
           i18nKey: "ai_agent"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:campaign",
-        label: {
-          i18nKey: "campaign_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:campaignId",
-        label: {
-          i18nKey: "campaign_id_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:mediumId",
-        label: {
-          i18nKey: "medium_id_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:utmContent",
-        label: {
-          i18nKey: "utm_content_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:utmMedium",
-        label: {
-          i18nKey: "utm_medium_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:medium",
-        label: {
-          i18nKey: "medium_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:utmTerm",
-        label: {
-          i18nKey: "utm_term_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:utmSource",
-        label: {
-          i18nKey: "utm_source_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:sessionSource",
-        label: {
-          i18nKey: "session_source_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:utmCampaign",
-        label: {
-          i18nKey: "utm_campaign_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:utmKeyword",
-        label: {
-          i18nKey: "utm_keyword_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:utmMatchtype",
-        label: {
-          i18nKey: "utm_match_type_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:adGroupId",
-        label: {
-          i18nKey: "ad_group_id_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "first_attribution:adId",
-        label: {
-          i18nKey: "ad_id_first_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:campaign",
-        label: {
-          i18nKey: "campaign_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:campaignId",
-        label: {
-          i18nKey: "campaign_id_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:mediumId",
-        label: {
-          i18nKey: "medium_id_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:utmContent",
-        label: {
-          i18nKey: "utm_content_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:utmMedium",
-        label: {
-          i18nKey: "utm_medium_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:medium",
-        label: {
-          i18nKey: "medium_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:utmTerm",
-        label: {
-          i18nKey: "term_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:utmSource",
-        label: {
-          i18nKey: "source_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:sessionSource",
-        label: {
-          i18nKey: "session_source_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:utmCampaign",
-        label: {
-          i18nKey: "utm_campaign_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:utmKeyword",
-        label: {
-          i18nKey: "utm_keyword_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:utmMatchtype",
-        label: {
-          i18nKey: "utm_match_type_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:adGroupId",
-        label: {
-          i18nKey: "ad_group_id_last_attribution"
-        },
-        conditions: []
-      },
-      {
-        value: "last_attribution:adId",
-        label: {
-          i18nKey: "ad_id_last_attribution"
         },
         conditions: []
       }
@@ -44351,6 +44435,34 @@ var catalog_data_default = {
     dnd_enabled_channels: "DND enabled channels",
     valid_whatsapp: "Valid WhatsApp",
     valid_email: "Valid email",
+    campaign_first_attribution: "Campaign (First Attribution)",
+    campaign_id_first_attribution: "Campaign ID(First Attribution)",
+    medium_id_first_attribution: "Medium ID(First Attribution)",
+    utm_content_first_attribution: "UTM Content (First Attribution)",
+    utm_medium_first_attribution: "UTM Medium (First Attribution)",
+    medium_first_attribution: "Medium (First Attribution)",
+    utm_term_first_attribution: "UTM Term (First Attribution)",
+    utm_source_first_attribution: "UTM Source (First Attribution)",
+    session_source_first_attribution: "Session Source (First Attribution)",
+    utm_campaign_first_attribution: "UTM Campaign (First Attribution)",
+    utm_keyword_first_attribution: "UTM Keyword (First Attribution)",
+    utm_match_type_first_attribution: "UTM Match Type (First Attribution)",
+    ad_group_id_first_attribution: "Ad Group ID (First Attribution)",
+    ad_id_first_attribution: "Ad ID (First Attribution)",
+    campaign_last_attribution: "Campaign (Last Attribution)",
+    campaign_id_last_attribution: "Campaign ID(Last Attribution)",
+    medium_id_last_attribution: "Medium ID(Last Attribution)",
+    utm_content_last_attribution: "UTM Content (Last Attribution)",
+    utm_medium_last_attribution: "UTM Medium (Last Attribution)",
+    medium_last_attribution: "Medium (Last Attribution)",
+    term_last_attribution: "Term (Last Attribution)",
+    source_last_attribution: "Source (Last Attribution)",
+    session_source_last_attribution: "Session Source (Last Attribution)",
+    utm_campaign_last_attribution: "UTM Campaign (Last Attribution)",
+    utm_keyword_last_attribution: "UTM Keyword (Last Attribution)",
+    utm_match_type_last_attribution: "UTM Match Type (Last Attribution)",
+    ad_group_id_last_attribution: "Ad Group ID (Last Attribution)",
+    ad_id_last_attribution: "Ad ID (Last Attribution)",
     date_time: "Date/Time",
     current_day_of_week: "Current Day of week",
     current_day_of_month: "Current Day of month",
@@ -44478,34 +44590,6 @@ var catalog_data_default = {
     array_functions: "Array formatter",
     custom_code: "Custom code",
     ai_agent: "AI Agent",
-    campaign_first_attribution: "Campaign (First Attribution)",
-    campaign_id_first_attribution: "Campaign ID(First Attribution)",
-    medium_id_first_attribution: "Medium ID(First Attribution)",
-    utm_content_first_attribution: "UTM Content (First Attribution)",
-    utm_medium_first_attribution: "UTM Medium (First Attribution)",
-    medium_first_attribution: "Medium (First Attribution)",
-    utm_term_first_attribution: "UTM Term (First Attribution)",
-    utm_source_first_attribution: "UTM Source (First Attribution)",
-    session_source_first_attribution: "Session Source (First Attribution)",
-    utm_campaign_first_attribution: "UTM Campaign (First Attribution)",
-    utm_keyword_first_attribution: "UTM Keyword (First Attribution)",
-    utm_match_type_first_attribution: "UTM Match Type (First Attribution)",
-    ad_group_id_first_attribution: "Ad Group ID (First Attribution)",
-    ad_id_first_attribution: "Ad ID (First Attribution)",
-    campaign_last_attribution: "Campaign (Last Attribution)",
-    campaign_id_last_attribution: "Campaign ID(Last Attribution)",
-    medium_id_last_attribution: "Medium ID(Last Attribution)",
-    utm_content_last_attribution: "UTM Content (Last Attribution)",
-    utm_medium_last_attribution: "UTM Medium (Last Attribution)",
-    medium_last_attribution: "Medium (Last Attribution)",
-    term_last_attribution: "Term (Last Attribution)",
-    source_last_attribution: "Source (Last Attribution)",
-    session_source_last_attribution: "Session Source (Last Attribution)",
-    utm_campaign_last_attribution: "UTM Campaign (Last Attribution)",
-    utm_keyword_last_attribution: "UTM Keyword (Last Attribution)",
-    utm_match_type_last_attribution: "UTM Match Type (Last Attribution)",
-    ad_group_id_last_attribution: "Ad Group ID (Last Attribution)",
-    ad_id_last_attribution: "Ad ID (Last Attribution)",
     is: "Is",
     is_not: "Is not",
     contains: "Contains",
