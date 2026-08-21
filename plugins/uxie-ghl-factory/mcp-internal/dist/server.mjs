@@ -38111,6 +38111,7 @@ var catalog_data_default = {
     "sniffs/bundle/model-defaults-replay.json",
     "sniffs/bundle/ifelse-conditions.json",
     "sniffs/bundle/ifelse-conditions-replay.json",
+    "sniffs/bundle/trigger-filters.json",
     "sniffs/bundle/trigger-seeds.json",
     "sniffs/bundle/trigger-seeds-replay.json",
     "sniffs/bundle/trigger-incompatible-actions.json",
@@ -43795,9 +43796,161 @@ var catalog_data_default = {
     corpusTokens: 4890
   },
   i18n: {
+    "workflow.triggerFilters.common.has_changed": "Has changed",
+    "workflow.triggerFilters.common.has_changed_to": "Has changed to",
+    "workflow.triggerFilters.common.added": "Added",
+    "workflow.triggerFilters.common.removed": "Removed",
+    "workflow.triggerFilters.common.inbound": "Inbound",
+    "workflow.triggerFilters.common.outbound": "Outbound",
+    "workflow.triggerFilters.dnd.enabled_for_specific_channels": "Enabled DND for specific channels",
+    "workflow.triggerFilters.dnd.disabled_for_specific_channels": "Disabled DND for specific channels",
+    "workflow.triggerFilters.dnd.channel_is": "DND channel is",
+    contact_date_field: "Contact date field",
+    opportunity_date_field: "Opportunity date field",
+    "workflow.triggerFilters.common.has_tag": "Has tag",
+    "workflow.triggerFilters.common.month_is": "Month is",
+    "workflow.triggerFilters.common.day_is": "Day is",
+    "workflow.triggerFilters.common.before_no_of_days": "Before no. of days",
+    "workflow.triggerFilters.custom_objects.positive_yes": "Positive/yes",
+    "workflow.triggerFilters.custom_objects.negative_no": "Negative/no",
+    has_changed: "Has changed",
+    has_changed_to: "Has changed to",
+    added: "Added",
+    removed: "Removed",
+    is_not_empty: "Is not empty",
+    is_empty: "Is empty",
+    "workflow.triggerFilters.scheduler.intervals.hourly": "Hourly",
+    "workflow.triggerFilters.scheduler.intervals.daily": "Daily",
+    "workflow.triggerFilters.scheduler.intervals.weekly": "Weekly",
+    "workflow.triggerFilters.scheduler.intervals.monthly": "Monthly",
+    "workflow.triggerFilters.scheduler.intervals.cron": "Cron",
+    "workflow.triggerFilters.scheduler.patterns.day_of_month": "Days of month",
+    "workflow.triggerFilters.scheduler.patterns.nth_weekday": "Week and day of the month",
+    "workflow.triggerFilters.scheduler.week_indexes.first": "First",
+    "workflow.triggerFilters.scheduler.week_indexes.second": "Second",
+    "workflow.triggerFilters.scheduler.week_indexes.third": "Third",
+    "workflow.triggerFilters.scheduler.week_indexes.fourth": "Fourth",
+    "workflow.triggerFilters.scheduler.weekdays.monday": "Monday",
+    "workflow.triggerFilters.scheduler.weekdays.tuesday": "Tuesday",
+    "workflow.triggerFilters.scheduler.weekdays.wednesday": "Wednesday",
+    "workflow.triggerFilters.scheduler.weekdays.thursday": "Thursday",
+    "workflow.triggerFilters.scheduler.weekdays.friday": "Friday",
+    "workflow.triggerFilters.scheduler.weekdays.saturday": "Saturday",
+    "workflow.triggerFilters.scheduler.weekdays.sunday": "Sunday",
+    "workflow.triggerFilters.scheduler.at_what_time": "At what time",
+    "workflow.triggerFilters.call_status.statuses.busy": "busy",
+    "workflow.triggerFilters.call_status.statuses.canceled": "canceled",
+    "workflow.triggerFilters.call_status.statuses.voicemail": "voicemail",
+    "workflow.triggerFilters.call_status.statuses.no_answer": "no-answer",
+    "workflow.triggerFilters.call_status.statuses.completed": "completed",
+    "workflow.triggerFilters.call_status.incoming": "Incoming",
+    "workflow.triggerFilters.call_status.outgoing": "Outgoing",
+    "workflow.triggerFilters.call_status.in_phone_number": "In phone number",
+    "workflow.triggerFilters.call_status.in_number_pool": "In number pool",
+    "workflow.triggerFilters.contact_reply.intents.positive_yes": "Positive/yes",
+    "workflow.triggerFilters.contact_reply.intents.negative_no": "Negative/no",
+    "workflow.triggerFilters.contact_reply.channels.chat_widget": "Chat widget",
+    "workflow.triggerFilters.contact_reply.channels.live_chat": "Live chat",
+    "workflow.triggerFilters.contact_reply.chat_widget_is": "Chat widget is",
+    "workflow.triggerFilters.contact_reply.in_phone_number": "In phone number",
+    "workflow.triggerFilters.contact_reply.whatsapp_number": "WhatsApp number",
+    "workflow.triggerOptions.inboundEmailFilterMailbox": "Email sent to / Mailbox",
+    "workflow.triggerOptions.inboundEmailFilterFrom": "From",
+    "workflow.triggerOptions.inboundEmailFilterCc": "CC",
+    "workflow.triggerOptions.inboundEmailFilterSubject": "Subject",
+    "workflow.triggerOptions.inboundEmailFilterBodyPlainText": "Body (plain text)",
+    "workflow.triggerOptions.inboundEmailFilterHasTag": "Has tag",
+    "workflow.triggerOptions.inboundEmailFilterDoesNotHaveTag": "Doesn't have tag",
+    is_any_of: "Is any of",
+    is_none_of: "Is none of",
+    sms_incapable: "SMS incapable",
+    not_valid: "Not valid",
+    "workflow.triggerOptions.contactOnly": "Contact only",
+    "workflow.triggerOptions.contactAndGuests": "Contact and guests",
+    "workflow.triggerOptions.guestsOnly": "Guests only",
+    "workflow.triggerFilters.appointment.statuses.new": "new",
+    "workflow.triggerFilters.appointment.statuses.confirmed": "confirmed",
+    "workflow.triggerFilters.appointment.statuses.cancelled": "cancelled",
+    "workflow.triggerFilters.appointment.statuses.showed": "Showed",
+    "workflow.triggerFilters.appointment.statuses.noshow": "No-show",
+    "workflow.triggerFilters.appointment.statuses.invalid": "invalid",
+    "workflow.triggerFilters.appointment.event_types.normal": "Normal",
+    "workflow.triggerFilters.appointment.event_types.recurring": "Recurring",
+    "workflow.triggerFilters.appointment.event_types.any": "Any",
+    "workflow.triggerFilters.appointment.modified_by.customer": "Customer",
+    "workflow.triggerFilters.appointment.modified_by.user": "User",
+    "workflow.triggerFilters.appointment.modified_by.api": "API",
+    "workflow.triggerFilters.appointment.modified_by.workflow": "Workflow",
+    "workflow.triggerFilters.appointment.in_calendar_group": "In calendar group",
+    "workflow.triggerFilters.common.is": "Is",
+    "workflow.triggerFilters.common.is_not": "Is not",
+    "workflow.triggerFilters.pipeline.is": "Is",
+    "workflow.triggerFilters.pipeline.is_not": "Is not",
+    "workflow.triggerFilters.membership.common.is_any_of": "Is any of",
+    "workflow.triggerFilters.membership.common.is_none_of": "Is none of",
+    "workflow.triggerFilters.common.website": "Website",
+    "workflow.triggerFilters.payment_received.sources.calendar": "Calendar",
+    "workflow.triggerFilters.payment_received.sources.invoice": "Invoice",
+    "workflow.triggerFilters.payment_received.sources.funnel": "Funnel",
+    "workflow.triggerFilters.payment_received.sources.form": "Form",
+    "workflow.triggerFilters.payment_received.sources.manual": "Manual payment",
+    "workflow.triggerFilters.payment_received.sources.membership": "Memberships",
+    "workflow.triggerFilters.payment_received.sources.external": "External",
+    "workflow.triggerFilters.payment_received.sources.survey": "Survey",
+    "workflow.triggerFilters.payment_received.payment_statuses.succeeded": "Success",
+    "workflow.triggerFilters.payment_received.payment_statuses.failed": "Failed",
+    "workflow.triggerFilters.payment_received.form_is": "Form is",
+    "workflow.triggerFilters.payment_received.sub_sources.one_step_order_form": "One-step order form",
+    "workflow.triggerFilters.payment_received.sub_sources.two_step_order_form": "Two-step order form",
+    "workflow.triggerFilters.payment_received.sub_sources.upsell": "Upsell",
+    "workflow.triggerFilters.payment_received.sub_sources.store": "E-commerce store",
+    "workflow.triggerFilters.payment_received.sub_sources.store_upsell": "Store upsell",
+    "workflow.triggerFilters.payment_received.sub_sources.woocommerce": "WooCommerce",
+    "workflow.triggerFilters.payment_received.sub_sources.shopify": "Shopify",
+    "workflow.triggerFilters.payment_received.sub_source": "Sub-Source",
+    "workflow.triggerFilters.payment_received.sub_sources.text2pay": "Text2Pay link",
+    "workflow.triggerFilters.payment_received.sub_sources.onetime": "One-time invoice",
+    "workflow.triggerFilters.payment_received.sub_sources.recurring_template": "Recurring template",
+    "workflow.triggerFilters.payment_received.transaction_types.sale": "Customer present/first transaction",
+    "workflow.triggerFilters.payment_received.transaction_types.subsequent_subscription": "Customer not present/subscription transaction",
+    "workflow.triggerFilters.payment_received.transaction_type": "Transaction type",
+    "workflow.triggerFilters.payment_received.calendar": "Calendar",
+    "workflow.triggerFilters.order_submission.sources.funnel": "Funnel",
+    "workflow.triggerFilters.order_submission.sources.store": "Store",
+    "workflow.triggerFilters.order_submission.sources.external": "External",
+    "workflow.triggerFilters.order_submission.sources.membership": "Membership",
+    "workflow.triggerFilters.order_submission.sources.communities": "Communities",
+    "workflow.triggerFilters.order_submission.sources.form": "Form",
+    "workflow.triggerFilters.order_submission.sources.survey": "Survey",
+    "workflow.triggerFilters.order_submission.sources.payment_link": "Payment link",
+    "workflow.triggerFilters.order_submission.sources.calendar": "Calendar",
+    "workflow.triggerFilters.order_submission.global_product": "Global product",
+    "workflow.triggerFilters.order_submission.in_funnel_or_website": "In funnel/website",
+    "workflow.triggerFilters.order_submission.sub_sources.store_upsell": "Store upsell",
+    "workflow.triggerFilters.order_submission.sub_sources.woocommerce": "WooCommerce",
+    "workflow.triggerFilters.order_submission.sub_sources.shopify": "Shopify",
+    "workflow.triggerFilters.order_submission.sub_sources.one_step_order_form": "One-step order form",
+    "workflow.triggerFilters.order_submission.sub_sources.two_step_order_form": "Two-step order form",
+    "workflow.triggerFilters.order_submission.sub_sources.upsell": "Upsell",
+    "workflow.triggerFilters.order_submission.sub_source": "Sub-Source",
+    "workflow.triggerFilters.user_comments_on_post.post_type.published": "Published post",
+    "workflow.triggerFilters.user_comments_on_post.post_type.custom": "Custom",
     loop_unsupported_action_error: "{action} cannot be placed inside a Loop. Move it outside the loop.",
     loop_empty_body_error: '"{name}" has no actions inside it. Add at least one action inside the loop, or remove the loop.',
     loop_unsupported_wait_error: "Conditional wait steps cannot be placed inside a Loop. Move them outside the loop or switch to a time-based wait.",
+    "workflow.validation.ifElse.requiresNextNodes": 'There is a problem with this workflow setup, "{templateName}" condition requires at least two next nodes. Please add a next node to proceed.',
+    "workflow.validation.ifElse.requiresBranch": 'There is a problem with this workflow setup, "{templateName}" condition requires at least one branch. Please add a branch to proceed.',
+    "workflow.validation.ifElse.branchRequiresSegment": 'There is a problem with this workflow setup, branch "{branchName}" in "{templateName}" condition requires at least one segment. Please add a segment to proceed.',
+    "workflow.validation.ifElse.segmentRequiresCondition": 'There is a problem with this workflow setup, a segment in branch "{branchName}" of "{templateName}" condition requires at least one condition. Please add a condition to proceed.',
+    "workflow.validation.ifElse.missingConditionType": 'There is a problem with this workflow setup, a condition in branch "{branchName}" of "{templateName}" is missing a condition type. Please select a condition type to proceed.',
+    "workflow.validation.ifElse.missingConditionField": 'There is a problem with this workflow setup, a condition in branch "{branchName}" of "{templateName}" is missing a condition field. Please select a condition field to proceed.',
+    "workflow.validation.ifElse.missingConditionOperator": 'There is a problem with this workflow setup, a condition in branch "{branchName}" of "{templateName}" is missing a condition operator. Please select a condition operator to proceed.',
+    "workflow.validation.ifElse.missingTimeUnit": 'There is a problem with this workflow setup, a condition in branch "{branchName}" of "{templateName}" with relative date operator requires a time unit. Please select a time unit to proceed.',
+    "workflow.validation.ifElse.missingConditionValue": 'There is a problem with this workflow setup, a condition in branch "{branchName}" of "{templateName}" is missing a condition value. Please enter a condition value to proceed.',
+    "workflow.validation.wait.malformedWaitStep": 'There is a problem with this workflow setup, "{waitStepName}" has an invalid configuration. Please update the action with correct configuration.',
+    "workflow.validation.wait.unsupportedBranchingWaitType": 'There is a problem with this workflow setup, "{waitStepName}" action does not support branching for wait type "{waitTypeLabel}". Please update the action with correct configuration.',
+    "workflow.validation.wait.requiresAtLeastTwoTransitions": 'There is a problem with this workflow setup, "{waitStepName}" requires at least two transitions. Please add a transition to proceed.',
+    "workflow.validation.wait.missingTransition": 'There is a problem with this workflow setup, "{waitStepName}" has a transition "{transitionName}" that is missing from the workflow. Please delete this action.',
     contact_details: "Contact details",
     last_appointment_at: "Last appointment at",
     full_name: "Full name",
@@ -43836,6 +43989,12 @@ var catalog_data_default = {
     intent_type: "Intent type",
     select_intent: "Select intent",
     inbound_trigger: "Inbound email",
+    "inbound_email.body_plain": "Body (plain text)",
+    "workflow.triggerOptions.inboundEmailFilterFromName": "From name",
+    "inbound_email.body_full_plain": "Full Body (Includes reply thread)",
+    "workflow.triggerOptions.inboundEmailFilterMessageId": "Message ID",
+    "workflow.triggerOptions.inboundEmailFilterDateAdded": "Date",
+    "workflow.triggerOptions.inboundEmailFilterHasAttachments": "Has attachments",
     workflow_trigger: "Workflow trigger",
     appointment: "Appointment",
     rescheduled: "Rescheduled",
@@ -43847,6 +44006,7 @@ var catalog_data_default = {
     workflow_contact: "Workflow contact",
     note: "Note",
     note_description: "Note description",
+    "notes.created_by_name": "Created by (Name)",
     ai_bot: "AI Bot",
     events: "Events",
     email_event: "Email event",
@@ -43977,7 +44137,6 @@ var catalog_data_default = {
     is_any_of_comma_separated: "Is any of (comma separated)",
     is_none_of_comma_separated: "Is none of (comma separated)",
     is_not_empty_op: "Is not empty",
-    is_empty: "Is empty",
     contains_phrase_op: "Contains phrase",
     exact_match_phrase_op: "Exact match phrase",
     intent_type_op: "Intent type",
@@ -43997,10 +44156,60 @@ var catalog_data_default = {
     is_before: "Is before",
     is_on_or_before: "Is on or before",
     timed_out: "Timed out",
-    is_any_of: "Is any of",
-    is_none_of: "Is none of",
-    has_changed: "Has changed",
-    has_changed_to: "Has changed to",
+    "inbound_email.message_id": "Message ID",
+    "inbound_email.subject": "Subject",
+    "inbound_email.from_email": "From email",
+    "inbound_email.from_name": "From name",
+    "inbound_email.cc": "CC",
+    "inbound_email.date": "Date",
+    "mailgun_email_event.message_id": "Message ID",
+    "mailgun_email_event.campaign_status_id": "Workflow Status ID",
+    "mailgun_email_event.event": "Event",
+    "notes.description": "Description",
+    "notes.description_html": "Description ( HTML )",
+    "workflow.eventMenu.name": "Name",
+    "workflow.eventMenu.summary": "Summary",
+    "workflow.eventMenu.description": "Description",
+    "workflow.eventMenu.descriptionText": "Description (Plain Text)",
+    "workflow.eventMenu.startDateTime": "Start Date & Time",
+    "workflow.eventMenu.endDateTime": "End Date & Time",
+    "workflow.eventMenu.startDateTimeIso": "Start Date & Time (ISO)",
+    "workflow.eventMenu.endDateTimeIso": "End Date & Time (ISO)",
+    "workflow.eventMenu.startDate": "Start Date",
+    "workflow.eventMenu.startTime": "Start Time",
+    "workflow.eventMenu.endDate": "End Date",
+    "workflow.eventMenu.endTime": "End Time",
+    "workflow.eventMenu.timezone": "Timezone",
+    "workflow.eventMenu.dateTimeRange": "Date & Time Range",
+    "workflow.eventMenu.url": "URL",
+    "workflow.eventMenu.type": "Type",
+    "workflow.eventMenu.status": "Status",
+    "workflow.eventMenu.eventId": "Event ID",
+    "workflow.eventMenu.attendeeId": "Attendee ID",
+    "workflow.eventMenu.fullAddress": "Full Address",
+    "workflow.eventMenu.venueName": "Venue Name",
+    "workflow.eventMenu.address": "Address",
+    "workflow.eventMenu.city": "City",
+    "workflow.eventMenu.state": "State",
+    "workflow.eventMenu.postalCode": "Postal Code",
+    "workflow.eventMenu.googleLocation": "Google Location",
+    "workflow.eventMenu.attendeePage": "Attendee Page",
+    "workflow.eventMenu.title": "Title",
+    "workflow.eventMenu.count": "Count",
+    "workflow.eventMenu.names": "Names",
+    "workflow.eventMenu.qrLinks": "QR Links",
+    "workflow.eventMenu.pdfLink": "PDF Link",
+    "workflow.eventMenu.checkedInAt": "Checked In At",
+    "workflow.eventMenu.method": "Method",
+    "workflow.eventMenu.id": "Id",
+    "workflow.eventMenu.orderId": "Order ID",
+    "workflow.eventMenu.orderTotal": "Order Total",
+    "workflow.eventMenu.orderCurrency": "Order Currency",
+    "workflow.eventMenu.transactionId": "Transaction ID",
+    "workflow.eventMenu.registrationStatus": "Registration Status",
+    "workflow.eventMenu.paymentStatus": "Payment Status",
+    "workflow.eventMenu.attendeeType": "Attendee Type",
+    "workflow.eventMenu.bookedBy": "Booked By",
     scheduler_interval_required: "Scheduler interval is required",
     ivr_phone_number_required: "At least one phone number is required for IVR"
   },
@@ -83816,32 +84025,45 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "BirthdayReminderFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Month is",
+          labelKey: "workflow.triggerFilters.common.month_is",
           value: "contact.birthMonth",
+          field: "contact.birthMonth",
           type: "select",
+          optionsSource: "dynamic",
           id: "month-value"
         },
         {
           label: "Day is",
+          labelKey: "workflow.triggerFilters.common.day_is",
           value: "contact.birthDay",
+          field: "contact.birthDay",
           type: "select",
+          optionsSource: "dynamic",
           id: "day-value"
         },
         {
           label: "Before no. of days",
+          labelKey: "workflow.triggerFilters.common.before_no_of_days",
           value: "contact.dateOfBirth",
+          field: "contact.dateOfBirth",
+          operator: "time-diff-now-lte",
           type: "number",
-          id: "before-days-in-number",
-          operator: "time-diff-now-lte"
+          optionsSource: "none",
+          id: "before-days-in-number"
         },
         {
           label: "After no. of days",
+          labelKey: "workflow.triggerFilters.common.after_no_of_days",
           value: "contact.dateOfBirth",
+          field: "contact.dateOfBirth",
+          operator: "time-diff-now-gte",
           type: "number",
-          id: "after-days-in-number",
-          operator: "time-diff-now-gte"
+          optionsSource: "none",
+          id: "after-days-in-number"
         }
       ],
       filterChecks: {
@@ -83874,79 +84096,167 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/contact_changed.json",
       filterClass: "ContactChangedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Tags",
+          labelKey: "workflow.triggerFilters.common.tags",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "add-index-of-true",
           type: "select",
-          id: "tag",
-          operator: "add-index-of-true"
+          optionsSource: "dynamic",
+          id: "tag"
         },
         {
           label: "DND",
+          labelKey: "workflow.triggerFilters.common.dnd",
           value: "contact.dnd",
+          field: "contact.dnd",
+          operator: "has-changed",
           type: "select",
-          operator: "has-changed"
+          options: [
+            {
+              value: true,
+              label: "Enabled DND for all channels"
+            },
+            {
+              value: false,
+              label: "Disabled DND for all channels"
+            }
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Assigned User",
+          label: "Assigned user",
+          labelKey: "workflow.triggerFilters.common.assigned_user",
           value: "contact.assignedTo",
+          field: "contact.assignedTo",
+          operator: "has-changed",
           type: "select",
-          operator: "has-changed"
+          optionsSource: "none"
         },
         {
           label: "Phone",
+          labelKey: "workflow.triggerFilters.common.phone",
           value: "contact.phone",
+          field: "contact.phone",
+          operator: "has-changed",
           type: "input",
-          operator: "has-changed"
+          optionsSource: "none"
         },
         {
           label: "Email",
+          labelKey: "workflow.triggerFilters.common.email",
           value: "contact.email",
+          field: "contact.email",
+          operator: "has-changed",
           type: "input",
-          operator: "has-changed"
+          optionsSource: "none"
         },
         {
-          label: "Contact Type",
+          label: "Contact type",
+          labelKey: "workflow.triggerFilters.common.contact_type",
           value: "contact.type",
+          field: "contact.type",
+          operator: "has-changed",
           type: "select",
-          operator: "has-changed"
+          optionsSource: "dynamic"
         },
         {
-          label: "Street Address",
+          label: "Street address",
+          labelKey: "workflow.triggerFilters.common.street_address",
           value: "contact.address1",
+          field: "contact.address1",
+          operator: "has-changed",
           type: "input",
-          operator: "has-changed"
+          optionsSource: "none"
         },
         {
           label: "City",
+          labelKey: "workflow.triggerFilters.common.city",
           value: "contact.city",
+          field: "contact.city",
+          operator: "has-changed",
           type: "input",
-          operator: "has-changed"
+          optionsSource: "none"
         },
         {
           label: "State",
+          labelKey: "workflow.triggerFilters.common.state",
           value: "contact.state",
+          field: "contact.state",
+          operator: "has-changed",
           type: "input",
-          operator: "has-changed"
+          optionsSource: "none"
         },
         {
           label: "Country",
+          labelKey: "workflow.triggerFilters.common.country",
           value: "contact.country",
+          field: "contact.country",
+          operator: "has-changed",
           type: "select",
-          operator: "has-changed"
+          options: [
+            {}
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Postal Code",
+          label: "Postal code",
+          labelKey: "workflow.triggerFilters.common.postal_code",
           value: "contact.postalCode",
+          field: "contact.postalCode",
+          operator: "has-changed",
           type: "input",
-          operator: "has-changed"
+          optionsSource: "none"
         },
         {
           label: "Website",
+          labelKey: "workflow.triggerFilters.common.website",
           value: "contact.website",
+          field: "contact.website",
+          operator: "has-changed",
           type: "input",
-          operator: "has-changed"
+          optionsSource: "none"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.has_changed"
+          },
+          field: "has-changed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.has_changed_to"
+          },
+          field: "==",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.added"
+          },
+          field: "add-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.removed"
+          },
+          field: "remove-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -83982,28 +84292,44 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/contact_created.json",
       filterClass: "ContactCreatedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Tag",
+          labelKey: "workflow.triggerFilters.common.tag",
           value: "tagsAdded",
+          field: "tagsAdded",
           type: "select",
+          optionsSource: "dynamic",
           id: "tag"
         },
         {
           label: "Phone",
+          labelKey: "workflow.triggerFilters.common.phone",
           value: "contact.phone",
-          type: "input"
+          field: "contact.phone",
+          type: "input",
+          optionsSource: "none"
         },
         {
           label: "Email",
+          labelKey: "workflow.triggerFilters.common.email",
           value: "contact.email",
-          type: "input"
+          field: "contact.email",
+          type: "input",
+          optionsSource: "none"
         },
         {
-          label: "Contact Type",
+          label: "Contact type",
+          labelKey: "workflow.triggerFilters.common.contact_type",
           value: "contact.type",
-          type: "select"
+          field: "contact.type",
+          type: "select",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getTags"
       ],
       filterChecks: {
         validator: "contactCreatedValidator",
@@ -84029,32 +84355,89 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "DNDFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "DND direction is",
+          labelKey: "workflow.triggerFilters.dnd.direction_is",
           value: "contact.dnd_direction",
+          field: "contact.dnd_direction",
           type: "select",
           options: [
             {
-              label: "Inbound",
-              value: "inbound"
+              value: "inbound",
+              label: "Inbound"
             },
             {
-              label: "Outbound",
-              value: "outbound"
+              value: "outbound",
+              label: "Outbound"
             }
-          ]
+          ],
+          optionsSource: "literal"
         },
         {
           label: "DND flag is",
+          labelKey: "workflow.triggerFilters.dnd.flag_is",
           value: "contact.dnd",
-          type: "select"
+          field: "contact.dnd",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Tag",
+          labelKey: "workflow.triggerFilters.common.tag",
           value: "contact.tags",
+          field: "contact.tags",
           type: "select",
+          optionsSource: "dynamic",
           id: "tag"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.inbound"
+          },
+          field: "inbound",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.outbound"
+          },
+          field: "outbound",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.dnd.enabled_for_specific_channels"
+          },
+          field: "enable_specific",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.dnd.disabled_for_specific_channels"
+          },
+          field: "disable_specific",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.dnd.channel_is"
+          },
+          field: "contact.dnd_channel",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -84110,21 +84493,31 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/contact_tag.json",
       filterClass: "TagFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "tag_added",
+          label: "Tag added",
+          labelKey: "tag_added",
           value: "tagsAdded",
+          field: "tagsAdded",
+          operator: "index-of-true",
           type: "select",
-          id: "tag-added",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "tag-added"
         },
         {
-          label: "tag_removed",
+          label: "Tag removed",
+          labelKey: "tag_removed",
           value: "tagsRemoved",
+          field: "tagsRemoved",
+          operator: "index-of-true",
           type: "select",
-          id: "tag-removed",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "tag-removed"
         }
+      ],
+      filterOptionHelpers: [
+        "getTags"
       ],
       filterChecks: {
         validator: "contactTagValidator",
@@ -84153,7 +84546,64 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "CustomDateReminderFilter",
+      filterRowsSource: "may-one-off",
       filterRows: [],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "contact_date_field"
+          },
+          field: "contact.customFields",
+          operator: "custom-field-eq",
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "opportunity_date_field"
+          },
+          field: "opportunity.customFields",
+          operator: "custom-field-eq",
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.has_tag"
+          },
+          field: "contact.tags",
+          operator: "index-of-true",
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.month_is"
+          },
+          field: "customDateField.monthValue",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.day_is"
+          },
+          field: "customDateField.dayValue",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.before_no_of_days"
+          },
+          field: "customDateField.dateValue",
+          operator: "time-diff-now-lte",
+          type: "number",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
       filterChecks: {
         validator: "customDateReminderValidator",
         assetChecks: [],
@@ -84179,21 +84629,31 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "NotesFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
         },
         {
-          label: "Doesn",
+          label: "Doesn't have tag",
+          labelKey: "workflow.triggerFilters.notes.doesnt_have_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-false",
           type: "select",
-          id: "doesnot-have-tag",
-          operator: "index-of-false"
+          optionsSource: "dynamic",
+          id: "doesnot-have-tag"
         }
+      ],
+      filterOptionHelpers: [
+        "getTags"
       ],
       filterChecks: {
         validator: "notesTriggerValidator",
@@ -84221,21 +84681,31 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "NotesFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
         },
         {
-          label: "Doesn",
+          label: "Doesn't have tag",
+          labelKey: "workflow.triggerFilters.notes.doesnt_have_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-false",
           type: "select",
-          id: "doesnot-have-tag",
-          operator: "index-of-false"
+          optionsSource: "dynamic",
+          id: "doesnot-have-tag"
         }
+      ],
+      filterOptionHelpers: [
+        "getTags"
       ],
       filterChecks: {
         validator: "notesTriggerValidator",
@@ -84264,12 +84734,19 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/task_added.json",
       filterClass: "TaskFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "assigned_user",
+          label: "Assigned user",
+          labelKey: "assigned_user",
           value: "task.assignedTo",
-          type: "select"
+          field: "task.assignedTo",
+          type: "select",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getUsers"
       ],
       filterChecks: {
         validator: "taskAddedValidator",
@@ -84305,20 +84782,27 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/task_due_date_reminder.json",
       filterClass: "TaskDueDateReminderFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "before_no_of_days",
+          label: "Before no. of days",
+          labelKey: "before_no_of_days",
           value: "task.dueDate",
+          field: "task.dueDate",
+          operator: "time-diff-now-lte",
           type: "number",
-          id: "before-days-in-number",
-          operator: "time-diff-now-lte"
+          optionsSource: "none",
+          id: "before-days-in-number"
         },
         {
-          label: "after_no_of_days",
+          label: "After no. of days",
+          labelKey: "after_no_of_days",
           value: "task.dueDate",
+          field: "task.dueDate",
+          operator: "time-diff-now-gte",
           type: "number",
-          id: "after-days-in-number",
-          operator: "time-diff-now-gte"
+          optionsSource: "none",
+          id: "after-days-in-number"
         }
       ],
       filterChecks: {
@@ -84347,7 +84831,82 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "CustomObjectsFilter",
+      filterRowsSource: "may-one-off",
       filterRows: [],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.custom_objects.positive_yes"
+          },
+          field: "schedule-yes",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.custom_objects.negative_no"
+          },
+          field: "schedule-no",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "has_changed"
+          },
+          field: "has-changed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "has_changed_to"
+          },
+          field: "==",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "added"
+          },
+          field: "add-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "removed"
+          },
+          field: "remove-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "is_not_empty"
+          },
+          field: "has_value",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "is_empty"
+          },
+          field: "has_no_value",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
       filterChecks: {
         validator: "customObjectTriggerValidator",
         assetChecks: [],
@@ -84370,7 +84929,82 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "CustomObjectsFilter",
+      filterRowsSource: "may-one-off",
       filterRows: [],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.custom_objects.positive_yes"
+          },
+          field: "schedule-yes",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.custom_objects.negative_no"
+          },
+          field: "schedule-no",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "has_changed"
+          },
+          field: "has-changed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "has_changed_to"
+          },
+          field: "==",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "added"
+          },
+          field: "add-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "removed"
+          },
+          field: "remove-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "is_not_empty"
+          },
+          field: "has_value",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "is_empty"
+          },
+          field: "has_no_value",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
       filterChecks: {
         validator: "customObjectTriggerValidator",
         assetChecks: [],
@@ -84421,36 +85055,400 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/scheduler_trigger.json",
       filterClass: "SchedulerTriggerFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Interval",
+          labelKey: "workflow.triggerFilters.scheduler.interval",
           value: "scheduler.interval",
-          type: "select",
-          id: "interval-type",
+          field: "scheduler.interval",
           operator: "==",
+          type: "select",
           options: [
             {
-              label: "Hourly",
-              value: "hourly"
+              value: "hourly",
+              label: "Hourly"
             },
             {
-              label: "Daily",
-              value: "daily"
+              value: "daily",
+              label: "Daily"
             },
             {
-              label: "Weekly",
-              value: "weekly"
+              value: "weekly",
+              label: "Weekly"
             },
             {
-              label: "Monthly",
-              value: "monthly"
+              value: "monthly",
+              label: "Monthly"
             },
             {
-              label: "Cron",
-              value: "cron"
+              value: "cron",
+              label: "Cron"
             }
-          ]
+          ],
+          optionsSource: "literal",
+          id: "interval-type"
+        },
+        {
+          label: "Pattern",
+          labelKey: "workflow.triggerFilters.scheduler.pattern",
+          value: "scheduler.monthly.patternType",
+          field: "scheduler.monthly.patternType",
+          operator: "==",
+          type: "select",
+          options: [
+            {
+              value: "dayOfMonth",
+              label: "Days of month"
+            },
+            {
+              value: "nthWeekday",
+              label: "Week and day of the month"
+            }
+          ],
+          optionsSource: "literal",
+          id: "monthly-pattern-type"
+        },
+        {
+          label: "Week",
+          labelKey: "workflow.triggerFilters.scheduler.week",
+          value: "scheduler.monthly.weekIndex",
+          field: "scheduler.monthly.weekIndex",
+          operator: "==",
+          type: "multiselect",
+          options: [
+            {
+              value: "1",
+              label: "First"
+            },
+            {
+              value: "2",
+              label: "Second"
+            },
+            {
+              value: "3",
+              label: "Third"
+            },
+            {
+              value: "4",
+              label: "Fourth"
+            }
+          ],
+          optionsSource: "literal",
+          id: "monthly-week-index"
+        },
+        {
+          label: "Day of week",
+          labelKey: "workflow.triggerFilters.scheduler.day_of_week",
+          value: "scheduler.monthly.weekday",
+          field: "scheduler.monthly.weekday",
+          operator: "==",
+          type: "multiselect",
+          options: [
+            {
+              value: "monday",
+              label: "Monday"
+            },
+            {
+              value: "tuesday",
+              label: "Tuesday"
+            },
+            {
+              value: "wednesday",
+              label: "Wednesday"
+            },
+            {
+              value: "thursday",
+              label: "Thursday"
+            },
+            {
+              value: "friday",
+              label: "Friday"
+            },
+            {
+              value: "saturday",
+              label: "Saturday"
+            },
+            {
+              value: "sunday",
+              label: "Sunday"
+            }
+          ],
+          optionsSource: "literal",
+          id: "monthly-weekday"
+        },
+        {
+          label: "On days",
+          labelKey: "workflow.triggerFilters.scheduler.on_days",
+          value: "scheduler.weekly.days",
+          field: "scheduler.weekly.days",
+          operator: "==",
+          type: "multiselect",
+          options: [
+            {
+              value: "monday",
+              label: "Monday"
+            },
+            {
+              value: "tuesday",
+              label: "Tuesday"
+            },
+            {
+              value: "wednesday",
+              label: "Wednesday"
+            },
+            {
+              value: "thursday",
+              label: "Thursday"
+            },
+            {
+              value: "friday",
+              label: "Friday"
+            },
+            {
+              value: "saturday",
+              label: "Saturday"
+            },
+            {
+              value: "sunday",
+              label: "Sunday"
+            }
+          ],
+          optionsSource: "literal",
+          id: "weekly-days"
+        },
+        {
+          label: "On days",
+          labelKey: "workflow.triggerFilters.scheduler.on_days",
+          value: "scheduler.monthly.days",
+          field: "scheduler.monthly.days",
+          operator: "==",
+          type: "multiselect",
+          optionsSource: "dynamic",
+          id: "monthly-days-dayOfMonth"
+        },
+        {
+          label: "Every",
+          labelKey: "workflow.triggerFilters.scheduler.every",
+          value: "scheduler.hourly.every",
+          field: "scheduler.hourly.every",
+          operator: "==",
+          type: "input",
+          optionsSource: "dynamic",
+          id: "hourly-every"
+        },
+        {
+          label: "Cron expression",
+          labelKey: "workflow.triggerFilters.scheduler.cron_expression",
+          value: "scheduler.cron.expression",
+          field: "scheduler.cron.expression",
+          operator: "==",
+          type: "input",
+          optionsSource: "dynamic",
+          id: "cron-expression"
         }
+      ],
+      filterRowsDynamicFields: [
+        {
+          label: "At what time",
+          type: "multiselect",
+          operator: "==",
+          source: "this.field"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.intervals.hourly"
+          },
+          field: "hourly",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.intervals.daily"
+          },
+          field: "daily",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.intervals.weekly"
+          },
+          field: "weekly",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.intervals.monthly"
+          },
+          field: "monthly",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.intervals.cron"
+          },
+          field: "cron",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.patterns.day_of_month"
+          },
+          field: "dayOfMonth",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.patterns.nth_weekday"
+          },
+          field: "nthWeekday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.week_indexes.first"
+          },
+          field: "1",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.week_indexes.second"
+          },
+          field: "2",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.week_indexes.third"
+          },
+          field: "3",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.week_indexes.fourth"
+          },
+          field: "4",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.weekdays.monday"
+          },
+          field: "monday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.weekdays.tuesday"
+          },
+          field: "tuesday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.weekdays.wednesday"
+          },
+          field: "wednesday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.weekdays.thursday"
+          },
+          field: "thursday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.weekdays.friday"
+          },
+          field: "friday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.weekdays.saturday"
+          },
+          field: "saturday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.weekdays.sunday"
+          },
+          field: "sunday",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.at_what_time"
+          },
+          field: "scheduler.daily.times",
+          operator: "==",
+          type: "multiselect",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.at_what_time"
+          },
+          field: "scheduler.weekly.times",
+          operator: "==",
+          type: "multiselect",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.scheduler.at_what_time"
+          },
+          field: "scheduler.monthly.times",
+          operator: "==",
+          type: "multiselect",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "nextTick"
       ],
       filterChecks: {
         validator: "schedulerValidator",
@@ -84494,58 +85492,160 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/call_status.json",
       filterClass: "CallStatusFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Call Status",
+          label: "Call status",
+          labelKey: "workflow.triggerFilters.call_status.call_status",
           value: "call_status",
+          field: "call_status",
           operator: "contains-any",
+          type: {
+            __dynamic__: "ValueDataType.MULTI_SELECT"
+          },
           options: [
             {
-              label: "busy",
-              value: "busy"
+              value: "busy",
+              label: "busy"
             },
             {
-              label: "canceled",
-              value: "canceled"
+              value: "canceled",
+              label: "canceled"
             },
             {
-              label: "voicemail",
-              value: "voicemail"
+              value: "voicemail",
+              label: "voicemail"
             },
             {
-              label: "no-answer",
-              value: "no-answer"
+              value: "no-answer",
+              label: "no-answer"
             },
             {
-              label: "completed",
-              value: "completed"
+              value: "completed",
+              label: "completed"
             }
-          ]
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Custom Disposition",
+          label: "Custom disposition",
+          labelKey: "workflow.triggerFilters.call_status.custom_disposition",
           value: "custom_disposition",
-          operator: "contains-any"
+          field: "custom_disposition",
+          operator: "contains-any",
+          type: {
+            __dynamic__: "ValueDataType.MULTI_SELECT"
+          },
+          optionsSource: "dynamic"
         },
         {
-          label: "Call Direction",
+          label: "Call direction",
+          labelKey: "workflow.triggerFilters.call_status.call_direction",
           value: "message.direction",
+          field: "message.direction",
           type: "select",
           options: [
             {
-              label: "Incoming",
-              value: "inbound"
+              value: "inbound",
+              label: "Incoming"
             },
             {
-              label: "Outgoing",
-              value: "outbound"
+              value: "outbound",
+              label: "Outgoing"
             }
-          ]
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "In Workflow",
+          label: "In workflow",
+          labelKey: "workflow.triggerFilters.call_status.in_workflow",
           value: "workflow.id",
-          type: "select"
+          field: "workflow.id",
+          type: "select",
+          optionsSource: "dynamic"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.statuses.busy"
+          },
+          field: "busy",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.statuses.canceled"
+          },
+          field: "canceled",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.statuses.voicemail"
+          },
+          field: "voicemail",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.statuses.no_answer"
+          },
+          field: "no-answer",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.statuses.completed"
+          },
+          field: "completed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.incoming"
+          },
+          field: "inbound",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.outgoing"
+          },
+          field: "outbound",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.in_phone_number"
+          },
+          field: "inbound_number",
+          operator: "contains-any",
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.call_status.in_number_pool"
+          },
+          field: "number_pool",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -84578,17 +85678,59 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/mailgun_email_event.json",
       filterClass: "EmailEventFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In workflow",
+          labelKey: "workflow.triggerFilters.email_event.in_workflow",
           value: "workflow.id",
-          type: "select"
+          field: "workflow.id",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Event",
+          labelKey: "workflow.triggerFilters.email_event.event",
           value: "mailgun.event",
-          type: "select"
+          field: "mailgun.event",
+          type: "select",
+          options: [
+            {
+              value: {
+                __dynamic__: "EmailEventType.OPENED"
+              },
+              label: "Opened"
+            },
+            {
+              value: {
+                __dynamic__: "EmailEventType.CLICKED"
+              },
+              label: "Clicked"
+            },
+            {
+              value: {
+                __dynamic__: "EmailEventType.UNSUBSCRIBED"
+              },
+              label: "Unsubscribed"
+            },
+            {
+              value: {
+                __dynamic__: "EmailEventType.COMPLAINED"
+              },
+              label: "Complained(SPAM)"
+            },
+            {
+              value: {
+                __dynamic__: "EmailEventType.FAILED"
+              },
+              label: "Bounced"
+            }
+          ],
+          optionsSource: "literal"
         }
+      ],
+      filterOptionHelpers: [
+        "getWorkflows"
       ],
       filterChecks: {
         validator: "emailEventsValidator",
@@ -84619,59 +85761,219 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/customer_reply.json",
       filterClass: "ContactReplyFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Replied to Workflow",
+          label: "Replied to workflow",
+          labelKey: "workflow.triggerFilters.contact_reply.replied_to_workflow",
           value: "workflow.id",
-          type: "select"
+          field: "workflow.id",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Reply channel",
+          labelKey: "workflow.triggerFilters.contact_reply.reply_channel",
           value: "message.type",
-          type: "select"
+          field: "message.type",
+          type: "select",
+          options: [
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_CALL"
+              },
+              label: "Call"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_SMS"
+              },
+              label: "SMS"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_EMAIL"
+              },
+              label: "Email"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_WEBCHAT"
+              },
+              label: "Chat widget"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_FACEBOOK"
+              },
+              label: "Facebook messenger"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_INSTAGRAM"
+              },
+              label: "Instagram DM"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_GMB"
+              },
+              label: "GMB messaging"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_WHATSAPP"
+              },
+              label: "WhatsApp"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_LIVE_CHAT"
+              },
+              label: "Live chat"
+            },
+            {
+              value: {
+                __dynamic__: "MessageType.TYPE_ALL_IN_ONE"
+              },
+              label: "All in one chat"
+            }
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Contains phrase",
+          label: "Message body",
+          labelKey: "message_body",
           value: "message.body",
+          field: "message.body",
           type: "string",
-          id: "message-contains-phrase"
-        },
-        {
-          label: "Exact match phrase",
-          value: "message.body",
-          type: "input",
-          id: "message-exact-phrase"
+          optionsSource: "none",
+          id: "message-body"
         },
         {
           label: "Intent type",
+          labelKey: "workflow.triggerFilters.contact_reply.intent_type",
           value: "message.body",
-          type: "select",
-          id: "message-contains-intent",
+          field: "message.body",
           operator: "matches_intent",
+          type: "select",
           options: [
             {
-              label: "Positive/Yes",
-              value: "schedule-yes"
+              value: "schedule-yes",
+              label: "Positive/yes"
             },
             {
-              label: "Negative/No",
-              value: "schedule-no"
+              value: "schedule-no",
+              label: "Negative/no"
             }
-          ]
+          ],
+          optionsSource: "literal",
+          id: "message-contains-intent"
         },
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
         },
         {
-          label: "Doesn",
+          label: "Doesn't have tag",
+          labelKey: "workflow.triggerFilters.contact_reply.doesnt_have_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-false",
           type: "select",
-          id: "doesnot-have-tag",
-          operator: "index-of-false"
+          optionsSource: "dynamic",
+          id: "doesnot-have-tag"
+        },
+        {
+          label: "Has Attachments",
+          labelKey: "has_attachments",
+          value: "message.hasAttachments",
+          field: "message.hasAttachments",
+          operator: "==",
+          type: "select",
+          options: [
+            {
+              value: true,
+              label: "Yes"
+            },
+            {
+              value: false,
+              label: "No"
+            }
+          ],
+          optionsSource: "literal",
+          id: "has-attachments"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.contact_reply.intents.positive_yes"
+          },
+          field: "schedule-yes",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.contact_reply.intents.negative_no"
+          },
+          field: "schedule-no",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.contact_reply.channels.chat_widget"
+          },
+          field: "webchat",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.contact_reply.channels.live_chat"
+          },
+          field: "livechat",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.contact_reply.chat_widget_is"
+          },
+          field: "message.chatWidgetId",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.contact_reply.in_phone_number"
+          },
+          field: "inbound_number",
+          operator: "contains-any",
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.contact_reply.whatsapp_number"
+          },
+          field: "message.meta.to",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -84703,11 +86005,80 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "InboundTriggerFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "contact_tag",
+          label: "Contact tag",
+          labelKey: "contact_tag",
           value: "contact.tags",
-          type: "select"
+          field: "contact.tags",
+          type: "select",
+          optionsSource: "dynamic"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.inboundEmailFilterMailbox"
+          },
+          field: "email.to",
+          operator: null,
+          type: "string",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.inboundEmailFilterFrom"
+          },
+          field: "email.from.address",
+          operator: null,
+          type: "string",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.inboundEmailFilterCc"
+          },
+          field: "email.cc",
+          operator: null,
+          type: "string",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.inboundEmailFilterSubject"
+          },
+          field: "email.subject",
+          operator: null,
+          type: "string",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.inboundEmailFilterBodyPlainText"
+          },
+          field: "email.body_plain",
+          operator: null,
+          type: "string",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.inboundEmailFilterHasTag"
+          },
+          field: "index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.inboundEmailFilterDoesNotHaveTag"
+          },
+          field: "index-of-false",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -84762,15 +86133,35 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/form_submission.json",
       filterClass: "FormSubmissionFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Form is",
-          value: "form.id"
+          labelKey: "workflow.triggerFilters.form_submission.form_is",
+          value: "form.id",
+          field: "form.id",
+          operator: "is-any-of",
+          type: null,
+          optionsSource: "dynamic"
         },
         {
-          label: "terms_and_conditions",
+          label: "Terms and Conditions",
+          labelKey: "terms_and_conditions",
           value: "formData.termsAndConditions",
-          type: "select"
+          field: "formData.termsAndConditions",
+          operator: "==",
+          type: "select",
+          options: [
+            {
+              value: true,
+              label: "Yes"
+            },
+            {
+              value: false,
+              label: "No"
+            }
+          ],
+          optionsSource: "literal"
         }
       ],
       filterChecks: {
@@ -84797,21 +86188,57 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/survey_submission.json",
       filterClass: "SurveySubmissionFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "survey_is",
-          value: "survey.id"
+          label: "Survey is",
+          labelKey: "survey_is",
+          value: "survey.id",
+          field: "survey.id",
+          operator: "is-any-of",
+          type: null,
+          optionsSource: "dynamic"
         },
         {
-          label: "disqualified",
+          label: "Disqualified",
+          labelKey: "disqualified",
           value: "surveySubmission.disqualified",
-          type: "select"
+          field: "surveySubmission.disqualified",
+          type: "select",
+          options: [
+            {
+              value: true,
+              label: "is true"
+            },
+            {
+              value: false,
+              label: "is false"
+            }
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "terms_and_conditions",
+          label: "Terms and Conditions",
+          labelKey: "terms_and_conditions",
           value: "surveyData.termsAndConditions",
-          type: "select"
+          field: "surveyData.termsAndConditions",
+          operator: "==",
+          type: "select",
+          options: [
+            {
+              value: true,
+              label: "Yes"
+            },
+            {
+              value: false,
+              label: "No"
+            }
+          ],
+          optionsSource: "literal"
         }
+      ],
+      filterOptionHelpers: [
+        "getSurveyById"
       ],
       filterChecks: {
         validator: "surveySubmissionValidator",
@@ -84837,11 +86264,15 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/trigger_link.json",
       filterClass: "TriggerLinkFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "trigger_link",
+          label: "Trigger link",
+          labelKey: "trigger_link",
           value: "link.id",
-          type: "select"
+          field: "link.id",
+          type: "select",
+          optionsSource: "dynamic"
         }
       ],
       filterChecks: {
@@ -84878,12 +86309,20 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/facebook_lead_gen.json",
       filterClass: "FacebookLeadGenFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Page Is",
+          label: "Page is",
+          labelKey: "workflow.triggerFilters.facebook_lead_gen.page_is",
           value: "facebook.pageId",
-          type: "select"
+          field: "facebook.pageId",
+          type: "select",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getLeadGenPages",
+        "getLeadGenForms"
       ],
       filterChecks: {
         validator: "facebookLeadGenValidator",
@@ -84920,12 +86359,20 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "TikTokFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "in_form",
+          label: "In form",
+          labelKey: "in_form",
           value: "tikTok.formId",
-          type: "multiselect"
+          field: "tikTok.formId",
+          operator: "is-any-of",
+          type: "multiselect",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getTikTokForms"
       ],
       filterChecks: {
         validator: "tiktokFormValidator",
@@ -84956,22 +86403,56 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "VideoEventFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "funnel",
+          label: "Funnel",
+          labelKey: "funnel",
           value: "video.funnelId",
-          type: "multiselect"
+          field: "video.funnelId",
+          type: "multiselect",
+          optionsSource: "dynamic"
         },
         {
-          label: "video",
+          label: "Video",
+          labelKey: "video",
           value: "video.videoId",
-          type: "multiselect"
+          field: "video.videoId",
+          type: "multiselect",
+          optionsSource: "dynamic"
         },
         {
-          label: "video_duration_percent",
+          label: "Video duration (%)",
+          labelKey: "video_duration_percent",
           value: "video.duration",
-          type: "number"
+          field: "video.duration",
+          type: "number",
+          optionsSource: "none"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "is_any_of"
+          },
+          field: "is-any-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "is_none_of"
+          },
+          field: "is-none-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getVideos",
+        "getAllFunnels"
       ],
       filterChecks: {
         validator: "videoEventValidator",
@@ -85000,6 +86481,51 @@ Rules to Follow:
       category: "events",
       premium: false,
       confidence: "bundle-derived",
+      filterClass: "TwilioValidationFilter",
+      filterRowsSource: "sourcemap",
+      filterRows: [
+        {
+          label: "Number is",
+          labelKey: "number_is",
+          value: "contact.phoneInfo",
+          field: "contact.phoneInfo",
+          operator: "contains-any",
+          type: {
+            __dynamic__: "ValueDataType.MULTI_SELECT"
+          },
+          options: [
+            {
+              value: "sms_incapable",
+              label: "SMS incapable"
+            },
+            {
+              value: "not_valid",
+              label: "Not valid"
+            }
+          ],
+          optionsSource: "literal"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "sms_incapable"
+          },
+          field: "sms_incapable",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "not_valid"
+          },
+          field: "not_valid",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
       filterChecks: {
         validator: "validationErrorValidator",
         assetChecks: [],
@@ -85018,8 +86544,7 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      },
-      filterClass: "TwilioValidationFilter"
+      }
     },
     appointment: {
       type: "appointment",
@@ -85030,91 +86555,262 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/appointment.json",
       filterClass: "AppointmentFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In calendar",
+          labelKey: "workflow.triggerFilters.appointment.in_calendar",
           value: "calendar.id",
-          type: "select"
+          field: "calendar.id",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Appointment status is",
+          labelKey: "workflow.triggerFilters.appointment.appointment_status_is",
           value: "appointment.status",
+          field: "appointment.status",
           type: "select",
           options: [
             {
-              label: "new",
-              value: "new"
+              value: "new",
+              label: "new"
             },
             {
-              label: "confirmed",
-              value: "confirmed"
+              value: "confirmed",
+              label: "confirmed"
             },
             {
-              label: "cancelled",
-              value: "cancelled"
+              value: "cancelled",
+              label: "cancelled"
             },
             {
-              label: "Showed",
-              value: "showed"
+              value: "showed",
+              label: "Showed"
             },
             {
-              label: "No-show",
-              value: "noshow"
+              value: "noshow",
+              label: "No-show"
             },
             {
-              label: "invalid",
-              value: "invalid"
+              value: "invalid",
+              label: "invalid"
             }
-          ]
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
         },
         {
-          label: "Event Type",
+          label: "Event type",
+          labelKey: "workflow.triggerFilters.appointment.event_type",
           value: "appointment.eventType",
+          field: "appointment.eventType",
           type: "select",
           options: [
             {
-              label: "Normal",
-              value: "normal"
+              value: "normal",
+              label: "Normal"
             },
             {
-              label: "Recurring",
-              value: "recurring"
+              value: "recurring",
+              label: "Recurring"
             },
             {
-              label: "Any",
-              value: "any"
+              value: "any",
+              label: "Any"
             }
-          ]
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Created By/Modified By",
+          label: "Created by/modified by",
+          labelKey: "workflow.triggerFilters.appointment.created_by_modified_by",
           value: "appointment.modifiedBy",
+          field: "appointment.modifiedBy",
           type: "select",
           options: [
             {
-              label: "Customer",
-              value: "customer"
+              value: "customer",
+              label: "Customer"
             },
             {
-              label: "User",
-              value: "user"
+              value: "user",
+              label: "User"
             },
             {
-              label: "API",
-              value: "api"
+              value: "api",
+              label: "API"
             },
             {
-              label: "Workflow",
-              value: "workflow"
+              value: "workflow",
+              label: "Workflow"
             }
-          ]
+          ],
+          optionsSource: "literal"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.contactOnly"
+          },
+          field: "contact_only",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.contactAndGuests"
+          },
+          field: "contact_and_guest",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerOptions.guestsOnly"
+          },
+          field: "only_guest",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.statuses.new"
+          },
+          field: "new",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.statuses.confirmed"
+          },
+          field: "confirmed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.statuses.cancelled"
+          },
+          field: "cancelled",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.statuses.showed"
+          },
+          field: "showed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.statuses.noshow"
+          },
+          field: "noshow",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.statuses.invalid"
+          },
+          field: "invalid",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.event_types.normal"
+          },
+          field: "normal",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.event_types.recurring"
+          },
+          field: "recurring",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.event_types.any"
+          },
+          field: "any",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.modified_by.customer"
+          },
+          field: "customer",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.modified_by.user"
+          },
+          field: "user",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.modified_by.api"
+          },
+          field: "api",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.modified_by.workflow"
+          },
+          field: "workflow",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.in_calendar_group"
+          },
+          field: "appointment.calendarProviderId",
+          operator: "==",
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -85182,19 +86878,37 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/customer_appointment.json",
       filterClass: "CustomerAppointmentFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In calendar",
+          labelKey: "workflow.triggerFilters.appointment.in_calendar",
           value: "calendar.id",
+          field: "calendar.id",
+          operator: "==",
           type: "select",
-          operator: "=="
+          optionsSource: "dynamic"
         },
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.appointment.in_calendar_group"
+          },
+          field: "appointment.calendarProviderId",
+          operator: "==",
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -85237,54 +86951,82 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/opportunity_status_changed.json",
       filterClass: "OpportunityStatusFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Moved from status",
+          labelKey: "workflow.triggerFilters.opportunity_status.moved_from_status",
           value: "opportunity.oldStatus",
+          field: "opportunity.oldStatus",
           type: "select",
+          optionsSource: "dynamic",
           id: "moved-from-status"
         },
         {
           label: "Moved to status",
+          labelKey: "workflow.triggerFilters.opportunity_status.moved_to_status",
           value: "opportunity.status",
+          field: "opportunity.status",
           type: "select",
+          optionsSource: "dynamic",
           id: "moved-to-status"
         },
         {
           label: "In pipeline",
+          labelKey: "workflow.triggerFilters.opportunity.in_pipeline",
           value: "opportunity.pipelineId",
-          type: "select"
+          field: "opportunity.pipelineId",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Tag",
+          labelKey: "workflow.triggerFilters.common.tag",
           value: "contact.tags",
+          field: "contact.tags",
           type: "select",
+          optionsSource: "dynamic",
           id: "tag"
         },
         {
           label: "Assigned to",
+          labelKey: "workflow.triggerFilters.opportunity.assigned_to",
           value: "opportunity.assignedTo",
-          type: "select"
+          field: "opportunity.assignedTo",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Lead value",
+          labelKey: "workflow.triggerFilters.opportunity.lead_value",
           value: "opportunity.monetaryValue",
-          type: "number"
+          field: "opportunity.monetaryValue",
+          type: "number",
+          optionsSource: "none"
         },
         {
-          label: "Expected Close Date",
+          label: "Expected close date",
+          labelKey: "workflow.triggerFilters.opportunity.expected_close_date",
           value: "opportunity.forecastExpectedCloseDate",
-          type: "date"
+          field: "opportunity.forecastExpectedCloseDate",
+          type: "date",
+          optionsSource: "none"
         },
         {
-          label: "Forecast Probability",
+          label: "Forecast probability",
+          labelKey: "workflow.triggerFilters.opportunity.forecast_probability",
           value: "opportunity.forecastProbability",
-          type: "number"
+          field: "opportunity.forecastProbability",
+          type: "number",
+          optionsSource: "none"
         },
         {
-          label: "Lost Reason",
+          label: "Lost reason",
+          labelKey: "workflow.triggerFilters.opportunity.lost_reason",
           value: "opportunity.lostReasonId",
-          type: "select"
+          field: "opportunity.lostReasonId",
+          type: "select",
+          optionsSource: "dynamic"
         }
       ],
       filterChecks: {
@@ -85354,47 +87096,92 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/opportunity_created.json",
       filterClass: "OpportunityCreatedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In pipeline",
+          labelKey: "workflow.triggerFilters.opportunity.in_pipeline",
           value: "opportunity.pipelineId",
-          type: "select"
+          field: "opportunity.pipelineId",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Tag",
+          labelKey: "workflow.triggerFilters.common.tag",
           value: "contact.tags",
+          field: "contact.tags",
           type: "select",
+          optionsSource: "dynamic",
           id: "tag"
         },
         {
           label: "Assigned to",
+          labelKey: "workflow.triggerFilters.opportunity.assigned_to",
           value: "opportunity.assignedTo",
-          type: "select"
+          field: "opportunity.assignedTo",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Lead value",
+          labelKey: "workflow.triggerFilters.opportunity.lead_value",
           value: "opportunity.monetaryValue",
-          type: "number"
+          field: "opportunity.monetaryValue",
+          type: "number",
+          optionsSource: "none"
         },
         {
-          label: "Expected Close Date",
+          label: "Expected close date",
+          labelKey: "workflow.triggerFilters.opportunity.expected_close_date",
           value: "opportunity.forecastExpectedCloseDate",
-          type: "date"
+          field: "opportunity.forecastExpectedCloseDate",
+          type: "date",
+          optionsSource: "none"
         },
         {
-          label: "Forecast Probability",
+          label: "Forecast probability",
+          labelKey: "workflow.triggerFilters.opportunity.forecast_probability",
           value: "opportunity.forecastProbability",
-          type: "number"
+          field: "opportunity.forecastProbability",
+          type: "number",
+          optionsSource: "none"
         },
         {
           label: "Status",
+          labelKey: "workflow.triggerFilters.opportunity.status",
           value: "opportunity.status",
-          type: "select"
+          field: "opportunity.status",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
-          label: "Lost Reason",
+          label: "Lost reason",
+          labelKey: "workflow.triggerFilters.opportunity.lost_reason",
           value: "opportunity.lostReasonId",
-          type: "select"
+          field: "opportunity.lostReasonId",
+          type: "select",
+          optionsSource: "dynamic"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.is"
+          },
+          field: "==",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.is_not"
+          },
+          field: "!=",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -85464,48 +87251,129 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/opportunity_changed.json",
       filterClass: "OpportunityChangedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In pipeline",
+          labelKey: "workflow.triggerFilters.opportunity.in_pipeline",
           value: "opportunity.pipelineId",
-          type: "select"
+          field: "opportunity.pipelineId",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Tag",
+          labelKey: "workflow.triggerFilters.common.tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "==",
           type: "select",
-          id: "tag",
-          operator: "=="
+          optionsSource: "dynamic",
+          id: "tag"
         },
         {
           label: "Assigned to",
+          labelKey: "workflow.triggerFilters.opportunity.assigned_to",
           value: "opportunity.assignedTo",
-          type: "select"
+          field: "opportunity.assignedTo",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Lead value",
+          labelKey: "workflow.triggerFilters.opportunity.lead_value",
           value: "opportunity.monetaryValue",
-          type: "number"
+          field: "opportunity.monetaryValue",
+          type: "number",
+          optionsSource: "none"
         },
         {
-          label: "Expected Close Date",
+          label: "Expected close date",
+          labelKey: "workflow.triggerFilters.opportunity.expected_close_date",
           value: "opportunity.forecastExpectedCloseDate",
-          type: "date"
+          field: "opportunity.forecastExpectedCloseDate",
+          type: "date",
+          optionsSource: "none"
         },
         {
-          label: "Forecast Probability",
+          label: "Forecast probability",
+          labelKey: "workflow.triggerFilters.opportunity.forecast_probability",
           value: "opportunity.forecastProbability",
-          type: "number"
+          field: "opportunity.forecastProbability",
+          type: "number",
+          optionsSource: "none"
         },
         {
           label: "Status",
+          labelKey: "workflow.triggerFilters.opportunity.status",
           value: "opportunity.status",
-          type: "select"
+          field: "opportunity.status",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
-          label: "Lost Reason",
+          label: "Lost reason",
+          labelKey: "workflow.triggerFilters.opportunity.lost_reason",
           value: "opportunity.lostReasonId",
-          type: "select"
+          field: "opportunity.lostReasonId",
+          type: "select",
+          optionsSource: "dynamic"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.is"
+          },
+          field: "==",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.is_not"
+          },
+          field: "!=",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.has_changed"
+          },
+          field: "has-changed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.has_changed_to"
+          },
+          field: "has-changed-to",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.added"
+          },
+          field: "add-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.removed"
+          },
+          field: "remove-index-of-true",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -85575,47 +87443,92 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/pipeline_stage_updated.json",
       filterClass: "PipelineFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In pipeline",
+          labelKey: "workflow.triggerFilters.pipeline.in_pipeline",
           value: "opportunity.pipelineId",
-          type: "select"
+          field: "opportunity.pipelineId",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Tag",
+          labelKey: "workflow.triggerFilters.common.tag",
           value: "contact.tags",
+          field: "contact.tags",
           type: "select",
+          optionsSource: "dynamic",
           id: "tag"
         },
         {
           label: "Assigned to",
+          labelKey: "workflow.triggerFilters.pipeline.assigned_to",
           value: "opportunity.assignedTo",
-          type: "select"
+          field: "opportunity.assignedTo",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Lead value",
+          labelKey: "workflow.triggerFilters.pipeline.lead_value",
           value: "opportunity.monetaryValue",
-          type: "number"
+          field: "opportunity.monetaryValue",
+          type: "number",
+          optionsSource: "none"
         },
         {
-          label: "Expected Close Date",
+          label: "Expected close date",
+          labelKey: "workflow.triggerFilters.pipeline.expected_close_date",
           value: "opportunity.forecastExpectedCloseDate",
-          type: "date"
+          field: "opportunity.forecastExpectedCloseDate",
+          type: "date",
+          optionsSource: "none"
         },
         {
-          label: "Forecast Probability",
+          label: "Forecast probability",
+          labelKey: "workflow.triggerFilters.pipeline.forecast_probability",
           value: "opportunity.forecastProbability",
-          type: "number"
+          field: "opportunity.forecastProbability",
+          type: "number",
+          optionsSource: "none"
         },
         {
           label: "Status",
+          labelKey: "workflow.triggerFilters.pipeline.status",
           value: "opportunity.status",
-          type: "select"
+          field: "opportunity.status",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
-          label: "Lost Reason",
+          label: "Lost reason",
+          labelKey: "workflow.triggerFilters.pipeline.lost_reason",
           value: "opportunity.lostReasonId",
-          type: "select"
+          field: "opportunity.lostReasonId",
+          type: "select",
+          optionsSource: "dynamic"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.pipeline.is"
+          },
+          field: "==",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.pipeline.is_not"
+          },
+          field: "!=",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -85685,61 +87598,112 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/opportunity_decay.json",
       filterClass: "OpportunityFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In pipeline",
+          labelKey: "workflow.triggerFilters.opportunity.in_pipeline",
           value: "opportunity.pipelineId",
-          type: "select"
+          field: "opportunity.pipelineId",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Duration in days",
+          labelKey: "workflow.triggerFilters.opportunity.duration_in_days",
           value: "opportunity.lastActionDate",
+          field: "opportunity.lastActionDate",
+          operator: "time-diff-now-gte",
           type: "number",
-          operator: "time-diff-now-gte"
+          optionsSource: "none"
         },
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
         },
         {
-          label: "Doesn",
+          label: "Doesn't have tag",
+          labelKey: "workflow.triggerFilters.opportunity.doesnt_have_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-false",
           type: "select",
-          id: "doesnot-have-tag",
-          operator: "index-of-false"
+          optionsSource: "dynamic",
+          id: "doesnot-have-tag"
         },
         {
           label: "Assigned to",
+          labelKey: "workflow.triggerFilters.opportunity.assigned_to",
           value: "opportunity.assignedTo",
-          type: "select"
+          field: "opportunity.assignedTo",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
           label: "Lead value",
+          labelKey: "workflow.triggerFilters.opportunity.lead_value",
           value: "opportunity.monetaryValue",
-          type: "number"
+          field: "opportunity.monetaryValue",
+          type: "number",
+          optionsSource: "none"
         },
         {
-          label: "Expected Close Date",
+          label: "Expected close date",
+          labelKey: "workflow.triggerFilters.opportunity.expected_close_date",
           value: "opportunity.forecastExpectedCloseDate",
-          type: "date"
+          field: "opportunity.forecastExpectedCloseDate",
+          type: "date",
+          optionsSource: "none"
         },
         {
-          label: "Forecast Probability",
+          label: "Forecast probability",
+          labelKey: "workflow.triggerFilters.opportunity.forecast_probability",
           value: "opportunity.forecastProbability",
-          type: "number"
+          field: "opportunity.forecastProbability",
+          type: "number",
+          optionsSource: "none"
         },
         {
           label: "Status",
+          labelKey: "workflow.triggerFilters.opportunity.status",
           value: "opportunity.status",
-          type: "select"
+          field: "opportunity.status",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
-          label: "Lost Reason",
+          label: "Lost reason",
+          labelKey: "workflow.triggerFilters.opportunity.lost_reason",
           value: "opportunity.lostReasonId",
-          type: "select"
+          field: "opportunity.lostReasonId",
+          type: "select",
+          optionsSource: "dynamic"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.is"
+          },
+          field: "==",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.is_not"
+          },
+          field: "!=",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -85808,25 +87772,35 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "CampaignFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In campaign",
+          labelKey: "workflow.triggerFilters.campaign.in_campaign",
           value: "campaign.id",
-          type: "select"
+          field: "campaign.id",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
         },
         {
-          label: "Doesn",
+          label: "Doesn't have tag",
+          labelKey: "workflow.triggerFilters.campaign.doesnt_have_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-false",
           type: "select",
-          id: "doesnot-have-tag",
-          operator: "index-of-false"
+          optionsSource: "dynamic",
+          id: "doesnot-have-tag"
         }
       ],
       filterChecks: {
@@ -85856,12 +87830,39 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "MembershipCategoryStartedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Product",
+          labelKey: "workflow.triggerFilters.membership.common.product",
           value: "membership.product.id",
-          type: "multiselect"
+          field: "membership.product.id",
+          type: "multiselect",
+          optionsSource: "dynamic"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_any_of"
+          },
+          field: "is-any-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_none_of"
+          },
+          field: "is-none-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -85894,12 +87895,39 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/category_completed.json",
       filterClass: "MembershipCategoryCompletedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Product",
+          labelKey: "workflow.triggerFilters.membership.common.product",
           value: "membership.product.id",
-          type: "multiselect"
+          field: "membership.product.id",
+          type: "multiselect",
+          optionsSource: "dynamic"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_any_of"
+          },
+          field: "is-any-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_none_of"
+          },
+          field: "is-none-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -85932,12 +87960,39 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/lesson_started.json",
       filterClass: "MembershipLessonStartedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Product",
+          labelKey: "workflow.triggerFilters.membership.common.product",
           value: "membership.product.id",
-          type: "multiselect"
+          field: "membership.product.id",
+          type: "multiselect",
+          optionsSource: "dynamic"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_any_of"
+          },
+          field: "is-any-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_none_of"
+          },
+          field: "is-none-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -85970,12 +88025,39 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/lesson_completed.json",
       filterClass: "MembershipLessonCompletedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Product",
+          labelKey: "workflow.triggerFilters.membership.common.product",
           value: "membership.product.id",
-          type: "multiselect"
+          field: "membership.product.id",
+          type: "multiselect",
+          optionsSource: "dynamic"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_any_of"
+          },
+          field: "is-any-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_none_of"
+          },
+          field: "is-none-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -86006,6 +88088,21 @@ Rules to Follow:
       category: "courses",
       premium: false,
       confidence: "bundle-derived",
+      filterClass: "MembershipOfferAccessFilter",
+      filterRowsSource: "sourcemap",
+      filterRows: [
+        {
+          label: "Offer",
+          labelKey: "workflow.triggerFilters.membership.offer_access.offer",
+          value: "offer.id",
+          field: "offer.id",
+          type: "select",
+          optionsSource: "dynamic"
+        }
+      ],
+      filterOptionHelpers: [
+        "getMembershipOffers"
+      ],
       filterChecks: {
         validator: "membershipCourseValidator",
         assetChecks: [],
@@ -86026,8 +88123,7 @@ Rules to Follow:
           }
         ],
         shapeRules: []
-      },
-      filterClass: "MembershipOfferAccessFilter"
+      }
     },
     offer_access_granted: {
       type: "offer_access_granted",
@@ -86037,12 +88133,19 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "MembershipOfferAccessFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Offer",
+          labelKey: "workflow.triggerFilters.membership.offer_access.offer",
           value: "offer.id",
-          type: "select"
+          field: "offer.id",
+          type: "select",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getMembershipOffers"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -86074,12 +88177,19 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "MembershipOfferAccessFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Offer",
+          labelKey: "workflow.triggerFilters.membership.offer_access.offer",
           value: "offer.id",
-          type: "select"
+          field: "offer.id",
+          type: "select",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getMembershipOffers"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -86111,12 +88221,19 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "MembershipProductAccessGrantedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Select Product",
+          label: "Select product",
+          labelKey: "workflow.triggerFilters.membership.common.select_product",
           value: "product.id",
-          type: "select"
+          field: "product.id",
+          type: "select",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -86148,12 +88265,19 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "MembershipProductAccessRemovedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Select Product",
+          label: "Select product",
+          labelKey: "workflow.triggerFilters.membership.common.select_product",
           value: "product.id",
-          type: "select"
+          field: "product.id",
+          type: "select",
+          optionsSource: "dynamic"
         }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -86184,13 +88308,40 @@ Rules to Follow:
       category: "courses",
       premium: false,
       confidence: "bundle-derived",
-      filterClass: "MembershipProductProgressPercentageFilter",
+      filterClass: "MembershipProductCompletedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Select Product",
-          value: "product.id",
-          type: "select"
+          label: "Product",
+          labelKey: "workflow.triggerFilters.membership.common.product",
+          value: "membership.product.id",
+          field: "membership.product.id",
+          type: "multiselect",
+          optionsSource: "dynamic"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_any_of"
+          },
+          field: "is-any-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_none_of"
+          },
+          field: "is-none-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -86222,12 +88373,39 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "MembershipProductCompletedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Product",
+          labelKey: "workflow.triggerFilters.membership.common.product",
           value: "membership.product.id",
-          type: "multiselect"
+          field: "membership.product.id",
+          type: "multiselect",
+          optionsSource: "dynamic"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_any_of"
+          },
+          field: "is-any-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.membership.common.is_none_of"
+          },
+          field: "is-none-of",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getMembershipProducts"
       ],
       filterChecks: {
         validator: "membershipCourseValidator",
@@ -86260,6 +88438,7 @@ Rules to Follow:
       confidence: "bundle-derived",
       filterClass: "MembershipUserLogin",
       filterRows: [],
+      filterRowsSource: "may-one-off",
       filterChecks: {
         validator: "membershipCourseValidator",
         assetChecks: [],
@@ -86290,19 +88469,29 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "InvoiceFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Invoice Status",
+          label: "Invoice status",
+          labelKey: "workflow.triggerFilters.invoice.invoice_status",
           value: "invoice.status",
+          field: "invoice.status",
           type: "select",
+          optionsSource: "dynamic",
           id: "invoice-status"
         },
         {
           label: "Tag",
+          labelKey: "workflow.triggerFilters.common.tag",
           value: "contact.tags",
+          field: "contact.tags",
           type: "select",
+          optionsSource: "dynamic",
           id: "tag"
         }
+      ],
+      filterOptionHelpers: [
+        "getTags"
       ],
       filterChecks: {
         validator: "invoiceValidator",
@@ -86343,74 +88532,356 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "PaymentReceived",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Source",
+          labelKey: "workflow.triggerFilters.payment_received.source",
           value: "payment.source",
+          field: "payment.source",
           type: "select",
           options: [
             {
-              label: "Website",
-              value: "website"
+              value: "website",
+              label: "Website"
             },
             {
-              label: "Calendar",
-              value: "calendar"
+              value: "calendar",
+              label: "Calendar"
             },
             {
-              label: "Invoice",
-              value: "invoice"
+              value: "invoice",
+              label: "Invoice"
             },
             {
-              label: "Funnel",
-              value: "funnel"
+              value: "funnel",
+              label: "Funnel"
             },
             {
-              label: "Form",
-              value: "form"
+              value: "form",
+              label: "Form"
             },
             {
-              label: "Manual Payment",
-              value: "manual"
+              value: "manual",
+              label: "Manual payment"
             },
             {
-              label: "Memberships",
-              value: "membership"
+              value: "membership",
+              label: "Memberships"
             },
             {
-              label: "External",
-              value: "external"
+              value: "external",
+              label: "External"
             },
             {
-              label: "Point of sale",
-              value: "point_of_sale"
-            },
-            {
-              label: "Survey",
-              value: "survey"
+              value: "survey",
+              label: "Survey"
             }
-          ]
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Payment Status",
+          label: "Payment status",
+          labelKey: "workflow.triggerFilters.payment_received.payment_status",
           value: "payment.payment_status",
+          field: "payment.payment_status",
           type: "select",
           options: [
             {
-              label: "Success",
-              value: "succeeded"
+              value: "succeeded",
+              label: "Success"
             },
             {
-              label: "Failed",
-              value: "failed"
+              value: "failed",
+              label: "Failed"
             }
-          ]
+          ],
+          optionsSource: "literal"
         },
         {
-          label: "Global Product",
+          label: "Global product",
+          labelKey: "workflow.triggerFilters.payment_received.global_product",
           value: "payment.global_product_ids",
-          type: "select"
+          field: "payment.global_product_ids",
+          type: "select_with_pagination",
+          optionsSource: "none"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.common.website"
+          },
+          field: "website",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.calendar"
+          },
+          field: "calendar",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.invoice"
+          },
+          field: "invoice",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.funnel"
+          },
+          field: "funnel",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.form"
+          },
+          field: "form",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.manual"
+          },
+          field: "manual",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.membership"
+          },
+          field: "membership",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.external"
+          },
+          field: "external",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sources.survey"
+          },
+          field: "survey",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.payment_statuses.succeeded"
+          },
+          field: "succeeded",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.payment_statuses.failed"
+          },
+          field: "failed",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.form_is"
+          },
+          field: "payment.form.id",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.one_step_order_form"
+          },
+          field: "one_step_order_form",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.two_step_order_form"
+          },
+          field: "two_step_order_form",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.upsell"
+          },
+          field: "upsell",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.store"
+          },
+          field: "store",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.store_upsell"
+          },
+          field: "store_upsell",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.woocommerce"
+          },
+          field: "woocommerce",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.shopify"
+          },
+          field: "shopify",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_source"
+          },
+          field: "payment.funnel.sub_source",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_source"
+          },
+          field: "payment.website.sub_source",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.text2pay"
+          },
+          field: "text2Pay",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.onetime"
+          },
+          field: "onetime",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_sources.recurring_template"
+          },
+          field: "recurring_template",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.sub_source"
+          },
+          field: "payment.external.sub_source",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.transaction_types.sale"
+          },
+          field: "sale",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.transaction_types.subsequent_subscription"
+          },
+          field: "subsequent_subscription",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.transaction_type"
+          },
+          field: "payment.funnel.transaction_type",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.transaction_type"
+          },
+          field: "payment.website.transaction_type",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.payment_received.calendar"
+          },
+          field: "payment.calendar.id",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getCalendars",
+        "getGlobalProductOptionById"
       ],
       filterChecks: {
         validator: "paymentReceivedValidator",
@@ -86447,17 +88918,45 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "TwoStepFormFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "in_funnel_website",
+          label: "In funnel/website",
+          labelKey: "in_funnel_website",
           value: "twoStepOrderForm.funnelId",
-          type: "select_with_pagination"
+          field: "twoStepOrderForm.funnelId",
+          type: "select_with_pagination",
+          optionsSource: "dynamic"
         },
         {
-          label: "submission_type",
+          label: "Submission type",
+          labelKey: "submission_type",
           value: "twoStepOrderForm.submissionType",
-          type: "select"
+          field: "twoStepOrderForm.submissionType",
+          type: "select",
+          options: [
+            {
+              value: 1,
+              label: "OptIn"
+            },
+            {
+              value: 2,
+              label: "Sale"
+            },
+            {
+              value: 3,
+              label: "Upsell"
+            },
+            {
+              value: 4,
+              label: "Bump"
+            }
+          ],
+          optionsSource: "literal"
         }
+      ],
+      filterOptionHelpers: [
+        "getFunnelById"
       ],
       filterChecks: {
         validator: "twoStepOrderFormValidator",
@@ -86494,54 +88993,222 @@ Rules to Follow:
       confidence: "verified-live",
       example: "catalog/trigger-examples/order_submission.json",
       filterClass: "OrderSubmission",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Order Source",
+          label: "Order source",
+          labelKey: "workflow.triggerFilters.order_submission.order_source",
           value: "order.source",
+          field: "order.source",
           type: "select",
           options: [
             {
-              label: "Order Form",
-              value: "funnel"
+              value: "funnel",
+              label: "Funnel"
             },
             {
-              label: "Store",
-              value: "store"
+              value: "store",
+              label: "Store"
             },
             {
-              label: "External",
-              value: "external"
+              value: "external",
+              label: "External"
             },
             {
-              label: "Membership",
-              value: "membership"
+              value: "membership",
+              label: "Membership"
             },
             {
-              label: "Communities",
-              value: "communities"
+              value: "communities",
+              label: "Communities"
             },
             {
-              label: "Form",
-              value: "form"
+              value: "form",
+              label: "Form"
             },
             {
-              label: "Survey",
-              value: "survey"
+              value: "survey",
+              label: "Survey"
             },
             {
-              label: "Payment Link",
-              value: "payment_link"
+              value: "payment_link",
+              label: "Payment link"
             },
             {
-              label: "Calendar",
-              value: "calendar"
-            },
-            {
-              label: "Point of sale",
-              value: "point_of_sale"
+              value: "calendar",
+              label: "Calendar"
             }
-          ]
+          ],
+          optionsSource: "literal"
         }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.funnel"
+          },
+          field: "funnel",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.store"
+          },
+          field: "store",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.external"
+          },
+          field: "external",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.membership"
+          },
+          field: "membership",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.communities"
+          },
+          field: "communities",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.form"
+          },
+          field: "form",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.survey"
+          },
+          field: "survey",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.payment_link"
+          },
+          field: "payment_link",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sources.calendar"
+          },
+          field: "calendar",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.global_product"
+          },
+          field: "order.line_item_global_product_ids",
+          operator: null,
+          type: "select_with_pagination",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.in_funnel_or_website"
+          },
+          field: "order.funnel_id",
+          operator: null,
+          type: "select_with_pagination",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sub_sources.store_upsell"
+          },
+          field: "store_upsell",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sub_sources.woocommerce"
+          },
+          field: "woocommerce",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sub_sources.shopify"
+          },
+          field: "shopify",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sub_sources.one_step_order_form"
+          },
+          field: "one_step_order_form",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sub_sources.two_step_order_form"
+          },
+          field: "two_step_order_form",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sub_sources.upsell"
+          },
+          field: "upsell",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.order_submission.sub_source"
+          },
+          field: "order.sub_source",
+          operator: null,
+          type: "select",
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        }
+      ],
+      filterOptionHelpers: [
+        "getGlobalProductOptionById",
+        "getFunnelById"
       ],
       filterChecks: {
         validator: "orderSubmissionValidator",
@@ -86577,16 +89244,23 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "ShopifyAbandonedCartFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "Duration (minutes)",
+          labelKey: "workflow.triggerFilters.shopify.common.duration_minutes",
           value: "duration",
-          type: "number"
+          field: "duration",
+          type: "number",
+          optionsSource: "none"
         },
         {
-          label: "Cart Value",
+          label: "Cart value",
+          labelKey: "workflow.triggerFilters.shopify.common.cart_value",
           value: "cart_value",
-          type: "numerical"
+          field: "cart_value",
+          type: "numerical",
+          optionsSource: "none"
         }
       ],
       filterChecks: {
@@ -86628,11 +89302,15 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "ShopifyOrderPlacedFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Cart Value",
+          label: "Cart value",
+          labelKey: "workflow.triggerFilters.shopify.common.cart_value",
           value: "cart_value",
-          type: "numerical"
+          field: "cart_value",
+          type: "numerical",
+          optionsSource: "none"
         }
       ],
       filterChecks: {
@@ -86663,11 +89341,15 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "ShopifyOrderFulfilledFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "Cart Value",
+          label: "Cart value",
+          labelKey: "workflow.triggerFilters.shopify.common.cart_value",
           value: "cart_value",
-          type: "numerical"
+          field: "cart_value",
+          type: "numerical",
+          optionsSource: "none"
         }
       ],
       filterChecks: {
@@ -86698,13 +89380,24 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "IVRIncomingCallFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
-          label: "In Phone Number",
+          label: "In phone number",
+          labelKey: "workflow.triggerFilters.ivr_incoming_call.in_phone_number",
           value: "inbound_number",
-          id: "inbound-twilio-number",
-          operator: "contains-any"
+          field: "inbound_number",
+          operator: "contains-any",
+          type: {
+            __dynamic__: "ValueDataType.MULTI_SELECT"
+          },
+          optionsSource: "dynamic",
+          id: "inbound-twilio-number"
         }
+      ],
+      filterOptionHelpers: [
+        "getPhoneNumbersWithoutNumberPool",
+        "getPhoneMappings"
       ],
       filterChecks: {
         validator: "ivrIncomingCallValidator",
@@ -86762,10 +89455,39 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "UserCommentsOnPostFilter",
+      filterRowsSource: "may-one-off",
       filterRows: [
         {
           label: "Page Is",
           type: "select"
+        }
+      ],
+      filterRowsDynamicFields: [
+        {
+          label: "Page is",
+          type: "select",
+          operator: null,
+          source: "this.pageId"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.user_comments_on_post.post_type.published"
+          },
+          field: "published",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.user_comments_on_post.post_type.custom"
+          },
+          field: "custom",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -86805,10 +89527,39 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "UserCommentsOnPostFilter",
+      filterRowsSource: "may-one-off",
       filterRows: [
         {
           label: "Page Is",
           type: "select"
+        }
+      ],
+      filterRowsDynamicFields: [
+        {
+          label: "Page is",
+          type: "select",
+          operator: null,
+          source: "this.pageId"
+        }
+      ],
+      filterRowsDynamic: [
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.user_comments_on_post.post_type.published"
+          },
+          field: "published",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
+        },
+        {
+          label: {
+            i18nKey: "workflow.triggerFilters.user_comments_on_post.post_type.custom"
+          },
+          field: "custom",
+          operator: null,
+          type: null,
+          addedBy: "dynamic (addDynamicFilterOptions / helper)"
         }
       ],
       filterChecks: {
@@ -86921,25 +89672,35 @@ Rules to Follow:
       example: "catalog/trigger-examples/affiliate_new_lead.json",
       confidence: "verified-live",
       filterClass: "CampaignFilter",
+      filterRowsSource: "sourcemap",
       filterRows: [
         {
           label: "In campaign",
+          labelKey: "workflow.triggerFilters.campaign.in_campaign",
           value: "campaign.id",
-          type: "select"
+          field: "campaign.id",
+          type: "select",
+          optionsSource: "dynamic"
         },
         {
-          label: "Has Tag",
+          label: "Has tag",
+          labelKey: "workflow.triggerFilters.common.has_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-true",
           type: "select",
-          id: "has-tag",
-          operator: "index-of-true"
+          optionsSource: "dynamic",
+          id: "has-tag"
         },
         {
-          label: "Doesn",
+          label: "Doesn't have tag",
+          labelKey: "workflow.triggerFilters.campaign.doesnt_have_tag",
           value: "contact.tags",
+          field: "contact.tags",
+          operator: "index-of-false",
           type: "select",
-          id: "doesnot-have-tag",
-          operator: "index-of-false"
+          optionsSource: "dynamic",
+          id: "doesnot-have-tag"
         }
       ],
       schemaFilters: [

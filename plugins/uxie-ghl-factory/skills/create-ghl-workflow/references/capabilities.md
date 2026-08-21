@@ -329,11 +329,11 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ▫ `affiliate_sales` (internal) — filters: Campaign (`campaign`), Affiliate (`affiliateId`), W8/W9 Form (`taxForm`), Payout Method (`payoutMethod`)
 
 ### affiliates
-- ◐ `affiliate_created` (highlevel) — filters: In campaign (`campaign.id`), Has Tag (`contact.tags`), Doesn (`contact.tags`)
+- ◐ `affiliate_created` (highlevel) — filters: In campaign (`campaign.id`), Has tag (`contact.tags`), Doesn't have tag (`contact.tags`)
 
 ### appointments
-- ✅ `appointment` (highlevel) — filters: In calendar (`calendar.id`), Appointment status is (`appointment.status`), Has Tag (`contact.tags`), Event Type (`appointment.eventType`), Created By/Modified By (`appointment.modifiedBy`)
-- ✅ `customer_appointment` (highlevel) — filters: In calendar (`calendar.id`), Has Tag (`contact.tags`)
+- ✅ `appointment` (highlevel) — filters: In calendar (`calendar.id`), Appointment status is (`appointment.status`), Has tag (`contact.tags`), Event type (`appointment.eventType`), Created by/modified by (`appointment.modifiedBy`)
+- ✅ `customer_appointment` (highlevel) — filters: In calendar (`calendar.id`), Has tag (`contact.tags`)
 - ▫ `rental_booking` (internal) — filters: Has Tag (`contact.tags`), Created By / Modified By (`modifiedBy`), Booking Status (`status`), In Listing (`listings`), In Rental Categories (`listingCategories`)
 - ▫ `service_booking` (internal) — filters: In Service (`services`), In Service Category (`serviceCategories`), Appointment Status (`status`), Has Tag (`contact.tags`), Created By / Modified By (`modifiedBy`), In Service Locations (`serviceLocations`)
 
@@ -359,30 +359,30 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### contact
 - ◐ `birthday_reminder` (highlevel) — filters: Month is (`contact.birthMonth`), Day is (`contact.birthDay`), Before no. of days (`contact.dateOfBirth`), After no. of days (`contact.dateOfBirth`)
-- ✅ `contact_changed` (highlevel) — filters: Tags (`contact.tags`), DND (`contact.dnd`), Assigned User (`contact.assignedTo`), Phone (`contact.phone`), Email (`contact.email`), Contact Type (`contact.type`), Street Address (`contact.address1`), City (`contact.city`), State (`contact.state`), Country (`contact.country`), Postal Code (`contact.postalCode`), Website (`contact.website`)
-- ✅ `contact_created` (highlevel) — filters: Tag (`tagsAdded`), Phone (`contact.phone`), Email (`contact.email`), Contact Type (`contact.type`)
+- ✅ `contact_changed` (highlevel) — filters: Tags (`contact.tags`), DND (`contact.dnd`), Assigned user (`contact.assignedTo`), Phone (`contact.phone`), Email (`contact.email`), Contact type (`contact.type`), Street address (`contact.address1`), City (`contact.city`), State (`contact.state`), Country (`contact.country`), Postal code (`contact.postalCode`), Website (`contact.website`)
+- ✅ `contact_created` (highlevel) — filters: Tag (`tagsAdded`), Phone (`contact.phone`), Email (`contact.email`), Contact type (`contact.type`)
 - ▫ `contact_engagement_score` (internal) — filters: Score (`score`)
-- ✅ `contact_tag` (highlevel) — filters: tag_added (`tagsAdded`), tag_removed (`tagsRemoved`)
+- ✅ `contact_tag` (highlevel) — filters: Tag added (`tagsAdded`), Tag removed (`tagsRemoved`)
 - ◐ `custom_date_reminder` (highlevel)
 - ◐ `dnd_contact` (highlevel) — filters: DND direction is (`contact.dnd_direction`), DND flag is (`contact.dnd`), Tag (`contact.tags`)
-- ◐ `note_add` (highlevel) — filters: Has Tag (`contact.tags`), Doesn (`contact.tags`)
-- ◐ `note_changed` (highlevel) — filters: Has Tag (`contact.tags`), Doesn (`contact.tags`)
-- ✅ `task_added` (highlevel) — filters: assigned_user (`task.assignedTo`)
+- ◐ `note_add` (highlevel) — filters: Has tag (`contact.tags`), Doesn't have tag (`contact.tags`)
+- ◐ `note_changed` (highlevel) — filters: Has tag (`contact.tags`), Doesn't have tag (`contact.tags`)
+- ✅ `task_added` (highlevel) — filters: Assigned user (`task.assignedTo`)
 - ▫ `task_completed` (internal) — filters: Assigned User (`task.assignedTo`)
-- ✅ `task_due_date_reminder` (highlevel) — filters: before_no_of_days (`task.dueDate`), after_no_of_days (`task.dueDate`)
+- ✅ `task_due_date_reminder` (highlevel) — filters: Before no. of days (`task.dueDate`), After no. of days (`task.dueDate`)
 
 ### courses
 - ✅ `category_completed` (highlevel) — filters: Product (`membership.product.id`)
 - ◐ `category_started` (highlevel) — filters: Product (`membership.product.id`)
 - ✅ `lesson_completed` (highlevel) — filters: Product (`membership.product.id`)
 - ✅ `lesson_started` (highlevel) — filters: Product (`membership.product.id`)
-- ◐ `membership_contact_created` (highlevel)
+- ◐ `membership_contact_created` (highlevel) — filters: Offer (`offer.id`)
 - ◐ `offer_access_granted` (highlevel) — filters: Offer (`offer.id`)
 - ◐ `offer_access_removed` (highlevel) — filters: Offer (`offer.id`)
-- ◐ `product_access_granted` (highlevel) — filters: Select Product (`product.id`)
-- ◐ `product_access_removed` (highlevel) — filters: Select Product (`product.id`)
+- ◐ `product_access_granted` (highlevel) — filters: Select product (`product.id`)
+- ◐ `product_access_removed` (highlevel) — filters: Select product (`product.id`)
 - ◐ `product_completed` (highlevel) — filters: Product (`membership.product.id`)
-- ◐ `product_started` (highlevel) — filters: Select Product (`product.id`)
+- ◐ `product_started` (highlevel) — filters: Product (`membership.product.id`)
 - ◐ `user_log_in` (highlevel)
 
 ### custom_object
@@ -390,15 +390,15 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ◐ `custom_object_created` (highlevel)
 
 ### events
-- ✅ `call_status` (highlevel) — filters: Call Status (`call_status`), Custom Disposition (`custom_disposition`), Call Direction (`message.direction`), In Workflow (`workflow.id`)
+- ✅ `call_status` (highlevel) — filters: Call status (`call_status`), Custom disposition (`custom_disposition`), Call direction (`message.direction`), In workflow (`workflow.id`)
 - ◐ `conv_ai_autonomous_trigger` (highlevel)
 - ✅ `conv_ai_trigger` (highlevel)
-- ✅ `customer_reply` (highlevel) — filters: Replied to Workflow (`workflow.id`), Reply channel (`message.type`), Contains phrase (`message.body`), Exact match phrase (`message.body`), Intent type (`message.body`), Has Tag (`contact.tags`), Doesn (`contact.tags`)
+- ✅ `customer_reply` (highlevel) — filters: Replied to workflow (`workflow.id`), Reply channel (`message.type`), Message body (`message.body`), Intent type (`message.body`), Has tag (`contact.tags`), Doesn't have tag (`contact.tags`), Has Attachments (`message.hasAttachments`)
 - ▫ `external_tracking` (internal)
-- ✅ `facebook_lead_gen` (highlevel) — filters: Page Is (`facebook.pageId`)
-- ✅ `form_submission` (highlevel) — filters: Form is (`form.id`), terms_and_conditions (`formData.termsAndConditions`)
+- ✅ `facebook_lead_gen` (highlevel) — filters: Page is (`facebook.pageId`)
+- ✅ `form_submission` (highlevel) — filters: Form is (`form.id`), Terms and Conditions (`formData.termsAndConditions`)
 - ▫ `funnel_website_pageview` (internal) — filters: Funnel/Website (`funnelId`)
-- ◐ `inbound_trigger` (highlevel) — filters: contact_tag (`contact.tags`)
+- ◐ `inbound_trigger` (highlevel) — filters: Contact tag (`contact.tags`)
 - ✅ `inbound_webhook` (highlevel)
 - ▫ `linkedin_form_submitted` (internal)
 - ✅ `mailgun_email_event` (highlevel) — filters: In workflow (`workflow.id`), Event (`mailgun.event`)
@@ -406,13 +406,13 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ▫ `new_prospect_received_workflow` (internal) — filters: Prospect Source (`prospect_source`), Prospect Conversion Score (`prospect_conversion_score`)
 - ▫ `quiz_submitted` (internal) — filters: Quiz Name (`quizId`), Overall Score (`overallScore`)
 - ▫ `reputation_review_received` (internal) — filters: Review Rating (`review.rating`), Is Review Spam (`review.isSpam`), Review Source (`review.source`)
-- ✅ `scheduler_trigger` (highlevel) — filters: Interval (`scheduler.interval`)
-- ✅ `survey_submission` (highlevel) — filters: survey_is (`survey.id`), disqualified (`surveySubmission.disqualified`), terms_and_conditions (`surveyData.termsAndConditions`)
-- ◐ `tik_tok_form_submitted` (highlevel) — filters: in_form (`tikTok.formId`)
-- ✅ `trigger_link` (highlevel) — filters: trigger_link (`link.id`)
+- ✅ `scheduler_trigger` (highlevel) — filters: Interval (`scheduler.interval`), Pattern (`scheduler.monthly.patternType`), Week (`scheduler.monthly.weekIndex`), Day of week (`scheduler.monthly.weekday`), On days (`scheduler.weekly.days`), On days (`scheduler.monthly.days`), Every (`scheduler.hourly.every`), Cron expression (`scheduler.cron.expression`)
+- ✅ `survey_submission` (highlevel) — filters: Survey is (`survey.id`), Disqualified (`surveySubmission.disqualified`), Terms and Conditions (`surveyData.termsAndConditions`)
+- ◐ `tik_tok_form_submitted` (highlevel) — filters: In form (`tikTok.formId`)
+- ✅ `trigger_link` (highlevel) — filters: Trigger link (`link.id`)
 - ▫ `user_replied` (internal) — filters: Contact tags (`contact.tags`), Message body (`message.body`), Message channel (`message.type`), Replied By (`message.user_type_selection`), Has attachments (`message.hasAttachments`)
-- ◐ `validation_error` (highlevel)
-- ◐ `video_event` (highlevel) — filters: funnel (`video.funnelId`), video (`video.videoId`), video_duration_percent (`video.duration`)
+- ◐ `validation_error` (highlevel) — filters: Number is (`contact.phoneInfo`)
+- ◐ `video_event` (highlevel) — filters: Funnel (`video.funnelId`), Video (`video.videoId`), Video duration (%) (`video.duration`)
 - ▫ `whatsapp_referral` (internal) — filters: Ad / Post URL (`source_url`), Source Type (`source_type`), Ad / Post Id (`source_id`), Head Line of Ad / Post (`headline`)
 
 ### fb_ig_events
@@ -420,20 +420,20 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ◐ `ig_comment_on_post` (highlevel) — filters: Page Is (`undefined`)
 
 ### ivr
-- ◐ `ivr_incoming_call` (highlevel) — filters: In Phone Number (`inbound_number`)
+- ◐ `ivr_incoming_call` (highlevel) — filters: In phone number (`inbound_number`)
 
 ### membership
 - ▫ `client_portal_file_uploaded` (internal)
 
 ### opportunities
-- ✅ `opportunity_changed` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected Close Date (`opportunity.forecastExpectedCloseDate`), Forecast Probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost Reason (`opportunity.lostReasonId`)
-- ✅ `opportunity_created` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected Close Date (`opportunity.forecastExpectedCloseDate`), Forecast Probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost Reason (`opportunity.lostReasonId`)
-- ✅ `opportunity_decay` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Duration in days (`opportunity.lastActionDate`), Has Tag (`contact.tags`), Doesn (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected Close Date (`opportunity.forecastExpectedCloseDate`), Forecast Probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost Reason (`opportunity.lostReasonId`)
-- ✅ `opportunity_status_changed` (highlevel) — filters: Moved from status (`opportunity.oldStatus`), Moved to status (`opportunity.status`), In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected Close Date (`opportunity.forecastExpectedCloseDate`), Forecast Probability (`opportunity.forecastProbability`), Lost Reason (`opportunity.lostReasonId`)
-- ✅ `pipeline_stage_updated` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected Close Date (`opportunity.forecastExpectedCloseDate`), Forecast Probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost Reason (`opportunity.lostReasonId`)
+- ✅ `opportunity_changed` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected close date (`opportunity.forecastExpectedCloseDate`), Forecast probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost reason (`opportunity.lostReasonId`)
+- ✅ `opportunity_created` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected close date (`opportunity.forecastExpectedCloseDate`), Forecast probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost reason (`opportunity.lostReasonId`)
+- ✅ `opportunity_decay` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Duration in days (`opportunity.lastActionDate`), Has tag (`contact.tags`), Doesn't have tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected close date (`opportunity.forecastExpectedCloseDate`), Forecast probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost reason (`opportunity.lostReasonId`)
+- ✅ `opportunity_status_changed` (highlevel) — filters: Moved from status (`opportunity.oldStatus`), Moved to status (`opportunity.status`), In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected close date (`opportunity.forecastExpectedCloseDate`), Forecast probability (`opportunity.forecastProbability`), Lost reason (`opportunity.lostReasonId`)
+- ✅ `pipeline_stage_updated` (highlevel) — filters: In pipeline (`opportunity.pipelineId`), Tag (`contact.tags`), Assigned to (`opportunity.assignedTo`), Lead value (`opportunity.monetaryValue`), Expected close date (`opportunity.forecastExpectedCloseDate`), Forecast probability (`opportunity.forecastProbability`), Status (`opportunity.status`), Lost reason (`opportunity.lostReasonId`)
 
 ### other
-- ✅ `affiliate_new_lead` (internal) — filters: In campaign (`campaign.id`), Has Tag (`contact.tags`), Doesn (`contact.tags`)
+- ✅ `affiliate_new_lead` (internal) — filters: In campaign (`campaign.id`), Has tag (`contact.tags`), Doesn't have tag (`contact.tags`)
 - ✅ `proposal_estimate_update` (internal) — filters: Status (`status`), Value (`value`), Recipient type (`recipientType`), Template (`documentCreatedByTemplateId`), [Deprecated]Document Type (`document_type`)
 
 ### payments
@@ -442,14 +442,14 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ▫ `coupon_code_redeemed` (internal) — filters: Coupon Code (`code`), Source (`source`), Product Type (`productType`), Order Value (Before Discount) (`orderValueBeforeDiscount`), Coupon Value (`discountValue`), Product(s) in Order (`productsInOrder`), Product Collection (`productCollections`), Contact Email ID (`contactEmailId`), Contact Tag (`contactTags`), Coupon Type (`discountType`), Coupon Name (`name`), Redemption Count (per coupon) (`redemptionCount`)
 - ▫ `coupon_redemption_limit_reached` (internal) — filters: Coupon Code (`code`), Coupon Type (`discountType`), Coupon Name (`name`), Redemption Limit (`redemptionLimit`)
 - ▫ `estimate_update` (internal) — filters: Estimate Status (`status`), Estimate Value (`value`), Template (`documentCreatedByTemplateId`)
-- ◐ `invoice` (highlevel) — filters: Invoice Status (`invoice.status`), Tag (`contact.tags`)
-- ✅ `order_submission` (highlevel) — filters: Order Source (`order.source`)
-- ◐ `payment_received` (highlevel) — filters: Source (`payment.source`), Payment Status (`payment.payment_status`), Global Product (`payment.global_product_ids`)
+- ◐ `invoice` (highlevel) — filters: Invoice status (`invoice.status`), Tag (`contact.tags`)
+- ✅ `order_submission` (highlevel) — filters: Order source (`order.source`)
+- ◐ `payment_received` (highlevel) — filters: Source (`payment.source`), Payment status (`payment.payment_status`), Global product (`payment.global_product_ids`)
 - ▫ `refund` (internal) — filters: Status (`status`), Amount (`amount`), Type (`transaction.status`), Source (`transaction.entitySourceType`)
 - ▫ `subscription` (internal) — filters: Status (`status`), Global Products (`global_product.id`)
-- ◐ `two_step_form_submission` (highlevel) — filters: in_funnel_website (`twoStepOrderForm.funnelId`), submission_type (`twoStepOrderForm.submissionType`)
+- ◐ `two_step_form_submission` (highlevel) — filters: In funnel/website (`twoStepOrderForm.funnelId`), Submission type (`twoStepOrderForm.submissionType`)
 
 ### shopify
-- ◐ `shopify_abandoned_cart` (highlevel) — filters: Duration (minutes) (`duration`), Cart Value (`cart_value`)
-- ◐ `shopify_order_fulfilled` (highlevel) — filters: Cart Value (`cart_value`)
-- ◐ `shopify_order_placed` (highlevel) — filters: Cart Value (`cart_value`)
+- ◐ `shopify_abandoned_cart` (highlevel) — filters: Duration (minutes) (`duration`), Cart value (`cart_value`)
+- ◐ `shopify_order_fulfilled` (highlevel) — filters: Cart value (`cart_value`)
+- ◐ `shopify_order_placed` (highlevel) — filters: Cart value (`cart_value`)
