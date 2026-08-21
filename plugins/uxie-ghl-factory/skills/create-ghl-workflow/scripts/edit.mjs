@@ -82,6 +82,7 @@ import { fetchMarketplace } from '../engine/orchestrate.mjs';
 import { loadCatalog } from '../engine/catalog.mjs';
 import { makeUuidV4 } from '../engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../engine/tags.mjs';
+import { parseServerValidation, describeServerFindings } from '../engine/server-validation.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // An engine REFUSAL (IRError with a code: ENFORCEMENT, REF_DANGLING, DEAD_BRANCH…) is a
@@ -216,14 +217,20 @@ if (stepOps.length) {
   const put = await call('PUT', `/workflow/${LOC}/${WID}`, body);
   console.log('PUT status:', put.status, put.ok ? 'OK' : 'FAIL');
   console.log('diff:', JSON.stringify(diff));
-  if (!put.ok) { console.log('body:', JSON.stringify(put.json).slice(0, 240)); flushWarnings(); process.exit(2); }
+  if (!put.ok) {
+    const sv = parseServerValidation(put.json);
+    console.log(sv ? `SERVER VALIDATION (${sv.validationType}): ${describeServerFindings(sv)}` : 'body: ' + JSON.stringify(put.json).slice(0, 240));
+    flushWarnings(); process.exit(2);
+  }
 }
 
 let triggerFailed = false;
 for (const r of plan) {
   const res = await call(r.method, r.path, r.body);
   console.log(`${r.op}: ${r.method} ${r.path.split('?')[0]} → ${res.status} ${res.ok ? 'OK' : 'FAIL'}`);
-  if (!res.ok) { triggerFailed = true; console.log('  body:', JSON.stringify(res.json).slice(0, 240)); }
+  if (!res.ok) { triggerFailed = true;
+    const sv = parseServerValidation(res.json);
+    console.log(sv ? `  SERVER VALIDATION (${sv.validationType}): ${describeServerFindings(sv)}` : '  body: ' + JSON.stringify(res.json).slice(0, 240)); }
 }
 
 // Activation. API-added triggers land active:false server-side no matter what the POST

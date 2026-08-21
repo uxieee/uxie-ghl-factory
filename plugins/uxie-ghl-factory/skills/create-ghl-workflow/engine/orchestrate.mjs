@@ -28,6 +28,7 @@ import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 import { buildMarketplaceIndex } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
+import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -183,7 +184,12 @@ export async function orchestrate(ir, gw, opts = {}) {
         status: response.status ?? null,
         body: scrubUpstream(response.json ?? null),
       };
-      report.aborted = `Upstream non-2xx during ${failurePhase}: HTTP ${response.status ?? 'unknown'}`;
+      // the save/update API announces validation failures in a structured payload — name the
+      // findings instead of reporting an opaque HTTP status (server-validation.mjs)
+      const sv = parseServerValidation(response.json);
+      report.aborted = sv
+        ? `GHL server validation (${sv.validationType}) rejected during ${failurePhase}: ${describeServerFindings(sv)}`
+        : `Upstream non-2xx during ${failurePhase}: HTTP ${response.status ?? 'unknown'}`;
       return null;
     }
     return response;

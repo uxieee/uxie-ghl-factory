@@ -179,3 +179,12 @@ test('proven-zero types carry the marker and enforce nothing', () => {
     checkEnforcement({ ref: 'x' }, {}, meta, {});          // empty rule set → never throws
   }
 });
+
+// ── trigger shape rules from filterChecks (extract-trigger-validators, 2026-08-22) ────────
+test('a scheduler trigger without an interval filter WARNS at compile (GHL requires it)', () => {
+  const warns = [];
+  const built = compile({ name: 'T', triggers: [{ ref: 't', type: 'scheduler_trigger', name: 'Sched', filters: [] }],
+    graph: [{ ref: 's1', kind: 'action', type: 'sms', name: 'S', attributes: { body: 'hi' } }] }, ctx({ warn: (m) => warns.push(m) }));
+  assert.ok(warns.some((w) => /TRIGGER_FILTER.*scheduler\.interval/.test(w)), JSON.stringify(warns));
+  assert.ok(built.triggerBodies.length === 1);
+});
