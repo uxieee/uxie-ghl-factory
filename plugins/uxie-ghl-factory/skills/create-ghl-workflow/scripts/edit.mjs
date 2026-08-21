@@ -84,6 +84,17 @@ import { makeUuidV4 } from '../engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../engine/tags.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+// An engine REFUSAL (IRError with a code: ENFORCEMENT, REF_DANGLING, DEAD_BRANCH…) is a
+// designed outcome, not a crash — print it as one. The 2026-08-22 live acceptance showed a
+// refused modifyStep dumping a raw stack trace; an agent reading that may retry, and retries
+// against GHL duplicate (see the addTrigger false-negative incident). Exit 2 = refused.
+const friendlyAbort = (e) => {
+  if (e?.code) { console.error(`ABORTED (${e.code}): ${e.message}`); process.exit(2); }
+  console.error(e); process.exit(1);
+};
+process.on('uncaughtException', friendlyAbort);
+process.on('unhandledRejection', friendlyAbort);
+
 const [LOC, WID, specPath] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const assumeAssociated = process.argv.includes('--assume-associated');
 // Both overrides were documented in the header but only one was ever parsed, so
