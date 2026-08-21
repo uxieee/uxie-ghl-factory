@@ -4,6 +4,7 @@ import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCond
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
 import { normalizeSettings } from './settings.mjs';
+import { stepNotesToComments } from './step-notes.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
@@ -703,13 +704,17 @@ function typeFor(node) {
 // author intent is explicitly disabled:true; false/absent keeps the existing
 // emitted shape. Merge, rather than replace, canvas metadata so a position (or
 // any future builder-owned metadata) survives unchanged.
-function withStepDisabled(node, template) {
-  if (node.disabled !== true) return template;
+function withStepDisabled(node, template, ctx) {
+  let out = template;
+  // Action NOTES (IR `notes: [..]`) → `comments[]` in CommentSection.vue's exact record shape,
+  // newest first. Absent/empty → no `comments` key, so every prior emitted shape is unchanged.
+  if (Array.isArray(node.notes) && node.notes.length) out = { ...out, comments: stepNotesToComments(node.notes, ctx ?? {}) };
+  if (node.disabled !== true) return out;
   return {
-    ...template,
+    ...out,
     advanceCanvasMeta: {
       ...(node.advanceCanvasMeta ?? {}),
-      ...(template.advanceCanvasMeta ?? {}),
+      ...(out.advanceCanvasMeta ?? {}),
       isDisabled: true,
     },
   };
@@ -931,7 +936,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         },
       };
       if (parentScopeId !== null) ifElseContainer.parent = parentScopeId;
-      templates.push(withStepDisabled(n, ifElseContainer));
+      templates.push(withStepDisabled(n, ifElseContainer, ctx));
       // conditioned branch nodes (branch-yes): the editor needs the real non-empty
       // attributes shape here, NOT `{}` (an empty attributes made the node uneditable).
       conditioned.forEach((b, bi) => {
@@ -989,7 +994,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const booked = flattenGraph(n.onBooked ?? [], ctx, refMap, t1);
       templates.push({ id: t1, type: 'transition', name: 'Appointment Booked', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: booked.entryId });
       templates.push(...booked.templates);
@@ -1030,7 +1035,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const none = flattenGraph(n.default ?? [], ctx, refMap, noneId);
       templates.push({ id: noneId, type: 'transition', name: 'No condition met', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: none.entryId });
       templates.push(...none.templates);
@@ -1070,7 +1075,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const prim = flattenGraph(n.onEvent ?? [], ctx, refMap, t1);
       templates.push({ id: t1, parentKey: id, parent: id, type: 'transition', name: 'wait', attributes: { type: `wait_${wt}`, description: eventDesc }, order: 0, cat: 'transition', next: prim.entryId });
       templates.push(...prim.templates);
@@ -1112,7 +1117,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
       templates.push({ id: t1, type: 'transition', name: 'Opportunity Found', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
       templates.push(...found.templates);
@@ -1141,7 +1146,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         next: null, parentKey,
       };
       if (parentScopeId !== null) tmpl.parent = parentScopeId;
-      templates.push(withStepDisabled(n, tmpl));
+      templates.push(withStepDisabled(n, tmpl, ctx));
       return;
     }
 
@@ -1170,7 +1175,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       n.paths.forEach((p, pi) => {
         const child = flattenGraph(p.then ?? [], ctx, refMap, pathIds[pi]);
         templates.push({ id: pathIds[pi], type: 'transition', name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
@@ -1206,7 +1211,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       };
       if (!isFC) container.workflowsActionType = 'INTERNAL';
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
       templates.push({ id: t1, type: 'transition', name: container.attributes.transitions[0].name, cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
       templates.push(...found.templates);
@@ -1241,7 +1246,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         },
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       // Default branch tail (optional) + each author branch
       const def = flattenGraph(n.default ?? [], ctx, refMap, defId);
       templates.push({ id: defId, type: 'transition', name: 'Default Branch', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: def.entryId });
@@ -1259,7 +1264,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
     if (n.marketplace === true) tmpl.isMarketplaceAction = true;
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
-    templates.push(withStepDisabled(n, tmpl));
+    templates.push(withStepDisabled(n, tmpl, ctx));
   });
   // GHL OMITS `parentKey` on a root-scope entry node — it never emits null. Proven three ways
   // (2026-08-21): across 310 live workflows / 3,958 nodes `parentKey === null` occurs 0 times;

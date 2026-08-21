@@ -59,6 +59,12 @@
 //     is builder hygiene, not a runtime fix; the commit itself fails closed on any dangling
 //     parentKey a step op leaves in the steps it touched (override: --allow-dangling-parentkeys).
 //
+//   { "op":"addStepNote",     "stepId":"<id>", "text":"…" }   # node ⋯ → Notes: unshifts {id,userId,timestamp,comment:HTML}
+//     onto the step's comments[] (saved with the workflow; newest first, like the UI).
+//   { "op":"duplicateStep",   "stepId":"<id>", "afterId":"<id>" }   # "Copy action" + "Copy here": fresh-id copy
+//     of name/attributes/advanceCanvasMeta inserted after the source (or afterId); notes are NOT copied; an
+//     email-builder email gets isCloned:true on the SOURCE (the UI does); containers/goals/loops/gotos refused.
+//
 // SETTINGS op (the builder's Settings tab — workflow-document TOP-LEVEL keys, not a step):
 //   { "op":"updateSettings", "settings": { "stopOnResponse":true, "timezone":"contact",
 //       "window": {"start":"08:00","end":"17:00","days":[1,2,3,4,5]}, "senderAddress": {...},

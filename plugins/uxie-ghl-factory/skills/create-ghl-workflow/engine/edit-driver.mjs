@@ -7,6 +7,8 @@ import {
   appendSubgraph, insertSubgraphAfter, appendSubgraphToBranch, repairParentKeys,
   insertBefore, insertSubgraphBefore, prependStep,
   retypeStep, assignMarketplaceStepIndexes,
+  addStepNote,
+  duplicateStep,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
 import { walkNodes } from './ir.mjs';
@@ -192,6 +194,7 @@ export function normalizeDiff(d) {
 // compileSubgraph as `Cannot read properties of undefined (reading 'kind')`, which names
 // neither the op nor the key. Cost real time live on AU 2026-07-25.
 const OP_REQUIRED_ARGS = {
+  addStepNote: ['stepId', 'text'], duplicateStep: ['stepId'],
   appendStep: ['step'],
   insertAfter: ['step', 'afterId'],
   insertBefore: ['step', 'beforeId'],
@@ -262,6 +265,10 @@ export function applyOp(templates, op, { ctx, idGen }) {
         : appendToBranch(templates, op.branchEntryId, sub.entry);
     }
     case 'deleteStep': return deleteStep(templates, op.stepId);
+    // Action NOTES (node ⋯ → Notes): unshift {id, userId, timestamp, comment:HTML} onto step.comments[]
+    case 'addStepNote': return addStepNote(templates, op.stepId, op.text, { uid: ctx?.uid, now: ctx?.now, idGen });
+    // "Copy action" + "Copy here": a fresh-id copy right after the source (or op.afterId); containers/goals/loops/gotos refused
+    case 'duplicateStep': return duplicateStep(templates, op.stepId, idGen, { afterId: op.afterId });
     case 'repairParentKeys': { const { templates: t, diff } = repairParentKeys(templates); return { templates: t, diff }; }
     // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
     // it refuses graph fields — see PROTECTED_STEP_FIELDS.
