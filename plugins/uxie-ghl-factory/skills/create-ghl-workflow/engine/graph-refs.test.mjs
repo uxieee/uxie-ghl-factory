@@ -89,3 +89,32 @@ test('editCommitBody fails closed when this edit deletes a referenced step; hatc
     () => editCommitBody(fresh, withGhostRef(), { createdSteps: [], modifiedSteps: [], deletedSteps: ['a9'] }, 'uid', { allowDanglingStepRefs: true }),
   );
 });
+
+// ── nested goal refs: the paths the first registry cut got WRONG (corpus-verified shape) ──
+test('workflow_goal refs are read at segments[].conditions[].extras, and a dangling one refuses', () => {
+  const goal = (extras, cond = 'email_event') => ({
+    id: 'g1', type: 'workflow_goal', name: 'Goal', order: 1, next: null, parentKey: 's1',
+    attributes: { op: 'or', type: 'workflow_goal', action: 'exit',
+      segments: [{ op: 'or', conditions: [{ goal_condition: cond, extras, id: 'c1' }] }] },
+  });
+  const s1 = { id: 's1', type: 'sms', name: 'S', attributes: { body: 'b' }, order: 0, next: 'g1' };
+  // email_event goal listing a REAL step resolves; a ghost refuses
+  checkStepRefs([s1, goal({ stepIds: ['s1'] })]);
+  assert.throws(() => checkStepRefs([s1, goal({ stepIds: ['GHOST'] })]), /REF_DANGLING.*GHOST/s);
+  assert.throws(() => checkStepRefs([s1, goal({ invoiceStepId: 'GHOST-INV' }, 'invoice_paid')]), /GHOST-INV/);
+  // a tag goal (extras.tags) holds NO step refs — asset ids must never be mistaken for step ids
+  assert.deepEqual(stepRefsOf(goal({ tags: ['hb-reactivation'] }, 'remove_contact_tag')), []);
+});
+// deleteStep coverage via the same registry, without a circular import dance in the test file
+test('deleteStep refuses to delete a step a GOAL still references', async () => {
+  const { deleteStep } = await import('./edit.mjs');
+  const templates = [
+    { id: 's1', type: 'sms', name: 'S', attributes: { body: 'b' }, order: 0, next: 's2' },
+    { id: 's2', type: 'email', name: 'E', attributes: { subject: 's', html: '<p>x</p>' }, order: 1, next: 'g1', parentKey: 's1' },
+    { id: 'g1', type: 'workflow_goal', name: 'Goal', order: 2, next: null, parentKey: 's2',
+      attributes: { op: 'or', segments: [{ op: 'or', conditions: [{ goal_condition: 'email_event', extras: { stepIds: ['s2'] }, id: 'c1' }] }] } },
+  ];
+  assert.throws(() => deleteStep(templates, 's2'), /referenced by 'Goal' \(workflow_goal\)/);
+  const { templates: out } = deleteStep(templates, 's1');   // unreferenced → fine
+  assert.equal(out.length, 2);
+});

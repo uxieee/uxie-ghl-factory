@@ -36644,18 +36644,35 @@ var STEP_REF_FIELDS = [
   ["wait", "appointmentSpecificStep", "single"],
   ["wait", "reply", "array"],
   ["wait", "emailEventSteps", "array"],
-  ["workflow_goal", "stepIds", "array"],
-  ["workflow_goal", "invoiceStepId", "single"]
+  ["workflow_goal", "segments[].conditions[].extras.stepIds", "array"],
+  ["workflow_goal", "segments[].conditions[].extras.invoiceStepId", "single"]
 ];
 var get2 = (o, p) => p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
+var getAll = (o, path) => {
+  let cur = [o];
+  for (const seg of path.split(".")) {
+    if (seg.endsWith("[]")) {
+      const k = seg.slice(0, -2);
+      cur = cur.flatMap((x) => {
+        const v = x == null ? void 0 : x[k];
+        return Array.isArray(v) ? v : [];
+      });
+    } else {
+      cur = cur.map((x) => x == null ? void 0 : x[seg]);
+    }
+  }
+  return cur.filter((v) => v != null);
+};
 function stepRefsOf(t) {
   const out = [];
   for (const [type, path, kind] of STEP_REF_FIELDS) {
     if (t.type !== type) continue;
-    const v = get2(t.attributes ?? {}, path);
-    if (v == null || v === "") continue;
-    for (const id of kind === "array" ? Array.isArray(v) ? v : [] : [v]) {
-      if (typeof id === "string" && id) out.push({ path, id });
+    const vals = path.includes("[]") ? getAll(t.attributes ?? {}, path) : [get2(t.attributes ?? {}, path)];
+    for (const v of vals) {
+      if (v == null || v === "") continue;
+      for (const id of kind === "array" ? Array.isArray(v) ? v : [] : [v]) {
+        if (typeof id === "string" && id) out.push({ path, id });
+      }
     }
   }
   return out;

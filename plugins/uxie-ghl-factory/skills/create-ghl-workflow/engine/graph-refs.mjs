@@ -18,27 +18,47 @@
 // 'specific-step' target). `next`/`parentKey`/branch wiring are NOT here — they have their own
 // invariants (danglingParentKeys, container ops).
 
-/** attribute paths that hold same-workflow step ids: [type, path, 'single'|'array'] */
+/** attribute paths that hold same-workflow step ids: [type, path, 'single'|'array'].
+ *  `[]` in a path expands over an array level — workflow_goal refs live at
+ *  segments[].conditions[].extras.stepIds (goal-action-validator.ts walks segments→conditions and
+ *  reads condition.extras), NOT at a flat attributes.stepIds. The first cut of this registry used
+ *  the flat path, which exists on NO real goal step (corpus-verified 2026-08-22) — the goal checks
+ *  were scanning a path that never exists, so "0 dangling" was vacuously true for goals. */
 export const STEP_REF_FIELDS = [
   ['goto', 'targetNodeId', 'single'],
   ['wait', 'appointmentSpecificStep', 'single'],
   ['wait', 'reply', 'array'],
   ['wait', 'emailEventSteps', 'array'],
-  ['workflow_goal', 'stepIds', 'array'],
-  ['workflow_goal', 'invoiceStepId', 'single'],
+  ['workflow_goal', 'segments[].conditions[].extras.stepIds', 'array'],
+  ['workflow_goal', 'segments[].conditions[].extras.invoiceStepId', 'single'],
 ];
 
 const get = (o, p) => p.split('.').reduce((a, k) => a == null ? undefined : a[k], o);
+/** resolve a path with `[]` array expansions to EVERY value it reaches */
+const getAll = (o, path) => {
+  let cur = [o];
+  for (const seg of path.split('.')) {
+    if (seg.endsWith('[]')) {
+      const k = seg.slice(0, -2);
+      cur = cur.flatMap((x) => { const v = x == null ? undefined : x[k]; return Array.isArray(v) ? v : []; });
+    } else {
+      cur = cur.map((x) => x == null ? undefined : x[seg]);
+    }
+  }
+  return cur.filter((v) => v != null);
+};
 
 /** Every reference held by `t` (typed step template), as [{path, id}]. Empty values are not refs. */
 export function stepRefsOf(t) {
   const out = [];
   for (const [type, path, kind] of STEP_REF_FIELDS) {
     if (t.type !== type) continue;
-    const v = get(t.attributes ?? {}, path);
-    if (v == null || v === '') continue;
-    for (const id of (kind === 'array' ? (Array.isArray(v) ? v : []) : [v])) {
-      if (typeof id === 'string' && id) out.push({ path, id });
+    const vals = path.includes('[]') ? getAll(t.attributes ?? {}, path) : [get(t.attributes ?? {}, path)];
+    for (const v of vals) {
+      if (v == null || v === '') continue;
+      for (const id of (kind === 'array' ? (Array.isArray(v) ? v : []) : [v])) {
+        if (typeof id === 'string' && id) out.push({ path, id });
+      }
     }
   }
   return out;
