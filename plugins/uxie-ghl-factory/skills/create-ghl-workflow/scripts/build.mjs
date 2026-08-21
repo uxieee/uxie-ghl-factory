@@ -43,6 +43,7 @@ console.log('\n=== BUILD REPORT ===');
 if (report.aborted) { console.log('ABORTED:', report.aborted); process.exit(2); }
 console.log('workflow:', report.wid, '| steps:', report.steps, '| status:', report.published ? 'PUBLISHED' : 'draft');
 console.log('created tags:', report.createdTags.length ? report.createdTags.join(', ') : '(none needed)');
+if (report.stickyNotes?.planned) console.log('sticky notes:', `${report.stickyNotes.posted}/${report.stickyNotes.planned} placed` + (report.stickyNotes.failed.length ? ` | FAILED: ${JSON.stringify(report.stickyNotes.failed)}` : ''));
 console.log('created email templates:', report.createdTemplates.length ? report.createdTemplates.map((t) => t.title).join(', ') : '(none)');
 console.log('resolved from account:', JSON.stringify(report.resolvedFrom));
 console.log('round-trip:', report.verify.pass, 'clean', report.verify.issues.length ? '| ISSUES: ' + JSON.stringify(report.verify.issues) : '');

@@ -36190,7 +36190,13 @@ function normalizeSettings(settings, ctx = {}) {
       const condition = w.condition ?? "when";
       if (!WINDOW_CONDITIONS.includes(condition)) refuse("SETTINGS_VALUE", `settings.window.condition must be 'when' (the only value the Settings tab stores; corpus 15/15) \u2014 got ${JSON.stringify(condition)}`);
       const start = w.start ?? "08:00", end = w.end ?? "17:00";
-      for (const [k, v] of [["start", start], ["end", end]]) if (typeof v !== "string" || !HHMM.test(v)) refuse("SETTINGS_VALUE", `settings.window.${k} must be 24h 'HH:mm' (UI stores e.g. '08:00', '17:00') \u2014 got ${JSON.stringify(v)}`);
+      for (const [k, v] of [["start", start], ["end", end]]) {
+        if (typeof v !== "string" || !HHMM.test(v)) {
+          refuse("SETTINGS_VALUE", `settings.window.${k} must be 24h 'HH:mm' (UI stores e.g. '08:00', '17:00') \u2014 got ${JSON.stringify(v)}`);
+          continue;
+        }
+        if (Number(v.slice(3)) % 15 !== 0) refuse("SETTINGS_VALUE", `settings.window.${k} '${v}' is not on the UI's 15-minute grid (the picker offers only :00/:15/:30/:45)`);
+      }
       if (HHMM.test(start) && HHMM.test(end) && end <= start) warn(`settings.window: end '${end}' is not after start '${start}' \u2014 the UI does not validate this, but no window would ever be open`);
       let days = w.days ?? [1, 2, 3, 4, 5];
       if (!Array.isArray(days) || !days.length || days.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) refuse("SETTINGS_VALUE", `settings.window.days must be a non-empty array of weekday numbers 0 (Sunday) \u2026 6 (Saturday) \u2014 got ${JSON.stringify(w.days)}`);
@@ -36220,7 +36226,7 @@ function normalizeSettings(settings, ctx = {}) {
         else refuse("SETTINGS_VALUE", msg);
       }
       if (senderAddress.from_email && !isMergeTag(senderAddress.from_email) && !EMAIL.test(senderAddress.from_email)) warn(`settings.senderAddress.from_email '${senderAddress.from_email}' does not look like an email address (a {{merge tag}} is fine)`);
-      if (senderAddress.from_number && !isMergeTag(senderAddress.from_number) && !E164ISH.test(senderAddress.from_number.replace(/[\s()-]/g, ""))) warn(`settings.senderAddress.from_number '${senderAddress.from_number}' does not look like a phone number (the UI's From number is a dropdown of the account's numbers, stored E.164 e.g. '+13073026200')`);
+      if (senderAddress.from_number && !isMergeTag(senderAddress.from_number) && !E164ISH.test(senderAddress.from_number.replace(/[\s()-]/g, ""))) warn(`settings.senderAddress.from_number '${senderAddress.from_number}' does not look like a phone number (the UI's From number is a dropdown of the account's numbers, stored E.164 e.g. '+15551234567')`);
     }
   }
   let workflowNote = null;
@@ -36237,6 +36243,7 @@ function normalizeSettings(settings, ctx = {}) {
     if (workflowNote) {
       for (const k of Object.keys(workflowNote)) if (workflowNote[k] === void 0) delete workflowNote[k];
     }
+    if (workflowNote && workflowNote.content.length > 5e3) refuse("SETTINGS_VALUE", `settings.workflowNote.content is ${workflowNote.content.length} chars; the UI's textarea caps it at 5000`);
   }
   let eventStartDate = s.eventStartDate ?? "";
   if (typeof eventStartDate !== "string") {
@@ -38217,6 +38224,78 @@ function compile(ir, ctx) {
   casingLint(result);
   return result;
 }
+
+// ../skills/create-ghl-workflow/engine/sticky-notes.mjs
+init_define_TOOL_CATALOG();
+var STICKY_COLORS = ["yellow", "blue", "green", "orange", "cyan", "gray", "teal", "purple", "fuchsia", "rose"];
+var STICKY_DEFAULTS = Object.freeze({ color: "yellow", width: 400, height: 400, x: 320, y: 180 });
+var STICKY_MIN = Object.freeze({ width: 150, height: 80 });
+var STICKY_MAX_CONTENT = 5e3;
+var NOTE_KEYS2 = /* @__PURE__ */ new Set(["content", "color", "x", "y", "width", "height", "positionX", "positionY", "ref"]);
+var escapeHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+var looksLikeHtml = (t) => /^\s*<[a-z!]/i.test(t);
+function normalizeStickyNote(note, { partial: partial2 = false, skipStickyCheck = false } = {}) {
+  const refuse = (msg) => {
+    if (!skipStickyCheck) throw new IRError("STICKY_NOTE", msg);
+  };
+  if (!note || typeof note !== "object" || Array.isArray(note)) {
+    refuse(`a sticky note must be an object {content, color?, x?, y?, width?, height?}`);
+    return {};
+  }
+  const unknown2 = Object.keys(note).filter((k) => !NOTE_KEYS2.has(k));
+  if (unknown2.length) refuse(`sticky note has unknown key(s) [${unknown2.join(", ")}] \u2014 known: content, color, x, y, width, height`);
+  const out = {};
+  if (note.content !== void 0 || !partial2) {
+    if (typeof note.content !== "string") refuse(`sticky note 'content' must be a string (plain text is wrapped in <p>\u2026</p>; HTML is kept as-is)`);
+    const raw = typeof note.content === "string" ? note.content : "";
+    out.content = raw === "" ? "" : looksLikeHtml(raw) ? raw : `<p>${escapeHtml(raw)}</p>`;
+    if (out.content.length > STICKY_MAX_CONTENT) refuse(`sticky note content is ${out.content.length} chars; the editor caps it at ${STICKY_MAX_CONTENT}`);
+  }
+  if (note.color !== void 0 || !partial2) {
+    const c = note.color ?? STICKY_DEFAULTS.color;
+    if (!STICKY_COLORS.includes(c)) refuse(`sticky note color '${c}' is not one of the 10 swatches: ${STICKY_COLORS.join(", ")}`);
+    out.color = STICKY_COLORS.includes(c) ? c : STICKY_DEFAULTS.color;
+  }
+  const num = (k, def, min) => {
+    const v = note[k] ?? (k === "x" ? note.positionX : k === "y" ? note.positionY : void 0);
+    if (v === void 0) return partial2 ? void 0 : def;
+    if (!Number.isFinite(v)) {
+      refuse(`sticky note '${k}' must be a number (got ${JSON.stringify(v)})`);
+      return def;
+    }
+    if (min !== void 0 && v < min) refuse(`sticky note '${k}' ${v} is below the UI minimum ${min}`);
+    return Math.round(v);
+  };
+  const x = num("x", STICKY_DEFAULTS.x), y = num("y", STICKY_DEFAULTS.y);
+  const width = num("width", STICKY_DEFAULTS.width, STICKY_MIN.width), height = num("height", STICKY_DEFAULTS.height, STICKY_MIN.height);
+  if (x !== void 0) out.positionX = x;
+  if (y !== void 0) out.positionY = y;
+  if (width !== void 0) out.width = width;
+  if (height !== void 0) out.height = height;
+  return out;
+}
+function planStickyNotes(notes, { loc, wid, skipStickyCheck } = {}) {
+  if (notes === void 0 || notes === null) return [];
+  if (!Array.isArray(notes)) throw new IRError("STICKY_NOTE", `stickyNotes must be an array of {content, color?, x?, y?, width?, height?}`);
+  return notes.map((n, i) => {
+    const body = normalizeStickyNote({ ...n, x: n?.x ?? n?.positionX ?? STICKY_DEFAULTS.x + i * 40, y: n?.y ?? n?.positionY ?? STICKY_DEFAULTS.y + i * 40 }, { skipStickyCheck });
+    return { method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc }, ref: n?.ref ?? null };
+  });
+}
+function planStickyNoteOp(op, { loc, wid, skipStickyCheck } = {}) {
+  if (op.op === "addStickyNote") {
+    const body = normalizeStickyNote(op.note, { skipStickyCheck });
+    return { op: op.op, method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc } };
+  }
+  if (op.op === "updateStickyNote") {
+    if (!op.noteId || typeof op.noteId !== "string") throw new IRError("STICKY_NOTE", `updateStickyNote needs 'noteId' (the note's _id from export_workflow / sticky-notes-all)`);
+    const body = normalizeStickyNote(op.note ?? {}, { partial: true, skipStickyCheck });
+    if (!Object.keys(body).length) throw new IRError("STICKY_NOTE", `updateStickyNote: 'note' carries nothing to change (content, color, x, y, width, height)`);
+    return { op: op.op, method: "PATCH", path: `/workflows/sticky-note?${new URLSearchParams({ _id: op.noteId, locationId: loc })}`, body };
+  }
+  throw new IRError("STICKY_NOTE", `unknown sticky-note op ${JSON.stringify(op.op)}`);
+}
+var STICKY_OPS = /* @__PURE__ */ new Set(["addStickyNote", "updateStickyNote"]);
 
 // ../skills/create-ghl-workflow/engine/idgen.mjs
 init_define_TOOL_CATALOG();
@@ -100828,6 +100907,7 @@ async function orchestrate(ir, gw, opts = {}) {
     compiled: 0,
     steps: 0,
     warnings: [],
+    stickyNotes: { planned: 0, posted: 0, failed: [] },
     triggers: { posted: 0, failed: [] },
     verify: { pass: 0, issues: [] },
     published: false,
@@ -100961,6 +101041,15 @@ async function orchestrate(ir, gw, opts = {}) {
     report.aborted = `GHL rejected ${assetCheck.errors.length} asset reference(s) before any write: ` + assetCheck.errors.map(describeFinding).join("; ") + ". Create the missing objects, correct the references, or pass ignoreAssetErrors to build anyway.";
     return report;
   }
+  let notePlans = [];
+  try {
+    notePlans = planStickyNotes(ir.stickyNotes, { loc, wid: ph, skipStickyCheck: opts.skipStickyCheck });
+    report.stickyNotes.planned = notePlans.length;
+  } catch (e) {
+    report.failurePhase = "compile";
+    report.aborted = `sticky notes rejected (${e.code ?? "STICKY_NOTE"}): ${e.message}`;
+    return report;
+  }
   const c = await callAt("workflow_create", "POST", `/workflow/${loc}`, built.createBody);
   if (!c) return report;
   const WID = c.json?.id || c.json?._id;
@@ -100995,6 +101084,12 @@ async function orchestrate(ir, gw, opts = {}) {
       status: r?.status,
       error: JSON.stringify(r?.json ?? "").slice(0, 160)
     });
+  }
+  for (const np of notePlans) {
+    const r = await callAt("sticky_note_create", np.method, np.path, swap(np.body));
+    if (!r) return report;
+    if (r.ok) report.stickyNotes.posted++;
+    else report.stickyNotes.failed.push({ ref: np.ref, status: r.status, error: JSON.stringify(r.json ?? "").slice(0, 160) });
   }
   const back = await callAt("workflow_verify_get", "GET", `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
   if (!back) return report;
@@ -101079,9 +101174,9 @@ init_define_TOOL_CATALOG();
 var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger"]);
 var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
 function partitionOps(ops) {
-  const stepOps = [], triggerOps = [], settingsOps = [];
-  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : stepOps).push(op);
-  return { stepOps, triggerOps, settingsOps };
+  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
+  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
+  return { stepOps, triggerOps, settingsOps, stickyOps };
 }
 function mergeSettingsOps(settingsOps) {
   if (!settingsOps?.length) return null;
@@ -101298,6 +101393,8 @@ function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`'${op.op}' is a TRIGGER op \u2014 it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
       if (SETTINGS_OPS.has(op.op))
         throw new Error(`'${op.op}' is a SETTINGS op \u2014 it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() \u2192 editCommitBody({ settingsPatch }).`);
+      if (STICKY_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a STICKY-NOTE op \u2014 sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
       throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
   }
 }
@@ -105159,7 +105256,10 @@ var TOOLS2 = [
       { method: "PUT", path: "/workflow/{loc}/{wid}" },
       { method: "POST", path: "/workflow/{loc}/trigger" },
       { method: "PUT", path: "/workflow/{loc}/trigger/{tid}" },
-      { method: "DELETE", path: "/workflow/{loc}/trigger/{tid}" }
+      { method: "DELETE", path: "/workflow/{loc}/trigger/{tid}" },
+      // Sticky notes (addStickyNote / updateStickyNote ops) — a separate resource, not the document.
+      { method: "POST", path: "/workflows/sticky-note" },
+      { method: "PATCH", path: "/workflows/sticky-note" }
     ],
     handler: async (args, deps) => guard(async () => {
       if (!Array.isArray(args.ops) || args.ops.length === 0) {
@@ -105227,8 +105327,9 @@ var TOOLS2 = [
         ...customFields !== void 0 ? { customFields } : {},
         warn: (message) => warnings.push(message)
       };
-      const { stepOps, triggerOps, settingsOps } = partitionOps(args.ops);
+      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(args.ops);
       const settingsPatch = mergeSettingsOps(settingsOps);
+      const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       let existingTriggers = [];
       if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
@@ -105276,6 +105377,7 @@ var TOOLS2 = [
       if (settingsPatch) {
         preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
       }
+      if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
       if (args.confirm !== true) {
         return withFailureData(
           fail(
@@ -105291,6 +105393,7 @@ var TOOLS2 = [
         tags: { planned: tagsToCreate.length, created: [] },
         stepCommitted: false,
         triggerWrites: { planned: triggerPlan.length, applied: 0 },
+        stickyNotes: { planned: stickyPlan.length, applied: 0, ids: [] },
         verification: {
           attempted: false,
           completed: false,
@@ -105414,6 +105517,22 @@ var TOOLS2 = [
           );
         }
       }
+      for (const request of stickyPlan) {
+        const noteCall = await attemptWrite(
+          "sticky_note_write",
+          () => gw.call(request.method, request.path, request.body)
+        );
+        if (noteCall.threw || !noteCall.value.ok) {
+          return partialFailure(
+            noteCall.threw ? noteCall.failure : fromHttp(noteCall.value.status, noteCall.value.json),
+            "sticky_note_write",
+            "Step/trigger writes are already committed; only the sticky-note write failed. Re-run the remaining sticky-note ops alone."
+          );
+        }
+        partialProgress.stickyNotes.applied++;
+        const id = noteCall.value.json?._id ?? noteCall.value.json?.id ?? null;
+        if (id) partialProgress.stickyNotes.ids.push(id);
+      }
       partialProgress.verification.attempted = true;
       const roundTripCall = await safeGatewayCall(
         () => getWorkflow(gw, args.locationId, args.workflowId)
@@ -105440,6 +105559,8 @@ var TOOLS2 = [
         diff,
         createdTags: partialProgress.tags.created,
         triggerChangesApplied: partialProgress.triggerWrites.applied,
+        stickyNotesApplied: partialProgress.stickyNotes.applied,
+        stickyNoteIds: partialProgress.stickyNotes.ids,
         requiresPublish: triggerPlan.length > 0,
         publishInstruction: triggerPlan.length ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : null,
         verify,

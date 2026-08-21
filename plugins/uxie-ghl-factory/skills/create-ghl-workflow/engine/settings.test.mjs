@@ -35,6 +35,8 @@ test('window: the stored shape is {condition:"when", start, end, days[]} with th
   assert.throws(() => normalizeSettings({ window: { start: '8am', end: '17:00', days: [1] } }, ctx), (e) => e.code === 'SETTINGS_VALUE' && /HH:mm/.test(e.message));
   assert.throws(() => normalizeSettings({ window: { start: '08:00', end: '17:00', days: [7] } }, ctx), (e) => e.code === 'SETTINGS_VALUE' && /0 \(Sunday\)/.test(e.message));
   assert.throws(() => normalizeSettings({ window: { start: '08:00', end: '17:00', days: [] } }, ctx), (e) => e.code === 'SETTINGS_VALUE');
+  assert.throws(() => normalizeSettings({ window: { start: '08:07', end: '17:00', days: [1] } }, ctx), (e) => e.code === 'SETTINGS_VALUE' && /15-minute grid/.test(e.message));
+  assert.equal(normalizeSettings({ window: { start: '08:45', end: '17:15', days: [1] } }, ctx).body.window.start, '08:45');
   assert.throws(() => normalizeSettings({ window: { condition: 'exact', start: '08:00', end: '17:00', days: [1] } }, ctx), (e) => e.code === 'SETTINGS_VALUE' && /'when'/.test(e.message));
   const { warnings } = normalizeSettings({ window: { start: '17:00', end: '08:00', days: [1] } }, ctx);
   assert.ok(warnings.some((w) => /not after start/.test(w)), 'inverted window is advisory (the UI does not validate it either)');
@@ -57,6 +59,7 @@ test('workflowNote: a string is promoted to the stored IWorkflowNote shape; an o
   assert.equal(normalizeSettings({ workflowNote: { content: 'x', createdByName: 'Xander' } }, ctx).body.workflowNote.createdByName, 'Xander');
   assert.throws(() => normalizeSettings({ workflowNote: { content: 'x', color: 'red' } }, ctx), (e) => e.code === 'SETTINGS_KEY');
   assert.throws(() => normalizeSettings({ workflowNote: 42 }, ctx), (e) => e.code === 'SETTINGS_VALUE');
+  assert.throws(() => normalizeSettings({ workflowNote: 'x'.repeat(5001) }, ctx), (e) => e.code === 'SETTINGS_VALUE' && /5000/.test(e.message));
 });
 
 test('booleans must be booleans; statsView flows as a setting', () => {

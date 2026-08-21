@@ -98,7 +98,11 @@ export function normalizeSettings(settings, ctx = {}) {
       const condition = w.condition ?? 'when';
       if (!WINDOW_CONDITIONS.includes(condition)) refuse('SETTINGS_VALUE', `settings.window.condition must be 'when' (the only value the Settings tab stores; corpus 15/15) — got ${JSON.stringify(condition)}`);
       const start = w.start ?? '08:00', end = w.end ?? '17:00';   // the UI's own defaults when the toggle is switched on
-      for (const [k, v] of [['start', start], ['end', end]]) if (typeof v !== 'string' || !HHMM.test(v)) refuse('SETTINGS_VALUE', `settings.window.${k} must be 24h 'HH:mm' (UI stores e.g. '08:00', '17:00') — got ${JSON.stringify(v)}`);
+      for (const [k, v] of [['start', start], ['end', end]]) {
+        if (typeof v !== 'string' || !HHMM.test(v)) { refuse('SETTINGS_VALUE', `settings.window.${k} must be 24h 'HH:mm' (UI stores e.g. '08:00', '17:00') — got ${JSON.stringify(v)}`); continue; }
+        // the Settings tab's time pickers are a 96-option 15-minute grid (pages/workflow/Setting.vue) — :07 is unreachable in the UI
+        if (Number(v.slice(3)) % 15 !== 0) refuse('SETTINGS_VALUE', `settings.window.${k} '${v}' is not on the UI's 15-minute grid (the picker offers only :00/:15/:30/:45)`);
+      }
       if (HHMM.test(start) && HHMM.test(end) && end <= start) warn(`settings.window: end '${end}' is not after start '${start}' — the UI does not validate this, but no window would ever be open`);
       let days = w.days ?? [1, 2, 3, 4, 5];                        // UI default: Mon–Fri
       if (!Array.isArray(days) || !days.length || days.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) refuse('SETTINGS_VALUE', `settings.window.days must be a non-empty array of weekday numbers 0 (Sunday) … 6 (Saturday) — got ${JSON.stringify(w.days)}`);
@@ -147,6 +151,8 @@ export function normalizeSettings(settings, ctx = {}) {
       workflowNote = { content: String(s.workflowNote.content ?? ''), createdBy: ctx.uid ?? undefined, createdAt: now, updatedBy: ctx.uid ?? undefined, updatedAt: now, ...s.workflowNote };
     } else refuse('SETTINGS_VALUE', `settings.workflowNote must be a string or {content, …}`);
     if (workflowNote) for (const k of Object.keys(workflowNote)) if (workflowNote[k] === undefined) delete workflowNote[k];
+    // the Notes panel's workflow note is a PLAIN-TEXT textarea with maxlength 5000 (Setting/Notes page) — longer is unreachable in the UI
+    if (workflowNote && workflowNote.content.length > 5000) refuse('SETTINGS_VALUE', `settings.workflowNote.content is ${workflowNote.content.length} chars; the UI's textarea caps it at 5000`);
   }
 
   let eventStartDate = s.eventStartDate ?? '';

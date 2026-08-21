@@ -10,6 +10,8 @@ import {
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
 import { walkNodes } from './ir.mjs';
+import { STICKY_OPS } from './sticky-notes.mjs';
+export { STICKY_OPS };
 
 // Triggers live in a SEPARATE document from workflowData.templates, with their own CRUD
 // endpoints — so a trigger op can't be a templates→templates function like the step ops.
@@ -21,9 +23,9 @@ export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigge
 export const SETTINGS_OPS = new Set(['updateSettings']);
 
 export function partitionOps(ops) {
-  const stepOps = [], triggerOps = [], settingsOps = [];
-  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : stepOps).push(op);
-  return { stepOps, triggerOps, settingsOps };
+  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
+  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
+  return { stepOps, triggerOps, settingsOps, stickyOps };
 }
 
 // Fold `{ op:'updateSettings', settings:{…} }` ops (in order) into ONE patch of Settings-tab keys.
@@ -292,6 +294,8 @@ export function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`'${op.op}' is a TRIGGER op — it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
       if (SETTINGS_OPS.has(op.op))
         throw new Error(`'${op.op}' is a SETTINGS op — it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() → editCommitBody({ settingsPatch }).`);
+      if (STICKY_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a STICKY-NOTE op — sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
       throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
   }
 }
