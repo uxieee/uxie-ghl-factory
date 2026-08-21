@@ -2350,6 +2350,41 @@
       ]
      }
     }
+   },
+   "enforcement": {
+    "throw": [],
+    "warn": [
+     {
+      "field": "timeout",
+      "variant": null,
+      "guard": "!attributes.timeout || attributes.timeout === 0",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "not",
+         "a": {
+          "op": "path",
+          "p": "timeout"
+         }
+        },
+        "b": {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "timeout"
+         },
+         "b": {
+          "op": "lit",
+          "v": 0
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "REQUIRED; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "chatgpt": {
@@ -2639,7 +2674,38 @@
       "support": "UNKNOWN; corpus no sample"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "temperature",
+      "variant": null,
+      "guard": "!attributes.temperature && (attributes.temperature as unknown as number) !== 0",
+      "ast": {
+       "guard": {
+        "op": "and",
+        "a": {
+         "op": "not",
+         "a": {
+          "op": "path",
+          "p": "temperature"
+         }
+        },
+        "b": {
+         "op": "neq",
+         "a": {
+          "op": "path",
+          "p": "temperature"
+         },
+         "b": {
+          "op": "lit",
+          "v": 0
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "contact_email_verification": {
@@ -3413,7 +3479,39 @@
       "support": "REQUIRED; corpus 100% of 8"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "field",
+      "variant": null,
+      "guard": "!field.field",
+      "ast": {
+       "guard": {
+        "op": "some",
+        "a": {
+         "op": "path",
+         "p": "fields"
+        },
+        "it": {
+         "op": "not",
+         "a": {
+          "op": "it",
+          "p": "field"
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "len",
+         "a": {
+          "op": "path",
+          "p": "fields"
+         }
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus 0% of 8; warn-replay fired 0/8 in-scope published nodes"
+     }
+    ]
    }
   },
   "custom_code": {
@@ -3465,6 +3563,29 @@
          "a": {
           "op": "path",
           "p": "code"
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "REQUIRED; corpus 100% of 61"
+     },
+     {
+      "field": "output",
+      "variant": null,
+      "guard": "isEmpty(attributes.output || {})",
+      "ast": {
+       "guard": {
+        "op": "empty",
+        "a": {
+         "op": "or",
+         "a": {
+          "op": "path",
+          "p": "output"
+         },
+         "b": {
+          "op": "lit",
+          "v": {}
          }
         }
        },
@@ -3879,7 +4000,124 @@
       "support": "CONDITIONAL; corpus no sample in variant OAUTH2"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "headers",
+      "variant": null,
+      "guard": "hasEmptyFields",
+      "ast": {
+       "guard": {
+        "op": "some",
+        "a": {
+         "op": "path",
+         "p": "parameters"
+        },
+        "it": {
+         "op": "or",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "not",
+           "a": {
+            "op": "trim",
+            "a": {
+             "op": "it",
+             "p": "key"
+            }
+           }
+          },
+          "b": {
+           "op": "eq",
+           "a": {
+            "op": "it",
+            "p": "value"
+           },
+           "b": {
+            "op": "lit"
+           }
+          }
+         },
+         "b": {
+          "op": "eq",
+          "a": {
+           "op": "it",
+           "p": "value"
+          },
+          "b": {
+           "op": "lit",
+           "v": null
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "path",
+         "p": "headers"
+        }
+       ]
+      },
+      "support": "DERIVED; corpus 14% of 56; warn-replay fired 0/56 in-scope published nodes"
+     },
+     {
+      "field": "parameters",
+      "variant": null,
+      "guard": "hasEmptyFields",
+      "ast": {
+       "guard": {
+        "op": "some",
+        "a": {
+         "op": "path",
+         "p": "parameters"
+        },
+        "it": {
+         "op": "or",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "not",
+           "a": {
+            "op": "trim",
+            "a": {
+             "op": "it",
+             "p": "key"
+            }
+           }
+          },
+          "b": {
+           "op": "eq",
+           "a": {
+            "op": "it",
+            "p": "value"
+           },
+           "b": {
+            "op": "lit"
+           }
+          }
+         },
+         "b": {
+          "op": "eq",
+          "a": {
+           "op": "it",
+           "p": "value"
+          },
+          "b": {
+           "op": "lit",
+           "v": null
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "path",
+         "p": "parameters"
+        }
+       ]
+      },
+      "support": "DERIVED; corpus 2% of 56; warn-replay fired 0/56 in-scope published nodes"
+     }
+    ]
    }
   },
   "datetime_formatter": {
@@ -4718,7 +4956,101 @@
       "support": "UNKNOWN; corpus 100% of 10"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "batchSize",
+      "variant": null,
+      "guard": "attributes.batchSize <= 0 || attributes.batchSize > maxBatchSize",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "lte",
+         "a": {
+          "op": "path",
+          "p": "batchSize"
+         },
+         "b": {
+          "op": "lit",
+          "v": 0
+         }
+        },
+        "b": {
+         "op": "gt",
+         "a": {
+          "op": "path",
+          "p": "batchSize"
+         },
+         "b": {
+          "op": "lit",
+          "v": 10000
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
+     },
+     {
+      "field": "interval.value",
+      "variant": null,
+      "guard": "intervalUnit === 'minutes' && intervalValue > maxIntervalInMinutes",
+      "ast": {
+       "guard": {
+        "op": "and",
+        "a": {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "interval.timeUnit"
+         },
+         "b": {
+          "op": "lit",
+          "v": "minutes"
+         }
+        },
+        "b": {
+         "op": "gt",
+         "a": {
+          "op": "path",
+          "p": "interval.value"
+         },
+         "b": {
+          "op": "lit",
+          "v": 10080
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "not",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "not",
+           "a": {
+            "op": "path",
+            "p": "interval.value"
+           }
+          },
+          "b": {
+           "op": "lte",
+           "a": {
+            "op": "path",
+            "p": "interval.value"
+           },
+           "b": {
+            "op": "lit",
+            "v": 0
+           }
+          }
+         }
+        }
+       ]
+      },
+      "support": "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
+     }
+    ]
    }
   },
   "edit_conversation": {
@@ -5543,7 +5875,39 @@
       "support": "REQUIRED; corpus 100% of 7"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "field",
+      "variant": null,
+      "guard": "!field.field",
+      "ast": {
+       "guard": {
+        "op": "some",
+        "a": {
+         "op": "path",
+         "p": "fields"
+        },
+        "it": {
+         "op": "not",
+         "a": {
+          "op": "it",
+          "p": "field"
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "len",
+         "a": {
+          "op": "path",
+          "p": "fields"
+         }
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus 0% of 7; warn-replay fired 0/7 in-scope published nodes"
+     }
+    ]
    }
   },
   "find_opportunity": {
@@ -6918,7 +7282,74 @@
       "support": "REQUIRED; corpus 100% of 18"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "updateField",
+      "variant": null,
+      "guard": "attributes.selectFieldtype !== attributes.updateFieldType && ['numerical', 'date'].includes(attributes.selectFieldtype)",
+      "ast": {
+       "guard": {
+        "op": "and",
+        "a": {
+         "op": "neq",
+         "a": {
+          "op": "path",
+          "p": "selectFieldtype"
+         },
+         "b": {
+          "op": "path",
+          "p": "updateFieldType"
+         }
+        },
+        "b": {
+         "op": "includes",
+         "a": {
+          "op": "lit",
+          "v": [
+           "numerical",
+           "date"
+          ]
+         },
+         "v": {
+          "op": "path",
+          "p": "selectFieldtype"
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "and",
+         "a": {
+          "op": "and",
+          "a": {
+           "op": "path",
+           "p": "selectField"
+          },
+          "b": {
+           "op": "path",
+           "p": "updateField"
+          }
+         },
+         "b": {
+          "op": "not",
+          "a": {
+           "op": "includes",
+           "a": {
+            "op": "path",
+            "p": "updateField"
+           },
+           "v": {
+            "op": "lit",
+            "v": "custom_values"
+           }
+          }
+         }
+        }
+       ]
+      },
+      "support": "UNKNOWN; corpus 100% of 18; warn-replay fired 0/5 in-scope published nodes"
+     }
+    ]
    }
   },
   "membership_grant_offer": {
@@ -8139,6 +8570,56 @@
    "enforcement": {
     "throw": [
      {
+      "field": "formatterType",
+      "variant": null,
+      "guard": "!attributes.formatterType || !Object.values(TextFormatterTypes).includes(attributes.formatterType)",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "not",
+         "a": {
+          "op": "path",
+          "p": "formatterType"
+         }
+        },
+        "b": {
+         "op": "not",
+         "a": {
+          "op": "includes",
+          "a": {
+           "op": "lit",
+           "v": [
+            "upper_case",
+            "lower_case",
+            "title_case",
+            "capitalize",
+            "default_value",
+            "trim",
+            "trim_whitespace",
+            "replace_text",
+            "find",
+            "word_count",
+            "length",
+            "split_text",
+            "remove_html_tags",
+            "extract_email",
+            "extract_phone_number",
+            "extract_url"
+           ]
+          },
+          "v": {
+           "op": "path",
+           "p": "formatterType"
+          }
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "UNKNOWN; corpus 100% of 1"
+     },
+     {
       "field": "field",
       "variant": null,
       "guard": "!attributes.field || attributes.field.length === 0",
@@ -9084,6 +9565,357 @@
    "enforcement": {
     "throw": [
      {
+      "field": "name",
+      "variant": null,
+      "guard": "attributes.name && !isWithinLimits(attributes.name)",
+      "ast": {
+       "guard": {
+        "op": "and",
+        "a": {
+         "op": "path",
+         "p": "name"
+        },
+        "b": {
+         "op": "not",
+         "a": {
+          "op": "and",
+          "a": {
+           "op": "and",
+           "a": {
+            "op": "path",
+            "p": "name"
+           },
+           "b": {
+            "op": "gt",
+            "a": {
+             "op": "len",
+             "a": {
+              "op": "path",
+              "p": "name"
+             }
+            },
+            "b": {
+             "op": "lit",
+             "v": 0
+            }
+           }
+          },
+          "b": {
+           "op": "lte",
+           "a": {
+            "op": "len",
+            "a": {
+             "op": "path",
+             "p": "name"
+            }
+           },
+           "b": {
+            "op": "lit",
+            "v": 100
+           }
+          }
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "IF_PRESENT; corpus 98% of 261"
+     },
+     {
+      "field": "type",
+      "variant": null,
+      "guard": "isWaitStepUnconfigured(attributes)",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "or",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "not",
+           "a": {
+            "op": "path",
+            "p": "type"
+           }
+          },
+          "b": {
+           "op": "and",
+           "a": {
+            "op": "and",
+            "a": {
+             "op": "and",
+             "a": {
+              "op": "eq",
+              "a": {
+               "op": "path",
+               "p": "type"
+              },
+              "b": {
+               "op": "lit",
+               "v": "time"
+              }
+             },
+             "b": {
+              "op": "not",
+              "a": {
+               "op": "path",
+               "p": "startAfter"
+              }
+             }
+            },
+            "b": {
+             "op": "not",
+             "a": {
+              "op": "path",
+              "p": "window"
+             }
+            }
+           },
+           "b": {
+            "op": "neq",
+            "a": {
+             "op": "path",
+             "p": "timePeriodInputMode"
+            },
+            "b": {
+             "op": "lit",
+             "v": "dynamic"
+            }
+           }
+          }
+         },
+         "b": {
+          "op": "and",
+          "a": {
+           "op": "and",
+           "a": {
+            "op": "and",
+            "a": {
+             "op": "eq",
+             "a": {
+              "op": "path",
+              "p": "type"
+             },
+             "b": {
+              "op": "lit",
+              "v": "specific_date"
+             }
+            },
+            "b": {
+             "op": "not",
+             "a": {
+              "op": "path",
+              "p": "specificDate"
+             }
+            }
+           },
+           "b": {
+            "op": "not",
+            "a": {
+             "op": "path",
+             "p": "dynamicSpecificDate"
+            }
+           }
+          },
+          "b": {
+           "op": "neq",
+           "a": {
+            "op": "path",
+            "p": "specificDateInputMode"
+           },
+           "b": {
+            "op": "lit",
+            "v": "dynamic"
+           }
+          }
+         }
+        },
+        "b": {
+         "op": "and",
+         "a": {
+          "op": "eq",
+          "a": {
+           "op": "path",
+           "p": "type"
+          },
+          "b": {
+           "op": "lit",
+           "v": "recurring_schedule"
+          }
+         },
+         "b": {
+          "op": "not",
+          "a": {
+           "op": "path",
+           "p": "recurringFrequency"
+          }
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "UNKNOWN; corpus 100% of 261"
+     },
+     {
+      "field": "type",
+      "variant": "recurring_schedule",
+      "guard": "!waitType",
+      "ast": {
+       "guard": {
+        "op": "not",
+        "a": {
+         "op": "path",
+         "p": "type"
+        }
+       },
+       "outer": [
+        {
+         "op": "not",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "or",
+           "a": {
+            "op": "or",
+            "a": {
+             "op": "not",
+             "a": {
+              "op": "path",
+              "p": "type"
+             }
+            },
+            "b": {
+             "op": "and",
+             "a": {
+              "op": "and",
+              "a": {
+               "op": "and",
+               "a": {
+                "op": "eq",
+                "a": {
+                 "op": "path",
+                 "p": "type"
+                },
+                "b": {
+                 "op": "lit",
+                 "v": "time"
+                }
+               },
+               "b": {
+                "op": "not",
+                "a": {
+                 "op": "path",
+                 "p": "startAfter"
+                }
+               }
+              },
+              "b": {
+               "op": "not",
+               "a": {
+                "op": "path",
+                "p": "window"
+               }
+              }
+             },
+             "b": {
+              "op": "neq",
+              "a": {
+               "op": "path",
+               "p": "timePeriodInputMode"
+              },
+              "b": {
+               "op": "lit",
+               "v": "dynamic"
+              }
+             }
+            }
+           },
+           "b": {
+            "op": "and",
+            "a": {
+             "op": "and",
+             "a": {
+              "op": "and",
+              "a": {
+               "op": "eq",
+               "a": {
+                "op": "path",
+                "p": "type"
+               },
+               "b": {
+                "op": "lit",
+                "v": "specific_date"
+               }
+              },
+              "b": {
+               "op": "not",
+               "a": {
+                "op": "path",
+                "p": "specificDate"
+               }
+              }
+             },
+             "b": {
+              "op": "not",
+              "a": {
+               "op": "path",
+               "p": "dynamicSpecificDate"
+              }
+             }
+            },
+            "b": {
+             "op": "neq",
+             "a": {
+              "op": "path",
+              "p": "specificDateInputMode"
+             },
+             "b": {
+              "op": "lit",
+              "v": "dynamic"
+             }
+            }
+           }
+          },
+          "b": {
+           "op": "and",
+           "a": {
+            "op": "eq",
+            "a": {
+             "op": "path",
+             "p": "type"
+            },
+            "b": {
+             "op": "lit",
+             "v": "recurring_schedule"
+            }
+           },
+           "b": {
+            "op": "not",
+            "a": {
+             "op": "path",
+             "p": "recurringFrequency"
+            }
+           }
+          }
+         }
+        },
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "type"
+         },
+         "b": {
+          "op": "lit",
+          "v": "recurring_schedule"
+         }
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus no sample in variant recurring_schedule"
+     },
+     {
       "field": "startAfter",
       "variant": "time",
       "guard": "!attributes.startAfter",
@@ -9280,6 +10112,52 @@
         }
        },
        "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "type"
+         },
+         "b": {
+          "op": "lit",
+          "v": "condition"
+         }
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus 100% of 1 in variant condition"
+     },
+     {
+      "field": "condition.branches",
+      "variant": "condition",
+      "guard": "branches.length === 0",
+      "ast": {
+       "guard": {
+        "op": "eq",
+        "a": {
+         "op": "len",
+         "a": {
+          "op": "coalesce",
+          "a": {
+           "op": "path",
+           "p": "condition.branches"
+          },
+          "b": {
+           "op": "lit",
+           "v": []
+          }
+         }
+        },
+        "b": {
+         "op": "lit",
+         "v": 0
+        }
+       },
+       "outer": [
+        {
+         "op": "path",
+         "p": "condition"
+        },
         {
          "op": "eq",
          "a": {
@@ -9938,7 +10816,47 @@
       "support": "CONDITIONAL; corpus no sample in variant user_replied"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "startAfter.value",
+      "variant": "recurring_schedule",
+      "guard": "attributes.startAfter && attributes.startAfter.value === 0",
+      "ast": {
+       "guard": {
+        "op": "and",
+        "a": {
+         "op": "path",
+         "p": "startAfter"
+        },
+        "b": {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "startAfter.value"
+         },
+         "b": {
+          "op": "lit",
+          "v": 0
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "type"
+         },
+         "b": {
+          "op": "lit",
+          "v": "recurring_schedule"
+         }
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus no sample in variant recurring_schedule; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "webhook": {
@@ -10065,7 +10983,124 @@
       "support": "REQUIRED; corpus 100% of 20"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "customData",
+      "variant": null,
+      "guard": "hasEmptyFields",
+      "ast": {
+       "guard": {
+        "op": "some",
+        "a": {
+         "op": "path",
+         "p": "headers"
+        },
+        "it": {
+         "op": "or",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "not",
+           "a": {
+            "op": "trim",
+            "a": {
+             "op": "it",
+             "p": "key"
+            }
+           }
+          },
+          "b": {
+           "op": "eq",
+           "a": {
+            "op": "it",
+            "p": "value"
+           },
+           "b": {
+            "op": "lit"
+           }
+          }
+         },
+         "b": {
+          "op": "eq",
+          "a": {
+           "op": "it",
+           "p": "value"
+          },
+          "b": {
+           "op": "lit",
+           "v": null
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "path",
+         "p": "customData"
+        }
+       ]
+      },
+      "support": "DERIVED; corpus 90% of 20; warn-replay fired 0/20 in-scope published nodes"
+     },
+     {
+      "field": "headers",
+      "variant": null,
+      "guard": "hasEmptyFields",
+      "ast": {
+       "guard": {
+        "op": "some",
+        "a": {
+         "op": "path",
+         "p": "headers"
+        },
+        "it": {
+         "op": "or",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "not",
+           "a": {
+            "op": "trim",
+            "a": {
+             "op": "it",
+             "p": "key"
+            }
+           }
+          },
+          "b": {
+           "op": "eq",
+           "a": {
+            "op": "it",
+            "p": "value"
+           },
+           "b": {
+            "op": "lit"
+           }
+          }
+         },
+         "b": {
+          "op": "eq",
+          "a": {
+           "op": "it",
+           "p": "value"
+          },
+          "b": {
+           "op": "lit",
+           "v": null
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "path",
+         "p": "headers"
+        }
+       ]
+      },
+      "support": "DERIVED; corpus 10% of 20; warn-replay fired 0/20 in-scope published nodes"
+     }
+    ]
    }
   },
   "workflow_ai_decision_maker": {
@@ -10437,7 +11472,31 @@
       "support": "REQUIRED; corpus no sample"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "prompt",
+      "variant": null,
+      "guard": "attributes.prompt.length > GENERATE_IMAGE_AI_MAX_PROMPT_CHARS",
+      "ast": {
+       "guard": {
+        "op": "gt",
+        "a": {
+         "op": "len",
+         "a": {
+          "op": "path",
+          "p": "prompt"
+         }
+        },
+        "b": {
+         "op": "lit",
+         "v": 15000
+        }
+       },
+       "outer": []
+      },
+      "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "create_custom_object": {
@@ -10826,6 +11885,68 @@
       ]
      }
     }
+   },
+   "enforcement": {
+    "throw": [
+     {
+      "field": "commentResponse",
+      "variant": null,
+      "guard": "!commentResponses.length",
+      "ast": {
+       "guard": {
+        "op": "not",
+        "a": {
+         "op": "len",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "path",
+           "p": "commentResponse"
+          },
+          "b": {
+           "op": "lit",
+           "v": []
+          }
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "UNKNOWN; corpus no sample"
+     }
+    ],
+    "warn": [
+     {
+      "field": "commentResponse",
+      "variant": null,
+      "guard": "commentResponses.filter(response => !response.length).length",
+      "ast": {
+       "guard": {
+        "op": "count",
+        "a": {
+         "op": "or",
+         "a": {
+          "op": "path",
+          "p": "commentResponse"
+         },
+         "b": {
+          "op": "lit",
+          "v": []
+         }
+        },
+        "it": {
+         "op": "not",
+         "a": {
+          "op": "it",
+          "p": "length"
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "loop": {
@@ -11321,7 +12442,275 @@
       "support": "CONDITIONAL; corpus no sample"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "random.min",
+      "variant": null,
+      "guard": "!isValidNumeric(attributes.random?.min)",
+      "ast": {
+       "guard": {
+        "op": "not",
+        "a": {
+         "op": "and",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "path",
+           "p": "random.min"
+          },
+          "b": {
+           "op": "eq",
+           "a": {
+            "op": "path",
+            "p": "random.min"
+           },
+           "b": {
+            "op": "lit",
+            "v": 0
+           }
+          }
+         },
+         "b": {
+          "op": "or",
+          "a": {
+           "op": "or",
+           "a": {
+            "op": "neq",
+            "a": {
+             "op": "typeof",
+             "a": {
+              "op": "path",
+              "p": "random.min"
+             }
+            },
+            "b": {
+             "op": "lit",
+             "v": "string"
+            }
+           },
+           "b": {
+            "op": "includes",
+            "a": {
+             "op": "path",
+             "p": "random.min"
+            },
+            "v": {
+             "op": "lit",
+             "v": "{{"
+            }
+           }
+          },
+          "b": {
+           "op": "regexTest",
+           "re": "^\\d{1,}(\\.\\d{1,})?$",
+           "flags": "",
+           "a": {
+            "op": "path",
+            "p": "random.min"
+           }
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "action"
+         },
+         "b": {
+          "op": "lit",
+          "v": "random_number"
+         }
+        },
+        {
+         "op": "path",
+         "p": "action"
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     },
+     {
+      "field": "random.max",
+      "variant": null,
+      "guard": "!isValidNumeric(attributes.random?.max)",
+      "ast": {
+       "guard": {
+        "op": "not",
+        "a": {
+         "op": "and",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "path",
+           "p": "random.max"
+          },
+          "b": {
+           "op": "eq",
+           "a": {
+            "op": "path",
+            "p": "random.max"
+           },
+           "b": {
+            "op": "lit",
+            "v": 0
+           }
+          }
+         },
+         "b": {
+          "op": "or",
+          "a": {
+           "op": "or",
+           "a": {
+            "op": "neq",
+            "a": {
+             "op": "typeof",
+             "a": {
+              "op": "path",
+              "p": "random.max"
+             }
+            },
+            "b": {
+             "op": "lit",
+             "v": "string"
+            }
+           },
+           "b": {
+            "op": "includes",
+            "a": {
+             "op": "path",
+             "p": "random.max"
+            },
+            "v": {
+             "op": "lit",
+             "v": "{{"
+            }
+           }
+          },
+          "b": {
+           "op": "regexTest",
+           "re": "^\\d{1,}(\\.\\d{1,})?$",
+           "flags": "",
+           "a": {
+            "op": "path",
+            "p": "random.max"
+           }
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "action"
+         },
+         "b": {
+          "op": "lit",
+          "v": "random_number"
+         }
+        },
+        {
+         "op": "path",
+         "p": "action"
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     },
+     {
+      "field": "random.decimalPlaces",
+      "variant": null,
+      "guard": "!isValidNumeric(attributes.random?.decimalPlaces)",
+      "ast": {
+       "guard": {
+        "op": "not",
+        "a": {
+         "op": "and",
+         "a": {
+          "op": "or",
+          "a": {
+           "op": "path",
+           "p": "random.decimalPlaces"
+          },
+          "b": {
+           "op": "eq",
+           "a": {
+            "op": "path",
+            "p": "random.decimalPlaces"
+           },
+           "b": {
+            "op": "lit",
+            "v": 0
+           }
+          }
+         },
+         "b": {
+          "op": "or",
+          "a": {
+           "op": "or",
+           "a": {
+            "op": "neq",
+            "a": {
+             "op": "typeof",
+             "a": {
+              "op": "path",
+              "p": "random.decimalPlaces"
+             }
+            },
+            "b": {
+             "op": "lit",
+             "v": "string"
+            }
+           },
+           "b": {
+            "op": "includes",
+            "a": {
+             "op": "path",
+             "p": "random.decimalPlaces"
+            },
+            "v": {
+             "op": "lit",
+             "v": "{{"
+            }
+           }
+          },
+          "b": {
+           "op": "regexTest",
+           "re": "^\\d{1,}(\\.\\d{1,})?$",
+           "flags": "",
+           "a": {
+            "op": "path",
+            "p": "random.decimalPlaces"
+           }
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "action"
+         },
+         "b": {
+          "op": "lit",
+          "v": "random_number"
+         }
+        },
+        {
+         "op": "path",
+         "p": "action"
+        }
+       ]
+      },
+      "support": "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "array_functions": {
@@ -11892,7 +13281,287 @@
       "support": "CONDITIONAL; corpus no sample"
      }
     ],
-    "warn": []
+    "warn": [
+     {
+      "field": "find.filters",
+      "variant": null,
+      "guard": "!findAttr?.filters?.length || emptyValues(findAttr.filters)",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "not",
+         "a": {
+          "op": "len",
+          "a": {
+           "op": "path",
+           "p": "find.filters"
+          }
+         }
+        },
+        "b": {
+         "op": "and",
+         "a": {
+          "op": "and",
+          "a": {
+           "op": "path",
+           "p": "find.filters"
+          },
+          "b": {
+           "op": "len",
+           "a": {
+            "op": "path",
+            "p": "find.filters"
+           }
+          }
+         },
+         "b": {
+          "op": "some",
+          "a": {
+           "op": "path",
+           "p": "find.filters"
+          },
+          "it": {
+           "op": "or",
+           "a": {
+            "op": "or",
+            "a": {
+             "op": "not",
+             "a": {
+              "op": "it",
+              "p": "key"
+             }
+            },
+            "b": {
+             "op": "eq",
+             "a": {
+              "op": "it",
+              "p": "key"
+             },
+             "b": {
+              "op": "lit",
+              "v": "undefined"
+             }
+            }
+           },
+           "b": {
+            "op": "not",
+            "a": {
+             "op": "it",
+             "p": "value"
+            }
+           }
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "action"
+         },
+         "b": {
+          "op": "lit",
+          "v": "find"
+         }
+        },
+        {
+         "op": "path",
+         "p": "action"
+        }
+       ]
+      },
+      "support": "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     },
+     {
+      "field": "filter.filters",
+      "variant": null,
+      "guard": "!filterAttr?.filters?.length || emptyValues(filterAttr.filters)",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "not",
+         "a": {
+          "op": "len",
+          "a": {
+           "op": "path",
+           "p": "filter.filters"
+          }
+         }
+        },
+        "b": {
+         "op": "and",
+         "a": {
+          "op": "and",
+          "a": {
+           "op": "path",
+           "p": "filter.filters"
+          },
+          "b": {
+           "op": "len",
+           "a": {
+            "op": "path",
+            "p": "filter.filters"
+           }
+          }
+         },
+         "b": {
+          "op": "some",
+          "a": {
+           "op": "path",
+           "p": "filter.filters"
+          },
+          "it": {
+           "op": "or",
+           "a": {
+            "op": "or",
+            "a": {
+             "op": "not",
+             "a": {
+              "op": "it",
+              "p": "key"
+             }
+            },
+            "b": {
+             "op": "eq",
+             "a": {
+              "op": "it",
+              "p": "key"
+             },
+             "b": {
+              "op": "lit",
+              "v": "undefined"
+             }
+            }
+           },
+           "b": {
+            "op": "not",
+            "a": {
+             "op": "it",
+             "p": "value"
+            }
+           }
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "action"
+         },
+         "b": {
+          "op": "lit",
+          "v": "filter"
+         }
+        },
+        {
+         "op": "path",
+         "p": "action"
+        }
+       ]
+      },
+      "support": "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     },
+     {
+      "field": "line_items.fields",
+      "variant": null,
+      "guard": "!lineItemsAttr?.fields?.length || emptyValues(lineItemsAttr.fields)",
+      "ast": {
+       "guard": {
+        "op": "or",
+        "a": {
+         "op": "not",
+         "a": {
+          "op": "len",
+          "a": {
+           "op": "path",
+           "p": "line_items.fields"
+          }
+         }
+        },
+        "b": {
+         "op": "and",
+         "a": {
+          "op": "and",
+          "a": {
+           "op": "path",
+           "p": "line_items.fields"
+          },
+          "b": {
+           "op": "len",
+           "a": {
+            "op": "path",
+            "p": "line_items.fields"
+           }
+          }
+         },
+         "b": {
+          "op": "some",
+          "a": {
+           "op": "path",
+           "p": "line_items.fields"
+          },
+          "it": {
+           "op": "or",
+           "a": {
+            "op": "or",
+            "a": {
+             "op": "not",
+             "a": {
+              "op": "it",
+              "p": "key"
+             }
+            },
+            "b": {
+             "op": "eq",
+             "a": {
+              "op": "it",
+              "p": "key"
+             },
+             "b": {
+              "op": "lit",
+              "v": "undefined"
+             }
+            }
+           },
+           "b": {
+            "op": "not",
+            "a": {
+             "op": "it",
+             "p": "value"
+            }
+           }
+          }
+         }
+        }
+       },
+       "outer": [
+        {
+         "op": "eq",
+         "a": {
+          "op": "path",
+          "p": "action"
+         },
+         "b": {
+          "op": "lit",
+          "v": "line_items"
+         }
+        },
+        {
+         "op": "path",
+         "p": "action"
+        }
+       ]
+      },
+      "support": "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "add_appointment_booking_ai_bot": {
@@ -13161,6 +14830,34 @@
       ]
      }
     }
+   },
+   "enforcement": {
+    "throw": [],
+    "warn": [
+     {
+      "field": "customNumbers",
+      "variant": null,
+      "guard": "hasInvalidCustomNumber",
+      "ast": {
+       "guard": {
+        "op": "some",
+        "a": {
+         "op": "path",
+         "p": "customNumbers"
+        },
+        "it": {
+         "op": "not",
+         "a": {
+          "op": "it",
+          "p": "isValid"
+         }
+        }
+       },
+       "outer": []
+      },
+      "support": "DERIVED; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+     }
+    ]
    }
   },
   "ivr_hangup": {

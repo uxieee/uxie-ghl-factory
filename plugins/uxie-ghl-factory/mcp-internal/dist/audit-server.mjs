@@ -36515,53 +36515,87 @@ async function fetchActionSchema(call, loc) {
 // ../skills/create-ghl-workflow/engine/enforce.mjs
 init_define_TOOL_CATALOG();
 var get = (o, p) => p === "" ? o : p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
-function evaluate(ast, attrs) {
+var RE_CACHE = /* @__PURE__ */ new Map();
+var cachedRe = (src, flags) => {
+  const k = `${src} ${flags}`;
+  let r = RE_CACHE.get(k);
+  if (!r) {
+    r = new RegExp(src, flags);
+    RE_CACHE.set(k, r);
+  }
+  return r;
+};
+function evaluate(ast, attrs, item) {
   switch (ast.op) {
     case "lit":
       return ast.v;
     case "path":
       return get(attrs, ast.p);
     case "not":
-      return !evaluate(ast.a, attrs);
+      return !evaluate(ast.a, attrs, item);
     case "and":
-      return evaluate(ast.a, attrs) && evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) && evaluate(ast.b, attrs, item);
     case "or":
-      return evaluate(ast.a, attrs) || evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) || evaluate(ast.b, attrs, item);
     case "eq":
-      return evaluate(ast.a, attrs) === evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) === evaluate(ast.b, attrs, item);
     case "neq":
-      return evaluate(ast.a, attrs) !== evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) !== evaluate(ast.b, attrs, item);
     case "gt":
-      return evaluate(ast.a, attrs) > evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) > evaluate(ast.b, attrs, item);
     case "lt":
-      return evaluate(ast.a, attrs) < evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) < evaluate(ast.b, attrs, item);
     case "gte":
-      return evaluate(ast.a, attrs) >= evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) >= evaluate(ast.b, attrs, item);
     case "lte":
-      return evaluate(ast.a, attrs) <= evaluate(ast.b, attrs);
+      return evaluate(ast.a, attrs, item) <= evaluate(ast.b, attrs, item);
     case "len": {
-      const v = evaluate(ast.a, attrs);
+      const v = evaluate(ast.a, attrs, item);
       return v == null ? void 0 : v.length ?? (typeof v === "object" ? Object.keys(v).length : void 0);
     }
     case "trim": {
-      const v = evaluate(ast.a, attrs);
+      const v = evaluate(ast.a, attrs, item);
       return typeof v === "string" ? v.trim() : v;
     }
     case "includes": {
-      const v = evaluate(ast.a, attrs);
-      const x = evaluate(ast.v, attrs);
+      const v = evaluate(ast.a, attrs, item);
+      const x = evaluate(ast.v, attrs, item);
       return Array.isArray(v) || typeof v === "string" ? v.includes(x) : false;
     }
     case "isArray":
-      return Array.isArray(evaluate(ast.a, attrs));
+      return Array.isArray(evaluate(ast.a, attrs, item));
     case "has": {
-      const o = evaluate(ast.a, attrs);
-      const k = evaluate(ast.k, attrs);
+      const o = evaluate(ast.a, attrs, item);
+      const k = evaluate(ast.k, attrs, item);
       return o != null && typeof o === "object" && k in o;
     }
     case "empty": {
-      const v = evaluate(ast.a, attrs);
+      const v = evaluate(ast.a, attrs, item);
       return v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Object.keys(v).length;
+    }
+    case "it":
+      return get(item, ast.p);
+    case "coalesce": {
+      const v = evaluate(ast.a, attrs, item);
+      return v == null ? evaluate(ast.b, attrs, item) : v;
+    }
+    case "typeof":
+      return typeof evaluate(ast.a, attrs, item);
+    case "num":
+      return Number(evaluate(ast.a, attrs, item));
+    case "some":
+    case "every": {
+      const v = evaluate(ast.a, attrs, item);
+      if (!Array.isArray(v)) return ast.op === "every";
+      return v[ast.op]((el) => !!evaluate(ast.it, attrs, el));
+    }
+    case "count": {
+      const v = evaluate(ast.a, attrs, item);
+      return Array.isArray(v) ? v.filter((el) => !!evaluate(ast.it, attrs, el)).length : 0;
+    }
+    case "regexTest": {
+      const v = evaluate(ast.a, attrs, item);
+      return typeof v === "string" ? cachedRe(ast.re, ast.flags).test(v) : false;
     }
     default:
       throw new Error(`unknown op ${ast.op}`);
@@ -40231,6 +40265,41 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [],
+        warn: [
+          {
+            field: "timeout",
+            variant: null,
+            guard: "!attributes.timeout || attributes.timeout === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "timeout"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "timeout"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     chatgpt: {
@@ -40520,7 +40589,38 @@ var catalog_data_default = {
             support: "UNKNOWN; corpus no sample"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "temperature",
+            variant: null,
+            guard: "!attributes.temperature && (attributes.temperature as unknown as number) !== 0",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "temperature"
+                  }
+                },
+                b: {
+                  op: "neq",
+                  a: {
+                    op: "path",
+                    p: "temperature"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     contact_email_verification: {
@@ -41294,7 +41394,39 @@ var catalog_data_default = {
             support: "REQUIRED; corpus 100% of 8"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "field",
+            variant: null,
+            guard: "!field.field",
+            ast: {
+              guard: {
+                op: "some",
+                a: {
+                  op: "path",
+                  p: "fields"
+                },
+                it: {
+                  op: "not",
+                  a: {
+                    op: "it",
+                    p: "field"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "fields"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 0% of 8; warn-replay fired 0/8 in-scope published nodes"
+          }
+        ]
       }
     },
     custom_code: {
@@ -41346,6 +41478,29 @@ var catalog_data_default = {
                   a: {
                     op: "path",
                     p: "code"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 61"
+          },
+          {
+            field: "output",
+            variant: null,
+            guard: "isEmpty(attributes.output || {})",
+            ast: {
+              guard: {
+                op: "empty",
+                a: {
+                  op: "or",
+                  a: {
+                    op: "path",
+                    p: "output"
+                  },
+                  b: {
+                    op: "lit",
+                    v: {}
                   }
                 }
               },
@@ -41760,7 +41915,124 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample in variant OAUTH2"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "headers",
+            variant: null,
+            guard: "hasEmptyFields",
+            ast: {
+              guard: {
+                op: "some",
+                a: {
+                  op: "path",
+                  p: "parameters"
+                },
+                it: {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "trim",
+                        a: {
+                          op: "it",
+                          p: "key"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "it",
+                        p: "value"
+                      },
+                      b: {
+                        op: "lit"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "it",
+                      p: "value"
+                    },
+                    b: {
+                      op: "lit",
+                      v: null
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "headers"
+                }
+              ]
+            },
+            support: "DERIVED; corpus 14% of 56; warn-replay fired 0/56 in-scope published nodes"
+          },
+          {
+            field: "parameters",
+            variant: null,
+            guard: "hasEmptyFields",
+            ast: {
+              guard: {
+                op: "some",
+                a: {
+                  op: "path",
+                  p: "parameters"
+                },
+                it: {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "trim",
+                        a: {
+                          op: "it",
+                          p: "key"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "it",
+                        p: "value"
+                      },
+                      b: {
+                        op: "lit"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "it",
+                      p: "value"
+                    },
+                    b: {
+                      op: "lit",
+                      v: null
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "parameters"
+                }
+              ]
+            },
+            support: "DERIVED; corpus 2% of 56; warn-replay fired 0/56 in-scope published nodes"
+          }
+        ]
       }
     },
     datetime_formatter: {
@@ -42599,7 +42871,101 @@ var catalog_data_default = {
             support: "UNKNOWN; corpus 100% of 10"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "batchSize",
+            variant: null,
+            guard: "attributes.batchSize <= 0 || attributes.batchSize > maxBatchSize",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "lte",
+                  a: {
+                    op: "path",
+                    p: "batchSize"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                },
+                b: {
+                  op: "gt",
+                  a: {
+                    op: "path",
+                    p: "batchSize"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 1e4
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
+          },
+          {
+            field: "interval.value",
+            variant: null,
+            guard: "intervalUnit === 'minutes' && intervalValue > maxIntervalInMinutes",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "interval.timeUnit"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "minutes"
+                  }
+                },
+                b: {
+                  op: "gt",
+                  a: {
+                    op: "path",
+                    p: "interval.value"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 10080
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "path",
+                        p: "interval.value"
+                      }
+                    },
+                    b: {
+                      op: "lte",
+                      a: {
+                        op: "path",
+                        p: "interval.value"
+                      },
+                      b: {
+                        op: "lit",
+                        v: 0
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            support: "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
+          }
+        ]
       }
     },
     edit_conversation: {
@@ -43424,7 +43790,39 @@ var catalog_data_default = {
             support: "REQUIRED; corpus 100% of 7"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "field",
+            variant: null,
+            guard: "!field.field",
+            ast: {
+              guard: {
+                op: "some",
+                a: {
+                  op: "path",
+                  p: "fields"
+                },
+                it: {
+                  op: "not",
+                  a: {
+                    op: "it",
+                    p: "field"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "fields"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 0% of 7; warn-replay fired 0/7 in-scope published nodes"
+          }
+        ]
       }
     },
     find_opportunity: {
@@ -44799,7 +45197,74 @@ var catalog_data_default = {
             support: "REQUIRED; corpus 100% of 18"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "updateField",
+            variant: null,
+            guard: "attributes.selectFieldtype !== attributes.updateFieldType && ['numerical', 'date'].includes(attributes.selectFieldtype)",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "neq",
+                  a: {
+                    op: "path",
+                    p: "selectFieldtype"
+                  },
+                  b: {
+                    op: "path",
+                    p: "updateFieldType"
+                  }
+                },
+                b: {
+                  op: "includes",
+                  a: {
+                    op: "lit",
+                    v: [
+                      "numerical",
+                      "date"
+                    ]
+                  },
+                  v: {
+                    op: "path",
+                    p: "selectFieldtype"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "and",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "path",
+                      p: "selectField"
+                    },
+                    b: {
+                      op: "path",
+                      p: "updateField"
+                    }
+                  },
+                  b: {
+                    op: "not",
+                    a: {
+                      op: "includes",
+                      a: {
+                        op: "path",
+                        p: "updateField"
+                      },
+                      v: {
+                        op: "lit",
+                        v: "custom_values"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus 100% of 18; warn-replay fired 0/5 in-scope published nodes"
+          }
+        ]
       }
     },
     membership_grant_offer: {
@@ -46020,6 +46485,56 @@ var catalog_data_default = {
       enforcement: {
         throw: [
           {
+            field: "formatterType",
+            variant: null,
+            guard: "!attributes.formatterType || !Object.values(TextFormatterTypes).includes(attributes.formatterType)",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "formatterType"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "includes",
+                    a: {
+                      op: "lit",
+                      v: [
+                        "upper_case",
+                        "lower_case",
+                        "title_case",
+                        "capitalize",
+                        "default_value",
+                        "trim",
+                        "trim_whitespace",
+                        "replace_text",
+                        "find",
+                        "word_count",
+                        "length",
+                        "split_text",
+                        "remove_html_tags",
+                        "extract_email",
+                        "extract_phone_number",
+                        "extract_url"
+                      ]
+                    },
+                    v: {
+                      op: "path",
+                      p: "formatterType"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "UNKNOWN; corpus 100% of 1"
+          },
+          {
             field: "field",
             variant: null,
             guard: "!attributes.field || attributes.field.length === 0",
@@ -46965,6 +47480,357 @@ var catalog_data_default = {
       enforcement: {
         throw: [
           {
+            field: "name",
+            variant: null,
+            guard: "attributes.name && !isWithinLimits(attributes.name)",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "path",
+                  p: "name"
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "and",
+                      a: {
+                        op: "path",
+                        p: "name"
+                      },
+                      b: {
+                        op: "gt",
+                        a: {
+                          op: "len",
+                          a: {
+                            op: "path",
+                            p: "name"
+                          }
+                        },
+                        b: {
+                          op: "lit",
+                          v: 0
+                        }
+                      }
+                    },
+                    b: {
+                      op: "lte",
+                      a: {
+                        op: "len",
+                        a: {
+                          op: "path",
+                          p: "name"
+                        }
+                      },
+                      b: {
+                        op: "lit",
+                        v: 100
+                      }
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "IF_PRESENT; corpus 98% of 261"
+          },
+          {
+            field: "type",
+            variant: null,
+            guard: "isWaitStepUnconfigured(attributes)",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "path",
+                        p: "type"
+                      }
+                    },
+                    b: {
+                      op: "and",
+                      a: {
+                        op: "and",
+                        a: {
+                          op: "and",
+                          a: {
+                            op: "eq",
+                            a: {
+                              op: "path",
+                              p: "type"
+                            },
+                            b: {
+                              op: "lit",
+                              v: "time"
+                            }
+                          },
+                          b: {
+                            op: "not",
+                            a: {
+                              op: "path",
+                              p: "startAfter"
+                            }
+                          }
+                        },
+                        b: {
+                          op: "not",
+                          a: {
+                            op: "path",
+                            p: "window"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "neq",
+                        a: {
+                          op: "path",
+                          p: "timePeriodInputMode"
+                        },
+                        b: {
+                          op: "lit",
+                          v: "dynamic"
+                        }
+                      }
+                    }
+                  },
+                  b: {
+                    op: "and",
+                    a: {
+                      op: "and",
+                      a: {
+                        op: "and",
+                        a: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "specific_date"
+                          }
+                        },
+                        b: {
+                          op: "not",
+                          a: {
+                            op: "path",
+                            p: "specificDate"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "not",
+                        a: {
+                          op: "path",
+                          p: "dynamicSpecificDate"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "neq",
+                      a: {
+                        op: "path",
+                        p: "specificDateInputMode"
+                      },
+                      b: {
+                        op: "lit",
+                        v: "dynamic"
+                      }
+                    }
+                  }
+                },
+                b: {
+                  op: "and",
+                  a: {
+                    op: "eq",
+                    a: {
+                      op: "path",
+                      p: "type"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "recurring_schedule"
+                    }
+                  },
+                  b: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "recurringFrequency"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "UNKNOWN; corpus 100% of 261"
+          },
+          {
+            field: "type",
+            variant: "recurring_schedule",
+            guard: "!waitType",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "type"
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "not",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          }
+                        },
+                        b: {
+                          op: "and",
+                          a: {
+                            op: "and",
+                            a: {
+                              op: "and",
+                              a: {
+                                op: "eq",
+                                a: {
+                                  op: "path",
+                                  p: "type"
+                                },
+                                b: {
+                                  op: "lit",
+                                  v: "time"
+                                }
+                              },
+                              b: {
+                                op: "not",
+                                a: {
+                                  op: "path",
+                                  p: "startAfter"
+                                }
+                              }
+                            },
+                            b: {
+                              op: "not",
+                              a: {
+                                op: "path",
+                                p: "window"
+                              }
+                            }
+                          },
+                          b: {
+                            op: "neq",
+                            a: {
+                              op: "path",
+                              p: "timePeriodInputMode"
+                            },
+                            b: {
+                              op: "lit",
+                              v: "dynamic"
+                            }
+                          }
+                        }
+                      },
+                      b: {
+                        op: "and",
+                        a: {
+                          op: "and",
+                          a: {
+                            op: "and",
+                            a: {
+                              op: "eq",
+                              a: {
+                                op: "path",
+                                p: "type"
+                              },
+                              b: {
+                                op: "lit",
+                                v: "specific_date"
+                              }
+                            },
+                            b: {
+                              op: "not",
+                              a: {
+                                op: "path",
+                                p: "specificDate"
+                              }
+                            }
+                          },
+                          b: {
+                            op: "not",
+                            a: {
+                              op: "path",
+                              p: "dynamicSpecificDate"
+                            }
+                          }
+                        },
+                        b: {
+                          op: "neq",
+                          a: {
+                            op: "path",
+                            p: "specificDateInputMode"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "dynamic"
+                          }
+                        }
+                      }
+                    },
+                    b: {
+                      op: "and",
+                      a: {
+                        op: "eq",
+                        a: {
+                          op: "path",
+                          p: "type"
+                        },
+                        b: {
+                          op: "lit",
+                          v: "recurring_schedule"
+                        }
+                      },
+                      b: {
+                        op: "not",
+                        a: {
+                          op: "path",
+                          p: "recurringFrequency"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "recurring_schedule"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant recurring_schedule"
+          },
+          {
             field: "startAfter",
             variant: "time",
             guard: "!attributes.startAfter",
@@ -47161,6 +48027,52 @@ var catalog_data_default = {
                 }
               },
               outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "condition"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 1 in variant condition"
+          },
+          {
+            field: "condition.branches",
+            variant: "condition",
+            guard: "branches.length === 0",
+            ast: {
+              guard: {
+                op: "eq",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "coalesce",
+                    a: {
+                      op: "path",
+                      p: "condition.branches"
+                    },
+                    b: {
+                      op: "lit",
+                      v: []
+                    }
+                  }
+                },
+                b: {
+                  op: "lit",
+                  v: 0
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "condition"
+                },
                 {
                   op: "eq",
                   a: {
@@ -47819,7 +48731,47 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample in variant user_replied"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "startAfter.value",
+            variant: "recurring_schedule",
+            guard: "attributes.startAfter && attributes.startAfter.value === 0",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "path",
+                  p: "startAfter"
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "startAfter.value"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "recurring_schedule"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant recurring_schedule; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     webhook: {
@@ -47946,7 +48898,124 @@ var catalog_data_default = {
             support: "REQUIRED; corpus 100% of 20"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "customData",
+            variant: null,
+            guard: "hasEmptyFields",
+            ast: {
+              guard: {
+                op: "some",
+                a: {
+                  op: "path",
+                  p: "headers"
+                },
+                it: {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "trim",
+                        a: {
+                          op: "it",
+                          p: "key"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "it",
+                        p: "value"
+                      },
+                      b: {
+                        op: "lit"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "it",
+                      p: "value"
+                    },
+                    b: {
+                      op: "lit",
+                      v: null
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "customData"
+                }
+              ]
+            },
+            support: "DERIVED; corpus 90% of 20; warn-replay fired 0/20 in-scope published nodes"
+          },
+          {
+            field: "headers",
+            variant: null,
+            guard: "hasEmptyFields",
+            ast: {
+              guard: {
+                op: "some",
+                a: {
+                  op: "path",
+                  p: "headers"
+                },
+                it: {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "trim",
+                        a: {
+                          op: "it",
+                          p: "key"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "it",
+                        p: "value"
+                      },
+                      b: {
+                        op: "lit"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "it",
+                      p: "value"
+                    },
+                    b: {
+                      op: "lit",
+                      v: null
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "headers"
+                }
+              ]
+            },
+            support: "DERIVED; corpus 10% of 20; warn-replay fired 0/20 in-scope published nodes"
+          }
+        ]
       }
     },
     workflow_ai_decision_maker: {
@@ -48318,7 +49387,31 @@ var catalog_data_default = {
             support: "REQUIRED; corpus no sample"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "prompt",
+            variant: null,
+            guard: "attributes.prompt.length > GENERATE_IMAGE_AI_MAX_PROMPT_CHARS",
+            ast: {
+              guard: {
+                op: "gt",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "prompt"
+                  }
+                },
+                b: {
+                  op: "lit",
+                  v: 15e3
+                }
+              },
+              outer: []
+            },
+            support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     create_custom_object: {
@@ -48707,6 +49800,68 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "commentResponse",
+            variant: null,
+            guard: "!commentResponses.length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "path",
+                      p: "commentResponse"
+                    },
+                    b: {
+                      op: "lit",
+                      v: []
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "UNKNOWN; corpus no sample"
+          }
+        ],
+        warn: [
+          {
+            field: "commentResponse",
+            variant: null,
+            guard: "commentResponses.filter(response => !response.length).length",
+            ast: {
+              guard: {
+                op: "count",
+                a: {
+                  op: "or",
+                  a: {
+                    op: "path",
+                    p: "commentResponse"
+                  },
+                  b: {
+                    op: "lit",
+                    v: []
+                  }
+                },
+                it: {
+                  op: "not",
+                  a: {
+                    op: "it",
+                    p: "length"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     loop: {
@@ -49202,7 +50357,275 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "random.min",
+            variant: null,
+            guard: "!isValidNumeric(attributes.random?.min)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "and",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "path",
+                      p: "random.min"
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "path",
+                        p: "random.min"
+                      },
+                      b: {
+                        op: "lit",
+                        v: 0
+                      }
+                    }
+                  },
+                  b: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "neq",
+                        a: {
+                          op: "typeof",
+                          a: {
+                            op: "path",
+                            p: "random.min"
+                          }
+                        },
+                        b: {
+                          op: "lit",
+                          v: "string"
+                        }
+                      },
+                      b: {
+                        op: "includes",
+                        a: {
+                          op: "path",
+                          p: "random.min"
+                        },
+                        v: {
+                          op: "lit",
+                          v: "{{"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "regexTest",
+                      re: "^\\d{1,}(\\.\\d{1,})?$",
+                      flags: "",
+                      a: {
+                        op: "path",
+                        p: "random.min"
+                      }
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "random_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
+            field: "random.max",
+            variant: null,
+            guard: "!isValidNumeric(attributes.random?.max)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "and",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "path",
+                      p: "random.max"
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "path",
+                        p: "random.max"
+                      },
+                      b: {
+                        op: "lit",
+                        v: 0
+                      }
+                    }
+                  },
+                  b: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "neq",
+                        a: {
+                          op: "typeof",
+                          a: {
+                            op: "path",
+                            p: "random.max"
+                          }
+                        },
+                        b: {
+                          op: "lit",
+                          v: "string"
+                        }
+                      },
+                      b: {
+                        op: "includes",
+                        a: {
+                          op: "path",
+                          p: "random.max"
+                        },
+                        v: {
+                          op: "lit",
+                          v: "{{"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "regexTest",
+                      re: "^\\d{1,}(\\.\\d{1,})?$",
+                      flags: "",
+                      a: {
+                        op: "path",
+                        p: "random.max"
+                      }
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "random_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
+            field: "random.decimalPlaces",
+            variant: null,
+            guard: "!isValidNumeric(attributes.random?.decimalPlaces)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "and",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "path",
+                      p: "random.decimalPlaces"
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "path",
+                        p: "random.decimalPlaces"
+                      },
+                      b: {
+                        op: "lit",
+                        v: 0
+                      }
+                    }
+                  },
+                  b: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "neq",
+                        a: {
+                          op: "typeof",
+                          a: {
+                            op: "path",
+                            p: "random.decimalPlaces"
+                          }
+                        },
+                        b: {
+                          op: "lit",
+                          v: "string"
+                        }
+                      },
+                      b: {
+                        op: "includes",
+                        a: {
+                          op: "path",
+                          p: "random.decimalPlaces"
+                        },
+                        v: {
+                          op: "lit",
+                          v: "{{"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "regexTest",
+                      re: "^\\d{1,}(\\.\\d{1,})?$",
+                      flags: "",
+                      a: {
+                        op: "path",
+                        p: "random.decimalPlaces"
+                      }
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "random_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     array_functions: {
@@ -49773,7 +51196,287 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample"
           }
         ],
-        warn: []
+        warn: [
+          {
+            field: "find.filters",
+            variant: null,
+            guard: "!findAttr?.filters?.length || emptyValues(findAttr.filters)",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "find.filters"
+                    }
+                  }
+                },
+                b: {
+                  op: "and",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "path",
+                      p: "find.filters"
+                    },
+                    b: {
+                      op: "len",
+                      a: {
+                        op: "path",
+                        p: "find.filters"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "some",
+                    a: {
+                      op: "path",
+                      p: "find.filters"
+                    },
+                    it: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "not",
+                          a: {
+                            op: "it",
+                            p: "key"
+                          }
+                        },
+                        b: {
+                          op: "eq",
+                          a: {
+                            op: "it",
+                            p: "key"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "undefined"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "not",
+                        a: {
+                          op: "it",
+                          p: "value"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "find"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
+            field: "filter.filters",
+            variant: null,
+            guard: "!filterAttr?.filters?.length || emptyValues(filterAttr.filters)",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "filter.filters"
+                    }
+                  }
+                },
+                b: {
+                  op: "and",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "path",
+                      p: "filter.filters"
+                    },
+                    b: {
+                      op: "len",
+                      a: {
+                        op: "path",
+                        p: "filter.filters"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "some",
+                    a: {
+                      op: "path",
+                      p: "filter.filters"
+                    },
+                    it: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "not",
+                          a: {
+                            op: "it",
+                            p: "key"
+                          }
+                        },
+                        b: {
+                          op: "eq",
+                          a: {
+                            op: "it",
+                            p: "key"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "undefined"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "not",
+                        a: {
+                          op: "it",
+                          p: "value"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "filter"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
+            field: "line_items.fields",
+            variant: null,
+            guard: "!lineItemsAttr?.fields?.length || emptyValues(lineItemsAttr.fields)",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "line_items.fields"
+                    }
+                  }
+                },
+                b: {
+                  op: "and",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "path",
+                      p: "line_items.fields"
+                    },
+                    b: {
+                      op: "len",
+                      a: {
+                        op: "path",
+                        p: "line_items.fields"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "some",
+                    a: {
+                      op: "path",
+                      p: "line_items.fields"
+                    },
+                    it: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "not",
+                          a: {
+                            op: "it",
+                            p: "key"
+                          }
+                        },
+                        b: {
+                          op: "eq",
+                          a: {
+                            op: "it",
+                            p: "key"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "undefined"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "not",
+                        a: {
+                          op: "it",
+                          p: "value"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "line_items"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     add_appointment_booking_ai_bot: {
@@ -51042,6 +52745,34 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [],
+        warn: [
+          {
+            field: "customNumbers",
+            variant: null,
+            guard: "hasInvalidCustomNumber",
+            ast: {
+              guard: {
+                op: "some",
+                a: {
+                  op: "path",
+                  p: "customNumbers"
+                },
+                it: {
+                  op: "not",
+                  a: {
+                    op: "it",
+                    p: "isValid"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "DERIVED; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          }
+        ]
       }
     },
     ivr_hangup: {

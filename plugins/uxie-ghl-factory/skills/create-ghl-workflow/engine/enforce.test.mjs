@@ -132,3 +132,34 @@ test('editCommitBody: a modifyStep patch that empties an sms body REFUSES; unwir
   assert.doesNotThrow(() => editCommitBody({ status: 'draft', version: 1, workflowData: { templates: legacy } },
     legacy, { createdSteps: [], modifiedSteps: ['s2'], deletedSteps: [] }, 'uid', { catalog }));
 });
+
+// ── v2 rules: the wait error family + the advisory warn tier (2026-08-21 session 2) ───────
+test('an UNCONFIGURED wait is REFUSED — GHL grades it error (isWaitStepUnconfigured)', () => {
+  const catalog = loadCatalog();
+  const meta = catalog.step('wait');
+  // typeless: ONLY the new wait.type rule is in scope (every variant-scoped rule's outer is false)
+  assert.throws(() => checkEnforcement({ ref: 'w' }, {}, meta, {}), /ENFORCEMENT.*'type'/s);
+  // static time-wait with nothing set: the unconfigured rule AND the old startAfter rule both fire
+  assert.throws(() => checkEnforcement({ ref: 'w' }, { type: 'time', timePeriodInputMode: 'static' }, meta, {}), /'type'[\s\S]*'startAfter'|'startAfter'[\s\S]*'type'/);
+  checkEnforcement({ ref: 'w' }, { type: 'time', startAfter: { value: 5, unit: 'minutes' } }, meta, {});   // configured → clean
+});
+
+test('a wait name over 100 chars is REFUSED (isWithinLimits, GHL error-level)', () => {
+  const meta = loadCatalog().step('wait');
+  const base = { type: 'time', startAfter: { value: 5, unit: 'minutes' } };
+  assert.throws(() => checkEnforcement({ ref: 'w' }, { ...base, name: 'x'.repeat(101) }, meta, {}), /ENFORCEMENT.*name/s);
+  checkEnforcement({ ref: 'w' }, { ...base, name: 'x'.repeat(100) }, meta, {});
+});
+
+test('warn tier surfaces value-checks via ctx.warn and never blocks (webhook empty header row)', () => {
+  const meta = loadCatalog().step('webhook');
+  const warns = [];
+  const ctx = { warn: (m) => warns.push(m) };
+  const ok = { url: 'https://x', method: 'POST' };                       // a COMPLETE webhook (throw rules satisfied)
+  checkEnforcement({ ref: 'h' }, { ...ok, headers: [{ key: '', value: 'v' }] }, meta, ctx);   // no throw
+  assert.equal(warns.length, 1);
+  assert.match(warns[0], /ENFORCEMENT_SOFT.*headers/s);
+  warns.length = 0;
+  checkEnforcement({ ref: 'h' }, { ...ok, headers: [{ key: 'k', value: 'v' }] }, meta, ctx);
+  assert.deepEqual(warns, []);
+});

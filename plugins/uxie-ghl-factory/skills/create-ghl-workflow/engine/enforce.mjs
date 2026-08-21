@@ -20,27 +20,37 @@
 
 import { IRError } from './ir.mjs';
 
-// ── the AST evaluator (mirror of research guard-ast.mjs evaluate; keep in sync) ────────────
+// ── the AST evaluator (mirror of research guard-ast.mjs evaluate v2; keep in sync) ─────────
+// v2 ops: it/coalesce/typeof/num/some/every/count/regexTest — the warn tier's value-checks
 const get = (o, p) => p === '' ? o : p.split('.').reduce((a, k) => a == null ? undefined : a[k], o);
-export function evaluate(ast, attrs) {
+const RE_CACHE = new Map();
+const cachedRe = (src, flags) => { const k = `${src} ${flags}`; let r = RE_CACHE.get(k); if (!r) { r = new RegExp(src, flags); RE_CACHE.set(k, r); } return r; };
+export function evaluate(ast, attrs, item) {
   switch (ast.op) {
     case 'lit': return ast.v;
     case 'path': return get(attrs, ast.p);
-    case 'not': return !evaluate(ast.a, attrs);
-    case 'and': return evaluate(ast.a, attrs) && evaluate(ast.b, attrs);
-    case 'or': return evaluate(ast.a, attrs) || evaluate(ast.b, attrs);
-    case 'eq': return evaluate(ast.a, attrs) === evaluate(ast.b, attrs);
-    case 'neq': return evaluate(ast.a, attrs) !== evaluate(ast.b, attrs);
-    case 'gt': return evaluate(ast.a, attrs) > evaluate(ast.b, attrs);
-    case 'lt': return evaluate(ast.a, attrs) < evaluate(ast.b, attrs);
-    case 'gte': return evaluate(ast.a, attrs) >= evaluate(ast.b, attrs);
-    case 'lte': return evaluate(ast.a, attrs) <= evaluate(ast.b, attrs);
-    case 'len': { const v = evaluate(ast.a, attrs); return v == null ? undefined : (v.length ?? (typeof v === 'object' ? Object.keys(v).length : undefined)); }
-    case 'trim': { const v = evaluate(ast.a, attrs); return typeof v === 'string' ? v.trim() : v; }
-    case 'includes': { const v = evaluate(ast.a, attrs); const x = evaluate(ast.v, attrs); return Array.isArray(v) || typeof v === 'string' ? v.includes(x) : false; }
-    case 'isArray': return Array.isArray(evaluate(ast.a, attrs));
-    case 'has': { const o = evaluate(ast.a, attrs); const k = evaluate(ast.k, attrs); return o != null && typeof o === 'object' && k in o; }
-    case 'empty': { const v = evaluate(ast.a, attrs); return v == null || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Object.keys(v).length); }
+    case 'not': return !evaluate(ast.a, attrs, item);
+    case 'and': return evaluate(ast.a, attrs, item) && evaluate(ast.b, attrs, item);
+    case 'or': return evaluate(ast.a, attrs, item) || evaluate(ast.b, attrs, item);
+    case 'eq': return evaluate(ast.a, attrs, item) === evaluate(ast.b, attrs, item);
+    case 'neq': return evaluate(ast.a, attrs, item) !== evaluate(ast.b, attrs, item);
+    case 'gt': return evaluate(ast.a, attrs, item) > evaluate(ast.b, attrs, item);
+    case 'lt': return evaluate(ast.a, attrs, item) < evaluate(ast.b, attrs, item);
+    case 'gte': return evaluate(ast.a, attrs, item) >= evaluate(ast.b, attrs, item);
+    case 'lte': return evaluate(ast.a, attrs, item) <= evaluate(ast.b, attrs, item);
+    case 'len': { const v = evaluate(ast.a, attrs, item); return v == null ? undefined : (v.length ?? (typeof v === 'object' ? Object.keys(v).length : undefined)); }
+    case 'trim': { const v = evaluate(ast.a, attrs, item); return typeof v === 'string' ? v.trim() : v; }
+    case 'includes': { const v = evaluate(ast.a, attrs, item); const x = evaluate(ast.v, attrs, item); return Array.isArray(v) || typeof v === 'string' ? v.includes(x) : false; }
+    case 'isArray': return Array.isArray(evaluate(ast.a, attrs, item));
+    case 'has': { const o = evaluate(ast.a, attrs, item); const k = evaluate(ast.k, attrs, item); return o != null && typeof o === 'object' && k in o; }
+    case 'empty': { const v = evaluate(ast.a, attrs, item); return v == null || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Object.keys(v).length); }
+    case 'it': return get(item, ast.p);
+    case 'coalesce': { const v = evaluate(ast.a, attrs, item); return v == null ? evaluate(ast.b, attrs, item) : v; }
+    case 'typeof': return typeof evaluate(ast.a, attrs, item);
+    case 'num': return Number(evaluate(ast.a, attrs, item));
+    case 'some': case 'every': { const v = evaluate(ast.a, attrs, item); if (!Array.isArray(v)) return ast.op === 'every'; return v[ast.op]((el) => !!evaluate(ast.it, attrs, el)); }
+    case 'count': { const v = evaluate(ast.a, attrs, item); return Array.isArray(v) ? v.filter((el) => !!evaluate(ast.it, attrs, el)).length : 0; }
+    case 'regexTest': { const v = evaluate(ast.a, attrs, item); return typeof v === 'string' ? cachedRe(ast.re, ast.flags).test(v) : false; }
     default: throw new Error(`unknown op ${ast.op}`);
   }
 }
