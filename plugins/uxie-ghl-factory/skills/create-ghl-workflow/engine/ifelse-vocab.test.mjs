@@ -12,7 +12,14 @@ const cond = (o) => ({ conditionType: 'contact_detail', conditionSubType: 'email
 const fires = (conds, ctx = {}) => evaluateIfElseVocab(node(conds), V, ctx).map((f) => f.msg);
 
 test('catalog carries the if/else vocabulary with corpus evidence', () => {
-  assert.ok(V.groups.length > 50 && V.operatorTable.string && V.dateFieldOperators.includes('inTheNext'));
+  // 61 → 33 groups on 2026-08-22: the 28 attribution entries were mis-filed as empty GROUPS;
+  // a live capture proved they are LEAVES of contact_detail (conditionSubType
+  // 'first_attribution:utmSource' …, string operators) — so fewer groups, more leaves.
+  assert.ok(V.groups.length > 30 && V.operatorTable.string && V.dateFieldOperators.includes('inTheNext'));
+  const cd = V.groups.find((g) => g.value === 'contact_detail');
+  const attr = cd.conditions.filter((c) => /^(first|last)_attribution:/.test(c.value));
+  assert.equal(attr.length, 28, 'the 28 attribution leaves live under contact_detail');
+  assert.equal(attr.find((c) => c.value === 'first_attribution:utmSource')?.operatorType, 'string');
   assert.deepEqual(V.dynamicLeafGroups, ['contact_detail', 'opportunities']);
   assert.deepEqual(V.legacyOperators, { select: ['is'] });
 });

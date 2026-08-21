@@ -121,6 +121,7 @@ GHL shape per type (a hand-crafted shape compiles clean but MATCHES WRONGLY at r
 | Custom field (text) | `{ conditionType: contact_detail, conditionSubType: "<fieldId>", conditionValue: "X" }` | `conditionOperator: contain`, value **lowercased** |
 | Custom field (number/date) | …add `conditionOperator: "=="` | `conditionOperator: ==` (no lowercasing) |
 | Trigger identity | `{ conditionType: trigger, conditionValue: "<triggerId>" }` | `conditionOperator: ==` |
+| Attribution (UTM source etc.) | `{ conditionType: contact_detail, conditionSubType: "first_attribution:utmSource", conditionOperator: "==", conditionValue: "google" }` — 28 leaves: `first_attribution:`/`last_attribution:` × campaign/campaignId/medium/mediumId/utmSource/utmMedium/utmContent/utmTerm/utmCampaign/utmKeyword/utmMatchtype/sessionSource/adGroupId/adId (string operators) | as authored + `__customFieldType__: "standard"` (live-captured 2026-08-22) |
 | Appointment was rescheduled | `{ conditionType: appointment, conditionSubType: appointmentRescheduled, conditionOperator: is, conditionValue: "true" }` | as authored (`conditionValue` is the STRING `"true"`, not a boolean) |
 | Appointment start date, RELATIVE | `{ conditionType: appointment, conditionSubType: startTime, conditionOperator: "!=", conditionValue: "2", conditionValueOperator: inTheNext, conditionValueUnit: days }` | as authored + `__customFieldType__: "standard"` (see below) |
 
