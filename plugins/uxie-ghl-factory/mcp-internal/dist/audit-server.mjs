@@ -759,6 +759,42 @@ var init_define_TOOL_CATALOG = __esm({
           "trigger-count-by-triggerId",
           "logs-count-per-step"
         ]
+      },
+      list_workflow_versions: {
+        description: "List workflow versions \u2014 proof: live-runtime (2026-08-22); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-08-22)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "workflow-history"
+        ],
+        proofFloorRows: [
+          "workflow-history"
+        ],
+        riskRows: [
+          "workflow-history"
+        ],
+        rows: [
+          "workflow-history"
+        ]
+      },
+      get_workflow_version: {
+        description: "Get workflow version snapshot \u2014 proof: live-runtime (2026-08-22); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-08-22)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "workflow-history"
+        ],
+        proofFloorRows: [
+          "workflow-history"
+        ],
+        riskRows: [
+          "workflow-history"
+        ],
+        rows: [
+          "workflow-history"
+        ]
       }
     };
   }
@@ -35808,6 +35844,8 @@ var KNOWN_NODE_KEYS = /* @__PURE__ */ new Set([
   "assocGuaranteed",
   "disabled",
   "advanceCanvasMeta",
+  "notes",
+  // action notes → step.comments[] (CommentSection.vue shape)
   "marketplace",
   // third-party app step (see marketplace.mjs)
   "config",
@@ -36295,6 +36333,18 @@ function normalizeSettings(settings, ctx = {}) {
     statsView: bool("statsView")
   };
   return { body, warnings };
+}
+
+// ../skills/create-ghl-workflow/engine/step-notes.mjs
+init_define_TOOL_CATALOG();
+function stepNoteRecord(text, { uid, now, idGen } = {}) {
+  if (typeof text !== "string" || !text.trim()) throw new Error(`a step note needs non-empty text`);
+  const html = /^\s*<[a-z!]/i.test(text) ? text : `<p>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+  const ts = (now ? new Date(now) : /* @__PURE__ */ new Date()).toISOString().replace(/\.\d{3}Z$/, "Z");
+  return { id: idGen ? idGen() : crypto.randomUUID(), userId: uid ?? null, timestamp: ts, comment: html };
+}
+function stepNotesToComments(notes, ctx = {}) {
+  return notes.map((t) => stepNoteRecord(t, { uid: ctx.uid, now: ctx.now, idGen: ctx.idGen })).reverse();
 }
 
 // ../skills/create-ghl-workflow/engine/contact-field-shapes.mjs
@@ -37455,13 +37505,15 @@ function typeFor(node) {
   if (node.type === "update_opportunity") return "internal_update_opportunity";
   return node.type;
 }
-function withStepDisabled(node, template) {
-  if (node.disabled !== true) return template;
+function withStepDisabled(node, template, ctx) {
+  let out = template;
+  if (Array.isArray(node.notes) && node.notes.length) out = { ...out, comments: stepNotesToComments(node.notes, ctx ?? {}) };
+  if (node.disabled !== true) return out;
   return {
-    ...template,
+    ...out,
     advanceCanvasMeta: {
       ...node.advanceCanvasMeta ?? {},
-      ...template.advanceCanvasMeta ?? {},
+      ...out.advanceCanvasMeta ?? {},
       isDisabled: true
     }
   };
@@ -37622,7 +37674,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         }
       };
       if (parentScopeId !== null) ifElseContainer.parent = parentScopeId;
-      templates.push(withStepDisabled(n, ifElseContainer));
+      templates.push(withStepDisabled(n, ifElseContainer, ctx));
       conditioned.forEach((b, bi) => {
         const child = flattenGraph(b.then ?? [], ctx, refMap, conditionedIds[bi]);
         templates.push({
@@ -37686,7 +37738,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         }
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const booked = flattenGraph(n.onBooked ?? [], ctx, refMap, t1);
       templates.push({ id: t1, type: "transition", name: "Appointment Booked", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: booked.entryId });
       templates.push(...booked.templates);
@@ -37723,7 +37775,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         }
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const none = flattenGraph(n.default ?? [], ctx, refMap, noneId);
       templates.push({ id: noneId, type: "transition", name: "No condition met", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: none.entryId });
       templates.push(...none.templates);
@@ -37771,7 +37823,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         }
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const prim = flattenGraph(n.onEvent ?? [], ctx, refMap, t1);
       templates.push({ id: t1, parentKey: id, parent: id, type: "transition", name: "wait", attributes: { type: `wait_${wt}`, description: eventDesc }, order: 0, cat: "transition", next: prim.entryId });
       templates.push(...prim.templates);
@@ -37812,7 +37864,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         }
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
       templates.push({ id: t1, type: "transition", name: "Opportunity Found", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
       templates.push(...found.templates);
@@ -37839,7 +37891,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         parentKey
       };
       if (parentScopeId !== null) tmpl2.parent = parentScopeId;
-      templates.push(withStepDisabled(n, tmpl2));
+      templates.push(withStepDisabled(n, tmpl2, ctx));
       return;
     }
     if (n.kind === "split") {
@@ -37877,7 +37929,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         }
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       n.paths.forEach((p, pi) => {
         const child = flattenGraph(p.then ?? [], ctx, refMap, pathIds[pi]);
         templates.push({
@@ -37933,7 +37985,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       };
       if (!isFC) container.workflowsActionType = "INTERNAL";
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
       templates.push({ id: t1, type: "transition", name: container.attributes.transitions[0].name, cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
       templates.push(...found.templates);
@@ -37977,7 +38029,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
         }
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container));
+      templates.push(withStepDisabled(n, container, ctx));
       const def = flattenGraph(n.default ?? [], ctx, refMap, defId);
       templates.push({ id: defId, type: "transition", name: "Default Branch", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: def.entryId });
       templates.push(...def.templates);
@@ -37991,7 +38043,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
     if (n.marketplace === true) tmpl.isMarketplaceAction = true;
     if (parentScopeId !== null) tmpl.parent = parentScopeId;
-    templates.push(withStepDisabled(n, tmpl));
+    templates.push(withStepDisabled(n, tmpl, ctx));
   });
   for (const t of templates) if (t.parentKey === null) delete t.parentKey;
   return { templates, entryId: ids[0] ?? null };
@@ -100483,6 +100535,33 @@ function settingsCommitFields(fresh, patch, uid, opts = {}) {
   if ("statsView" in patch || fresh.meta?.statsView !== void 0) out.meta = { ...fresh.meta ?? {}, statsView };
   return out;
 }
+function addStepNote(templates, stepId, text, opts = {}) {
+  const found = templates.find((t) => t.id === stepId);
+  if (!found) throw new Error(`addStepNote: no step with id '${stepId}'`);
+  const note = stepNoteRecord(text, opts);
+  const out = templates.map((t) => t.id === stepId ? { ...t, comments: [note, ...Array.isArray(t.comments) ? t.comments : []] } : t);
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] }, note };
+}
+var NOT_DUPLICABLE = /* @__PURE__ */ new Set(["workflow_goal", "loop", "goto", "if_else", "workflow_split", "wait"]);
+function duplicateStep(templates, stepId, idGen, { afterId } = {}) {
+  const src = templates.find((t) => t.id === stepId);
+  if (!src) throw new Error(`duplicateStep: no step with id '${stepId}'`);
+  if (Array.isArray(src.next) || NOT_DUPLICABLE.has(src.type) || src.attributes?.convertToMultipath === true || src.attributes?.isHybridAction === true)
+    throw new Error(`duplicateStep: '${src.name ?? stepId}' (${src.type}) cannot be copied \u2014 the builder hides "Copy action" for containers/multipath waits, goals, loops and gotos. Build the container again instead.`);
+  let tpls = templates;
+  const modified = [];
+  if (src.type === "email" && src.attributes?.templatesource === "email-builder" && src.attributes?.isCloned !== true) {
+    tpls = tpls.map((t) => t.id === stepId ? { ...t, attributes: { ...t.attributes, isCloned: true } } : t);
+    modified.push(stepId);
+  }
+  const marked = tpls.find((t) => t.id === stepId);
+  const { comments, id: _id, next: _n, parentKey: _p, parent: _pa, order: _o, ...rest } = marked;
+  const clone3 = { ...JSON.parse(JSON.stringify(rest)), id: idGen() };
+  if (src.advanceCanvasMeta) clone3.advanceCanvasMeta = JSON.parse(JSON.stringify(src.advanceCanvasMeta));
+  const r = insertAfter(tpls, clone3, afterId ?? stepId);
+  if (!r.diff.createdSteps?.length) throw new Error(`duplicateStep: insert anchor '${afterId ?? stepId}' not found`);
+  return { templates: r.templates, diff: { ...r.diff, modifiedSteps: [.../* @__PURE__ */ new Set([...r.diff.modifiedSteps ?? [], ...modified])] }, newId: clone3.id };
+}
 
 // ../skills/create-ghl-workflow/engine/marketplace.mjs
 init_define_TOOL_CATALOG();
@@ -101314,6 +101393,8 @@ function normalizeDiff(d) {
   return { createdSteps: [...created], modifiedSteps: [...new Set(modified)], deletedSteps: [...deleted] };
 }
 var OP_REQUIRED_ARGS = {
+  addStepNote: ["stepId", "text"],
+  duplicateStep: ["stepId"],
   appendStep: ["step"],
   insertAfter: ["step", "afterId"],
   insertBefore: ["step", "beforeId"],
@@ -101380,6 +101461,12 @@ function applyOp(templates, op, { ctx, idGen }) {
     }
     case "deleteStep":
       return deleteStep(templates, op.stepId);
+    // Action NOTES (node ⋯ → Notes): unshift {id, userId, timestamp, comment:HTML} onto step.comments[]
+    case "addStepNote":
+      return addStepNote(templates, op.stepId, op.text, { uid: ctx?.uid, now: ctx?.now, idGen });
+    // "Copy action" + "Copy here": a fresh-id copy right after the source (or op.afterId); containers/goals/loops/gotos refused
+    case "duplicateStep":
+      return duplicateStep(templates, op.stepId, idGen, { afterId: op.afterId });
     case "repairParentKeys": {
       const { templates: t, diff } = repairParentKeys(templates);
       return { templates: t, diff };
@@ -105061,6 +105148,90 @@ var TOOLS2 = [
         triggers,
         contactsPerStep,
         note: `Same endpoints as the builder's Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail.`
+      });
+    }, args)
+  },
+  {
+    name: "list_workflow_versions",
+    description: describe3(
+      "list_workflow_versions",
+      "Version history (the clock-icon rail panel): every saved/published snapshot's metadata, newest first."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      // history/v2 is paged; the unpaged /history returns everything (GHL keeps 30 days or the last 10).
+      limit: external_exports.number().int().positive().max(100).default(20),
+      all: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}/history" },
+      { method: "GET", path: "/workflow/{loc}/{wid}/history/v2" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
+      const r = await gw.call("GET", args.all ? `/workflow/${loc}/${wid}/history` : `/workflow/${loc}/${wid}/history/v2?${new URLSearchParams({ limit: String(args.limit ?? 20) })}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = recordsFrom(r.json, "data", "versions");
+      const versions = rows.map((v) => ({
+        versionId: v._id ?? v.id ?? null,
+        version: v.version ?? null,
+        status: v.status ?? null,
+        name: v.name ?? null,
+        updatedBy: v.updatedBy ?? null,
+        updatedAt: v.updatedAt ?? null,
+        createdAt: v.createdAt ?? null,
+        isRestore: v.meta?.versionRestore ? v.meta.versionRestore : null
+      }));
+      return ok({
+        workflowId: args.workflowId,
+        versions,
+        count: versions.length,
+        nextPage: Array.isArray(r.json) ? null : r.json?.nextPage ?? null,
+        note: "LIVE (GROM AU 2026-08-22): version records exist for the CREATE (v1) and for each PUBLISH \u2014 the publish PUT wrote the pre-publish state as its own version AND the published state; draft saves (the UI Save button, API PUTs, autosave) created none. Retention: 30 days or the last 10. Fetch a snapshot with get_workflow_version; restore is PUT /workflow/{loc}/{wid} with isRestoreRequest:true (always lands as draft) \u2014 not exposed as a tool."
+      });
+    }, args)
+  },
+  {
+    name: "get_workflow_version",
+    description: describe3(
+      "get_workflow_version",
+      "One version-history snapshot with its full step graph (by version number or version id)."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      version: external_exports.number().int().positive().optional(),
+      versionId: external_exports.string().optional()
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}/history-by-number/{n}" },
+      { method: "GET", path: "/workflow/{loc}/{wid}/history/{versionId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (args.version === void 0 && !args.versionId) {
+        return fail(CODES.VALIDATION_FAILED, "get_workflow_version needs version (a number) or versionId.", "Pass the version number from list_workflow_versions, or its versionId.");
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
+      const path = args.version !== void 0 ? `/workflow/${loc}/${wid}/history-by-number/${encodeURIComponent(String(args.version))}` : `/workflow/${loc}/${wid}/history/${encodeURIComponent(args.versionId)}`;
+      const r = await gw.call("GET", path);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const v = r.json ?? {};
+      const templates = Array.isArray(v.workflowData?.templates) ? v.workflowData.templates : [];
+      return ok({
+        workflowId: args.workflowId,
+        versionId: v._id ?? v.id ?? null,
+        version: v.version ?? null,
+        status: v.status ?? null,
+        name: v.name ?? null,
+        updatedBy: v.updatedBy ?? null,
+        updatedAt: v.updatedAt ?? null,
+        settings: { allowMultiple: v.allowMultiple ?? null, allowMultipleOpportunity: v.allowMultipleOpportunity ?? null, stopOnResponse: v.stopOnResponse ?? null, autoMarkAsRead: v.autoMarkAsRead ?? null, timezone: v.timezone ?? null, window: v.window ?? null, senderAddress: v.senderAddress ?? null, eventStartDate: v.eventStartDate ?? null },
+        stepCount: templates.length,
+        templates,
+        meta: v.meta ?? null
       });
     }, args)
   },

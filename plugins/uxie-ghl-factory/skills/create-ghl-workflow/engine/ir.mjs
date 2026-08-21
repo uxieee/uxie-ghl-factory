@@ -23,6 +23,7 @@ const CONTAINER_KINDS = new Set(['find_opportunity', 'find_contact', 'lc_merge_c
 // intent the engine would silently discard — see checkNodeKeys.
 const KNOWN_NODE_KEYS = new Set([
   'ref', 'kind', 'type', 'name', 'attributes', 'assocGuaranteed', 'disabled', 'advanceCanvasMeta',
+  'notes',                                  // action notes → step.comments[] (CommentSection.vue shape)
   'marketplace',                            // third-party app step (see marketplace.mjs)
   'config', 'window', 'waitType',          // wait
   'branches', 'paths', 'mode', 'condition', // if_else / split

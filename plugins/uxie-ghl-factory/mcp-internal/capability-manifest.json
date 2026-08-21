@@ -245,6 +245,26 @@
     "path": "/workflows/status/search/count-per-step"
   },
   {
+    "tool": "list_workflow_versions",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}/history"
+  },
+  {
+    "tool": "list_workflow_versions",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}/history/v2"
+  },
+  {
+    "tool": "get_workflow_version",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}/history-by-number/{n}"
+  },
+  {
+    "tool": "get_workflow_version",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}/history/{versionId}"
+  },
+  {
     "tool": "list_account_entities",
     "method": "GET",
     "path": "/opportunities/pipelines"

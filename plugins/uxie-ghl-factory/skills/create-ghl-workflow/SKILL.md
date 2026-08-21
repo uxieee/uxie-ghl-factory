@@ -273,6 +273,8 @@ stickyNotes:
   "note":{ color: green } }` (partial). Read them back with `export_workflow` (`stickyNotes[]`).
 - Live-proven 2026-08-22: `POST /workflows/sticky-note?locationId=` (201) and
   `PATCH /workflows/sticky-note?_id=&locationId=` (200). Hatch: `skipStickyCheck`.
+- **Action notes** (the node ⋯ → Notes popover) are a node key: `notes: ["Owner: Sarah", "Copy reviewed 2026-08"]` →
+  `comments[]` on the step (`{id, userId, timestamp, comment}` newest-first), saved with the workflow.
 
 ### The engine fails LOUD rather than silently dropping intent
 
@@ -328,7 +330,7 @@ IS, see "Retyping a step" below), `moveStep`, `addBranch`
 (see "Editing TRIGGERS" below), and **`updateSettings`** (`{settings:{…}}` — the Settings tab's
 keys, merged over the stored values and validated by the same contract as `settings:` in a
 build: `window`, `timezone`, `stopOnResponse`, `senderAddress`, `workflowNote`, `statsView`…;
-a settings-only edit still commits with one PUT). The disable operations use GHL's native top-level
+a settings-only edit still commits with one PUT). Also `addStepNote` (`{stepId,text}` — the node's Notes popover; lands in `comments[]` newest-first) and `duplicateStep` (`{stepId, afterId?}` — "Copy action" → "Copy here": fresh-id copy after the source, notes not copied, disabled state travels; containers/goals/loops/gotos refused). The disable operations use GHL's native top-level
 `advanceCanvasMeta.isDisabled` flag, preserve the full step config, and commit only changed
 step IDs in `modifiedSteps`. Example — add an SMS, delete a step, and natively pause all
 internal notifications:

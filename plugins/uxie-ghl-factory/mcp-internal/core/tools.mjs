@@ -1631,6 +1631,78 @@ export const TOOLS = [
     }, args),
   },
   {
+    name: 'list_workflow_versions',
+    description: describe(
+      'list_workflow_versions',
+      'Version history (the clock-icon rail panel): every saved/published snapshot\'s metadata, newest first.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      // history/v2 is paged; the unpaged /history returns everything (GHL keeps 30 days or the last 10).
+      limit: z.number().int().positive().max(100).default(20),
+      all: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}/history' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}/history/v2' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
+      const r = await gw.call('GET', args.all ? `/workflow/${loc}/${wid}/history` : `/workflow/${loc}/${wid}/history/v2?${new URLSearchParams({ limit: String(args.limit ?? 20) })}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = recordsFrom(r.json, 'data', 'versions');
+      const versions = rows.map((v) => ({
+        versionId: v._id ?? v.id ?? null, version: v.version ?? null, status: v.status ?? null, name: v.name ?? null,
+        updatedBy: v.updatedBy ?? null, updatedAt: v.updatedAt ?? null, createdAt: v.createdAt ?? null,
+        isRestore: v.meta?.versionRestore ? v.meta.versionRestore : null,
+      }));
+      return ok({
+        workflowId: args.workflowId, versions, count: versions.length,
+        nextPage: Array.isArray(r.json) ? null : (r.json?.nextPage ?? null),
+        note: 'LIVE (GROM AU 2026-08-22): version records exist for the CREATE (v1) and for each PUBLISH — the publish PUT wrote the pre-publish state as its own version AND the published state; draft saves (the UI Save button, API PUTs, autosave) created none. Retention: 30 days or the last 10. Fetch a snapshot with get_workflow_version; restore is PUT /workflow/{loc}/{wid} with isRestoreRequest:true (always lands as draft) — not exposed as a tool.',
+      });
+    }, args),
+  },
+  {
+    name: 'get_workflow_version',
+    description: describe(
+      'get_workflow_version',
+      'One version-history snapshot with its full step graph (by version number or version id).',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      version: z.number().int().positive().optional(),
+      versionId: z.string().optional(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}/history-by-number/{n}' },
+      { method: 'GET', path: '/workflow/{loc}/{wid}/history/{versionId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (args.version === undefined && !args.versionId) {
+        return fail(CODES.VALIDATION_FAILED, 'get_workflow_version needs version (a number) or versionId.', 'Pass the version number from list_workflow_versions, or its versionId.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
+      const path = args.version !== undefined
+        ? `/workflow/${loc}/${wid}/history-by-number/${encodeURIComponent(String(args.version))}`
+        : `/workflow/${loc}/${wid}/history/${encodeURIComponent(args.versionId)}`;
+      const r = await gw.call('GET', path);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const v = r.json ?? {};
+      const templates = Array.isArray(v.workflowData?.templates) ? v.workflowData.templates : [];
+      return ok({
+        workflowId: args.workflowId, versionId: v._id ?? v.id ?? null, version: v.version ?? null, status: v.status ?? null,
+        name: v.name ?? null, updatedBy: v.updatedBy ?? null, updatedAt: v.updatedAt ?? null,
+        settings: { allowMultiple: v.allowMultiple ?? null, allowMultipleOpportunity: v.allowMultipleOpportunity ?? null, stopOnResponse: v.stopOnResponse ?? null, autoMarkAsRead: v.autoMarkAsRead ?? null, timezone: v.timezone ?? null, window: v.window ?? null, senderAddress: v.senderAddress ?? null, eventStartDate: v.eventStartDate ?? null },
+        stepCount: templates.length, templates, meta: v.meta ?? null,
+      });
+    }, args),
+  },
+  {
     name: 'list_account_entities',
     description: describe(
       'list_account_entities',

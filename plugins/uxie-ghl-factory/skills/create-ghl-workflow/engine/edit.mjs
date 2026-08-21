@@ -9,6 +9,7 @@
 // an edit apply cleanly without disturbing untouched steps.
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
 import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
+import { stepNoteRecord } from './step-notes.mjs';
 import { expandCondition } from './compiler.mjs';
 import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
@@ -948,4 +949,50 @@ export function settingsCommitFields(fresh, patch, uid, opts = {}) {
   const out = { ...top };
   if ('statsView' in patch || fresh.meta?.statsView !== undefined) out.meta = { ...(fresh.meta ?? {}), statsView };
   return out;
+}
+
+// ─── Action NOTES (the node ⋯ → "Notes" popover; CommentSection.vue) ─────────────────────
+// Stored on the step as `comments[]`, newest FIRST (the UI unshifts), each
+// `{ id: uuid, userId, timestamp: moment.utc().format() → 'YYYY-MM-DDTHH:mm:ssZ', comment: HTML }`.
+// Saved with the workflow — no separate endpoint. The count is not capped (the i18n "max 10"
+// key has no consumer). An EDIT of an existing note overwrites userId + timestamp too.
+export { stepNoteRecord };
+export function addStepNote(templates, stepId, text, opts = {}) {
+  const found = templates.find((t) => t.id === stepId);
+  if (!found) throw new Error(`addStepNote: no step with id '${stepId}'`);
+  const note = stepNoteRecord(text, opts);
+  const out = templates.map((t) => (t.id === stepId ? { ...t, comments: [note, ...(Array.isArray(t.comments) ? t.comments : [])] } : t));
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] }, note };
+}
+
+// ─── DUPLICATE a step (the node ⋯ → "Copy action" + "Copy here" on the next plus node) ───
+// UI rules (states/node.ts:242-284 cloneNode, PlusNode.vue:116-147 addNode, EDIT-OPS §5/§7):
+//   • refused for containers (if_else/split/multipath), workflow_goal, loop (its body lives in
+//     sibling templates) and goto (a second goto to the same target is a different intent);
+//   • the copy carries name + attributes + advanceCanvasMeta (the DISABLED state travels);
+//   • comments (notes) are NOT copied; a fresh id; inserted right after the source by default;
+//   • an email built in the email builder gets `attributes.isCloned = true` written on the
+//     SOURCE node (the UI mutates the source when you copy it) — mirrored, so the source lands
+//     in modifiedSteps; a marketplace copy gets a fresh stepIndex via applyOps' renumbering.
+const NOT_DUPLICABLE = new Set(['workflow_goal', 'loop', 'goto', 'if_else', 'workflow_split', 'wait']);
+export function duplicateStep(templates, stepId, idGen, { afterId } = {}) {
+  const src = templates.find((t) => t.id === stepId);
+  if (!src) throw new Error(`duplicateStep: no step with id '${stepId}'`);
+  if (Array.isArray(src.next) || NOT_DUPLICABLE.has(src.type) || src.attributes?.convertToMultipath === true || src.attributes?.isHybridAction === true)
+    throw new Error(`duplicateStep: '${src.name ?? stepId}' (${src.type}) cannot be copied — the builder hides "Copy action" for containers/multipath waits, goals, loops and gotos. Build the container again instead.`);
+  let tpls = templates;
+  const modified = [];
+  if (src.type === 'email' && src.attributes?.templatesource === 'email-builder' && src.attributes?.isCloned !== true) {
+    tpls = tpls.map((t) => (t.id === stepId ? { ...t, attributes: { ...t.attributes, isCloned: true } } : t));
+    modified.push(stepId);
+  }
+  // clone from the (possibly just-marked) source: the UI copies `currentNode.attributes` AFTER
+  // markEmailAsCloned ran on it, so the copy carries isCloned too
+  const marked = tpls.find((t) => t.id === stepId);
+  const { comments, id: _id, next: _n, parentKey: _p, parent: _pa, order: _o, ...rest } = marked;
+  const clone = { ...JSON.parse(JSON.stringify(rest)), id: idGen() };
+  if (src.advanceCanvasMeta) clone.advanceCanvasMeta = JSON.parse(JSON.stringify(src.advanceCanvasMeta));
+  const r = insertAfter(tpls, clone, afterId ?? stepId);
+  if (!r.diff.createdSteps?.length) throw new Error(`duplicateStep: insert anchor '${afterId ?? stepId}' not found`);
+  return { templates: r.templates, diff: { ...r.diff, modifiedSteps: [...new Set([...(r.diff.modifiedSteps ?? []), ...modified])] }, newId: clone.id };
 }

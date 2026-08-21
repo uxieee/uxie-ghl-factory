@@ -581,13 +581,15 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
   // audit profile: it is a write, and it targets the AI host on the Bearer rail.
   // 30 -> 31: `get_workflow_stats` (read-only; the builder's Stats view as data), registered
   // immediately after `get_contacts_at_step`. Outside the audit profile (not frozen evidence).
-  assert.equal(TOOLS.length, 31, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 31 -> 33: `list_workflow_versions` + `get_workflow_version` (read-only version history),
+  // registered after `get_workflow_stats`. Outside the audit profile.
+  assert.equal(TOOLS.length, 33, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
     'list_workflows', 'get_workflow', 'check_workflow', 'export_workflow',
     'get_workflow_logs', 'get_workflow_runtime_window', 'list_workflows_complete',
-    'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_account_entities',
+    'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_workflow_versions', 'get_workflow_version', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
     'publish_workflow', 'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',

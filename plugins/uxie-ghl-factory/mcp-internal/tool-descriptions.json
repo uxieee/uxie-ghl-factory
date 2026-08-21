@@ -712,5 +712,41 @@
       "trigger-count-by-triggerId",
       "logs-count-per-step"
     ]
+  },
+  "list_workflow_versions": {
+    "description": "List workflow versions \u2014 proof: live-runtime (2026-08-22); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-08-22)",
+    "proofFloor": "live-runtime (2026-08-22)",
+    "proofRows": [
+      "workflow-history"
+    ],
+    "proofFloorRows": [
+      "workflow-history"
+    ],
+    "riskRows": [
+      "workflow-history"
+    ],
+    "rows": [
+      "workflow-history"
+    ]
+  },
+  "get_workflow_version": {
+    "description": "Get workflow version snapshot \u2014 proof: live-runtime (2026-08-22); risk: read",
+    "risk": "read",
+    "proof": "live-runtime (2026-08-22)",
+    "proofFloor": "live-runtime (2026-08-22)",
+    "proofRows": [
+      "workflow-history"
+    ],
+    "proofFloorRows": [
+      "workflow-history"
+    ],
+    "riskRows": [
+      "workflow-history"
+    ],
+    "rows": [
+      "workflow-history"
+    ]
   }
 }
