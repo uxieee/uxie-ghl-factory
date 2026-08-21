@@ -38292,6 +38292,14 @@ function compile(ir, ctx) {
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
   applyUiDefaults(templates, ctx?.catalog, ctx);
+  if (typeof ctx?.warn === "function") {
+    for (const t of templates) {
+      if (t?.type !== "custom_code") continue;
+      const out = t.attributes?.output;
+      if (!out || typeof out !== "object" || Array.isArray(out) || !Object.keys(out).length)
+        ctx.warn(`custom_code '${t.name ?? t.id}': attributes.output is ${out === void 0 ? "missing" : "empty"} \u2014 the builder requires a successful "Run test" (POST /custom-code/run-test) and will show an error on this step until one is run in the UI`);
+    }
+  }
   checkIfElseVocab(templates, ctx?.catalog, ctx);
   checkMergeTags(templates, ctx?.catalog, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);

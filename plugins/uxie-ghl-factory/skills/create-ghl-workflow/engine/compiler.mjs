@@ -1602,6 +1602,18 @@ export function compile(ir, ctx) {
   // UI defaults + constructor-forced fields FIRST, so enforcement sees the same initialized
   // shape the UI's validators see (ui-defaults.mjs; corpus-verified keys only)
   applyUiDefaults(templates, ctx?.catalog, ctx);
+  // custom_code needs a SERVER test run before the builder accepts it: the drawer's Save requires
+  // attributes.output to be the non-empty object returned by POST /custom-code/run-test, and editing
+  // the code voids it (custom-code-components, recovered 2026-08-22). The engine can't run the test
+  // offline, so an authored custom_code without a real output ships a step the builder will flag.
+  if (typeof ctx?.warn === 'function') {
+    for (const t of templates) {
+      if (t?.type !== 'custom_code') continue;
+      const out = t.attributes?.output;
+      if (!out || typeof out !== 'object' || Array.isArray(out) || !Object.keys(out).length)
+        ctx.warn(`custom_code '${t.name ?? t.id}': attributes.output is ${out === undefined ? 'missing' : 'empty'} — the builder requires a successful "Run test" (POST /custom-code/run-test) and will show an error on this step until one is run in the UI`);
+    }
+  }
   // if/else conditions against the picker's vocabulary (ifelse-vocab.mjs) — GHL has NO validator
   // for if/else; a wrong subtype/operator saves clean and matches wrongly at runtime
   checkIfElseVocab(templates, ctx?.catalog, ctx);
