@@ -648,6 +648,8 @@ The orchestrator prints exactly what it did. Check it:
 
 ## Resources
 
+- `references/drawer-parity.md` — what the UI's config DRAWERS write that models alone don't say: per-type stamps, normalizations and traps (assign_user's agreeing quad, webhook's unguarded url, custom_code's online-only output, the find_contact presence flip, attribute-discarding drawers…). Read it before hand-crafting attributes for a type the examples don't cover.
+
 - `scripts/build.mjs` — **the entry point.** IR → verified draft, deps handled.
 - `engine/` — IR parser, compiler, catalog, resolver, orchestrator (+ tests).
 - `references/capabilities.md` — generated index of ALL 383 step / 204 trigger types
