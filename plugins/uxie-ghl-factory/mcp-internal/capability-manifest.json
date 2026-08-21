@@ -215,6 +215,36 @@
     "path": "/workflows/status/search/details-by-step"
   },
   {
+    "tool": "get_workflow_stats",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "get_workflow_stats",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "get_workflow_stats",
+    "method": "GET",
+    "path": "/conversations-reporting/messages/aggregate"
+  },
+  {
+    "tool": "get_workflow_stats",
+    "method": "GET",
+    "path": "/conversations-reporting/emails/aggregate"
+  },
+  {
+    "tool": "get_workflow_stats",
+    "method": "GET",
+    "path": "/workflows/trigger/logs/count-by-triggerId"
+  },
+  {
+    "tool": "get_workflow_stats",
+    "method": "GET",
+    "path": "/workflows/status/search/count-per-step"
+  },
+  {
     "tool": "list_account_entities",
     "method": "GET",
     "path": "/opportunities/pipelines"
@@ -533,6 +563,16 @@
     "tool": "edit_workflow",
     "method": "DELETE",
     "path": "/workflow/{loc}/trigger/{tid}"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "POST",
+    "path": "/workflows/sticky-note"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "PATCH",
+    "path": "/workflows/sticky-note"
   },
   {
     "tool": "publish_workflow",

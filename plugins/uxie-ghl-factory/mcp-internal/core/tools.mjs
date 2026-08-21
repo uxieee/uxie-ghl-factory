@@ -1555,6 +1555,82 @@ export const TOOLS = [
     }, args),
   },
   {
+    name: 'get_workflow_stats',
+    description: describe(
+      'get_workflow_stats',
+      'The builder\'s Stats view as data: per-step SMS/email delivery aggregates, per-trigger attempted/matched counts, contacts per step (last 30 days max).',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      // GHL keeps these stats for the last 30 days ("Stats are only available for the last 30 days").
+      days: z.number().int().positive().max(30).default(30),
+      // Which step types get a message aggregate: the UI shows stats for sms + email steps.
+      stepTypes: z.array(z.string()).default(['sms', 'email']),
+      includeTriggers: z.boolean().default(true),
+      includeContactsPerStep: z.boolean().default(true),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+      { method: 'GET', path: '/conversations-reporting/messages/aggregate' },
+      { method: 'GET', path: '/conversations-reporting/emails/aggregate' },
+      { method: 'GET', path: '/workflows/trigger/logs/count-by-triggerId' },
+      { method: 'GET', path: '/workflows/status/search/count-per-step' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const wid = encodeURIComponent(args.workflowId);
+      const wf = await gw.call('GET', `/workflow/${loc}/${wid}?includeScheduledPauseInfo=true`);
+      if (!wf.ok) return fromHttp(wf.status, wf.json);
+      const templates = Array.isArray(wf.json?.workflowData?.templates) ? wf.json.workflowData.templates : [];
+      // The builder's own window: endDate = today 23:59:59.999Z, startDate = N days earlier 00:00Z
+      // (captured 2026-08-22: startDate=2026-07-23T00:00:00.000+00:00&endDate=2026-08-22T23:59:59.999+00:00).
+      const now = deps.now ? new Date(deps.now) : new Date();
+      const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
+      const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (args.days ?? 30), 0, 0, 0, 0));
+      const iso = (d) => d.toISOString().replace('Z', '+00:00');
+      const window = { startDate: iso(start), endDate: iso(end), fromDate: start.getTime(), toDate: end.getTime(), days: args.days ?? 30 };
+      const stepTypes = new Set(args.stepTypes ?? ['sms', 'email']);
+      const steps = [];
+      for (const t of templates) {
+        if (!t || !stepTypes.has(t.type)) continue;
+        const channel = t.type === 'email' ? 'emails' : 'messages';
+        const q = new URLSearchParams({ startDate: window.startDate, endDate: window.endDate, source: 'workflow', sourceId: args.workflowId, subSourceId: t.id, locationId: args.locationId });
+        const r = await gw.call('GET', `/conversations-reporting/${channel}/aggregate?${q}`);
+        if (!r.ok) { steps.push({ id: t.id, name: t.name ?? null, type: t.type, channel, error: { status: r.status } }); continue; }
+        const results = r.json?.results ?? {};
+        const metrics = Object.fromEntries(Object.entries(results).filter(([, v]) => v && typeof v === 'object' && 'value' in v).map(([k, v]) => [k, v.value]));
+        steps.push({ id: t.id, name: t.name ?? null, type: t.type, channel, total: r.json?.total ?? null, metrics, rates: results.rates ?? null });
+      }
+      let triggers = [];
+      if (args.includeTriggers !== false) {
+        const tr = await gw.call('GET', `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
+        if (!tr.ok) return fromHttp(tr.status, tr.json);
+        const list = Array.isArray(tr.json) ? tr.json : (tr.json?.triggers ?? tr.json?.data ?? []);
+        for (const trig of list) {
+          const q = new URLSearchParams({ triggerId: trig.id, locationId: args.locationId, fromDate: String(window.fromDate), toDate: String(window.toDate), recordId: '', dateType: 'custom' });
+          const r = await gw.call('GET', `/workflows/trigger/logs/count-by-triggerId?${q}`);
+          const row = Array.isArray(r.json) ? (r.json[0] ?? null) : (r.json && typeof r.json === 'object' ? r.json : null);
+          const attempted = Number(row?.total ?? 0), matched = Number(row?.matched ?? 0);
+          triggers.push({ id: trig.id, name: trig.name ?? null, type: trig.type, active: trig.active ?? null, attempted, matched, unmatched: Math.max(0, attempted - matched), ...(r.ok ? {} : { error: { status: r.status } }) });
+        }
+      }
+      let contactsPerStep = null;
+      if (args.includeContactsPerStep !== false) {
+        const r = await gw.call('GET', `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`);
+        if (r.ok) contactsPerStep = recordsFrom(r.json, 'data', 'rows').map((x) => ({ stepId: x.currentStepId ?? x.stepId ?? null, total: x.total ?? null }));
+      }
+      return ok({
+        workflowId: args.workflowId, status: wf.json?.status ?? null, window,
+        steps, stepsWithoutStats: templates.filter((t) => t && !stepTypes.has(t.type)).map((t) => ({ id: t.id, type: t.type })).length,
+        triggers, contactsPerStep,
+        note: 'Same endpoints as the builder\'s Stats view (rail toggle, pie icon); GHL keeps these for the last 30 days only. SMS "failed" = metrics.unfulfilled; email "bounced" = metrics.permanentFail.',
+      });
+    }, args),
+  },
+  {
     name: 'list_account_entities',
     description: describe(
       'list_account_entities',
