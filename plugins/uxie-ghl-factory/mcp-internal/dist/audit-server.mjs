@@ -37733,6 +37733,7 @@ var catalog_data_default = {
     "sniffs/bundle/registry-parsed.json",
     "sniffs/bundle/trigger-registry-parsed.json",
     "sniffs/bundle/og-action-ui-metadata.json",
+    "sniffs/bundle/model-shapes.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
@@ -39494,7 +39495,9 @@ var catalog_data_default = {
       isMultipathContainer: false,
       usesCustomInputs: false,
       attrKeys: [
-        "tags"
+        "tags",
+        "removeAll",
+        "customTags"
       ],
       example: "catalog/step-examples/add_contact_tag.json",
       section: "contact",
@@ -39502,7 +39505,45 @@ var catalog_data_default = {
       display_name: "add_contact_tag",
       requiredFields: [
         "tags"
-      ]
+      ],
+      modelFields: {
+        interface: "IContactTag",
+        source: "src/models/actions/ContactTag.ts",
+        required: [
+          "tags"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: true,
+            type: "union",
+            members: [
+              "add_contact_tag",
+              "remove_contact_tag"
+            ]
+          },
+          {
+            name: "tags",
+            optional: false,
+            type: "string[]"
+          },
+          {
+            name: "removeAll",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "customTags",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     add_notes: {
       type: "add_notes",
@@ -39514,7 +39555,9 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "html",
-        "type"
+        "type",
+        "title",
+        "color"
       ],
       example: "catalog/step-examples/add_notes.json",
       section: "contact",
@@ -39522,7 +39565,42 @@ var catalog_data_default = {
       display_name: "add_to_notes",
       requiredFields: [
         "html"
-      ]
+      ],
+      modelFields: {
+        interface: "INote",
+        source: "src/models/actions/Note.ts",
+        required: [
+          "html",
+          "type"
+        ],
+        fields: [
+          {
+            name: "html",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "type",
+            optional: false,
+            type: "'add_notes'"
+          },
+          {
+            name: "title",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "color",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     add_to_workflow: {
       type: "add_to_workflow",
@@ -39543,7 +39621,38 @@ var catalog_data_default = {
       display_name: "add_to_workflow",
       requiredFields: [
         "workflow_id"
-      ]
+      ],
+      modelFields: {
+        interface: "IAddToWorkflow",
+        source: "src/models/actions/AddToWorkflow.ts",
+        required: [
+          "type",
+          "workflow_id",
+          "input_trigger_params"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'add_to_workflow'"
+          },
+          {
+            name: "workflow_id",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "input_trigger_params",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     ai_agent: {
       type: "ai_agent",
@@ -39638,7 +39747,67 @@ var catalog_data_default = {
       display_name: "assign_to_user",
       requiredFields: [
         "user_list"
-      ]
+      ],
+      modelFields: {
+        interface: "IAssignToUser",
+        source: "src/models/actions/AssignToUser.ts",
+        required: [
+          "type",
+          "only_unassigned_contact",
+          "total_index",
+          "traffic_split",
+          "traffic_weightage",
+          "traffic_index",
+          "user_list"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'assign_user'"
+          },
+          {
+            name: "only_unassigned_contact",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "total_index",
+            optional: false,
+            type: "number"
+          },
+          {
+            name: "traffic_split",
+            optional: false,
+            type: "TrafficSplit"
+          },
+          {
+            name: "traffic_weightage",
+            optional: false,
+            type: "TrafficWeightage"
+          },
+          {
+            name: "traffic_index",
+            optional: false,
+            type: "ITrafficIndex[]"
+          },
+          {
+            name: "user_list",
+            optional: false,
+            type: "UserId[]"
+          },
+          {
+            name: "customUserList",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     call: {
       type: "call",
@@ -39660,7 +39829,34 @@ var catalog_data_default = {
       display_name: "call",
       requiredFields: [
         "timeout"
-      ]
+      ],
+      modelFields: {
+        interface: "ICall",
+        source: "src/models/actions/Call.ts",
+        required: [],
+        fields: [
+          {
+            name: "timeout",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "whisper_message",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "disable_detect_voicemail",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "call_connect",
+            optional: true,
+            type: "boolean"
+          }
+        ]
+      }
     },
     chatgpt: {
       type: "chatgpt",
@@ -39696,7 +39892,83 @@ var catalog_data_default = {
         "event",
         "promptText",
         "temperature"
-      ]
+      ],
+      modelFields: {
+        interface: "IChatGPT",
+        source: "src/models/actions/premium-actions/ChatGPT.ts",
+        required: [
+          "type",
+          "apiKey",
+          "event",
+          "model",
+          "temperature",
+          "promptText",
+          "actionType",
+          "actionParams"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'chatgpt'"
+          },
+          {
+            name: "apiKey",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "event",
+            optional: false,
+            type: "IEventTypes"
+          },
+          {
+            name: "model",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "temperature",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "promptText",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "actionType",
+            optional: false,
+            type: "IChatGPTActionTypes"
+          },
+          {
+            name: "actionParams",
+            optional: false,
+            type: "IChatGPTActionParams"
+          },
+          {
+            name: "memoryKey",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "excludeFromHistory",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "instructions",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "excludeInstructionsFromHistory",
+            optional: true,
+            type: "boolean"
+          }
+        ]
+      }
     },
     contact_email_verification: {
       type: "contact_email_verification",
@@ -40138,7 +40410,8 @@ var catalog_data_default = {
         "withTags",
         "withCustomFields",
         "tags",
-        "updateIfExists"
+        "updateIfExists",
+        "customTags"
       ],
       example: "catalog/step-examples/copy_contact_to_subaccount.json",
       section: "contact",
@@ -40146,7 +40419,53 @@ var catalog_data_default = {
       display_name: "workflow.asideSection.copyContactToSubaccount",
       requiredFields: [
         "newLocations"
-      ]
+      ],
+      modelFields: {
+        interface: "ICopyContactToSubaccount",
+        source: "src/models/actions/premium-actions/CopyContactToSubaccount.ts",
+        required: [
+          "type",
+          "newLocations",
+          "tags"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'copy_contact_to_subaccount'"
+          },
+          {
+            name: "newLocations",
+            optional: false,
+            type: "IOptions[]"
+          },
+          {
+            name: "tags",
+            optional: false,
+            type: "string[]"
+          },
+          {
+            name: "withTags",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "withCustomFields",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "updateIfExists",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "customTags",
+            optional: true,
+            type: "string"
+          }
+        ]
+      }
     },
     create_opportunity: {
       type: "create_opportunity",
@@ -40162,7 +40481,12 @@ var catalog_data_default = {
         "opportunity_status",
         "opportunity_name",
         "opportunity_source",
-        "monetary_value"
+        "monetary_value",
+        "pipeline_stage_id",
+        "lostReasonId",
+        "allow_backward",
+        "allow_multiple",
+        "fields"
       ],
       example: "catalog/step-examples/create_opportunity.json",
       section: "opportunity",
@@ -40171,7 +40495,80 @@ var catalog_data_default = {
       requiredFields: [
         "pipeline_id",
         "pipeline_stage_id"
-      ]
+      ],
+      modelFields: {
+        interface: "ICreateOpportunity",
+        source: "src/models/actions/CreateOpportunity.ts",
+        required: [
+          "type",
+          "pipeline_id",
+          "pipeline_stage_id",
+          "opportunity_name",
+          "opportunity_source",
+          "opportunity_status",
+          "monetary_value",
+          "allow_backward",
+          "allow_multiple",
+          "fields"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'create_opportunity'"
+          },
+          {
+            name: "pipeline_id",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "pipeline_stage_id",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "opportunity_name",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "opportunity_source",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "opportunity_status",
+            optional: false,
+            type: "Status"
+          },
+          {
+            name: "lostReasonId",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "monetary_value",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "allow_backward",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "allow_multiple",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "fields",
+            optional: false,
+            type: "Field[]"
+          }
+        ]
+      }
     },
     create_update_contact: {
       type: "create_update_contact",
@@ -40192,7 +40589,32 @@ var catalog_data_default = {
       requiredFields: [
         "field",
         "fields"
-      ]
+      ],
+      modelFields: {
+        interface: "ICreateUpdateContact",
+        source: "src/models/actions/crm/CreateUpdateContact.ts",
+        required: [
+          "type",
+          "fields"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'create_update_contact'"
+          },
+          {
+            name: "fields",
+            optional: false,
+            type: "Field[]"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     custom_code: {
       type: "custom_code",
@@ -40234,7 +40656,8 @@ var catalog_data_default = {
         "parameters",
         "authorization",
         "saveResponse",
-        "webhookResponse"
+        "webhookResponse",
+        "runSingleAction"
       ],
       example: "catalog/step-examples/custom_webhook.json",
       section: "send_data",
@@ -40252,7 +40675,67 @@ var catalog_data_default = {
         "parameters",
         "url",
         "webhookResponse"
-      ]
+      ],
+      modelFields: {
+        interface: "ICustomWebhook",
+        source: "src/models/actions/premium-actions/CustomWebhook.ts",
+        required: [
+          "event",
+          "method",
+          "url",
+          "headers",
+          "parameters",
+          "authorization",
+          "saveResponse"
+        ],
+        fields: [
+          {
+            name: "event",
+            optional: false,
+            type: "EventType"
+          },
+          {
+            name: "method",
+            optional: false,
+            type: "MethodType"
+          },
+          {
+            name: "url",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "headers",
+            optional: false,
+            type: "IKeyValue[]"
+          },
+          {
+            name: "parameters",
+            optional: false,
+            type: "IKeyValue[]"
+          },
+          {
+            name: "authorization",
+            optional: false,
+            type: "Authorization"
+          },
+          {
+            name: "saveResponse",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "runSingleAction",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     datetime_formatter: {
       type: "datetime_formatter",
@@ -40285,7 +40768,27 @@ var catalog_data_default = {
         "format.fromFormat",
         "format.toFormat",
         "format.type"
-      ]
+      ],
+      modelFields: {
+        interface: "IDateTimeFormatter",
+        source: "src/models/actions/premium-actions/DateTimeFormatter.ts",
+        required: [
+          "type",
+          "action"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'datetime_formatter'"
+          },
+          {
+            name: "action",
+            optional: false,
+            type: "DateTimeFormatterActions"
+          }
+        ]
+      }
     },
     dnd_contact: {
       type: "dnd_contact",
@@ -40297,7 +40800,9 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "type",
-        "dnd_contact"
+        "dnd_contact",
+        "specific_channels",
+        "dnd_direction"
       ],
       example: "catalog/step-examples/dnd_contact.json",
       section: "contact",
@@ -40306,7 +40811,43 @@ var catalog_data_default = {
       requiredFields: [
         "dnd_contact",
         "specific_channels"
-      ]
+      ],
+      modelFields: {
+        interface: "IContactDND",
+        source: "src/models/actions/ContactDND.ts",
+        required: [
+          "type",
+          "dnd_contact",
+          "specific_channels",
+          "dnd_direction"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'dnd_contact'"
+          },
+          {
+            name: "dnd_contact",
+            optional: false,
+            type: "DNDType"
+          },
+          {
+            name: "specific_channels",
+            optional: false,
+            type: "IDNDMessageTypes[]"
+          },
+          {
+            name: "dnd_direction",
+            optional: false,
+            type: "union",
+            members: [
+              "inbound",
+              "outbound"
+            ]
+          }
+        ]
+      }
     },
     drip: {
       type: "drip",
@@ -40328,7 +40869,27 @@ var catalog_data_default = {
       requiredFields: [
         "batchSize",
         "interval.value"
-      ]
+      ],
+      modelFields: {
+        interface: "IDrip",
+        source: "src/models/actions/Drip.ts",
+        required: [
+          "batchSize",
+          "type"
+        ],
+        fields: [
+          {
+            name: "batchSize",
+            optional: false,
+            type: "number"
+          },
+          {
+            name: "type",
+            optional: false,
+            type: "'drip'"
+          }
+        ]
+      }
     },
     edit_conversation: {
       type: "edit_conversation",
@@ -40386,7 +40947,32 @@ var catalog_data_default = {
         "from_name",
         "from_email",
         "subject",
-        "attachments"
+        "attachments",
+        "preHeader",
+        "template_id",
+        "cc",
+        "bcc",
+        "templatesource",
+        "to",
+        "testEmails",
+        "userType",
+        "selectedUser",
+        "previewUrl",
+        "createdAt",
+        "updatedAt",
+        "isCloned",
+        "syncEnabled",
+        "conditions",
+        "trackingOptions",
+        "templateCreationMode",
+        "customSubtypeId",
+        "emailRecipients",
+        "associationLabels",
+        "fieldDefaults",
+        "htmlDefaults",
+        "assignedOwners",
+        "alsoNotifyContactFollowers",
+        "alsoNotifyOpportunityFollowers"
       ],
       example: "catalog/step-examples/email.json",
       section: "communication",
@@ -40396,7 +40982,176 @@ var catalog_data_default = {
         "html",
         "subject",
         "template_id"
-      ]
+      ],
+      modelFields: {
+        interface: "IEmail",
+        source: "src/models/actions/Email.ts",
+        required: [
+          "subject"
+        ],
+        fields: [
+          {
+            name: "from_name",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "from_email",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "subject",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "preHeader",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "template_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "cc",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "bcc",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "templatesource",
+            optional: true,
+            type: "union",
+            members: [
+              "other",
+              "email-builder",
+              "snippet"
+            ]
+          },
+          {
+            name: "to",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "testEmails",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "userType",
+            optional: true,
+            type: "ToTypeEmail"
+          },
+          {
+            name: "selectedUser",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "html",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "attachments",
+            optional: true,
+            type: "IStoredFile[]"
+          },
+          {
+            name: "previewUrl",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "createdAt",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "updatedAt",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "isCloned",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "syncEnabled",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "conditions",
+            optional: true,
+            type: "IConditionItem[]"
+          },
+          {
+            name: "trackingOptions",
+            optional: true,
+            type: "ITrackingOptions"
+          },
+          {
+            name: "templateCreationMode",
+            optional: true,
+            type: "TemplateCreationMode"
+          },
+          {
+            name: "customSubtypeId",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "emailRecipients",
+            optional: true,
+            type: "EmailRecipientMode"
+          },
+          {
+            name: "associationLabels",
+            optional: true,
+            type: "IAssociationLabelEntry[]"
+          },
+          {
+            name: "fieldDefaults",
+            optional: true,
+            type: "FieldDefaults"
+          },
+          {
+            name: "htmlDefaults",
+            optional: true,
+            type: "Record<string, string>"
+          },
+          {
+            name: "assignedOwners",
+            optional: true,
+            type: "AssignedOwner[]"
+          },
+          {
+            name: "alsoNotifyContactFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "alsoNotifyOpportunityFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     event_start_date: {
       type: "event_start_date",
@@ -40409,7 +41164,9 @@ var catalog_data_default = {
       attrKeys: [
         "type",
         "event_start_type",
-        "value"
+        "value",
+        "recurring_type",
+        "recurring_time"
       ],
       example: "catalog/step-examples/event_start_date.json",
       section: "internal",
@@ -40418,7 +41175,43 @@ var catalog_data_default = {
       requiredFields: [
         "event_start_type",
         "value"
-      ]
+      ],
+      modelFields: {
+        interface: "IEventStartDate",
+        source: "src/models/actions/EventStartDate.ts",
+        required: [
+          "type",
+          "value",
+          "event_start_type"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'event_start_date'"
+          },
+          {
+            name: "value",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "event_start_type",
+            optional: false,
+            type: "EventStartType"
+          },
+          {
+            name: "recurring_type",
+            optional: true,
+            type: "RecurringType"
+          },
+          {
+            name: "recurring_time",
+            optional: true,
+            type: "string"
+          }
+        ]
+      }
     },
     facebook_add_to_custom_audience: {
       type: "facebook_add_to_custom_audience",
@@ -40459,7 +41252,12 @@ var catalog_data_default = {
         "customMapping",
         "isCustomMappingEnabled",
         "pixel_id",
-        "stage_name"
+        "stage_name",
+        "event_name",
+        "value",
+        "facebook_page",
+        "igUserId",
+        "test_event_code"
       ],
       example: "catalog/step-examples/facebook_conversion_api.json",
       section: "marketing",
@@ -40467,7 +41265,83 @@ var catalog_data_default = {
       display_name: "facebook_conversion_api",
       requiredFields: [
         "pixel_id"
-      ]
+      ],
+      modelFields: {
+        interface: "IFacebookConversationApi",
+        source: "src/models/actions/FacebookConversationApi.ts",
+        required: [
+          "type",
+          "event_type",
+          "access_token"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'facebook_conversion_api'"
+          },
+          {
+            name: "event_type",
+            optional: false,
+            type: "EventType"
+          },
+          {
+            name: "access_token",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "event_name",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "pixel_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "stage_name",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "value",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "currency",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "facebook_page",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "igUserId",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "test_event_code",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "connection_type",
+            optional: true,
+            type: "ConnectionType"
+          },
+          {
+            name: "isCustomMappingEnabled",
+            optional: true,
+            type: "boolean"
+          }
+        ]
+      }
     },
     find_contact: {
       type: "find_contact",
@@ -40494,7 +41368,62 @@ var catalog_data_default = {
       requiredFields: [
         "field",
         "fields"
-      ]
+      ],
+      modelFields: {
+        interface: "IFindContact",
+        source: "src/models/actions/crm/FindContact.ts",
+        required: [
+          "type",
+          "fields"
+        ],
+        fields: [
+          {
+            name: "name",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "type",
+            optional: false,
+            type: "'find_contact'"
+          },
+          {
+            name: "fields",
+            optional: false,
+            type: "FindContactField[]"
+          },
+          {
+            name: "cat",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "isHybridAction",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "hybridActionType",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "convertToMultipath",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "transitions",
+            optional: true,
+            type: "ITransitionAttributes[]"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     find_opportunity: {
       type: "find_opportunity",
@@ -40717,7 +41646,9 @@ var catalog_data_default = {
         "columnRange",
         "values",
         "sheetHeaders",
-        "options"
+        "options",
+        "targetRow",
+        "rowCount"
       ],
       example: "catalog/step-examples/google_sheets.json",
       section: "send_data",
@@ -40725,7 +41656,76 @@ var catalog_data_default = {
       display_name: "google_sheets",
       requiredFields: [
         "oAuthId"
-      ]
+      ],
+      modelFields: {
+        interface: "IGoogleSheetsApi",
+        source: "src/models/actions/premium-actions/GoogleSheetsApi.ts",
+        required: [
+          "type",
+          "action",
+          "account",
+          "drive",
+          "spreadsheet",
+          "sheet"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'google_sheets'"
+          },
+          {
+            name: "action",
+            optional: false,
+            type: "{ id: string; name: string }"
+          },
+          {
+            name: "account",
+            optional: false,
+            type: "{ id: string; name: string; idType?: string }"
+          },
+          {
+            name: "drive",
+            optional: false,
+            type: "{ id: string; name: string }"
+          },
+          {
+            name: "spreadsheet",
+            optional: false,
+            type: "{ id: string; name: string }"
+          },
+          {
+            name: "sheet",
+            optional: false,
+            type: "{ id: string; name: string }"
+          },
+          {
+            name: "columnRange",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "values",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "targetRow",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "rowCount",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "sheetHeaders",
+            optional: true,
+            type: "string[]"
+          }
+        ]
+      }
     },
     goto: {
       type: "goto",
@@ -40737,7 +41737,8 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "targetNodeId",
-        "type"
+        "type",
+        "loopIdentified"
       ],
       example: "catalog/step-examples/goto.json",
       section: "internal",
@@ -40746,7 +41747,31 @@ var catalog_data_default = {
       requiredFields: [
         "placement",
         "targetNodeId"
-      ]
+      ],
+      modelFields: {
+        interface: "IGoto",
+        source: "src/models/actions/Goto.ts",
+        required: [
+          "type"
+        ],
+        fields: [
+          {
+            name: "targetNodeId",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "type",
+            optional: false,
+            type: "'goto'"
+          },
+          {
+            name: "loopIdentified",
+            optional: true,
+            type: "boolean"
+          }
+        ]
+      }
     },
     if_else: {
       type: "if_else",
@@ -40956,7 +41981,12 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "type",
-        "sms"
+        "sms",
+        "email",
+        "whatsapp",
+        "notification",
+        "userType",
+        "selectedUser"
       ],
       example: "catalog/step-examples/internal_notification.json",
       section: "communication",
@@ -40973,7 +42003,57 @@ var catalog_data_default = {
         "type",
         "whatsapp",
         "whatsapp.body"
-      ]
+      ],
+      modelFields: {
+        interface: "IInternalNotification",
+        source: "src/models/actions/InternalNotification.ts",
+        required: [
+          "type",
+          "userType"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "NotificationType"
+          },
+          {
+            name: "email",
+            optional: true,
+            type: "IEmail"
+          },
+          {
+            name: "sms",
+            optional: true,
+            type: "ISMS"
+          },
+          {
+            name: "whatsapp",
+            optional: true,
+            type: "IWhatsApp"
+          },
+          {
+            name: "notification",
+            optional: true,
+            type: "INotification"
+          },
+          {
+            name: "userType",
+            optional: false,
+            type: "UserType"
+          },
+          {
+            name: "selectedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     internal_update_opportunity: {
       type: "internal_update_opportunity",
@@ -41149,7 +42229,9 @@ var catalog_data_default = {
         "updateField",
         "updateFieldType",
         "targetCustomValueId",
-        "operators"
+        "operators",
+        "operator",
+        "value"
       ],
       example: "catalog/step-examples/math_operation.json",
       section: "internal",
@@ -41159,7 +42241,63 @@ var catalog_data_default = {
         "operators",
         "selectField",
         "updateField"
-      ]
+      ],
+      modelFields: {
+        interface: "IMathOperations",
+        source: "src/models/actions/MathOperations.ts",
+        required: [
+          "selectField",
+          "selectFieldtype",
+          "operators"
+        ],
+        fields: [
+          {
+            name: "selectField",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "selectFieldtype",
+            optional: false,
+            type: "FieldType"
+          },
+          {
+            name: "sourceCustomValueId",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "updateField",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "updateFieldType",
+            optional: true,
+            type: "FieldType"
+          },
+          {
+            name: "targetCustomValueId",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "operators",
+            optional: false,
+            type: "Operator[]"
+          },
+          {
+            name: "operator",
+            optional: true,
+            type: "string // legacy v1 field"
+          },
+          {
+            name: "value",
+            optional: true,
+            type: "any // legacy v1 field"
+          }
+        ]
+      }
     },
     membership_grant_offer: {
       type: "membership_grant_offer",
@@ -41179,7 +42317,27 @@ var catalog_data_default = {
       display_name: "course_grant_offer",
       requiredFields: [
         "offer_id"
-      ]
+      ],
+      modelFields: {
+        interface: "IMembershipOffer",
+        source: "src/models/actions/MembershipOffer.ts",
+        required: [
+          "type",
+          "offer_id"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'membership_grant_offer'"
+          },
+          {
+            name: "offer_id",
+            optional: false,
+            type: "string"
+          }
+        ]
+      }
     },
     proposals_estimates_send_document: {
       type: "proposals_estimates_send_document",
@@ -41263,7 +42421,9 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "tags",
-        "type"
+        "type",
+        "removeAll",
+        "customTags"
       ],
       example: "catalog/step-examples/remove_contact_tag.json",
       section: "contact",
@@ -41271,7 +42431,45 @@ var catalog_data_default = {
       display_name: "remove_contact_tag",
       requiredFields: [
         "tags"
-      ]
+      ],
+      modelFields: {
+        interface: "IContactTag",
+        source: "src/models/actions/ContactTag.ts",
+        required: [
+          "tags"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: true,
+            type: "union",
+            members: [
+              "add_contact_tag",
+              "remove_contact_tag"
+            ]
+          },
+          {
+            name: "tags",
+            optional: false,
+            type: "string[]"
+          },
+          {
+            name: "removeAll",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "customTags",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     remove_from_workflow: {
       type: "remove_from_workflow",
@@ -41283,7 +42481,9 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "type",
-        "workflow_id"
+        "workflow_id",
+        "includeCurrent",
+        "allWorkflows"
       ],
       example: "catalog/step-examples/remove_from_workflow.json",
       section: "internal",
@@ -41291,7 +42491,41 @@ var catalog_data_default = {
       display_name: "remove_from_workflow",
       requiredFields: [
         "workflow_id"
-      ]
+      ],
+      modelFields: {
+        interface: "IRemoveFromWorkflow",
+        source: "src/models/actions/RemoveFromWorkflow.ts",
+        required: [
+          "type"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'remove_from_workflow'"
+          },
+          {
+            name: "workflow_id",
+            optional: true,
+            type: "string | string[]"
+          },
+          {
+            name: "includeCurrent",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "allWorkflows",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     remove_opportunity: {
       type: "remove_opportunity",
@@ -41313,7 +42547,37 @@ var catalog_data_default = {
       requiredFields: [
         "opportunity_to_be_found",
         "pipeline_id"
-      ]
+      ],
+      modelFields: {
+        interface: "IRemoveOpportunity",
+        source: "src/models/actions/RemoveOpportunity.ts",
+        required: [
+          "type",
+          "pipeline_id",
+          "opportunity_to_be_found"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'remove_opportunity'"
+          },
+          {
+            name: "pipeline_id",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "opportunity_to_be_found",
+            optional: false,
+            type: "union",
+            members: [
+              "all",
+              "previous"
+            ]
+          }
+        ]
+      }
     },
     review_request: {
       type: "review_request",
@@ -41325,7 +42589,8 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "type",
-        "review_type"
+        "review_type",
+        "overrideReviewLink"
       ],
       example: "catalog/step-examples/review_request.json",
       section: "communication",
@@ -41333,7 +42598,32 @@ var catalog_data_default = {
       display_name: "send_review_request",
       requiredFields: [
         "review_type"
-      ]
+      ],
+      modelFields: {
+        interface: "IReviewRequest",
+        source: "src/models/actions/ReviewRequest.ts",
+        required: [
+          "type",
+          "review_type"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'review_request'"
+          },
+          {
+            name: "review_type",
+            optional: false,
+            type: "ReviewType"
+          },
+          {
+            name: "overrideReviewLink",
+            optional: true,
+            type: "string | null"
+          }
+        ]
+      }
     },
     slack_message: {
       type: "slack_message",
@@ -41348,7 +42638,8 @@ var catalog_data_default = {
         "integration",
         "channel",
         "text",
-        "type"
+        "type",
+        "userSource"
       ],
       example: "catalog/step-examples/slack_message.json",
       section: "communication",
@@ -41360,7 +42651,50 @@ var catalog_data_default = {
         "integration",
         "text",
         "userSource"
-      ]
+      ],
+      modelFields: {
+        interface: "ISlackMessage",
+        source: "src/models/actions/premium-actions/SlackMessage.ts",
+        required: [
+          "type",
+          "action",
+          "integration",
+          "channel",
+          "text"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'slack_message'"
+          },
+          {
+            name: "action",
+            optional: false,
+            type: "{ id: IActionTypes | string; name: string }"
+          },
+          {
+            name: "integration",
+            optional: false,
+            type: "{ id: string; name: string; idType?: string }"
+          },
+          {
+            name: "userSource",
+            optional: true,
+            type: "{ id: IUserSources | string; name: string }"
+          },
+          {
+            name: "channel",
+            optional: false,
+            type: "{ id: string; name: string }"
+          },
+          {
+            name: "text",
+            optional: false,
+            type: "string"
+          }
+        ]
+      }
     },
     sms: {
       type: "sms",
@@ -41372,7 +42706,19 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "body",
-        "attachments"
+        "attachments",
+        "template_id",
+        "urlAttachments",
+        "to",
+        "testPhones",
+        "userType",
+        "selectedUser",
+        "assignedUser",
+        "standardAssignedUser",
+        "customAssignedUser",
+        "assignedOwners",
+        "alsoNotifyContactFollowers",
+        "alsoNotifyOpportunityFollowers"
       ],
       example: "catalog/step-examples/sms.json",
       section: "communication",
@@ -41381,7 +42727,89 @@ var catalog_data_default = {
       requiredFields: [
         "body",
         "template_id"
-      ]
+      ],
+      modelFields: {
+        interface: "ISMS",
+        source: "src/models/actions/SMS.ts",
+        required: [],
+        fields: [
+          {
+            name: "body",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "template_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "attachments",
+            optional: true,
+            type: "IStoredFile[]"
+          },
+          {
+            name: "urlAttachments",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "to",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "testPhones",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "userType",
+            optional: true,
+            type: "ToTypeSMS"
+          },
+          {
+            name: "selectedUser",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "assignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "standardAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "customAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "assignedOwners",
+            optional: true,
+            type: "AssignedOwner[]"
+          },
+          {
+            name: "alsoNotifyContactFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "alsoNotifyOpportunityFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     "task-notification": {
       type: "task-notification",
@@ -41462,7 +42890,27 @@ var catalog_data_default = {
       requiredFields: [
         "field",
         "formatterType"
-      ]
+      ],
+      modelFields: {
+        interface: "ITextFormatter",
+        source: "src/schema/text-formatter.schema.ts",
+        required: [
+          "formatterType",
+          "extras"
+        ],
+        fields: [
+          {
+            name: "formatterType",
+            optional: false,
+            type: "TextFormatterTypes"
+          },
+          {
+            name: "extras",
+            optional: false,
+            type: "Record<string, number | string | boolean | undefined>"
+          }
+        ]
+      }
     },
     transition: {
       type: "transition",
@@ -41495,7 +42943,37 @@ var catalog_data_default = {
       display_name: "update_appointment_status",
       requiredFields: [
         "status_type"
-      ]
+      ],
+      modelFields: {
+        interface: "IAppointmentStatus",
+        source: "src/models/actions/AppointmentStatus.ts",
+        required: [
+          "type",
+          "status_type"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'update_appointment_status'"
+          },
+          {
+            name: "category",
+            optional: true,
+            type: "union",
+            members: [
+              "appointment",
+              "service_booking",
+              "rental_booking"
+            ]
+          },
+          {
+            name: "status_type",
+            optional: false,
+            type: "AppointmentStatusType | ServiceBookingStatusType | RentalBookingStatusType | und"
+          }
+        ]
+      }
     },
     update_contact_field: {
       type: "update_contact_field",
@@ -41516,7 +42994,38 @@ var catalog_data_default = {
       display_name: "update_contact_field",
       requiredFields: [
         "fields"
-      ]
+      ],
+      modelFields: {
+        interface: "IContactField",
+        source: "src/models/actions/ContactField.ts",
+        required: [
+          "type",
+          "actionType",
+          "fields"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'update_contact_field'"
+          },
+          {
+            name: "actionType",
+            optional: false,
+            type: "ActionType"
+          },
+          {
+            name: "fields",
+            optional: false,
+            type: "Field[]"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     update_conversation_ai_status: {
       type: "update_conversation_ai_status",
@@ -41574,14 +43083,28 @@ var catalog_data_default = {
       premium: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      attrKeys: [],
+      attrKeys: [
+        "attachment"
+      ],
       example: "catalog/step-examples/voicemail.json",
       section: "communication",
       beta: false,
       display_name: "voicemail",
       requiredFields: [
         "attachment"
-      ]
+      ],
+      modelFields: {
+        interface: "IVoicemail",
+        source: "src/models/actions/Voicemail.ts",
+        required: [],
+        fields: [
+          {
+            name: "attachment",
+            optional: true,
+            type: "IStoredFile"
+          }
+        ]
+      }
     },
     wait: {
       type: "wait",
@@ -41593,7 +43116,62 @@ var catalog_data_default = {
       usesCustomInputs: false,
       attrKeys: [
         "type",
-        "startAfter"
+        "startAfter",
+        "window",
+        "condition",
+        "appointmentStartAfter",
+        "appointmentCondition",
+        "appointmentSpecificStep",
+        "reply",
+        "replyLabel",
+        "emailEventSteps",
+        "emailEventStepsLabel",
+        "emailEventTypes",
+        "windowCondition",
+        "link",
+        "linksLabel",
+        "convertToMultipath",
+        "specificDate",
+        "specificTimeHour",
+        "specificTimeMinute",
+        "specificTimeSecond",
+        "specificTimePeriod",
+        "specificDateProceed",
+        "specificDateOffsetDays",
+        "specificDateOffsetHours",
+        "specificDateOffsetMinutes",
+        "specificDatePassed",
+        "specificDateStep",
+        "dynamicSpecificDate",
+        "specificDateInputMode",
+        "recurringFrequency",
+        "recurringWeeklyDays",
+        "recurringMonthlyMode",
+        "recurringMonthlyDay",
+        "recurringMonthlyWeek",
+        "recurringMonthlyWeekday",
+        "recurringMonths",
+        "recurringYearlyMonth",
+        "recurringYearlyDay",
+        "recurringTimeHour",
+        "recurringTimeMinute",
+        "recurringTimePeriod",
+        "recurringProceed",
+        "recurringOffsetDays",
+        "recurringOffsetHours",
+        "recurringOffsetMinutes",
+        "dynamicTimePeriod",
+        "timePeriodInputMode",
+        "dynamicUnit",
+        "unitInputMode",
+        "timeoutBranchName",
+        "name",
+        "cat",
+        "transitions",
+        "isHybridAction",
+        "hybridActionType",
+        "channel",
+        "repliedBy"
       ],
       example: "catalog/step-examples/wait.json",
       section: "internal",
@@ -41621,7 +43199,346 @@ var catalog_data_default = {
         "window.end",
         "window.start",
         "window.value"
-      ]
+      ],
+      modelFields: {
+        interface: "IWait",
+        source: "src/models/conditions/Wait.ts",
+        required: [
+          "type"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "WaitType"
+          },
+          {
+            name: "window",
+            optional: true,
+            type: "Window"
+          },
+          {
+            name: "condition",
+            optional: true,
+            type: "IIfElseMain"
+          },
+          {
+            name: "startAfter",
+            optional: true,
+            type: "StartAfter"
+          },
+          {
+            name: "appointmentStartAfter",
+            optional: true,
+            type: "StartAfter"
+          },
+          {
+            name: "appointmentCondition",
+            optional: true,
+            type: "appointmentConditionType"
+          },
+          {
+            name: "appointmentSpecificStep",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "reply",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "replyLabel",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "emailEventSteps",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "emailEventStepsLabel",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "emailEventTypes",
+            optional: true,
+            type: "EmailEventType[]"
+          },
+          {
+            name: "windowCondition",
+            optional: true,
+            type: "IWindowCondition"
+          },
+          {
+            name: "link",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "linksLabel",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "convertToMultipath",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "specificDate",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "specificTimeHour",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "specificTimeMinute",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "specificTimeSecond",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "specificTimePeriod",
+            optional: true,
+            type: "union",
+            members: [
+              "AM",
+              "PM"
+            ]
+          },
+          {
+            name: "specificDateProceed",
+            optional: true,
+            type: "union",
+            members: [
+              "on",
+              "before",
+              "after"
+            ]
+          },
+          {
+            name: "specificDateOffsetDays",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "specificDateOffsetHours",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "specificDateOffsetMinutes",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "specificDatePassed",
+            optional: true,
+            type: "union",
+            members: [
+              "next",
+              "exit",
+              "specific_step",
+              "skip"
+            ]
+          },
+          {
+            name: "specificDateStep",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "dynamicSpecificDate",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "specificDateInputMode",
+            optional: true,
+            type: "union",
+            members: [
+              "standard",
+              "dynamic"
+            ]
+          },
+          {
+            name: "recurringFrequency",
+            optional: true,
+            type: "union",
+            members: [
+              "weekly",
+              "monthly",
+              "yearly"
+            ]
+          },
+          {
+            name: "recurringWeeklyDays",
+            optional: true,
+            type: "number[]"
+          },
+          {
+            name: "recurringMonthlyMode",
+            optional: true,
+            type: "union",
+            members: [
+              "day",
+              "nth_weekday"
+            ]
+          },
+          {
+            name: "recurringMonthlyDay",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringMonthlyWeek",
+            optional: true,
+            type: "string | string[]"
+          },
+          {
+            name: "recurringMonthlyWeekday",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringMonths",
+            optional: true,
+            type: "number[]"
+          },
+          {
+            name: "recurringYearlyMonth",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringYearlyDay",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringTimeHour",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringTimeMinute",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringTimePeriod",
+            optional: true,
+            type: "union",
+            members: [
+              "AM",
+              "PM"
+            ]
+          },
+          {
+            name: "recurringProceed",
+            optional: true,
+            type: "union",
+            members: [
+              "on",
+              "before",
+              "after"
+            ]
+          },
+          {
+            name: "recurringOffsetDays",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringOffsetHours",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "recurringOffsetMinutes",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "dynamicTimePeriod",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "timePeriodInputMode",
+            optional: true,
+            type: "union",
+            members: [
+              "standard",
+              "dynamic"
+            ]
+          },
+          {
+            name: "dynamicUnit",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "unitInputMode",
+            optional: true,
+            type: "union",
+            members: [
+              "standard",
+              "dynamic"
+            ]
+          },
+          {
+            name: "timeoutBranchName",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "name",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "cat",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "transitions",
+            optional: true,
+            type: "ITransition[]"
+          },
+          {
+            name: "isHybridAction",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "hybridActionType",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "channel",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "repliedBy",
+            optional: true,
+            type: "string[]"
+          }
+        ]
+      }
     },
     webhook: {
       type: "webhook",
@@ -41646,7 +43563,39 @@ var catalog_data_default = {
         "headers",
         "method",
         "url"
-      ]
+      ],
+      modelFields: {
+        interface: "IWebhook",
+        source: "src/models/actions/Webhook.ts",
+        required: [
+          "method",
+          "url",
+          "customData",
+          "headers"
+        ],
+        fields: [
+          {
+            name: "method",
+            optional: false,
+            type: "MethodType"
+          },
+          {
+            name: "url",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "customData",
+            optional: false,
+            type: "IKeyValue[]"
+          },
+          {
+            name: "headers",
+            optional: false,
+            type: "IKeyValue[]"
+          }
+        ]
+      }
     },
     workflow_ai_decision_maker: {
       type: "workflow_ai_decision_maker",
@@ -41734,7 +43683,39 @@ var catalog_data_default = {
         "extras.templateId",
         "invoiceStepId",
         "stepIds"
-      ]
+      ],
+      modelFields: {
+        interface: "IGoal",
+        source: "src/models/Goals/Goal.ts",
+        required: [
+          "type",
+          "segments",
+          "op",
+          "action"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'workflow_goal'"
+          },
+          {
+            name: "segments",
+            optional: false,
+            type: "IGoalSegment[]"
+          },
+          {
+            name: "op",
+            optional: false,
+            type: "Operator"
+          },
+          {
+            name: "action",
+            optional: false,
+            type: "GoalAction // what happens when contact reaches this step."
+          }
+        ]
+      }
     },
     workflow_split: {
       type: "workflow_split",
@@ -41751,7 +43732,8 @@ var catalog_data_default = {
         "type",
         "paths",
         "condition",
-        "extras"
+        "extras",
+        "distributionType"
       ],
       example: "catalog/step-examples/workflow_split.json",
       section: "internal",
@@ -41759,7 +43741,44 @@ var catalog_data_default = {
       display_name: "workflow.asideSection.headerMeta.workflowSplit",
       requiredFields: [
         "paths"
-      ]
+      ],
+      modelFields: {
+        interface: "SplitAction",
+        source: "src/schema/split.interface.ts",
+        required: [
+          "type",
+          "paths",
+          "condition",
+          "extras"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'workflow_split'"
+          },
+          {
+            name: "paths",
+            optional: false,
+            type: "SplitPath[]"
+          },
+          {
+            name: "condition",
+            optional: false,
+            type: "SplitCondition"
+          },
+          {
+            name: "distributionType",
+            optional: true,
+            type: "SplitDistributionType"
+          },
+          {
+            name: "extras",
+            optional: false,
+            type: "SplitExtras"
+          }
+        ]
+      }
     },
     workflow_ai_generate_image: {
       type: "workflow_ai_generate_image",
@@ -41770,13 +43789,48 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "external_ai_models",
+      section: "workflow_ai",
       display_name: "workflow.actions.generateImageAI.defaultActionName",
       requiredFields: [
         "brandBoardId",
         "brandVoiceId"
       ],
-      attrKeys: []
+      attrKeys: [
+        "model",
+        "prompt",
+        "additionalSettings"
+      ],
+      modelFields: {
+        interface: "IGenerateImageAI",
+        source: "src/models/actions/premium-actions/GenerateImageAI.ts",
+        required: [
+          "type",
+          "prompt",
+          "additionalSettings"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "typeof GENERATE_IMAGE_AI_TYPE"
+          },
+          {
+            name: "model",
+            optional: true,
+            type: "GenerateImageAIModel"
+          },
+          {
+            name: "prompt",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "additionalSettings",
+            optional: false,
+            type: "IGenerateImageAIAdditionalSettings"
+          }
+        ]
+      }
     },
     create_custom_object: {
       type: "create_custom_object",
@@ -41787,7 +43841,7 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "custom_objects",
+      section: "customObjects",
       display_name: "create_object",
       requiredFields: [],
       attrKeys: []
@@ -41801,7 +43855,7 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "custom_objects",
+      section: "customObjects",
       display_name: "update_object",
       requiredFields: [],
       attrKeys: []
@@ -41815,7 +43869,7 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "custom_objects",
+      section: "customObjects",
       display_name: "clear_object_fields",
       requiredFields: [],
       attrKeys: []
@@ -41835,7 +43889,104 @@ var catalog_data_default = {
         "body",
         "template_id"
       ],
-      attrKeys: []
+      attrKeys: [
+        "body",
+        "template_id",
+        "attachments",
+        "urlAttachments",
+        "to",
+        "testPhones",
+        "userType",
+        "selectedUser",
+        "assignedUser",
+        "standardAssignedUser",
+        "customAssignedUser",
+        "assignedOwners",
+        "alsoNotifyContactFollowers",
+        "alsoNotifyOpportunityFollowers"
+      ],
+      modelFields: {
+        interface: "ISMS",
+        source: "src/models/actions/SMS.ts",
+        required: [],
+        fields: [
+          {
+            name: "body",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "template_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "attachments",
+            optional: true,
+            type: "IStoredFile[]"
+          },
+          {
+            name: "urlAttachments",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "to",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "testPhones",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "userType",
+            optional: true,
+            type: "ToTypeSMS"
+          },
+          {
+            name: "selectedUser",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "assignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "standardAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "customAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "assignedOwners",
+            optional: true,
+            type: "AssignedOwner[]"
+          },
+          {
+            name: "alsoNotifyContactFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "alsoNotifyOpportunityFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     "instagram-dm": {
       type: "instagram-dm",
@@ -41852,7 +44003,104 @@ var catalog_data_default = {
         "body",
         "template_id"
       ],
-      attrKeys: []
+      attrKeys: [
+        "body",
+        "template_id",
+        "attachments",
+        "urlAttachments",
+        "to",
+        "testPhones",
+        "userType",
+        "selectedUser",
+        "assignedUser",
+        "standardAssignedUser",
+        "customAssignedUser",
+        "assignedOwners",
+        "alsoNotifyContactFollowers",
+        "alsoNotifyOpportunityFollowers"
+      ],
+      modelFields: {
+        interface: "ISMS",
+        source: "src/models/actions/SMS.ts",
+        required: [],
+        fields: [
+          {
+            name: "body",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "template_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "attachments",
+            optional: true,
+            type: "IStoredFile[]"
+          },
+          {
+            name: "urlAttachments",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "to",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "testPhones",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "userType",
+            optional: true,
+            type: "ToTypeSMS"
+          },
+          {
+            name: "selectedUser",
+            optional: true,
+            type: "string[]"
+          },
+          {
+            name: "assignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "standardAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "customAssignedUser",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "assignedOwners",
+            optional: true,
+            type: "AssignedOwner[]"
+          },
+          {
+            name: "alsoNotifyContactFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "alsoNotifyOpportunityFollowers",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     gmb: {
       type: "gmb",
@@ -41955,7 +44203,47 @@ var catalog_data_default = {
         "custom_value_id",
         "new_value"
       ],
-      attrKeys: []
+      attrKeys: [
+        "name",
+        "custom_value_id",
+        "current_value",
+        "new_value"
+      ],
+      modelFields: {
+        interface: "IUpdateCustomValue",
+        source: "src/models/actions/UpdateCustomValue.ts",
+        required: [
+          "name",
+          "custom_value_id"
+        ],
+        fields: [
+          {
+            name: "name",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "custom_value_id",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "current_value",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "new_value",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "__tool_schema__",
+            optional: true,
+            type: "Record<string, IToolSchemaField>"
+          }
+        ]
+      }
     },
     number_formatter: {
       type: "number_formatter",
@@ -41981,7 +44269,29 @@ var catalog_data_default = {
         "random.max",
         "random.min"
       ],
-      attrKeys: []
+      attrKeys: [
+        "action"
+      ],
+      modelFields: {
+        interface: "INumberFormatter",
+        source: "src/models/actions/premium-actions/NumberFormatter.ts",
+        required: [
+          "type",
+          "action"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'number_formatter'"
+          },
+          {
+            name: "action",
+            optional: false,
+            type: "NumberFormatterActions"
+          }
+        ]
+      }
     },
     array_functions: {
       type: "array_functions",
@@ -42008,7 +44318,73 @@ var catalog_data_default = {
         "math_functions.key",
         "math_functions.operations"
       ],
-      attrKeys: []
+      attrKeys: [
+        "name",
+        "action",
+        "referenceObject",
+        "referenceMappings",
+        "referencePath",
+        "format_as_text",
+        "selectedArray"
+      ],
+      modelFields: {
+        interface: "IArrayFunctions",
+        source: "src/models/actions/ArrayFunctions.ts",
+        required: [
+          "type",
+          "name",
+          "action",
+          "format_as_text",
+          "selectedArray"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'array_functions'"
+          },
+          {
+            name: "name",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "action",
+            optional: false,
+            type: "ArrayFunctionsActions"
+          },
+          {
+            name: "referenceObject",
+            optional: true,
+            type: "object"
+          },
+          {
+            name: "referenceMappings",
+            optional: true,
+            type: "Array<{ value: string; label: string }>"
+          },
+          {
+            name: "referencePath",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "_testResponseVersion",
+            optional: true,
+            type: "number"
+          },
+          {
+            name: "format_as_text",
+            optional: false,
+            type: "FormatAsTextConfig"
+          },
+          {
+            name: "selectedArray",
+            optional: false,
+            type: "any[]"
+          }
+        ]
+      }
     },
     add_appointment_booking_ai_bot: {
       type: "add_appointment_booking_ai_bot",
@@ -42027,7 +44403,81 @@ var catalog_data_default = {
         "success_message",
         "timeout_time"
       ],
-      attrKeys: []
+      attrKeys: [
+        "calendar_id",
+        "timeout_time",
+        "send_first_message",
+        "no_confirmation_message",
+        "send_success_message",
+        "success_message",
+        "success_message_template_id",
+        "first_message",
+        "template_id"
+      ],
+      modelFields: {
+        interface: "IAIAppointmentBook",
+        source: "src/models/actions/AIAppointmentBook.ts",
+        required: [
+          "type",
+          "calendar_id",
+          "timeout_time",
+          "send_first_message",
+          "no_confirmation_message",
+          "send_success_message"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'add_appointment_booking_ai_bot'"
+          },
+          {
+            name: "calendar_id",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "timeout_time",
+            optional: false,
+            type: "number"
+          },
+          {
+            name: "send_first_message",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "no_confirmation_message",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "send_success_message",
+            optional: false,
+            type: "boolean"
+          },
+          {
+            name: "success_message",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "success_message_template_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "first_message",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "template_id",
+            optional: true,
+            type: "string"
+          }
+        ]
+      }
     },
     send_to_eliza: {
       type: "send_to_eliza",
@@ -42052,14 +44502,57 @@ var catalog_data_default = {
       beta: false,
       isMultipathContainer: false,
       usesCustomInputs: false,
-      section: "payments",
+      section: "payment",
       display_name: "stripe_one_time_charge",
       requiredFields: [
         "amount",
         "currency",
         "stripe_customer_id"
       ],
-      attrKeys: []
+      attrKeys: [
+        "amount",
+        "currency",
+        "description",
+        "stripe_customer_id"
+      ],
+      modelFields: {
+        interface: "IStripeOneTimeCharge",
+        source: "src/models/actions/StripeOneTimeCharge.ts",
+        required: [
+          "type",
+          "amount",
+          "currency",
+          "description",
+          "stripe_customer_id"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'stripe_one_time_charge'"
+          },
+          {
+            name: "amount",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "currency",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "description",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "stripe_customer_id",
+            optional: false,
+            type: "string"
+          }
+        ]
+      }
     },
     google_analytics: {
       type: "google_analytics",
@@ -42077,7 +44570,83 @@ var catalog_data_default = {
         "event",
         "measurement_id"
       ],
-      attrKeys: []
+      attrKeys: [
+        "action_type",
+        "event_action",
+        "event_category",
+        "event_label",
+        "event_value",
+        "ga4_event_value",
+        "tracking_id",
+        "measurement_id",
+        "event",
+        "api_secret"
+      ],
+      modelFields: {
+        interface: "IGoogleAnalytics",
+        source: "src/models/actions/GoogleAnalytics.ts",
+        required: [
+          "type",
+          "action_type"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'google_analytics'"
+          },
+          {
+            name: "action_type",
+            optional: false,
+            type: "ActionType"
+          },
+          {
+            name: "event_action",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "event_category",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "event_label",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "event_value",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "ga4_event_value",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "tracking_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "measurement_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "event",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "api_secret",
+            optional: true,
+            type: "string"
+          }
+        ]
+      }
     },
     google_adword: {
       type: "google_adword",
@@ -42095,7 +44664,66 @@ var catalog_data_default = {
         "conversion_value",
         "customMapping"
       ],
-      attrKeys: []
+      attrKeys: [
+        "conversion_type",
+        "conversion_name",
+        "conversion_action_id",
+        "isCustomMappingEnabled",
+        "customMapping",
+        "conversion_value",
+        "currency"
+      ],
+      modelFields: {
+        interface: "IGoogleAdword",
+        source: "src/models/actions/GoogleAdword.ts",
+        required: [
+          "type",
+          "conversion_type",
+          "conversion_name"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'google_adword'"
+          },
+          {
+            name: "conversion_type",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "conversion_name",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "conversion_action_id",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "isCustomMappingEnabled",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "customMapping",
+            optional: true,
+            type: "ICustomMapping"
+          },
+          {
+            name: "conversion_value",
+            optional: true,
+            type: "string"
+          },
+          {
+            name: "currency",
+            optional: true,
+            type: "string"
+          }
+        ]
+      }
     },
     facebook_remove_from_custom_audience: {
       type: "facebook_remove_from_custom_audience",
@@ -42142,7 +44770,34 @@ var catalog_data_default = {
       requiredFields: [
         "affiliate_state"
       ],
-      attrKeys: []
+      attrKeys: [
+        "name",
+        "affiliate_state"
+      ],
+      modelFields: {
+        interface: "IUpdateAffiliate",
+        source: "src/models/actions/UpdateAffiliate.ts",
+        required: [
+          "name",
+          "affiliate_state"
+        ],
+        fields: [
+          {
+            name: "name",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "affiliate_state",
+            optional: false,
+            type: "union",
+            members: [
+              "active",
+              "inactive"
+            ]
+          }
+        ]
+      }
     },
     add_to_affiliate_campaign: {
       type: "add_to_affiliate_campaign",
@@ -42158,7 +44813,30 @@ var catalog_data_default = {
       requiredFields: [
         "campaign_id"
       ],
-      attrKeys: []
+      attrKeys: [
+        "name",
+        "campaign_id"
+      ],
+      modelFields: {
+        interface: "IAddToAffiliateCampaign",
+        source: "src/models/actions/AddToAffiliateCampaign.ts",
+        required: [
+          "name",
+          "campaign_id"
+        ],
+        fields: [
+          {
+            name: "name",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "campaign_id",
+            optional: false,
+            type: "string"
+          }
+        ]
+      }
     },
     remove_from_affiliate_campaign: {
       type: "remove_from_affiliate_campaign",
@@ -42174,7 +44852,30 @@ var catalog_data_default = {
       requiredFields: [
         "campaign_id"
       ],
-      attrKeys: []
+      attrKeys: [
+        "name",
+        "campaign_id"
+      ],
+      modelFields: {
+        interface: "IAddToAffiliateCampaign",
+        source: "src/models/actions/AddToAffiliateCampaign.ts",
+        required: [
+          "name",
+          "campaign_id"
+        ],
+        fields: [
+          {
+            name: "name",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "campaign_id",
+            optional: false,
+            type: "string"
+          }
+        ]
+      }
     },
     membership_revoke_offer: {
       type: "membership_revoke_offer",
@@ -42190,7 +44891,29 @@ var catalog_data_default = {
       requiredFields: [
         "offer_id"
       ],
-      attrKeys: []
+      attrKeys: [
+        "offer_id"
+      ],
+      modelFields: {
+        interface: "IMembershipRevokeOffer",
+        source: "src/models/actions/MembershipRevokeOffer.ts",
+        required: [
+          "type",
+          "offer_id"
+        ],
+        fields: [
+          {
+            name: "type",
+            optional: false,
+            type: "'membership_revoke_offer'"
+          },
+          {
+            name: "offer_id",
+            optional: false,
+            type: "string"
+          }
+        ]
+      }
     },
     ivr_gather: {
       type: "ivr_gather",
@@ -42241,7 +44964,75 @@ var catalog_data_default = {
         "customNumbers",
         "users"
       ],
-      attrKeys: []
+      attrKeys: [
+        "timeout",
+        "timeLimit",
+        "record",
+        "detectVoicemail",
+        "isSayPlayOn",
+        "sayPlayAttributes",
+        "userId",
+        "users",
+        "customNumbers"
+      ],
+      modelFields: {
+        interface: "IIVRConnectCall",
+        source: "src/models/actions/ivr/IVRConnectCall.ts",
+        required: [
+          "timeout",
+          "timeLimit",
+          "userId",
+          "users",
+          "customNumbers"
+        ],
+        fields: [
+          {
+            name: "timeout",
+            optional: false,
+            type: "number"
+          },
+          {
+            name: "timeLimit",
+            optional: false,
+            type: "number"
+          },
+          {
+            name: "record",
+            optional: true,
+            type: "'record-from-answer' | 'record-from-ringing' // default to 'record-from-answer' "
+          },
+          {
+            name: "detectVoicemail",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "isSayPlayOn",
+            optional: true,
+            type: "boolean"
+          },
+          {
+            name: "sayPlayAttributes",
+            optional: true,
+            type: "IIVRSayOrPlay"
+          },
+          {
+            name: "userId",
+            optional: false,
+            type: "string"
+          },
+          {
+            name: "users",
+            optional: false,
+            type: "string[]"
+          },
+          {
+            name: "customNumbers",
+            optional: false,
+            type: "ICustomNumber[]"
+          }
+        ]
+      }
     },
     ivr_hangup: {
       type: "ivr_hangup",
@@ -67096,6 +69887,15 @@ Rules to Follow:
         }
       ]
     },
+    conv_ai_trigger: {
+      type: "conv_ai_trigger",
+      kind: "trigger",
+      masterType: "highlevel",
+      category: "events",
+      premium: false,
+      confidence: "verified-live",
+      example: "catalog/trigger-examples/conv_ai_trigger.json"
+    },
     affiliate_new_lead: {
       type: "affiliate_new_lead",
       kind: "trigger",
@@ -67133,14 +69933,6 @@ Rules to Follow:
         }
       ],
       display_name: "Lead Created"
-    },
-    conv_ai_trigger: {
-      type: "conv_ai_trigger",
-      kind: "trigger",
-      category: null,
-      masterType: "highlevel",
-      example: "catalog/trigger-examples/conv_ai_trigger.json",
-      confidence: "verified-live"
     },
     proposal_estimate_update: {
       type: "proposal_estimate_update",
