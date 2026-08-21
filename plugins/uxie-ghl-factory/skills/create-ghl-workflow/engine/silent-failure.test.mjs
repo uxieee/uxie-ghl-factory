@@ -42,6 +42,9 @@ test('kind:find_contact and kind:lc_merge_contact are accepted as aliases too', 
   for (const kind of ['find_contact', 'lc_merge_contact']) {
     const t = templatesOf([{
       ref: 'f', kind, name: 'F',
+      // find_contact requires search criteria (enforcement: GHL's own guard; 7/7 real nodes carry
+      // fields). Shape copied from the verified-live capture. lc_merge_contact defaults match_by.
+      find: { fields: [{"field":"email","value":"{{inboundWebhookRequest.user.email}}","title":"Email","type":"string","date":""}] },
       onFound: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'A', attributes: { tags: ['x'] } }],
       onNotFound: [],
     }]);
@@ -306,7 +309,7 @@ test('STEP_TYPE_UNKNOWN suggests the real catalog slug when one is close', () =>
 
 test('a known step type still compiles', () => {
   const t = templatesOf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
-    attributes: { type: 'email', email: { subject: 's', to: 'x@y.z' } } }]);
+    attributes: { type: 'email', email: { subject: 's', html: '<p>x</p>', to: 'x@y.z' } } }]);   // html: enforcement — a bodyless email notification is refused
   assert.equal(t.length, 1);
   assert.equal(t[0].type, 'internal_notification');
 });
@@ -324,7 +327,7 @@ test('allowUnknownStepTypes is an explicit, deliberate override', () => {
 // A UI-built step in the same account carries `to` alongside userType custom_email.
 test('internal_notification emits an authored email.to', () => {
   const t = templatesOf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
-    attributes: { type: 'email', email: { userType: 'custom_email', to: 'ops@example.com', subject: 's' } } }]);
+    attributes: { type: 'email', email: { userType: 'custom_email', to: 'ops@example.com', subject: 's', html: '<p>x</p>' } } }]);
   assert.equal(t[0].attributes.email.to, 'ops@example.com');
 });
 
@@ -335,7 +338,7 @@ test("userType 'custom_email' without a `to` fails loudly, never builds a dead n
 
 test('a non-custom_email notification still omits `to`', () => {
   const t = templatesOf([{ ref: 'a', kind: 'action', type: 'internal_notification', name: 'N',
-    attributes: { type: 'email', email: { userType: 'all', subject: 's' } } }]);
+    attributes: { type: 'email', email: { userType: 'all', subject: 's', html: '<p>x</p>' } } }]);
   assert.equal('to' in t[0].attributes.email, false);
 });
 

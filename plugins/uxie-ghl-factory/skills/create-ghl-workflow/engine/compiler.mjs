@@ -6,6 +6,7 @@ import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from '.
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
+import { enforceTemplates } from './enforce.mjs';
 
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -466,10 +467,14 @@ function asUserArray(v) {
 // This is the class fix for the `to` bug: the allowlist design is right (the editor binds
 // to an exact field set), but a silent drop is how a "clean build" ships a dead step.
 const NOTIFICATION_EMITTED_KEYS = {
-  email: ['from_name', 'from_email', 'to', 'userType', 'subject', 'html', 'attachments', 'selectedUser'],
-  sms: ['body', 'userType', 'attachments', 'selectedUser'],
+  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published Living-In-Idaho
+  // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
+  // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
+  // into inline mode and made template-mode impossible to author — found by the enforcement tests.
+  email: ['from_name', 'from_email', 'to', 'userType', 'subject', 'html', 'attachments', 'selectedUser', 'cc', 'preHeader', 'template_id', 'templatesource'],
+  sms: ['body', 'userType', 'attachments', 'selectedUser', 'template_id'],
   notification: ['notificationType', 'body', 'title', 'redirectPage', 'userType', 'selectedUser'],
-  whatsapp: ['body', 'userType', 'selectedUser'],
+  whatsapp: ['body', 'userType', 'selectedUser', 'template_id'],
 };
 
 function internalNotificationAttributes(a, ctx) {
@@ -504,7 +509,15 @@ function internalNotificationAttributes(a, ctx) {
       ...(wantsTo ? { to: b.to } : {}),
       userType,
       subject: b.subject ?? '',
-      html: b.html ?? '',
+      // TEMPLATE-MODE: real published notifications carry email.template_id (+ templatesource
+      // 'email-builder') and NO inline html key at all — GHL's guards exempt the body on
+      // template_id, and the 3 live captures omit html entirely. Mirror them: template_id XOR
+      // html, never both (an empty inline body next to a template invites GHL to prefer it).
+      ...(b.template_id != null && b.template_id !== '' && b.template_id !== 'none'
+        ? { template_id: b.template_id, ...(b.templatesource != null ? { templatesource: b.templatesource } : {}) }
+        : { html: b.html ?? '' }),
+      ...(b.cc != null ? { cc: b.cc } : {}),
+      ...(b.preHeader != null ? { preHeader: b.preHeader } : {}),
       attachments: b.attachments ?? [],
       ...(wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}),
     } };
@@ -512,6 +525,7 @@ function internalNotificationAttributes(a, ctx) {
   if (channel === 'sms') {
     return { type: 'sms', sms: {
       body: b.body ?? '',
+      ...(b.template_id != null && b.template_id !== '' ? { template_id: b.template_id } : {}),
       userType,
       attachments: b.attachments ?? [],
       ...(wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}),
@@ -533,6 +547,7 @@ function internalNotificationAttributes(a, ctx) {
   // whatsapp — the staff-facing channel of internal_notification (not the native action)
   return { type: 'whatsapp', whatsapp: {
     body: b.body ?? '',
+    ...(b.template_id != null && b.template_id !== '' ? { template_id: b.template_id } : {}),
     userType,
     selectedUser: asUserArray(b.selectedUser),
   } };
@@ -1531,6 +1546,12 @@ export function compile(ir, ctx) {
   const triggerBodies = norm.triggers.map((t) => buildTrigger(t, ctx, wid));
   // authored/compiled travel with the payload so the caller can report
   // `authored N → compiled M → round-tripped M` instead of a bare step count.
+  // Enforcement chokepoint: every emitted node, whatever path built it (linear, wait containers,
+  // edit-inserted subgraphs via compileSubgraph → this same compile). A fired THROW rule refuses
+  // the build BEFORE anything reaches GHL — the acceptance criterion is that a build which passes
+  // opens in the builder with zero errors, and one which would not never gets written.
+  enforceTemplates(templates, ctx?.catalog, ctx);
+
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
   casingLint(result);
   return result;

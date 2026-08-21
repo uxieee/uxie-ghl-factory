@@ -115,6 +115,8 @@ export function renderCard(e) {
         lines.push(`  inside a ${e.type} body, NOT allowed: actions ${u.actions.join(', ')}; wait types ${u.waitTypes.join(', ')}`);
       }
     }
+    // Enforcement (catalog `enforcement`): GHL's own guards the ENGINE now refuses builds on.
+    if (e.enforcement?.throw?.length) lines.push(`  enforced: ${e.enforcement.throw.length} required-field rule(s) — the build REFUSES a step GHL would flag (corpus-replayed; see enforcement.throw[])`);
     if (flags.length) lines.push(`  flags: ${flags.join('; ')}`);
     if (e.example) lines.push(`  example: ${e.example}`);
     lines.push(`  IR: { ref, kind: ${IR_KIND[e.type] ?? 'action'}, type: ${e.type}, name, attributes: { … } }`);

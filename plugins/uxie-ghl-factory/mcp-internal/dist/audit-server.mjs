@@ -36512,6 +36512,97 @@ async function fetchActionSchema(call, loc) {
   }
 }
 
+// ../skills/create-ghl-workflow/engine/enforce.mjs
+init_define_TOOL_CATALOG();
+var get = (o, p) => p === "" ? o : p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
+function evaluate(ast, attrs) {
+  switch (ast.op) {
+    case "lit":
+      return ast.v;
+    case "path":
+      return get(attrs, ast.p);
+    case "not":
+      return !evaluate(ast.a, attrs);
+    case "and":
+      return evaluate(ast.a, attrs) && evaluate(ast.b, attrs);
+    case "or":
+      return evaluate(ast.a, attrs) || evaluate(ast.b, attrs);
+    case "eq":
+      return evaluate(ast.a, attrs) === evaluate(ast.b, attrs);
+    case "neq":
+      return evaluate(ast.a, attrs) !== evaluate(ast.b, attrs);
+    case "gt":
+      return evaluate(ast.a, attrs) > evaluate(ast.b, attrs);
+    case "lt":
+      return evaluate(ast.a, attrs) < evaluate(ast.b, attrs);
+    case "gte":
+      return evaluate(ast.a, attrs) >= evaluate(ast.b, attrs);
+    case "lte":
+      return evaluate(ast.a, attrs) <= evaluate(ast.b, attrs);
+    case "len": {
+      const v = evaluate(ast.a, attrs);
+      return v == null ? void 0 : v.length ?? (typeof v === "object" ? Object.keys(v).length : void 0);
+    }
+    case "trim": {
+      const v = evaluate(ast.a, attrs);
+      return typeof v === "string" ? v.trim() : v;
+    }
+    case "includes": {
+      const v = evaluate(ast.a, attrs);
+      const x = evaluate(ast.v, attrs);
+      return Array.isArray(v) || typeof v === "string" ? v.includes(x) : false;
+    }
+    case "isArray":
+      return Array.isArray(evaluate(ast.a, attrs));
+    case "has": {
+      const o = evaluate(ast.a, attrs);
+      const k = evaluate(ast.k, attrs);
+      return o != null && typeof o === "object" && k in o;
+    }
+    case "empty": {
+      const v = evaluate(ast.a, attrs);
+      return v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Object.keys(v).length;
+    }
+    default:
+      throw new Error(`unknown op ${ast.op}`);
+  }
+}
+function fires(rule, attrs) {
+  try {
+    return rule.ast.outer.every((o) => !!evaluate(o, attrs)) && !!evaluate(rule.ast.guard, attrs);
+  } catch {
+    return false;
+  }
+}
+var ruleKey = (type, r) => `${type}.${r.field}${r.variant ? "@" + r.variant : ""}`;
+var skipped = (skip, key) => skip === true || Array.isArray(skip) && skip.includes(key);
+function checkEnforcement(node, attrs, meta3, ctx) {
+  const e = meta3?.enforcement;
+  if (!e) return;
+  const skip = ctx?.skipEnforcement;
+  const fired = (e.throw ?? []).filter((r) => !skipped(skip, ruleKey(meta3.type, r)) && fires(r, attrs));
+  for (const r of e.warn ?? []) {
+    if (skipped(skip, ruleKey(meta3.type, r))) continue;
+    if (fires(r, attrs)) ctx?.warn?.(`ENFORCEMENT_SOFT: '${node.ref ?? node.name ?? "?"}' (${meta3.type}) trips GHL's rule on '${r.field}' \u2014 guard: ${r.guard} \u2014 ${r.support}`);
+  }
+  if (!fired.length) return;
+  const lines = fired.map((r) => `  - '${r.field}'${r.variant ? ` (mode: ${r.variant})` : ""} \u2014 GHL's guard: ${r.guard} \u2014 ${r.support}`);
+  throw new IRError(
+    "ENFORCEMENT",
+    `ENFORCEMENT: step '${node.ref ?? node.name ?? "?"}' (${meta3.type}) is missing required field(s) GHL will flag:
+${lines.join("\n")}
+GHL would SAVE this step and flag it (or silently no-op at runtime) \u2014 this engine refuses instead. Fill the field(s), or pass skipEnforcement (true, or ['${ruleKey(meta3.type, fired[0])}']) if you are certain.`
+  );
+}
+function enforceTemplates(templates, catalog, ctx) {
+  for (const t of templates ?? []) {
+    if (!t?.type || t.type === "transition" || !t.attributes) continue;
+    const meta3 = catalog?.step?.(t.type);
+    if (!meta3?.enforcement) continue;
+    checkEnforcement({ ref: t.name ?? t.id, name: t.name }, t.attributes, meta3, ctx);
+  }
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -36783,10 +36874,14 @@ function asUserArray(v) {
   return Array.isArray(v) ? v : [v];
 }
 var NOTIFICATION_EMITTED_KEYS = {
-  email: ["from_name", "from_email", "to", "userType", "subject", "html", "attachments", "selectedUser"],
-  sms: ["body", "userType", "attachments", "selectedUser"],
+  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published Living-In-Idaho
+  // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
+  // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
+  // into inline mode and made template-mode impossible to author — found by the enforcement tests.
+  email: ["from_name", "from_email", "to", "userType", "subject", "html", "attachments", "selectedUser", "cc", "preHeader", "template_id", "templatesource"],
+  sms: ["body", "userType", "attachments", "selectedUser", "template_id"],
   notification: ["notificationType", "body", "title", "redirectPage", "userType", "selectedUser"],
-  whatsapp: ["body", "userType", "selectedUser"]
+  whatsapp: ["body", "userType", "selectedUser", "template_id"]
 };
 function internalNotificationAttributes(a, ctx) {
   const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null) ?? NOTIFICATION_CHANNELS.find((c) => c in a) ?? "email";
@@ -36811,7 +36906,13 @@ function internalNotificationAttributes(a, ctx) {
       ...wantsTo ? { to: b.to } : {},
       userType,
       subject: b.subject ?? "",
-      html: b.html ?? "",
+      // TEMPLATE-MODE: real published notifications carry email.template_id (+ templatesource
+      // 'email-builder') and NO inline html key at all — GHL's guards exempt the body on
+      // template_id, and the 3 live captures omit html entirely. Mirror them: template_id XOR
+      // html, never both (an empty inline body next to a template invites GHL to prefer it).
+      ...b.template_id != null && b.template_id !== "" && b.template_id !== "none" ? { template_id: b.template_id, ...b.templatesource != null ? { templatesource: b.templatesource } : {} } : { html: b.html ?? "" },
+      ...b.cc != null ? { cc: b.cc } : {},
+      ...b.preHeader != null ? { preHeader: b.preHeader } : {},
       attachments: b.attachments ?? [],
       ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
     } };
@@ -36819,6 +36920,7 @@ function internalNotificationAttributes(a, ctx) {
   if (channel === "sms") {
     return { type: "sms", sms: {
       body: b.body ?? "",
+      ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
       userType,
       attachments: b.attachments ?? [],
       ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
@@ -36837,6 +36939,7 @@ function internalNotificationAttributes(a, ctx) {
   }
   return { type: "whatsapp", whatsapp: {
     body: b.body ?? "",
+    ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
     userType,
     selectedUser: asUserArray(b.selectedUser)
   } };
@@ -37698,6 +37801,7 @@ function compile(ir, ctx) {
     ...marketplaceStepIndexCounter2.size > 0 ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } } : {}
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
+  enforceTemplates(templates, ctx?.catalog, ctx);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
   casingLint(result);
   return result;
@@ -37735,6 +37839,7 @@ var catalog_data_default = {
     "sniffs/bundle/og-action-ui-metadata.json",
     "sniffs/bundle/model-shapes.json",
     "sniffs/bundle/validator-rules.json",
+    "sniffs/bundle/enforcement.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
@@ -39557,6 +39662,62 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "tags",
+            variant: null,
+            guard: "(!attributes.tags || attributes.tags.length === 0) && !attributes.customTags",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "or",
+                  a: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "tags"
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "len",
+                      a: {
+                        op: "path",
+                        p: "tags"
+                      }
+                    },
+                    b: {
+                      op: "lit",
+                      v: 0
+                    }
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "customTags"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "removeAll"
+                  }
+                }
+              ]
+            },
+            support: "ONE_OF; corpus 100% of 52 (group tags|customTags)"
+          }
+        ],
+        warn: []
       }
     },
     add_notes: {
@@ -39626,6 +39787,40 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "html",
+            variant: null,
+            guard: "!attributes.html || !attributes.html.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "html"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "html"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 7"
+          }
+        ],
+        warn: []
       }
     },
     add_to_workflow: {
@@ -39690,6 +39885,40 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "workflow_id",
+            variant: null,
+            guard: "!attributes.workflow_id || !attributes.workflow_id.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "workflow_id"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "workflow_id"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 11"
+          }
+        ],
+        warn: []
       }
     },
     ai_agent: {
@@ -39857,6 +40086,40 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "user_list",
+            variant: null,
+            guard: "!attributes?.user_list?.length && !attributes?.customUserList",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "user_list"
+                    }
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "customUserList"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "ONE_OF; corpus 33% of 3"
+          }
+        ],
+        warn: []
       }
     },
     call: {
@@ -40056,6 +40319,158 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "promptText",
+            variant: null,
+            guard: "!attributes.promptText",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "promptText"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "event",
+            variant: null,
+            guard: "!attributes.event",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "event"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "actionParams.message",
+            variant: null,
+            guard: "!message",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "actionParams.message"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "actionType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "translate_content"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "actionParams.from",
+            variant: null,
+            guard: "!from",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "actionParams.from"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "actionType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "translate_content"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "actionParams.to",
+            variant: null,
+            guard: "!to",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "actionParams.to"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "actionType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "translate_content"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "actionParams.length",
+            variant: null,
+            guard: "!length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "actionParams"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "actionType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "summarize_text"
+                  }
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     contact_email_verification: {
@@ -40565,6 +40980,44 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "newLocations",
+            variant: null,
+            guard: "!attributes.newLocations || attributes.newLocations.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "newLocations"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "newLocations"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     create_opportunity: {
@@ -40688,6 +41141,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "pipeline_id",
+            variant: null,
+            guard: "!(params.attributes?.pipeline_id)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "pipeline_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 28"
+          }
+        ],
+        warn: []
       }
     },
     create_update_contact: {
@@ -40747,6 +41221,30 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "fields",
+            variant: null,
+            guard: "!params.attributes?.fields?.length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "fields"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 8"
+          }
+        ],
+        warn: []
       }
     },
     custom_code: {
@@ -40783,6 +41281,30 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "code",
+            variant: null,
+            guard: "!attributes.code?.length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "code"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 61"
+          }
+        ],
+        warn: []
       }
     },
     custom_webhook: {
@@ -40929,6 +41451,266 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "url",
+            variant: null,
+            guard: "!attributes.url || !attributes.url.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "url"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "url"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 56"
+          },
+          {
+            field: "method",
+            variant: null,
+            guard: "!attributes.method",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "method"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 56"
+          },
+          {
+            field: "event",
+            variant: null,
+            guard: "!attributes.event",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "event"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 56"
+          },
+          {
+            field: "body.rawData",
+            variant: null,
+            guard: "!attributes.body.rawData || !attributes.body.rawData.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "body.rawData"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "body.rawData"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "body.contentType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "application/json"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "body"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 56"
+          },
+          {
+            field: "authorization.data.token",
+            variant: "BEARER_TOKEN",
+            guard: "!attributes.authorization.data",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "authorization.data"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "authorization"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "authorization.type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "BEARER_TOKEN"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 1 in variant BEARER_TOKEN"
+          },
+          {
+            field: "authorization.data",
+            variant: "API_KEY",
+            guard: "!attributes.authorization.data",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "authorization.data"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "authorization"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "authorization.type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "API_KEY"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant API_KEY"
+          },
+          {
+            field: "authorization.data.tokenId",
+            variant: "OAUTH2",
+            guard: "!attributes.authorization.data",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "authorization.data"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "authorization"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "authorization.type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "OAUTH2"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant OAUTH2"
+          },
+          {
+            field: "webhookResponse",
+            variant: "OAUTH2",
+            guard: "!webhookResponse?.isSampleRequested || (webhookResponse?.status && webhookResponse.status >= 400)",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "webhookResponse.isSampleRequested"
+                  }
+                },
+                b: {
+                  op: "and",
+                  a: {
+                    op: "path",
+                    p: "webhookResponse.status"
+                  },
+                  b: {
+                    op: "gte",
+                    a: {
+                      op: "path",
+                      p: "webhookResponse.status"
+                    },
+                    b: {
+                      op: "lit",
+                      v: 400
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "saveResponse"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "authorization.type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "OAUTH2"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant OAUTH2"
+          }
+        ],
+        warn: []
       }
     },
     datetime_formatter: {
@@ -41012,6 +41794,501 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "action",
+            variant: null,
+            guard: "!attributes",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: ""
+                }
+              },
+              outer: []
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "format.type",
+            variant: null,
+            guard: "!attributes.format?.type",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.type"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "format"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.fromField",
+            variant: null,
+            guard: "!attributes.format?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "format"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.fromFormat",
+            variant: null,
+            guard: "!attributes.format?.fromFormat",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.fromFormat"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "format"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.toFormat",
+            variant: null,
+            guard: "!attributes.format?.toFormat",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.toFormat"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "format"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.fromFieldDatePicker",
+            variant: null,
+            guard: "attributes.format?.fromField === '_datepicker_' && !attributes.format?.fromFieldDatePicker",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "format.fromField"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "_datepicker_"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "format.fromFieldDatePicker"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "format"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "compare.type",
+            variant: null,
+            guard: "!attributes.compare?.type",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "compare.type"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "compare"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "compare.startDate",
+            variant: null,
+            guard: "!attributes.compare?.startDate",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "compare.startDate"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "compare"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "compare.startDateFormat",
+            variant: null,
+            guard: "!attributes.compare?.startDateFormat",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "compare.startDateFormat"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "compare"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "compare.endDate",
+            variant: null,
+            guard: "!attributes.compare?.endDate",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "compare.endDate"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "compare"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "compare.endDateFormat",
+            variant: null,
+            guard: "!attributes.compare?.endDateFormat",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "compare.endDateFormat"
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "compare"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "compare.startDatePicker",
+            variant: null,
+            guard: "attributes.compare?.startDate === '_datepicker_' && !attributes.compare?.startDatePicker",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "compare.startDate"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "_datepicker_"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "compare.startDatePicker"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "compare"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "compare.endDatePicker",
+            variant: null,
+            guard: "attributes.compare?.endDate === '_datepicker_' && !attributes.compare?.endDatePicker",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "compare.endDate"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "_datepicker_"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "compare.endDatePicker"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "includes",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  v: {
+                    op: "lit",
+                    v: "compare"
+                  }
+                },
+                {
+                  op: "path",
+                  p: ""
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     dnd_contact: {
@@ -41101,6 +42378,88 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "dnd_contact",
+            variant: null,
+            guard: "!attributes.dnd_contact",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "dnd_contact"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 5"
+          },
+          {
+            field: "specific_channels",
+            variant: null,
+            guard: "(attributes.dnd_contact === 'enable_specific' || attributes.dnd_contact === 'disable_specific') && (!attributes.specific_channels || attributes.specific_channels.length === 0)",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "or",
+                  a: {
+                    op: "eq",
+                    a: {
+                      op: "path",
+                      p: "dnd_contact"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "enable_specific"
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "path",
+                      p: "dnd_contact"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "disable_specific"
+                    }
+                  }
+                },
+                b: {
+                  op: "or",
+                  a: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "specific_channels"
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "len",
+                      a: {
+                        op: "path",
+                        p: "specific_channels"
+                      }
+                    },
+                    b: {
+                      op: "lit",
+                      v: 0
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "CONDITIONAL; corpus 80% of 5"
+          }
+        ],
+        warn: []
       }
     },
     drip: {
@@ -41156,6 +42515,41 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "interval.value",
+            variant: null,
+            guard: "!intervalValue || intervalValue <= 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "interval.value"
+                  }
+                },
+                b: {
+                  op: "lte",
+                  a: {
+                    op: "path",
+                    p: "interval.value"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "UNKNOWN; corpus 100% of 10"
+          }
+        ],
+        warn: []
       }
     },
     edit_conversation: {
@@ -41452,6 +42846,54 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "subject",
+            variant: null,
+            guard: "!isTemplateSelected && !attributes?.subject?.trim()",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "path",
+                      p: "template_id"
+                    },
+                    b: {
+                      op: "neq",
+                      a: {
+                        op: "path",
+                        p: "template_id"
+                      },
+                      b: {
+                        op: "lit",
+                        v: "none"
+                      }
+                    }
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "subject"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "ONE_OF; corpus 100% of 176 (group subject|template_id)"
+          }
+        ],
+        warn: []
       }
     },
     event_start_date: {
@@ -41536,6 +42978,60 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "event_start_type",
+            variant: null,
+            guard: "!attributes.event_start_type",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "event_start_type"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 2"
+          },
+          {
+            field: "value",
+            variant: null,
+            guard: "attributes.value === '' || attributes.value === undefined",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "value"
+                  },
+                  b: {
+                    op: "lit",
+                    v: ""
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "value"
+                  },
+                  b: {
+                    op: "lit"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 2"
+          }
+        ],
+        warn: []
       }
     },
     facebook_add_to_custom_audience: {
@@ -41571,6 +43067,43 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "facebook_account_id",
+            variant: null,
+            guard: "!(params.attributes?.facebook_account_id)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "facebook_account_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 2"
+          },
+          {
+            field: "facebook_custom_audience_id",
+            variant: null,
+            guard: "!(params.attributes?.facebook_custom_audience_id)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "facebook_custom_audience_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 2"
+          }
+        ],
+        warn: []
       }
     },
     facebook_conversion_api: {
@@ -41702,6 +43235,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "pixel_id",
+            variant: null,
+            guard: "!attributes?.pixel_id",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "pixel_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 6"
+          }
+        ],
+        warn: []
       }
     },
     find_contact: {
@@ -41797,6 +43351,30 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "fields",
+            variant: null,
+            guard: "!params.attributes?.fields?.length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "fields"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 7"
+          }
+        ],
+        warn: []
       }
     },
     find_opportunity: {
@@ -42506,6 +44084,378 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "type",
+            variant: null,
+            guard: "!attributes.type",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "type"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 121"
+          },
+          {
+            field: "email",
+            variant: "email",
+            guard: "!attributes.email",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "email"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "email"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 106 in variant email"
+          },
+          {
+            field: "email.subject",
+            variant: "email",
+            guard: "!attributes.email.subject?.trim()",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "trim",
+                  a: {
+                    op: "path",
+                    p: "email.subject"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "email.template_id"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "email"
+                },
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "email"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 106 in variant email"
+          },
+          {
+            field: "email.html",
+            variant: "email",
+            guard: "!attributes.email.html?.trim()",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "trim",
+                  a: {
+                    op: "path",
+                    p: "email.html"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "email.template_id"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "email"
+                },
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "email"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 97% of 106 in variant email"
+          },
+          {
+            field: "sms",
+            variant: "sms",
+            guard: "!attributes.sms",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "sms"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "sms"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 12 in variant sms"
+          },
+          {
+            field: "sms.body",
+            variant: "sms",
+            guard: "!attributes.sms.body?.trim()",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "trim",
+                  a: {
+                    op: "path",
+                    p: "sms.body"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "sms.template_id"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "sms"
+                },
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "sms"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 12 in variant sms"
+          },
+          {
+            field: "whatsapp",
+            variant: "whatsapp",
+            guard: "!attributes.whatsapp",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "whatsapp"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "whatsapp"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant whatsapp"
+          },
+          {
+            field: "whatsapp.body",
+            variant: "whatsapp",
+            guard: "!attributes.whatsapp.body?.trim()",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "trim",
+                  a: {
+                    op: "path",
+                    p: "whatsapp.body"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "whatsapp.template_id"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "whatsapp"
+                },
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "whatsapp"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant whatsapp"
+          },
+          {
+            field: "notification",
+            variant: "notification",
+            guard: "!attributes.notification",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "notification"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "notification"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 3 in variant notification"
+          },
+          {
+            field: "notification.message",
+            variant: "notification",
+            guard: "!attributes.notification.body?.trim()",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "trim",
+                  a: {
+                    op: "path",
+                    p: "notification.body"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "notification"
+                },
+                {
+                  op: "path",
+                  p: "type"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "notification"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 0% of 3 in variant notification"
+          }
+        ],
+        warn: []
       }
     },
     internal_update_opportunity: {
@@ -42779,6 +44729,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "selectField",
+            variant: null,
+            guard: "!attributes.selectField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "selectField"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 18"
+          }
+        ],
+        warn: []
       }
     },
     membership_grant_offer: {
@@ -42831,6 +44802,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "offer_id",
+            variant: null,
+            guard: "!attributes.offer_id",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "offer_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 2"
+          }
+        ],
+        warn: []
       }
     },
     proposals_estimates_send_document: {
@@ -42976,6 +44968,62 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "tags",
+            variant: null,
+            guard: "(!attributes.tags || attributes.tags.length === 0) && !attributes.customTags",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "or",
+                  a: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "tags"
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "len",
+                      a: {
+                        op: "path",
+                        p: "tags"
+                      }
+                    },
+                    b: {
+                      op: "lit",
+                      v: 0
+                    }
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "customTags"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "removeAll"
+                  }
+                }
+              ]
+            },
+            support: "ONE_OF; corpus 80% of 10 (group tags|customTags)"
+          }
+        ],
+        warn: []
       }
     },
     remove_from_workflow: {
@@ -43044,6 +45092,76 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "workflow_id",
+            variant: null,
+            guard: "!attributes.workflow_id || (Array.isArray(attributes.workflow_id) && attributes.workflow_id.length === 0)",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "workflow_id"
+                  }
+                },
+                b: {
+                  op: "and",
+                  a: {
+                    op: "isArray",
+                    a: {
+                      op: "path",
+                      p: "workflow_id"
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "len",
+                      a: {
+                        op: "path",
+                        p: "workflow_id"
+                      }
+                    },
+                    b: {
+                      op: "lit",
+                      v: 0
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "has",
+                    a: {
+                      op: "path",
+                      p: ""
+                    },
+                    k: {
+                      op: "lit",
+                      v: "includeCurrent"
+                    }
+                  }
+                },
+                {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "allWorkflows"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 28"
+          }
+        ],
+        warn: []
       }
     },
     remove_opportunity: {
@@ -43110,6 +45228,57 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "opportunity_to_be_found",
+            variant: null,
+            guard: "!params.attributes?.opportunity_to_be_found",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "opportunity_to_be_found"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 2"
+          },
+          {
+            field: "pipeline_id",
+            variant: null,
+            guard: "params.attributes?.opportunity_to_be_found === 'all' && !params.attributes?.pipeline_id",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "opportunity_to_be_found"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "all"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "pipeline_id"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "CONDITIONAL; corpus 100% of 2"
+          }
+        ],
+        warn: []
       }
     },
     review_request: {
@@ -43174,6 +45343,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "review_type",
+            variant: null,
+            guard: "!attributes.review_type",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "review_type"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     slack_message: {
@@ -43261,6 +45451,158 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "integration",
+            variant: null,
+            guard: "!attributes.integration || !attributes.integration.id",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "integration"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "integration.id"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 9"
+          },
+          {
+            field: "action",
+            variant: null,
+            guard: "!attributes.action || !attributes.action.id",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "action.id"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 9"
+          },
+          {
+            field: "channel",
+            variant: null,
+            guard: "!attributes.channel || !attributes.channel.id",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "channel"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "channel.id"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 9"
+          },
+          {
+            field: "text",
+            variant: null,
+            guard: "!attributes.text || !attributes.text.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "text"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "text"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 9"
+          },
+          {
+            field: "userSource",
+            variant: null,
+            guard: "attributes.action?.id === 'direct-message' && (!attributes.userSource || !attributes.userSource.id)",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action.id"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "direct-message"
+                  }
+                },
+                b: {
+                  op: "or",
+                  a: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "userSource"
+                    }
+                  },
+                  b: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "userSource.id"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "CONDITIONAL; corpus 0% of 9"
+          }
+        ],
+        warn: []
       }
     },
     sms: {
@@ -43394,6 +45736,103 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "body",
+            variant: null,
+            guard: "!hasAttachments && !body.trim()",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "and",
+                      a: {
+                        op: "path",
+                        p: "attachments"
+                      },
+                      b: {
+                        op: "gt",
+                        a: {
+                          op: "len",
+                          a: {
+                            op: "path",
+                            p: "attachments"
+                          }
+                        },
+                        b: {
+                          op: "lit",
+                          v: 0
+                        }
+                      }
+                    },
+                    b: {
+                      op: "and",
+                      a: {
+                        op: "path",
+                        p: "urlAttachments"
+                      },
+                      b: {
+                        op: "gt",
+                        a: {
+                          op: "len",
+                          a: {
+                            op: "path",
+                            p: "urlAttachments"
+                          }
+                        },
+                        b: {
+                          op: "lit",
+                          v: 0
+                        }
+                      }
+                    }
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "body"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "path",
+                      p: "template_id"
+                    },
+                    b: {
+                      op: "neq",
+                      a: {
+                        op: "path",
+                        p: "template_id"
+                      },
+                      b: {
+                        op: "lit",
+                        v: "none"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            support: "ONE_OF; corpus 100% of 145 (group body|attachments)"
+          }
+        ],
+        warn: []
       }
     },
     "task-notification": {
@@ -43527,6 +45966,44 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "field",
+            variant: null,
+            guard: "!attributes.field || attributes.field.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "field"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "field"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 1"
+          }
+        ],
+        warn: []
       }
     },
     transition: {
@@ -43603,6 +46080,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "status_type",
+            variant: null,
+            guard: "!attributes.status_type",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "status_type"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     update_contact_field: {
@@ -43673,6 +46171,30 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "fields",
+            variant: null,
+            guard: "!params.attributes?.fields?.length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "fields"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 45"
+          }
+        ],
+        warn: []
       }
     },
     update_conversation_ai_status: {
@@ -43764,6 +46286,37 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "attachment",
+            variant: null,
+            guard: "!attributes.attachment || !attributes.attachment.url",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "attachment"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "attachment.url"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     wait: {
@@ -44358,6 +46911,865 @@ var catalog_data_default = {
             warning: []
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "startAfter",
+            variant: "time",
+            guard: "!attributes.startAfter",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "startAfter"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "time"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 228 in variant time"
+          },
+          {
+            field: "startAfter.value",
+            variant: "time",
+            guard: "!attributes.window && !attributes.startAfter.value && attributes.timePeriodInputMode !== 'dynamic'",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "and",
+                  a: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "window"
+                    }
+                  },
+                  b: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "startAfter.value"
+                    }
+                  }
+                },
+                b: {
+                  op: "neq",
+                  a: {
+                    op: "path",
+                    p: "timePeriodInputMode"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "dynamic"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "startAfter"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "time"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 228 in variant time"
+          },
+          {
+            field: "window.start",
+            variant: "time",
+            guard: "attributes.window.condition === 'when' && !attributes.window.start",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "window.condition"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "when"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "window.start"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "window"
+                },
+                {
+                  op: "path",
+                  p: "startAfter"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "time"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 29% of 228 in variant time"
+          },
+          {
+            field: "window.end",
+            variant: "time",
+            guard: "attributes.window.condition === 'when' && !attributes.window.end",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "window.condition"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "when"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "window.end"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "window"
+                },
+                {
+                  op: "path",
+                  p: "startAfter"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "time"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 25% of 228 in variant time"
+          },
+          {
+            field: "condition",
+            variant: "condition",
+            guard: "!attributes.condition",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "condition"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "condition"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 1 in variant condition"
+          },
+          {
+            field: "reply",
+            variant: "reply",
+            guard: "!attributes.reply || attributes.reply.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "reply"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "reply"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "reply"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 7 in variant reply"
+          },
+          {
+            field: "appointmentStartAfter",
+            variant: "appointment|service_booking|rental_booking|attendee_event_date|overdue",
+            guard: "!attributes.appointmentStartAfter",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "appointmentStartAfter"
+                }
+              },
+              outer: [
+                {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "appointment"
+                          }
+                        },
+                        b: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "service_booking"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "eq",
+                        a: {
+                          op: "path",
+                          p: "type"
+                        },
+                        b: {
+                          op: "lit",
+                          v: "rental_booking"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "path",
+                        p: "type"
+                      },
+                      b: {
+                        op: "lit",
+                        v: "attendee_event_date"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "path",
+                      p: "type"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "overdue"
+                    }
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 25 in variant appointment|service_booking|rental_booking|attendee_event_date|overdue"
+          },
+          {
+            field: "appointmentStartAfter.when",
+            variant: "appointment|service_booking|rental_booking|attendee_event_date|overdue",
+            guard: "!attributes.appointmentStartAfter.when",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "appointmentStartAfter.when"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "appointmentStartAfter"
+                },
+                {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "appointment"
+                          }
+                        },
+                        b: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "service_booking"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "eq",
+                        a: {
+                          op: "path",
+                          p: "type"
+                        },
+                        b: {
+                          op: "lit",
+                          v: "rental_booking"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "path",
+                        p: "type"
+                      },
+                      b: {
+                        op: "lit",
+                        v: "attendee_event_date"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "path",
+                      p: "type"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "overdue"
+                    }
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 25 in variant appointment|service_booking|rental_booking|attendee_event_date|overdue"
+          },
+          {
+            field: "appointmentStartAfter.value",
+            variant: "appointment|service_booking|rental_booking|attendee_event_date|overdue",
+            guard: "attributes.appointmentStartAfter.when !== 'now' && !attributes.appointmentStartAfter.value && !attributes.appointmentStartAfter.distributed",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "and",
+                  a: {
+                    op: "neq",
+                    a: {
+                      op: "path",
+                      p: "appointmentStartAfter.when"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "now"
+                    }
+                  },
+                  b: {
+                    op: "not",
+                    a: {
+                      op: "path",
+                      p: "appointmentStartAfter.value"
+                    }
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "appointmentStartAfter.distributed"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "appointmentStartAfter"
+                },
+                {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "appointment"
+                          }
+                        },
+                        b: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "service_booking"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "eq",
+                        a: {
+                          op: "path",
+                          p: "type"
+                        },
+                        b: {
+                          op: "lit",
+                          v: "rental_booking"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "path",
+                        p: "type"
+                      },
+                      b: {
+                        op: "lit",
+                        v: "attendee_event_date"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "path",
+                      p: "type"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "overdue"
+                    }
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 25 in variant appointment|service_booking|rental_booking|attendee_event_date|overdue"
+          },
+          {
+            field: "appointmentCondition",
+            variant: "appointment|service_booking|rental_booking|attendee_event_date|overdue",
+            guard: "!attributes.appointmentCondition",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "appointmentCondition"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "appointmentStartAfter"
+                },
+                {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "or",
+                      a: {
+                        op: "or",
+                        a: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "appointment"
+                          }
+                        },
+                        b: {
+                          op: "eq",
+                          a: {
+                            op: "path",
+                            p: "type"
+                          },
+                          b: {
+                            op: "lit",
+                            v: "service_booking"
+                          }
+                        }
+                      },
+                      b: {
+                        op: "eq",
+                        a: {
+                          op: "path",
+                          p: "type"
+                        },
+                        b: {
+                          op: "lit",
+                          v: "rental_booking"
+                        }
+                      }
+                    },
+                    b: {
+                      op: "eq",
+                      a: {
+                        op: "path",
+                        p: "type"
+                      },
+                      b: {
+                        op: "lit",
+                        v: "attendee_event_date"
+                      }
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "path",
+                      p: "type"
+                    },
+                    b: {
+                      op: "lit",
+                      v: "overdue"
+                    }
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 25 in variant appointment|service_booking|rental_booking|attendee_event_date|overdue"
+          },
+          {
+            field: "emailEventSteps",
+            variant: "email_event",
+            guard: "!attributes.emailEventSteps || attributes.emailEventSteps.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "emailEventSteps"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "emailEventSteps"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "email_event"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant email_event"
+          },
+          {
+            field: "emailEventTypes",
+            variant: "email_event",
+            guard: "!attributes.emailEventTypes || attributes.emailEventTypes.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "emailEventTypes"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "emailEventTypes"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "email_event"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant email_event"
+          },
+          {
+            field: "link",
+            variant: "link_clicked",
+            guard: "!attributes.link || attributes.link.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "link"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "link"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "link_clicked"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant link_clicked"
+          },
+          {
+            field: "channel",
+            variant: "user_replied",
+            guard: "!attributes.channel || attributes.channel.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "channel"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "channel"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "user_replied"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant user_replied"
+          },
+          {
+            field: "repliedBy",
+            variant: "user_replied",
+            guard: "!attributes.repliedBy || attributes.repliedBy.length === 0",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "repliedBy"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "repliedBy"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "user_replied"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant user_replied"
+          }
+        ],
+        warn: []
       }
     },
     webhook: {
@@ -44435,6 +47847,56 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "url",
+            variant: null,
+            guard: "!attributes.url || !attributes.url.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "url"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "url"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 20"
+          },
+          {
+            field: "method",
+            variant: null,
+            guard: "!attributes.method",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "method"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 20"
+          }
+        ],
+        warn: []
       }
     },
     workflow_ai_decision_maker: {
@@ -44666,6 +48128,30 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "paths",
+            variant: null,
+            guard: "!attributes.paths?.length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "paths"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus 100% of 1"
+          }
+        ],
+        warn: []
       }
     },
     workflow_ai_generate_image: {
@@ -44743,6 +48229,46 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "prompt",
+            variant: null,
+            guard: "!attributes.prompt?.trim()",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "trim",
+                  a: {
+                    op: "path",
+                    p: "prompt"
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "model",
+            variant: null,
+            guard: "!attributes.model",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "model"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     create_custom_object: {
@@ -45241,6 +48767,69 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "custom_value_id",
+            variant: null,
+            guard: "!attributes.custom_value_id || !attributes.custom_value_id.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "custom_value_id"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "custom_value_id"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "new_value",
+            variant: null,
+            guard: "!attributes.new_value || !attributes.new_value.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "new_value"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "new_value"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     number_formatter: {
@@ -45319,6 +48908,251 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "action",
+            variant: null,
+            guard: "!attributes.action",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "action"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "format.fromField",
+            variant: null,
+            guard: "!attributes.format?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "string_to_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.options.inputDecimalMark",
+            variant: null,
+            guard: "!attributes.format?.options?.inputDecimalMark",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.options.inputDecimalMark"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "string_to_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.options.outputNumberFormat",
+            variant: null,
+            guard: "!attributes.format?.options?.outputNumberFormat",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.options.outputNumberFormat"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "string_to_formatted_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.options.phone.format",
+            variant: null,
+            guard: "!attributes.format?.options?.phone?.format",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.options.phone.format"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "number_to_phone"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.options.phone.countryCode",
+            variant: null,
+            guard: "!attributes.format?.options?.phone?.countryCode",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.options.phone.countryCode"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "number_to_phone"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.options.currency.currencyLocale",
+            variant: null,
+            guard: "!attributes.format?.options?.currency?.currencyLocale",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.options.currency.currencyLocale"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "number_to_currency"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.options.currency.currencyCode",
+            variant: null,
+            guard: "!attributes.format?.options?.currency?.currencyCode",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.options.currency.currencyCode"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "number_to_currency"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     array_functions: {
@@ -45448,6 +49282,448 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "action",
+            variant: null,
+            guard: "!attributes.action",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "action"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "find.fromField",
+            variant: null,
+            guard: "!findAttr?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "find.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "find"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "filter.fromField",
+            variant: null,
+            guard: "!filterAttr?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "filter.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "filter"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "math_functions.fromField",
+            variant: null,
+            guard: "!mathAttr?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "math_functions.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "math_functions"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "math_functions.key",
+            variant: null,
+            guard: "!mathAttr?.key",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "math_functions.key"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "math_functions"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "math_functions.operations",
+            variant: null,
+            guard: "!mathAttr?.operations?.length",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "len",
+                  a: {
+                    op: "path",
+                    p: "math_functions.operations"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "math_functions"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "find_by_index.fromField",
+            variant: null,
+            guard: "!findByIndexAttr?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "find_by_index.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "find_by_index"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "find_by_index.index",
+            variant: null,
+            guard: "findByIndexAttr?.index === undefined || findByIndexAttr?.index === null",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "find_by_index.index"
+                  },
+                  b: {
+                    op: "lit"
+                  }
+                },
+                b: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "find_by_index.index"
+                  },
+                  b: {
+                    op: "lit",
+                    v: null
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "find_by_index"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "line_items.fromField",
+            variant: null,
+            guard: "!lineItemsAttr?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "line_items.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "line_items"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "format_as_text.fromField",
+            variant: null,
+            guard: "!formatAsTextAttr?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format_as_text.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "format_as_text"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "format_as_text.detailField",
+            variant: null,
+            guard: "!formatAsTextAttr?.detailField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format_as_text.detailField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "format_as_text"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "format_as_text.displayFormat",
+            variant: null,
+            guard: "!formatAsTextAttr?.displayFormat",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format_as_text.displayFormat"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "format_as_text"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "format_as_text.customSeparator",
+            variant: null,
+            guard: "formatAsTextAttr?.displayFormat === 'custom_separator' && !formatAsTextAttr?.customSeparator?.trim()",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "format_as_text.displayFormat"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "custom_separator"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "format_as_text.customSeparator"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "format_as_text"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     add_appointment_booking_ai_bot: {
@@ -45556,6 +49832,118 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "calendar_id",
+            variant: null,
+            guard: "!attributes.calendar_id",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "calendar_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "timeout_time",
+            variant: null,
+            guard: "!attributes.timeout_time",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "timeout_time"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "first_message",
+            variant: null,
+            guard: "!attributes.template_id && !attributes.first_message?.length",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "template_id"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "first_message"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "send_first_message"
+                }
+              ]
+            },
+            support: "ONE_OF; corpus no sample"
+          },
+          {
+            field: "success_message",
+            variant: null,
+            guard: "!attributes.success_message_template_id && !attributes.success_message?.length",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "success_message_template_id"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "len",
+                    a: {
+                      op: "path",
+                      p: "success_message"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "and",
+                  a: {
+                    op: "path",
+                    p: "no_confirmation_message"
+                  },
+                  b: {
+                    op: "path",
+                    p: "send_success_message"
+                  }
+                }
+              ]
+            },
+            support: "ONE_OF; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     send_to_eliza: {
@@ -45745,6 +50133,134 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "measurement_id",
+            variant: null,
+            guard: "!attributes.measurement_id || !attributes.measurement_id.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "measurement_id"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "measurement_id"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action_type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "google_analytics_4"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "event",
+            variant: null,
+            guard: "!attributes.event || !attributes.event.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "event"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "event"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action_type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "google_analytics_4"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "api_secret",
+            variant: null,
+            guard: "!attributes.api_secret || !attributes.api_secret.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "api_secret"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "api_secret"
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action_type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "google_analytics_4"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     google_adword: {
@@ -45852,6 +50368,43 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "facebook_account_id",
+            variant: null,
+            guard: "!(params.attributes?.facebook_account_id)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "facebook_account_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "facebook_custom_audience_id",
+            variant: null,
+            guard: "!(params.attributes?.facebook_custom_audience_id)",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "facebook_custom_audience_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     add_to_affiliate_manager: {
@@ -45922,6 +50475,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "affiliate_state",
+            variant: null,
+            guard: "!attributes.affiliate_state",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "affiliate_state"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     add_to_affiliate_campaign: {
@@ -45973,6 +50547,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "campaign_id",
+            variant: null,
+            guard: "!attributes.campaign_id",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "campaign_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     remove_from_affiliate_campaign: {
@@ -46024,6 +50619,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "campaign_id",
+            variant: null,
+            guard: "!attributes.campaign_id",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "campaign_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     membership_revoke_offer: {
@@ -46074,6 +50690,27 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "offer_id",
+            variant: null,
+            guard: "!attributes.offer_id",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "offer_id"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     ivr_gather: {
@@ -46124,6 +50761,139 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "loop",
+            variant: null,
+            guard: "!attributes.loop",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "loop"
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "language",
+            variant: null,
+            guard: "!attributes.language",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "language"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "widgetType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "say"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "message",
+            variant: null,
+            guard: "!attributes.message",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "message"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "widgetType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "say"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "voice",
+            variant: null,
+            guard: "!attributes.voice",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "voice"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "widgetType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "say"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "audioUrl",
+            variant: null,
+            guard: "!attributes.audioUrl",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "audioUrl"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "widgetType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "play"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     ivr_connect_call: {
@@ -81810,7 +86580,7 @@ async function fetchEntities(gw) {
 }
 async function fetchMarketplace(call, loc) {
   const empty2 = { assets: null, modules: { actions: [], triggers: [] } };
-  const get = async (path) => {
+  const get2 = async (path) => {
     try {
       const r = await call("GET", path);
       return r?.ok ? r.json : null;
@@ -81818,10 +86588,10 @@ async function fetchMarketplace(call, loc) {
       return null;
     }
   };
-  const assets = await get(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const assets = await get2(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
   const page = (type) => `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
-  const actions = await get(page("actions"));
-  const triggers = await get(page("triggers"));
+  const actions = await get2(page("actions"));
+  const triggers = await get2(page("triggers"));
   if (!assets && !actions && !triggers) return empty2;
   return {
     assets,
@@ -81952,6 +86722,7 @@ async function orchestrate(ir, gw, opts = {}) {
       senderDefault: opts.senderDefault ?? ir.senderDefault,
       // Deliberate override for STEP_TYPE_UNKNOWN — see compiler.mjs. Off by default:
       // an unrecognised type builds a step the builder cannot render or open.
+      skipEnforcement: opts.skipEnforcement,
       allowUnknownStepTypes: opts.allowUnknownStepTypes
     });
   } catch (e) {
