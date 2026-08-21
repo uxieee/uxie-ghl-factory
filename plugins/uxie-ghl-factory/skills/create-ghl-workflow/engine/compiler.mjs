@@ -3,6 +3,7 @@
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
+import { checkStepOutputRefs } from './step-outputs.mjs';
 import { normalizeSettings } from './settings.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
@@ -1619,6 +1620,9 @@ export function compile(ir, ctx) {
   checkIfElseVocab(templates, ctx?.catalog, ctx);
   // merge tags: unknown key in a CLOSED namespace / unbalanced braces → advisory (merge-tags.mjs)
   checkMergeTags(templates, ctx?.catalog, ctx);
+  // step-output references ({{custom_webhook.N.*}}, {{chatgpt.N.*}}, …): does the producer exist,
+  // and is a referenced webhook actually saving its response? (step-outputs.mjs; advisory)
+  checkStepOutputRefs(templates, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path

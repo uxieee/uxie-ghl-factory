@@ -36187,6 +36187,72 @@ function checkAgainstRulebook(field, ref) {
   }
 }
 
+// ../skills/create-ghl-workflow/engine/step-outputs.mjs
+init_define_TOOL_CATALOG();
+var STEP_OUTPUTS = Object.freeze({
+  chatgpt: { ns: "chatgpt", fields: ["response"], kind: "fixed" },
+  custom_webhook: { ns: "custom_webhook", fields: ["response", "headers", "status"], kind: "per-instance", from: "attributes.webhookResponse (requires saveResponse:true + a successful test request)" },
+  custom_code: { ns: "custom_code", fieldsFrom: (a) => Object.keys(a?.output ?? {}).map((k) => `output.${k}`), kind: "per-instance", from: "attributes.output (the run-test result)" },
+  ai_agent: { ns: "ai_agent", fields: ["response"], kind: "per-instance", from: "structuredResponse JSON schema adds paths beyond .response" },
+  datetime_formatter: { ns: "datetime_formatter", fields: ["date", "datetime", "days"], kind: "fixed", note: "condition subtypes append _system_format for date operators" },
+  number_formatter: { ns: "number_formatter", fields: ["result"], kind: "fixed" },
+  text_formatter: { ns: "text_formatter", fields: ["result"], kind: "fixed" },
+  math_operation: { ns: "math_operation", fields: ["result"], kind: "fixed" },
+  array_functions: { ns: "array_functions", fields: ["result"], kind: "per-instance", from: "per action; object paths come from the snapshotted referenceObject; primitives \u2192 [N]" },
+  "task-notification": { ns: "[task-notification]", fields: ["id", "title", "body", "bodyRawText", "dueDate", "assignedTo"], kind: "fixed", note: "bracketed namespace" }
+});
+var NS_TO_TYPE = Object.freeze(Object.fromEntries(Object.entries(STEP_OUTPUTS).map(([ty, v]) => [v.ns.replace(/^\[|\]$/g, ""), ty])));
+var REF_RE = /\{\{\s*\[?([a-z_][a-z0-9_-]*)\]?\.(\d+)\.([^}\s]+)\s*\}\}/gi;
+function findOutputRefs(text) {
+  if (typeof text !== "string") return [];
+  return [...text.matchAll(REF_RE)].filter((m) => NS_TO_TYPE[m[1].toLowerCase()]).map((m) => ({ ns: m[1], type: NS_TO_TYPE[m[1].toLowerCase()], n: Number(m[2]), field: m[3], raw: m[0] }));
+}
+function checkStepOutputRefs(templates, ctx = {}) {
+  if (ctx.skipStepOutputCheck === true) return [];
+  const warn = (m) => {
+    if (typeof ctx.warn === "function") ctx.warn(m);
+  };
+  const producers = /* @__PURE__ */ new Map();
+  const occ = /* @__PURE__ */ new Map();
+  for (const t of templates ?? []) {
+    if (!STEP_OUTPUTS[t?.type]) continue;
+    const k = t.type;
+    const cnt = (occ.get(k) ?? 0) + 1;
+    occ.set(k, cnt);
+    const n = Number.isInteger(t.stepIndex) ? t.stepIndex : cnt;
+    (producers.get(k) ?? producers.set(k, []).get(k)).push({ n, step: t });
+  }
+  const findings = [];
+  for (const t of templates ?? []) {
+    const texts = [];
+    const walk2 = (v) => {
+      if (typeof v === "string") texts.push(v);
+      else if (Array.isArray(v)) v.forEach(walk2);
+      else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+    };
+    walk2(t?.attributes);
+    for (const s of texts) for (const ref of findOutputRefs(s)) {
+      const list = producers.get(ref.type) ?? [];
+      const hit = list.find((p) => p.n === ref.n);
+      if (!hit) {
+        findings.push(ref);
+        warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step with stepIndex ${ref.n} exists in this workflow \u2014 the reference renders literally/empty at runtime. N is the per-type stepIndex (see references/step-outputs).`);
+        continue;
+      }
+      if (ref.type === "custom_webhook" && hit.step.attributes?.saveResponse !== true) {
+        findings.push(ref);
+        warn(`step output ${ref.raw} on '${t.name ?? t.id}': webhook '${hit.step.name ?? hit.step.id}' has saveResponse ${JSON.stringify(hit.step.attributes?.saveResponse ?? false)} \u2014 the UI only exposes webhook outputs when "Save response from this Webhook" is ON and a successful test request was saved (webhookResponse).`);
+      }
+      if (ref.type === "custom_code") {
+        const out = hit.step.attributes?.output;
+        if (!out || typeof out !== "object" || !Object.keys(out).length)
+          warn(`step output ${ref.raw} on '${t.name ?? t.id}': custom_code '${hit.step.name ?? hit.step.id}' has no run-test output object \u2014 the field list is empty until a test run is saved.`);
+      }
+    }
+  }
+  return findings;
+}
+
 // ../skills/create-ghl-workflow/engine/settings.mjs
 init_define_TOOL_CATALOG();
 var TIMEZONES = ["account", "contact"];
@@ -38302,6 +38368,7 @@ function compile(ir, ctx) {
   }
   checkIfElseVocab(templates, ctx?.catalog, ctx);
   checkMergeTags(templates, ctx?.catalog, ctx);
+  checkStepOutputRefs(templates, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
