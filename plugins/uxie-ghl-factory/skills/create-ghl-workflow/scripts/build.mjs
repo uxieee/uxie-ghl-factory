@@ -56,5 +56,10 @@ console.log('round-trip:', report.verify.pass, 'clean', report.verify.issues.len
     : ap.checked ? `checked by GHL — ${ap.errors.length} error(s), ${ap.warnings.length} warning(s)`
     : `SKIPPED (${ap.skipped}) — fail-open; NOTHING was validated`);
 }
+// engine warnings (ENFORCEMENT_SOFT value-checks, contact/opp field-shape advisories, asset
+// notes) — collected by orchestrate into report.warnings since the warn tier shipped, but this
+// report never PRINTED them: the 2026-08-22 live acceptance built a webhook with an empty header
+// row and the warning fired into a field nobody rendered. The MCP path always surfaced them.
+for (const w of report.warnings ?? []) console.log('⚠ WARN:', w);
 if (report.unresolved.length) console.log('UNRESOLVED (built anyway):', JSON.stringify(report.unresolved));
 console.log('URL:', `https://app.gohighlevel.com/v2/location/${LOC}/automation/workflow/${report.wid}`);
