@@ -219,6 +219,7 @@ test('fetchEntities degrades malformed and failed endpoint payloads to empty arr
 
   assert.deepEqual(await fetchEntities({ call, loc: 'LOC' }), {
     pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
+    workflows: [], customValues: [], triggerLinks: [], offers: [], membershipProducts: [],
   });
 });
 
@@ -235,12 +236,23 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
 
   const queryValue = new URLSearchParams({ locationId }).toString();
   const pathValue = encodeURIComponent(locationId);
-  assert.equal(calls.length, 7);
+  assert.equal(calls.length, 12);
+  // legs that carry the location in the PATH (must be encodeURIComponent'd there)
+  const pathLegs = [
+    new RegExp(`^/locations/${pathValue}/customFields/search\\?`),
+    new RegExp(`^/workflow/${pathValue}/list\\?`),
+    new RegExp(`^/locations/${pathValue}/customValues$`),
+    new RegExp(`^/membership/locations/${pathValue}/offers$`),
+    new RegExp(`^/membership/locations/${pathValue}/products\\?`),
+  ];
   for (const { method, path } of calls) {
     assert.equal(method, 'GET');
-    if (path.includes('/customFields/search')) assert.match(path, new RegExp(`^/locations/${pathValue}/customFields/search\\?`));
-    else assert.ok(path.includes(queryValue), `location query was not encoded: ${path}`);
+    const pathLeg = pathLegs.find((re) => re.test(path));
+    if (pathLeg) continue;
+    assert.ok(!path.includes(locationId), `raw location id leaked into: ${path}`);
+    assert.ok(path.includes(queryValue), `location query was not encoded: ${path}`);
   }
+  for (const re of pathLegs) assert.ok(calls.some(({ path }) => re.test(path)), `missing path-encoded leg ${re}`);
 });
 
 test('orchestrate applies a top-level ir.senderDefault to email steps (§5 reachable via IR)', async () => {
