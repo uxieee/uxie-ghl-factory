@@ -3,6 +3,7 @@
 import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
+import { normalizeSettings } from './settings.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
@@ -1540,11 +1541,16 @@ export function compile(ir, ctx) {
   const sessionId = ctx.idGen();
   const createdSteps = templates.map((t) => t.id);
 
+  // WORKFLOW-LEVEL SETTINGS (settings.mjs): every key the Settings tab can write, validated —
+  // an unknown key REFUSES (it used to be silently dropped). Defaults are the UI's own
+  // (allowMultiple TRUE: SettingState + corpus 313/326). The create POST carries the same
+  // values the UI's create body inherits from SettingState; the autosave carries them all.
+  const S = normalizeSettings(norm.settings, ctx).body;
   const createBody = {
     name: norm.name, status: 'draft', parentId: null, updatedBy: ctx.uid,
-    modifiedSteps: [], deletedSteps: [], createdSteps: [], senderAddress: {},
-    stopOnResponse: false, allowMultiple: false, allowMultipleOpportunity: true,
-    autoMarkAsRead: false, eventStartDate: '', timezone: '',
+    modifiedSteps: [], deletedSteps: [], createdSteps: [], senderAddress: S.senderAddress,
+    stopOnResponse: S.stopOnResponse, allowMultiple: S.allowMultiple, allowMultipleOpportunity: S.allowMultipleOpportunity,
+    autoMarkAsRead: S.autoMarkAsRead, eventStartDate: S.eventStartDate, timezone: '',
     workflowData: { templates: [] }, triggersChanged: false,
     company_id: ctx.cid, company_age: ctx.companyAge,
   };
@@ -1557,14 +1563,17 @@ export function compile(ir, ctx) {
     ...(norm.workflowType ? { workflowType: norm.workflowType } : {}),
     permission: 380, permissionMeta: { canRead: true, canWrite: true },
     creationSource: 'builder', originType: 'user', isTriggerBucketMigrated: true, deleted: false,
-    timezone: norm.settings?.timezone ?? 'account',
-    allowMultiple: norm.settings?.allowMultiple ?? false,
-    allowMultipleOpportunity: norm.settings?.allowMultipleOpportunity ?? true,
-    removeContactFromLastStep: norm.settings?.removeContactFromLastStep ?? true,
-    stopOnResponse: norm.settings?.stopOnResponse ?? false,
-    autoMarkAsRead: norm.settings?.autoMarkAsRead ?? false,
-    scheduledPauseDates: [], senderAddress: norm.settings?.senderAddress ?? {},
-    eventStartDate: norm.settings?.eventStartDate ?? '', updatedBy: ctx.uid,
+    timezone: S.timezone,
+    allowMultiple: S.allowMultiple,
+    allowMultipleOpportunity: S.allowMultipleOpportunity,
+    removeContactFromLastStep: S.removeContactFromLastStep,
+    stopOnResponse: S.stopOnResponse,
+    autoMarkAsRead: S.autoMarkAsRead,
+    scheduledPauseDates: S.scheduledPauseDates, senderAddress: S.senderAddress,
+    eventStartDate: S.eventStartDate, updatedBy: ctx.uid,
+    // Settings-tab keys the engine never carried before 2026-08-22 (live-proven on the UI's
+    // own Save PUT): the time window and the workflow note. null = the UI's "off"/"empty".
+    window: S.window, workflowNote: S.workflowNote,
     triggersChanged: false, isAutoSave: true,
     autoSaveSession: { workflowId: wid, id: sessionId, userId: ctx.uid, version: 1 },
     createdSteps, modifiedSteps: [], deletedSteps: [],
@@ -1573,8 +1582,8 @@ export function compile(ir, ctx) {
     // build must emit exactly the autoSaveBody it emitted before this fix, with no new
     // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
     // above for what this map records and why it's per-key.
-    ...(marketplaceStepIndexCounter.size > 0
-      ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter) } }
+    ...(marketplaceStepIndexCounter.size > 0 || S.statsView
+      ? { meta: { ...(marketplaceStepIndexCounter.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter) } : {}), ...(S.statsView ? { statsView: true } : {}) } }
       : {}),
   };
 

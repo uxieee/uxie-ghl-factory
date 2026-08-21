@@ -22,6 +22,7 @@ import { checkWorkflowRules, rulesNeedTriggers } from '../../skills/create-ghl-w
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
   applyOps,
+  mergeSettingsOps,
   opsUseMarketplace,
   partitionOps,
   planTriggerOps,
@@ -1970,7 +1971,9 @@ export const TOOLS = [
         ...(customFields !== undefined ? { customFields } : {}),
         warn: (message) => warnings.push(message),
       };
-      const { stepOps, triggerOps } = partitionOps(args.ops);
+      const { stepOps, triggerOps, settingsOps } = partitionOps(args.ops);
+      // Settings-tab keys (updateSettings ops) — merged over the stored document at commit.
+      const settingsPatch = mergeSettingsOps(settingsOps);
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       // triggers are needed for trigger ops AND for the trigger-aware workflow-level rules (an
       // action can be illegal purely because of the trigger above it) — but only when the
@@ -1992,10 +1995,11 @@ export const TOOLS = [
         // Closes the modifyStep enforcement bypass: field rules run over the steps THIS edit
         // touched, at the same commit point as the parentKey and step-reference checks.
         catalog: ctx.catalog, warn: ctx.warn,
+        settingsPatch,
       });
       // WORKFLOW-level rules (GHL's WorkflowValidator): graph-scoped + trigger-aware, evaluated on
       // the post-edit document with the live trigger set. Hatch: args.skipWorkflowRules.
-      checkWorkflowRules({ templates, triggers: existingTriggers, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === 'published' },
+      checkWorkflowRules({ templates, triggers: existingTriggers, settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === 'published' },
         ctx.catalog?.workflowRules, { skipWorkflowRules: args.skipWorkflowRules, warn: ctx.warn });
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
@@ -2015,6 +2019,12 @@ export const TOOLS = [
       const preview = editPreview(
         args.ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate,
       );
+      // Settings-tab changes (updateSettings ops): the exact values the commit body carries,
+      // so a preview shows what the UI's Settings drawer would read back after the PUT.
+      if (settingsPatch) {
+        preview.settings = Object.fromEntries(Object.keys(settingsPatch)
+          .map((k) => [k, k === 'statsView' ? (commitBody.meta?.statsView ?? false) : commitBody[k]]));
+      }
 
       if (args.confirm !== true) {
         return withFailureData(
@@ -2088,7 +2098,7 @@ export const TOOLS = [
         partialProgress.tags.created.push(name);
       }
 
-      if (stepOps.length) {
+      if (stepOps.length || settingsPatch) {
         const committedCall = await attemptWrite(
           'step_commit',
           () => gw.call(

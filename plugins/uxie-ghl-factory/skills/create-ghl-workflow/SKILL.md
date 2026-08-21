@@ -227,6 +227,33 @@ an opp-stage branch.
   saving a step that renders blank. Check the type's real keys with
   `node scripts/query-catalog-cli.mjs <type>`.
 
+### Workflow settings (the Settings tab) — `settings:` at the top level of the IR
+
+Every control the builder's Settings tab has, by its stored key. Omit a key and the engine
+writes the UI's own default; an unknown key is REFUSED (`SETTINGS_KEY`) — it used to be
+silently dropped.
+
+```yaml
+settings:
+  allowMultiple: true                 # "Allow re-entry" — UI default ON (corpus 313/326)
+  allowMultipleOpportunity: true      # "Allow multiple opportunities" — UI default ON
+  stopOnResponse: false               # "Stop on response"
+  autoMarkAsRead: false               # "Mark as read" (Conversations)
+  timezone: account                   # account | contact — the ONLY two values; never an IANA zone
+  window: { start: "08:00", end: "17:00", days: [1,2,3,4,5] }   # "Specific time" ON; null/omit = OFF
+  senderAddress: { from_name: "Sarah", from_email: "sender@example.com", from_number: "+15551234567" }
+  workflowNote: "Why this workflow exists"   # the Notes panel's workflow note (string → stored shape)
+```
+
+- `window.days` are weekday numbers, 0 = Sunday … 6 = Saturday; times are 24h `HH:mm`. The UI's
+  defaults when the toggle is switched on are exactly `08:00`–`17:00`, Mon–Fri; the stored object
+  also carries `condition: "when"` (the engine adds it).
+- `senderAddress`: From name **requires** From email (GHL's `checkSenderAddress`); merge tags are
+  allowed in both. Empty strings are dropped, as the UI does.
+- Live-proven 2026-08-22 (GROM AU): the Settings tab's Save is the no-suffix `PUT /workflow/{loc}/{wid}`
+  carrying these keys; `window` and `meta.statsView` round-trip exactly.
+- Hatch: `skipSettingsCheck: true` in the build ctx turns the refusals into warnings.
+
 ### The engine fails LOUD rather than silently dropping intent
 
 A build that reports success while doing nothing at runtime is the worst failure this tool
@@ -278,7 +305,10 @@ IS, see "Retyping a step" below), `moveStep`, `addBranch`
 (`{containerId,name,conditions}`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`
 (`{type,disabled}`) — plus the trigger ops `addTrigger` / `modifyTrigger` / `deleteTrigger`
-(see "Editing TRIGGERS" below). The disable operations use GHL's native top-level
+(see "Editing TRIGGERS" below), and **`updateSettings`** (`{settings:{…}}` — the Settings tab's
+keys, merged over the stored values and validated by the same contract as `settings:` in a
+build: `window`, `timezone`, `stopOnResponse`, `senderAddress`, `workflowNote`, `statsView`…;
+a settings-only edit still commits with one PUT). The disable operations use GHL's native top-level
 `advanceCanvasMeta.isDisabled` flag, preserve the full step config, and commit only changed
 step IDs in `modifiedSteps`. Example — add an SMS, delete a step, and natively pause all
 internal notifications:
@@ -306,7 +336,8 @@ workflow stayed published).
 { "ops": [
   { "op": "modifyStep", "stepId": "abc", "attrPatch": { "stageId": "…", "status": "lost" },
     "stepPatch": { "name": "Update opportunity, Lost" } },
-  { "op": "renameStep", "stepId": "xyz", "name": "Tag: nurture exhausted" }
+  { "op": "renameStep", "stepId": "xyz", "name": "Tag: nurture exhausted" },
+  { "op": "updateSettings", "settings": { "stopOnResponse": true, "window": { "start": "09:00", "end": "18:00", "days": [1,2,3,4,5] } } }
 ] }
 ```
 

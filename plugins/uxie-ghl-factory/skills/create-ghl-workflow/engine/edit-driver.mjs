@@ -15,11 +15,30 @@ import { walkNodes } from './ir.mjs';
 // endpoints — so a trigger op can't be a templates→templates function like the step ops.
 // These ops are partitioned out and planned into request intents instead.
 export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigger']);
+// Workflow-LEVEL settings (the Settings tab) live on the workflow document's top level, not in
+// workflowData.templates — so they are neither step ops nor trigger ops. partitionOps() lifts
+// them out; the commit merges them over the stored values (editCommitBody opts.settingsPatch).
+export const SETTINGS_OPS = new Set(['updateSettings']);
 
 export function partitionOps(ops) {
-  const stepOps = [], triggerOps = [];
-  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : stepOps).push(op);
-  return { stepOps, triggerOps };
+  const stepOps = [], triggerOps = [], settingsOps = [];
+  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : stepOps).push(op);
+  return { stepOps, triggerOps, settingsOps };
+}
+
+// Fold `{ op:'updateSettings', settings:{…} }` ops (in order) into ONE patch of Settings-tab keys.
+// Validation of keys/values happens at commit (normalizeSettings over stored ⊕ patch), where the
+// stored document is known. Returns null when there are no settings ops — the commit body is
+// then byte-identical to what it was before this op existed.
+export function mergeSettingsOps(settingsOps) {
+  if (!settingsOps?.length) return null;
+  const patch = {};
+  for (const op of settingsOps) {
+    if (!op.settings || typeof op.settings !== 'object' || Array.isArray(op.settings))
+      throw new Error(`updateSettings needs a 'settings' object, e.g. { "op":"updateSettings", "settings": { "stopOnResponse": true } }`);
+    Object.assign(patch, op.settings);
+  }
+  return patch;
 }
 
 // Does this edit reference the marketplace rail at all? The caller uses this to decide
@@ -271,6 +290,8 @@ export function applyOp(templates, op, { ctx, idGen }) {
     default:
       if (TRIGGER_OPS.has(op.op))
         throw new Error(`'${op.op}' is a TRIGGER op — it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
+      if (SETTINGS_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a SETTINGS op — it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() → editCommitBody({ settingsPatch }).`);
       throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
   }
 }
