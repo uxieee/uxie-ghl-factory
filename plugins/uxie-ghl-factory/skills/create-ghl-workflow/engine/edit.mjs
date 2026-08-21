@@ -8,6 +8,7 @@
 // full templates[] with correct createdSteps/modifiedSteps/deletedSteps is what makes
 // an edit apply cleanly without disturbing untouched steps.
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
+import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
 import { expandCondition } from './compiler.mjs';
 import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
@@ -895,6 +896,13 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
   const editTouchedMarketplace = newTemplates
     .some((t) => t.isMarketplaceAction === true && touched.has(t.id));
+  // WORKFLOW-LEVEL SETTINGS (the Settings tab) — `updateSettings` ops arrive as opts.settingsPatch.
+  // Stored values ⊕ patch go through the same contract the build path uses (settings.mjs): an
+  // unknown key or impossible value REFUSES; the result is the exact key set the UI's own Save
+  // PUT carries (live-proven 2026-08-22: window + meta.statsView round-trip). No patch → the
+  // body below is byte-identical to what it was before this existed (`...fresh` carries the
+  // stored settings through untouched).
+  const settingsBody = opts.settingsPatch ? settingsCommitFields(fresh, opts.settingsPatch, uid, opts) : {};
   return {
     ...fresh,
     updatedBy: uid,
@@ -906,6 +914,38 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
       ? { meta: { ...(fresh.meta ?? {}),
         stepIndexCounter: { ...(fresh.meta?.stepIndexCounter ?? {}), ...Object.fromEntries(counter) } } }
       : {}),
+    ...settingsBody,
     createdSteps: diff.createdSteps, modifiedSteps: diff.modifiedSteps, deletedSteps: diff.deletedSteps,
   };
+}
+
+/** The Settings-tab keys as currently stored on a workflow document (what the UI's drawer loads). */
+export function settingsFromDoc(doc) {
+  return {
+    allowMultiple: doc.allowMultiple, allowMultipleOpportunity: doc.allowMultipleOpportunity,
+    stopOnResponse: doc.stopOnResponse, autoMarkAsRead: doc.autoMarkAsRead,
+    removeContactFromLastStep: doc.removeContactFromLastStep, timezone: doc.timezone,
+    window: doc.window ?? null, senderAddress: doc.senderAddress ?? {}, eventStartDate: doc.eventStartDate ?? '',
+    scheduledPauseDates: doc.scheduledPauseDates ?? [], workflowNote: doc.workflowNote ?? null,
+    statsView: doc.meta?.statsView ?? false,
+  };
+}
+
+/** Stored settings ⊕ patch → the top-level keys for the commit body (+ meta.statsView merge). */
+export function settingsCommitFields(fresh, patch, uid, opts = {}) {
+  const unknown = Object.keys(patch).filter((k) => !KNOWN_SETTINGS_KEYS.has(k));
+  if (unknown.length && opts.skipSettingsCheck !== true)
+    throw new IRError('SETTINGS_KEY', `updateSettings: unknown settings key(s) [${unknown.join(', ')}] — known: ${[...KNOWN_SETTINGS_KEYS].join(', ')}`);
+  const merged = { ...settingsFromDoc(fresh), ...patch };
+  // the stored note keeps its authorship; a NEW/changed note is stamped by this edit
+  if (typeof patch.workflowNote === 'string' && fresh.workflowNote?.content !== undefined && patch.workflowNote !== fresh.workflowNote.content)
+    merged.workflowNote = { ...fresh.workflowNote, content: patch.workflowNote, updatedBy: uid, updatedAt: (opts.now ? new Date(opts.now) : new Date()).toISOString() };
+  const { body } = normalizeSettings(merged, {
+    uid, now: opts.now, warn: opts.warn, skipSettingsCheck: opts.skipSettingsCheck,
+    senderRuleAdvisory: !('senderAddress' in patch),
+  });
+  const { statsView, ...top } = body;
+  const out = { ...top };
+  if ('statsView' in patch || fresh.meta?.statsView !== undefined) out.meta = { ...(fresh.meta ?? {}), statsView };
+  return out;
 }

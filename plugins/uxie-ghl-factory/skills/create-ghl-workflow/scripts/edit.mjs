@@ -59,6 +59,15 @@
 //     is builder hygiene, not a runtime fix; the commit itself fails closed on any dangling
 //     parentKey a step op leaves in the steps it touched (override: --allow-dangling-parentkeys).
 //
+// SETTINGS op (the builder's Settings tab — workflow-document TOP-LEVEL keys, not a step):
+//   { "op":"updateSettings", "settings": { "stopOnResponse":true, "timezone":"contact",
+//       "window": {"start":"08:00","end":"17:00","days":[1,2,3,4,5]}, "senderAddress": {...},
+//       "workflowNote":"…", "allowMultiple":true, "allowMultipleOpportunity":true,
+//       "autoMarkAsRead":false, "statsView":false } }
+//   Keys merge over the stored values; an unknown key or impossible value REFUSES
+//   (SETTINGS_KEY / SETTINGS_VALUE — see engine/settings.mjs; --skip-settings-check demotes to
+//   warnings). `window: null` switches "Specific time" off. A settings-only edit still PUTs.
+//
 // TRIGGER ops (triggers live in a SEPARATE document with their own CRUD endpoints — they
 // are applied after the step commit, not through workflowData.templates):
 //   { "op":"addTrigger",    "trigger": {type,name,filters:[...]} }
@@ -76,7 +85,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { editCommitBody, shouldActivateTriggers, triggerActivationBody } from '../engine/edit.mjs';
-import { applyOps, opsUseMarketplace, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
+import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
 import { buildMarketplaceIndex } from '../engine/marketplace.mjs';
 import { fetchMarketplace } from '../engine/orchestrate.mjs';
 import { loadCatalog } from '../engine/catalog.mjs';
@@ -165,18 +174,19 @@ const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuid
 const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
 
-const { stepOps, triggerOps } = partitionOps(ops);
+const { stepOps, triggerOps, settingsOps } = partitionOps(ops);
+const settingsPatch = mergeSettingsOps(settingsOps);   // Settings-tab keys (updateSettings ops), merged over the stored doc at commit
 const listTriggers = async () => {
   const tr = (await call('GET', `/workflow/${LOC}/trigger?workflowId=${WID}`)).json;
   return Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || []);
 };
 
 const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4 });
-const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged, catalog: ctx.catalog, warn: ctx.warn });
+const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged, catalog: ctx.catalog, warn: ctx.warn, settingsPatch, skipSettingsCheck: process.argv.includes('--skip-settings-check') });
 // WORKFLOW-level rules need the trigger set even for step-only edits (an action can be illegal
 // purely because of the trigger above it) — one GET, same oracle GHL's builder runs pre-save.
 { const trig = rulesNeedTriggers(templates, ctx.catalog?.workflowRules) || triggerOps.length ? await listTriggers() : [];
-  checkWorkflowRules({ templates, triggers: trig, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === 'published' },
+  checkWorkflowRules({ templates, triggers: trig, settings: { senderAddress: body.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === 'published' },
     ctx.catalog?.workflowRules, { skipWorkflowRules: process.argv.includes('--skip-workflow-rules'), warn: ctx.warn }); }
 const plan = triggerOps.length
   ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
@@ -201,6 +211,7 @@ if (dryRun) {
     console.log('diff:', JSON.stringify(diff));
     console.log('templates:', templates.length, 'steps (was', (fresh.workflowData.templates ?? []).length + ')');
   }
+  if (settingsPatch) console.log('settings:', JSON.stringify(Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === 'statsView' ? body.meta?.statsView : body[k]]))));
   for (const r of plan) console.log(`trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
   if (plan.length) console.log('activation:', fresh.status === 'published'
     ? 'draft→published cycle WILL run (workflow is published)'
@@ -219,10 +230,11 @@ for (const name of tagsToCreate) {
   if (!r.ok) { console.error(`ABORT: could not create tag '${name}' (${r.status}) — the edit would reference a tag that doesn't exist.`); flushWarnings(); process.exit(2); }
 }
 if (tagsToCreate.length) console.log('created tags:', tagsToCreate.join(', '));
-if (stepOps.length) {
+if (stepOps.length || settingsPatch) {
   const put = await call('PUT', `/workflow/${LOC}/${WID}`, body);
   console.log('PUT status:', put.status, put.ok ? 'OK' : 'FAIL');
-  console.log('diff:', JSON.stringify(diff));
+  if (stepOps.length) console.log('diff:', JSON.stringify(diff));
+  if (settingsPatch) console.log('settings:', Object.keys(settingsPatch).join(', '), '→', JSON.stringify(Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === 'statsView' ? put.json?.meta?.statsView : put.json?.[k]]))));
   if (!put.ok) {
     const sv = parseServerValidation(put.json);
     console.log(sv ? `SERVER VALIDATION (${sv.validationType}): ${describeServerFindings(sv)}` : 'body: ' + JSON.stringify(put.json).slice(0, 240));

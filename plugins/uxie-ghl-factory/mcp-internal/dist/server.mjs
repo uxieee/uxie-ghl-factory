@@ -36125,6 +36125,147 @@ function checkAgainstRulebook(field, ref) {
   }
 }
 
+// ../skills/create-ghl-workflow/engine/settings.mjs
+init_define_TOOL_CATALOG();
+var TIMEZONES = ["account", "contact"];
+var WINDOW_CONDITIONS = ["when"];
+var SENDER_KEYS = ["from_name", "from_email", "from_number"];
+var NOTE_KEYS = ["content", "createdBy", "createdByName", "createdOn", "createdAt", "updatedBy", "updatedByName", "updatedOn", "updatedAt"];
+var SETTINGS_SPEC = Object.freeze({
+  allowMultiple: { ui: "Allow re-entry", def: true, type: "boolean" },
+  allowMultipleOpportunity: { ui: "Allow multiple opportunities", def: true, type: "boolean" },
+  stopOnResponse: { ui: "Stop on response", def: false, type: "boolean" },
+  autoMarkAsRead: { ui: "Mark as read", def: false, type: "boolean" },
+  timezone: { ui: "Timezone", def: "account", type: "enum", values: TIMEZONES },
+  window: { ui: "Time window \u2014 Specific time", def: null, type: "window" },
+  senderAddress: { ui: "Sender details / From number", def: {}, type: "sender" },
+  workflowNote: { ui: "Workflow note (Notes panel)", def: null, type: "note" },
+  eventStartDate: { ui: "(deprecated) event start date", def: "", type: "string" },
+  removeContactFromLastStep: { ui: "(no control; always true)", def: true, type: "boolean" },
+  scheduledPauseDates: { ui: "Scheduled pause dates", def: [], type: "array" },
+  statsView: { ui: "Stats view toggle (meta.statsView)", def: false, type: "boolean" }
+});
+var KNOWN_SETTINGS_KEYS = new Set(Object.keys(SETTINGS_SPEC));
+var HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+var EMAIL = /^[^\s@{}]+@[^\s@{}]+\.[^\s@{}]+$/;
+var E164ISH = /^\+?[1-9]\d{6,14}$/;
+var isMergeTag = (v) => typeof v === "string" && /\{\{[^}]+\}\}/.test(v);
+function normalizeSettings(settings, ctx = {}) {
+  const s = settings ?? {};
+  const strict = ctx.skipSettingsCheck !== true;
+  const warnings = [];
+  const warn = (m) => {
+    warnings.push(m);
+    if (typeof ctx.warn === "function") ctx.warn(m);
+  };
+  const refuse = (code, msg) => {
+    if (strict) throw new IRError(code, msg);
+    warnings.push(`(skipSettingsCheck) ${msg}`);
+  };
+  if (s && (typeof s !== "object" || Array.isArray(s))) refuse("SETTINGS_VALUE", `settings must be an object (got ${Array.isArray(s) ? "array" : typeof s})`);
+  const unknown2 = Object.keys(s).filter((k) => !KNOWN_SETTINGS_KEYS.has(k));
+  if (unknown2.length) refuse(
+    "SETTINGS_KEY",
+    `unknown settings key(s) [${unknown2.join(", ")}] \u2014 the compiler never reads these, so they would be silently discarded. Known settings: ${[...KNOWN_SETTINGS_KEYS].join(", ")}.`
+  );
+  const bool = (k) => {
+    const v = s[k];
+    if (v === void 0) return SETTINGS_SPEC[k].def;
+    if (typeof v !== "boolean") refuse("SETTINGS_VALUE", `settings.${k} must be true/false (got ${JSON.stringify(v)}); UI control: "${SETTINGS_SPEC[k].ui}"`);
+    return Boolean(v);
+  };
+  let timezone = s.timezone === void 0 ? "account" : s.timezone;
+  if (!TIMEZONES.includes(timezone)) {
+    refuse("SETTINGS_VALUE", `settings.timezone must be 'account' (sub-account timezone) or 'contact' (each contact's own) \u2014 got ${JSON.stringify(timezone)}. The builder's picker has no other value; an IANA zone is never stored here.`);
+    timezone = "account";
+  }
+  let window = null;
+  if (s.window != null && s.window !== false) {
+    const w = s.window === true ? {} : s.window;
+    if (typeof w !== "object" || Array.isArray(w)) {
+      refuse("SETTINGS_VALUE", `settings.window must be an object {start,end,days} or null`);
+    } else {
+      const extra = Object.keys(w).filter((k) => !["condition", "start", "end", "days"].includes(k));
+      if (extra.length) refuse("SETTINGS_KEY", `settings.window has unknown key(s) [${extra.join(", ")}] \u2014 the UI writes only condition/start/end/days`);
+      const condition = w.condition ?? "when";
+      if (!WINDOW_CONDITIONS.includes(condition)) refuse("SETTINGS_VALUE", `settings.window.condition must be 'when' (the only value the Settings tab stores; corpus 15/15) \u2014 got ${JSON.stringify(condition)}`);
+      const start = w.start ?? "08:00", end = w.end ?? "17:00";
+      for (const [k, v] of [["start", start], ["end", end]]) if (typeof v !== "string" || !HHMM.test(v)) refuse("SETTINGS_VALUE", `settings.window.${k} must be 24h 'HH:mm' (UI stores e.g. '08:00', '17:00') \u2014 got ${JSON.stringify(v)}`);
+      if (HHMM.test(start) && HHMM.test(end) && end <= start) warn(`settings.window: end '${end}' is not after start '${start}' \u2014 the UI does not validate this, but no window would ever be open`);
+      let days = w.days ?? [1, 2, 3, 4, 5];
+      if (!Array.isArray(days) || !days.length || days.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) refuse("SETTINGS_VALUE", `settings.window.days must be a non-empty array of weekday numbers 0 (Sunday) \u2026 6 (Saturday) \u2014 got ${JSON.stringify(w.days)}`);
+      else days = [...new Set(days)].sort((a, b) => a - b);
+      window = { condition, start, end, days };
+    }
+  }
+  let senderAddress = {};
+  if (s.senderAddress != null) {
+    const sa = s.senderAddress;
+    if (typeof sa !== "object" || Array.isArray(sa)) refuse("SETTINGS_VALUE", `settings.senderAddress must be an object {from_name, from_email, from_number}`);
+    else {
+      const extra = Object.keys(sa).filter((k) => !SENDER_KEYS.includes(k));
+      if (extra.length) refuse("SETTINGS_KEY", `settings.senderAddress has unknown key(s) [${extra.join(", ")}] \u2014 the UI stores only ${SENDER_KEYS.join(", ")} (snake_case)`);
+      for (const k of SENDER_KEYS) {
+        const v = sa[k];
+        if (v == null || v === "") continue;
+        if (typeof v !== "string") {
+          refuse("SETTINGS_VALUE", `settings.senderAddress.${k} must be a string`);
+          continue;
+        }
+        senderAddress[k] = v;
+      }
+      if (senderAddress.from_name && !senderAddress.from_email) {
+        const msg = `settings.senderAddress: From Name requires From Email (GHL's checkSenderAddress rule: "${ctx.i18n?.["workflow.settings.from_email_required"] ?? "From email is required when From name is set"}")`;
+        if (ctx.senderRuleAdvisory === true) warn(`${msg} \u2014 pre-existing on this workflow, left as stored`);
+        else refuse("SETTINGS_VALUE", msg);
+      }
+      if (senderAddress.from_email && !isMergeTag(senderAddress.from_email) && !EMAIL.test(senderAddress.from_email)) warn(`settings.senderAddress.from_email '${senderAddress.from_email}' does not look like an email address (a {{merge tag}} is fine)`);
+      if (senderAddress.from_number && !isMergeTag(senderAddress.from_number) && !E164ISH.test(senderAddress.from_number.replace(/[\s()-]/g, ""))) warn(`settings.senderAddress.from_number '${senderAddress.from_number}' does not look like a phone number (the UI's From number is a dropdown of the account's numbers, stored E.164 e.g. '+13073026200')`);
+    }
+  }
+  let workflowNote = null;
+  if (s.workflowNote != null && s.workflowNote !== "") {
+    const now = (ctx.now ? new Date(ctx.now) : /* @__PURE__ */ new Date()).toISOString();
+    if (typeof s.workflowNote === "string") {
+      workflowNote = { content: s.workflowNote, createdBy: ctx.uid ?? void 0, createdAt: now, updatedBy: ctx.uid ?? void 0, updatedAt: now };
+    } else if (typeof s.workflowNote === "object" && !Array.isArray(s.workflowNote)) {
+      const extra = Object.keys(s.workflowNote).filter((k) => !NOTE_KEYS.includes(k));
+      if (extra.length) refuse("SETTINGS_KEY", `settings.workflowNote has unknown key(s) [${extra.join(", ")}] \u2014 IWorkflowNote is ${NOTE_KEYS.join(", ")}`);
+      if (typeof s.workflowNote.content !== "string") refuse("SETTINGS_VALUE", `settings.workflowNote.content must be a string`);
+      workflowNote = { content: String(s.workflowNote.content ?? ""), createdBy: ctx.uid ?? void 0, createdAt: now, updatedBy: ctx.uid ?? void 0, updatedAt: now, ...s.workflowNote };
+    } else refuse("SETTINGS_VALUE", `settings.workflowNote must be a string or {content, \u2026}`);
+    if (workflowNote) {
+      for (const k of Object.keys(workflowNote)) if (workflowNote[k] === void 0) delete workflowNote[k];
+    }
+  }
+  let eventStartDate = s.eventStartDate ?? "";
+  if (typeof eventStartDate !== "string") {
+    refuse("SETTINGS_VALUE", `settings.eventStartDate must be a string ('' = unset; deprecated in favour of the event_start_date step)`);
+    eventStartDate = "";
+  }
+  if (eventStartDate) warn(`settings.eventStartDate is deprecated in the builder (the Settings tab no longer shows it) \u2014 prefer an event_start_date step`);
+  let scheduledPauseDates = s.scheduledPauseDates ?? [];
+  if (!Array.isArray(scheduledPauseDates)) {
+    refuse("SETTINGS_VALUE", `settings.scheduledPauseDates must be an array`);
+    scheduledPauseDates = [];
+  } else if (scheduledPauseDates.length) warn(`settings.scheduledPauseDates: ${scheduledPauseDates.length} entr${scheduledPauseDates.length === 1 ? "y" : "ies"} passed through UNVERIFIED \u2014 the corpus has 0 non-empty examples, so the entry shape is not proven`);
+  const body = {
+    allowMultiple: bool("allowMultiple"),
+    allowMultipleOpportunity: bool("allowMultipleOpportunity"),
+    stopOnResponse: bool("stopOnResponse"),
+    autoMarkAsRead: bool("autoMarkAsRead"),
+    removeContactFromLastStep: bool("removeContactFromLastStep"),
+    timezone,
+    window,
+    senderAddress,
+    eventStartDate,
+    scheduledPauseDates,
+    workflowNote,
+    statsView: bool("statsView")
+  };
+  return { body, warnings };
+}
+
 // ../skills/create-ghl-workflow/engine/contact-field-shapes.mjs
 init_define_TOOL_CATALOG();
 var CONTACT_FIELD_ACTION_TYPES = ["update_field_data", "clear_field_data"];
@@ -37997,6 +38138,7 @@ function compile(ir, ctx) {
   const wid = ctx.idGen();
   const sessionId = ctx.idGen();
   const createdSteps = templates.map((t) => t.id);
+  const S = normalizeSettings(norm2.settings, ctx).body;
   const createBody = {
     name: norm2.name,
     status: "draft",
@@ -38005,12 +38147,12 @@ function compile(ir, ctx) {
     modifiedSteps: [],
     deletedSteps: [],
     createdSteps: [],
-    senderAddress: {},
-    stopOnResponse: false,
-    allowMultiple: false,
-    allowMultipleOpportunity: true,
-    autoMarkAsRead: false,
-    eventStartDate: "",
+    senderAddress: S.senderAddress,
+    stopOnResponse: S.stopOnResponse,
+    allowMultiple: S.allowMultiple,
+    allowMultipleOpportunity: S.allowMultipleOpportunity,
+    autoMarkAsRead: S.autoMarkAsRead,
+    eventStartDate: S.eventStartDate,
     timezone: "",
     workflowData: { templates: [] },
     triggersChanged: false,
@@ -38038,16 +38180,20 @@ function compile(ir, ctx) {
     originType: "user",
     isTriggerBucketMigrated: true,
     deleted: false,
-    timezone: norm2.settings?.timezone ?? "account",
-    allowMultiple: norm2.settings?.allowMultiple ?? false,
-    allowMultipleOpportunity: norm2.settings?.allowMultipleOpportunity ?? true,
-    removeContactFromLastStep: norm2.settings?.removeContactFromLastStep ?? true,
-    stopOnResponse: norm2.settings?.stopOnResponse ?? false,
-    autoMarkAsRead: norm2.settings?.autoMarkAsRead ?? false,
-    scheduledPauseDates: [],
-    senderAddress: norm2.settings?.senderAddress ?? {},
-    eventStartDate: norm2.settings?.eventStartDate ?? "",
+    timezone: S.timezone,
+    allowMultiple: S.allowMultiple,
+    allowMultipleOpportunity: S.allowMultipleOpportunity,
+    removeContactFromLastStep: S.removeContactFromLastStep,
+    stopOnResponse: S.stopOnResponse,
+    autoMarkAsRead: S.autoMarkAsRead,
+    scheduledPauseDates: S.scheduledPauseDates,
+    senderAddress: S.senderAddress,
+    eventStartDate: S.eventStartDate,
     updatedBy: ctx.uid,
+    // Settings-tab keys the engine never carried before 2026-08-22 (live-proven on the UI's
+    // own Save PUT): the time window and the workflow note. null = the UI's "off"/"empty".
+    window: S.window,
+    workflowNote: S.workflowNote,
     triggersChanged: false,
     isAutoSave: true,
     autoSaveSession: { workflowId: wid, id: sessionId, userId: ctx.uid, version: 1 },
@@ -38059,7 +38205,7 @@ function compile(ir, ctx) {
     // build must emit exactly the autoSaveBody it emitted before this fix, with no new
     // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
     // above for what this map records and why it's per-key.
-    ...marketplaceStepIndexCounter2.size > 0 ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } } : {}
+    ...marketplaceStepIndexCounter2.size > 0 || S.statsView ? { meta: { ...marketplaceStepIndexCounter2.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
   applyUiDefaults(templates, ctx?.catalog, ctx);
@@ -100181,6 +100327,7 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const counter = marketplaceStepIndexCounter(newTemplates);
   const touched = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
   const editTouchedMarketplace = newTemplates.some((t) => t.isMarketplaceAction === true && touched.has(t.id));
+  const settingsBody = opts.settingsPatch ? settingsCommitFields(fresh, opts.settingsPatch, uid, opts) : {};
   return {
     ...fresh,
     updatedBy: uid,
@@ -100192,10 +100339,46 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
       ...fresh.meta ?? {},
       stepIndexCounter: { ...fresh.meta?.stepIndexCounter ?? {}, ...Object.fromEntries(counter) }
     } } : {},
+    ...settingsBody,
     createdSteps: diff.createdSteps,
     modifiedSteps: diff.modifiedSteps,
     deletedSteps: diff.deletedSteps
   };
+}
+function settingsFromDoc(doc) {
+  return {
+    allowMultiple: doc.allowMultiple,
+    allowMultipleOpportunity: doc.allowMultipleOpportunity,
+    stopOnResponse: doc.stopOnResponse,
+    autoMarkAsRead: doc.autoMarkAsRead,
+    removeContactFromLastStep: doc.removeContactFromLastStep,
+    timezone: doc.timezone,
+    window: doc.window ?? null,
+    senderAddress: doc.senderAddress ?? {},
+    eventStartDate: doc.eventStartDate ?? "",
+    scheduledPauseDates: doc.scheduledPauseDates ?? [],
+    workflowNote: doc.workflowNote ?? null,
+    statsView: doc.meta?.statsView ?? false
+  };
+}
+function settingsCommitFields(fresh, patch, uid, opts = {}) {
+  const unknown2 = Object.keys(patch).filter((k) => !KNOWN_SETTINGS_KEYS.has(k));
+  if (unknown2.length && opts.skipSettingsCheck !== true)
+    throw new IRError("SETTINGS_KEY", `updateSettings: unknown settings key(s) [${unknown2.join(", ")}] \u2014 known: ${[...KNOWN_SETTINGS_KEYS].join(", ")}`);
+  const merged = { ...settingsFromDoc(fresh), ...patch };
+  if (typeof patch.workflowNote === "string" && fresh.workflowNote?.content !== void 0 && patch.workflowNote !== fresh.workflowNote.content)
+    merged.workflowNote = { ...fresh.workflowNote, content: patch.workflowNote, updatedBy: uid, updatedAt: (opts.now ? new Date(opts.now) : /* @__PURE__ */ new Date()).toISOString() };
+  const { body } = normalizeSettings(merged, {
+    uid,
+    now: opts.now,
+    warn: opts.warn,
+    skipSettingsCheck: opts.skipSettingsCheck,
+    senderRuleAdvisory: !("senderAddress" in patch)
+  });
+  const { statsView, ...top } = body;
+  const out = { ...top };
+  if ("statsView" in patch || fresh.meta?.statsView !== void 0) out.meta = { ...fresh.meta ?? {}, statsView };
+  return out;
 }
 
 // ../skills/create-ghl-workflow/engine/marketplace.mjs
@@ -100894,10 +101077,21 @@ async function orchestrate(ir, gw, opts = {}) {
 // ../skills/create-ghl-workflow/engine/edit-driver.mjs
 init_define_TOOL_CATALOG();
 var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger"]);
+var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
 function partitionOps(ops) {
-  const stepOps = [], triggerOps = [];
-  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : stepOps).push(op);
-  return { stepOps, triggerOps };
+  const stepOps = [], triggerOps = [], settingsOps = [];
+  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : stepOps).push(op);
+  return { stepOps, triggerOps, settingsOps };
+}
+function mergeSettingsOps(settingsOps) {
+  if (!settingsOps?.length) return null;
+  const patch = {};
+  for (const op of settingsOps) {
+    if (!op.settings || typeof op.settings !== "object" || Array.isArray(op.settings))
+      throw new Error(`updateSettings needs a 'settings' object, e.g. { "op":"updateSettings", "settings": { "stopOnResponse": true } }`);
+    Object.assign(patch, op.settings);
+  }
+  return patch;
 }
 function opsUseMarketplace(ops) {
   let uses = false;
@@ -101102,6 +101296,8 @@ function applyOp(templates, op, { ctx, idGen }) {
     default:
       if (TRIGGER_OPS.has(op.op))
         throw new Error(`'${op.op}' is a TRIGGER op \u2014 it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
+      if (SETTINGS_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a SETTINGS op \u2014 it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() \u2192 editCommitBody({ settingsPatch }).`);
       throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
   }
 }
@@ -105031,7 +105227,8 @@ var TOOLS2 = [
         ...customFields !== void 0 ? { customFields } : {},
         warn: (message) => warnings.push(message)
       };
-      const { stepOps, triggerOps } = partitionOps(args.ops);
+      const { stepOps, triggerOps, settingsOps } = partitionOps(args.ops);
+      const settingsPatch = mergeSettingsOps(settingsOps);
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       let existingTriggers = [];
       if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
@@ -105045,10 +105242,11 @@ var TOOLS2 = [
         // Closes the modifyStep enforcement bypass: field rules run over the steps THIS edit
         // touched, at the same commit point as the parentKey and step-reference checks.
         catalog: ctx.catalog,
-        warn: ctx.warn
+        warn: ctx.warn,
+        settingsPatch
       });
       checkWorkflowRules(
-        { templates, triggers: existingTriggers, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === "published" },
+        { templates, triggers: existingTriggers, settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === "published" },
         ctx.catalog?.workflowRules,
         { skipWorkflowRules: args.skipWorkflowRules, warn: ctx.warn }
       );
@@ -105075,6 +105273,9 @@ var TOOLS2 = [
         neededTags,
         tagsToCreate
       );
+      if (settingsPatch) {
+        preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
+      }
       if (args.confirm !== true) {
         return withFailureData(
           fail(
@@ -105142,7 +105343,7 @@ var TOOLS2 = [
         }
         partialProgress.tags.created.push(name);
       }
-      if (stepOps.length) {
+      if (stepOps.length || settingsPatch) {
         const committedCall = await attemptWrite(
           "step_commit",
           () => gw.call(
