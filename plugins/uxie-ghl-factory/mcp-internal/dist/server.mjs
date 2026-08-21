@@ -40026,7 +40026,12 @@ var catalog_data_default = {
       section: "workflow_ai",
       beta: true,
       display_name: "ai_agent",
-      requiredFields: []
+      requiredFields: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     appointment_booking: {
       type: "appointment_booking",
@@ -40298,6 +40303,47 @@ var catalog_data_default = {
               outer: []
             },
             support: "REQUIRED; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
+            field: "timeout",
+            variant: null,
+            guard: "attributes.timeout && (attributes.timeout < CALL_MIN_TIMEOUT_SECONDS || attributes.timeout > CALL_MAX_TIMEOUT_SECONDS)",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "path",
+                  p: "timeout"
+                },
+                b: {
+                  op: "or",
+                  a: {
+                    op: "lt",
+                    a: {
+                      op: "path",
+                      p: "timeout"
+                    },
+                    b: {
+                      op: "lit",
+                      v: 1
+                    }
+                  },
+                  b: {
+                    op: "gt",
+                    a: {
+                      op: "path",
+                      p: "timeout"
+                    },
+                    b: {
+                      op: "lit",
+                      v: 600
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
       }
@@ -40558,6 +40604,34 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample"
           },
           {
+            field: "actionParams.message",
+            variant: null,
+            guard: "!message",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "actionParams.message"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "actionType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "summarize_text"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
             field: "actionParams.length",
             variant: null,
             guard: "!length",
@@ -40587,6 +40661,34 @@ var catalog_data_default = {
               ]
             },
             support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "actionParams.message",
+            variant: null,
+            guard: "!message",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "actionParams.message"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "actionType"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "analyze_text_sentiment"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
           }
         ],
         warn: [
@@ -40619,6 +40721,65 @@ var catalog_data_default = {
               outer: []
             },
             support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
+            field: "temperature",
+            variant: null,
+            guard: "temp < 0 || temp > 1",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "lt",
+                  a: {
+                    op: "path",
+                    p: "temperature"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 0
+                  }
+                },
+                b: {
+                  op: "gt",
+                  a: {
+                    op: "path",
+                    p: "temperature"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 1
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "and",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "path",
+                        p: "temperature"
+                      }
+                    },
+                    b: {
+                      op: "neq",
+                      a: {
+                        op: "path",
+                        p: "temperature"
+                      },
+                      b: {
+                        op: "lit",
+                        v: 0
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
       }
@@ -41798,6 +41959,42 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus 100% of 1 in variant BEARER_TOKEN"
           },
           {
+            field: "authorization.data.token",
+            variant: "BEARER_TOKEN",
+            guard: "!bearerData.token",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "authorization.data.token"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "authorization.data"
+                },
+                {
+                  op: "path",
+                  p: "authorization"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "authorization.type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "BEARER_TOKEN"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus 100% of 1 in variant BEARER_TOKEN"
+          },
+          {
             field: "authorization.data",
             variant: "API_KEY",
             guard: "!attributes.authorization.data",
@@ -41830,6 +42027,52 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample in variant API_KEY"
           },
           {
+            field: "authorization.data",
+            variant: "API_KEY",
+            guard: "!apiKeyData.key || !apiKeyData.value",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "authorization.data.key"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "authorization.data.value"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "authorization.data"
+                },
+                {
+                  op: "path",
+                  p: "authorization"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "authorization.type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "API_KEY"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant API_KEY"
+          },
+          {
             field: "authorization.data.tokenId",
             variant: "OAUTH2",
             guard: "!attributes.authorization.data",
@@ -41842,6 +42085,42 @@ var catalog_data_default = {
                 }
               },
               outer: [
+                {
+                  op: "path",
+                  p: "authorization"
+                },
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "authorization.type"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "OAUTH2"
+                  }
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample in variant OAUTH2"
+          },
+          {
+            field: "authorization.data.tokenId",
+            variant: "OAUTH2",
+            guard: "!oauth2Data.tokenId",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "authorization.data.tokenId"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "authorization.data"
+                },
                 {
                   op: "path",
                   p: "authorization"
@@ -42134,6 +42413,27 @@ var catalog_data_default = {
               outer: []
             },
             support: "UNKNOWN; corpus no sample"
+          },
+          {
+            field: "action",
+            variant: null,
+            guard: "!attributes.action",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "action"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: ""
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
           },
           {
             field: "format.type",
@@ -42933,6 +43233,124 @@ var catalog_data_default = {
                   b: {
                     op: "lit",
                     v: 10080
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "path",
+                        p: "interval.value"
+                      }
+                    },
+                    b: {
+                      op: "lte",
+                      a: {
+                        op: "path",
+                        p: "interval.value"
+                      },
+                      b: {
+                        op: "lit",
+                        v: 0
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            support: "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
+          },
+          {
+            field: "interval.value",
+            variant: null,
+            guard: "intervalUnit === 'hours' && intervalValue > maxHours",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "interval.timeUnit"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "hours"
+                  }
+                },
+                b: {
+                  op: "gt",
+                  a: {
+                    op: "path",
+                    p: "interval.value"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 168
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "not",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "not",
+                      a: {
+                        op: "path",
+                        p: "interval.value"
+                      }
+                    },
+                    b: {
+                      op: "lte",
+                      a: {
+                        op: "path",
+                        p: "interval.value"
+                      },
+                      b: {
+                        op: "lit",
+                        v: 0
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            support: "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
+          },
+          {
+            field: "interval.value",
+            variant: null,
+            guard: "intervalUnit === 'days' && intervalValue > maxDays",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "interval.timeUnit"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "days"
+                  }
+                },
+                b: {
+                  op: "gt",
+                  a: {
+                    op: "path",
+                    p: "interval.value"
+                  },
+                  b: {
+                    op: "lit",
+                    v: 7
                   }
                 }
               },
@@ -44213,7 +44631,12 @@ var catalog_data_default = {
       section: "internal",
       beta: false,
       display_name: "if_else",
-      requiredFields: []
+      requiredFields: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     "internal-add-contact-followers": {
       type: "internal-add-contact-followers",
@@ -45043,7 +45466,12 @@ var catalog_data_default = {
       section: "communication",
       beta: false,
       display_name: "manual_call",
-      requiredFields: []
+      requiredFields: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     "manual-sms": {
       type: "manual-sms",
@@ -45063,7 +45491,12 @@ var catalog_data_default = {
       section: "communication",
       beta: false,
       display_name: "manual_sms",
-      requiredFields: []
+      requiredFields: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     math_operation: {
       type: "math_operation",
@@ -45410,7 +45843,12 @@ var catalog_data_default = {
       section: "contact",
       beta: false,
       display_name: "remove_assigned_user",
-      requiredFields: []
+      requiredFields: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "ghl-validator-empty"
+      }
     },
     remove_contact_tag: {
       type: "remove_contact_tag",
@@ -49426,7 +49864,12 @@ var catalog_data_default = {
       section: "customObjects",
       display_name: "create_object",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     update_custom_object: {
       type: "update_custom_object",
@@ -49440,7 +49883,12 @@ var catalog_data_default = {
       section: "customObjects",
       display_name: "update_object",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     clear_custom_object_fields: {
       type: "clear_custom_object_fields",
@@ -49454,7 +49902,12 @@ var catalog_data_default = {
       section: "customObjects",
       display_name: "clear_object_fields",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     messenger: {
       type: "messenger",
@@ -49730,7 +50183,12 @@ var catalog_data_default = {
       section: "communication",
       display_name: "gmb_messaging",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     conversation_ai: {
       type: "conversation_ai",
@@ -49744,7 +50202,12 @@ var catalog_data_default = {
       section: "communication",
       display_name: "conversation_ai",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     fb_interactive_messenger: {
       type: "fb_interactive_messenger",
@@ -49758,7 +50221,12 @@ var catalog_data_default = {
       section: "communication",
       display_name: "fb_interactive_messenger",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     ig_interactive_messenger: {
       type: "ig_interactive_messenger",
@@ -49772,7 +50240,12 @@ var catalog_data_default = {
       section: "communication",
       display_name: "ig_interactive_messenger",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
+      }
     },
     respond_on_comment: {
       type: "respond_on_comment",
@@ -49902,6 +50375,11 @@ var catalog_data_default = {
           ]
         },
         verified: "2026-08-21 (bundle-2026-08-21-2)"
+      },
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "no-ghl-validator"
       }
     },
     update_custom_value: {
@@ -50197,6 +50675,70 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample"
           },
           {
+            field: "format.fromField",
+            variant: null,
+            guard: "!attributes.format?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "string_to_formatted_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.options.inputDecimalMark",
+            variant: null,
+            guard: "!attributes.format?.options?.inputDecimalMark",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.options.inputDecimalMark"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "string_to_formatted_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
             field: "format.options.outputNumberFormat",
             variant: null,
             guard: "!attributes.format?.options?.outputNumberFormat",
@@ -50218,6 +50760,38 @@ var catalog_data_default = {
                   b: {
                     op: "lit",
                     v: "string_to_formatted_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.fromField",
+            variant: null,
+            guard: "!attributes.format?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "number_to_phone"
                   }
                 },
                 {
@@ -50282,6 +50856,38 @@ var catalog_data_default = {
                   b: {
                     op: "lit",
                     v: "number_to_phone"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "format.fromField",
+            variant: null,
+            guard: "!attributes.format?.fromField",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "format.fromField"
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "number_to_currency"
                   }
                 },
                 {
@@ -50537,6 +51143,76 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           },
           {
+            field: "random.max",
+            variant: null,
+            guard: "typeof attributes.random?.max === 'number' && typeof attributes.random?.min === 'number' && attributes.random.max <= attributes.random.min",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "and",
+                  a: {
+                    op: "eq",
+                    a: {
+                      op: "typeof",
+                      a: {
+                        op: "path",
+                        p: "random.max"
+                      }
+                    },
+                    b: {
+                      op: "lit",
+                      v: "number"
+                    }
+                  },
+                  b: {
+                    op: "eq",
+                    a: {
+                      op: "typeof",
+                      a: {
+                        op: "path",
+                        p: "random.min"
+                      }
+                    },
+                    b: {
+                      op: "lit",
+                      v: "number"
+                    }
+                  }
+                },
+                b: {
+                  op: "lte",
+                  a: {
+                    op: "path",
+                    p: "random.max"
+                  },
+                  b: {
+                    op: "path",
+                    p: "random.min"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "random_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
             field: "random.decimalPlaces",
             variant: null,
             guard: "!isValidNumeric(attributes.random?.decimalPlaces)",
@@ -50624,6 +51300,73 @@ var catalog_data_default = {
               ]
             },
             support: "CONDITIONAL; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
+          },
+          {
+            field: "random.decimalPlaces",
+            variant: null,
+            guard: "typeof attributes.random?.decimalPlaces === 'number' && (attributes.random.decimalPlaces < 0 || attributes.random.decimalPlaces > 3)",
+            ast: {
+              guard: {
+                op: "and",
+                a: {
+                  op: "eq",
+                  a: {
+                    op: "typeof",
+                    a: {
+                      op: "path",
+                      p: "random.decimalPlaces"
+                    }
+                  },
+                  b: {
+                    op: "lit",
+                    v: "number"
+                  }
+                },
+                b: {
+                  op: "or",
+                  a: {
+                    op: "lt",
+                    a: {
+                      op: "path",
+                      p: "random.decimalPlaces"
+                    },
+                    b: {
+                      op: "lit",
+                      v: 0
+                    }
+                  },
+                  b: {
+                    op: "gt",
+                    a: {
+                      op: "path",
+                      p: "random.decimalPlaces"
+                    },
+                    b: {
+                      op: "lit",
+                      v: 3
+                    }
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "eq",
+                  a: {
+                    op: "path",
+                    p: "action"
+                  },
+                  b: {
+                    op: "lit",
+                    v: "random_number"
+                  }
+                },
+                {
+                  op: "path",
+                  p: "action"
+                }
+              ]
+            },
+            support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
       }
@@ -51711,7 +52454,12 @@ var catalog_data_default = {
       section: "eliza",
       display_name: "send_to_eliza_agent_platform",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "ghl-validator-empty"
+      }
     },
     stripe_one_time_charge: {
       type: "stripe_one_time_charge",
@@ -51772,6 +52520,98 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "amount",
+            variant: null,
+            guard: "!attributes.amount || !attributes.amount.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "amount"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "amount"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "currency",
+            variant: null,
+            guard: "!attributes.currency || !attributes.currency.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "currency"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "currency"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "stripe_customer_id",
+            variant: null,
+            guard: "!attributes.stripe_customer_id || !attributes.stripe_customer_id.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "stripe_customer_id"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "stripe_customer_id"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     google_analytics: {
@@ -52091,6 +52931,100 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      enforcement: {
+        throw: [
+          {
+            field: "conversion_name",
+            variant: null,
+            guard: "!attributes.conversion_name || !attributes.conversion_name.trim()",
+            ast: {
+              guard: {
+                op: "or",
+                a: {
+                  op: "not",
+                  a: {
+                    op: "path",
+                    p: "conversion_name"
+                  }
+                },
+                b: {
+                  op: "not",
+                  a: {
+                    op: "trim",
+                    a: {
+                      op: "path",
+                      p: "conversion_name"
+                    }
+                  }
+                }
+              },
+              outer: []
+            },
+            support: "REQUIRED; corpus no sample"
+          },
+          {
+            field: "customMapping",
+            variant: null,
+            guard: "!attributes.customMapping",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "path",
+                  p: "customMapping"
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "isCustomMappingEnabled"
+                }
+              ]
+            },
+            support: "CONDITIONAL; corpus no sample"
+          },
+          {
+            field: "customMapping",
+            variant: null,
+            guard: "!hasAtLeastOneId",
+            ast: {
+              guard: {
+                op: "not",
+                a: {
+                  op: "or",
+                  a: {
+                    op: "or",
+                    a: {
+                      op: "path",
+                      p: "customMapping.gclid"
+                    },
+                    b: {
+                      op: "path",
+                      p: "customMapping.gbraid"
+                    }
+                  },
+                  b: {
+                    op: "path",
+                    p: "customMapping.wbraid"
+                  }
+                }
+              },
+              outer: [
+                {
+                  op: "path",
+                  p: "customMapping"
+                },
+                {
+                  op: "path",
+                  p: "isCustomMappingEnabled"
+                }
+              ]
+            },
+            support: "DERIVED; corpus no sample"
+          }
+        ],
+        warn: []
       }
     },
     facebook_remove_from_custom_audience: {
@@ -52172,7 +53106,12 @@ var catalog_data_default = {
       section: "affiliate",
       display_name: "add_to_affiliate_manager",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "ghl-validator-empty"
+      }
     },
     update_affiliate: {
       type: "update_affiliate",
@@ -52478,7 +53417,12 @@ var catalog_data_default = {
       section: "ivr",
       display_name: "gather_input_on_call",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "ghl-validator-empty"
+      }
     },
     ivr_say: {
       type: "ivr_say",
@@ -52787,7 +53731,12 @@ var catalog_data_default = {
       section: "ivr",
       display_name: "end_call",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "ghl-validator-empty"
+      }
     },
     ivr_collect_voicemail: {
       type: "ivr_collect_voicemail",
@@ -52801,7 +53750,12 @@ var catalog_data_default = {
       section: "ivr",
       display_name: "record_voicemail",
       requiredFields: [],
-      attrKeys: []
+      attrKeys: [],
+      enforcement: {
+        throw: [],
+        warn: [],
+        provenZero: "ghl-validator-empty"
+      }
     },
     add_associated_records_to_workflow: {
       type: "add_associated_records_to_workflow",
