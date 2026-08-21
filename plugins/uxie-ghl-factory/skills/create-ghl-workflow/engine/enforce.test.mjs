@@ -163,3 +163,19 @@ test('warn tier surfaces value-checks via ctx.warn and never blocks (webhook emp
   checkEnforcement({ ref: 'h' }, { ...ok, headers: [{ key: 'k', value: 'v' }] }, meta, ctx);
   assert.deepEqual(warns, []);
 });
+
+// ── coverage extension: return-based validators recovered + proven-zero markers ───────────
+test('a bodyless stripe_one_time_charge is REFUSED (amount/currency/customer required)', () => {
+  const meta = loadCatalog().step('stripe_one_time_charge');
+  assert.throws(() => checkEnforcement({ ref: 's' }, {}, meta, {}), /amount[\s\S]*currency[\s\S]*stripe_customer_id/);
+  checkEnforcement({ ref: 's' }, { amount: '19.99', currency: 'usd', stripe_customer_id: '{{contact.stripe_id}}' }, meta, {});
+});
+
+test('proven-zero types carry the marker and enforce nothing', () => {
+  const catalog = loadCatalog();
+  for (const [t, why] of [['ivr_gather', 'ghl-validator-empty'], ['if_else', 'no-ghl-validator']]) {
+    const meta = catalog.step(t);
+    assert.equal(meta.enforcement?.provenZero, why, t);
+    checkEnforcement({ ref: 'x' }, {}, meta, {});          // empty rule set → never throws
+  }
+});
