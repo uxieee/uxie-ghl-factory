@@ -14,6 +14,7 @@
   "sniffs/bundle/model-defaults.json",
   "sniffs/bundle/model-defaults-replay.json",
   "sniffs/bundle/ifelse-conditions.json",
+  "sniffs/bundle/ifelse-conditions-replay.json",
   "sniffs/bundle/trigger-seeds.json",
   "sniffs/bundle/trigger-incompatible-actions.json",
   "sniffs/bundle/merge-tags.json",
@@ -2970,7 +2971,21 @@
    "beforeDate",
    "inTheNext",
    "inTheLast"
-  ]
+  ],
+  "dynamicLeafGroups": [
+   "contact_detail",
+   "opportunities"
+  ],
+  "legacyOperators": {
+   "select": [
+    "is"
+   ]
+  },
+  "corpusEvidence": {
+   "conditions": 544,
+   "ok": 173,
+   "inRuntimeGroups": 253
+  }
  },
  "mergeTags": {
   "namespaces": {

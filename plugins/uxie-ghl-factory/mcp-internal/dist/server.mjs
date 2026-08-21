@@ -36725,6 +36725,89 @@ function applyUiDefaults(templates, catalog, ctx) {
   return added;
 }
 
+// ../skills/create-ghl-workflow/engine/ifelse-vocab.mjs
+init_define_TOOL_CATALOG();
+var NO_VALUE_DATE_OPS = /* @__PURE__ */ new Set(["today", "yesterday", "tomorrow"]);
+var ABSOLUTE_DATE_OPS = /* @__PURE__ */ new Set(["on", "between", "afterDate", "beforeDate"]);
+function evaluateIfElseVocab(templates, vocab, ctx) {
+  if (!vocab?.groups) return [];
+  const groups = new Map(vocab.groups.map((g) => [g.value, g]));
+  const leafOf = (g, sub) => {
+    for (const c of g.conditions ?? []) {
+      if (c.value === sub) return c;
+      for (const ch of c.children ?? []) if (ch.value === sub) return ch;
+    }
+    return null;
+  };
+  const opsFor = (operatorType) => {
+    const base = (vocab.operatorTable?.[operatorType] ?? []).map((o) => o?.value).filter((x) => typeof x === "string");
+    return /* @__PURE__ */ new Set([...base, ...vocab.legacyOperators?.[operatorType] ?? []]);
+  };
+  const dynamicLeafGroups = new Set(vocab.dynamicLeafGroups ?? []);
+  const customFieldById = /* @__PURE__ */ new Map();
+  for (const f of ctx?.customFields ?? []) {
+    const id = f?.id ?? f?._id;
+    if (id) customFieldById.set(id, f);
+  }
+  const F = [];
+  for (const t of templates ?? []) {
+    if (t?.type !== "if_else" || t.nodeType !== "condition-node") continue;
+    const where = `if/else '${t.name ?? t.id}'`;
+    for (const b of t.attributes?.branches ?? []) for (const s of b?.segments ?? []) for (const c of s?.conditions ?? []) {
+      if (!c || typeof c !== "object") continue;
+      const g = groups.get(c.conditionType);
+      if (!g) {
+        F.push({ where, branch: b.name, msg: `conditionType '${c.conditionType}' is not one GHL's picker offers (${[...groups.keys()].slice(0, 6).join(", ")}, \u2026)` });
+        continue;
+      }
+      if (!g.conditions?.length) continue;
+      let leaf = leafOf(g, c.conditionSubType);
+      let operatorType = leaf?.operatorType ?? null;
+      if (!leaf) {
+        if (dynamicLeafGroups.has(g.value)) {
+          const cf = customFieldById.get(c.conditionSubType);
+          if (cf) {
+            const dt = cf.dataType ?? cf.data_type ?? cf.type;
+            if (dt && vocab.fieldTypeMap?.[dt]) operatorType = vocab.fieldTypeMap[dt];
+            else continue;
+          } else if (customFieldById.size) {
+            F.push({ where, branch: b.name, msg: `conditionSubType '${c.conditionSubType}' (${g.value}) is not a picker field and matches no custom field on this account` });
+            continue;
+          } else continue;
+        } else {
+          F.push({ where, branch: b.name, msg: `conditionSubType '${c.conditionSubType}' is not a field of '${g.value}' (${(g.conditions ?? []).slice(0, 6).map((x) => x.value).join(", ")}, \u2026)` });
+          continue;
+        }
+      }
+      if (operatorType) {
+        const legal = opsFor(operatorType);
+        if (legal.size && !legal.has(c.conditionOperator)) {
+          F.push({ where, branch: b.name, msg: `operator '${c.conditionOperator}' is not legal for '${c.conditionSubType}' (${operatorType}: ${[...legal].join(", ")})` });
+          continue;
+        }
+        if (operatorType === "date" && c.conditionValueOperator != null) {
+          const vo = c.conditionValueOperator;
+          if (!(vocab.dateFieldOperators ?? []).includes(vo)) F.push({ where, branch: b.name, msg: `date sub-operator '${vo}' is not one of ${(vocab.dateFieldOperators ?? []).join(", ")}` });
+          else if (!NO_VALUE_DATE_OPS.has(vo) && !ABSOLUTE_DATE_OPS.has(vo) && !c.conditionValueUnit) F.push({ where, branch: b.name, msg: `date sub-operator '${vo}' requires conditionValueUnit (days|weeks|months|years)` });
+        }
+      }
+    }
+  }
+  return F;
+}
+function checkIfElseVocab(templates, catalog, ctx) {
+  if (ctx?.skipIfElseVocab === true) return [];
+  const F = evaluateIfElseVocab(templates, catalog?.ifElseConditions, ctx);
+  if (!F.length) return [];
+  const lines = F.map((f) => `  - ${f.where}${f.branch ? ` / branch '${f.branch}'` : ""}: ${f.msg}`);
+  throw new IRError(
+    "IFELSE_VOCAB",
+    `IFELSE_VOCAB: ${F.length} if/else condition(s) the GHL picker could never produce \u2014 GHL has NO validator for if/else, so this would save clean and MATCH WRONGLY at runtime:
+${lines.join("\n")}
+Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true if you are certain.`
+  );
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -37935,6 +38018,7 @@ function compile(ir, ctx) {
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
   applyUiDefaults(templates, ctx?.catalog, ctx);
+  checkIfElseVocab(templates, ctx?.catalog, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
@@ -37980,6 +38064,7 @@ var catalog_data_default = {
     "sniffs/bundle/model-defaults.json",
     "sniffs/bundle/model-defaults-replay.json",
     "sniffs/bundle/ifelse-conditions.json",
+    "sniffs/bundle/ifelse-conditions-replay.json",
     "sniffs/bundle/trigger-seeds.json",
     "sniffs/bundle/trigger-incompatible-actions.json",
     "sniffs/bundle/merge-tags.json",
@@ -40936,7 +41021,21 @@ var catalog_data_default = {
       "beforeDate",
       "inTheNext",
       "inTheLast"
-    ]
+    ],
+    dynamicLeafGroups: [
+      "contact_detail",
+      "opportunities"
+    ],
+    legacyOperators: {
+      select: [
+        "is"
+      ]
+    },
+    corpusEvidence: {
+      conditions: 544,
+      ok: 173,
+      inRuntimeGroups: 253
+    }
   },
   mergeTags: {
     namespaces: {
@@ -96455,6 +96554,11 @@ function loadCatalog() {
     // GHL's WORKFLOW-level validator (graph-scoped, trigger-aware rules + the vocab they test
     // against) — consumed by graph-rules.mjs at every write path. null on a pre-sweep catalog.
     workflowRules: d.workflowRules ?? null,
+    // sweep round 2: the if/else picker vocabulary (engine's ONLY guard for if/else), the static
+    // merge-tag vocabulary, and GHL's own English strings for the keys the catalog references
+    ifElseConditions: d.ifElseConditions ?? null,
+    mergeTags: d.mergeTags ?? null,
+    i18n: d.i18n ?? null,
     stepCapabilities: () => d.stepCapabilities ?? {},
     allSteps: () => Object.keys(steps),
     allTriggers: () => Object.keys(d.triggers),

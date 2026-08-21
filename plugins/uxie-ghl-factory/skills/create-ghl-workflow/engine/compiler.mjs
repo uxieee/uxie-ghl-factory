@@ -9,6 +9,7 @@ import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { checkStepRefs } from './graph-refs.mjs';
 import { applyUiDefaults } from './ui-defaults.mjs';
+import { checkIfElseVocab } from './ifelse-vocab.mjs';
 
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -1572,6 +1573,9 @@ export function compile(ir, ctx) {
   // UI defaults + constructor-forced fields FIRST, so enforcement sees the same initialized
   // shape the UI's validators see (ui-defaults.mjs; corpus-verified keys only)
   applyUiDefaults(templates, ctx?.catalog, ctx);
+  // if/else conditions against the picker's vocabulary (ifelse-vocab.mjs) — GHL has NO validator
+  // for if/else; a wrong subtype/operator saves clean and matches wrongly at runtime
+  checkIfElseVocab(templates, ctx?.catalog, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path

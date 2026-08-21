@@ -63,6 +63,11 @@ export function loadCatalog() {
     // GHL's WORKFLOW-level validator (graph-scoped, trigger-aware rules + the vocab they test
     // against) — consumed by graph-rules.mjs at every write path. null on a pre-sweep catalog.
     workflowRules: d.workflowRules ?? null,
+    // sweep round 2: the if/else picker vocabulary (engine's ONLY guard for if/else), the static
+    // merge-tag vocabulary, and GHL's own English strings for the keys the catalog references
+    ifElseConditions: d.ifElseConditions ?? null,
+    mergeTags: d.mergeTags ?? null,
+    i18n: d.i18n ?? null,
     stepCapabilities: () => d.stepCapabilities ?? {},
     allSteps: () => Object.keys(steps),
     allTriggers: () => Object.keys(d.triggers),
