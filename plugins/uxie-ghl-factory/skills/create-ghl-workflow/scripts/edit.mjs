@@ -83,6 +83,8 @@
 //   { "op":"addTrigger",    "trigger": {type,name,filters:[...]} }
 //   { "op":"deleteTrigger", "triggerId":"<id>" | "name":"..." | "type":"..." }
 //   { "op":"modifyTrigger", "triggerId":"<id>"|"name":"...", "trigger": {filters:[...], ...} }
+//   { "op":"duplicateTrigger", "triggerId":"<id>"|"name":"...", "newName":"optional name for the copy" }   # "Copy Trigger": re-posts
+//     the stored trigger as "<name> (Copy)", lands INACTIVE; an inbound-webhook copy gets a fresh predeterminedId.
 // A trigger added via the API lands active:false regardless of the POST body; if the
 // workflow is PUBLISHED this runs the draft→published activation cycle so it actually
 // fires. If it's a DRAFT, activation is skipped and reported — publishing is the user's

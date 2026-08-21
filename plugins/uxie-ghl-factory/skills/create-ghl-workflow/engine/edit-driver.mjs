@@ -18,7 +18,7 @@ export { STICKY_OPS };
 // Triggers live in a SEPARATE document from workflowData.templates, with their own CRUD
 // endpoints — so a trigger op can't be a templates→templates function like the step ops.
 // These ops are partitioned out and planned into request intents instead.
-export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigger']);
+export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigger', 'duplicateTrigger']);
 // Workflow-LEVEL settings (the Settings tab) live on the workflow document's top level, not in
 // workflowData.templates — so they are neither step ops nor trigger ops. partitionOps() lifts
 // them out; the commit merges them over the stored values (editCommitBody opts.settingsPatch).
@@ -101,6 +101,18 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
         const t = resolveTrigger(op, existing);
         // userId is a REQUIRED query param on the delete (docs/03-endpoints.md §3.5).
         return { op: op.op, method: 'DELETE', path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
+      }
+      // "Copy Trigger" (trigger ⋯ menu / ⌘V → cloneTriggers, recovered EDIT-RAIL.md): the stored
+      // trigger is re-posted with a "(Copy)" name; it lands INACTIVE like every API-created trigger,
+      // and an inbound-webhook trigger gets a fresh predeterminedId (its URL must differ).
+      case 'duplicateTrigger': {
+        const t = resolveTrigger(op, existing);
+        const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
+        // `name` selects the SOURCE (resolveTrigger); the copy's name is `newName`, default "<name> (Copy)" like the UI
+        const body = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, workflow_id: wid };
+        if (body.predeterminedId && ctx.idGen) body.predeterminedId = ctx.idGen();
+        for (const c of body.conditions ?? []) if (c && typeof c === 'object' && c.field === 'predeterminedId' && ctx.idGen) c.value = body.predeterminedId ?? ctx.idGen();
+        return { op: op.op, method: 'POST', path: `/workflow/${loc}/trigger`, body, sourceTriggerId: t.id ?? t._id };
       }
       case 'modifyTrigger': {
         const t = resolveTrigger(op, existing);
