@@ -45,7 +45,7 @@ export const SETTINGS_SPEC = Object.freeze({
   workflowNote:             { ui: 'Workflow note (Notes panel)',     def: null,      type: 'note' },
   eventStartDate:           { ui: '(deprecated) event start date',  def: '',        type: 'string' },
   removeContactFromLastStep:{ ui: '(no control; always true)',       def: true,      type: 'boolean' },
-  scheduledPauseDates:      { ui: 'Scheduled pause dates',          def: [],        type: 'array' },
+  scheduledPauseDates:      { ui: 'Pause workflow (DERIVED — see scheduled-pause/config)', def: [], type: 'array' },
   statsView:                { ui: 'Stats view toggle (meta.statsView)', def: false, type: 'boolean' },
 });
 export const KNOWN_SETTINGS_KEYS = new Set(Object.keys(SETTINGS_SPEC));
@@ -161,7 +161,7 @@ export function normalizeSettings(settings, ctx = {}) {
 
   let scheduledPauseDates = s.scheduledPauseDates ?? [];
   if (!Array.isArray(scheduledPauseDates)) { refuse('SETTINGS_VALUE', `settings.scheduledPauseDates must be an array`); scheduledPauseDates = []; }
-  else if (scheduledPauseDates.length) warn(`settings.scheduledPauseDates: ${scheduledPauseDates.length} entr${scheduledPauseDates.length === 1 ? 'y' : 'ies'} passed through UNVERIFIED — the corpus has 0 non-empty examples, so the entry shape is not proven`);
+  else if (scheduledPauseDates.length) warn(`settings.scheduledPauseDates is a DERIVED read-only view (live-proven 2026-08-22): the server computes it from the location's pause configs when the GET carries ?includeScheduledPauseInfo=true, and ignores it on writes. To actually pause, POST /workflow/{loc}/scheduled-pause/config {pauseStartTime, pauseEndTime (epoch ms, window ≥ 24h), isAnnual, workflowIds:[…]} — these ${scheduledPauseDates.length} entr${scheduledPauseDates.length === 1 ? 'y' : 'ies'} will not create a pause`);
 
   const body = {
     allowMultiple: bool('allowMultiple'),
