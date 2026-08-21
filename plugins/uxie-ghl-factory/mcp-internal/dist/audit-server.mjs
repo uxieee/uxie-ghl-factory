@@ -36187,6 +36187,132 @@ function checkAgainstRulebook(field, ref) {
   }
 }
 
+// ../skills/create-ghl-workflow/engine/goghl.mjs
+init_define_TOOL_CATALOG();
+var BUTTON_TYPES = /* @__PURE__ */ new Set(["quick_reply", "cta_url", "cta_call", "cta_copy"]);
+var GOGHL_DRIP_MS = Object.freeze({ bulk: 15e3, normal: [3e3, 5e3], warming: [1e4, 2e4], minimum: 1e3 });
+var GOGHL_WARMUP = Object.freeze([
+  { phase: 1, days: "1-2", perDay: "10-15" },
+  { phase: 2, days: "3-5", perDay: "20-30" },
+  { phase: 3, days: "6-10", perDay: "50-100" },
+  { phase: 4, days: "11-14", perDay: "200-300" },
+  { phase: 5, days: "15+", perDay: "500-1000+" }
+]);
+function lintBtn(line) {
+  const F = [];
+  const parts = String(line).trim().split("|");
+  if (parts[0] !== "#btn") return [`not a #btn line`];
+  if (parts.length < 5) {
+    F.push(`#btn needs at least 5 segments (#btn|title|subTitle|media|button\u2026) \u2014 got ${parts.length}. Unused slots must be the literal 'undefined'.`);
+    return F;
+  }
+  if (!parts[1] || parts[1] === "undefined") F.push(`#btn title (segment 2) is required`);
+  const media = parts[3];
+  if (media !== "undefined" && !/^\w+\*\S+/.test(media)) F.push(`#btn media slot must be 'undefined' or 'mediaType*mediaUrl' (e.g. image*https://\u2026) \u2014 got '${media}'`);
+  const buttons = parts.slice(4);
+  if (!buttons.length) F.push(`#btn has no buttons`);
+  for (const b of buttons) {
+    const seg = b.split("*");
+    if (seg.length < 3) {
+      F.push(`button '${b}' needs buttonType*buttonText*value`);
+      continue;
+    }
+    const [type, text] = seg;
+    const value = seg.slice(2).join("*");
+    if (!BUTTON_TYPES.has(type)) F.push(`button type '${type}' is not one of ${[...BUTTON_TYPES].join(", ")}`);
+    if (!text) F.push(`button of type '${type}' has empty text`);
+    if (type === "cta_url" && !/^https?:\/\//i.test(value)) F.push(`cta_url value '${value}' is not an http(s) URL`);
+    if (type === "cta_call" && !/^\+?[0-9][0-9 ()-]{5,}$/.test(value)) F.push(`cta_call value '${value}' does not look like a phone number (use +countrycode\u2026)`);
+    if ((type === "quick_reply" || type === "cta_copy") && !value) F.push(`${type} needs a non-empty ${type === "quick_reply" ? "buttonId" : "text to copy"}`);
+  }
+  return F;
+}
+function lintList(line) {
+  const F = [];
+  const parts = String(line).trim().split("|");
+  if (parts[0] !== "#list") return [`not a #list line`];
+  if (parts.length !== 6) {
+    F.push(`#list needs exactly 6 segments (#list|title|description|footer|buttonText|sections) \u2014 got ${parts.length}; unused slots must be 'undefined'`);
+    return F;
+  }
+  if (!parts[2] || parts[2] === "undefined") F.push(`#list description (segment 3) is REQUIRED`);
+  const rows = parts[5].split("/").filter((r) => r.trim() !== "");
+  if (!rows.length) F.push(`#list has no section rows`);
+  for (const r of rows) {
+    const seg = r.split("*");
+    if (seg.length !== 4) F.push(`list row '${r.slice(0, 50)}' must be Section*OptionTitle*Description*ID (4 fields, got ${seg.length})`);
+    else if (seg.some((x) => !x.trim())) F.push(`list row '${r.slice(0, 50)}' has an empty field`);
+  }
+  const ids = rows.map((r) => r.split("*")[3]).filter(Boolean);
+  if (new Set(ids).size !== ids.length) F.push(`#list option IDs must be unique (duplicates present)`);
+  return F;
+}
+function lintSpintax(text) {
+  const F = [];
+  const s = String(text);
+  const t = s.replace(/\{\{[^}]*\}\}/g, "");
+  let depth = 0;
+  for (const ch of t) {
+    if (ch === "{") {
+      depth++;
+      if (depth > 1) {
+        F.push("nested spintax {\u2026{\u2026}\u2026} is not documented by the vendor \u2014 flatten it");
+        break;
+      }
+    } else if (ch === "}") {
+      if (depth === 0) {
+        F.push("unbalanced spintax braces (stray })");
+        break;
+      }
+      depth--;
+    }
+  }
+  if (depth > 0 && !F.length) F.push("unbalanced spintax braces (unclosed {)");
+  for (const m of t.matchAll(/\{([^{}]*)\}/g)) {
+    const opts = m[1].split("|");
+    if (opts.length < 2) continue;
+    if (opts.length > 7) F.push(`spintax bracket has ${opts.length} options \u2014 vendor rule: 3-4, never more than 7`);
+    if (opts.some((o) => o.trim() === "")) F.push(`spintax bracket '{${m[1].slice(0, 30)}\u2026}' has an empty option`);
+  }
+  return F;
+}
+function checkGoghlSyntax(templates, ctx = {}) {
+  if (ctx.skipGoghlCheck === true) return [];
+  const warn = (m) => {
+    if (typeof ctx.warn === "function") ctx.warn(m);
+  };
+  const findings = [];
+  for (const t of templates ?? []) {
+    const texts = [];
+    const walk2 = (v) => {
+      if (typeof v === "string") texts.push(v);
+      else if (Array.isArray(v)) v.forEach(walk2);
+      else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+    };
+    walk2(t?.attributes);
+    for (const s of texts) {
+      for (const line of s.split(/\r?\n/)) {
+        const l = line.trim();
+        let F = null;
+        if (l.startsWith("#btn|") || l === "#btn") F = lintBtn(l);
+        else if (l.startsWith("#list|") || l === "#list") F = lintList(l);
+        if (F && F.length) {
+          findings.push(...F);
+          for (const f of F) warn(`GoGHL ${l.split("|")[0]} on '${t.name ?? t.id}': ${f} \u2014 a malformed line is sent to the contact as LITERAL TEXT.`);
+        }
+      }
+      if (/\{[^{}]*\|[^{}]*\}/.test(s.replace(/\{\{[^}]*\}\}/g, ""))) {
+        const F = lintSpintax(s);
+        if (F.length) {
+          findings.push(...F);
+          for (const f of F) warn(`GoGHL spintax on '${t.name ?? t.id}': ${f}`);
+        }
+      }
+    }
+  }
+  return findings;
+}
+
 // ../skills/create-ghl-workflow/engine/step-outputs.mjs
 init_define_TOOL_CATALOG();
 var STEP_OUTPUTS = Object.freeze({
@@ -38373,6 +38499,7 @@ function compile(ir, ctx) {
   checkIfElseVocab(templates, ctx?.catalog, ctx);
   checkMergeTags(templates, ctx?.catalog, ctx);
   checkStepOutputRefs(templates, ctx);
+  checkGoghlSyntax(templates, ctx);
   if (norm2.customObjectType && ctx?.skipObjectRules !== true) {
     const OBJECT_ALLOWED = /* @__PURE__ */ new Set([
       "if_else",
