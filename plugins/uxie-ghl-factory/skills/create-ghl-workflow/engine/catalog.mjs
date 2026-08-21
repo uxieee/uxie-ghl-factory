@@ -60,6 +60,9 @@ export function loadCatalog() {
     step: (type) => steps[type],
     trigger: (type) => d.triggers[type],
     filterModel: (type) => findFilterModel(d, type),
+    // GHL's WORKFLOW-level validator (graph-scoped, trigger-aware rules + the vocab they test
+    // against) — consumed by graph-rules.mjs at every write path. null on a pre-sweep catalog.
+    workflowRules: d.workflowRules ?? null,
     stepCapabilities: () => d.stepCapabilities ?? {},
     allSteps: () => Object.keys(steps),
     allTriggers: () => Object.keys(d.triggers),

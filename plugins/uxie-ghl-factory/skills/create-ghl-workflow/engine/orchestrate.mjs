@@ -29,6 +29,7 @@ import { buildMarketplaceIndex } from './marketplace.mjs';
 import { walkNodes } from './ir.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
+import { checkWorkflowRules } from './graph-rules.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -283,6 +284,17 @@ export async function orchestrate(ir, gw, opts = {}) {
   // abort instead of a workflow that saves clean and silently misbehaves. Reference-only —
   // it does NOT check field shapes (see asset-preflight.mjs). Fail-open: if the endpoint is
   // unreachable the build proceeds and the report says it was skipped.
+  // WORKFLOW-level rules (GHL's WorkflowValidator — the layer that blocks a save before any
+  // HTTP). Graph-scoped + trigger-aware, so it needs the compiled templates AND trigger bodies
+  // together; that is only true here. Hatch: opts.skipWorkflowRules.
+  try {
+    checkWorkflowRules({ templates: built.autoSaveBody?.workflowData?.templates, triggers: built.triggerBodies, publishing: opts.publish === true },
+      catalog.workflowRules, { skipWorkflowRules: opts.skipWorkflowRules });
+  } catch (e) {
+    report.failurePhase = 'workflow_rules';
+    report.aborted = `${e.code ?? 'WORKFLOW_RULE'}: ${e.message}`;
+    return report;
+  }
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
     triggers: built.triggerBodies,
