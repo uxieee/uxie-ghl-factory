@@ -87,10 +87,25 @@ test('retypeStep refuses a step with no attributes replacement', () => {
     /needs a full 'attributes' object/);
 });
 
-test('retypeStep accepts an explicit empty attributes object', () => {
+test('retypeStep accepts an explicit empty attributes object (type with no required fields)', () => {
   n = 0;
+  // google_sheets carries no THROW-tier enforcement, so {} is a legal starting point for it.
   const { templates } = applyOps(smsWorkflow(),
+    [{ op: 'retypeStep', stepId: 's1', step: { kind: 'action', type: 'google_sheets', name: 'Sheet', attributes: {} } }],
+    { ctx: ctx(), idGen });
+  assert.equal(templates.find((t) => t.id === 's1').type, 'google_sheets');
+});
+
+test('retypeStep to a type with required fields REFUSES an empty attributes object', () => {
+  n = 0;
+  // The edit path shares the compile chokepoint: a remove_from_workflow with no workflow_id (and
+  // neither allWorkflows nor includeCurrent) is a dead step GHL would flag — refused here instead.
+  assert.throws(() => applyOps(smsWorkflow(),
     [{ op: 'retypeStep', stepId: 's1', step: { kind: 'action', type: 'remove_from_workflow', name: 'Stop', attributes: {} } }],
+    { ctx: ctx(), idGen }), /ENFORCEMENT.*workflow_id/s);
+  // …and with the field supplied, the same retype passes.
+  const { templates } = applyOps(smsWorkflow(),
+    [{ op: 'retypeStep', stepId: 's1', step: { kind: 'action', type: 'remove_from_workflow', name: 'Stop', attributes: { workflow_id: '11111111-2222-4333-8444-555555555555' } } }],
     { ctx: ctx(), idGen });
   assert.equal(templates.find((t) => t.id === 's1').type, 'remove_from_workflow');
 });
