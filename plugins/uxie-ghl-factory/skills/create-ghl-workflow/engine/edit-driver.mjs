@@ -9,6 +9,8 @@ import {
   retypeStep, assignMarketplaceStepIndexes,
   addStepNote,
   duplicateStep,
+  replaceTagInTemplates,
+  replaceTagInTriggerConditions,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
 import { walkNodes } from './ir.mjs';
@@ -18,7 +20,7 @@ export { STICKY_OPS };
 // Triggers live in a SEPARATE document from workflowData.templates, with their own CRUD
 // endpoints — so a trigger op can't be a templates→templates function like the step ops.
 // These ops are partitioned out and planned into request intents instead.
-export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigger', 'duplicateTrigger']);
+export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigger', 'duplicateTrigger', 'replaceTagInTriggers']);
 // Workflow-LEVEL settings (the Settings tab) live on the workflow document's top level, not in
 // workflowData.templates — so they are neither step ops nor trigger ops. partitionOps() lifts
 // them out; the commit merges them over the stored values (editCommitBody opts.settingsPatch).
@@ -26,7 +28,12 @@ export const SETTINGS_OPS = new Set(['updateSettings']);
 
 export function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
-  for (const op of ops ?? []) (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
+  for (const op of ops ?? []) {
+    (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
+    // Find & Replace (tag mode) spans BOTH documents like the UI's "Replace All": the step op
+    // rewrites templates; a derived trigger op rewrites every trigger condition carrying the tag.
+    if (op.op === 'replaceTag' && op.triggers !== false) triggerOps.push({ op: 'replaceTagInTriggers', oldTag: op.oldTag, newTag: op.newTag });
+  }
   return { stepOps, triggerOps, settingsOps, stickyOps };
 }
 
@@ -89,7 +96,7 @@ export function resolveTrigger(op, existing) {
 // to resolve name/type matchers and to merge on modify.
 export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
   const loc = ctx.loc;
-  return (triggerOps ?? []).map((op) => {
+  return (triggerOps ?? []).flatMap((op) => {
     switch (op.op) {
       case 'addTrigger':
         // buildTrigger is the SAME corpus-traced shape the create path posts: the full
@@ -113,6 +120,15 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
         if (body.predeterminedId && ctx.idGen) body.predeterminedId = ctx.idGen();
         for (const c of body.conditions ?? []) if (c && typeof c === 'object' && c.field === 'predeterminedId' && ctx.idGen) c.value = body.predeterminedId ?? ctx.idGen();
         return { op: op.op, method: 'POST', path: `/workflow/${loc}/trigger`, body, sourceTriggerId: t.id ?? t._id };
+      }
+      // derived from a `replaceTag` op: one full-object PUT per trigger whose conditions carry the tag
+      case 'replaceTagInTriggers': {
+        return existing.flatMap((t) => {
+          const conditions = replaceTagInTriggerConditions(t.conditions, op.oldTag, op.newTag);
+          if (!conditions) return [];
+          const tid = t.id ?? t._id;
+          return [{ op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+        });
       }
       case 'modifyTrigger': {
         const t = resolveTrigger(op, existing);
@@ -206,7 +222,7 @@ export function normalizeDiff(d) {
 // compileSubgraph as `Cannot read properties of undefined (reading 'kind')`, which names
 // neither the op nor the key. Cost real time live on AU 2026-07-25.
 const OP_REQUIRED_ARGS = {
-  addStepNote: ['stepId', 'text'], duplicateStep: ['stepId'],
+  addStepNote: ['stepId', 'text'], duplicateStep: ['stepId'], replaceTag: ['oldTag', 'newTag'],
   appendStep: ['step'],
   insertAfter: ['step', 'afterId'],
   insertBefore: ['step', 'beforeId'],
@@ -277,6 +293,8 @@ export function applyOp(templates, op, { ctx, idGen }) {
         : appendToBranch(templates, op.branchEntryId, sub.entry);
     }
     case 'deleteStep': return deleteStep(templates, op.stepId);
+    // Find & Replace, TAG mode (exact on tag arrays / tags-subtype conditions; string replace on customTags)
+    case 'replaceTag': return replaceTagInTemplates(templates, op.oldTag, op.newTag);
     // Action NOTES (node ⋯ → Notes): unshift {id, userId, timestamp, comment:HTML} onto step.comments[]
     case 'addStepNote': return addStepNote(templates, op.stepId, op.text, { uid: ctx?.uid, now: ctx?.now, idGen });
     // "Copy action" + "Copy here": a fresh-id copy right after the source (or op.afterId); containers/goals/loops/gotos refused
