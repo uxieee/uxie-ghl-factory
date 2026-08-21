@@ -75,7 +75,7 @@ export async function fetchEntities(gw) {
     .filter((value) => value && typeof value === 'object' && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -98,6 +98,14 @@ export async function fetchEntities(gw) {
     // `list_account_entities` reported ZERO Conversation AI agents on accounts that had them.
     // The live discovery route is the search sibling of the per-agent detail route.
     g(`/ai-employees/employees/search?${locationQuery()}`), // best-effort (may 404)
+    // SECOND-ORDER resolvers (SURFACE-GAP-ANALYSIS G1–G3, live-proven shapes 2026-08-22):
+    // the account's workflows (add_to_workflow targets by NAME), custom values, trigger links,
+    // membership offers + course products (course/offer trigger filters, grant/revoke offer).
+    g(`/workflow/${locationPath}/list?${new URLSearchParams({ type: 'workflow', limit: '200', offset: '0', sortBy: 'name', sortOrder: 'asc' })}`),
+    g(`/locations/${locationPath}/customValues`),
+    g(`/links/?${locationQuery()}`),
+    g(`/membership/locations/${locationPath}/offers`),                                    // → [{id,title,…}]
+    g(`/membership/locations/${locationPath}/products?doNotIncludeOffers=true&sendCustomizations=true`),
   ]);
   // `employees` is the live key on the search route (`{employees, totalCount, count}`);
   // `agents` is kept ahead of it because the Voice leg still answers under that key, and a
@@ -115,6 +123,11 @@ export async function fetchEntities(gw) {
     forms: recordsFrom(fm?.forms, fm).map((f) => ({ id: f.id || f._id, name: f.name })),
     customFields: recordsFrom(cf?.customFields, cf).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model })),
     agents,
+    workflows: recordsFrom(wfL?.rows, wfL).filter((w) => (w.type ?? 'workflow') === 'workflow').map((w) => ({ id: w._id || w.id, name: w.name, status: w.status })),
+    customValues: recordsFrom(cvL?.customValues, cvL).map((v) => ({ id: v.id || v._id, name: v.name, fieldKey: v.fieldKey })),
+    triggerLinks: recordsFrom(lkL?.links, lkL).map((l) => ({ id: l.id || l._id, name: l.name, redirectTo: l.redirectTo })),
+    offers: recordsFrom(ofL).map((o) => ({ id: o.id || o._id, name: o.title ?? o.name })),
+    membershipProducts: recordsFrom(mpL?.products, mpL).map((m) => ({ id: m.id || m._id, name: m.title ?? m.name })),
   };
 }
 
@@ -214,6 +227,8 @@ export async function orchestrate(ir, gw, opts = {}) {
   const { unresolved } = resolveIR(ir, resolvers);
   report.unresolved = unresolved;
   report.resolvedFrom = { pipelines: entities.pipelines.length, calendars: entities.calendars.length,
+    workflows: entities.workflows?.length ?? 0, customValues: entities.customValues?.length ?? 0,
+    triggerLinks: entities.triggerLinks?.length ?? 0, offers: entities.offers?.length ?? 0,
     users: entities.users.length, forms: entities.forms.length, agents: entities.agents.length };
 
   // 2. ABORT on missing account-level deps (don't build something broken)

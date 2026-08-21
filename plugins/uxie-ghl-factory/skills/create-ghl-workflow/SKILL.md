@@ -71,6 +71,12 @@ catalog rather than improvising a shape.
 ## Authoring the IR
 
 Write intent, using **human names** — the resolver turns them into IDs:
+pipelines/stages, calendars, users, forms, surveys, custom fields, AI agents — and (2026-08-22)
+**workflows** (`add_to_workflow: { workflow: "name" }`), **custom values**
+(`update_custom_value: { customValue: "name or key" }`), **membership offers**
+(`membership_grant_offer: { offer: "title" }`), **trigger links** + **course products/offers in
+trigger filters** (`{ field: link.id | membership.product.id | offer.id, value: "name" }`).
+An unresolvable name ABORTS with `Missing account dependencies` before any write.
 
 ```yaml
 name: "VIP nurture"

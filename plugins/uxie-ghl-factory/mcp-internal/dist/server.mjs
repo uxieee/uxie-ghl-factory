@@ -99862,7 +99862,13 @@ function buildResolvers(raw = {}) {
     userId: (q) => byName(raw.users, [(u) => u.email, (u) => u.name, (u) => `${u.firstName ?? ""} ${u.lastName ?? ""}`])(q)?.id,
     customFieldId: (q) => byName(raw.customFields, [(c) => c.name, (c) => c.fieldKey])(q)?.id,
     // AI agents (voice + conversation AI), matched by name
-    agentId: (q) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q)?.id
+    agentId: (q) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q)?.id,
+    // SECOND-ORDER (G1–G3): workflows / custom values / trigger links / offers / course products
+    workflowId: (q) => byName(raw.workflows, [(w) => w.name])(q)?.id,
+    customValueId: (q) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? "").replace(/^\{\{\s*custom_values\./, "").replace(/\s*\}\}$/, "")])(q)?.id,
+    triggerLinkId: (q) => byName(raw.triggerLinks, [(l) => l.name])(q)?.id,
+    offerId: (q) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q)?.id,
+    membershipProductId: (q) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q)?.id
   };
 }
 var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
@@ -99875,6 +99881,9 @@ function resolveFilterValue(field, value, r) {
     if (field === "form.id") return r.formId(v) ?? v;
     if (field === "survey.id") return r.surveyId(v) ?? v;
     if (field === "opportunity.assignedTo" || field === "task.assignedTo") return r.userId(v) ?? v;
+    if (field === "link.id") return r.triggerLinkId(v) ?? v;
+    if (field === "membership.product.id") return r.membershipProductId(v) ?? v;
+    if (field === "offer.id") return r.offerId(v) ?? v;
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -99921,6 +99930,21 @@ function resolveIR(ir, r) {
     }
     if (type === "appointment_booking" && a.calendar && !a.calendarId) {
       a.calendarId = need(r.calendarId(a.calendar), "appointment_booking.calendar", a.calendar);
+    }
+    if ((type === "add_to_workflow" || type === "remove_from_workflow") && a.workflow && !a.workflow_id) {
+      a.workflow_id = need(r.workflowId(a.workflow), `${type}.workflow`, a.workflow);
+      if (a.workflow_id) delete a.workflow;
+    }
+    if (type === "update_custom_value" && (a.customValue ?? a.custom_value) && !a.custom_value_id) {
+      const q = a.customValue ?? a.custom_value;
+      a.custom_value_id = need(r.customValueId(q), "update_custom_value.customValue", q);
+      delete a.customValue;
+      delete a.custom_value;
+      if (a.custom_value_id && !a.name) a.name = q;
+    }
+    if ((type === "membership_grant_offer" || type === "membership_revoke_offer") && a.offer && !a.offer_id) {
+      a.offer_id = need(r.offerId(a.offer), `${type}.offer`, a.offer);
+      delete a.offer;
     }
     if ((type === "update_contact_field" || type === "create_update_contact") && Array.isArray(a.fields)) {
       for (const f of a.fields) {
@@ -101005,7 +101029,7 @@ async function fetchEntities(gw) {
   const recordsFrom2 = (...values) => arrayFrom(...values).filter((value) => value && typeof value === "object" && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -101033,8 +101057,17 @@ async function fetchEntities(gw) {
     // best-effort annotation made a permanent blind spot look like an occasional one —
     // `list_account_entities` reported ZERO Conversation AI agents on accounts that had them.
     // The live discovery route is the search sibling of the per-agent detail route.
-    g(`/ai-employees/employees/search?${locationQuery()}`)
+    g(`/ai-employees/employees/search?${locationQuery()}`),
     // best-effort (may 404)
+    // SECOND-ORDER resolvers (SURFACE-GAP-ANALYSIS G1–G3, live-proven shapes 2026-08-22):
+    // the account's workflows (add_to_workflow targets by NAME), custom values, trigger links,
+    // membership offers + course products (course/offer trigger filters, grant/revoke offer).
+    g(`/workflow/${locationPath}/list?${new URLSearchParams({ type: "workflow", limit: "200", offset: "0", sortBy: "name", sortOrder: "asc" })}`),
+    g(`/locations/${locationPath}/customValues`),
+    g(`/links/?${locationQuery()}`),
+    g(`/membership/locations/${locationPath}/offers`),
+    // → [{id,title,…}]
+    g(`/membership/locations/${locationPath}/products?doNotIncludeOffers=true&sendCustomizations=true`)
   ]);
   const agents = [
     ...recordsFrom2(agS?.agents, agS?.data, agS),
@@ -101050,7 +101083,12 @@ async function fetchEntities(gw) {
     users: recordsFrom2(us?.users, us).map((u) => ({ id: u.id || u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, name: u.name })),
     forms: recordsFrom2(fm?.forms, fm).map((f) => ({ id: f.id || f._id, name: f.name })),
     customFields: recordsFrom2(cf?.customFields, cf).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model })),
-    agents
+    agents,
+    workflows: recordsFrom2(wfL?.rows, wfL).filter((w) => (w.type ?? "workflow") === "workflow").map((w) => ({ id: w._id || w.id, name: w.name, status: w.status })),
+    customValues: recordsFrom2(cvL?.customValues, cvL).map((v) => ({ id: v.id || v._id, name: v.name, fieldKey: v.fieldKey })),
+    triggerLinks: recordsFrom2(lkL?.links, lkL).map((l) => ({ id: l.id || l._id, name: l.name, redirectTo: l.redirectTo })),
+    offers: recordsFrom2(ofL).map((o) => ({ id: o.id || o._id, name: o.title ?? o.name })),
+    membershipProducts: recordsFrom2(mpL?.products, mpL).map((m) => ({ id: m.id || m._id, name: m.title ?? m.name }))
   };
 }
 async function fetchMarketplace(call, loc) {
@@ -101146,6 +101184,10 @@ async function orchestrate(ir, gw, opts = {}) {
   report.resolvedFrom = {
     pipelines: entities.pipelines.length,
     calendars: entities.calendars.length,
+    workflows: entities.workflows?.length ?? 0,
+    customValues: entities.customValues?.length ?? 0,
+    triggerLinks: entities.triggerLinks?.length ?? 0,
+    offers: entities.offers?.length ?? 0,
     users: entities.users.length,
     forms: entities.forms.length,
     agents: entities.agents.length

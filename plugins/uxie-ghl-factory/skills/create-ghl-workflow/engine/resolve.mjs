@@ -19,7 +19,9 @@ const STANDARD_CONTACT_FIELDS = new Set([
 
 // raw = { pipelines:[{id,name,stages:[{id,name}]}], calendars:[{id,name}],
 //         users:[{id,firstName,lastName,email,name}], forms:[{id,name}],
-//         surveys:[{id,name}], customFields:[{id,name,fieldKey}] }
+//         surveys:[{id,name}], customFields:[{id,name,fieldKey}], workflows:[{id,name,status}],
+//         customValues:[{id,name,fieldKey}], triggerLinks:[{id,name}], offers:[{id,name}],
+//         membershipProducts:[{id,name}] }
 export function buildResolvers(raw = {}) {
   const pipelines = raw.pipelines ?? [];
   const byName = (list, keyFns) => (q) => {
@@ -43,6 +45,12 @@ export function buildResolvers(raw = {}) {
     customFieldId: (q) => byName(raw.customFields, [(c) => c.name, (c) => c.fieldKey])(q)?.id,
     // AI agents (voice + conversation AI), matched by name
     agentId: (q) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q)?.id,
+    // SECOND-ORDER (G1–G3): workflows / custom values / trigger links / offers / course products
+    workflowId: (q) => byName(raw.workflows, [(w) => w.name])(q)?.id,
+    customValueId: (q) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? '').replace(/^\{\{\s*custom_values\./, '').replace(/\s*\}\}$/, '')])(q)?.id,
+    triggerLinkId: (q) => byName(raw.triggerLinks, [(l) => l.name])(q)?.id,
+    offerId: (q) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q)?.id,
+    membershipProductId: (q) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q)?.id,
   };
 }
 
@@ -59,6 +67,9 @@ function resolveFilterValue(field, value, r) {
     if (field === 'form.id') return r.formId(v) ?? v;
     if (field === 'survey.id') return r.surveyId(v) ?? v;
     if (field === 'opportunity.assignedTo' || field === 'task.assignedTo') return r.userId(v) ?? v;
+    if (field === 'link.id') return r.triggerLinkId(v) ?? v;                       // trigger_link
+    if (field === 'membership.product.id') return r.membershipProductId(v) ?? v;   // course triggers
+    if (field === 'offer.id') return r.offerId(v) ?? v;                            // offer/membership triggers
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -115,6 +126,23 @@ export function resolveIR(ir, r) {
     // appointment_booking: calendar name → calendarId
     if (type === 'appointment_booking' && a.calendar && !a.calendarId) {
       a.calendarId = need(r.calendarId(a.calendar), 'appointment_booking.calendar', a.calendar);
+    }
+    // add_to_workflow / remove_from_workflow: workflow NAME → workflow_id (G1)
+    if ((type === 'add_to_workflow' || type === 'remove_from_workflow') && a.workflow && !a.workflow_id) {
+      a.workflow_id = need(r.workflowId(a.workflow), `${type}.workflow`, a.workflow);
+      if (a.workflow_id) delete a.workflow;   // intent key consumed (ATTR_KEY guard owns the rest)
+    }
+    // update_custom_value: custom value NAME/key → custom_value_id (G3)
+    if (type === 'update_custom_value' && (a.customValue ?? a.custom_value) && !a.custom_value_id) {
+      const q = a.customValue ?? a.custom_value;
+      a.custom_value_id = need(r.customValueId(q), 'update_custom_value.customValue', q);
+      delete a.customValue; delete a.custom_value;
+      if (a.custom_value_id && !a.name) a.name = q;
+    }
+    // membership offers: offer NAME → offer_id (G2)
+    if ((type === 'membership_grant_offer' || type === 'membership_revoke_offer') && a.offer && !a.offer_id) {
+      a.offer_id = need(r.offerId(a.offer), `${type}.offer`, a.offer);
+      delete a.offer;
     }
     // update_contact_field / create_update_contact: a fields[] entry whose `field` is a
     // human custom-field NAME (not a standard field, not already an id) → resolve to id.
