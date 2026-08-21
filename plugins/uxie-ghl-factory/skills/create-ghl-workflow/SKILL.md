@@ -287,6 +287,22 @@ stickyNotes:
 - **Action notes** (the node ⋯ → Notes popover) are a node key: `notes: ["Owner: Sarah", "Copy reviewed 2026-08"]` →
   `comments[]` on the step (`{id, userId, timestamp, comment}` newest-first), saved with the workflow.
 
+### Object-based workflows (custom objects) — `object:` at the top level of the IR
+
+```yaml
+object: "CLAUDE Pet"        # schema label, plural, or key ('custom_objects.claude_pets' / 'claude_pets')
+triggers:
+  - { ref: t1, type: custom_object_created, name: "Record created" }
+```
+
+- Resolves against the location's object schemas (`/objects/`) → the create/save carry
+  `customObjectType: "custom_objects.<key>"` top-level (live-proven 2026-08-22, canary 040a9a9e).
+- **The picker offers only these actions in an object workflow** (the engine refuses others,
+  `OBJECT_STEP`; hatch `skipObjectRules`): if/else, email, wait, update_custom_value, goto, the
+  four formatters, math_operation, custom_code, add/remove(-all)_from_workflow, array_functions,
+  drip, add_notes. Contact-centric steps (tags, opportunities, SMS…) are un-producible there.
+- Object trigger filters are minted per schema field — author them as stored rows or leave `[]`.
+
 ### Step outputs — referencing what an earlier step PRODUCED
 
 `{{custom_webhook.N.response.…}}`, `{{chatgpt.N.response}}`, `{{custom_code.N.output.<key>}}`,

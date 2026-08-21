@@ -38293,6 +38293,7 @@ function compile(ir, ctx) {
     status: "draft",
     parentId: null,
     updatedBy: ctx.uid,
+    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
     modifiedSteps: [],
     deletedSteps: [],
     createdSteps: [],
@@ -38323,6 +38324,9 @@ function compile(ir, ctx) {
     // A FLOW_BUILDER_BOT's flow workflow persists with workflowType:"agent" (live capture
     // recon-flow-workflow-full.json). Plain workflows omit it. type stays "workflow".
     ...norm2.workflowType ? { workflowType: norm2.workflowType } : {},
+    // OBJECT-BASED workflow (G8): the create/save carry the schema key top-level
+    // (utils/create-workflow-blank.ts; isObjectBasedWF tests startsWith('custom_objects.')).
+    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
     permission: 380,
     permissionMeta: { canRead: true, canWrite: true },
     creationSource: "builder",
@@ -38369,11 +38373,117 @@ function compile(ir, ctx) {
   checkIfElseVocab(templates, ctx?.catalog, ctx);
   checkMergeTags(templates, ctx?.catalog, ctx);
   checkStepOutputRefs(templates, ctx);
+  if (norm2.customObjectType && ctx?.skipObjectRules !== true) {
+    const OBJECT_ALLOWED = /* @__PURE__ */ new Set([
+      "if_else",
+      "email",
+      "wait",
+      "update_custom_value",
+      "goto",
+      "datetime_formatter",
+      "number_formatter",
+      "text_formatter",
+      "math_operation",
+      "custom_code",
+      "add_to_workflow",
+      "remove_from_workflow",
+      "remove_from_all_workflows",
+      "array_functions",
+      "drip",
+      "add_notes",
+      "transition"
+    ]);
+    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
+    if (bad.length)
+      throw new IRError(
+        "OBJECT_STEP",
+        `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm2.customObjectType}): ` + bad.map((t) => `'${t.name ?? t.id}' (${t.type})`).join(", ") + `. The builder's picker offers only: ${[...OBJECT_ALLOWED].filter((x) => x !== "transition").join(", ")}. Remove them, target a contact workflow instead, or pass skipObjectRules: true.`
+      );
+    for (const tb of []) void tb;
+  }
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
   casingLint(result);
   return result;
+}
+
+// ../skills/create-ghl-workflow/engine/preflight.mjs
+init_define_TOOL_CATALOG();
+var SMS_TYPES = /* @__PURE__ */ new Set(["sms", "manual-sms"]);
+var IG_TYPES = /* @__PURE__ */ new Set(["instagram-dm", "ig_interactive_messenger"]);
+var IG_TRIGGERS = /* @__PURE__ */ new Set(["ig_comment_on_post", "ig_follower_added"]);
+var FB_TYPES = /* @__PURE__ */ new Set(["messenger", "fb_interactive_messenger"]);
+var FB_TRIGGERS = /* @__PURE__ */ new Set(["facebook_comment_on_post", "facebook_lead_gen"]);
+var isWhatsApp = (t) => /whatsapp/i.test(t ?? "");
+function planReadinessChecks({ templates = [], triggerTypes = [], settings = {}, catalog = null } = {}) {
+  const plan = /* @__PURE__ */ new Map();
+  const need = (key, why) => {
+    const e = plan.get(key) ?? { key, why: [] };
+    if (!e.why.includes(why)) e.why.push(why);
+    plan.set(key, e);
+  };
+  for (const t of templates) {
+    const ty = t?.type;
+    if (!ty) continue;
+    if (SMS_TYPES.has(ty)) need("sms_number", `step '${t.name ?? t.id}' (${ty})`);
+    if (isWhatsApp(ty)) need("whatsapp", `step '${t.name ?? t.id}' (${ty})`);
+    if (IG_TYPES.has(ty)) need("instagram", `step '${t.name ?? t.id}' (${ty})`);
+    if (FB_TYPES.has(ty)) need("facebook", `step '${t.name ?? t.id}' (${ty})`);
+    if (ty === "email") need("email_provider", `step '${t.name ?? t.id}' (email)`);
+    const entry = catalog?.steps?.[ty] ?? (typeof catalog?.step === "function" ? catalog.step(ty) : null);
+    if (entry?.gate) need("gated_type", `step '${t.name ?? t.id}' (${ty} is availability-gated: ${entry.gate.kind ?? "allowlist"})`);
+    if (entry?.premium) need("premium", `${ty}`);
+  }
+  for (const ty of triggerTypes) {
+    if (IG_TRIGGERS.has(ty)) need("instagram", `trigger ${ty}`);
+    if (FB_TRIGGERS.has(ty)) need("facebook", `trigger ${ty}`);
+  }
+  if (settings?.senderAddress?.from_number) need("sms_number", "settings.senderAddress.from_number");
+  if (settings?.senderAddress?.from_email) need("email_provider", "settings.senderAddress.from_email");
+  return [...plan.values()];
+}
+async function runReadinessChecks(plan, { call, loc }) {
+  const g = async (p) => {
+    try {
+      const r = await call("GET", p);
+      return r?.ok ? r.json : null;
+    } catch {
+      return null;
+    }
+  };
+  const lq = new URLSearchParams({ locationId: String(loc) });
+  const lp = encodeURIComponent(String(loc));
+  const out = [];
+  for (const { key, why } of plan) {
+    if (key === "sms_number") {
+      const j = await g(`/phone-system/numbers?${lq}`);
+      const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
+      out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} number(s): ${nums.map((n) => n.title ?? n.value).join(", ")}` : "NO SMS number provisioned on this location \u2014 SMS steps will not send" });
+    } else if (key === "whatsapp") {
+      const j = await g(`/phone-system/whatsapp/location/${lp}/phone-numbers`);
+      const nums = Array.isArray(j) ? j : Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
+      const verified = nums.filter((n) => n.codeVerificationStatus === "VERIFIED");
+      out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} WhatsApp number(s); verification: ${nums.map((n) => `${n.displayPhoneNumber ?? "?"}=${n.codeVerificationStatus ?? "?"}`).join(", ")}${verified.length ? "" : " \u2014 none VERIFIED yet"}` : "no WhatsApp number connected" });
+    } else if (key === "instagram") {
+      const j = await g(`/workflow/${lp}/instagram/connected-accounts?unique=true`);
+      const pages = Array.isArray(j?.pages) ? j.pages : [];
+      out.push({ key, why, checked: j != null, ok: pages.length > 0, detail: pages.length ? `${pages.length} connected IG account(s)` : "no Instagram account connected \u2014 IG steps/triggers will not fire" });
+    } else if (key === "email_provider") {
+      const j = await g(`/workflow/${lp}/email/location-email-provider`);
+      const w = j?.warmupInfo ?? j?.provider?.warmupInfo ?? null;
+      out.push({ key, why, checked: j != null, ok: j != null, detail: j ? `provider ${j.type ?? "?"}${j.provider?.domain ? ` (${j.provider.domain})` : ""}${w ? `; warmup ${w.warmupStatus ?? "?"} (stage ${w.warmupStage ?? "?"}, ${w.warmupMode ?? "?"})` : ""}` : "email provider config not readable" });
+    } else if (key === "gated_type") {
+      out.push({ key, why, checked: false, ok: null, detail: "this type is availability-gated per location (e.g. loop allowlist) \u2014 the build may save but the type can be non-functional here; the gate list is not readable from this rail" });
+    } else if (key === "premium") {
+      out.push({ key, why: [`premium step type(s): ${why.join(", ")}`], checked: false, ok: null, detail: "premium (credit-billed) steps \u2014 wallet/rebilling state is the SaaS plane and not verifiable from this rail; confirm credits or rebilling are enabled for this location" });
+    } else if (key === "facebook") {
+      out.push({ key, why, checked: false, ok: null, detail: "Facebook page linkage has no discovery route on this rail \u2014 verify the page connection in Integrations before relying on FB steps/triggers" });
+    } else {
+      out.push({ key, why, checked: false, ok: null, detail: "no signal known for this check" });
+    }
+  }
+  return out;
 }
 
 // ../skills/create-ghl-workflow/engine/sticky-notes.mjs
@@ -100028,7 +100138,12 @@ function buildResolvers(raw = {}) {
     phoneNumber: (q) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q)?.number,
     funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id,
     fbPageId: (q) => byName(raw.fbPages, [(x) => x.name])(q)?.id,
-    documentTemplateId: (q) => byName(raw.documentTemplates, [(x) => x.name])(q)?.id
+    documentTemplateId: (q) => byName(raw.documentTemplates, [(x) => x.name])(q)?.id,
+    // G8: object schema key by key ('custom_objects.pet' or 'pet') or label ('Pet'/'Pets')
+    customObjectKey: (q) => {
+      const hit = byName(raw.objects, [(o) => o.key, (o) => String(o.key ?? "").replace(/^custom_objects\./, ""), (o) => o.singular, (o) => o.plural])(q);
+      return hit?.key;
+    }
   };
 }
 var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
@@ -100064,6 +100179,13 @@ function walk(nodes, visit) {
 }
 function resolveIR(ir, r) {
   const unresolved = [];
+  if (ir.object && !ir.customObjectType) {
+    const key = r.customObjectKey?.(ir.object);
+    if (key) {
+      ir.customObjectType = key;
+      delete ir.object;
+    } else unresolved.push({ where: "workflow.object", name: ir.object });
+  }
   const fn = ir.settings?.senderAddress?.from_number;
   if (typeof fn === "string" && fn && !/^\+?[0-9 ()-]{6,}$/.test(fn) && !fn.includes("{{")) {
     const num = r.phoneNumber?.(fn);
@@ -101215,7 +101337,7 @@ async function fetchEntities(gw) {
   const recordsFrom2 = (...values) => arrayFrom(...values).filter((value) => value && typeof value === "object" && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL, obL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -101265,7 +101387,9 @@ async function fetchEntities(gw) {
     g(`/funnels/funnel/list?${locationQuery({ type: "funnel", offset: "0", limit: "200" })}`),
     // G7/G18: connected Facebook pages (facebook.pageId trigger filters) + document/estimate templates
     g(`/integrations/facebook/${locationPath}/pages?getAll=true`),
-    g(`/proposals/templates?${locationQuery({ limit: "100" })}`)
+    g(`/proposals/templates?${locationQuery({ limit: "100" })}`),
+    g(`/objects/?${locationQuery()}`)
+    // G8: object schemas
   ]);
   const agents = [
     ...recordsFrom2(agS?.agents, agS?.data, agS),
@@ -101294,7 +101418,8 @@ async function fetchEntities(gw) {
     phoneNumbers: recordsFrom2(phL?.phoneNumbers, phL).map((x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })),
     funnels: recordsFrom2(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name })),
     fbPages: recordsFrom2(fbL?.pages, fbL).map((x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })),
-    documentTemplates: recordsFrom2(dtL?.data, dtL).map((x) => ({ id: x._id || x.id, name: x.name }))
+    documentTemplates: recordsFrom2(dtL?.data, dtL).map((x) => ({ id: x._id || x.id, name: x.name })),
+    objects: recordsFrom2(obL?.objects, obL).map((x) => ({ key: x.key, id: x.id || x._id, singular: x.labels?.singular, plural: x.labels?.plural, standard: x.standard ?? x.type === "SYSTEM_DEFINED" }))
   };
 }
 async function fetchMarketplace(call, loc) {
@@ -101403,6 +101528,7 @@ async function orchestrate(ir, gw, opts = {}) {
     funnels: entities.funnels?.length ?? 0,
     fbPages: entities.fbPages?.length ?? 0,
     documentTemplates: entities.documentTemplates?.length ?? 0,
+    objects: entities.objects?.length ?? 0,
     users: entities.users.length,
     forms: entities.forms.length,
     agents: entities.agents.length

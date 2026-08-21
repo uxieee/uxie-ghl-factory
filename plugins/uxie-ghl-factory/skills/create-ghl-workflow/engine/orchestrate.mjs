@@ -18,6 +18,7 @@
 // The caller supplies a `gw` gateway: { call(method,path,body[,base]), loc, uid }.
 // `call` returns { status, ok, json }. Kept transport-agnostic so it's testable.
 import { compile } from './compiler.mjs';
+import { planReadinessChecks, runReadinessChecks } from './preflight.mjs';
 import { planStickyNotes } from './sticky-notes.mjs';
 import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
@@ -75,7 +76,7 @@ export async function fetchEntities(gw) {
     .filter((value) => value && typeof value === 'object' && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL, obL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -118,6 +119,7 @@ export async function fetchEntities(gw) {
     // G7/G18: connected Facebook pages (facebook.pageId trigger filters) + document/estimate templates
     g(`/integrations/facebook/${locationPath}/pages?getAll=true`),
     g(`/proposals/templates?${locationQuery({ limit: '100' })}`),
+    g(`/objects/?${locationQuery()}`),                                                    // G8: object schemas
   ]);
   // `employees` is the live key on the search route (`{employees, totalCount, count}`);
   // `agents` is kept ahead of it because the Voice leg still answers under that key, and a
@@ -148,6 +150,7 @@ export async function fetchEntities(gw) {
     funnels: recordsFrom(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name })),
     fbPages: recordsFrom(fbL?.pages, fbL).map((x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })),
     documentTemplates: recordsFrom(dtL?.data, dtL).map((x) => ({ id: x._id || x.id, name: x.name })),
+    objects: recordsFrom(obL?.objects, obL).map((x) => ({ key: x.key, id: x.id || x._id, singular: x.labels?.singular, plural: x.labels?.plural, standard: x.standard ?? (x.type === 'SYSTEM_DEFINED') })),
   };
 }
 
@@ -253,6 +256,7 @@ export async function orchestrate(ir, gw, opts = {}) {
     products: entities.products?.length ?? 0, coupons: entities.coupons?.length ?? 0,
     phoneNumbers: entities.phoneNumbers?.length ?? 0, funnels: entities.funnels?.length ?? 0,
     fbPages: entities.fbPages?.length ?? 0, documentTemplates: entities.documentTemplates?.length ?? 0,
+    objects: entities.objects?.length ?? 0,
     users: entities.users.length, forms: entities.forms.length, agents: entities.agents.length };
 
   // 2. ABORT on missing account-level deps (don't build something broken)
