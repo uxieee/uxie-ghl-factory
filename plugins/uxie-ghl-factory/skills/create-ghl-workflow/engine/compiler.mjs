@@ -1381,6 +1381,18 @@ export function buildTrigger(t, ctx, wid) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
+  // TRIGGER SEEDS — rows the UI adds to this trigger type by itself (TriggerMain.addMandatoryFilters,
+  // on creation AND load). Only corpus-CONFIRMED rows are seeded (appointment.eventType == 'normal'
+  // is present and FIRST on 95% of stored appointment triggers), with the exact stored shape.
+  // Authored filters on the same field win. Hatch: ctx.skipTriggerSeeds.
+  if (ctx?.skipTriggerSeeds !== true) {
+    const seedRows = (ctx?.catalog?.trigger?.(t.type)?.seededFilters?.rows ?? []).filter((r) => r.verdict === 'seed-confirmed' && r.seedRow?.field);
+    for (const r of seedRows.reverse()) {
+      if (conditions.some((c) => c?.field === r.seedRow.field)) continue;
+      const { field, operator, type, title, value } = r.seedRow;
+      conditions.unshift({ operator, field, ...(value !== null && value !== undefined ? { value } : {}), ...(title ? { title } : {}), ...(type ? { type } : {}) });
+    }
+  }
   let marketplaceFields = {};
   if (t.marketplace === true) {
     // A marketplace TRIGGER is always a trigger key — never an action key.
