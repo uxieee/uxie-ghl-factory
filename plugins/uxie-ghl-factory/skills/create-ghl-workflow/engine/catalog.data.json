@@ -7418,7 +7418,33 @@
    "section": "internal",
    "display_name": "loop",
    "requiredFields": [],
-   "attrKeys": []
+   "attrKeys": [],
+   "gate": {
+    "kind": "locationAllowlist",
+    "source": "utils/loop.helper.ts → isLoopActionEnabled()",
+    "note": "renders only for GHL-internal/staging accounts or the 36 locationIds on LOOP_ACTION_WHITELIST_LOCATION_IDS (grew by one id between the two 2026-08-21 captures; GROM AU is NOT on it). LOOP_PAUSE_ACTION_ENABLED is false.",
+    "unsupportedInside": {
+     "actions": [
+      "loop",
+      "workflow_goal",
+      "goto",
+      "remove_from_workflow",
+      "remove_from_all_workflows"
+     ],
+     "waitTypes": [
+      "appointment",
+      "service_booking",
+      "rental_booking",
+      "overdue",
+      "reply",
+      "user_replied",
+      "link_clicked",
+      "email_event",
+      "condition"
+     ]
+    },
+    "verified": "2026-08-21 (bundle-2026-08-21-2)"
+   }
   },
   "update_custom_value": {
    "type": "update_custom_value",
