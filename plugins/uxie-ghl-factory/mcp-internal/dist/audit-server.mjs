@@ -86370,6 +86370,14 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const created = new Set(diff.createdSteps ?? []);
   if (opts.assumeAssociated !== true && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  if (opts.catalog) {
+    const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+    enforceTemplates(
+      newTemplates.filter((t) => touched2.has(t.id)),
+      opts.catalog,
+      { warn: opts.warn, skipEnforcement: opts.skipEnforcement }
+    );
+  }
   if (opts.allowDanglingStepRefs !== true) {
     const touchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
     const deletedIds = new Set(diff.deletedSteps ?? []);
@@ -91067,7 +91075,11 @@ var TOOLS2 = [
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
       const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
-        assumeAssociated: args.assumeAssociated === true
+        assumeAssociated: args.assumeAssociated === true,
+        // Closes the modifyStep enforcement bypass: field rules run over the steps THIS edit
+        // touched, at the same commit point as the parentKey and step-reference checks.
+        catalog: ctx.catalog,
+        warn: ctx.warn
       });
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,

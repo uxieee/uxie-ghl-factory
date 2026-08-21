@@ -159,7 +159,7 @@ const listTriggers = async () => {
 };
 
 const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4 });
-const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged });
+const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged, catalog: ctx.catalog, warn: ctx.warn });
 const plan = triggerOps.length
   ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
   : [];

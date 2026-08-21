@@ -10,6 +10,7 @@
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
 import { expandCondition } from './compiler.mjs';
 import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
+import { enforceTemplates } from './enforce.mjs';
 
 // A trigger added via the API lands `active: false` on the server NO MATTER WHAT the
 // POST body said — it only starts firing after a status draft→published round trip
@@ -824,6 +825,18 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   if (opts.assumeAssociated !== true
       && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  // FIELD enforcement on the steps THIS edit touched. Steps ADDED by ops were compiled through
+  // compile() and its chokepoint already; `modifyStep` merges an attrPatch straight onto a stored
+  // step and NEVER reaches the compiler — the long-known bypass (same reason tools.mjs runs
+  // lintContactFieldTemplates on the modified set). Scoped to touched steps so a legacy
+  // workflow's pre-existing violations on untouched steps never brick unrelated edits.
+  // FAIL-OPEN when no catalog is passed: an unwired caller keeps its exact prior behaviour.
+  if (opts.catalog) {
+    const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+    enforceTemplates(newTemplates.filter((t) => touched.has(t.id)), opts.catalog,
+      { warn: opts.warn, skipEnforcement: opts.skipEnforcement });
+  }
+
   // Fail CLOSED on a step REFERENCE (goto target, wait reply/email-event lists, goal steps)
   // left dangling by this edit — scoped like the parentKey check below: only refs whose holder
   // was touched, or whose target this edit deleted, can block; legacy residue on untouched

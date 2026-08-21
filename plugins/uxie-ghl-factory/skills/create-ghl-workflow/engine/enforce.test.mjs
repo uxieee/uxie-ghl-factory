@@ -104,3 +104,31 @@ test('every verified-live step-example passes enforcement (the corpus acid test,
 test('fires() never treats an evaluation error as a violation', () => {
   assert.equal(fires({ ast: { guard: { op: 'nope' }, outer: [] } }, {}), false);
 });
+
+// ── the modifyStep bypass, closed at the commit point ─────────────────────────────────────
+test('editCommitBody: a modifyStep patch that empties an sms body REFUSES; unwired/hatched callers unchanged', async () => {
+  const { editCommitBody } = await import('./edit.mjs');
+  const { applyOps } = await import('./edit-driver.mjs');
+  const base = () => [
+    { id: 's1', type: 'sms', name: 'S', attributes: { body: 'hello', type: 'sms' }, order: 0, next: null },
+  ];
+  let n = 0;
+  const { templates, diff } = applyOps(base(), [{ op: 'modifyStep', stepId: 's1', attrPatch: { body: '' } }], { ctx: {}, idGen: () => `x${n++}` });
+  assert.equal(templates[0].attributes.body, '');                       // the patch itself merges — that is modifyStep's contract
+  const fresh = { status: 'draft', version: 1, workflowData: { templates: base() } };
+  const catalog = loadCatalog();
+  // wired caller: the emptied body is caught at commit
+  assert.throws(() => editCommitBody(fresh, templates, diff, 'uid', { catalog }), /ENFORCEMENT.*body/s);
+  // unwired caller (no catalog): exact prior behaviour — fail-open
+  assert.doesNotThrow(() => editCommitBody(fresh, templates, diff, 'uid'));
+  // hatch: full or targeted
+  assert.doesNotThrow(() => editCommitBody(fresh, templates, diff, 'uid', { catalog, skipEnforcement: true }));
+  assert.doesNotThrow(() => editCommitBody(fresh, templates, diff, 'uid', { catalog, skipEnforcement: ['sms.body'] }));
+  // a pre-existing violation on an UNTOUCHED step does not block an unrelated edit
+  const legacy = [
+    { id: 'bad', type: 'sms', name: 'Old broken', attributes: { body: '', type: 'sms' }, order: 0, next: 's2' },
+    { id: 's2', type: 'sms', name: 'Fine', attributes: { body: 'ok', type: 'sms' }, order: 1, next: null, parentKey: 'bad' },
+  ];
+  assert.doesNotThrow(() => editCommitBody({ status: 'draft', version: 1, workflowData: { templates: legacy } },
+    legacy, { createdSteps: [], modifiedSteps: ['s2'], deletedSteps: [] }, 'uid', { catalog }));
+});
