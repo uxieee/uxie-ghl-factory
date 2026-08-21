@@ -46,5 +46,15 @@ console.log('created tags:', report.createdTags.length ? report.createdTags.join
 console.log('created email templates:', report.createdTemplates.length ? report.createdTemplates.map((t) => t.title).join(', ') : '(none)');
 console.log('resolved from account:', JSON.stringify(report.resolvedFrom));
 console.log('round-trip:', report.verify.pass, 'clean', report.verify.issues.length ? '| ISSUES: ' + JSON.stringify(report.verify.issues) : '');
+// The asset pre-flight is fail-open by design, so its SILENCE is ambiguous: "checked, nothing
+// wrong" and "skipped, nothing was validated" look identical unless the report says which.
+// Print it every time. (A build that proceeded on a skipped check was indistinguishable from a
+// clean one until this line existed — found running the loop gate probe, 2026-08-21.)
+{
+  const ap = report.assetPreflight;
+  console.log('asset pre-flight:', !ap ? '(not run)'
+    : ap.checked ? `checked by GHL — ${ap.errors.length} error(s), ${ap.warnings.length} warning(s)`
+    : `SKIPPED (${ap.skipped}) — fail-open; NOTHING was validated`);
+}
 if (report.unresolved.length) console.log('UNRESOLVED (built anyway):', JSON.stringify(report.unresolved));
 console.log('URL:', `https://app.gohighlevel.com/v2/location/${LOC}/automation/workflow/${report.wid}`);
