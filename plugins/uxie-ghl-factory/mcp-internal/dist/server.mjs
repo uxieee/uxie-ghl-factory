@@ -37762,6 +37762,11 @@ function buildTrigger(t, ctx, wid) {
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
     conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
   }
+  for (const r of meta3?.filterChecks?.shapeRules ?? []) {
+    const row = conditions.find((c) => c.field === r.field);
+    const empty2 = !row || row.value == null || row.value === "" || Array.isArray(row.value) && !row.value.length;
+    if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}`);
+  }
   return {
     status: "draft",
     workflowId: wid,
@@ -37941,6 +37946,7 @@ var catalog_data_default = {
     "sniffs/bundle/model-shapes.json",
     "sniffs/bundle/validator-rules.json",
     "sniffs/bundle/enforcement.json",
+    "sniffs/bundle/trigger-validation.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
@@ -77036,7 +77042,27 @@ Rules to Follow:
           id: "after-days-in-number",
           operator: "time-diff-now-gte"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "birthdayReminderValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.customFields",
+              "contact.birthDay",
+              "contact.birthMonth",
+              "contact.dateOfBirth"
+            ],
+            severity: "error",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     contact_changed: {
       type: "contact_changed",
@@ -77121,7 +77147,30 @@ Rules to Follow:
           type: "input",
           operator: "has-changed"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "contactChangedValidator",
+        assetChecks: [
+          {
+            conditionField: "contact.assignedTo",
+            resource: "user",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [],
+            severity: "warning",
+            note: "every non-standard contact.* condition must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     contact_created: {
       type: "contact_created",
@@ -77154,7 +77203,22 @@ Rules to Follow:
           value: "contact.type",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "contactCreatedValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [],
+            severity: "warning",
+            note: "every non-standard contact.* condition must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     dnd_contact: {
       type: "dnd_contact",
@@ -77191,7 +77255,28 @@ Rules to Follow:
           type: "select",
           id: "tag"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "contactDndValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.dnd_direction",
+              "contact.tags",
+              "contact.dnd",
+              "contact.dnd_channel",
+              "contact.assignedTo"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     contact_tag: {
       type: "contact_tag",
@@ -77217,7 +77302,25 @@ Rules to Follow:
           id: "tag-removed",
           operator: "index-of-true"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "contactTagValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "tagsAdded",
+              "tagsRemoved"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     custom_date_reminder: {
       type: "custom_date_reminder",
@@ -77227,7 +77330,23 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "CustomDateReminderFilter",
-      filterRows: []
+      filterRows: [],
+      filterChecks: {
+        validator: "customDateReminderValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [],
+            severity: "error",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field",
+            dynamicExcludes: "condition fields ending .customFields are also excluded (non-contact objects)"
+          }
+        ],
+        shapeRules: []
+      }
     },
     note_add: {
       type: "note_add",
@@ -77252,7 +77371,24 @@ Rules to Follow:
           id: "doesnot-have-tag",
           operator: "index-of-false"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "notesTriggerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     note_changed: {
       type: "note_changed",
@@ -77277,7 +77413,24 @@ Rules to Follow:
           id: "doesnot-have-tag",
           operator: "index-of-false"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "notesTriggerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     task_added: {
       type: "task_added",
@@ -77294,7 +77447,31 @@ Rules to Follow:
           value: "task.assignedTo",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "taskAddedValidator",
+        assetChecks: [
+          {
+            conditionField: "task.assignedTo",
+            resource: "user",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "task.assignedTo"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     task_due_date_reminder: {
       type: "task_due_date_reminder",
@@ -77320,7 +77497,24 @@ Rules to Follow:
           id: "after-days-in-number",
           operator: "time-diff-now-gte"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "taskDueDateReminderValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "task.dueDate"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     custom_object_created: {
       type: "custom_object_created",
@@ -77330,7 +77524,20 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "CustomObjectsFilter",
-      filterRows: []
+      filterRows: [],
+      filterChecks: {
+        validator: "customObjectTriggerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_object_field",
+            prefix: "customObject.",
+            exclude: [],
+            severity: "warning"
+          }
+        ],
+        shapeRules: []
+      }
     },
     custom_object_changed: {
       type: "custom_object_changed",
@@ -77340,7 +77547,20 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "CustomObjectsFilter",
-      filterRows: []
+      filterRows: [],
+      filterChecks: {
+        validator: "customObjectTriggerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_object_field",
+            prefix: "customObject.",
+            exclude: [],
+            severity: "warning"
+          }
+        ],
+        shapeRules: []
+      }
     },
     inbound_webhook: {
       type: "inbound_webhook",
@@ -77349,7 +77569,25 @@ Rules to Follow:
       category: "events",
       premium: true,
       confidence: "verified-live",
-      example: "catalog/trigger-examples/inbound_webhook.json"
+      example: "catalog/trigger-examples/inbound_webhook.json",
+      filterChecks: {
+        validator: "inboundWebhookValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "webhook.url",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     scheduler_trigger: {
       type: "scheduler_trigger",
@@ -77390,7 +77628,33 @@ Rules to Follow:
             }
           ]
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "schedulerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "scheduler.cron",
+              "scheduler.frequency",
+              "scheduler.interval"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: [
+          {
+            field: "scheduler.interval",
+            guard: "!intervalCondition?.value",
+            i18n: "scheduler_interval_required",
+            severity: "warning"
+          }
+        ]
+      }
     },
     call_status: {
       type: "call_status",
@@ -77454,7 +77718,27 @@ Rules to Follow:
           value: "workflow.id",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "callStatusValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "call.status",
+              "call.type",
+              "call.direction",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     mailgun_email_event: {
       type: "mailgun_email_event",
@@ -77476,7 +77760,26 @@ Rules to Follow:
           value: "mailgun.event",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "emailEventsValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "email.event",
+              "email.type",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     customer_reply: {
       type: "customer_reply",
@@ -77541,7 +77844,26 @@ Rules to Follow:
           id: "doesnot-have-tag",
           operator: "index-of-false"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "customerReplyValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "message.type",
+              "message.source",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     inbound_trigger: {
       type: "inbound_trigger",
@@ -77557,7 +77879,26 @@ Rules to Follow:
           value: "contact.tags",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "customerReplyValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "message.type",
+              "message.source",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     conv_ai_autonomous_trigger: {
       type: "conv_ai_autonomous_trigger",
@@ -77565,7 +77906,10 @@ Rules to Follow:
       masterType: "highlevel",
       category: "events",
       premium: false,
-      confidence: "bundle-derived"
+      confidence: "bundle-derived",
+      filterChecks: {
+        provenZero: "no-ghl-trigger-validator"
+      }
     },
     form_submission: {
       type: "form_submission",
@@ -77586,7 +77930,20 @@ Rules to Follow:
           value: "formData.termsAndConditions",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "formSubmissionValidator",
+        assetChecks: [
+          {
+            conditionField: "form.id",
+            resource: "form",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [],
+        shapeRules: []
+      }
     },
     survey_submission: {
       type: "survey_submission",
@@ -77612,7 +77969,20 @@ Rules to Follow:
           value: "surveyData.termsAndConditions",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "surveySubmissionValidator",
+        assetChecks: [
+          {
+            conditionField: "survey.id",
+            resource: "survey",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [],
+        shapeRules: []
+      }
     },
     trigger_link: {
       type: "trigger_link",
@@ -77629,7 +77999,31 @@ Rules to Follow:
           value: "link.id",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "triggerLinkValidator",
+        assetChecks: [
+          {
+            conditionField: "link.id",
+            resource: "trigger_link",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "link.id"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     facebook_lead_gen: {
       type: "facebook_lead_gen",
@@ -77646,7 +78040,26 @@ Rules to Follow:
           value: "facebook.pageId",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "facebookLeadGenValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "facebook.formId",
+              "facebook.pageId",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     tik_tok_form_submitted: {
       type: "tik_tok_form_submitted",
@@ -77662,7 +78075,26 @@ Rules to Follow:
           value: "tikTok.formId",
           type: "multiselect"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "tiktokFormValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "tiktok.formId",
+              "tiktok.pageId",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     video_event: {
       type: "video_event",
@@ -77688,7 +78120,26 @@ Rules to Follow:
           value: "video.duration",
           type: "number"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "videoEventValidator",
+        assetChecks: [
+          {
+            conditionField: "video.funnelId",
+            resource: "funnel",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "video.videoId",
+            resource: "video",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [],
+        shapeRules: []
+      }
     },
     validation_error: {
       type: "validation_error",
@@ -77696,7 +78147,26 @@ Rules to Follow:
       masterType: "highlevel",
       category: "events",
       premium: false,
-      confidence: "bundle-derived"
+      confidence: "bundle-derived",
+      filterChecks: {
+        validator: "validationErrorValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "validation.errorType",
+              "contact.tags",
+              "contact.phoneInfo"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     appointment: {
       type: "appointment",
@@ -77793,7 +78263,37 @@ Rules to Follow:
             }
           ]
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "appointmentValidator",
+        assetChecks: [
+          {
+            conditionField: "calendar.id",
+            resource: "calendar",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "appointment.assignedUserId",
+            resource: "user",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     customer_appointment: {
       type: "customer_appointment",
@@ -77818,7 +78318,37 @@ Rules to Follow:
           id: "has-tag",
           operator: "index-of-true"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "appointmentValidator",
+        assetChecks: [
+          {
+            conditionField: "calendar.id",
+            resource: "calendar",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "appointment.assignedUserId",
+            resource: "user",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     opportunity_status_changed: {
       type: "opportunity_status_changed",
@@ -77878,7 +78408,64 @@ Rules to Follow:
           value: "opportunity.lostReasonId",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "opportunityValidator",
+        assetChecks: [
+          {
+            conditionField: "opportunity.pipelineId",
+            resource: "pipeline",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.pipelineStageId",
+            resource: "pipeline_stage",
+            when: "present",
+            unlessOperator: "has-changed",
+            context: "pipelineId from the pipeline condition",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.assignedTo",
+            resource: "user",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          },
+          {
+            resource: "opp_custom_field",
+            prefix: "opportunity.",
+            exclude: [
+              "opportunity.pipelineId",
+              "opportunity.pipelineStageId",
+              "opportunity.lastActionDate",
+              "opportunity.assignedTo",
+              "opportunity.status",
+              "opportunity.oldStatus",
+              "opportunity.monetaryValue",
+              "opportunity.forecastProbability",
+              "opportunity.forecastExpectedCloseDate",
+              "opportunity.lostReasonId"
+            ],
+            severity: "warning"
+          }
+        ],
+        shapeRules: []
+      }
     },
     opportunity_created: {
       type: "opportunity_created",
@@ -77931,7 +78518,64 @@ Rules to Follow:
           value: "opportunity.lostReasonId",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "opportunityValidator",
+        assetChecks: [
+          {
+            conditionField: "opportunity.pipelineId",
+            resource: "pipeline",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.pipelineStageId",
+            resource: "pipeline_stage",
+            when: "present",
+            unlessOperator: "has-changed",
+            context: "pipelineId from the pipeline condition",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.assignedTo",
+            resource: "user",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          },
+          {
+            resource: "opp_custom_field",
+            prefix: "opportunity.",
+            exclude: [
+              "opportunity.pipelineId",
+              "opportunity.pipelineStageId",
+              "opportunity.lastActionDate",
+              "opportunity.assignedTo",
+              "opportunity.status",
+              "opportunity.oldStatus",
+              "opportunity.monetaryValue",
+              "opportunity.forecastProbability",
+              "opportunity.forecastExpectedCloseDate",
+              "opportunity.lostReasonId"
+            ],
+            severity: "warning"
+          }
+        ],
+        shapeRules: []
+      }
     },
     opportunity_changed: {
       type: "opportunity_changed",
@@ -77985,7 +78629,64 @@ Rules to Follow:
           value: "opportunity.lostReasonId",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "opportunityValidator",
+        assetChecks: [
+          {
+            conditionField: "opportunity.pipelineId",
+            resource: "pipeline",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.pipelineStageId",
+            resource: "pipeline_stage",
+            when: "present",
+            unlessOperator: "has-changed",
+            context: "pipelineId from the pipeline condition",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.assignedTo",
+            resource: "user",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          },
+          {
+            resource: "opp_custom_field",
+            prefix: "opportunity.",
+            exclude: [
+              "opportunity.pipelineId",
+              "opportunity.pipelineStageId",
+              "opportunity.lastActionDate",
+              "opportunity.assignedTo",
+              "opportunity.status",
+              "opportunity.oldStatus",
+              "opportunity.monetaryValue",
+              "opportunity.forecastProbability",
+              "opportunity.forecastExpectedCloseDate",
+              "opportunity.lostReasonId"
+            ],
+            severity: "warning"
+          }
+        ],
+        shapeRules: []
+      }
     },
     pipeline_stage_updated: {
       type: "pipeline_stage_updated",
@@ -78038,7 +78739,64 @@ Rules to Follow:
           value: "opportunity.lostReasonId",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "opportunityValidator",
+        assetChecks: [
+          {
+            conditionField: "opportunity.pipelineId",
+            resource: "pipeline",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.pipelineStageId",
+            resource: "pipeline_stage",
+            when: "present",
+            unlessOperator: "has-changed",
+            context: "pipelineId from the pipeline condition",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.assignedTo",
+            resource: "user",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          },
+          {
+            resource: "opp_custom_field",
+            prefix: "opportunity.",
+            exclude: [
+              "opportunity.pipelineId",
+              "opportunity.pipelineStageId",
+              "opportunity.lastActionDate",
+              "opportunity.assignedTo",
+              "opportunity.status",
+              "opportunity.oldStatus",
+              "opportunity.monetaryValue",
+              "opportunity.forecastProbability",
+              "opportunity.forecastExpectedCloseDate",
+              "opportunity.lostReasonId"
+            ],
+            severity: "warning"
+          }
+        ],
+        shapeRules: []
+      }
     },
     opportunity_decay: {
       type: "opportunity_decay",
@@ -78105,7 +78863,64 @@ Rules to Follow:
           value: "opportunity.lostReasonId",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "opportunityValidator",
+        assetChecks: [
+          {
+            conditionField: "opportunity.pipelineId",
+            resource: "pipeline",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.pipelineStageId",
+            resource: "pipeline_stage",
+            when: "present",
+            unlessOperator: "has-changed",
+            context: "pipelineId from the pipeline condition",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "opportunity.assignedTo",
+            resource: "user",
+            when: "present",
+            unlessOperator: "has-changed",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          },
+          {
+            resource: "opp_custom_field",
+            prefix: "opportunity.",
+            exclude: [
+              "opportunity.pipelineId",
+              "opportunity.pipelineStageId",
+              "opportunity.lastActionDate",
+              "opportunity.assignedTo",
+              "opportunity.status",
+              "opportunity.oldStatus",
+              "opportunity.monetaryValue",
+              "opportunity.forecastProbability",
+              "opportunity.forecastExpectedCloseDate",
+              "opportunity.lostReasonId"
+            ],
+            severity: "warning"
+          }
+        ],
+        shapeRules: []
+      }
     },
     affiliate_created: {
       type: "affiliate_created",
@@ -78135,7 +78950,25 @@ Rules to Follow:
           id: "doesnot-have-tag",
           operator: "index-of-false"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "affiliateCreatedValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "affiliate.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     category_started: {
       type: "category_started",
@@ -78151,7 +78984,28 @@ Rules to Follow:
           value: "membership.product.id",
           type: "multiselect"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     category_completed: {
       type: "category_completed",
@@ -78168,7 +79022,28 @@ Rules to Follow:
           value: "membership.product.id",
           type: "multiselect"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     lesson_started: {
       type: "lesson_started",
@@ -78185,7 +79060,28 @@ Rules to Follow:
           value: "membership.product.id",
           type: "multiselect"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     lesson_completed: {
       type: "lesson_completed",
@@ -78202,7 +79098,28 @@ Rules to Follow:
           value: "membership.product.id",
           type: "multiselect"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     membership_contact_created: {
       type: "membership_contact_created",
@@ -78210,7 +79127,28 @@ Rules to Follow:
       masterType: "highlevel",
       category: "courses",
       premium: false,
-      confidence: "bundle-derived"
+      confidence: "bundle-derived",
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     offer_access_granted: {
       type: "offer_access_granted",
@@ -78226,7 +79164,28 @@ Rules to Follow:
           value: "offer.id",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     offer_access_removed: {
       type: "offer_access_removed",
@@ -78242,7 +79201,28 @@ Rules to Follow:
           value: "offer.id",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     product_access_granted: {
       type: "product_access_granted",
@@ -78258,7 +79238,28 @@ Rules to Follow:
           value: "product.id",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     product_access_removed: {
       type: "product_access_removed",
@@ -78274,7 +79275,28 @@ Rules to Follow:
           value: "product.id",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     product_started: {
       type: "product_started",
@@ -78290,7 +79312,28 @@ Rules to Follow:
           value: "product.id",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     product_completed: {
       type: "product_completed",
@@ -78306,7 +79349,28 @@ Rules to Follow:
           value: "membership.product.id",
           type: "multiselect"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     user_log_in: {
       type: "user_log_in",
@@ -78316,7 +79380,28 @@ Rules to Follow:
       premium: false,
       confidence: "bundle-derived",
       filterClass: "MembershipUserLogin",
-      filterRows: []
+      filterRows: [],
+      filterChecks: {
+        validator: "membershipCourseValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "product.id",
+              "category.id",
+              "lesson.id",
+              "offer.id",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     invoice: {
       type: "invoice",
@@ -78339,7 +79424,26 @@ Rules to Follow:
           type: "select",
           id: "tag"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "invoiceValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "invoice.status",
+              "invoice.type",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     payment_received: {
       type: "payment_received",
@@ -78417,7 +79521,32 @@ Rules to Follow:
           value: "payment.global_product_ids",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "paymentReceivedValidator",
+        assetChecks: [
+          {
+            conditionField: "payment.calendar.id",
+            resource: "calendar",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "payment.global_product_ids",
+            resource: "global_product",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "payment.form.id",
+            resource: "form",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [],
+        shapeRules: []
+      }
     },
     two_step_form_submission: {
       type: "two_step_form_submission",
@@ -78438,7 +79567,32 @@ Rules to Follow:
           value: "twoStepOrderForm.submissionType",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "twoStepOrderFormValidator",
+        assetChecks: [
+          {
+            conditionField: "twoStepOrderForm.funnelId",
+            resource: "funnel",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "twoStepOrderForm.pageId",
+            resource: "page",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "twoStepOrderForm.productId",
+            resource: "product",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [],
+        shapeRules: []
+      }
     },
     order_submission: {
       type: "order_submission",
@@ -78497,7 +79651,32 @@ Rules to Follow:
             }
           ]
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "orderSubmissionValidator",
+        assetChecks: [
+          {
+            conditionField: "order.funnel_id",
+            resource: "funnel",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "order.line_item_global_product_ids",
+            resource: "global_product",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          },
+          {
+            conditionField: "order.line_item_funnel_product_ids",
+            resource: "product",
+            when: "present",
+            note: "empty value is checked as 'no_value' (fails the lookup \u2192 finding)"
+          }
+        ],
+        customFieldSweeps: [],
+        shapeRules: []
+      }
     },
     shopify_abandoned_cart: {
       type: "shopify_abandoned_cart",
@@ -78518,7 +79697,26 @@ Rules to Follow:
           value: "cart_value",
           type: "numerical"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "shopifyTriggerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "shopify.orderId",
+              "shopify.productId",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     shopify_order_placed: {
       type: "shopify_order_placed",
@@ -78534,7 +79732,26 @@ Rules to Follow:
           value: "cart_value",
           type: "numerical"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "shopifyTriggerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "shopify.orderId",
+              "shopify.productId",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     shopify_order_fulfilled: {
       type: "shopify_order_fulfilled",
@@ -78550,7 +79767,26 @@ Rules to Follow:
           value: "cart_value",
           type: "numerical"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "shopifyTriggerValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "shopify.orderId",
+              "shopify.productId",
+              "contact.tags"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: []
+      }
     },
     ivr_incoming_call: {
       type: "ivr_incoming_call",
@@ -78567,7 +79803,36 @@ Rules to Follow:
           id: "inbound-twilio-number",
           operator: "contains-any"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "ivrIncomingCallValidator",
+        assetChecks: [],
+        customFieldSweeps: [
+          {
+            resource: "custom_field",
+            prefix: "contact.",
+            excludeStandard: true,
+            exclude: [
+              "call.callerNumber",
+              "call.destination",
+              "contact.tags",
+              "inbound_number"
+            ],
+            severity: "warning",
+            note: "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+          }
+        ],
+        shapeRules: [
+          {
+            field: "inbound_number",
+            guard: "!phoneNumberCondition?.value || (Array.isArray(phoneNumberCondition.value) && phoneNumberCondition.value.length === 0)",
+            i18n: "ivr_phone_number_required",
+            severity: "warning",
+            beDedupeAssetType: "phone_number",
+            note: "the BACKEND blocks this at save (dedupeFeBeErrors)"
+          }
+        ]
+      }
     },
     facebook_comment_on_post: {
       type: "facebook_comment_on_post",
@@ -78582,7 +79847,16 @@ Rules to Follow:
           label: "Page Is",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "facebookCommentValidator",
+        assetChecks: [],
+        customFieldSweeps: [],
+        shapeRules: [],
+        integrations: [
+          "facebook"
+        ]
+      }
     },
     ig_comment_on_post: {
       type: "ig_comment_on_post",
@@ -78597,7 +79871,16 @@ Rules to Follow:
           label: "Page Is",
           type: "select"
         }
-      ]
+      ],
+      filterChecks: {
+        validator: "instagramCommentValidator",
+        assetChecks: [],
+        customFieldSweeps: [],
+        shapeRules: [],
+        integrations: [
+          "instagram"
+        ]
+      }
     },
     conv_ai_trigger: {
       type: "conv_ai_trigger",
@@ -78606,7 +79889,10 @@ Rules to Follow:
       category: "events",
       premium: false,
       confidence: "verified-live",
-      example: "catalog/trigger-examples/conv_ai_trigger.json"
+      example: "catalog/trigger-examples/conv_ai_trigger.json",
+      filterChecks: {
+        provenZero: "no-ghl-trigger-validator"
+      }
     },
     affiliate_new_lead: {
       type: "affiliate_new_lead",
@@ -89265,6 +90551,25 @@ async function validateAssets(call, loc, { templates, triggers, companyId } = {}
   };
 }
 
+// ../skills/create-ghl-workflow/engine/server-validation.mjs
+init_define_TOOL_CATALOG();
+function parseServerValidation(json2) {
+  const meta3 = json2?.errorMetadata ?? json2?.response?.data?.errorMetadata;
+  if (!meta3 || meta3.validationFailure !== true) return null;
+  const findings = (meta3.errors?.length ? meta3.errors : (meta3.steps ?? []).flatMap((s) => (s.errors ?? []).map((message) => ({ message, ruleId: s.rule, stepId: s.stepId, stepName: s.stepName, stepType: s.stepType, source: s.source })))).map((e) => ({
+    message: e.message,
+    ruleId: e.ruleId,
+    severity: e.severity === "warning" ? "warning" : "error",
+    where: e.triggerId || e.source === "trigger" || meta3.validationType === "trigger" ? `trigger '${e.triggerName ?? e.stepName ?? e.triggerId ?? e.stepId ?? "?"}' (${e.triggerType ?? e.stepType ?? "?"})` : `step '${e.stepName ?? e.stepId ?? "?"}' (${e.stepType ?? "?"})`,
+    ...e.assetType ? { assetType: e.assetType } : {},
+    ...e.assetId ? { assetId: e.assetId } : {}
+  }));
+  return findings.length ? { validationType: meta3.validationType, findings } : null;
+}
+function describeServerFindings(parsed) {
+  return parsed.findings.map((f) => `${f.severity === "warning" ? "\u26A0" : "\u2716"} ${f.where}: ${f.message}${f.ruleId ? ` [${f.ruleId}]` : ""}${f.assetType ? ` (asset: ${f.assetType}${f.assetId ? " " + f.assetId : ""})` : ""}`).join("; ");
+}
+
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
 function missingRequiredFields(step) {
   const keys = requiredKeysFor(step?.type);
@@ -89422,7 +90727,8 @@ async function orchestrate(ir, gw, opts = {}) {
         status: response.status ?? null,
         body: scrubUpstream(response.json ?? null)
       };
-      report.aborted = `Upstream non-2xx during ${failurePhase}: HTTP ${response.status ?? "unknown"}`;
+      const sv = parseServerValidation(response.json);
+      report.aborted = sv ? `GHL server validation (${sv.validationType}) rejected during ${failurePhase}: ${describeServerFindings(sv)}` : `Upstream non-2xx during ${failurePhase}: HTTP ${response.status ?? "unknown"}`;
       return null;
     }
     return response;

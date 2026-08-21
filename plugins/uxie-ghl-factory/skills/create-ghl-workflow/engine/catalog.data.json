@@ -9,6 +9,7 @@
   "sniffs/bundle/model-shapes.json",
   "sniffs/bundle/validator-rules.json",
   "sniffs/bundle/enforcement.json",
+  "sniffs/bundle/trigger-validation.json",
   "sniffs/UNIFIED_ACTION_INDEX.tsv",
   "sniffs/assets/actions.json",
   "sniffs/assets/triggers.json"
@@ -39089,7 +39090,27 @@
      "id": "after-days-in-number",
      "operator": "time-diff-now-gte"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "birthdayReminderValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.customFields",
+       "contact.birthDay",
+       "contact.birthMonth",
+       "contact.dateOfBirth"
+      ],
+      "severity": "error",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "contact_changed": {
    "type": "contact_changed",
@@ -39174,7 +39195,30 @@
      "type": "input",
      "operator": "has-changed"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "contactChangedValidator",
+    "assetChecks": [
+     {
+      "conditionField": "contact.assignedTo",
+      "resource": "user",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [],
+      "severity": "warning",
+      "note": "every non-standard contact.* condition must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "contact_created": {
    "type": "contact_created",
@@ -39207,7 +39251,22 @@
      "value": "contact.type",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "contactCreatedValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [],
+      "severity": "warning",
+      "note": "every non-standard contact.* condition must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "dnd_contact": {
    "type": "dnd_contact",
@@ -39244,7 +39303,28 @@
      "type": "select",
      "id": "tag"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "contactDndValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.dnd_direction",
+       "contact.tags",
+       "contact.dnd",
+       "contact.dnd_channel",
+       "contact.assignedTo"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "contact_tag": {
    "type": "contact_tag",
@@ -39270,7 +39350,25 @@
      "id": "tag-removed",
      "operator": "index-of-true"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "contactTagValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "tagsAdded",
+       "tagsRemoved"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "custom_date_reminder": {
    "type": "custom_date_reminder",
@@ -39280,7 +39378,23 @@
    "premium": false,
    "confidence": "bundle-derived",
    "filterClass": "CustomDateReminderFilter",
-   "filterRows": []
+   "filterRows": [],
+   "filterChecks": {
+    "validator": "customDateReminderValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [],
+      "severity": "error",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field",
+      "dynamicExcludes": "condition fields ending .customFields are also excluded (non-contact objects)"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "note_add": {
    "type": "note_add",
@@ -39305,7 +39419,24 @@
      "id": "doesnot-have-tag",
      "operator": "index-of-false"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "notesTriggerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "note_changed": {
    "type": "note_changed",
@@ -39330,7 +39461,24 @@
      "id": "doesnot-have-tag",
      "operator": "index-of-false"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "notesTriggerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "task_added": {
    "type": "task_added",
@@ -39347,7 +39495,31 @@
      "value": "task.assignedTo",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "taskAddedValidator",
+    "assetChecks": [
+     {
+      "conditionField": "task.assignedTo",
+      "resource": "user",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "task.assignedTo"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "task_due_date_reminder": {
    "type": "task_due_date_reminder",
@@ -39373,7 +39545,24 @@
      "id": "after-days-in-number",
      "operator": "time-diff-now-gte"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "taskDueDateReminderValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "task.dueDate"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "custom_object_created": {
    "type": "custom_object_created",
@@ -39383,7 +39572,20 @@
    "premium": false,
    "confidence": "bundle-derived",
    "filterClass": "CustomObjectsFilter",
-   "filterRows": []
+   "filterRows": [],
+   "filterChecks": {
+    "validator": "customObjectTriggerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_object_field",
+      "prefix": "customObject.",
+      "exclude": [],
+      "severity": "warning"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "custom_object_changed": {
    "type": "custom_object_changed",
@@ -39393,7 +39595,20 @@
    "premium": false,
    "confidence": "bundle-derived",
    "filterClass": "CustomObjectsFilter",
-   "filterRows": []
+   "filterRows": [],
+   "filterChecks": {
+    "validator": "customObjectTriggerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_object_field",
+      "prefix": "customObject.",
+      "exclude": [],
+      "severity": "warning"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "inbound_webhook": {
    "type": "inbound_webhook",
@@ -39402,7 +39617,25 @@
    "category": "events",
    "premium": true,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/inbound_webhook.json"
+   "example": "catalog/trigger-examples/inbound_webhook.json",
+   "filterChecks": {
+    "validator": "inboundWebhookValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "webhook.url",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "scheduler_trigger": {
    "type": "scheduler_trigger",
@@ -39443,7 +39676,33 @@
       }
      ]
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "schedulerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "scheduler.cron",
+       "scheduler.frequency",
+       "scheduler.interval"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": [
+     {
+      "field": "scheduler.interval",
+      "guard": "!intervalCondition?.value",
+      "i18n": "scheduler_interval_required",
+      "severity": "warning"
+     }
+    ]
+   }
   },
   "call_status": {
    "type": "call_status",
@@ -39507,7 +39766,27 @@
      "value": "workflow.id",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "callStatusValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "call.status",
+       "call.type",
+       "call.direction",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "mailgun_email_event": {
    "type": "mailgun_email_event",
@@ -39529,7 +39808,26 @@
      "value": "mailgun.event",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "emailEventsValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "email.event",
+       "email.type",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "customer_reply": {
    "type": "customer_reply",
@@ -39594,7 +39892,26 @@
      "id": "doesnot-have-tag",
      "operator": "index-of-false"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "customerReplyValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "message.type",
+       "message.source",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "inbound_trigger": {
    "type": "inbound_trigger",
@@ -39610,7 +39927,26 @@
      "value": "contact.tags",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "customerReplyValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "message.type",
+       "message.source",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "conv_ai_autonomous_trigger": {
    "type": "conv_ai_autonomous_trigger",
@@ -39618,7 +39954,10 @@
    "masterType": "highlevel",
    "category": "events",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterChecks": {
+    "provenZero": "no-ghl-trigger-validator"
+   }
   },
   "form_submission": {
    "type": "form_submission",
@@ -39639,7 +39978,20 @@
      "value": "formData.termsAndConditions",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "formSubmissionValidator",
+    "assetChecks": [
+     {
+      "conditionField": "form.id",
+      "resource": "form",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [],
+    "shapeRules": []
+   }
   },
   "survey_submission": {
    "type": "survey_submission",
@@ -39665,7 +40017,20 @@
      "value": "surveyData.termsAndConditions",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "surveySubmissionValidator",
+    "assetChecks": [
+     {
+      "conditionField": "survey.id",
+      "resource": "survey",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [],
+    "shapeRules": []
+   }
   },
   "trigger_link": {
    "type": "trigger_link",
@@ -39682,7 +40047,31 @@
      "value": "link.id",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "triggerLinkValidator",
+    "assetChecks": [
+     {
+      "conditionField": "link.id",
+      "resource": "trigger_link",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "link.id"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "facebook_lead_gen": {
    "type": "facebook_lead_gen",
@@ -39699,7 +40088,26 @@
      "value": "facebook.pageId",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "facebookLeadGenValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "facebook.formId",
+       "facebook.pageId",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "tik_tok_form_submitted": {
    "type": "tik_tok_form_submitted",
@@ -39715,7 +40123,26 @@
      "value": "tikTok.formId",
      "type": "multiselect"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "tiktokFormValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "tiktok.formId",
+       "tiktok.pageId",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "video_event": {
    "type": "video_event",
@@ -39741,7 +40168,26 @@
      "value": "video.duration",
      "type": "number"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "videoEventValidator",
+    "assetChecks": [
+     {
+      "conditionField": "video.funnelId",
+      "resource": "funnel",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "video.videoId",
+      "resource": "video",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [],
+    "shapeRules": []
+   }
   },
   "validation_error": {
    "type": "validation_error",
@@ -39749,7 +40195,26 @@
    "masterType": "highlevel",
    "category": "events",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterChecks": {
+    "validator": "validationErrorValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "validation.errorType",
+       "contact.tags",
+       "contact.phoneInfo"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "appointment": {
    "type": "appointment",
@@ -39846,7 +40311,37 @@
       }
      ]
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "appointmentValidator",
+    "assetChecks": [
+     {
+      "conditionField": "calendar.id",
+      "resource": "calendar",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "appointment.assignedUserId",
+      "resource": "user",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "customer_appointment": {
    "type": "customer_appointment",
@@ -39871,7 +40366,37 @@
      "id": "has-tag",
      "operator": "index-of-true"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "appointmentValidator",
+    "assetChecks": [
+     {
+      "conditionField": "calendar.id",
+      "resource": "calendar",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "appointment.assignedUserId",
+      "resource": "user",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "opportunity_status_changed": {
    "type": "opportunity_status_changed",
@@ -39931,7 +40456,64 @@
      "value": "opportunity.lostReasonId",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "opportunityValidator",
+    "assetChecks": [
+     {
+      "conditionField": "opportunity.pipelineId",
+      "resource": "pipeline",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.pipelineStageId",
+      "resource": "pipeline_stage",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "context": "pipelineId from the pipeline condition",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.assignedTo",
+      "resource": "user",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     },
+     {
+      "resource": "opp_custom_field",
+      "prefix": "opportunity.",
+      "exclude": [
+       "opportunity.pipelineId",
+       "opportunity.pipelineStageId",
+       "opportunity.lastActionDate",
+       "opportunity.assignedTo",
+       "opportunity.status",
+       "opportunity.oldStatus",
+       "opportunity.monetaryValue",
+       "opportunity.forecastProbability",
+       "opportunity.forecastExpectedCloseDate",
+       "opportunity.lostReasonId"
+      ],
+      "severity": "warning"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "opportunity_created": {
    "type": "opportunity_created",
@@ -39984,7 +40566,64 @@
      "value": "opportunity.lostReasonId",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "opportunityValidator",
+    "assetChecks": [
+     {
+      "conditionField": "opportunity.pipelineId",
+      "resource": "pipeline",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.pipelineStageId",
+      "resource": "pipeline_stage",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "context": "pipelineId from the pipeline condition",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.assignedTo",
+      "resource": "user",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     },
+     {
+      "resource": "opp_custom_field",
+      "prefix": "opportunity.",
+      "exclude": [
+       "opportunity.pipelineId",
+       "opportunity.pipelineStageId",
+       "opportunity.lastActionDate",
+       "opportunity.assignedTo",
+       "opportunity.status",
+       "opportunity.oldStatus",
+       "opportunity.monetaryValue",
+       "opportunity.forecastProbability",
+       "opportunity.forecastExpectedCloseDate",
+       "opportunity.lostReasonId"
+      ],
+      "severity": "warning"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "opportunity_changed": {
    "type": "opportunity_changed",
@@ -40038,7 +40677,64 @@
      "value": "opportunity.lostReasonId",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "opportunityValidator",
+    "assetChecks": [
+     {
+      "conditionField": "opportunity.pipelineId",
+      "resource": "pipeline",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.pipelineStageId",
+      "resource": "pipeline_stage",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "context": "pipelineId from the pipeline condition",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.assignedTo",
+      "resource": "user",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     },
+     {
+      "resource": "opp_custom_field",
+      "prefix": "opportunity.",
+      "exclude": [
+       "opportunity.pipelineId",
+       "opportunity.pipelineStageId",
+       "opportunity.lastActionDate",
+       "opportunity.assignedTo",
+       "opportunity.status",
+       "opportunity.oldStatus",
+       "opportunity.monetaryValue",
+       "opportunity.forecastProbability",
+       "opportunity.forecastExpectedCloseDate",
+       "opportunity.lostReasonId"
+      ],
+      "severity": "warning"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "pipeline_stage_updated": {
    "type": "pipeline_stage_updated",
@@ -40091,7 +40787,64 @@
      "value": "opportunity.lostReasonId",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "opportunityValidator",
+    "assetChecks": [
+     {
+      "conditionField": "opportunity.pipelineId",
+      "resource": "pipeline",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.pipelineStageId",
+      "resource": "pipeline_stage",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "context": "pipelineId from the pipeline condition",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.assignedTo",
+      "resource": "user",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     },
+     {
+      "resource": "opp_custom_field",
+      "prefix": "opportunity.",
+      "exclude": [
+       "opportunity.pipelineId",
+       "opportunity.pipelineStageId",
+       "opportunity.lastActionDate",
+       "opportunity.assignedTo",
+       "opportunity.status",
+       "opportunity.oldStatus",
+       "opportunity.monetaryValue",
+       "opportunity.forecastProbability",
+       "opportunity.forecastExpectedCloseDate",
+       "opportunity.lostReasonId"
+      ],
+      "severity": "warning"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "opportunity_decay": {
    "type": "opportunity_decay",
@@ -40158,7 +40911,64 @@
      "value": "opportunity.lostReasonId",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "opportunityValidator",
+    "assetChecks": [
+     {
+      "conditionField": "opportunity.pipelineId",
+      "resource": "pipeline",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.pipelineStageId",
+      "resource": "pipeline_stage",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "context": "pipelineId from the pipeline condition",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "opportunity.assignedTo",
+      "resource": "user",
+      "when": "present",
+      "unlessOperator": "has-changed",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     },
+     {
+      "resource": "opp_custom_field",
+      "prefix": "opportunity.",
+      "exclude": [
+       "opportunity.pipelineId",
+       "opportunity.pipelineStageId",
+       "opportunity.lastActionDate",
+       "opportunity.assignedTo",
+       "opportunity.status",
+       "opportunity.oldStatus",
+       "opportunity.monetaryValue",
+       "opportunity.forecastProbability",
+       "opportunity.forecastExpectedCloseDate",
+       "opportunity.lostReasonId"
+      ],
+      "severity": "warning"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "affiliate_created": {
    "type": "affiliate_created",
@@ -40188,7 +40998,25 @@
      "id": "doesnot-have-tag",
      "operator": "index-of-false"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "affiliateCreatedValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "affiliate.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "category_started": {
    "type": "category_started",
@@ -40204,7 +41032,28 @@
      "value": "membership.product.id",
      "type": "multiselect"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "category_completed": {
    "type": "category_completed",
@@ -40221,7 +41070,28 @@
      "value": "membership.product.id",
      "type": "multiselect"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "lesson_started": {
    "type": "lesson_started",
@@ -40238,7 +41108,28 @@
      "value": "membership.product.id",
      "type": "multiselect"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "lesson_completed": {
    "type": "lesson_completed",
@@ -40255,7 +41146,28 @@
      "value": "membership.product.id",
      "type": "multiselect"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "membership_contact_created": {
    "type": "membership_contact_created",
@@ -40263,7 +41175,28 @@
    "masterType": "highlevel",
    "category": "courses",
    "premium": false,
-   "confidence": "bundle-derived"
+   "confidence": "bundle-derived",
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "offer_access_granted": {
    "type": "offer_access_granted",
@@ -40279,7 +41212,28 @@
      "value": "offer.id",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "offer_access_removed": {
    "type": "offer_access_removed",
@@ -40295,7 +41249,28 @@
      "value": "offer.id",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "product_access_granted": {
    "type": "product_access_granted",
@@ -40311,7 +41286,28 @@
      "value": "product.id",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "product_access_removed": {
    "type": "product_access_removed",
@@ -40327,7 +41323,28 @@
      "value": "product.id",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "product_started": {
    "type": "product_started",
@@ -40343,7 +41360,28 @@
      "value": "product.id",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "product_completed": {
    "type": "product_completed",
@@ -40359,7 +41397,28 @@
      "value": "membership.product.id",
      "type": "multiselect"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "user_log_in": {
    "type": "user_log_in",
@@ -40369,7 +41428,28 @@
    "premium": false,
    "confidence": "bundle-derived",
    "filterClass": "MembershipUserLogin",
-   "filterRows": []
+   "filterRows": [],
+   "filterChecks": {
+    "validator": "membershipCourseValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "product.id",
+       "category.id",
+       "lesson.id",
+       "offer.id",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "invoice": {
    "type": "invoice",
@@ -40392,7 +41472,26 @@
      "type": "select",
      "id": "tag"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "invoiceValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "invoice.status",
+       "invoice.type",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "payment_received": {
    "type": "payment_received",
@@ -40470,7 +41569,32 @@
      "value": "payment.global_product_ids",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "paymentReceivedValidator",
+    "assetChecks": [
+     {
+      "conditionField": "payment.calendar.id",
+      "resource": "calendar",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "payment.global_product_ids",
+      "resource": "global_product",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "payment.form.id",
+      "resource": "form",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [],
+    "shapeRules": []
+   }
   },
   "two_step_form_submission": {
    "type": "two_step_form_submission",
@@ -40491,7 +41615,32 @@
      "value": "twoStepOrderForm.submissionType",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "twoStepOrderFormValidator",
+    "assetChecks": [
+     {
+      "conditionField": "twoStepOrderForm.funnelId",
+      "resource": "funnel",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "twoStepOrderForm.pageId",
+      "resource": "page",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "twoStepOrderForm.productId",
+      "resource": "product",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [],
+    "shapeRules": []
+   }
   },
   "order_submission": {
    "type": "order_submission",
@@ -40550,7 +41699,32 @@
       }
      ]
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "orderSubmissionValidator",
+    "assetChecks": [
+     {
+      "conditionField": "order.funnel_id",
+      "resource": "funnel",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "order.line_item_global_product_ids",
+      "resource": "global_product",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     },
+     {
+      "conditionField": "order.line_item_funnel_product_ids",
+      "resource": "product",
+      "when": "present",
+      "note": "empty value is checked as 'no_value' (fails the lookup → finding)"
+     }
+    ],
+    "customFieldSweeps": [],
+    "shapeRules": []
+   }
   },
   "shopify_abandoned_cart": {
    "type": "shopify_abandoned_cart",
@@ -40571,7 +41745,26 @@
      "value": "cart_value",
      "type": "numerical"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "shopifyTriggerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "shopify.orderId",
+       "shopify.productId",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "shopify_order_placed": {
    "type": "shopify_order_placed",
@@ -40587,7 +41780,26 @@
      "value": "cart_value",
      "type": "numerical"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "shopifyTriggerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "shopify.orderId",
+       "shopify.productId",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "shopify_order_fulfilled": {
    "type": "shopify_order_fulfilled",
@@ -40603,7 +41815,26 @@
      "value": "cart_value",
      "type": "numerical"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "shopifyTriggerValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "shopify.orderId",
+       "shopify.productId",
+       "contact.tags"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": []
+   }
   },
   "ivr_incoming_call": {
    "type": "ivr_incoming_call",
@@ -40620,7 +41851,36 @@
      "id": "inbound-twilio-number",
      "operator": "contains-any"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "ivrIncomingCallValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [
+     {
+      "resource": "custom_field",
+      "prefix": "contact.",
+      "excludeStandard": true,
+      "exclude": [
+       "call.callerNumber",
+       "call.destination",
+       "contact.tags",
+       "inbound_number"
+      ],
+      "severity": "warning",
+      "note": "every contact.* condition not excluded (and not a standard contact field) must exist as a custom field"
+     }
+    ],
+    "shapeRules": [
+     {
+      "field": "inbound_number",
+      "guard": "!phoneNumberCondition?.value || (Array.isArray(phoneNumberCondition.value) && phoneNumberCondition.value.length === 0)",
+      "i18n": "ivr_phone_number_required",
+      "severity": "warning",
+      "beDedupeAssetType": "phone_number",
+      "note": "the BACKEND blocks this at save (dedupeFeBeErrors)"
+     }
+    ]
+   }
   },
   "facebook_comment_on_post": {
    "type": "facebook_comment_on_post",
@@ -40635,7 +41895,16 @@
      "label": "Page Is",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "facebookCommentValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [],
+    "shapeRules": [],
+    "integrations": [
+     "facebook"
+    ]
+   }
   },
   "ig_comment_on_post": {
    "type": "ig_comment_on_post",
@@ -40650,7 +41919,16 @@
      "label": "Page Is",
      "type": "select"
     }
-   ]
+   ],
+   "filterChecks": {
+    "validator": "instagramCommentValidator",
+    "assetChecks": [],
+    "customFieldSweeps": [],
+    "shapeRules": [],
+    "integrations": [
+     "instagram"
+    ]
+   }
   },
   "conv_ai_trigger": {
    "type": "conv_ai_trigger",
@@ -40659,7 +41937,10 @@
    "category": "events",
    "premium": false,
    "confidence": "verified-live",
-   "example": "catalog/trigger-examples/conv_ai_trigger.json"
+   "example": "catalog/trigger-examples/conv_ai_trigger.json",
+   "filterChecks": {
+    "provenZero": "no-ghl-trigger-validator"
+   }
   },
   "affiliate_new_lead": {
    "type": "affiliate_new_lead",

@@ -1388,6 +1388,14 @@ export function buildTrigger(t, ctx, wid) {
     // shape carries `id` and `field` as the SAME string.
     conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
   }
+  // trigger SHAPE rules from the catalog's filterChecks (extract-trigger-validators):
+  // scheduler needs an interval, IVR needs a phone number — the IVR one is also BLOCKED by the
+  // backend at save (beDedupeAssetType), so surfacing it here saves a doomed round-trip.
+  for (const r of (meta?.filterChecks?.shapeRules ?? [])) {
+    const row = conditions.find((c) => c.field === r.field);
+    const empty = !row || row.value == null || row.value === '' || (Array.isArray(row.value) && !row.value.length);
+    if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}`);
+  }
   return {
     status: 'draft', workflowId: wid, schedule_config: {},
     conditions,
