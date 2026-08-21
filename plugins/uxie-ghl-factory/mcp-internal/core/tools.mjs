@@ -18,6 +18,7 @@ import {
 } from './audit-configuration.mjs';
 import { fetchEntities, fetchMarketplace, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
+import { checkWorkflowRules, rulesNeedTriggers } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
   applyOps,
@@ -1802,6 +1803,8 @@ export const TOOLS = [
       locationId: z.string(),
       spec: z.object({}).passthrough(),
       ignoreUnresolved: z.boolean().default(false),
+      // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
+      skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/opportunities/pipelines' },
@@ -1824,6 +1827,7 @@ export const TOOLS = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const report = await orchestrate(args.spec, gw, {
         ignoreUnresolved: args.ignoreUnresolved ?? false,
+        skipWorkflowRules: args.skipWorkflowRules,
       });
       const data = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data);
@@ -1864,6 +1868,7 @@ export const TOOLS = [
       workflowId: z.string(),
       ops: z.array(z.object({}).passthrough()),
       assumeAssociated: z.boolean().default(false),
+      skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
@@ -1966,14 +1971,16 @@ export const TOOLS = [
         warn: (message) => warnings.push(message),
       };
       const { stepOps, triggerOps } = partitionOps(args.ops);
+      const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      // triggers are needed for trigger ops AND for the trigger-aware workflow-level rules (an
+      // action can be illegal purely because of the trigger above it) — but only when the
+      // post-edit document holds a type those rules care about, so plain edits stay network-identical
       let existingTriggers = [];
-      if (triggerOps.length) {
+      if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
         const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
         if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
         existingTriggers = listed.triggers;
       }
-
-      const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       // Steps this edit ADDED were compiled through compile(), which already ran the
       // update_contact_field actionType advisory via ctx.warn. `modifyStep` merges an
       // attrPatch straight onto a stored step and never reaches the compiler, so the
@@ -1986,6 +1993,10 @@ export const TOOLS = [
         // touched, at the same commit point as the parentKey and step-reference checks.
         catalog: ctx.catalog, warn: ctx.warn,
       });
+      // WORKFLOW-level rules (GHL's WorkflowValidator): graph-scoped + trigger-aware, evaluated on
+      // the post-edit document with the live trigger set. Hatch: args.skipWorkflowRules.
+      checkWorkflowRules({ templates, triggers: existingTriggers, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === 'published' },
+        ctx.catalog?.workflowRules, { skipWorkflowRules: args.skipWorkflowRules });
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
         wid: args.workflowId,

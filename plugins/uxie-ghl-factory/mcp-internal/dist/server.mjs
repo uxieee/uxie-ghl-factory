@@ -34833,9 +34833,9 @@ var BARE_ARRAY = "<bare-array>";
 var readRows = (json2, keys) => {
   if (Array.isArray(json2)) return { rows: json2, key: BARE_ARRAY, conflict: null };
   if (!json2 || typeof json2 !== "object") return { rows: null, key: null, conflict: null };
-  const present = keys.filter((key) => Array.isArray(json2[key]));
-  if (present.length === 0) return { rows: null, key: null, conflict: null };
-  const [first, ...rest] = present;
+  const present2 = keys.filter((key) => Array.isArray(json2[key]));
+  if (present2.length === 0) return { rows: null, key: null, conflict: null };
+  const [first, ...rest] = present2;
   const canonical = sha256Canonical2(json2[first]);
   const disagreeing = rest.filter((key) => sha256Canonical2(json2[key]) !== canonical);
   if (disagreeing.length > 0) return { rows: null, key: null, conflict: [first, ...disagreeing] };
@@ -34843,9 +34843,9 @@ var readRows = (json2, keys) => {
 };
 var readTotalFrom = (json2, keys) => {
   if (!json2 || typeof json2 !== "object" || Array.isArray(json2)) return { total: null, key: null, conflict: null };
-  const present = keys.filter((key) => Number.isFinite(json2[key]));
-  if (present.length === 0) return { total: null, key: null, conflict: null };
-  const [first, ...rest] = present;
+  const present2 = keys.filter((key) => Number.isFinite(json2[key]));
+  if (present2.length === 0) return { total: null, key: null, conflict: null };
+  const [first, ...rest] = present2;
   const disagreeing = rest.filter((key) => json2[key] !== json2[first]);
   if (disagreeing.length > 0) return { total: null, key: null, conflict: [first, ...disagreeing] };
   return { total: json2[first], key: first, conflict: null };
@@ -37947,10 +37947,716 @@ var catalog_data_default = {
     "sniffs/bundle/validator-rules.json",
     "sniffs/bundle/enforcement.json",
     "sniffs/bundle/trigger-validation.json",
+    "sniffs/bundle/workflow-rules.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
   ],
+  workflowRules: {
+    vocab: {
+      actionsUnsupportedInsideLoop: [
+        "loop",
+        "workflow_goal",
+        "goto",
+        "remove_from_workflow",
+        "remove_from_all_workflows"
+      ],
+      waitTypesUnsupportedInsideLoop: [
+        "appointment",
+        "service_booking",
+        "rental_booking",
+        "overdue",
+        "reply",
+        "user_replied",
+        "link_clicked",
+        "email_event",
+        "condition"
+      ],
+      contactChangedLoopActions: [
+        "add_contact_tag",
+        "remove_contact_tag",
+        "assign_user",
+        "remove_assigned_user",
+        "dnd_contact",
+        "update_contact_field",
+        "math_operation"
+      ],
+      interactiveMessengerTriggers: [
+        "facebook_comment_on_post",
+        "ig_comment_on_post",
+        "customer_reply",
+        "tiktok_comment_on_post",
+        "ig_follower_added"
+      ],
+      interactiveMessengerActions: [
+        "fb_interactive_messenger",
+        "ig_interactive_messenger",
+        "respond_on_comment"
+      ],
+      appointmentBookingConflictTriggers: [
+        "customer_appointment",
+        "appointment"
+      ],
+      appointmentBookingAction: "appointment_booking",
+      ivrActionKeys: [
+        "ivr_gather",
+        "ivr_say",
+        "ivr_connect_call",
+        "ivr_hangup",
+        "ivr_collect_voicemail"
+      ],
+      ivrTrigger: "ivr_incoming_call",
+      multipathSupportedWaitTypes: [
+        "condition",
+        "reply",
+        "link_clicked",
+        "email_event",
+        "user_replied"
+      ],
+      triggerActionRestrictions: {
+        google_contacts_contact_created: [
+          "googlecontact_create_contact",
+          "find_or_create_contact"
+        ],
+        google_contacts_new_group: [
+          "googlecontacts_create_contact_group"
+        ],
+        airtable_new_record_created: [
+          "airtable_create_record"
+        ],
+        airtable_record_updated: [
+          "airtable_update_record"
+        ],
+        notion_new_database_item: [
+          "notion_create_database_item"
+        ],
+        notion_updated_database_item: [
+          "notion_update_database_item",
+          "notion_create_database_item"
+        ],
+        notion_page_updated: [
+          "notion_add_comment",
+          "notion_add_content_to_page",
+          "notion_add_comment",
+          "notion_create_page"
+        ],
+        notion_comment_added: [
+          "Post a Task Comment",
+          "notion_add_comment"
+        ],
+        clickup_comment_created: [
+          "clickup_add_comment"
+        ],
+        clickup_task_updated: [
+          "clickup_ia_update_task",
+          "update_custom_field_value"
+        ],
+        clickup_new_task: [
+          "clickup_ia_create_task",
+          "clickup_ia_create_sub_task"
+        ],
+        clickup_new_list: [
+          "clickup_create_list"
+        ],
+        clickup_new_folder: [
+          "clickup_ia_create_folder"
+        ],
+        asana_it_asana_task_created: [
+          "asana_ia_asana_create_task"
+        ],
+        asana_it_asana_task_updated: [
+          "asana_ia_asana_update_task"
+        ],
+        asana_it_asana_project_created: [
+          "asana_ia_asana_create_project"
+        ],
+        asana_it_asana_comment_on_task: [
+          "asana_ia_asana_create_comment"
+        ],
+        asana_it_asana_tag_added_to_task: [
+          "asana_ia_asana_update_task"
+        ],
+        asana_it_asana_task_moved_to_section: [
+          "asana_ia_asana_add_task_to_section"
+        ],
+        asana_it_asana_new_subtask: [
+          "asana_ia_asana_create_subtask"
+        ],
+        lc_manus_new_task_created: [
+          "lc_manus_create_task"
+        ],
+        lc_manus_task_stopped: [
+          "lc_manus_create_task",
+          "lc_manus_continue_task"
+        ],
+        lc_vapi_new_call: [
+          "lc_vapi_create_call"
+        ],
+        vapi_ai_new_file: [
+          "lc_vapi_upload_file"
+        ],
+        lc_monday_board_created: [
+          "lc_monday_create_board"
+        ],
+        lc_monday_new_item_created: [
+          "lc_monday_create_item"
+        ],
+        lc_monday_new_subitem_created: [
+          "lc_monday_create_subitem"
+        ],
+        lc_monday_any_column_value_changed: [
+          "lc_monday_update_item",
+          "lc_monday_update_subitem"
+        ],
+        apify_actor_run_finished: [
+          "lc_apify_run_a_actor",
+          "lc_custom_apify_run_task"
+        ],
+        apify_task_run_finished: [
+          "lc_custom_apify_run_task"
+        ],
+        lc_google_tasks_new_task: [
+          "lc_google_tasks_create_task"
+        ],
+        lc_google_tasks_new_task_list: [
+          "lc_google_tasks_create_task_list"
+        ]
+      },
+      illegalWordsSms: [
+        "cannabis",
+        "marijuana",
+        "weed",
+        "weeds",
+        "pot",
+        "ganja",
+        "hemp",
+        "thc",
+        "cbd",
+        "sativa",
+        "indica",
+        "joint",
+        "blunt",
+        "blunts",
+        "bong",
+        "bongs",
+        "pipe",
+        "dab",
+        "edibles",
+        "cannabis-infused",
+        "420",
+        "vape",
+        "vapes",
+        "vaping",
+        "e-cigarette",
+        "e-liquid",
+        "e-juice",
+        "vaporizer",
+        "vaporizers",
+        "atomizer",
+        "atomizers",
+        "pod",
+        "coil",
+        "nicotine",
+        "sex",
+        "sexual",
+        "cannabi",
+        "explicit",
+        "pornography",
+        "erotic",
+        "nudity",
+        "intercourse",
+        "seduction",
+        "explicit",
+        "racist",
+        "racists",
+        "alcohol",
+        "alcohols",
+        "beer",
+        "beers",
+        "wine",
+        "wines",
+        "liquor",
+        "liquors",
+        "spirits",
+        "gun",
+        "firearm",
+        "firearms",
+        "weapon",
+        "weapons",
+        "ammunition",
+        "ammunitions",
+        "pistol",
+        "pistols",
+        "rifle",
+        "rifles",
+        "shotgun",
+        "shotguns",
+        "shotgun",
+        "shotguns",
+        "shooting",
+        "tobacco",
+        "cigarette",
+        "cigarettes",
+        "cigar",
+        "cigars",
+        "smoking",
+        "nicotine",
+        "tetrahydrocannabinol",
+        "cannabud",
+        "cannabuds",
+        "gummies",
+        "guns"
+      ],
+      createOpportunity: {
+        triggerType: "opportunity_created",
+        actionType: "internal_create_opportunity",
+        triggerPipelineField: "opportunity.pipelineId",
+        triggerStageField: "opportunity.pipelineStageId",
+        actionPipelineKeys: [
+          "pipeline_id",
+          "pipelineId"
+        ],
+        actionStageKeys: [
+          "pipeline_stage_id",
+          "pipelineStageId",
+          "__customInputFields_"
+        ],
+        actionStageCustomInputFilterField: "pipelineStageId"
+      },
+      contactChangedTrigger: "contact_changed",
+      deleteContactAction: "internal-delete-contact",
+      createUpdateContact: {
+        actionType: "create_update_contact",
+        acceptedFieldTitles: [
+          "Email",
+          "Phone"
+        ]
+      },
+      sheets: {
+        actionType: "google_sheets",
+        lookupActionId: "lookup_row"
+      }
+    },
+    validateChainOrder: [
+      "inboundWebhookTriggerValidator",
+      "createUpdateContactValidator",
+      "filterlessContactChangedLoopValidator",
+      "sheetsLookupValidator",
+      "checkEmptyPublish",
+      "checkDanglingGoto",
+      "checkMultipleGoal",
+      "checkUnsupportedActionsInsideLoop",
+      "checkSenderAddress",
+      "validateDeleteContact",
+      "validateInteractiveMessenger",
+      "validateAppointmentBooking",
+      "validateIVRActions",
+      "validateCreateOpportunity",
+      "validateTriggerActionRestrictions",
+      "validateRequiredTriggersForActions",
+      "validateIfElseCondition",
+      "validateWaitStep"
+    ],
+    skipHatch: {
+      fn: "throwIfNotSkippingValidationError",
+      appliesTo: [
+        "constructor",
+        "if",
+        "for",
+        "throwIfNotSkippingValidationError"
+      ],
+      effect: "a workflow whose CURRENT stored state is published, saved back to draft, skips these rules \u2014 so a clean save is not proof the document is legal"
+    },
+    restrictedTriggersByAction: {
+      lc_cal_com_cancel_booking: [
+        "lc_cal_com_booking_cancelled"
+      ],
+      lc_cal_com_create_booking: [
+        "lc_cal_com_booking_created"
+      ],
+      lc_cal_com_reschedule_booking: [
+        "lc_cal_com_booking_rescheduled"
+      ],
+      lc_hubspot_create_contact: [
+        "lc_hubspot_contact_created"
+      ],
+      lc_linear_add_label_to_issue: [
+        "lc_linear_updated_issue"
+      ],
+      lc_linear_create_attachment: [
+        "lc_linear_updated_issue"
+      ],
+      lc_linear_create_comment: [
+        "lc_linear_new_issue_comment"
+      ],
+      lc_linear_create_customer: [
+        "lc_linear_new_customer"
+      ],
+      lc_linear_create_customer_need: [
+        "lc_linear_new_customer_need"
+      ],
+      lc_linear_create_issue: [
+        "lc_linear_new_issue"
+      ],
+      lc_linear_create_project: [
+        "lc_linear_new_project"
+      ],
+      lc_linear_remove_label: [
+        "lc_linear_updated_issue"
+      ],
+      lc_linear_update_issue: [
+        "lc_linear_updated_issue"
+      ],
+      lc_todoist_complete_task: [
+        "lc_todoist_task_completed"
+      ],
+      lc_todoist_create_project: [
+        "lc_todoist_new_project"
+      ],
+      lc_todoist_create_task: [
+        "lc_todoist_new_task"
+      ],
+      lc_browse_ai_bulk_run_tasks: [
+        "lc_browse_ai_new_task"
+      ],
+      lc_browse_ai_run_task: [
+        "lc_browse_ai_new_task"
+      ],
+      lc_custom_calendly_book_meeting_for_invitee: [
+        "calendly_invitee_created"
+      ],
+      lc_custom_calendly_cancel_event: [
+        "calendly_invitee_canceled",
+        "calendly_event_cancelled"
+      ],
+      lc_custom_calendly_mark_invitee_no_show: [
+        "calendly_invitee_no_show_created"
+      ],
+      lc_housecall_pro_create_customer: [
+        "lc_housecall_pro_customer_created"
+      ],
+      lc_housecall_pro_create_estimate: [
+        "lc_housecall_pro_estimate_created",
+        "lc_housecall_pro_estimate_scheduled"
+      ],
+      lc_housecall_pro_create_job: [
+        "lc_housecall_pro_job_created",
+        "lc_housecall_pro_job_scheduled"
+      ],
+      lc_housecall_pro_create_job_appointment: [
+        "lc_housecall_pro_job_scheduled"
+      ],
+      lc_housecall_pro_create_lead: [
+        "lc_housecall_pro_lead_created"
+      ],
+      lc_housecall_pro_update_job_appointment: [
+        "lc_housecall_pro_job_scheduled"
+      ],
+      lc_jira_create_issue: [
+        "lc_jira_issue_created"
+      ],
+      lc_jira_update_issue: [
+        "lc_jira_issue_update"
+      ],
+      lc_klaviyo_add_profile_to_list: [
+        "lc_klaviyo_profile_added_to_list"
+      ],
+      lc_klaviyo_create_profile: [
+        "lc_klaviyo_new_profile_created"
+      ],
+      lc_klaviyo_subscribe_profile: [
+        "lc_klaviyo_new_event"
+      ],
+      lc_klaviyo_unsubscribe_profile: [
+        "lc_klaviyo_new_event"
+      ]
+    },
+    rules: [
+      {
+        rule: "checkEmptyPublish",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "status"
+        ],
+        messages: [
+          "Workflow cannot be published with empty actions. Please add some actions."
+        ]
+      },
+      {
+        rule: "checkDanglingGoto",
+        runsOnSave: true,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          "There are some Goto Steps without connection. Please add a target action for GoTo"
+        ]
+      },
+      {
+        rule: "checkMultipleGoal",
+        runsOnSave: true,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          "Workflow cannot contain multiple Goal Actions. Please restrict to one goal per workflow."
+        ]
+      },
+      {
+        rule: "checkUnsupportedActionsInsideLoop",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "loop membership"
+        ],
+        messages: [
+          {
+            i18nKey: "loop_unsupported_action_error"
+          }
+        ]
+      },
+      {
+        rule: "checkLoopHasBody",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "loop membership"
+        ],
+        messages: [
+          {
+            i18nKey: "loop_empty_body_error"
+          }
+        ]
+      },
+      {
+        rule: "checkUnsupportedWaitTypesInsideLoop",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "loop membership"
+        ],
+        messages: [
+          {
+            i18nKey: "loop_unsupported_wait_error"
+          }
+        ]
+      },
+      {
+        rule: "checkSenderAddress",
+        runsOnSave: true,
+        reads: [
+          "settings.senderAddress"
+        ],
+        messages: [
+          'The Global Workflow Setting field "From Name" requires the "From Email" to be filled in also. Please fill in both fields to save this Workflow.'
+        ]
+      },
+      {
+        rule: "filterlessContactChangedLoopValidator",
+        runsOnSave: true,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          'There is a problem with this workflow setup, "<\u2026>" action cannot be fired from a Contact Changed Trigger without filters, as that can cause loops. Please add a filter to your Contact Changed Trigger or remove the action.'
+        ]
+      },
+      {
+        rule: "inboundWebhookTriggerValidator",
+        runsOnSave: true,
+        reads: [
+          "triggers",
+          "builder module state (NOT in the document)"
+        ],
+        messages: [
+          "There is a problem with this workflow setup, Mapping Reference is required for the Inbound Webhook Trigger to function. Please map a request to be used as reference in your Inbound Webhook Trigger."
+        ]
+      },
+      {
+        rule: "createUpdateContactValidator",
+        runsOnSave: true,
+        reads: [],
+        messages: [
+          "There is a problem with this workflow setup, Phone or Email mapping is required for the Create/Update Contact action to function. Please map an email or phone field to be used in your <\u2026> action."
+        ]
+      },
+      {
+        rule: "sheetsLookupValidator",
+        runsOnSave: true,
+        reads: [],
+        messages: [
+          'There is a problem with this Workflow setup, the action "#<\u2026> <\u2026>" references an invalid Lookup Step. Please select the Lookup Step again.'
+        ]
+      },
+      {
+        rule: "checkForValidContent",
+        runsOnSave: false,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          "throws SpamSmsBodyError"
+        ]
+      },
+      {
+        rule: "validateDeleteContact",
+        runsOnSave: true,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          "Delete Contact Action can be available only on the last step of the workflow. Kindly do the necessary changes to proceed."
+        ]
+      },
+      {
+        rule: "validateInteractiveMessenger",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "triggers"
+        ],
+        messages: [
+          "Interactive Messenger Action can be available only if the comment on post or user dm trigger is added.",
+          "Respond On Comment can be available only if the comment on post trigger is added."
+        ]
+      },
+      {
+        rule: "validateAppointmentBooking",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "triggers"
+        ],
+        messages: [
+          "There is a problem with this workflow setup, \u201CBook Appointment\u201D action cannot be used with appointment triggers to avoid unintended loops."
+        ]
+      },
+      {
+        rule: "validateIVRActions",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "triggers"
+        ],
+        messages: [
+          'There is a problem with this workflow setup, IVR actions cannot be used without "Start IVR trigger".'
+        ]
+      },
+      {
+        rule: "validateCreateOpportunity",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "triggers"
+        ],
+        messages: [
+          "There is a problem with this workflow setup, \u201CCreate Opportunity\u201D action cannot be used with \u201COpportunity created\u201D trigger without pipeline filters to avoid unintended loops.",
+          'There is a problem with this workflow setup, "Create Opportunity" action must have a pipeline selected when used with "Opportunity created" trigger to avoid unintended loops.',
+          "There is a problem with this workflow setup, \u201CCreate Opportunity\u201D action cannot target the same pipeline and stage as the \u201COpportunity created\u201D trigger to avoid unintended loops.",
+          "There is a problem with this workflow setup, \u201CCreate Opportunity\u201D action cannot target the same pipeline as the \u201COpportunity created\u201D trigger to avoid unintended loops."
+        ]
+      },
+      {
+        rule: "validateTriggerActionRestrictions",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "triggers"
+        ],
+        messages: [
+          'There is a problem with this workflow setup, "<\u2026>" action cannot be used with "<\u2026>" trigger to avoid unintended loops. Please remove this action or change the trigger.'
+        ]
+      },
+      {
+        rule: "validateRequiredTriggersForActions",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "triggers"
+        ],
+        messages: [
+          'There is a problem with this workflow setup, "<\u2026>" action requires <\u2026> trigger to be present. Please add the required trigger or remove this action.'
+        ]
+      },
+      {
+        rule: "validateIfElseCondition",
+        runsOnSave: true,
+        reads: [
+          "templates",
+          "status",
+          "creationSource",
+          "builder module state (NOT in the document)"
+        ],
+        messages: [
+          {
+            fromVariable: "errorMessage"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.requiresNextNodes"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.requiresBranch"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.branchRequiresSegment"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.segmentRequiresCondition"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.missingConditionType"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.missingConditionField"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.missingConditionOperator"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.missingTimeUnit"
+          },
+          {
+            i18nKey: "workflow.validation.ifElse.missingConditionValue"
+          }
+        ],
+        skippableWhenAlreadyPublished: true
+      },
+      {
+        rule: "throwIfNotSkippingValidationError",
+        runsOnSave: true,
+        reads: [
+          "status",
+          "builder module state (NOT in the document)"
+        ],
+        messages: [
+          "throws TypeError"
+        ]
+      },
+      {
+        rule: "validateWaitStep",
+        runsOnSave: true,
+        reads: [
+          "templates"
+        ],
+        messages: [
+          {
+            i18nKey: "workflow.validation.wait.malformedWaitStep"
+          },
+          {
+            i18nKey: "workflow.validation.wait.unsupportedBranchingWaitType"
+          },
+          {
+            i18nKey: "workflow.validation.wait.requiresAtLeastTwoTransitions"
+          },
+          {
+            i18nKey: "workflow.validation.wait.missingTransition"
+          }
+        ],
+        skippableWhenAlreadyPublished: true
+      }
+    ]
+  },
   stepCount: 385,
   triggerCount: 204,
   stepCapabilities: {
@@ -89638,6 +90344,9 @@ function loadCatalog() {
     step: (type) => steps[type],
     trigger: (type) => d.triggers[type],
     filterModel: (type) => findFilterModel(d, type),
+    // GHL's WORKFLOW-level validator (graph-scoped, trigger-aware rules + the vocab they test
+    // against) — consumed by graph-rules.mjs at every write path. null on a pre-sweep catalog.
+    workflowRules: d.workflowRules ?? null,
     stepCapabilities: () => d.stepCapabilities ?? {},
     allSteps: () => Object.keys(steps),
     allTriggers: () => Object.keys(d.triggers),
@@ -90570,6 +91279,154 @@ function describeServerFindings(parsed) {
   return parsed.findings.map((f) => `${f.severity === "warning" ? "\u26A0" : "\u2716"} ${f.where}: ${f.message}${f.ruleId ? ` [${f.ruleId}]` : ""}${f.assetType ? ` (asset: ${f.assetType}${f.assetId ? " " + f.assetId : ""})` : ""}`).join("; ");
 }
 
+// ../skills/create-ghl-workflow/engine/graph-rules.mjs
+init_define_TOOL_CATALOG();
+var has = (v) => v != null && v !== "" && !(Array.isArray(v) && !v.length);
+var present = (v) => !(v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Array.isArray(v) && !Object.keys(v).length);
+function evaluateWorkflowRules(doc, rules) {
+  const V = rules?.vocab ?? {};
+  const T = doc.templates ?? [];
+  const TR = doc.triggers ?? [];
+  const F = [];
+  const fire = (rule, message) => F.push({ rule, message });
+  const types = (list) => new Set(list ?? []);
+  const hasTrigger = (t) => TR.some((x) => x?.type === t);
+  if (doc.publishing && T.length === 0) fire("checkEmptyPublish", "a workflow cannot be published with zero steps");
+  for (const t of T) if (t.type === "goto" && !has(t.attributes?.targetNodeId)) fire("checkDanglingGoto", `goto '${t.name ?? t.id}' has no target`);
+  const goals = T.filter((t) => t.type === "workflow_goal");
+  if (goals.length > 1) fire("checkMultipleGoal", `${goals.length} workflow_goal steps \u2014 GHL allows exactly one per workflow`);
+  const bannedInLoop = types(V.actionsUnsupportedInsideLoop), bannedWaits = types(V.waitTypesUnsupportedInsideLoop);
+  for (const t of T) {
+    if (!t.parentContainerId) continue;
+    if (bannedInLoop.has(t.type)) fire("checkUnsupportedActionsInsideLoop", `'${t.name ?? t.id}' (${t.type}) cannot sit inside a loop body`);
+    if (t.type === "wait" && bannedWaits.has(t.attributes?.type)) fire("checkUnsupportedWaitTypesInsideLoop", `wait '${t.name ?? t.id}' of type '${t.attributes?.type}' cannot sit inside a loop body (time-based waits only)`);
+  }
+  for (const t of T) if (t.type === "loop" && !T.some((c) => c.parentContainerId === t.id)) fire("checkLoopHasBody", `loop '${t.name ?? t.id}' has no body steps \u2014 an empty loop re-runs the step after it on every iteration`);
+  const sa = doc.settings?.senderAddress;
+  if (sa?.from_name && !sa?.from_email) fire("checkSenderAddress", "settings.senderAddress has from_name but no from_email");
+  if (V.contactChangedTrigger && TR.some((x) => x?.type === V.contactChangedTrigger && !present(x.conditions))) {
+    const loopers = types(V.contactChangedLoopActions);
+    for (const t of T) if (loopers.has(t.type)) fire("filterlessContactChangedLoopValidator", `'${t.name ?? t.id}' (${t.type}) mutates what a FILTERLESS contact_changed trigger listens to \u2014 infinite loop; add a filter to the trigger or remove the step`);
+  }
+  if (V.createUpdateContact?.actionType) {
+    const ok2 = new Set(V.createUpdateContact.acceptedFieldTitles ?? []);
+    for (const t of T) if (t.type === V.createUpdateContact.actionType && !(t.attributes?.fields ?? []).some((f) => ok2.has(f?.title)))
+      fire("createUpdateContactValidator", `'${t.name ?? t.id}' maps neither ${[...ok2].join(" nor ")} \u2014 GHL requires one to identify the contact`);
+  }
+  if (V.sheets?.actionType) {
+    const sheets = T.filter((t) => t.type === V.sheets.actionType);
+    const lookups = sheets.filter((s) => s.attributes?.action?.id === V.sheets.lookupActionId);
+    for (const s of sheets) {
+      const ref = s.attributes?.lookupStep;
+      if (!ref?.id) continue;
+      if (!lookups.some((l) => l.id === ref.id && l.stepIndex === ref.stepIndex))
+        fire("sheetsLookupValidator", `'${s.name ?? s.id}' references lookup step ${ref.id}#${ref.stepIndex}, which is not a current lookup_row step`);
+    }
+  }
+  if (V.deleteContactAction) {
+    for (const t of T) if (t.type === V.deleteContactAction && has(t.next)) fire("validateDeleteContact", `'${t.name ?? t.id}' must be the LAST step \u2014 nothing may follow a delete-contact`);
+  }
+  {
+    const acts = types(V.interactiveMessengerActions), trigs = types(V.interactiveMessengerTriggers);
+    const offenders = T.filter((t) => acts.has(t.type));
+    if (offenders.length && !TR.some((x) => trigs.has(x?.type)))
+      fire("validateInteractiveMessenger", `'${offenders[0].name ?? offenders[0].id}' (${offenders[0].type}) requires a comment-on-post or DM trigger (${[...trigs].join(", ")})`);
+  }
+  if (V.appointmentBookingAction && T.some((t) => t.type === V.appointmentBookingAction)) {
+    const conflict = TR.find((x) => types(V.appointmentBookingConflictTriggers).has(x?.type));
+    if (conflict) fire("validateAppointmentBooking", `'${V.appointmentBookingAction}' cannot be used with an appointment trigger ('${conflict.type}') \u2014 unintended loops`);
+  }
+  {
+    const ivr = types(V.ivrActionKeys);
+    const first = T.find((t) => ivr.has(t.type));
+    if (first && V.ivrTrigger && !hasTrigger(V.ivrTrigger)) fire("validateIVRActions", `'${first.name ?? first.id}' (${first.type}) cannot be used without the '${V.ivrTrigger}' trigger`);
+  }
+  if (V.createOpportunity?.triggerType && hasTrigger(V.createOpportunity.triggerType)) {
+    const C = V.createOpportunity;
+    const acts = T.filter((t) => t.type === C.actionType);
+    for (const trig of TR.filter((x) => x?.type === C.triggerType)) {
+      if (!acts.length) break;
+      const conds = trig.conditions ?? [];
+      const tp = conds.find((c) => c?.field === C.triggerPipelineField)?.value;
+      const ts = conds.find((c) => c?.field === C.triggerStageField)?.value;
+      if (!tp) {
+        fire("validateCreateOpportunity", `'${C.actionType}' with an '${C.triggerType}' trigger that has no pipeline filter \u2014 unintended loops`);
+        continue;
+      }
+      for (const a of acts) {
+        const at = a.attributes ?? {};
+        const ap = (C.actionPipelineKeys ?? []).map((k) => at[k]).find(has);
+        const as = (C.actionStageKeys ?? []).map((k) => at[k]).find(has) ?? at.__customInputFields__?.find?.((f) => f?.filterField === C.actionStageCustomInputFilterField)?.value;
+        if (!ap) {
+          fire("validateCreateOpportunity", `'${a.name ?? a.id}' has no pipeline but the workflow is entered by '${C.triggerType}' \u2014 unintended loops`);
+          continue;
+        }
+        if (ap !== tp) continue;
+        if (ts && as) {
+          if (as === ts) fire("validateCreateOpportunity", `'${a.name ?? a.id}' targets the SAME pipeline and stage as the '${C.triggerType}' trigger \u2014 unintended loops`);
+          continue;
+        }
+        fire("validateCreateOpportunity", `'${a.name ?? a.id}' targets the SAME pipeline as the '${C.triggerType}' trigger \u2014 unintended loops`);
+      }
+    }
+  }
+  {
+    const byAction = /* @__PURE__ */ new Map();
+    for (const [trig, acts] of Object.entries(V.triggerActionRestrictions ?? {})) for (const a of acts) (byAction.get(a) ?? byAction.set(a, /* @__PURE__ */ new Set()).get(a)).add(trig);
+    for (const [a, trigs] of Object.entries(rules?.restrictedTriggersByAction ?? {})) for (const trig of trigs) (byAction.get(a) ?? byAction.set(a, /* @__PURE__ */ new Set()).get(a)).add(trig);
+    for (const t of T) {
+      const bad = byAction.get(t.type);
+      if (!bad?.size) continue;
+      const trig = TR.find((x) => bad.has(x?.type));
+      if (trig) fire("validateTriggerActionRestrictions", `'${t.name ?? t.id}' (${t.type}) cannot be used with trigger '${trig.name ?? trig.type}' \u2014 unintended loops`);
+    }
+  }
+  {
+    const okBranching = types(V.multipathSupportedWaitTypes);
+    const ids = new Set(T.map((t) => t.id));
+    for (const w of T) {
+      if (w.type !== "wait" || w.attributes?.type === void 0) continue;
+      const a = w.attributes;
+      if (a.window != null && typeof a.window === "string") fire("validateWaitStep", `wait '${w.name ?? w.id}' has a STRINGIFIED window \u2014 the backend crashes on window.start.split`);
+      const branching = w.cat === "multi-path" || Array.isArray(w.next);
+      if (branching && !okBranching.has(a.type)) fire("validateWaitStep", `wait '${w.name ?? w.id}' of type '${a.type}' cannot branch \u2014 only ${[...okBranching].join(", ")} may`);
+      if (w.cat === "multi-path" || a.convertToMultipath) {
+        if (!Array.isArray(w.next) || w.next.length < 2) fire("validateWaitStep", `branching wait '${w.name ?? w.id}' needs at least two transitions`);
+        for (const tr of a.transitions ?? []) if (tr?.id && !ids.has(tr.id)) fire("validateWaitStep", `branching wait '${w.name ?? w.id}' transition '${tr.name ?? tr.id}' has no step in the workflow`);
+      }
+    }
+  }
+  const notEvaluable = ["inboundWebhookTriggerValidator (builder module state)", "validateIfElseCondition (workflow_ai-authored only)"];
+  return { findings: F, notEvaluable };
+}
+function rulesNeedTriggers(templates, rules) {
+  const V = rules?.vocab ?? {};
+  const care = /* @__PURE__ */ new Set([
+    ...V.contactChangedLoopActions ?? [],
+    ...V.interactiveMessengerActions ?? [],
+    ...V.ivrActionKeys ?? [],
+    ...V.appointmentBookingAction ? [V.appointmentBookingAction] : [],
+    ...V.createOpportunity?.actionType ? [V.createOpportunity.actionType] : [],
+    ...Object.values(V.triggerActionRestrictions ?? {}).flat(),
+    ...Object.keys(rules?.restrictedTriggersByAction ?? {})
+  ]);
+  return (templates ?? []).some((t) => care.has(t?.type));
+}
+function checkWorkflowRules(doc, rules, opts = {}) {
+  if (!rules || opts.skipWorkflowRules === true) return [];
+  const { findings } = evaluateWorkflowRules(doc, rules);
+  const skip = Array.isArray(opts.skipWorkflowRules) ? new Set(opts.skipWorkflowRules) : /* @__PURE__ */ new Set();
+  const live = findings.filter((f) => !skip.has(f.rule));
+  if (!live.length) return [];
+  const lines = live.map((f) => `  - [${f.rule}] ${f.message}`);
+  throw new IRError(
+    "WORKFLOW_RULE",
+    `WORKFLOW_RULE: GHL's builder would REFUSE to save this workflow (WorkflowValidator \u2014 it throws before any HTTP):
+${lines.join("\n")}
+Fix the structure, or pass skipWorkflowRules (true, or ['${live[0].rule}']) if you are certain.`
+  );
+}
+
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
 function missingRequiredFields(step) {
   const keys = requiredKeysFor(step?.type);
@@ -90812,6 +91669,17 @@ async function orchestrate(ir, gw, opts = {}) {
   report.authored = built.authored;
   report.compiled = built.compiled;
   const ph = built._wid;
+  try {
+    checkWorkflowRules(
+      { templates: built.autoSaveBody?.workflowData?.templates, triggers: built.triggerBodies, publishing: opts.publish === true },
+      catalog.workflowRules,
+      { skipWorkflowRules: opts.skipWorkflowRules }
+    );
+  } catch (e) {
+    report.failurePhase = "workflow_rules";
+    report.aborted = `${e.code ?? "WORKFLOW_RULE"}: ${e.message}`;
+    return report;
+  }
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
     triggers: built.triggerBodies,
@@ -94937,7 +95805,9 @@ var TOOLS2 = [
     inputSchema: schema({
       locationId: external_exports.string(),
       spec: external_exports.object({}).passthrough(),
-      ignoreUnresolved: external_exports.boolean().default(false)
+      ignoreUnresolved: external_exports.boolean().default(false),
+      // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
+      skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional()
     }),
     capabilities: [
       { method: "GET", path: "/opportunities/pipelines" },
@@ -94959,7 +95829,8 @@ var TOOLS2 = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const report = await orchestrate(args.spec, gw, {
-        ignoreUnresolved: args.ignoreUnresolved ?? false
+        ignoreUnresolved: args.ignoreUnresolved ?? false,
+        skipWorkflowRules: args.skipWorkflowRules
       });
       const data2 = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data2);
@@ -94991,6 +95862,7 @@ var TOOLS2 = [
       workflowId: external_exports.string(),
       ops: external_exports.array(external_exports.object({}).passthrough()),
       assumeAssociated: external_exports.boolean().default(false),
+      skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
@@ -95074,13 +95946,13 @@ var TOOLS2 = [
         warn: (message) => warnings.push(message)
       };
       const { stepOps, triggerOps } = partitionOps(args.ops);
+      const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       let existingTriggers = [];
-      if (triggerOps.length) {
+      if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
         const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
         if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
         existingTriggers = listed.triggers;
       }
-      const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
       lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
       const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
         assumeAssociated: args.assumeAssociated === true,
@@ -95089,6 +95961,11 @@ var TOOLS2 = [
         catalog: ctx.catalog,
         warn: ctx.warn
       });
+      checkWorkflowRules(
+        { templates, triggers: existingTriggers, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === "published" },
+        ctx.catalog?.workflowRules,
+        { skipWorkflowRules: args.skipWorkflowRules }
+      );
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
         wid: args.workflowId,

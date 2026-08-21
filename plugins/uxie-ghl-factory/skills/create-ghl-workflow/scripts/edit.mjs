@@ -83,6 +83,7 @@ import { loadCatalog } from '../engine/catalog.mjs';
 import { makeUuidV4 } from '../engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../engine/tags.mjs';
 import { parseServerValidation, describeServerFindings } from '../engine/server-validation.mjs';
+import { checkWorkflowRules, rulesNeedTriggers } from '../engine/graph-rules.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // An engine REFUSAL (IRError with a code: ENFORCEMENT, REF_DANGLING, DEAD_BRANCH…) is a
@@ -172,6 +173,11 @@ const listTriggers = async () => {
 
 const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4 });
 const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged, catalog: ctx.catalog, warn: ctx.warn });
+// WORKFLOW-level rules need the trigger set even for step-only edits (an action can be illegal
+// purely because of the trigger above it) — one GET, same oracle GHL's builder runs pre-save.
+{ const trig = rulesNeedTriggers(templates, ctx.catalog?.workflowRules) || triggerOps.length ? await listTriggers() : [];
+  checkWorkflowRules({ templates, triggers: trig, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === 'published' },
+    ctx.catalog?.workflowRules, { skipWorkflowRules: process.argv.includes('--skip-workflow-rules') }); }
 const plan = triggerOps.length
   ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
   : [];
