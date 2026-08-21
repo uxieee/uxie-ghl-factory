@@ -72,6 +72,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `list_workflows_complete` | the whole roster walked to a reconciled terminal proof (see **Audit profile**) |
 | `get_ai_configuration_bundle` | Conversation AI + Voice AI + Agent Studio discovery and detail (see **Audit profile**) |
 | `get_contacts_at_step` | contacts parked at or processed by one step, paginated to the reported total |
+| `get_workflow_stats` | the builder's Stats view as data: per-step SMS/email aggregates, per-trigger attempted/matched, contacts per step (last 30 days) |
 | `list_account_entities` | pipelines, calendars, users, forms, custom fields, AI agents |
 | `list_marketplace_apps` | third-party apps INSTALLED in a location, with each app's triggers/actions — `key`, `version`, `templateId`, full `customVars`/`inputs` schema (`compact:true` by default) |
 | `list_courses` | course summaries with status and available chapter/lesson/offer counts |
