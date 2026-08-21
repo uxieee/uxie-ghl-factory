@@ -330,7 +330,7 @@ IS, see "Retyping a step" below), `moveStep`, `addBranch`
 (see "Editing TRIGGERS" below), and **`updateSettings`** (`{settings:{…}}` — the Settings tab's
 keys, merged over the stored values and validated by the same contract as `settings:` in a
 build: `window`, `timezone`, `stopOnResponse`, `senderAddress`, `workflowNote`, `statsView`…;
-a settings-only edit still commits with one PUT). Also `addStepNote` (`{stepId,text}` — the node's Notes popover; lands in `comments[]` newest-first) and `duplicateStep` (`{stepId, afterId?}` — "Copy action" → "Copy here": fresh-id copy after the source, notes not copied, disabled state travels; containers/goals/loops/gotos refused). The disable operations use GHL's native top-level
+a settings-only edit still commits with one PUT). Also `addStepNote` (`{stepId,text}` — the node's Notes popover; lands in `comments[]` newest-first) and `duplicateStep` (`{stepId, afterId?}` — "Copy action" → "Copy here": fresh-id copy after the source, notes not copied, disabled state travels; containers/goals/loops/gotos refused). Trigger side: `duplicateTrigger` (`{triggerId|name, newName?}` — "Copy Trigger": the stored trigger re-posted as "… (Copy)", inactive until publish; webhook copies get a fresh `predeterminedId`). The disable operations use GHL's native top-level
 `advanceCanvasMeta.isDisabled` flag, preserve the full step config, and commit only changed
 step IDs in `modifiedSteps`. Example — add an SMS, delete a step, and natively pause all
 internal notifications:

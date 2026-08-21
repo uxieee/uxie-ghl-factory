@@ -101274,7 +101274,7 @@ async function orchestrate(ir, gw, opts = {}) {
 
 // ../skills/create-ghl-workflow/engine/edit-driver.mjs
 init_define_TOOL_CATALOG();
-var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger"]);
+var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger"]);
 var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
 function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
@@ -101326,6 +101326,17 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
       case "deleteTrigger": {
         const t = resolveTrigger(op, existing);
         return { op: op.op, method: "DELETE", path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
+      }
+      // "Copy Trigger" (trigger ⋯ menu / ⌘V → cloneTriggers, recovered EDIT-RAIL.md): the stored
+      // trigger is re-posted with a "(Copy)" name; it lands INACTIVE like every API-created trigger,
+      // and an inbound-webhook trigger gets a fresh predeterminedId (its URL must differ).
+      case "duplicateTrigger": {
+        const t = resolveTrigger(op, existing);
+        const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
+        const body = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, workflow_id: wid };
+        if (body.predeterminedId && ctx.idGen) body.predeterminedId = ctx.idGen();
+        for (const c of body.conditions ?? []) if (c && typeof c === "object" && c.field === "predeterminedId" && ctx.idGen) c.value = body.predeterminedId ?? ctx.idGen();
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body, sourceTriggerId: t.id ?? t._id };
       }
       case "modifyTrigger": {
         const t = resolveTrigger(op, existing);
