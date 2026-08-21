@@ -85,6 +85,23 @@ export function renderCard(e) {
       const enums = mf.fields.filter((f) => f.members?.length).map((f) => `${f.name}=${f.members.join('|')}`);
       if (enums.length) lines.push(`  enums: ${enums.join('  ')}`);
     }
+    // Per-variant requirements from GHL's own validator (catalog `variantRules`). Variants that
+    // share an identical error-level set are grouped on one segment. Severities are GHL's, not
+    // the engine's — a GHL warning can be exactly the silent no-op the engine must block.
+    if (e.variantRules?.variants) {
+      const v = e.variantRules.variants;
+      const groups = new Map();
+      for (const [key, sev] of Object.entries(v)) {
+        const fields = sev.error ?? [];
+        const sig = fields.slice().sort().join(',');
+        if (!groups.has(sig)) groups.set(sig, { keys: [], fields });
+        groups.get(sig).keys.push(key);
+      }
+      const parts = [...groups.values()].filter((g) => g.fields.length).map((g) => `${g.keys.join(',')}→${g.fields.join(', ')}`);
+      if (parts.length) lines.push(`  variants (${e.variantRules.validator}, GHL error-level): ${parts.join(' | ')}`);
+      const warns = [...new Set(Object.values(v).flatMap((s) => s.warning ?? []))];
+      if (warns.length) lines.push(`  soft (GHL warning-level, ${warns.length}): ${warns.slice(0, 12).join(', ')}${warns.length > 12 ? ' …' : ''}`);
+    }
     if (flags.length) lines.push(`  flags: ${flags.join('; ')}`);
     if (e.example) lines.push(`  example: ${e.example}`);
     lines.push(`  IR: { ref, kind: ${IR_KIND[e.type] ?? 'action'}, type: ${e.type}, name, attributes: { … } }`);

@@ -37734,6 +37734,7 @@ var catalog_data_default = {
     "sniffs/bundle/trigger-registry-parsed.json",
     "sniffs/bundle/og-action-ui-metadata.json",
     "sniffs/bundle/model-shapes.json",
+    "sniffs/bundle/validator-rules.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
@@ -39544,6 +39545,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "contactTagValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "tags"
+            ]
+          }
+        }
       }
     },
     add_notes: {
@@ -39601,6 +39614,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "addNotesValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "html"
+            ]
+          }
+        }
       }
     },
     add_to_workflow: {
@@ -39653,6 +39678,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "addToWorkflowValidator",
+        source: "utils/validators/internal-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "workflow_id"
+            ]
+          }
+        }
       }
     },
     ai_agent: {
@@ -39808,6 +39845,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "assignToUserValidator",
+        source: "utils/validators/user-validation.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "user_list"
+            ]
+          }
+        }
       }
     },
     call: {
@@ -39857,6 +39906,18 @@ var catalog_data_default = {
             type: "boolean"
           }
         ]
+      },
+      variantRules: {
+        validator: "callValidator",
+        source: "utils/validators/communication-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "timeout"
+            ]
+          }
+        }
       }
     },
     chatgpt: {
@@ -39977,6 +40038,24 @@ var catalog_data_default = {
             type: "boolean"
           }
         ]
+      },
+      variantRules: {
+        validator: "chatGPTValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "promptText",
+              "temperature",
+              "event",
+              "actionParams.message",
+              "actionParams.from",
+              "actionParams.to",
+              "actionParams.length"
+            ]
+          }
+        }
       }
     },
     contact_email_verification: {
@@ -40474,6 +40553,18 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "copyContactToSubaccountValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "newLocations"
+            ]
+          }
+        }
       }
     },
     create_opportunity: {
@@ -40584,6 +40675,19 @@ var catalog_data_default = {
             type: "Field[]"
           }
         ]
+      },
+      variantRules: {
+        validator: "createOpportunityActionValidator",
+        source: "utils/validators/opportunity-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "pipeline_id",
+              "pipeline_stage_id"
+            ]
+          }
+        }
       }
     },
     create_update_contact: {
@@ -40630,6 +40734,19 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "createUpdateContactValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "fields",
+              "field"
+            ]
+          }
+        }
       }
     },
     custom_code: {
@@ -40653,7 +40770,20 @@ var catalog_data_default = {
       requiredFields: [
         "code",
         "output"
-      ]
+      ],
+      variantRules: {
+        validator: "customCodeValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "code",
+              "output"
+            ]
+          }
+        }
+      }
     },
     custom_webhook: {
       type: "custom_webhook",
@@ -40762,6 +40892,43 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "customWebhookValidator",
+        source: "utils/validators/webhook-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "url",
+              "method",
+              "event",
+              "body.rawData",
+              "body.keyValueData",
+              "headers",
+              "parameters"
+            ]
+          },
+          BEARER_TOKEN: {
+            error: [],
+            warning: [
+              "authorization.data.token"
+            ]
+          },
+          API_KEY: {
+            error: [],
+            warning: [
+              "authorization.data"
+            ]
+          },
+          OAUTH2: {
+            error: [],
+            warning: [
+              "authorization.data.tokenId",
+              "webhookResponse"
+            ]
+          }
+        }
       }
     },
     datetime_formatter: {
@@ -40821,6 +40988,30 @@ var catalog_data_default = {
             via: "DateTimeFormatterActions"
           }
         ]
+      },
+      variantRules: {
+        validator: "dateTimeFormatterValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "action",
+              "format.type",
+              "format.fromField",
+              "format.fromFormat",
+              "format.toFormat",
+              "format.fromFieldDatePicker",
+              "compare.type",
+              "compare.startDate",
+              "compare.startDateFormat",
+              "compare.endDate",
+              "compare.endDateFormat",
+              "compare.startDatePicker",
+              "compare.endDatePicker"
+            ]
+          }
+        }
       }
     },
     dnd_contact: {
@@ -40897,6 +41088,19 @@ var catalog_data_default = {
             via: "inline"
           }
         ]
+      },
+      variantRules: {
+        validator: "contactDNDValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "dnd_contact",
+              "specific_channels"
+            ]
+          }
+        }
       }
     },
     drip: {
@@ -40939,6 +41143,19 @@ var catalog_data_default = {
             type: "'drip'"
           }
         ]
+      },
+      variantRules: {
+        validator: "dripValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "batchSize",
+              "interval.value"
+            ]
+          }
+        }
       }
     },
     edit_conversation: {
@@ -41221,6 +41438,20 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "sendEmailActionValidator",
+        source: "utils/validators/email-validator.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "subject",
+              "template_id",
+              "html"
+            ]
+          }
+        }
       }
     },
     event_start_date: {
@@ -41292,6 +41523,19 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "eventStartDateValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "event_start_type",
+              "value"
+            ]
+          }
+        }
       }
     },
     facebook_add_to_custom_audience: {
@@ -41314,7 +41558,20 @@ var catalog_data_default = {
       requiredFields: [
         "facebook_account_id",
         "facebook_custom_audience_id"
-      ]
+      ],
+      variantRules: {
+        validator: "facebookCustomAudienceValidator",
+        source: "utils/validators/fb-ig-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "facebook_account_id",
+              "facebook_custom_audience_id"
+            ]
+          }
+        }
+      }
     },
     facebook_conversion_api: {
       type: "facebook_conversion_api",
@@ -41433,6 +41690,18 @@ var catalog_data_default = {
             type: "boolean"
           }
         ]
+      },
+      variantRules: {
+        validator: "facebookConversionApiValidator",
+        source: "utils/validators/fb-ig-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "pixel_id"
+            ]
+          }
+        }
       }
     },
     find_contact: {
@@ -41515,6 +41784,19 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "findContactValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "fields",
+              "field"
+            ]
+          }
+        }
       }
     },
     find_opportunity: {
@@ -41817,6 +42099,18 @@ var catalog_data_default = {
             type: "string[]"
           }
         ]
+      },
+      variantRules: {
+        validator: "googleSheetsIntegrationValidator",
+        source: "utils/validators/integration-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "oAuthId"
+            ]
+          }
+        }
       }
     },
     goto: {
@@ -41863,6 +42157,19 @@ var catalog_data_default = {
             type: "boolean"
           }
         ]
+      },
+      variantRules: {
+        validator: "gotoValidator",
+        source: "utils/validators/internal-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "placement",
+              "targetNodeId"
+            ]
+          }
+        }
       }
     },
     if_else: {
@@ -42158,6 +42465,47 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "internalNotificationValidator",
+        source: "utils/validators/communication-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "type"
+            ]
+          },
+          email: {
+            error: [],
+            warning: [
+              "email",
+              "email.subject",
+              "email.html"
+            ]
+          },
+          sms: {
+            error: [],
+            warning: [
+              "sms",
+              "sms.body"
+            ]
+          },
+          whatsapp: {
+            error: [],
+            warning: [
+              "whatsapp",
+              "whatsapp.body"
+            ]
+          },
+          notification: {
+            error: [],
+            warning: [
+              "notification",
+              "notification.message"
+            ]
+          }
+        }
       }
     },
     internal_update_opportunity: {
@@ -42417,6 +42765,20 @@ var catalog_data_default = {
             type: "any // legacy v1 field"
           }
         ]
+      },
+      variantRules: {
+        validator: "mathOperationValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "selectField",
+              "updateField",
+              "operators"
+            ]
+          }
+        }
       }
     },
     membership_grant_offer: {
@@ -42457,6 +42819,18 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "membershipOfferValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "offer_id"
+            ]
+          }
+        }
       }
     },
     proposals_estimates_send_document: {
@@ -42590,6 +42964,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "contactTagValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "tags"
+            ]
+          }
+        }
       }
     },
     remove_from_workflow: {
@@ -42646,6 +43032,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "removeFromWorkflowValidator",
+        source: "utils/validators/internal-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "workflow_id"
+            ]
+          }
+        }
       }
     },
     remove_opportunity: {
@@ -42699,6 +43097,19 @@ var catalog_data_default = {
             via: "inline"
           }
         ]
+      },
+      variantRules: {
+        validator: "removeOpportunityActionValidator",
+        source: "utils/validators/opportunity-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "opportunity_to_be_found",
+              "pipeline_id"
+            ]
+          }
+        }
       }
     },
     review_request: {
@@ -42751,6 +43162,18 @@ var catalog_data_default = {
             type: "string | null"
           }
         ]
+      },
+      variantRules: {
+        validator: "reviewRequestValidator",
+        source: "utils/validators/communication-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "review_type"
+            ]
+          }
+        }
       }
     },
     slack_message: {
@@ -42822,6 +43245,22 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "slackMessageValidator",
+        source: "utils/validators/communication-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "integration",
+              "action",
+              "channel",
+              "text",
+              "userSource"
+            ]
+          }
+        }
       }
     },
     sms: {
@@ -42942,6 +43381,19 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "sendSmsActionValidator",
+        source: "utils/validators/sms-validator.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "template_id",
+              "body"
+            ]
+          }
+        }
       }
     },
     "task-notification": {
@@ -43062,6 +43514,19 @@ var catalog_data_default = {
             type: "Record<string, number | string | boolean | undefined>"
           }
         ]
+      },
+      variantRules: {
+        validator: "textFormatterValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "formatterType",
+              "field"
+            ]
+          }
+        }
       }
     },
     transition: {
@@ -43126,6 +43591,18 @@ var catalog_data_default = {
             type: "AppointmentStatusType | ServiceBookingStatusType | RentalBookingStatusType | und"
           }
         ]
+      },
+      variantRules: {
+        validator: "appointmentStatusValidator",
+        source: "utils/validators/other-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "status_type"
+            ]
+          }
+        }
       }
     },
     update_contact_field: {
@@ -43184,6 +43661,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "updateContactFieldValidator",
+        source: "utils/validators/contact-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "fields"
+            ]
+          }
+        }
       }
     },
     update_conversation_ai_status: {
@@ -43263,6 +43752,18 @@ var catalog_data_default = {
             type: "IStoredFile"
           }
         ]
+      },
+      variantRules: {
+        validator: "voicemailValidator",
+        source: "utils/validators/communication-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "attachment"
+            ]
+          }
+        }
       }
     },
     wait: {
@@ -43730,6 +44231,133 @@ var catalog_data_default = {
             type: "string[]"
           }
         ]
+      },
+      variantRules: {
+        validator: "waitValidator",
+        source: "utils/validators/wait-validator.ts",
+        variants: {
+          "*": {
+            error: [
+              "name",
+              "type"
+            ],
+            warning: []
+          },
+          time: {
+            error: [
+              "startAfter",
+              "window.start",
+              "window.end",
+              "window.value"
+            ],
+            warning: [
+              "startAfter.value"
+            ]
+          },
+          condition: {
+            error: [
+              "condition",
+              "condition.branches",
+              "condition.branches[].segments",
+              "condition.branches[].segments[].conditions"
+            ],
+            warning: []
+          },
+          reply: {
+            error: [
+              "reply"
+            ],
+            warning: []
+          },
+          appointment: {
+            error: [
+              "appointmentStartAfter",
+              "appointmentStartAfter.when",
+              "appointmentStartAfter.value",
+              "appointmentSpecificStep"
+            ],
+            warning: [
+              "appointmentCondition"
+            ]
+          },
+          service_booking: {
+            error: [
+              "appointmentStartAfter",
+              "appointmentStartAfter.when",
+              "appointmentStartAfter.value",
+              "appointmentSpecificStep"
+            ],
+            warning: [
+              "appointmentCondition"
+            ]
+          },
+          rental_booking: {
+            error: [
+              "appointmentStartAfter",
+              "appointmentStartAfter.when",
+              "appointmentStartAfter.value",
+              "appointmentSpecificStep"
+            ],
+            warning: [
+              "appointmentCondition"
+            ]
+          },
+          attendee_event_date: {
+            error: [
+              "appointmentStartAfter",
+              "appointmentStartAfter.when",
+              "appointmentStartAfter.value",
+              "appointmentSpecificStep"
+            ],
+            warning: [
+              "appointmentCondition"
+            ]
+          },
+          overdue: {
+            error: [
+              "appointmentStartAfter",
+              "appointmentStartAfter.when",
+              "appointmentStartAfter.value",
+              "appointmentSpecificStep"
+            ],
+            warning: [
+              "appointmentCondition"
+            ]
+          },
+          email_event: {
+            error: [
+              "emailEventSteps",
+              "emailEventTypes"
+            ],
+            warning: []
+          },
+          link_clicked: {
+            error: [
+              "link"
+            ],
+            warning: []
+          },
+          user_replied: {
+            error: [
+              "channel",
+              "repliedBy"
+            ],
+            warning: []
+          },
+          specific_date: {
+            error: [
+              "type"
+            ],
+            warning: []
+          },
+          recurring_schedule: {
+            error: [
+              "type",
+              "startAfter.value"
+            ],
+            warning: []
+          }
+        }
       }
     },
     webhook: {
@@ -43792,6 +44420,21 @@ var catalog_data_default = {
             type: "IKeyValue[]"
           }
         ]
+      },
+      variantRules: {
+        validator: "webhookValidator",
+        source: "utils/validators/webhook-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "url",
+              "method",
+              "customData",
+              "headers"
+            ]
+          }
+        }
       }
     },
     workflow_ai_decision_maker: {
@@ -43917,6 +44560,24 @@ var catalog_data_default = {
             type: "GoalAction // what happens when contact reaches this step."
           }
         ]
+      },
+      variantRules: {
+        validator: "goalActionValidator",
+        source: "utils/validators/goal-action-validator.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "stepIds",
+              "extras.linkIds",
+              "extras.calendarId",
+              "extras.globalProductIds",
+              "extras.formIds",
+              "extras.templateId",
+              "invoiceStepId"
+            ]
+          }
+        }
       }
     },
     workflow_split: {
@@ -43993,6 +44654,18 @@ var catalog_data_default = {
             type: "SplitExtras"
           }
         ]
+      },
+      variantRules: {
+        validator: "workflowSplitValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "paths"
+            ]
+          }
+        }
       }
     },
     workflow_ai_generate_image: {
@@ -44054,6 +44727,22 @@ var catalog_data_default = {
             type: "IGenerateImageAIAdditionalSettings"
           }
         ]
+      },
+      variantRules: {
+        validator: "generateImageAIValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [
+              "brandBoardId",
+              "brandVoiceId"
+            ],
+            warning: [
+              "prompt",
+              "model"
+            ]
+          }
+        }
       }
     },
     create_custom_object: {
@@ -44215,6 +44904,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "messengerValidator",
+        source: "utils/validators/fb-ig-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "body"
+            ]
+          }
+        }
       }
     },
     "instagram-dm": {
@@ -44334,6 +45035,18 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "instagramDmValidator",
+        source: "utils/validators/fb-ig-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "body"
+            ]
+          }
+        }
       }
     },
     gmb: {
@@ -44406,7 +45119,19 @@ var catalog_data_default = {
       requiredFields: [
         "commentResponse"
       ],
-      attrKeys: []
+      attrKeys: [],
+      variantRules: {
+        validator: "respondOnCommentValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "commentResponse"
+            ]
+          }
+        }
+      }
     },
     loop: {
       type: "loop",
@@ -44477,6 +45202,19 @@ var catalog_data_default = {
             type: "Record<string, IToolSchemaField>"
           }
         ]
+      },
+      variantRules: {
+        validator: "updateCustomValueValidator",
+        source: "utils/validators/internal-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "custom_value_id",
+              "new_value"
+            ]
+          }
+        }
       }
     },
     number_formatter: {
@@ -44533,6 +45271,28 @@ var catalog_data_default = {
             via: "NumberFormatterActions"
           }
         ]
+      },
+      variantRules: {
+        validator: "numberFormatterValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "action",
+              "format.fromField",
+              "format.options.inputDecimalMark",
+              "format.options.outputNumberFormat",
+              "format.options.phone.format",
+              "format.options.phone.countryCode",
+              "format.options.currency.currencyLocale",
+              "format.options.currency.currencyCode",
+              "random.min",
+              "random.max",
+              "random.decimalPlaces"
+            ]
+          }
+        }
       }
     },
     array_functions: {
@@ -44635,6 +45395,33 @@ var catalog_data_default = {
             type: "any[]"
           }
         ]
+      },
+      variantRules: {
+        validator: "arrayFunctionsValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "action",
+              "find.fromField",
+              "find.filters",
+              "filter.fromField",
+              "filter.filters",
+              "math_functions.fromField",
+              "math_functions.key",
+              "math_functions.operations",
+              "find_by_index.fromField",
+              "find_by_index.index",
+              "line_items.fromField",
+              "line_items.fields",
+              "format_as_text.fromField",
+              "format_as_text.detailField",
+              "format_as_text.displayFormat",
+              "format_as_text.customSeparator"
+            ]
+          }
+        }
       }
     },
     add_appointment_booking_ai_bot: {
@@ -44728,6 +45515,21 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "aiAppointmentBookValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "calendar_id",
+              "timeout_time",
+              "first_message",
+              "success_message"
+            ]
+          }
+        }
       }
     },
     send_to_eliza: {
@@ -44903,6 +45705,20 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "googleAnalyticsValidator",
+        source: "utils/validators/other-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "measurement_id",
+              "event",
+              "api_secret"
+            ]
+          }
+        }
       }
     },
     google_adword: {
@@ -44997,7 +45813,20 @@ var catalog_data_default = {
         "facebook_account_id",
         "facebook_custom_audience_id"
       ],
-      attrKeys: []
+      attrKeys: [],
+      variantRules: {
+        validator: "facebookCustomAudienceValidator",
+        source: "utils/validators/fb-ig-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "facebook_account_id",
+              "facebook_custom_audience_id"
+            ]
+          }
+        }
+      }
     },
     add_to_affiliate_manager: {
       type: "add_to_affiliate_manager",
@@ -45055,6 +45884,18 @@ var catalog_data_default = {
             via: "inline"
           }
         ]
+      },
+      variantRules: {
+        validator: "updateAffiliateValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "affiliate_state"
+            ]
+          }
+        }
       }
     },
     add_to_affiliate_campaign: {
@@ -45094,6 +45935,18 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "addToAffiliateCampaignValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "campaign_id"
+            ]
+          }
+        }
       }
     },
     remove_from_affiliate_campaign: {
@@ -45133,6 +45986,18 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "addToAffiliateCampaignValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "campaign_id"
+            ]
+          }
+        }
       }
     },
     membership_revoke_offer: {
@@ -45171,6 +46036,18 @@ var catalog_data_default = {
             type: "string"
           }
         ]
+      },
+      variantRules: {
+        validator: "membershipRevokeOfferValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "offer_id"
+            ]
+          }
+        }
       }
     },
     ivr_gather: {
@@ -45205,7 +46082,23 @@ var catalog_data_default = {
         "message",
         "voice"
       ],
-      attrKeys: []
+      attrKeys: [],
+      variantRules: {
+        validator: "ivrSayValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "loop",
+              "language",
+              "message",
+              "voice",
+              "audioUrl"
+            ]
+          }
+        }
+      }
     },
     ivr_connect_call: {
       type: "ivr_connect_call",
@@ -45290,6 +46183,19 @@ var catalog_data_default = {
             type: "ICustomNumber[]"
           }
         ]
+      },
+      variantRules: {
+        validator: "ivrConnectCallValidator",
+        source: "utils/validators/additional-action-validators.ts",
+        variants: {
+          "*": {
+            error: [],
+            warning: [
+              "users",
+              "customNumbers"
+            ]
+          }
+        }
       }
     },
     ivr_hangup: {
