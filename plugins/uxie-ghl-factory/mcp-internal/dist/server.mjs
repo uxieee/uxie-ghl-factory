@@ -36603,6 +36603,49 @@ function enforceTemplates(templates, catalog, ctx) {
   }
 }
 
+// ../skills/create-ghl-workflow/engine/graph-refs.mjs
+init_define_TOOL_CATALOG();
+var STEP_REF_FIELDS = [
+  ["goto", "targetNodeId", "single"],
+  ["wait", "appointmentSpecificStep", "single"],
+  ["wait", "reply", "array"],
+  ["wait", "emailEventSteps", "array"],
+  ["workflow_goal", "stepIds", "array"],
+  ["workflow_goal", "invoiceStepId", "single"]
+];
+var get2 = (o, p) => p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
+function stepRefsOf(t) {
+  const out = [];
+  for (const [type, path, kind] of STEP_REF_FIELDS) {
+    if (t.type !== type) continue;
+    const v = get2(t.attributes ?? {}, path);
+    if (v == null || v === "") continue;
+    for (const id of kind === "array" ? Array.isArray(v) ? v : [] : [v]) {
+      if (typeof id === "string" && id) out.push({ path, id });
+    }
+  }
+  return out;
+}
+function danglingStepRefs(templates) {
+  const ids = new Set((templates ?? []).map((t) => t.id));
+  const out = [];
+  for (const t of templates ?? []) {
+    for (const { path, id } of stepRefsOf(t)) {
+      if (!ids.has(id)) out.push({ id: t.id, name: t.name, type: t.type, path, missing: id });
+    }
+  }
+  return out;
+}
+function checkStepRefs(templates, errCtor = null) {
+  const bad = danglingStepRefs(templates);
+  if (!bad.length) return;
+  const lines = bad.map((b) => `  - '${b.name ?? b.id}' (${b.type}) ${b.path} \u2192 '${b.missing}' does not exist in this workflow`);
+  const msg = `REF_DANGLING: ${bad.length} step reference(s) point at steps that do not exist:
+${lines.join("\n")}
+GHL grades this a WARNING \u2014 the builder's panel shows "0 Errors" while the step renders a broken link and the runtime has nowhere to go. Fix the reference or remove the step.`;
+  throw errCtor ? new errCtor("REF_DANGLING", msg) : Object.assign(new Error(msg), { code: "REF_DANGLING" });
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -37410,12 +37453,18 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     }
     if (n.kind === "goto") {
       if (!refMap.has(n.target)) refMap.set(n.target, ctx.idGen());
+      const gotoTarget = refMap.get(n.target);
+      if (!gotoTarget)
+        throw new IRError(
+          "REF_DANGLING",
+          `REF_DANGLING: goto '${n.ref}' targets ref '${n.target}', which does not exist in this IR. GHL would save this with a green "0 Errors" panel and a broken-link icon; the runtime would have nowhere to send the contact. Point \`target\` at a real node ref.`
+        );
       const tmpl2 = {
         id,
         type: "goto",
         name: n.name ?? "Go To",
         order: i,
-        attributes: { targetNodeId: refMap.get(n.target), type: "goto" },
+        attributes: { targetNodeId: gotoTarget, type: "goto" },
         next: null,
         parentKey
       };
@@ -37802,6 +37851,7 @@ function compile(ir, ctx) {
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
   enforceTemplates(templates, ctx?.catalog, ctx);
+  checkStepRefs(templates, IRError);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
   casingLint(result);
   return result;
@@ -85841,6 +85891,9 @@ function appendStep(templates, newStep) {
 function deleteStep(templates, stepId) {
   const victim = templates.find((t) => t.id === stepId);
   if (!victim) return { templates, diff: emptyDiff() };
+  const holders = templates.filter((t) => t.id !== stepId && stepRefsOf(t).some((r) => r.id === stepId));
+  if (holders.length)
+    throw new Error(`deleteStep: '${victim.name ?? stepId}' is still referenced by ` + holders.map((h) => `'${h.name ?? h.id}' (${h.type})`).join(", ") + ` \u2014 repoint or delete the referencing step(s) first (GHL would render a broken link and report 0 errors).`);
   const pred = templates.find((t) => t.next === stepId);
   const newParent = pred ? pred.id : null;
   const modified = new Set(pred ? [pred.id] : []);
@@ -86317,6 +86370,13 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const created = new Set(diff.createdSteps ?? []);
   if (opts.assumeAssociated !== true && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  if (opts.allowDanglingStepRefs !== true) {
+    const touchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+    const deletedIds = new Set(diff.deletedSteps ?? []);
+    const bad = danglingStepRefs(newTemplates).filter((d) => touchedIds.has(d.id) || deletedIds.has(d.missing));
+    if (bad.length)
+      throw new Error(`edit would leave ${bad.length} dangling step reference(s): ` + bad.map((b) => `'${b.name ?? b.id}' (${b.type}) ${b.path} \u2192 missing '${b.missing}'`).join("; ") + `. GHL reports 0 errors on this and renders a broken link. Repoint the reference, or pass allowDanglingStepRefs:true.`);
+  }
   if (opts.allowDanglingParentKeys !== true) {
     const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
     const bad = danglingParentKeys(newTemplates).filter((d) => touched2.has(d.id));
@@ -86580,7 +86640,7 @@ async function fetchEntities(gw) {
 }
 async function fetchMarketplace(call, loc) {
   const empty2 = { assets: null, modules: { actions: [], triggers: [] } };
-  const get2 = async (path) => {
+  const get3 = async (path) => {
     try {
       const r = await call("GET", path);
       return r?.ok ? r.json : null;
@@ -86588,10 +86648,10 @@ async function fetchMarketplace(call, loc) {
       return null;
     }
   };
-  const assets = await get2(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const assets = await get3(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
   const page = (type) => `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
-  const actions = await get2(page("actions"));
-  const triggers = await get2(page("triggers"));
+  const actions = await get3(page("actions"));
+  const triggers = await get3(page("triggers"));
   if (!assets && !actions && !triggers) return empty2;
   return {
     assets,

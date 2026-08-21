@@ -7,6 +7,7 @@ import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
+import { checkStepRefs } from './graph-refs.mjs';
 
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -1121,9 +1122,18 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       // Resolve the target id (forward refs legal — pre-assign if not seen yet;
       // the target node reuses this id when its own scope is walked).
       if (!refMap.has(n.target)) refMap.set(n.target, ctx.idGen());
+      // Resolve-or-throw: refMap.get() on an unknown ref returned undefined, which emitted a
+      // goto with NO targetNodeId — the broken-link node GHL's panel calls "0 Errors" (its
+      // gotoValidator grades !targetExists as a warning). Found from a real client screenshot.
+      const gotoTarget = refMap.get(n.target);
+      if (!gotoTarget)
+        throw new IRError('REF_DANGLING',
+          `REF_DANGLING: goto '${n.ref}' targets ref '${n.target}', which does not exist in this IR. GHL would save ` +
+          `this with a green "0 Errors" panel and a broken-link icon; the runtime would have nowhere to ` +
+          `send the contact. Point \`target\` at a real node ref.`);
       const tmpl = {
         id, type: 'goto', name: n.name ?? 'Go To', order: i,
-        attributes: { targetNodeId: refMap.get(n.target), type: 'goto' },
+        attributes: { targetNodeId: gotoTarget, type: 'goto' },
         next: null, parentKey,
       };
       if (parentScopeId !== null) tmpl.parent = parentScopeId;
@@ -1551,6 +1561,10 @@ export function compile(ir, ctx) {
   // the build BEFORE anything reaches GHL — the acceptance criterion is that a build which passes
   // opens in the builder with zero errors, and one which would not never gets written.
   enforceTemplates(templates, ctx?.catalog, ctx);
+  // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
+  // emit above already throws with the authored ref name; this sweep catches every OTHER path
+  // (wait reply/emailEventSteps/appointmentSpecificStep, workflow_goal ids, edit-composed graphs).
+  checkStepRefs(templates, IRError);
 
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
   casingLint(result);

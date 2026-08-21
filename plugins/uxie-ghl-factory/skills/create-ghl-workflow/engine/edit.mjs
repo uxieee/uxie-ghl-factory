@@ -9,6 +9,7 @@
 // an edit apply cleanly without disturbing untouched steps.
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
 import { expandCondition } from './compiler.mjs';
+import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 
 // A trigger added via the API lands `active: false` on the server NO MATTER WHAT the
 // POST body said — it only starts firing after a status draft→published round trip
@@ -78,6 +79,15 @@ export function appendStep(templates, newStep) {
 export function deleteStep(templates, stepId) {
   const victim = templates.find((t) => t.id === stepId);
   if (!victim) return { templates, diff: emptyDiff() };
+  // Refuse to orphan a REFERENCE. Deleting only rewires next/parentKey; a goto/wait/goal that
+  // POINTS at the victim would keep its id and become the broken-link node GHL's panel calls
+  // "0 Errors" (gotoValidator grades !targetExists warning-level). The holder must be repointed
+  // or deleted first — guessing intent here is how silent no-ops are made.
+  const holders = templates.filter((t) => t.id !== stepId && stepRefsOf(t).some((r) => r.id === stepId));
+  if (holders.length)
+    throw new Error(`deleteStep: '${victim.name ?? stepId}' is still referenced by ` +
+      holders.map((h) => `'${h.name ?? h.id}' (${h.type})`).join(', ') +
+      ` — repoint or delete the referencing step(s) first (GHL would render a broken link and report 0 errors).`);
   const pred = templates.find((t) => t.next === stepId);
   const newParent = pred ? pred.id : null;
   const modified = new Set(pred ? [pred.id] : []);
@@ -814,6 +824,20 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   if (opts.assumeAssociated !== true
       && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  // Fail CLOSED on a step REFERENCE (goto target, wait reply/email-event lists, goal steps)
+  // left dangling by this edit — scoped like the parentKey check below: only refs whose holder
+  // was touched, or whose target this edit deleted, can block; legacy residue on untouched
+  // steps does not brick unrelated edits. opts.allowDanglingStepRefs is the explicit hatch.
+  if (opts.allowDanglingStepRefs !== true) {
+    const touchedIds = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+    const deletedIds = new Set(diff.deletedSteps ?? []);
+    const bad = danglingStepRefs(newTemplates)
+      .filter((d) => touchedIds.has(d.id) || deletedIds.has(d.missing));
+    if (bad.length)
+      throw new Error(`edit would leave ${bad.length} dangling step reference(s): ` +
+        bad.map((b) => `'${b.name ?? b.id}' (${b.type}) ${b.path} → missing '${b.missing}'`).join('; ') +
+        `. GHL reports 0 errors on this and renders a broken link. Repoint the reference, or pass allowDanglingStepRefs:true.`);
+  }
   // Fail CLOSED on a parentKey that references a deleted/nonexistent step, the way the
   // round-trip verifier fails on duplicate ids. Scope it to steps THIS edit created or
   // modified so a legacy workflow's pre-existing residue doesn't brick unrelated edits —
