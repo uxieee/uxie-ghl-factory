@@ -78,6 +78,9 @@ export function collectOpTags(ops) {
     if (op.op === 'modifyStep' && op.attrPatch?.tags)
       graph.push({ type: 'add_contact_tag', attributes: { tags: [].concat(op.attrPatch.tags) } });
     // addBranch conditions can carry tag intent (if_else tag conditions).
+    // replaceTag introduces a tag by NAME — it must exist before the commit lands.
+    if (op.op === 'replaceTag' && typeof op.newTag === 'string' && op.newTag)
+      graph.push({ type: 'add_contact_tag', attributes: { tags: [op.newTag] } });
     if (op.op === 'addBranch' && op.conditions?.length)
       graph.push({ branches: [{ conditions: op.conditions, then: [] }] });
   }

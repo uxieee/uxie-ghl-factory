@@ -65,6 +65,10 @@
 //     of name/attributes/advanceCanvasMeta inserted after the source (or afterId); notes are NOT copied; an
 //     email-builder email gets isCloned:true on the SOURCE (the UI does); containers/goals/loops/gotos refused.
 //
+//   { "op":"replaceTag",      "oldTag":"vip", "newTag":"vip-2026", "triggers":true }   # Find & Replace, TAG mode:
+//     exact swap in tags arrays + tags-subtype if/else conditions, string replace in customTags, AND a PUT
+//     per trigger whose conditions carry the tag (triggers:false = steps only). newTag is pre-created.
+//
 // SETTINGS op (the builder's Settings tab — workflow-document TOP-LEVEL keys, not a step):
 //   { "op":"updateSettings", "settings": { "stopOnResponse":true, "timezone":"contact",
 //       "window": {"start":"08:00","end":"17:00","days":[1,2,3,4,5]}, "senderAddress": {...},

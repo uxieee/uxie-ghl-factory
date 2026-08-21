@@ -996,3 +996,63 @@ export function duplicateStep(templates, stepId, idGen, { afterId } = {}) {
   if (!r.diff.createdSteps?.length) throw new Error(`duplicateStep: insert anchor '${afterId ?? stepId}' not found`);
   return { templates: r.templates, diff: { ...r.diff, modifiedSteps: [...new Set([...(r.diff.modifiedSteps ?? []), ...modified])] }, newId: clone.id };
 }
+
+// ─── FIND & REPLACE, tag mode (the magnifier rail panel; components/search-nodes/**) ──────
+// The UI's TAG mode is the one non-literal replace: EXACT equality on tag arrays
+// (`attributes.tags`, if/else `conditions[].conditionValue` where conditionSubType === 'tags'),
+// a case-SENSITIVE string replace on `attributes.customTags`, and — for triggers — the same on
+// `conditions[].value` (array → exact swap, string → replace). If the new tag already exists on a
+// node the UI offers "the original tag will be removed" → the result is de-duplicated.
+// (TEXT mode has no replace in the UI at all; custom-value mode is a substring replace — not here.)
+const TAG_CONDITION_SUBTYPES = new Set(['tags']);
+function swapInArray(arr, oldTag, newTag) {
+  if (!Array.isArray(arr) || !arr.includes(oldTag)) return { arr, changed: false };
+  const out = []; for (const v of arr) { const nv = v === oldTag ? newTag : v; if (!out.includes(nv)) out.push(nv); }
+  return { arr: out, changed: true };
+}
+export function replaceTagInTemplates(templates, oldTag, newTag) {
+  if (typeof oldTag !== 'string' || !oldTag || typeof newTag !== 'string' || !newTag) throw new Error(`replaceTag needs non-empty 'oldTag' and 'newTag' strings`);
+  if (oldTag === newTag) throw new Error(`replaceTag: oldTag and newTag are the same ('${oldTag}') — nothing to do (the UI warns and no-ops)`);
+  const modified = [];
+  const out = templates.map((t) => {
+    let changed = false;
+    const attrs = t.attributes && typeof t.attributes === 'object' ? { ...t.attributes } : null;
+    if (!attrs) return t;
+    const r = swapInArray(attrs.tags, oldTag, newTag); if (r.changed) { attrs.tags = r.arr; changed = true; }
+    if (typeof attrs.customTags === 'string' && attrs.customTags.includes(oldTag)) { attrs.customTags = attrs.customTags.split(oldTag).join(newTag); changed = true; }
+    if (Array.isArray(attrs.branches)) {
+      attrs.branches = attrs.branches.map((b) => {
+        if (!Array.isArray(b?.segments)) return b;
+        let bChanged = false;
+        const segments = b.segments.map((s) => {
+          if (!Array.isArray(s?.conditions)) return s;
+          const conditions = s.conditions.map((c) => {
+            if (!c || !TAG_CONDITION_SUBTYPES.has(c.conditionSubType)) return c;
+            if (Array.isArray(c.conditionValue)) { const rr = swapInArray(c.conditionValue, oldTag, newTag); if (rr.changed) { bChanged = true; return { ...c, conditionValue: rr.arr }; } return c; }
+            if (c.conditionValue === oldTag) { bChanged = true; return { ...c, conditionValue: newTag }; }
+            return c;
+          });
+          return { ...s, conditions };
+        });
+        if (bChanged) changed = true;
+        return { ...b, segments };
+      });
+    }
+    if (!changed) return t;
+    modified.push(t.id);
+    return { ...t, attributes: attrs };
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, replaced: modified.length };
+}
+/** Trigger side: conditions[].value — array → exact swap, string → case-sensitive replace. Returns the rewritten conditions or null when untouched. */
+export function replaceTagInTriggerConditions(conditions, oldTag, newTag) {
+  if (!Array.isArray(conditions)) return null;
+  let changed = false;
+  const out = conditions.map((c) => {
+    if (!c || typeof c !== 'object') return c;
+    if (Array.isArray(c.value)) { const r = swapInArray(c.value, oldTag, newTag); if (r.changed) { changed = true; return { ...c, value: r.arr }; } return c; }
+    if (typeof c.value === 'string' && c.value.includes(oldTag)) { changed = true; return { ...c, value: c.value.split(oldTag).join(newTag) }; }
+    return c;
+  });
+  return changed ? out : null;
+}
