@@ -19,6 +19,7 @@
   "sniffs/bundle/trigger-seeds-replay.json",
   "sniffs/bundle/trigger-incompatible-actions.json",
   "sniffs/bundle/merge-tags.json",
+  "sniffs/bundle/merge-tags-replay.json",
   "sniffs/bundle/i18n-en.json",
   "sniffs/UNIFIED_ACTION_INDEX.tsv",
   "sniffs/assets/actions.json",
@@ -5664,7 +5665,38 @@
     "type": "TEXT",
     "group": "getConversationAIOptions"
    }
-  ]
+  ],
+  "closedNamespaces": [
+   "calendar",
+   "document",
+   "message",
+   "phoneCall",
+   "right_now",
+   "user"
+  ],
+  "openNamespaces": [
+   "affiliate_new_lead",
+   "ai_agent",
+   "ai_field",
+   "appointment",
+   "cancellation_link",
+   "chatgpt",
+   "contact",
+   "contactMethod",
+   "conversationai_objective",
+   "custom_code",
+   "custom_values",
+   "custom_webhook",
+   "datetime_formatter",
+   "inboundWebhookRequest",
+   "location",
+   "opportunity",
+   "reschedule_link",
+   "task",
+   "text_formatter",
+   "trigger_link"
+  ],
+  "corpusTokens": 4890
  },
  "i18n": {
   "loop_unsupported_action_error": "{action} cannot be placed inside a Loop. Move it outside the loop.",
