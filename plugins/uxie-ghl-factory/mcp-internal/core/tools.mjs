@@ -1996,7 +1996,7 @@ export const TOOLS = [
       // WORKFLOW-level rules (GHL's WorkflowValidator): graph-scoped + trigger-aware, evaluated on
       // the post-edit document with the live trigger set. Hatch: args.skipWorkflowRules.
       checkWorkflowRules({ templates, triggers: existingTriggers, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === 'published' },
-        ctx.catalog?.workflowRules, { skipWorkflowRules: args.skipWorkflowRules });
+        ctx.catalog?.workflowRules, { skipWorkflowRules: args.skipWorkflowRules, warn: ctx.warn });
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
         wid: args.workflowId,

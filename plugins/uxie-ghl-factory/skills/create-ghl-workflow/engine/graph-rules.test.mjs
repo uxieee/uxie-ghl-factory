@@ -97,3 +97,14 @@ test('checkWorkflowRules throws WORKFLOW_RULE naming the GHL rule; hatch is full
   checkWorkflowRules(doc, R(), { skipWorkflowRules: ['checkMultipleGoal'] });
   assert.deepEqual(checkWorkflowRules({ templates: [step('a', 'sms', { attributes: { body: 'hi' } })], triggers: [trig('contact_tag')] }, R()), []);
 });
+
+test('advisory channel: a picker-disabled action under its trigger WARNS (never blocks)', () => {
+  const r = R();
+  const [trigType, acts] = Object.entries(r.disabledActionsByTrigger ?? {})[0] ?? [];
+  if (!trigType) return;                                   // catalog predates round 2 — nothing to assert
+  const warns = [];
+  const doc = { templates: [step('x', acts[0], { attributes: { body: 'b' } })], triggers: [trig(trigType)] };
+  const res = checkWorkflowRules(doc, r, { warn: (m) => warns.push(m) });
+  assert.deepEqual(res, []);                                   // not a block
+  assert.ok(warns.some((m) => /WORKFLOW_RULE_SOFT.*inCompatibleActions/.test(m)), JSON.stringify(warns));
+});
