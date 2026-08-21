@@ -11,6 +11,8 @@
   "sniffs/bundle/enforcement.json",
   "sniffs/bundle/trigger-validation.json",
   "sniffs/bundle/workflow-rules.json",
+  "sniffs/bundle/model-defaults.json",
+  "sniffs/bundle/model-defaults-replay.json",
   "sniffs/UNIFIED_ACTION_INDEX.tsv",
   "sniffs/assets/actions.json",
   "sniffs/assets/triggers.json"
@@ -2594,6 +2596,15 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "tags": []
+   },
+   "uiFreshName": "Add Tag",
+   "uiDefaultsSource": {
+    "class": "ContactTag",
+    "file": "models/actions/ContactTag.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "add_notes": {
@@ -2697,6 +2708,23 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "html": ""
+   },
+   "uiDefaultsUnverified": {
+    "color": {
+     "value": "#FEF0C7",
+     "corpus": "variable"
+    }
+   },
+   "uiForced": {
+    "type": "add_notes"
+   },
+   "uiDefaultsSource": {
+    "class": "Note",
+    "file": "models/actions/Note.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "add_to_workflow": {
@@ -2795,6 +2823,15 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "add_to_workflow"
+   },
+   "uiFreshName": "Add to Workflow",
+   "uiDefaultsSource": {
+    "class": "AddToWorkflow",
+    "file": "models/actions/AddToWorkflow.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "ai_agent": {
@@ -2823,6 +2860,19 @@
     "throw": [],
     "warn": [],
     "provenZero": "no-ghl-validator"
+   },
+   "uiDefaults": {
+    "prompt": "",
+    "model": "gpt-5.6-luna",
+    "tools": [],
+    "outputFormat": "text",
+    "outputDescription": "",
+    "memoryEnabled": false
+   },
+   "uiDefaultsSource": {
+    "class": "AIAgent",
+    "file": "models/actions/AIAgent.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "appointment_booking": {
@@ -3001,6 +3051,23 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "only_unassigned_contact": false,
+    "total_index": 0,
+    "traffic_split": "equally",
+    "traffic_weightage": {},
+    "traffic_index": [],
+    "user_list": [],
+    "type": "assign_user"
+   },
+   "uiForced": {
+    "type": "assign_user"
+   },
+   "uiDefaultsSource": {
+    "class": "AssignToUser",
+    "file": "models/actions/AssignToUser.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "call": {
@@ -3138,6 +3205,29 @@
       "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaultsUnverified": {
+    "timeout": {
+     "value": 60,
+     "corpus": "insufficient-corpus"
+    },
+    "whisper_message": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    },
+    "disable_detect_voicemail": {
+     "value": false,
+     "corpus": "insufficient-corpus"
+    },
+    "call_connect": {
+     "value": true,
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "Call",
+    "file": "models/actions/Call.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "chatgpt": {
@@ -3574,6 +3664,11 @@
       "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaultsSource": {
+    "class": "ChatGPT",
+    "file": "models/actions/premium-actions/ChatGPT.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "contact_email_verification": {
@@ -4121,6 +4216,40 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsUnverified": {
+    "type": {
+     "value": "copy_contact_to_subaccount",
+     "corpus": "insufficient-corpus"
+    },
+    "newLocations": {
+     "value": [],
+     "corpus": "insufficient-corpus"
+    },
+    "withTags": {
+     "value": false,
+     "corpus": "insufficient-corpus"
+    },
+    "withCustomFields": {
+     "value": false,
+     "corpus": "insufficient-corpus"
+    },
+    "tags": {
+     "value": [],
+     "corpus": "insufficient-corpus"
+    },
+    "updateIfExists": {
+     "value": false,
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiForced": {
+    "type": "copy_contact_to_subaccount"
+   },
+   "uiDefaultsSource": {
+    "class": "CopyContactToSubaccount",
+    "file": "models/actions/premium-actions/CopyContactToSubaccount.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "create_opportunity": {
@@ -4265,6 +4394,17 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "fields": []
+   },
+   "uiForced": {
+    "type": "create_opportunity"
+   },
+   "uiDefaultsSource": {
+    "class": "CreateOpportunity",
+    "file": "models/actions/CreateOpportunity.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "create_update_contact": {
@@ -4380,6 +4520,18 @@
       "support": "CONDITIONAL; corpus 0% of 8; warn-replay fired 0/8 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaults": {
+    "type": "create_update_contact",
+    "fields": []
+   },
+   "uiForced": {
+    "type": "create_update_contact"
+   },
+   "uiDefaultsSource": {
+    "class": "CreateUpdateContact",
+    "file": "models/actions/crm/CreateUpdateContact.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "custom_code": {
@@ -4463,6 +4615,15 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "language": "javascript",
+    "inputData": {}
+   },
+   "uiDefaultsSource": {
+    "class": "CustomCode",
+    "file": "models/actions/premium-actions/CustomCode.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "custom_webhook": {
@@ -5104,6 +5265,33 @@
       "support": "DERIVED; corpus 2% of 56; warn-replay fired 0/56 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaults": {
+    "event": "CUSTOM",
+    "method": "POST",
+    "url": "",
+    "body": {
+     "contentType": "application/json",
+     "rawData": {
+      "__dynamic__": "this.defaultRawBodyString"
+     },
+     "keyValueData": []
+    },
+    "headers": [],
+    "parameters": [],
+    "authorization": {
+     "type": "NONE",
+     "data": null
+    },
+    "saveResponse": false,
+    "webhookResponse": {
+     "selectedContact": ""
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "CustomWebhook",
+    "file": "models/actions/premium-actions/CustomWebhook.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "datetime_formatter": {
@@ -5703,6 +5891,14 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "type": "datetime_formatter"
+   },
+   "uiDefaultsSource": {
+    "class": "DateTimeFormatter",
+    "file": "models/actions/premium-actions/DateTimeFormatter.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "dnd_contact": {
@@ -5874,6 +6070,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "dnd_contact"
+   },
+   "uiDefaultsSource": {
+    "class": "ContactDND",
+    "file": "models/actions/ContactDND.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "drip": {
@@ -6176,6 +6380,21 @@
       "support": "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaults": {
+    "batchSize": 100,
+    "interval": {
+     "timeUnit": "minutes",
+     "value": 1
+    }
+   },
+   "uiForced": {
+    "type": "drip"
+   },
+   "uiDefaultsSource": {
+    "class": "Drip",
+    "file": "models/actions/Drip.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "edit_conversation": {
@@ -6520,6 +6739,17 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsUnverified": {
+    "isCloned": {
+     "value": false,
+     "corpus": "stripped-on-save"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "Email",
+    "file": "models/actions/Email.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "event_start_date": {
@@ -6658,6 +6888,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "event_start_date"
+   },
+   "uiDefaultsSource": {
+    "class": "EventStartDate",
+    "file": "models/actions/EventStartDate.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "facebook_add_to_custom_audience": {
@@ -6730,6 +6968,28 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsUnverified": {
+    "type": {
+     "value": "facebook_add_to_custom_audience",
+     "corpus": "insufficient-corpus"
+    },
+    "facebook_account_id": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    },
+    "facebook_custom_audience_id": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiForced": {
+    "type": "facebook_add_to_custom_audience"
+   },
+   "uiDefaultsSource": {
+    "class": "FacebookAddToCustomAudience",
+    "file": "models/actions/FacebookAddToCustomAudience.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "facebook_conversion_api": {
@@ -6882,6 +7142,28 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "type": "facebook_conversion_api",
+    "event_type": "funnel_event",
+    "access_token": "",
+    "pixel_id": "",
+    "currency": "USD",
+    "connection_type": "INTEGRATION"
+   },
+   "uiDefaultsUnverified": {
+    "event_name": {
+     "value": "Lead",
+     "corpus": "stripped-on-save"
+    }
+   },
+   "uiForced": {
+    "type": "facebook_conversion_api"
+   },
+   "uiDefaultsSource": {
+    "class": "FacebookAddToCustomAudience",
+    "file": "models/actions/FacebookConversationApi.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "find_contact": {
@@ -7033,6 +7315,15 @@
       "support": "CONDITIONAL; corpus 0% of 7; warn-replay fired 0/7 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaults": {
+    "type": "find_contact",
+    "fields": []
+   },
+   "uiDefaultsSource": {
+    "class": "FindContact",
+    "file": "models/actions/crm/FindContact.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "find_opportunity": {
@@ -7347,6 +7638,14 @@
       ]
      }
     }
+   },
+   "uiForced": {
+    "type": "google_sheets"
+   },
+   "uiDefaultsSource": {
+    "class": "GoogleSheetsApi",
+    "file": "models/actions/premium-actions/GoogleSheetsApi.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "goto": {
@@ -7406,6 +7705,14 @@
       ]
      }
     }
+   },
+   "uiForced": {
+    "type": "goto"
+   },
+   "uiDefaultsSource": {
+    "class": "Goto",
+    "file": "models/actions/Goto.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "if_else": {
@@ -7428,6 +7735,39 @@
     "throw": [],
     "warn": [],
     "provenZero": "no-ghl-validator"
+   },
+   "uiDefaultsUnverified": {
+    "currentRecipeType": {
+     "__dynamic__": "ConditionRecipeType.CUSTOM"
+    },
+    "branches": {
+     "value": [],
+     "corpus": "variable"
+    },
+    "operator": {
+     "__dynamic__": "Operator.AND"
+    },
+    "if": {
+     "value": true,
+     "corpus": "variable"
+    },
+    "conditionName": {
+     "value": "Condition",
+     "corpus": "variable"
+    },
+    "version": {
+     "value": 2,
+     "corpus": "variable"
+    },
+    "noneBranchName": {
+     "value": "None",
+     "corpus": "variable"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "IfElseMain",
+    "file": "models/conditions/IfElseMain.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "internal-add-contact-followers": {
@@ -8119,6 +8459,11 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsSource": {
+    "class": "InternalNotification",
+    "file": "models/actions/InternalNotification.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "internal_update_opportunity": {
@@ -8263,6 +8608,11 @@
     "throw": [],
     "warn": [],
     "provenZero": "no-ghl-validator"
+   },
+   "uiDefaultsSource": {
+    "class": "ManualCall",
+    "file": "models/actions/manualCall.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "manual-sms": {
@@ -8490,6 +8840,27 @@
       "support": "UNKNOWN; corpus 100% of 18; warn-replay fired 0/5 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaults": {
+    "selectField": "",
+    "selectFieldtype": "",
+    "sourceCustomValueId": "",
+    "updateField": "",
+    "targetCustomValueId": "",
+    "operators": [
+     {
+      "operator": "add",
+      "value": 0,
+      "__id": {
+       "__dynamic__": "uuid()"
+      }
+     }
+    ]
+   },
+   "uiDefaultsSource": {
+    "class": "MathOperation",
+    "file": "models/actions/MathOperations.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "membership_grant_offer": {
@@ -8563,6 +8934,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "membership_grant_offer"
+   },
+   "uiDefaultsSource": {
+    "class": "MembershipOffer",
+    "file": "models/actions/MembershipOffer.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "proposals_estimates_send_document": {
@@ -8640,6 +9019,17 @@
     "throw": [],
     "warn": [],
     "provenZero": "ghl-validator-empty"
+   },
+   "uiDefaultsUnverified": {
+    "type": {
+     "value": "remove_assigned_user",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "RemoveAssignedUser",
+    "file": "models/actions/removeAssignedUser.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "remove_contact_tag": {
@@ -8769,6 +9159,15 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "tags": []
+   },
+   "uiFreshName": "Remove Tag",
+   "uiDefaultsSource": {
+    "class": "ContactTag",
+    "file": "models/actions/ContactTag.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "remove_from_workflow": {
@@ -8907,6 +9306,15 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "remove_from_workflow"
+   },
+   "uiFreshName": "Remove from Workflow",
+   "uiDefaultsSource": {
+    "class": "RemoveFromWorkflow",
+    "file": "models/actions/RemoveFromWorkflow.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "remove_opportunity": {
@@ -9024,6 +9432,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "remove_opportunity"
+   },
+   "uiDefaultsSource": {
+    "class": "RemoveOpportunity",
+    "file": "models/actions/RemoveOpportunity.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "review_request": {
@@ -9109,6 +9525,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "review_request"
+   },
+   "uiDefaultsSource": {
+    "class": "ReviewRequest",
+    "file": "models/actions/ReviewRequest.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "slack_message": {
@@ -9348,6 +9772,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "slack_message"
+   },
+   "uiDefaultsSource": {
+    "class": "SlackMessage",
+    "file": "models/actions/premium-actions/SlackMessage.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "sms": {
@@ -9578,6 +10010,14 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "body": ""
+   },
+   "uiDefaultsSource": {
+    "class": "SMS",
+    "file": "models/actions/SMS.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "task-notification": {
@@ -9799,6 +10239,15 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "type": "text_formatter",
+    "extras": {}
+   },
+   "uiDefaultsSource": {
+    "class": "TextFormatter",
+    "file": "models/actions/premium-actions/TextFormatter.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "transition": {
@@ -9896,6 +10345,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "update_appointment_status"
+   },
+   "uiDefaultsSource": {
+    "class": "AppointmentStatus",
+    "file": "models/actions/AppointmentStatus.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "update_contact_field": {
@@ -9990,6 +10447,19 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaults": {
+    "type": "update_contact_field",
+    "actionType": "update_field_data",
+    "fields": []
+   },
+   "uiForced": {
+    "type": "update_contact_field"
+   },
+   "uiDefaultsSource": {
+    "class": "ContactField",
+    "file": "models/actions/ContactField.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "update_conversation_ai_status": {
@@ -10112,6 +10582,11 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsSource": {
+    "class": "Voicemail",
+    "file": "models/actions/Voicemail.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "wait": {
@@ -12002,6 +12477,14 @@
       "support": "CONDITIONAL; corpus no sample in variant recurring_schedule; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaults": {
+    "type": "time"
+   },
+   "uiDefaultsSource": {
+    "class": "Wait",
+    "file": "models/conditions/Wait.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "webhook": {
@@ -12246,6 +12729,17 @@
       "support": "DERIVED; corpus 10% of 20; warn-replay fired 0/20 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaults": {
+    "method": "POST",
+    "url": "",
+    "customData": [],
+    "headers": []
+   },
+   "uiDefaultsSource": {
+    "class": "Webhook",
+    "file": "models/actions/Webhook.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "workflow_ai_decision_maker": {
@@ -12389,6 +12883,11 @@
       ]
      }
     }
+   },
+   "uiDefaultsSource": {
+    "class": "Goal",
+    "file": "models/Goals/Goal.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "workflow_split": {
@@ -12642,6 +13141,11 @@
       "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaultsSource": {
+    "class": "GenerateImageAI",
+    "file": "models/actions/premium-actions/GenerateImageAI.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "create_custom_object": {
@@ -12830,6 +13334,17 @@
       ]
      }
     }
+   },
+   "uiDefaultsUnverified": {
+    "body": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "SMS",
+    "file": "models/actions/SMS.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "instagram-dm": {
@@ -12961,6 +13476,17 @@
       ]
      }
     }
+   },
+   "uiDefaultsUnverified": {
+    "body": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "SMS",
+    "file": "models/actions/SMS.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "gmb": {
@@ -13127,6 +13653,11 @@
       "support": "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaultsSource": {
+    "class": "RespondOnComment",
+    "file": "models/actions/RespondOnComment.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "loop": {
@@ -13172,6 +13703,32 @@
     "throw": [],
     "warn": [],
     "provenZero": "no-ghl-validator"
+   },
+   "uiDefaultsUnverified": {
+    "type": {
+     "value": "loop",
+     "corpus": "insufficient-corpus"
+    },
+    "items": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    },
+    "limit": {
+     "value": null,
+     "corpus": "insufficient-corpus"
+    },
+    "mode": {
+     "value": "sequential",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiForced": {
+    "type": "loop"
+   },
+   "uiDefaultsSource": {
+    "class": "Loop",
+    "file": "models/actions/Loop.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "update_custom_value": {
@@ -13305,6 +13862,11 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsSource": {
+    "class": "UpdateCustomValue",
+    "file": "models/actions/UpdateCustomValue.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "number_formatter": {
@@ -14161,6 +14723,17 @@
       "support": "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaultsUnverified": {
+    "type": {
+     "value": "number_formatter",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "NumberFormatter",
+    "file": "models/actions/premium-actions/NumberFormatter.ts",
+    "resolvedBy": "validator-generic"
    }
   },
   "array_functions": {
@@ -15012,6 +15585,17 @@
       "support": "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaultsUnverified": {
+    "type": {
+     "value": "array_functions",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "ArrayFunctions",
+    "file": "models/actions/ArrayFunctions.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "add_appointment_booking_ai_bot": {
@@ -15232,6 +15816,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "add_appointment_booking_ai_bot"
+   },
+   "uiDefaultsSource": {
+    "class": "AIAppointmentBook",
+    "file": "models/actions/AIAppointmentBook.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "send_to_eliza": {
@@ -15251,6 +15843,18 @@
     "throw": [],
     "warn": [],
     "provenZero": "ghl-validator-empty"
+   },
+   "uiDefaultsUnverified": {
+    "sendToSpecificUser": {
+     "value": false,
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiFreshName": "Send to Eliza Agent Platform",
+   "uiDefaultsSource": {
+    "class": "SendToEliza",
+    "file": "models/actions/SendToEliza.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "stripe_one_time_charge": {
@@ -15404,6 +16008,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "stripe_one_time_charge"
+   },
+   "uiDefaultsSource": {
+    "class": "StripeOneTimeCharge",
+    "file": "models/actions/StripeOneTimeCharge.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "google_analytics": {
@@ -15646,6 +16258,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "google_analytics"
+   },
+   "uiDefaultsSource": {
+    "class": "GoogleAnalytics",
+    "file": "models/actions/GoogleAnalytics.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "google_adword": {
@@ -15817,6 +16437,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "google_adword"
+   },
+   "uiDefaultsSource": {
+    "class": "GoogleAdword",
+    "file": "models/actions/GoogleAdword.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "facebook_remove_from_custom_audience": {
@@ -15884,6 +16512,28 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsUnverified": {
+    "type": {
+     "value": "facebook_remove_from_custom_audience",
+     "corpus": "insufficient-corpus"
+    },
+    "facebook_custom_audience_id": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    },
+    "facebook_account_id": {
+     "value": "",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiForced": {
+    "type": "facebook_remove_from_custom_audience"
+   },
+   "uiDefaultsSource": {
+    "class": "FacebookRemoveFromCustomAudience",
+    "file": "models/actions/FacebookRemoveFromCustomAudience.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "add_to_affiliate_manager": {
@@ -15980,6 +16630,11 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsSource": {
+    "class": "UpdateAffiliate",
+    "file": "models/actions/UpdateAffiliate.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "add_to_affiliate_campaign": {
@@ -16052,6 +16707,11 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsSource": {
+    "class": "AddToAffiliateCampaign",
+    "file": "models/actions/AddToAffiliateCampaign.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "remove_from_affiliate_campaign": {
@@ -16124,6 +16784,11 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsSource": {
+    "class": "RemoveFromAffiliateCampaign",
+    "file": "models/actions/RemoveFromAffiliateCampaign.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "membership_revoke_offer": {
@@ -16195,6 +16860,14 @@
      }
     ],
     "warn": []
+   },
+   "uiForced": {
+    "type": "membership_revoke_offer"
+   },
+   "uiDefaultsSource": {
+    "class": "MembershipRevokeOffer",
+    "file": "models/actions/MembershipRevokeOffer.ts",
+    "resolvedBy": "factory-namespace"
    }
   },
   "ivr_gather": {
@@ -16214,6 +16887,41 @@
     "throw": [],
     "warn": [],
     "provenZero": "ghl-validator-empty"
+   },
+   "uiDefaultsUnverified": {
+    "loop": {
+     "value": 1,
+     "corpus": "insufficient-corpus"
+    },
+    "timeout": {
+     "value": 5,
+     "corpus": "insufficient-corpus"
+    },
+    "numDigits": {
+     "value": 1,
+     "corpus": "insufficient-corpus"
+    },
+    "enableFinishOnKey": {
+     "value": false,
+     "corpus": "insufficient-corpus"
+    },
+    "widgetType": {
+     "value": "say",
+     "corpus": "insufficient-corpus"
+    },
+    "convertToMultipath": {
+     "value": false,
+     "corpus": "insufficient-corpus"
+    },
+    "name": {
+     "value": "Gather Input on call",
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "IVRGather",
+    "file": "models/actions/ivr/IVRGather.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "ivr_say": {
@@ -16383,6 +17091,33 @@
      }
     ],
     "warn": []
+   },
+   "uiDefaultsUnverified": {
+    "widgetType": {
+     "value": "say",
+     "corpus": "insufficient-corpus"
+    },
+    "language": {
+     "value": "en-US",
+     "corpus": "insufficient-corpus"
+    },
+    "voice": {
+     "value": "woman",
+     "corpus": "insufficient-corpus"
+    },
+    "message": {
+     "value": "Hello, this is an automated message",
+     "corpus": "insufficient-corpus"
+    },
+    "loop": {
+     "value": 1,
+     "corpus": "insufficient-corpus"
+    }
+   },
+   "uiDefaultsSource": {
+    "class": "IVRSay",
+    "file": "models/actions/ivr/IVRSay.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "ivr_connect_call": {
@@ -16509,6 +17244,11 @@
       "support": "DERIVED; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
      }
     ]
+   },
+   "uiDefaultsSource": {
+    "class": "IVRConnectCall",
+    "file": "models/actions/ivr/IVRConnectCall.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "ivr_hangup": {
@@ -16528,6 +17268,11 @@
     "throw": [],
     "warn": [],
     "provenZero": "ghl-validator-empty"
+   },
+   "uiDefaultsSource": {
+    "class": "IVRHangup",
+    "file": "models/actions/ivr/IVRHangup.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "ivr_collect_voicemail": {
@@ -16547,6 +17292,11 @@
     "throw": [],
     "warn": [],
     "provenZero": "ghl-validator-empty"
+   },
+   "uiDefaultsSource": {
+    "class": "IVRRecord",
+    "file": "models/actions/ivr/IVRRecord.ts",
+    "resolvedBy": "factory-import"
    }
   },
   "add_associated_records_to_workflow": {

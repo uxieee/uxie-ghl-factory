@@ -36697,6 +36697,34 @@ GHL grades this a WARNING \u2014 the builder's panel shows "0 Errors" while the 
   throw errCtor ? new errCtor("REF_DANGLING", msg) : Object.assign(new Error(msg), { code: "REF_DANGLING" });
 }
 
+// ../skills/create-ghl-workflow/engine/ui-defaults.mjs
+init_define_TOOL_CATALOG();
+var clone2 = (v) => v === void 0 ? v : JSON.parse(JSON.stringify(v));
+function applyUiDefaults(templates, catalog, ctx) {
+  if (!catalog?.step || ctx?.skipUiDefaults === true) return 0;
+  let added = 0;
+  for (const t of templates ?? []) {
+    if (!t?.type || t.type === "transition") continue;
+    const meta3 = catalog.step(t.type);
+    if (!meta3) continue;
+    const attrs = t.attributes ?? (t.attributes = {});
+    for (const [k, v] of Object.entries(meta3.uiDefaults ?? {})) {
+      if (attrs[k] === void 0) {
+        attrs[k] = clone2(v);
+        added++;
+      }
+    }
+    for (const [k, v] of Object.entries(meta3.uiForced ?? {})) {
+      if (attrs[k] === void 0) {
+        attrs[k] = clone2(v);
+        added++;
+      } else if (JSON.stringify(attrs[k]) !== JSON.stringify(v))
+        ctx?.warn?.(`UI_FORCED_MISMATCH: '${t.name ?? t.id}' (${t.type}) emits ${k}=${JSON.stringify(attrs[k])} but the UI's constructor always sets ${JSON.stringify(v)}`);
+    }
+  }
+  return added;
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -37906,6 +37934,7 @@ function compile(ir, ctx) {
     ...marketplaceStepIndexCounter2.size > 0 ? { meta: { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } } : {}
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
+  applyUiDefaults(templates, ctx?.catalog, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError);
   const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
@@ -37948,6 +37977,8 @@ var catalog_data_default = {
     "sniffs/bundle/enforcement.json",
     "sniffs/bundle/trigger-validation.json",
     "sniffs/bundle/workflow-rules.json",
+    "sniffs/bundle/model-defaults.json",
+    "sniffs/bundle/model-defaults-replay.json",
     "sniffs/UNIFIED_ACTION_INDEX.tsv",
     "sniffs/assets/actions.json",
     "sniffs/assets/triggers.json"
@@ -40531,6 +40562,15 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        tags: []
+      },
+      uiFreshName: "Add Tag",
+      uiDefaultsSource: {
+        class: "ContactTag",
+        file: "models/actions/ContactTag.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     add_notes: {
@@ -40634,6 +40674,23 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        html: ""
+      },
+      uiDefaultsUnverified: {
+        color: {
+          value: "#FEF0C7",
+          corpus: "variable"
+        }
+      },
+      uiForced: {
+        type: "add_notes"
+      },
+      uiDefaultsSource: {
+        class: "Note",
+        file: "models/actions/Note.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     add_to_workflow: {
@@ -40732,6 +40789,15 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "add_to_workflow"
+      },
+      uiFreshName: "Add to Workflow",
+      uiDefaultsSource: {
+        class: "AddToWorkflow",
+        file: "models/actions/AddToWorkflow.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     ai_agent: {
@@ -40760,6 +40826,19 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "no-ghl-validator"
+      },
+      uiDefaults: {
+        prompt: "",
+        model: "gpt-5.6-luna",
+        tools: [],
+        outputFormat: "text",
+        outputDescription: "",
+        memoryEnabled: false
+      },
+      uiDefaultsSource: {
+        class: "AIAgent",
+        file: "models/actions/AIAgent.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     appointment_booking: {
@@ -40938,6 +41017,23 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        only_unassigned_contact: false,
+        total_index: 0,
+        traffic_split: "equally",
+        traffic_weightage: {},
+        traffic_index: [],
+        user_list: [],
+        type: "assign_user"
+      },
+      uiForced: {
+        type: "assign_user"
+      },
+      uiDefaultsSource: {
+        class: "AssignToUser",
+        file: "models/actions/AssignToUser.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     call: {
@@ -41075,6 +41171,29 @@ var catalog_data_default = {
             support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaultsUnverified: {
+        timeout: {
+          value: 60,
+          corpus: "insufficient-corpus"
+        },
+        whisper_message: {
+          value: "",
+          corpus: "insufficient-corpus"
+        },
+        disable_detect_voicemail: {
+          value: false,
+          corpus: "insufficient-corpus"
+        },
+        call_connect: {
+          value: true,
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "Call",
+        file: "models/actions/Call.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     chatgpt: {
@@ -41511,6 +41630,11 @@ var catalog_data_default = {
             support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaultsSource: {
+        class: "ChatGPT",
+        file: "models/actions/premium-actions/ChatGPT.ts",
+        resolvedBy: "validator-generic"
       }
     },
     contact_email_verification: {
@@ -42058,6 +42182,40 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsUnverified: {
+        type: {
+          value: "copy_contact_to_subaccount",
+          corpus: "insufficient-corpus"
+        },
+        newLocations: {
+          value: [],
+          corpus: "insufficient-corpus"
+        },
+        withTags: {
+          value: false,
+          corpus: "insufficient-corpus"
+        },
+        withCustomFields: {
+          value: false,
+          corpus: "insufficient-corpus"
+        },
+        tags: {
+          value: [],
+          corpus: "insufficient-corpus"
+        },
+        updateIfExists: {
+          value: false,
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiForced: {
+        type: "copy_contact_to_subaccount"
+      },
+      uiDefaultsSource: {
+        class: "CopyContactToSubaccount",
+        file: "models/actions/premium-actions/CopyContactToSubaccount.ts",
+        resolvedBy: "validator-generic"
       }
     },
     create_opportunity: {
@@ -42202,6 +42360,17 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        fields: []
+      },
+      uiForced: {
+        type: "create_opportunity"
+      },
+      uiDefaultsSource: {
+        class: "CreateOpportunity",
+        file: "models/actions/CreateOpportunity.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     create_update_contact: {
@@ -42317,6 +42486,18 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus 0% of 8; warn-replay fired 0/8 in-scope published nodes"
           }
         ]
+      },
+      uiDefaults: {
+        type: "create_update_contact",
+        fields: []
+      },
+      uiForced: {
+        type: "create_update_contact"
+      },
+      uiDefaultsSource: {
+        class: "CreateUpdateContact",
+        file: "models/actions/crm/CreateUpdateContact.ts",
+        resolvedBy: "validator-generic"
       }
     },
     custom_code: {
@@ -42400,6 +42581,15 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        language: "javascript",
+        inputData: {}
+      },
+      uiDefaultsSource: {
+        class: "CustomCode",
+        file: "models/actions/premium-actions/CustomCode.ts",
+        resolvedBy: "factory-import"
       }
     },
     custom_webhook: {
@@ -43041,6 +43231,33 @@ var catalog_data_default = {
             support: "DERIVED; corpus 2% of 56; warn-replay fired 0/56 in-scope published nodes"
           }
         ]
+      },
+      uiDefaults: {
+        event: "CUSTOM",
+        method: "POST",
+        url: "",
+        body: {
+          contentType: "application/json",
+          rawData: {
+            __dynamic__: "this.defaultRawBodyString"
+          },
+          keyValueData: []
+        },
+        headers: [],
+        parameters: [],
+        authorization: {
+          type: "NONE",
+          data: null
+        },
+        saveResponse: false,
+        webhookResponse: {
+          selectedContact: ""
+        }
+      },
+      uiDefaultsSource: {
+        class: "CustomWebhook",
+        file: "models/actions/premium-actions/CustomWebhook.ts",
+        resolvedBy: "validator-generic"
       }
     },
     datetime_formatter: {
@@ -43640,6 +43857,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        type: "datetime_formatter"
+      },
+      uiDefaultsSource: {
+        class: "DateTimeFormatter",
+        file: "models/actions/premium-actions/DateTimeFormatter.ts",
+        resolvedBy: "validator-generic"
       }
     },
     dnd_contact: {
@@ -43811,6 +44036,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "dnd_contact"
+      },
+      uiDefaultsSource: {
+        class: "ContactDND",
+        file: "models/actions/ContactDND.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     drip: {
@@ -44113,6 +44346,21 @@ var catalog_data_default = {
             support: "RANGE; corpus 100% of 10; warn-replay fired 0/10 in-scope published nodes"
           }
         ]
+      },
+      uiDefaults: {
+        batchSize: 100,
+        interval: {
+          timeUnit: "minutes",
+          value: 1
+        }
+      },
+      uiForced: {
+        type: "drip"
+      },
+      uiDefaultsSource: {
+        class: "Drip",
+        file: "models/actions/Drip.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     edit_conversation: {
@@ -44457,6 +44705,17 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsUnverified: {
+        isCloned: {
+          value: false,
+          corpus: "stripped-on-save"
+        }
+      },
+      uiDefaultsSource: {
+        class: "Email",
+        file: "models/actions/Email.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     event_start_date: {
@@ -44595,6 +44854,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "event_start_date"
+      },
+      uiDefaultsSource: {
+        class: "EventStartDate",
+        file: "models/actions/EventStartDate.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     facebook_add_to_custom_audience: {
@@ -44667,6 +44934,28 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsUnverified: {
+        type: {
+          value: "facebook_add_to_custom_audience",
+          corpus: "insufficient-corpus"
+        },
+        facebook_account_id: {
+          value: "",
+          corpus: "insufficient-corpus"
+        },
+        facebook_custom_audience_id: {
+          value: "",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiForced: {
+        type: "facebook_add_to_custom_audience"
+      },
+      uiDefaultsSource: {
+        class: "FacebookAddToCustomAudience",
+        file: "models/actions/FacebookAddToCustomAudience.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     facebook_conversion_api: {
@@ -44819,6 +45108,28 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        type: "facebook_conversion_api",
+        event_type: "funnel_event",
+        access_token: "",
+        pixel_id: "",
+        currency: "USD",
+        connection_type: "INTEGRATION"
+      },
+      uiDefaultsUnverified: {
+        event_name: {
+          value: "Lead",
+          corpus: "stripped-on-save"
+        }
+      },
+      uiForced: {
+        type: "facebook_conversion_api"
+      },
+      uiDefaultsSource: {
+        class: "FacebookAddToCustomAudience",
+        file: "models/actions/FacebookConversationApi.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     find_contact: {
@@ -44970,6 +45281,15 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus 0% of 7; warn-replay fired 0/7 in-scope published nodes"
           }
         ]
+      },
+      uiDefaults: {
+        type: "find_contact",
+        fields: []
+      },
+      uiDefaultsSource: {
+        class: "FindContact",
+        file: "models/actions/crm/FindContact.ts",
+        resolvedBy: "validator-generic"
       }
     },
     find_opportunity: {
@@ -45284,6 +45604,14 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      uiForced: {
+        type: "google_sheets"
+      },
+      uiDefaultsSource: {
+        class: "GoogleSheetsApi",
+        file: "models/actions/premium-actions/GoogleSheetsApi.ts",
+        resolvedBy: "validator-generic"
       }
     },
     goto: {
@@ -45343,6 +45671,14 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      uiForced: {
+        type: "goto"
+      },
+      uiDefaultsSource: {
+        class: "Goto",
+        file: "models/actions/Goto.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     if_else: {
@@ -45365,6 +45701,39 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "no-ghl-validator"
+      },
+      uiDefaultsUnverified: {
+        currentRecipeType: {
+          __dynamic__: "ConditionRecipeType.CUSTOM"
+        },
+        branches: {
+          value: [],
+          corpus: "variable"
+        },
+        operator: {
+          __dynamic__: "Operator.AND"
+        },
+        if: {
+          value: true,
+          corpus: "variable"
+        },
+        conditionName: {
+          value: "Condition",
+          corpus: "variable"
+        },
+        version: {
+          value: 2,
+          corpus: "variable"
+        },
+        noneBranchName: {
+          value: "None",
+          corpus: "variable"
+        }
+      },
+      uiDefaultsSource: {
+        class: "IfElseMain",
+        file: "models/conditions/IfElseMain.ts",
+        resolvedBy: "factory-import"
       }
     },
     "internal-add-contact-followers": {
@@ -46056,6 +46425,11 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsSource: {
+        class: "InternalNotification",
+        file: "models/actions/InternalNotification.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     internal_update_opportunity: {
@@ -46200,6 +46574,11 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "no-ghl-validator"
+      },
+      uiDefaultsSource: {
+        class: "ManualCall",
+        file: "models/actions/manualCall.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     "manual-sms": {
@@ -46427,6 +46806,27 @@ var catalog_data_default = {
             support: "UNKNOWN; corpus 100% of 18; warn-replay fired 0/5 in-scope published nodes"
           }
         ]
+      },
+      uiDefaults: {
+        selectField: "",
+        selectFieldtype: "",
+        sourceCustomValueId: "",
+        updateField: "",
+        targetCustomValueId: "",
+        operators: [
+          {
+            operator: "add",
+            value: 0,
+            __id: {
+              __dynamic__: "uuid()"
+            }
+          }
+        ]
+      },
+      uiDefaultsSource: {
+        class: "MathOperation",
+        file: "models/actions/MathOperations.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     membership_grant_offer: {
@@ -46500,6 +46900,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "membership_grant_offer"
+      },
+      uiDefaultsSource: {
+        class: "MembershipOffer",
+        file: "models/actions/MembershipOffer.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     proposals_estimates_send_document: {
@@ -46577,6 +46985,17 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "ghl-validator-empty"
+      },
+      uiDefaultsUnverified: {
+        type: {
+          value: "remove_assigned_user",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "RemoveAssignedUser",
+        file: "models/actions/removeAssignedUser.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     remove_contact_tag: {
@@ -46706,6 +47125,15 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        tags: []
+      },
+      uiFreshName: "Remove Tag",
+      uiDefaultsSource: {
+        class: "ContactTag",
+        file: "models/actions/ContactTag.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     remove_from_workflow: {
@@ -46844,6 +47272,15 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "remove_from_workflow"
+      },
+      uiFreshName: "Remove from Workflow",
+      uiDefaultsSource: {
+        class: "RemoveFromWorkflow",
+        file: "models/actions/RemoveFromWorkflow.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     remove_opportunity: {
@@ -46961,6 +47398,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "remove_opportunity"
+      },
+      uiDefaultsSource: {
+        class: "RemoveOpportunity",
+        file: "models/actions/RemoveOpportunity.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     review_request: {
@@ -47046,6 +47491,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "review_request"
+      },
+      uiDefaultsSource: {
+        class: "ReviewRequest",
+        file: "models/actions/ReviewRequest.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     slack_message: {
@@ -47285,6 +47738,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "slack_message"
+      },
+      uiDefaultsSource: {
+        class: "SlackMessage",
+        file: "models/actions/premium-actions/SlackMessage.ts",
+        resolvedBy: "validator-generic"
       }
     },
     sms: {
@@ -47515,6 +47976,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        body: ""
+      },
+      uiDefaultsSource: {
+        class: "SMS",
+        file: "models/actions/SMS.ts",
+        resolvedBy: "validator-generic"
       }
     },
     "task-notification": {
@@ -47736,6 +48205,15 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        type: "text_formatter",
+        extras: {}
+      },
+      uiDefaultsSource: {
+        class: "TextFormatter",
+        file: "models/actions/premium-actions/TextFormatter.ts",
+        resolvedBy: "factory-import"
       }
     },
     transition: {
@@ -47833,6 +48311,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "update_appointment_status"
+      },
+      uiDefaultsSource: {
+        class: "AppointmentStatus",
+        file: "models/actions/AppointmentStatus.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     update_contact_field: {
@@ -47927,6 +48413,19 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaults: {
+        type: "update_contact_field",
+        actionType: "update_field_data",
+        fields: []
+      },
+      uiForced: {
+        type: "update_contact_field"
+      },
+      uiDefaultsSource: {
+        class: "ContactField",
+        file: "models/actions/ContactField.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     update_conversation_ai_status: {
@@ -48049,6 +48548,11 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsSource: {
+        class: "Voicemail",
+        file: "models/actions/Voicemail.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     wait: {
@@ -49939,6 +50443,14 @@ var catalog_data_default = {
             support: "CONDITIONAL; corpus no sample in variant recurring_schedule; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaults: {
+        type: "time"
+      },
+      uiDefaultsSource: {
+        class: "Wait",
+        file: "models/conditions/Wait.ts",
+        resolvedBy: "factory-import"
       }
     },
     webhook: {
@@ -50183,6 +50695,17 @@ var catalog_data_default = {
             support: "DERIVED; corpus 10% of 20; warn-replay fired 0/20 in-scope published nodes"
           }
         ]
+      },
+      uiDefaults: {
+        method: "POST",
+        url: "",
+        customData: [],
+        headers: []
+      },
+      uiDefaultsSource: {
+        class: "Webhook",
+        file: "models/actions/Webhook.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     workflow_ai_decision_maker: {
@@ -50326,6 +50849,11 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      uiDefaultsSource: {
+        class: "Goal",
+        file: "models/Goals/Goal.ts",
+        resolvedBy: "validator-generic"
       }
     },
     workflow_split: {
@@ -50579,6 +51107,11 @@ var catalog_data_default = {
             support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaultsSource: {
+        class: "GenerateImageAI",
+        file: "models/actions/premium-actions/GenerateImageAI.ts",
+        resolvedBy: "validator-generic"
       }
     },
     create_custom_object: {
@@ -50767,6 +51300,17 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      uiDefaultsUnverified: {
+        body: {
+          value: "",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "SMS",
+        file: "models/actions/SMS.ts",
+        resolvedBy: "validator-generic"
       }
     },
     "instagram-dm": {
@@ -50898,6 +51442,17 @@ var catalog_data_default = {
             ]
           }
         }
+      },
+      uiDefaultsUnverified: {
+        body: {
+          value: "",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "SMS",
+        file: "models/actions/SMS.ts",
+        resolvedBy: "validator-generic"
       }
     },
     gmb: {
@@ -51064,6 +51619,11 @@ var catalog_data_default = {
             support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaultsSource: {
+        class: "RespondOnComment",
+        file: "models/actions/RespondOnComment.ts",
+        resolvedBy: "factory-import"
       }
     },
     loop: {
@@ -51109,6 +51669,32 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "no-ghl-validator"
+      },
+      uiDefaultsUnverified: {
+        type: {
+          value: "loop",
+          corpus: "insufficient-corpus"
+        },
+        items: {
+          value: "",
+          corpus: "insufficient-corpus"
+        },
+        limit: {
+          value: null,
+          corpus: "insufficient-corpus"
+        },
+        mode: {
+          value: "sequential",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiForced: {
+        type: "loop"
+      },
+      uiDefaultsSource: {
+        class: "Loop",
+        file: "models/actions/Loop.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     update_custom_value: {
@@ -51242,6 +51828,11 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsSource: {
+        class: "UpdateCustomValue",
+        file: "models/actions/UpdateCustomValue.ts",
+        resolvedBy: "factory-import"
       }
     },
     number_formatter: {
@@ -52098,6 +52689,17 @@ var catalog_data_default = {
             support: "RANGE; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaultsUnverified: {
+        type: {
+          value: "number_formatter",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "NumberFormatter",
+        file: "models/actions/premium-actions/NumberFormatter.ts",
+        resolvedBy: "validator-generic"
       }
     },
     array_functions: {
@@ -52949,6 +53551,17 @@ var catalog_data_default = {
             support: "UNKNOWN; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaultsUnverified: {
+        type: {
+          value: "array_functions",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "ArrayFunctions",
+        file: "models/actions/ArrayFunctions.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     add_appointment_booking_ai_bot: {
@@ -53169,6 +53782,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "add_appointment_booking_ai_bot"
+      },
+      uiDefaultsSource: {
+        class: "AIAppointmentBook",
+        file: "models/actions/AIAppointmentBook.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     send_to_eliza: {
@@ -53188,6 +53809,18 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "ghl-validator-empty"
+      },
+      uiDefaultsUnverified: {
+        sendToSpecificUser: {
+          value: false,
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiFreshName: "Send to Eliza Agent Platform",
+      uiDefaultsSource: {
+        class: "SendToEliza",
+        file: "models/actions/SendToEliza.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     stripe_one_time_charge: {
@@ -53341,6 +53974,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "stripe_one_time_charge"
+      },
+      uiDefaultsSource: {
+        class: "StripeOneTimeCharge",
+        file: "models/actions/StripeOneTimeCharge.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     google_analytics: {
@@ -53583,6 +54224,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "google_analytics"
+      },
+      uiDefaultsSource: {
+        class: "GoogleAnalytics",
+        file: "models/actions/GoogleAnalytics.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     google_adword: {
@@ -53754,6 +54403,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "google_adword"
+      },
+      uiDefaultsSource: {
+        class: "GoogleAdword",
+        file: "models/actions/GoogleAdword.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     facebook_remove_from_custom_audience: {
@@ -53821,6 +54478,28 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsUnverified: {
+        type: {
+          value: "facebook_remove_from_custom_audience",
+          corpus: "insufficient-corpus"
+        },
+        facebook_custom_audience_id: {
+          value: "",
+          corpus: "insufficient-corpus"
+        },
+        facebook_account_id: {
+          value: "",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiForced: {
+        type: "facebook_remove_from_custom_audience"
+      },
+      uiDefaultsSource: {
+        class: "FacebookRemoveFromCustomAudience",
+        file: "models/actions/FacebookRemoveFromCustomAudience.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     add_to_affiliate_manager: {
@@ -53917,6 +54596,11 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsSource: {
+        class: "UpdateAffiliate",
+        file: "models/actions/UpdateAffiliate.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     add_to_affiliate_campaign: {
@@ -53989,6 +54673,11 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsSource: {
+        class: "AddToAffiliateCampaign",
+        file: "models/actions/AddToAffiliateCampaign.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     remove_from_affiliate_campaign: {
@@ -54061,6 +54750,11 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsSource: {
+        class: "RemoveFromAffiliateCampaign",
+        file: "models/actions/RemoveFromAffiliateCampaign.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     membership_revoke_offer: {
@@ -54132,6 +54826,14 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiForced: {
+        type: "membership_revoke_offer"
+      },
+      uiDefaultsSource: {
+        class: "MembershipRevokeOffer",
+        file: "models/actions/MembershipRevokeOffer.ts",
+        resolvedBy: "factory-namespace"
       }
     },
     ivr_gather: {
@@ -54151,6 +54853,41 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "ghl-validator-empty"
+      },
+      uiDefaultsUnverified: {
+        loop: {
+          value: 1,
+          corpus: "insufficient-corpus"
+        },
+        timeout: {
+          value: 5,
+          corpus: "insufficient-corpus"
+        },
+        numDigits: {
+          value: 1,
+          corpus: "insufficient-corpus"
+        },
+        enableFinishOnKey: {
+          value: false,
+          corpus: "insufficient-corpus"
+        },
+        widgetType: {
+          value: "say",
+          corpus: "insufficient-corpus"
+        },
+        convertToMultipath: {
+          value: false,
+          corpus: "insufficient-corpus"
+        },
+        name: {
+          value: "Gather Input on call",
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "IVRGather",
+        file: "models/actions/ivr/IVRGather.ts",
+        resolvedBy: "factory-import"
       }
     },
     ivr_say: {
@@ -54320,6 +55057,33 @@ var catalog_data_default = {
           }
         ],
         warn: []
+      },
+      uiDefaultsUnverified: {
+        widgetType: {
+          value: "say",
+          corpus: "insufficient-corpus"
+        },
+        language: {
+          value: "en-US",
+          corpus: "insufficient-corpus"
+        },
+        voice: {
+          value: "woman",
+          corpus: "insufficient-corpus"
+        },
+        message: {
+          value: "Hello, this is an automated message",
+          corpus: "insufficient-corpus"
+        },
+        loop: {
+          value: 1,
+          corpus: "insufficient-corpus"
+        }
+      },
+      uiDefaultsSource: {
+        class: "IVRSay",
+        file: "models/actions/ivr/IVRSay.ts",
+        resolvedBy: "factory-import"
       }
     },
     ivr_connect_call: {
@@ -54446,6 +55210,11 @@ var catalog_data_default = {
             support: "DERIVED; corpus no sample; warn-replay fired 0/0 in-scope published nodes"
           }
         ]
+      },
+      uiDefaultsSource: {
+        class: "IVRConnectCall",
+        file: "models/actions/ivr/IVRConnectCall.ts",
+        resolvedBy: "factory-import"
       }
     },
     ivr_hangup: {
@@ -54465,6 +55234,11 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "ghl-validator-empty"
+      },
+      uiDefaultsSource: {
+        class: "IVRHangup",
+        file: "models/actions/ivr/IVRHangup.ts",
+        resolvedBy: "factory-import"
       }
     },
     ivr_collect_voicemail: {
@@ -54484,6 +55258,11 @@ var catalog_data_default = {
         throw: [],
         warn: [],
         provenZero: "ghl-validator-empty"
+      },
+      uiDefaultsSource: {
+        class: "IVRRecord",
+        file: "models/actions/ivr/IVRRecord.ts",
+        resolvedBy: "factory-import"
       }
     },
     add_associated_records_to_workflow: {
@@ -96553,20 +97332,20 @@ var TOOLS2 = [
         );
       }
       const cloneResponse = await getWorkflow(gw, args.locationId, newId);
-      const clone2 = cloneResponse.ok ? cloneResponse.json : null;
+      const clone3 = cloneResponse.ok ? cloneResponse.json : null;
       const cloneTriggers = await listWorkflowTriggers(gw, args.locationId, newId);
       const cloneTriggerList = cloneTriggers.response.ok ? cloneTriggers.triggers : [];
       return ok({
         workflowId: newId,
         preview,
-        workflow: clone2 ? {
+        workflow: clone3 ? {
           id: newId,
-          name: clone2.name,
-          status: clone2.status,
-          version: clone2.version,
-          parentId: clone2.parentId ?? null,
-          originType: clone2.originType ?? null,
-          steps: clone2.workflowData?.templates?.length ?? null
+          name: clone3.name,
+          status: clone3.status,
+          version: clone3.version,
+          parentId: clone3.parentId ?? null,
+          originType: clone3.originType ?? null,
+          steps: clone3.workflowData?.templates?.length ?? null
         } : null,
         triggers: {
           source: sourceTriggerCount,
@@ -96575,7 +97354,7 @@ var TOOLS2 = [
           inactive: cloneTriggerList.filter((trigger) => trigger.active !== true).length,
           note: "Cloned triggers land active:false. They fire only after the clone is published."
         },
-        verified: Boolean(clone2),
+        verified: Boolean(clone3),
         builderUrl: `https://app.gohighlevel.com/v2/location/${loc}/automation/workflow/${encodeURIComponent(newId)}`
       });
     }, args)
