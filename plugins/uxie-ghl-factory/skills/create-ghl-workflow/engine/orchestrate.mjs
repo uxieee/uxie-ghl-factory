@@ -75,7 +75,7 @@ export async function fetchEntities(gw) {
     .filter((value) => value && typeof value === 'object' && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -106,6 +106,15 @@ export async function fetchEntities(gw) {
     g(`/links/?${locationQuery()}`),
     g(`/membership/locations/${locationPath}/offers`),                                    // → [{id,title,…}]
     g(`/membership/locations/${locationPath}/products?doNotIncludeOffers=true&sendCustomizations=true`),
+    // G4/G5/G6/G9 (shapes live-proven 2026-08-22): SMS/WhatsApp template library, email-builder
+    // templates, store products, coupons, phone numbers, funnels (the /funnels prefix answers on
+    // this same Bearer rail — the token-id requirement is the OTHER host's).
+    g(`/locations/${locationPath}/templates?limit=200`),
+    g(`/emails/builder?${locationQuery({ limit: '100', offset: '0' })}`),
+    g(`/products/?${locationQuery({ limit: '100' })}`),
+    g(`/payments/coupon/list?${new URLSearchParams({ altId: String(loc), altType: 'location', limit: '100' })}`),
+    g(`/phone-system/numbers?${locationQuery()}`),
+    g(`/funnels/funnel/list?${locationQuery({ type: 'funnel', offset: '0', limit: '200' })}`),
   ]);
   // `employees` is the live key on the search route (`{employees, totalCount, count}`);
   // `agents` is kept ahead of it because the Voice leg still answers under that key, and a
@@ -128,6 +137,12 @@ export async function fetchEntities(gw) {
     triggerLinks: recordsFrom(lkL?.links, lkL).map((l) => ({ id: l.id || l._id, name: l.name, redirectTo: l.redirectTo })),
     offers: recordsFrom(ofL).map((o) => ({ id: o.id || o._id, name: o.title ?? o.name })),
     membershipProducts: recordsFrom(mpL?.products, mpL).map((m) => ({ id: m.id || m._id, name: m.title ?? m.name })),
+    smsTemplates: recordsFrom(tpL?.templates, tpL).filter((t) => (t.type ?? 'sms') !== 'email').map((t) => ({ id: t.id || t._id, name: t.name, type: t.type })),
+    emailTemplates: recordsFrom(ebL?.builders, ebL).map((t) => ({ id: t.id || t._id, name: t.name })),
+    products: recordsFrom(prL?.products, prL).map((x) => ({ id: x._id || x.id, name: x.name })),
+    coupons: recordsFrom(cpL?.data, cpL).map((x) => ({ id: x._id || x.id, name: x.name, code: x.code })),
+    phoneNumbers: recordsFrom(phL?.phoneNumbers, phL).map((x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })),
+    funnels: recordsFrom(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name })),
   };
 }
 
@@ -229,6 +244,9 @@ export async function orchestrate(ir, gw, opts = {}) {
   report.resolvedFrom = { pipelines: entities.pipelines.length, calendars: entities.calendars.length,
     workflows: entities.workflows?.length ?? 0, customValues: entities.customValues?.length ?? 0,
     triggerLinks: entities.triggerLinks?.length ?? 0, offers: entities.offers?.length ?? 0,
+    smsTemplates: entities.smsTemplates?.length ?? 0, emailTemplates: entities.emailTemplates?.length ?? 0,
+    products: entities.products?.length ?? 0, coupons: entities.coupons?.length ?? 0,
+    phoneNumbers: entities.phoneNumbers?.length ?? 0, funnels: entities.funnels?.length ?? 0,
     users: entities.users.length, forms: entities.forms.length, agents: entities.agents.length };
 
   // 2. ABORT on missing account-level deps (don't build something broken)

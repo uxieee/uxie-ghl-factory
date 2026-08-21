@@ -220,6 +220,7 @@ test('fetchEntities degrades malformed and failed endpoint payloads to empty arr
   assert.deepEqual(await fetchEntities({ call, loc: 'LOC' }), {
     pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
     workflows: [], customValues: [], triggerLinks: [], offers: [], membershipProducts: [],
+    smsTemplates: [], emailTemplates: [], products: [], coupons: [], phoneNumbers: [], funnels: [],
   });
 });
 
@@ -236,7 +237,7 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
 
   const queryValue = new URLSearchParams({ locationId }).toString();
   const pathValue = encodeURIComponent(locationId);
-  assert.equal(calls.length, 12);
+  assert.equal(calls.length, 18);
   // legs that carry the location in the PATH (must be encodeURIComponent'd there)
   const pathLegs = [
     new RegExp(`^/locations/${pathValue}/customFields/search\\?`),
@@ -244,12 +245,16 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
     new RegExp(`^/locations/${pathValue}/customValues$`),
     new RegExp(`^/membership/locations/${pathValue}/offers$`),
     new RegExp(`^/membership/locations/${pathValue}/products\\?`),
+    new RegExp(`^/locations/${pathValue}/templates\\?`),
   ];
+  // the coupons leg carries the location as altId= (that endpoint's own contract)
+  const altValue = new URLSearchParams({ altId: locationId }).toString();
   for (const { method, path } of calls) {
     assert.equal(method, 'GET');
     const pathLeg = pathLegs.find((re) => re.test(path));
     if (pathLeg) continue;
     assert.ok(!path.includes(locationId), `raw location id leaked into: ${path}`);
+    if (path.startsWith('/payments/coupon/list')) { assert.ok(path.includes(altValue), `altId was not encoded: ${path}`); continue; }
     assert.ok(path.includes(queryValue), `location query was not encoded: ${path}`);
   }
   for (const re of pathLegs) assert.ok(calls.some(({ path }) => re.test(path)), `missing path-encoded leg ${re}`);

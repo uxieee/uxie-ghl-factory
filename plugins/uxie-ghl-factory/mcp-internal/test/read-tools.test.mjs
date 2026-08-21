@@ -383,7 +383,7 @@ test('list_account_entities reuses the canonical best-effort entity sweep', asyn
   assert.equal(result.data.customFields.length, 1);
   assert.deepEqual(result.data.agents, [{ id: 'a1', name: 'Agent' }]);
   // 7 → 12 (2026-08-22): + workflows list, custom values, trigger links, offers, membership products
-  assert.equal(gw.calls.length, 12);
+  assert.equal(gw.calls.length, 18);
 });
 
 test('list_account_entities treats malformed successful payloads as empty best-effort arrays', async () => {
@@ -401,6 +401,7 @@ test('list_account_entities treats malformed successful payloads as empty best-e
   assert.deepEqual(result, { ok: true, data: {
     pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
     workflows: [], customValues: [], triggerLinks: [], offers: [], membershipProducts: [],
+    smsTemplates: [], emailTemplates: [], products: [], coupons: [], phoneNumbers: [], funnels: [],
   } });
 });
 

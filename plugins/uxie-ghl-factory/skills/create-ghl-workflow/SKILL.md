@@ -76,6 +76,10 @@ pipelines/stages, calendars, users, forms, surveys, custom fields, AI agents —
 (`update_custom_value: { customValue: "name or key" }`), **membership offers**
 (`membership_grant_offer: { offer: "title" }`), **trigger links** + **course products/offers in
 trigger filters** (`{ field: link.id | membership.product.id | offer.id, value: "name" }`).
+Plus **template library** (`email: { template: "name" }` → email-builder id + `templatesource`;
+`sms`/WhatsApp/DM family the same from the SMS/WA library), **phone numbers by TITLE**
+(`settings.senderAddress.from_number: "GROM Digital AU"` → its E.164), and trigger-filter values
+for `workflow.id`, `payment.global_product_ids` (store products) and `twoStepOrderForm.funnelId`.
 An unresolvable name ABORTS with `Missing account dependencies` before any write.
 
 ```yaml

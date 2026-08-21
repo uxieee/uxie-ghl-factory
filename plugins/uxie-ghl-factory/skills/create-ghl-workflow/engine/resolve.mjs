@@ -51,6 +51,13 @@ export function buildResolvers(raw = {}) {
     triggerLinkId: (q) => byName(raw.triggerLinks, [(l) => l.name])(q)?.id,
     offerId: (q) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q)?.id,
     membershipProductId: (q) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q)?.id,
+    // G4/G5/G6/G9
+    smsTemplateId: (q) => byName(raw.smsTemplates, [(t) => t.name])(q)?.id,
+    emailTemplateId: (q) => byName(raw.emailTemplates, [(t) => t.name])(q)?.id,
+    productId: (q) => byName(raw.products, [(x) => x.name])(q)?.id,
+    couponId: (q) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q)?.id,
+    phoneNumber: (q) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q)?.number,
+    funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id,
   };
 }
 
@@ -70,6 +77,9 @@ function resolveFilterValue(field, value, r) {
     if (field === 'link.id') return r.triggerLinkId(v) ?? v;                       // trigger_link
     if (field === 'membership.product.id') return r.membershipProductId(v) ?? v;   // course triggers
     if (field === 'offer.id') return r.offerId(v) ?? v;                            // offer/membership triggers
+    if (field === 'workflow.id') return r.workflowId(v) ?? v;                      // customer_reply
+    if (field === 'payment.global_product_ids') return r.productId(v) ?? v;        // payment_received
+    if (field === 'twoStepOrderForm.funnelId') return r.funnelId(v) ?? v;          // two-step order form
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -91,6 +101,14 @@ function walk(nodes, visit) {
 // (alongside or instead of the id field); the resolver fills the id field.
 export function resolveIR(ir, r) {
   const unresolved = [];
+  // settings.senderAddress.from_number may name a number by its TITLE ("GROM Digital AU") —
+  // resolve to the E.164 value the doc stores (G9). A merge tag or +digits passes through.
+  const fn = ir.settings?.senderAddress?.from_number;
+  if (typeof fn === 'string' && fn && !/^\+?[0-9 ()-]{6,}$/.test(fn) && !fn.includes('{{')) {
+    const num = r.phoneNumber?.(fn);
+    if (num) ir.settings.senderAddress.from_number = num;
+    else unresolved.push({ where: 'settings.senderAddress.from_number', name: fn });
+  }
   const need = (id, where, name) => { if (!id) unresolved.push({ where, name }); return id; };
 
   for (const t of ir.triggers ?? []) {
@@ -143,6 +161,15 @@ export function resolveIR(ir, r) {
     if ((type === 'membership_grant_offer' || type === 'membership_revoke_offer') && a.offer && !a.offer_id) {
       a.offer_id = need(r.offerId(a.offer), `${type}.offer`, a.offer);
       delete a.offer;
+    }
+    // template library by NAME (G4): email → email-builder template; sms family → SMS/WA template
+    if (type === 'email' && a.template && !a.template_id) {
+      a.template_id = need(r.emailTemplateId(a.template), 'email.template', a.template);
+      if (a.template_id) { a.templatesource = a.templatesource ?? 'email-builder'; delete a.template; }
+    }
+    if (['sms', 'manual-sms', 'whatsapp', 'messenger', 'instagram-dm', 'fb_interactive_messenger', 'ig_interactive_messenger'].includes(type) && a.template && !a.template_id) {
+      a.template_id = need(r.smsTemplateId(a.template), `${type}.template`, a.template);
+      if (a.template_id) delete a.template;
     }
     // update_contact_field / create_update_contact: a fields[] entry whose `field` is a
     // human custom-field NAME (not a standard field, not already an id) → resolve to id.

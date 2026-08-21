@@ -99868,7 +99868,14 @@ function buildResolvers(raw = {}) {
     customValueId: (q) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? "").replace(/^\{\{\s*custom_values\./, "").replace(/\s*\}\}$/, "")])(q)?.id,
     triggerLinkId: (q) => byName(raw.triggerLinks, [(l) => l.name])(q)?.id,
     offerId: (q) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q)?.id,
-    membershipProductId: (q) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q)?.id
+    membershipProductId: (q) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q)?.id,
+    // G4/G5/G6/G9
+    smsTemplateId: (q) => byName(raw.smsTemplates, [(t) => t.name])(q)?.id,
+    emailTemplateId: (q) => byName(raw.emailTemplates, [(t) => t.name])(q)?.id,
+    productId: (q) => byName(raw.products, [(x) => x.name])(q)?.id,
+    couponId: (q) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q)?.id,
+    phoneNumber: (q) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q)?.number,
+    funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id
   };
 }
 var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
@@ -99884,6 +99891,9 @@ function resolveFilterValue(field, value, r) {
     if (field === "link.id") return r.triggerLinkId(v) ?? v;
     if (field === "membership.product.id") return r.membershipProductId(v) ?? v;
     if (field === "offer.id") return r.offerId(v) ?? v;
+    if (field === "workflow.id") return r.workflowId(v) ?? v;
+    if (field === "payment.global_product_ids") return r.productId(v) ?? v;
+    if (field === "twoStepOrderForm.funnelId") return r.funnelId(v) ?? v;
     return v;
   };
   return Array.isArray(value) ? value.map(one) : one(value);
@@ -99899,6 +99909,12 @@ function walk(nodes, visit) {
 }
 function resolveIR(ir, r) {
   const unresolved = [];
+  const fn = ir.settings?.senderAddress?.from_number;
+  if (typeof fn === "string" && fn && !/^\+?[0-9 ()-]{6,}$/.test(fn) && !fn.includes("{{")) {
+    const num = r.phoneNumber?.(fn);
+    if (num) ir.settings.senderAddress.from_number = num;
+    else unresolved.push({ where: "settings.senderAddress.from_number", name: fn });
+  }
   const need = (id, where, name) => {
     if (!id) unresolved.push({ where, name });
     return id;
@@ -99945,6 +99961,17 @@ function resolveIR(ir, r) {
     if ((type === "membership_grant_offer" || type === "membership_revoke_offer") && a.offer && !a.offer_id) {
       a.offer_id = need(r.offerId(a.offer), `${type}.offer`, a.offer);
       delete a.offer;
+    }
+    if (type === "email" && a.template && !a.template_id) {
+      a.template_id = need(r.emailTemplateId(a.template), "email.template", a.template);
+      if (a.template_id) {
+        a.templatesource = a.templatesource ?? "email-builder";
+        delete a.template;
+      }
+    }
+    if (["sms", "manual-sms", "whatsapp", "messenger", "instagram-dm", "fb_interactive_messenger", "ig_interactive_messenger"].includes(type) && a.template && !a.template_id) {
+      a.template_id = need(r.smsTemplateId(a.template), `${type}.template`, a.template);
+      if (a.template_id) delete a.template;
     }
     if ((type === "update_contact_field" || type === "create_update_contact") && Array.isArray(a.fields)) {
       for (const f of a.fields) {
@@ -101029,7 +101056,7 @@ async function fetchEntities(gw) {
   const recordsFrom2 = (...values) => arrayFrom(...values).filter((value) => value && typeof value === "object" && !Array.isArray(value));
   const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
   const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL] = await Promise.all([
+  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL] = await Promise.all([
     g(`/opportunities/pipelines?${locationQuery()}`),
     g(`/calendars/?${locationQuery()}`),
     g(`/users/?${locationQuery()}`),
@@ -101067,7 +101094,16 @@ async function fetchEntities(gw) {
     g(`/links/?${locationQuery()}`),
     g(`/membership/locations/${locationPath}/offers`),
     // → [{id,title,…}]
-    g(`/membership/locations/${locationPath}/products?doNotIncludeOffers=true&sendCustomizations=true`)
+    g(`/membership/locations/${locationPath}/products?doNotIncludeOffers=true&sendCustomizations=true`),
+    // G4/G5/G6/G9 (shapes live-proven 2026-08-22): SMS/WhatsApp template library, email-builder
+    // templates, store products, coupons, phone numbers, funnels (the /funnels prefix answers on
+    // this same Bearer rail — the token-id requirement is the OTHER host's).
+    g(`/locations/${locationPath}/templates?limit=200`),
+    g(`/emails/builder?${locationQuery({ limit: "100", offset: "0" })}`),
+    g(`/products/?${locationQuery({ limit: "100" })}`),
+    g(`/payments/coupon/list?${new URLSearchParams({ altId: String(loc), altType: "location", limit: "100" })}`),
+    g(`/phone-system/numbers?${locationQuery()}`),
+    g(`/funnels/funnel/list?${locationQuery({ type: "funnel", offset: "0", limit: "200" })}`)
   ]);
   const agents = [
     ...recordsFrom2(agS?.agents, agS?.data, agS),
@@ -101088,7 +101124,13 @@ async function fetchEntities(gw) {
     customValues: recordsFrom2(cvL?.customValues, cvL).map((v) => ({ id: v.id || v._id, name: v.name, fieldKey: v.fieldKey })),
     triggerLinks: recordsFrom2(lkL?.links, lkL).map((l) => ({ id: l.id || l._id, name: l.name, redirectTo: l.redirectTo })),
     offers: recordsFrom2(ofL).map((o) => ({ id: o.id || o._id, name: o.title ?? o.name })),
-    membershipProducts: recordsFrom2(mpL?.products, mpL).map((m) => ({ id: m.id || m._id, name: m.title ?? m.name }))
+    membershipProducts: recordsFrom2(mpL?.products, mpL).map((m) => ({ id: m.id || m._id, name: m.title ?? m.name })),
+    smsTemplates: recordsFrom2(tpL?.templates, tpL).filter((t) => (t.type ?? "sms") !== "email").map((t) => ({ id: t.id || t._id, name: t.name, type: t.type })),
+    emailTemplates: recordsFrom2(ebL?.builders, ebL).map((t) => ({ id: t.id || t._id, name: t.name })),
+    products: recordsFrom2(prL?.products, prL).map((x) => ({ id: x._id || x.id, name: x.name })),
+    coupons: recordsFrom2(cpL?.data, cpL).map((x) => ({ id: x._id || x.id, name: x.name, code: x.code })),
+    phoneNumbers: recordsFrom2(phL?.phoneNumbers, phL).map((x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })),
+    funnels: recordsFrom2(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name }))
   };
 }
 async function fetchMarketplace(call, loc) {
@@ -101188,6 +101230,12 @@ async function orchestrate(ir, gw, opts = {}) {
     customValues: entities.customValues?.length ?? 0,
     triggerLinks: entities.triggerLinks?.length ?? 0,
     offers: entities.offers?.length ?? 0,
+    smsTemplates: entities.smsTemplates?.length ?? 0,
+    emailTemplates: entities.emailTemplates?.length ?? 0,
+    products: entities.products?.length ?? 0,
+    coupons: entities.coupons?.length ?? 0,
+    phoneNumbers: entities.phoneNumbers?.length ?? 0,
+    funnels: entities.funnels?.length ?? 0,
     users: entities.users.length,
     forms: entities.forms.length,
     agents: entities.agents.length
