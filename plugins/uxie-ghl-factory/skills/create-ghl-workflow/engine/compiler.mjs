@@ -8,6 +8,7 @@ import { enforceRequiredFields } from './required-fields.mjs';
 import { coerceDefault } from './action-schema.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { checkStepRefs } from './graph-refs.mjs';
+import { applyUiDefaults } from './ui-defaults.mjs';
 
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
@@ -1568,6 +1569,9 @@ export function compile(ir, ctx) {
   // edit-inserted subgraphs via compileSubgraph → this same compile). A fired THROW rule refuses
   // the build BEFORE anything reaches GHL — the acceptance criterion is that a build which passes
   // opens in the builder with zero errors, and one which would not never gets written.
+  // UI defaults + constructor-forced fields FIRST, so enforcement sees the same initialized
+  // shape the UI's validators see (ui-defaults.mjs; corpus-verified keys only)
+  applyUiDefaults(templates, ctx?.catalog, ctx);
   enforceTemplates(templates, ctx?.catalog, ctx);
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path
