@@ -106,3 +106,23 @@ test('G4/G6/G9/G5: templates, products, phone titles, funnels, workflow.id filte
   resolveIR(irNum, r2);
   assert.equal(irNum.settings.senderAddress.from_number, '+15551234567', 'a real number passes through');
 });
+
+test('G7/G18/G13: facebook pages, document templates, video.funnelId resolve by name', () => {
+  const r3 = buildResolvers({
+    funnels: [{ id: 'fn-aaaaaaaaaaaaaaaaaa', name: 'Main Funnel' }],
+    fbPages: [{ id: '1025448410649753', name: 'GROM Digital' }],
+    documentTemplates: [{ id: 'dt-aaaaaaaaaaaaaaaaaa', name: 'Growth Proposal' }],
+  });
+  const ir = { triggers: [
+    { ref: 't1', type: 'facebook_lead_gen', name: 'T1', filters: [{ field: 'facebook.pageId', value: 'GROM Digital' }] },
+    { ref: 't2', type: 'video_event', name: 'T2', filters: [{ field: 'video.funnelId', value: 'Main Funnel' }] },
+  ], graph: [
+    { ref: 'a', kind: 'action', type: 'proposals_estimates_send_document', name: 'A', attributes: { template: 'growth proposal', sendDocument: true } },
+  ] };
+  const { unresolved } = resolveIR(ir, r3);
+  assert.deepEqual(unresolved, []);
+  assert.equal(ir.triggers[0].filters[0].value, '1025448410649753');
+  assert.equal(ir.triggers[1].filters[0].value, 'fn-aaaaaaaaaaaaaaaaaa');
+  assert.equal(ir.graph[0].attributes.templateId, 'dt-aaaaaaaaaaaaaaaaaa');
+  assert.equal(ir.graph[0].attributes.template, undefined);
+});
