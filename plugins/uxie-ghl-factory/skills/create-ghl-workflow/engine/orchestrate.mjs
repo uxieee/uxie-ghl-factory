@@ -19,6 +19,7 @@
 // `call` returns { status, ok, json }. Kept transport-agnostic so it's testable.
 import { compile } from './compiler.mjs';
 import { planReadinessChecks, runReadinessChecks } from './preflight.mjs';
+import { webhookUrlsFor } from './webhook-rail.mjs';
 import { planStickyNotes } from './sticky-notes.mjs';
 import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
@@ -202,7 +203,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
     authored: 0, compiled: 0, steps: 0, warnings: [], stickyNotes: { planned: 0, posted: 0, failed: [] }, readiness: [],
-    triggers: { posted: 0, failed: [] }, verify: { pass: 0, issues: [] }, published: false,
+    triggers: { posted: 0, failed: [], ids: [] }, webhookUrls: [], verify: { pass: 0, issues: [] }, published: false,
     aborted: null, failurePhase: null, failureHttp: null };
   const callAt = async (failurePhase, method, path, body) => {
     try {
@@ -306,6 +307,10 @@ export async function orchestrate(ir, gw, opts = {}) {
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
       // parseIR passes through). Without either, email steps fall back to {{location.*}}.
       senderDefault: opts.senderDefault ?? ir.senderDefault,
+      // Inbound-webhook sample payload (opts or top-level IR key): lets the compiler lint every
+      // {{inboundWebhookRequest.*}} reference against the paths that will exist once the sample is
+      // pinned as the trigger's reference (webhook-rail.mjs).
+      sampleWebhookPayload: opts.sampleWebhookPayload ?? ir.sampleWebhookPayload,
       // Deliberate override for STEP_TYPE_UNKNOWN — see compiler.mjs. Off by default:
       // an unrecognised type builds a step the builder cannot render or open.
       skipEnforcement: opts.skipEnforcement,
@@ -393,10 +398,16 @@ export async function orchestrate(ir, gw, opts = {}) {
       if (!r) return report;
       if (r.ok) break;
     }
-    if (r?.ok) report.triggers.posted++;
-    else report.triggers.failed.push({ type: tb.type, name: tb.name, status: r?.status,
+    if (r?.ok) {
+      report.triggers.posted++;
+      // Trigger ids are SERVER-assigned on POST (no predeterminedId is sent) — record them so the
+      // report can name the inbound-webhook receiving URL, knowable only from here on.
+      const id = r.json?.id ?? r.json?._id ?? null;
+      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id });
+    } else report.triggers.failed.push({ type: tb.type, name: tb.name, status: r?.status,
       error: JSON.stringify(r?.json ?? '').slice(0, 160) });
   }
+  report.webhookUrls = webhookUrlsFor(loc, report.triggers.ids);
 
   // sticky notes — one POST each (live: POST /workflows/sticky-note?locationId= → 201), after the
   // document exists; a failure is RECORDED, never silently dropped, and never aborts the build

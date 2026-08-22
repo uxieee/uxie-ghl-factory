@@ -352,6 +352,45 @@ next to `authored`; on its own it merely proves the server echoed what was sent.
   subset is flagged ✅). Full index: `references/capabilities.md`; per-type lookup:
   `node scripts/query-catalog-cli.mjs <term>`; live counts: `node scripts/query-catalog-cli.mjs`.
 
+### Inbound-webhook workflows — give the engine the sample payload
+
+An `inbound_webhook` trigger's merge tags are NOT a schema: they are the leaf paths of the one
+request GHL has pinned as the trigger's **reference**. So author webhook workflows with the
+sample in the IR and let the engine check every reference before anything is saved:
+
+```json
+{ "name": "Lead intake from CRM",
+  "sampleWebhookPayload": { "lead": { "email": "sample@example.com", "firstName": "Sam" }, "dealRefId": "X-1", "items": [{ "sku": "A" }] },
+  "triggers": [ { "ref": "hook", "type": "inbound_webhook", "name": "Inbound Webhook", "filters": [] } ],
+  "graph": [ { "ref": "c", "kind": "action", "type": "create_update_contact", "name": "Upsert",
+               "attributes": { "fields": { "email": "{{inboundWebhookRequest.lead.email}}", "firstName": "{{inboundWebhookRequest.lead.firstName}}" } } } ] }
+```
+
+- Every `{{inboundWebhookRequest.<path>}}` is linted against the sample's leaf paths (object /
+  array prefixes like `{{inboundWebhookRequest.items}}` are fine — they feed loops). An unknown
+  path warns with a near-miss hint ("did you mean lead.email?") because at runtime it renders
+  EMPTY. Hatch: `skipWebhookCheck`.
+- The trigger id is SERVER-assigned on POST, so the build report names the receiving URL
+  afterwards: `report.webhookUrls[] = { name, triggerId, url }` —
+  `https://services.leadconnectorhq.com/hooks/{loc}/webhook-trigger/{triggerId}`. Give that URL
+  to the external system.
+- To make the tags real in the UI picker, pin the sample as the reference: MCP
+  `pin_webhook_sample { locationId, triggerId, samplePayload, confirm:true }` (POSTs the sample
+  to the receiving URL — unauthenticated by design — waits for GHL to record it, PUTs
+  set-as-reference, returns the merge tags). Live-proven on a GROM AU canary 2026-08-22. Pinning
+  REPLACES the active reference: on a live workflow only do it with a payload shaped like the
+  real traffic (or `pinLatestExisting:true` to pin what the real system already sent).
+
+### Custom Code — test it in GHL's sandbox before you trust it
+
+MCP `test_custom_code { locationId, code, language, inputData }` runs the code in the same
+sandbox the builder's "Test code" button uses and reports `passed`, `output`, `outputKeys`,
+console streams, and the in-band `errorMessage`. Only a **non-empty object** assigned to
+`output` is a valid step output — primitives are dropped by the sandbox, and `outputKeys` are
+exactly the `{{custom_code.N.<key>}}` references downstream steps may use. Run it before
+authoring those references; the engine's step-output check warns when a custom_code step has
+no pickable output.
+
 ## Editing an existing workflow (not a fresh create)
 
 `scripts/build.mjs` is CREATE-only. To ADD/insert/delete/modify/move steps or branches
@@ -644,6 +683,8 @@ Trigger filter values obey the string/array split above — `value: "vip"`, neve
 `expandFilter` unwraps a single-element array on this path too, but author the string.
 
 ## Read the build report — every time
+
+- `webhookUrls[]` — for every `inbound_webhook` trigger: the receiving URL + the server-assigned `triggerId` (hand the URL to the external system; pin a sample with `pin_webhook_sample`).
 
 The orchestrator prints exactly what it did. Check it:
 - `ABORTED: Missing account dependencies …` → a pipeline/calendar/user/form/agent
