@@ -101784,6 +101784,8 @@ async function orchestrate(ir, gw, opts = {}) {
     readiness: [],
     triggers: { posted: 0, failed: [], ids: [] },
     webhookUrls: [],
+    webhookPins: [],
+    customCodeTests: [],
     verify: { pass: 0, issues: [] },
     published: false,
     aborted: null,
@@ -101954,6 +101956,55 @@ async function orchestrate(ir, gw, opts = {}) {
     report.aborted = `sticky notes rejected (${e.code ?? "STICKY_NOTE"}): ${e.message}`;
     return report;
   }
+  if (opts.skipCustomCodeTest !== true) {
+    const allTemplates = [built.autoSaveBody?.workflowData?.templates, built.createBody?.workflowData?.templates].filter(Array.isArray);
+    const seenIds = /* @__PURE__ */ new Set();
+    for (const list of allTemplates) for (const t of list) {
+      if (t?.type !== "custom_code" || seenIds.has(t.id)) continue;
+      seenIds.add(t.id);
+      const a = t.attributes ?? {};
+      const r = await callAt(
+        "custom_code_test",
+        "POST",
+        "/workflow/custom-code/run-test",
+        { location_id: loc, attributes: { language: a.language ?? "javascript", code: a.code ?? "", inputData: a.inputData ?? {} } }
+      );
+      if (!r) return report;
+      const j = r.ok && r.json && typeof r.json === "object" ? r.json : null;
+      const out = j?.output;
+      const valid = out !== null && typeof out === "object" && !Array.isArray(out) && Object.keys(out).length > 0;
+      const entry = {
+        id: t.id,
+        name: t.name ?? null,
+        status: r.status,
+        passed: !!j && j.hasError !== true && valid,
+        hasError: j?.hasError === true,
+        errorMessage: j?.errorMessage ?? null,
+        authoredKeys: Object.keys(a.output ?? {}),
+        outputKeys: valid ? Object.keys(out) : [],
+        consoleErrors: Array.isArray(j?.consoleErrors) ? j.consoleErrors : [],
+        replacedOutput: false
+      };
+      if (entry.passed) {
+        const authored = a.output ?? {};
+        const missing = entry.authoredKeys.filter((k) => !(k in out));
+        const extra = entry.outputKeys.filter((k) => !(k in authored));
+        if (missing.length || extra.length) report.warnings.push(`custom_code '${entry.name ?? t.id}': sandbox output keys differ from the authored sample (missing: ${missing.join(",") || "-"}; extra: ${extra.join(",") || "-"}) \u2014 the sandbox result was saved as the step's output`);
+        for (const l2 of allTemplates) for (const t2 of l2) if (t2?.id === t.id) t2.attributes = { ...t2.attributes ?? {}, output: out };
+        entry.replacedOutput = true;
+      } else {
+        const why = j ? j.errorMessage ?? (valid ? "unknown" : "output is not a non-empty object") : `HTTP ${r.status}`;
+        report.warnings.push(`custom_code '${entry.name ?? t.id}': sandbox test did not pass (${why}); the authored output sample was kept`);
+        if (opts.strictCustomCode === true) {
+          report.customCodeTests.push(entry);
+          report.failurePhase = "custom_code_test";
+          report.aborted = `custom_code '${entry.name ?? t.id}' failed the sandbox test: ${why}`;
+          return report;
+        }
+      }
+      report.customCodeTests.push(entry);
+    }
+  }
   const c = await callAt("workflow_create", "POST", `/workflow/${loc}`, built.createBody);
   if (!c) return report;
   const WID = c.json?.id || c.json?._id;
@@ -101993,6 +102044,62 @@ async function orchestrate(ir, gw, opts = {}) {
     });
   }
   report.webhookUrls = webhookUrlsFor(loc, report.triggers.ids);
+  {
+    const wantPin = opts.pinWebhookSample ?? ir.pinWebhookSample;
+    const sample = opts.sampleWebhookPayload ?? ir.sampleWebhookPayload;
+    if (wantPin === true && sample && typeof sample === "object" && report.webhookUrls.length) {
+      const sleep = opts.sleep ?? ((ms) => new Promise((res) => setTimeout(res, ms)));
+      const pollMs = opts.pinPollMs ?? 1500, maxPolls = opts.pinMaxPolls ?? 8;
+      const canon = (o) => JSON.stringify(sortKeysDeep(o));
+      const sig = canon(sample);
+      for (const w of report.webhookUrls) {
+        const pin = { triggerId: w.triggerId, url: w.url, posted: null, requestId: null, referenceId: null, tagCount: null, mergeTags: null, error: null };
+        const p = await callAt("webhook_pin_post", "POST", `/hooks/${loc}/webhook-trigger/${w.triggerId}`, sample);
+        if (!p) return report;
+        pin.posted = p.status;
+        if (!p.ok) {
+          pin.error = `sample POST \u2192 ${p.status}`;
+          report.warnings.push(`webhook pin (${w.triggerId}): ${pin.error}`);
+          report.webhookPins.push(pin);
+          continue;
+        }
+        let req = null;
+        for (let i = 0; i < maxPolls && !req; i++) {
+          await sleep(pollMs);
+          const l = await callAt("webhook_pin_list", "GET", `/hooks/inbound-webhook-request/trigger/${w.triggerId}?${new URLSearchParams({ limit: "10", locationId: loc })}`);
+          if (!l) return report;
+          const rows = Array.isArray(l.json) ? l.json : [];
+          req = rows.find((row) => {
+            const { headers: _h, ...rest } = row?.payload ?? {};
+            return canon(rest) === sig;
+          }) ?? null;
+        }
+        if (!req) {
+          pin.error = "sample not recorded within the poll window";
+          report.warnings.push(`webhook pin (${w.triggerId}): ${pin.error}`);
+          report.webhookPins.push(pin);
+          continue;
+        }
+        pin.requestId = req._id ?? null;
+        const st = await callAt("webhook_pin_set", "PUT", `/hooks/inbound-webhook-request/set-as-reference/${req._id}?${new URLSearchParams({ locationId: loc })}`, { locationId: loc });
+        if (!st) return report;
+        if (!st.ok) {
+          pin.error = `set-as-reference \u2192 ${st.status}`;
+          report.warnings.push(`webhook pin (${w.triggerId}): ${pin.error}`);
+          report.webhookPins.push(pin);
+          continue;
+        }
+        pin.referenceId = typeof st.json === "string" ? st.json : st.json?._id ?? null;
+        const g = await callAt("webhook_pin_read", "GET", `/hooks/inbound-webhook-request/reference/${w.triggerId}?${new URLSearchParams({ locationId: loc })}`);
+        if (!g) return report;
+        if (g.ok) {
+          pin.mergeTags = webhookMergeTags(g.json?.payload ?? {});
+          pin.tagCount = Object.keys(pin.mergeTags).length;
+        } else pin.error = `reference read \u2192 ${g.status}`;
+        report.webhookPins.push(pin);
+      }
+    }
+  }
   for (const np of notePlans) {
     const r = await callAt("sticky_note_create", np.method, np.path, swap(np.body));
     if (!r) return report;
@@ -102075,6 +102182,11 @@ async function orchestrate(ir, gw, opts = {}) {
     if (!report.published) report.verify.issues.push({ publish: pub.status, status: check2?.status, body: JSON.stringify(pub.json).slice(0, 160) });
   }
   return report;
+}
+function sortKeysDeep(o) {
+  if (Array.isArray(o)) return o.map(sortKeysDeep);
+  if (o && typeof o === "object") return Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortKeysDeep(o[k])]));
+  return o;
 }
 
 // ../skills/create-ghl-workflow/engine/edit-driver.mjs
@@ -106496,7 +106608,14 @@ var TOOLS2 = [
       spec: external_exports.object({}).passthrough(),
       ignoreUnresolved: external_exports.boolean().default(false),
       // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
-      skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional()
+      skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional(),
+      // Custom-code sandbox pre-flight (on by default): run each custom_code step in GHL's sandbox
+      // and save the REAL output; strict → a failing run aborts the build instead of warning.
+      strictCustomCode: external_exports.boolean().default(false),
+      skipCustomCodeTest: external_exports.boolean().default(false),
+      // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
+      // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
+      pinWebhookSample: external_exports.boolean().default(false)
     }),
     capabilities: [
       { method: "GET", path: "/opportunities/pipelines" },
@@ -106513,13 +106632,21 @@ var TOOLS2 = [
       { method: "POST", path: "/workflow/{loc}" },
       { method: "PUT", path: "/workflow/{loc}/{wid}/auto-save" },
       { method: "POST", path: "/workflow/{loc}/trigger" },
+      { method: "POST", path: "/workflow/custom-code/run-test" },
+      { method: "POST", path: "/hooks/{loc}/webhook-trigger/{triggerId}" },
+      { method: "GET", path: "/hooks/inbound-webhook-request/trigger/{triggerId}" },
+      { method: "PUT", path: "/hooks/inbound-webhook-request/set-as-reference/{requestId}" },
+      { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" },
       { method: "GET", path: "/workflow/{loc}/{wid}" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const report = await orchestrate(args.spec, gw, {
         ignoreUnresolved: args.ignoreUnresolved ?? false,
-        skipWorkflowRules: args.skipWorkflowRules
+        skipWorkflowRules: args.skipWorkflowRules,
+        strictCustomCode: args.strictCustomCode === true,
+        skipCustomCodeTest: args.skipCustomCodeTest === true,
+        pinWebhookSample: args.pinWebhookSample === true
       });
       const data2 = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data2);
@@ -107601,7 +107728,9 @@ var TOOLS2 = [
         posted = { status: p.status, body: p.json ?? null };
         if (!p.ok) return fromHttp(p.status, p.json);
       }
-      const sig = JSON.stringify(args.samplePayload);
+      const sortKeysDeep2 = (o) => Array.isArray(o) ? o.map(sortKeysDeep2) : o && typeof o === "object" ? Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortKeysDeep2(o[k])])) : o;
+      const canon = (o) => JSON.stringify(sortKeysDeep2(o));
+      const sig = canon(args.samplePayload);
       const sleep = deps.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
       let request = null;
       for (let i = 0; i < (args.maxPolls ?? 8); i++) {
@@ -107611,7 +107740,7 @@ var TOOLS2 = [
         const rows = Array.isArray(l.json) ? l.json : [];
         request = args.pinLatestExisting === true ? rows[0] ?? null : rows.find((r) => {
           const { headers: _h, ...rest } = r?.payload ?? {};
-          return JSON.stringify(rest) === sig;
+          return canon(rest) === sig;
         }) ?? null;
         if (request) break;
       }

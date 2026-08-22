@@ -373,3 +373,74 @@ test('a non-webhook build reports no webhook URLs and no trigger-id surprises', 
   assert.deepEqual(report.webhookUrls, []);
   assert.deepEqual(report.triggers.ids, [{ type: 'contact_tag', name: 'T', id: 'TRIG_1' }]);
 });
+
+// ── custom-code sandbox pre-flight + webhook pin (2026-08-22 wiring) ──────────────────────
+function gwWith(routes, base = mockGateway()) {
+  const calls = base.calls;
+  const call = async (method, path, body) => {
+    for (const [pred, res] of routes) if (pred(method, path, body)) { calls.push({ method, path, body }); return typeof res === 'function' ? res(method, path, body) : res; }
+    return base.gw.call(method, path, body);
+  };
+  return { gw: { ...base.gw, call }, calls };
+}
+const codeIR = (extra = {}) => ({ name: 'Code W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+  graph: [{ ref: 'calc', kind: 'action', type: 'custom_code', name: 'Calc', attributes: { code: 'output = { ok: true, sum: inputData.a + inputData.b }', language: 'javascript', inputData: { a: 2, b: 3 }, output: { ok: true } } }], ...extra });
+
+test('custom_code pre-flight: a passing sandbox run REPLACES the authored output with the real object and warns on key drift', async () => {
+  const { gw, calls } = gwWith([[ (m, p) => m === 'POST' && p === '/workflow/custom-code/run-test', { ok: true, status: 200, json: { output: { ok: true, sum: 5 }, hasError: false, consoleLogs: [], consoleErrors: [] } } ]], mockGateway({ tags: ['x'] }));
+  const report = await orchestrate(codeIR(), gw);
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  const [t] = report.customCodeTests;
+  assert.equal(t.passed, true); assert.equal(t.replacedOutput, true); assert.deepEqual(t.outputKeys, ['ok', 'sum']); assert.deepEqual(t.authoredKeys, ['ok']);
+  assert.ok(report.warnings.some((w) => /keys differ/.test(w) && /extra: sum/.test(w)), JSON.stringify(report.warnings));
+  const run = calls.find((c) => c.path === '/workflow/custom-code/run-test');
+  assert.deepEqual(run.body, { location_id: 'LOC', attributes: { language: 'javascript', code: 'output = { ok: true, sum: inputData.a + inputData.b }', inputData: { a: 2, b: 3 } } });
+  const save = calls.find((c) => c.method === 'PUT' && c.path.includes('/auto-save'));
+  const step = save.body.workflowData.templates.find((x) => x.type === 'custom_code');
+  assert.deepEqual(step.attributes.output, { ok: true, sum: 5 }, 'the auto-save carried the sandbox output');
+  assert.ok(calls.findIndex((c) => c.path === '/workflow/custom-code/run-test') < calls.findIndex((c) => c.method === 'POST' && /\/workflow\/[^/]+$/.test(c.path)), 'pre-flight runs BEFORE the workflow is created');
+});
+
+test('custom_code pre-flight: a thrown run is a recorded warning (authored output kept); strictCustomCode aborts before any create; skipCustomCodeTest skips the call', async () => {
+  const thrown = [[ (m, p) => m === 'POST' && p === '/workflow/custom-code/run-test', { ok: true, status: 200, json: { output: {}, hasError: true, errorMessage: 'Error: boom', consoleErrors: [] } } ]];
+  let g = gwWith(thrown, mockGateway({ tags: ['x'] }));
+  let report = await orchestrate(codeIR(), g.gw);
+  assert.equal(report.aborted, null); assert.equal(report.customCodeTests[0].passed, false); assert.equal(report.customCodeTests[0].errorMessage, 'Error: boom');
+  assert.ok(report.warnings.some((w) => /did not pass/.test(w)));
+  const save = g.calls.find((c) => c.method === 'PUT' && c.path.includes('/auto-save'));
+  assert.deepEqual(save.body.workflowData.templates.find((x) => x.type === 'custom_code').attributes.output, { ok: true }, 'authored sample kept');
+  g = gwWith(thrown, mockGateway({ tags: ['x'] }));
+  report = await orchestrate(codeIR(), g.gw, { strictCustomCode: true });
+  assert.equal(report.failurePhase, 'custom_code_test'); assert.match(report.aborted, /failed the sandbox test/);
+  assert.equal(g.calls.some((c) => c.method === 'POST' && /\/workflow\/[^/]+$/.test(c.path)), false, 'no create after a strict abort');
+  g = gwWith(thrown, mockGateway({ tags: ['x'] }));
+  report = await orchestrate(codeIR(), g.gw, { skipCustomCodeTest: true });
+  assert.equal(g.calls.some((c) => c.path === '/workflow/custom-code/run-test'), false); assert.deepEqual(report.customCodeTests, []);
+});
+
+test('webhook pin (opt-in): POSTs the sample to the receiving path, finds it by canonical payload, pins it, and reports merge tags; a missing request is a recorded failure', async () => {
+  const sample = { lead: { email: 'sample@example.com' }, dealRefId: 'X' };
+  const routes = [
+    [(m, p) => m === 'POST' && p === '/hooks/LOC/webhook-trigger/TRIG_1', { ok: true, status: 200, json: { status: 'Success: test request received' } }],
+    [(m, p) => m === 'GET' && p.startsWith('/hooks/inbound-webhook-request/trigger/TRIG_1'), { ok: true, status: 200, json: [{ _id: 'reqOld', payload: { dealRefId: 'OLD', headers: { h: 1 } } }, { _id: 'reqNew', payload: { dealRefId: 'X', lead: { email: 'sample@example.com' }, headers: { h: 1 } } }] }],
+    [(m, p) => m === 'PUT' && p.startsWith('/hooks/inbound-webhook-request/set-as-reference/reqNew'), { ok: true, status: 200, json: 'ref1' }],
+    [(m, p) => m === 'GET' && p.startsWith('/hooks/inbound-webhook-request/reference/TRIG_1'), { ok: true, status: 200, json: { _id: 'ref1', requestId: 'reqNew', payload: { ...sample, headers: { h: 1 } } } }],
+  ];
+  const { gw, calls } = gwWith(routes);
+  const ir = { name: 'Hook W', triggers: [{ ref: 'h', type: 'inbound_webhook', name: 'Inbound Webhook', filters: [] }], sampleWebhookPayload: sample, pinWebhookSample: true,
+    graph: [{ ref: 'n', kind: 'action', type: 'add_notes', name: 'Note', attributes: { html: '<p>{{inboundWebhookRequest.dealRefId}}</p>', type: 'add_notes' } }] };
+  const report = await orchestrate(ir, gw, { sleep: async () => {}, pinPollMs: 1, pinMaxPolls: 3 });
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  const [pin] = report.webhookPins;
+  assert.equal(pin.requestId, 'reqNew'); assert.equal(pin.referenceId, 'ref1'); assert.equal(pin.tagCount, 2); assert.equal(pin.error, null);
+  assert.deepEqual(Object.keys(pin.mergeTags).sort(), ['dealRefId', 'lead.email']);
+  assert.ok(calls.some((c) => c.method === 'POST' && c.path === '/hooks/LOC/webhook-trigger/TRIG_1' && c.body.dealRefId === 'X'));
+  // opt-out: no flag → no hooks traffic at all
+  const g2 = gwWith(routes);
+  const r2 = await orchestrate({ ...ir, pinWebhookSample: undefined }, g2.gw, { sleep: async () => {} });
+  assert.deepEqual(r2.webhookPins, []); assert.equal(g2.calls.some((c) => c.path.startsWith('/hooks/')), false);
+  // missing request → recorded, not thrown
+  const g3 = gwWith([routes[0], [(m, p) => m === 'GET' && p.startsWith('/hooks/inbound-webhook-request/trigger/'), { ok: true, status: 200, json: [] }]]);
+  const r3 = await orchestrate(ir, g3.gw, { sleep: async () => {}, pinPollMs: 1, pinMaxPolls: 2 });
+  assert.equal(r3.aborted, null); assert.match(r3.webhookPins[0].error, /not recorded/); assert.ok(r3.warnings.some((w) => /webhook pin/.test(w)));
+});
