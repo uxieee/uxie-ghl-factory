@@ -2143,6 +2143,13 @@ export const TOOLS = [
       ignoreUnresolved: z.boolean().default(false),
       // hatch for GHL's WORKFLOW-level rules (graph-rules.mjs): true, or the GHL rule names to skip
       skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),
+      // Custom-code sandbox pre-flight (on by default): run each custom_code step in GHL's sandbox
+      // and save the REAL output; strict → a failing run aborts the build instead of warning.
+      strictCustomCode: z.boolean().default(false),
+      skipCustomCodeTest: z.boolean().default(false),
+      // With spec.sampleWebhookPayload: POST the sample to each inbound_webhook trigger's receiving
+      // URL and pin it as the reference so {{inboundWebhookRequest.*}} tags are real.
+      pinWebhookSample: z.boolean().default(false),
     }),
     capabilities: [
       { method: 'GET', path: '/opportunities/pipelines' },
@@ -2159,6 +2166,11 @@ export const TOOLS = [
       { method: 'POST', path: '/workflow/{loc}' },
       { method: 'PUT', path: '/workflow/{loc}/{wid}/auto-save' },
       { method: 'POST', path: '/workflow/{loc}/trigger' },
+      { method: 'POST', path: '/workflow/custom-code/run-test' },
+      { method: 'POST', path: '/hooks/{loc}/webhook-trigger/{triggerId}' },
+      { method: 'GET', path: '/hooks/inbound-webhook-request/trigger/{triggerId}' },
+      { method: 'PUT', path: '/hooks/inbound-webhook-request/set-as-reference/{requestId}' },
+      { method: 'GET', path: '/hooks/inbound-webhook-request/reference/{triggerId}' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
     ],
     handler: async (args, deps) => guard(async () => {
@@ -2166,6 +2178,9 @@ export const TOOLS = [
       const report = await orchestrate(args.spec, gw, {
         ignoreUnresolved: args.ignoreUnresolved ?? false,
         skipWorkflowRules: args.skipWorkflowRules,
+        strictCustomCode: args.strictCustomCode === true,
+        skipCustomCodeTest: args.skipCustomCodeTest === true,
+        pinWebhookSample: args.pinWebhookSample === true,
       });
       const data = buildWorkflowData(report, args.locationId);
       if (!report.aborted) return ok(data);
@@ -3313,7 +3328,9 @@ export const TOOLS = [
         posted = { status: p.status, body: p.json ?? null };
         if (!p.ok) return fromHttp(p.status, p.json);
       }
-      const sig = JSON.stringify(args.samplePayload);
+      const sortKeysDeep = (o) => Array.isArray(o) ? o.map(sortKeysDeep) : (o && typeof o === 'object' ? Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortKeysDeep(o[k])])) : o);
+      const canon = (o) => JSON.stringify(sortKeysDeep(o));
+      const sig = canon(args.samplePayload);
       const sleep = deps.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
       let request = null;
       for (let i = 0; i < (args.maxPolls ?? 8); i++) {
@@ -3323,7 +3340,7 @@ export const TOOLS = [
         const rows = Array.isArray(l.json) ? l.json : [];
         request = args.pinLatestExisting === true
           ? (rows[0] ?? null)
-          : (rows.find((r) => { const { headers: _h, ...rest } = r?.payload ?? {}; return JSON.stringify(rest) === sig; }) ?? null);
+          : (rows.find((r) => { const { headers: _h, ...rest } = r?.payload ?? {}; return canon(rest) === sig; }) ?? null);
         if (request) break;
       }
       if (!request) return fail(CODES.VALIDATION_FAILED, 'the sample was not recorded against this trigger within the poll window (or no request exists for pinLatestExisting)', 'check the triggerId is an inbound_webhook trigger of THIS location; re-run with a longer pollMs/maxPolls');

@@ -20,6 +20,7 @@
 import { compile } from './compiler.mjs';
 import { planReadinessChecks, runReadinessChecks } from './preflight.mjs';
 import { webhookUrlsFor } from './webhook-rail.mjs';
+import { webhookMergeTags } from './webhook-mergetags.mjs';
 import { planStickyNotes } from './sticky-notes.mjs';
 import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
@@ -203,7 +204,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
     authored: 0, compiled: 0, steps: 0, warnings: [], stickyNotes: { planned: 0, posted: 0, failed: [] }, readiness: [],
-    triggers: { posted: 0, failed: [], ids: [] }, webhookUrls: [], verify: { pass: 0, issues: [] }, published: false,
+    triggers: { posted: 0, failed: [], ids: [] }, webhookUrls: [], webhookPins: [], customCodeTests: [], verify: { pass: 0, issues: [] }, published: false,
     aborted: null, failurePhase: null, failureHttp: null };
   const callAt = async (failurePhase, method, path, body) => {
     try {
@@ -376,6 +377,53 @@ export async function orchestrate(ir, gw, opts = {}) {
   try { notePlans = planStickyNotes(ir.stickyNotes, { loc, wid: ph, skipStickyCheck: opts.skipStickyCheck }); report.stickyNotes.planned = notePlans.length; }
   catch (e) { report.failurePhase = 'compile'; report.aborted = `sticky notes rejected (${e.code ?? 'STICKY_NOTE'}): ${e.message}`; return report; }
 
+  // ── Custom-code sandbox pre-flight (custom-code-test rail, live-proven 2026-08-22) ───────
+  // Every custom_code step is run in GHL's own sandbox (POST /workflow/custom-code/run-test) with
+  // the step's code + its inputData sample — the same call the builder's "Test code" button makes.
+  // A passing run REPLACES the authored `output` sample with the REAL return object (its keys are
+  // what the {{custom_code.N.<key>}} picker offers), warning when the keys differ. A thrown/invalid
+  // run is RECORDED as a warning and the authored sample is kept; opts.strictCustomCode makes it
+  // abort instead. Nothing in the account is touched. Hatch: opts.skipCustomCodeTest.
+  if (opts.skipCustomCodeTest !== true) {
+    const allTemplates = [built.autoSaveBody?.workflowData?.templates, built.createBody?.workflowData?.templates]
+      .filter(Array.isArray);
+    const seenIds = new Set();
+    for (const list of allTemplates) for (const t of list) {
+      if (t?.type !== 'custom_code' || seenIds.has(t.id)) continue;
+      seenIds.add(t.id);
+      const a = t.attributes ?? {};
+      const r = await callAt('custom_code_test', 'POST', '/workflow/custom-code/run-test',
+        { location_id: loc, attributes: { language: a.language ?? 'javascript', code: a.code ?? '', inputData: a.inputData ?? {} } });
+      if (!r) return report;
+      const j = r.ok && r.json && typeof r.json === 'object' ? r.json : null;
+      const out = j?.output;
+      const valid = out !== null && typeof out === 'object' && !Array.isArray(out) && Object.keys(out).length > 0;
+      const entry = { id: t.id, name: t.name ?? null, status: r.status, passed: !!j && j.hasError !== true && valid,
+        hasError: j?.hasError === true, errorMessage: j?.errorMessage ?? null,
+        authoredKeys: Object.keys(a.output ?? {}), outputKeys: valid ? Object.keys(out) : [],
+        consoleErrors: Array.isArray(j?.consoleErrors) ? j.consoleErrors : [], replacedOutput: false };
+      if (entry.passed) {
+        const authored = a.output ?? {};
+        const missing = entry.authoredKeys.filter((k) => !(k in out));
+        const extra = entry.outputKeys.filter((k) => !(k in authored));
+        if (missing.length || extra.length) report.warnings.push(`custom_code '${entry.name ?? t.id}': sandbox output keys differ from the authored sample (missing: ${missing.join(',') || '-'}; extra: ${extra.join(',') || '-'}) — the sandbox result was saved as the step's output`);
+        // apply to EVERY copy of this template (create + auto-save bodies may hold distinct objects)
+        for (const l2 of allTemplates) for (const t2 of l2) if (t2?.id === t.id) t2.attributes = { ...(t2.attributes ?? {}), output: out };
+        entry.replacedOutput = true;
+      } else {
+        const why = j ? (j.errorMessage ?? (valid ? 'unknown' : 'output is not a non-empty object')) : `HTTP ${r.status}`;
+        report.warnings.push(`custom_code '${entry.name ?? t.id}': sandbox test did not pass (${why}); the authored output sample was kept`);
+        if (opts.strictCustomCode === true) {
+          report.customCodeTests.push(entry);
+          report.failurePhase = 'custom_code_test';
+          report.aborted = `custom_code '${entry.name ?? t.id}' failed the sandbox test: ${why}`;
+          return report;
+        }
+      }
+      report.customCodeTests.push(entry);
+    }
+  }
+
   const c = await callAt('workflow_create', 'POST', `/workflow/${loc}`, built.createBody);
   if (!c) return report;
   const WID = c.json?.id || c.json?._id;
@@ -408,6 +456,48 @@ export async function orchestrate(ir, gw, opts = {}) {
       error: JSON.stringify(r?.json ?? '').slice(0, 160) });
   }
   report.webhookUrls = webhookUrlsFor(loc, report.triggers.ids);
+
+  // ── Webhook sample pin (opt-in: pinWebhookSample + sampleWebhookPayload) ──────────────────
+  // Makes the {{inboundWebhookRequest.*}} vocabulary REAL for each inbound_webhook trigger: POST
+  // the sample to the receiving URL (unauthenticated by design; the backend host accepts it too,
+  // live-proven 2026-08-22), wait for GHL to record it, PUT set-as-reference, read the reference
+  // back and mint the merge tags. Failures are RECORDED per trigger, never abort.
+  {
+    const wantPin = opts.pinWebhookSample ?? ir.pinWebhookSample;
+    const sample = opts.sampleWebhookPayload ?? ir.sampleWebhookPayload;
+    if (wantPin === true && sample && typeof sample === 'object' && report.webhookUrls.length) {
+      const sleep = opts.sleep ?? ((ms) => new Promise((res) => setTimeout(res, ms)));
+      const pollMs = opts.pinPollMs ?? 1500, maxPolls = opts.pinMaxPolls ?? 8;
+      const canon = (o) => JSON.stringify(sortKeysDeep(o));
+      const sig = canon(sample);
+      for (const w of report.webhookUrls) {
+        const pin = { triggerId: w.triggerId, url: w.url, posted: null, requestId: null, referenceId: null, tagCount: null, mergeTags: null, error: null };
+        const p = await callAt('webhook_pin_post', 'POST', `/hooks/${loc}/webhook-trigger/${w.triggerId}`, sample);
+        if (!p) return report;
+        pin.posted = p.status;
+        if (!p.ok) { pin.error = `sample POST → ${p.status}`; report.warnings.push(`webhook pin (${w.triggerId}): ${pin.error}`); report.webhookPins.push(pin); continue; }
+        let req = null;
+        for (let i = 0; i < maxPolls && !req; i++) {
+          await sleep(pollMs);
+          const l = await callAt('webhook_pin_list', 'GET', `/hooks/inbound-webhook-request/trigger/${w.triggerId}?${new URLSearchParams({ limit: '10', locationId: loc })}`);
+          if (!l) return report;
+          const rows = Array.isArray(l.json) ? l.json : [];
+          req = rows.find((row) => { const { headers: _h, ...rest } = row?.payload ?? {}; return canon(rest) === sig; }) ?? null;
+        }
+        if (!req) { pin.error = 'sample not recorded within the poll window'; report.warnings.push(`webhook pin (${w.triggerId}): ${pin.error}`); report.webhookPins.push(pin); continue; }
+        pin.requestId = req._id ?? null;
+        const st = await callAt('webhook_pin_set', 'PUT', `/hooks/inbound-webhook-request/set-as-reference/${req._id}?${new URLSearchParams({ locationId: loc })}`, { locationId: loc });
+        if (!st) return report;
+        if (!st.ok) { pin.error = `set-as-reference → ${st.status}`; report.warnings.push(`webhook pin (${w.triggerId}): ${pin.error}`); report.webhookPins.push(pin); continue; }
+        pin.referenceId = typeof st.json === 'string' ? st.json : (st.json?._id ?? null);
+        const g = await callAt('webhook_pin_read', 'GET', `/hooks/inbound-webhook-request/reference/${w.triggerId}?${new URLSearchParams({ locationId: loc })}`);
+        if (!g) return report;
+        if (g.ok) { pin.mergeTags = webhookMergeTags(g.json?.payload ?? {}); pin.tagCount = Object.keys(pin.mergeTags).length; }
+        else pin.error = `reference read → ${g.status}`;
+        report.webhookPins.push(pin);
+      }
+    }
+  }
 
   // sticky notes — one POST each (live: POST /workflows/sticky-note?locationId= → 201), after the
   // document exists; a failure is RECORDED, never silently dropped, and never aborts the build
@@ -518,4 +608,12 @@ export async function orchestrate(ir, gw, opts = {}) {
   }
 
   return report;
+}
+
+// Canonical JSON for payload matching: GHL returns the stored request with its own key order,
+// so a naive JSON.stringify comparison against the sample is order-sensitive.
+function sortKeysDeep(o) {
+  if (Array.isArray(o)) return o.map(sortKeysDeep);
+  if (o && typeof o === 'object') return Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortKeysDeep(o[k])]));
+  return o;
 }

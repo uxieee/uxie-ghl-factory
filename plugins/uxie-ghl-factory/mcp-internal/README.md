@@ -83,7 +83,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `list_marketplace_apps` | third-party apps INSTALLED in a location, with each app's triggers/actions — `key`, `version`, `templateId`, full `customVars`/`inputs` schema (`compact:true` by default) |
 | `list_courses` | course summaries with status and available chapter/lesson/offer counts |
 | `build_course` | no-call validation preview; confirmed course build with created IDs, verification and cleanup evidence |
-| `build_workflow` | draft creation and verification; never publishes |
+| `build_workflow` | draft creation and verification; never publishes; runs every custom_code step in GHL's sandbox first (saves the real output; `strictCustomCode` aborts on failure); `pinWebhookSample` pins `spec.sampleWebhookPayload` as each inbound_webhook trigger's reference |
 | `edit_workflow` | read-only preview; writes require `confirm: true` and never publish |
 | `publish_workflow` | read-only publish preview; publishing requires `confirm: true` |
 | `list_workflow_folders` | workflow folders (`type=directory`), or one folder's contents plus its own name |

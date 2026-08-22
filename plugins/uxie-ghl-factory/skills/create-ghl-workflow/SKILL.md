@@ -374,8 +374,11 @@ sample in the IR and let the engine check every reference before anything is sav
   afterwards: `report.webhookUrls[] = { name, triggerId, url }` —
   `https://services.leadconnectorhq.com/hooks/{loc}/webhook-trigger/{triggerId}`. Give that URL
   to the external system.
-- To make the tags real in the UI picker, pin the sample as the reference: MCP
-  `pin_webhook_sample { locationId, triggerId, samplePayload, confirm:true }` (POSTs the sample
+- To make the tags real in the UI picker, set **`pinWebhookSample: true`** (IR top-level or build
+  option) and the build itself POSTs the sample to the receiving URL, waits for GHL to record it,
+  pins it as the reference and reports `report.webhookPins[] = {triggerId, requestId, referenceId,
+  tagCount, mergeTags, error}` (live-proven GROM AU 2026-08-22, 4 tags). After the fact, the MCP
+  tool does the same: `pin_webhook_sample { locationId, triggerId, samplePayload, confirm:true }` (POSTs the sample
   to the receiving URL — unauthenticated by design — waits for GHL to record it, PUTs
   set-as-reference, returns the merge tags). Live-proven on a GROM AU canary 2026-08-22. Pinning
   REPLACES the active reference: on a live workflow only do it with a payload shaped like the
@@ -390,6 +393,16 @@ console streams, and the in-band `errorMessage`. Only a **non-empty object** ass
 exactly the `{{custom_code.N.<key>}}` references downstream steps may use. Run it before
 authoring those references; the engine's step-output check warns when a custom_code step has
 no pickable output.
+
+**The engine now does this for you on every build** (live-proven GROM AU 2026-08-22): each
+`custom_code` step is run in the sandbox with its own `inputData` BEFORE the workflow is created;
+a passing run **replaces the authored `output` sample with the real return object** (so the
+picker offers the true keys) and warns when the keys differ; a thrown/invalid run is a warning
+and the authored sample is kept. Build flags: `strictCustomCode: true` → a failing run aborts;
+`skipCustomCodeTest: true` → skip. Read `report.customCodeTests[]` — `{id, name, passed,
+outputKeys, authoredKeys, errorMessage, replacedOutput}`. Author `inputData` with values that
+let the code run (merge tags stay literal strings in the sandbox).
+
 
 ## Editing an existing workflow (not a fresh create)
 
@@ -685,6 +698,8 @@ Trigger filter values obey the string/array split above — `value: "vip"`, neve
 ## Read the build report — every time
 
 - `webhookUrls[]` — for every `inbound_webhook` trigger: the receiving URL + the server-assigned `triggerId` (hand the URL to the external system; pin a sample with `pin_webhook_sample`).
+- `webhookPins[]` — when `pinWebhookSample` was set: per trigger the pinned `requestId`/`referenceId` and the merge tags now live (or `error`).
+- `customCodeTests[]` — per `custom_code` step: sandbox `passed`, real `outputKeys` vs `authoredKeys`, `errorMessage`; `replacedOutput:true` means the saved step carries the sandbox result.
 
 The orchestrator prints exactly what it did. Check it:
 - `ABORTED: Missing account dependencies …` → a pipeline/calendar/user/form/agent
