@@ -34,6 +34,26 @@ The workflow builder's **Execution logs** and **Enrollment history** tabs are po
 
 Exact URLs, query params, pagination, and response schemas are in `references/logs-capture-runbook.md`. Read it before fetching.
 
+## The sibling runtime rails (2026-08-22 — MCP tools, same read-only discipline)
+
+Beyond the three tabs above, four more read rails exist and are live-proven; use them
+through the MCP server (`uxie-ghl-internal-mcp`) when it is registered:
+
+| Question | Tool / rail |
+|---|---|
+| **Why didn't my trigger fire?** | `get_trigger_logs` → `workflows/trigger/logs/triggerId` + `top-failed-reasons`: one row per attempt with `qualified`, `failedReason`, `actualValue` vs `expectedValue` (the filter comparison that decided it), ranked reasons. `triggerType` is REQUIRED by the endpoint; the tool resolves it from `workflowId`. |
+| **Show me ONE run, step by step** | `get_workflow_logs` with `executionId` (= any log row's `workflowStatusId` / an enrollment's `id`) → every record of that run on `logs/v2`. `logs/v2` always needs `workflowId` — there is no cross-workflow contact view server-side (422). |
+| **Which workflows are failing right now? How busy is the account?** | `get_account_workflow_overview` → `workflows/statistics`, `logs/weekly-enrollment-data`, `error-notification/{count,list,settings}` (the list page's Needs-Review tab + who gets error emails), batched `status/search/enroll-stats(-cache)` totals per workflow. |
+| **Which step is leaking / who's parked there?** | `get_workflow_stats` (aggregates, 30 days) + `get_contacts_at_step` (`details-by-step` wants `currentStepId`, not `stepId`). |
+
+Log-row fields worth knowing: `workflowStatusId` (the enrollment/run id), `meta.version`
+(the workflow version the run executed on), `meta.addedSource` (how the contact entered —
+trigger type/id, or `workflow_status_page` + user), `meta.removedFrom.type`
+(`end_of_workflow` / `contact_reply_stop_response` / `wait_step_window_in_past` /
+`wait_step_date_in_past_exit`), `meta.skippedFor.type` (dnd / time-window / appointment-wait /
+missing-data / active-already / …), `meta.delayedFor.type` (rate-limit / system-delay),
+`nextExecutionAt` (when a waiting contact resumes), `recordType` (custom-object runs).
+
 ## Default Workflow
 
 1. **Parse the target.** Workflow URL shape: `https://app.gohighlevel.com/location/{LOCATION_ID}/workflow/{WORKFLOW_ID}`. If either ID is missing, ask for the workflow URL or both IDs.

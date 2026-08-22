@@ -4,6 +4,7 @@ import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCond
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
 import { checkGoghlSyntax } from './goghl.mjs';
+import { checkWebhookRefs } from './webhook-rail.mjs';
 import { checkStepOutputRefs } from './step-outputs.mjs';
 import { normalizeSettings } from './settings.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
@@ -1631,6 +1632,11 @@ export function compile(ir, ctx) {
   // GoGHL interactive-message syntax (#btn/#list) + spintax — a malformed line sends as
   // literal text to the contact (goghl.mjs; advisory, hatch skipGoghlCheck)
   checkGoghlSyntax(templates, ctx);
+  // inbound-webhook references ({{inboundWebhookRequest.*}}) against a SAMPLE payload when the
+  // author supplies one (ctx.sampleWebhookPayload or ir.sampleWebhookPayload) — the pinned
+  // reference's leaf paths are the only vocabulary at runtime (webhook-rail.mjs; advisory,
+  // hatch skipWebhookCheck). Live-proven rail 2026-08-22.
+  checkWebhookRefs(templates, ctx?.sampleWebhookPayload ?? norm?.sampleWebhookPayload ?? ir?.sampleWebhookPayload, ctx);
   // OBJECT-BASED workflows: the picker offers ONLY these actions (utils/workflows.ts
   // objectBasedInternalActionMap + objectBasedCrossEntityActionMap, recovered 2026-08-22) —
   // anything else is un-producible in the UI and unproven at runtime for object records.

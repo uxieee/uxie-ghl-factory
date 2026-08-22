@@ -353,3 +353,23 @@ test('FAIL-OPEN: an unreachable pre-flight endpoint does not block a good build'
   assert.equal(report.assetPreflight.checked, false);
   assert.ok(report.assetPreflight.skipped, 'records why it was skipped');
 });
+
+test('inbound_webhook: the report names the receiving URL from the SERVER-assigned trigger id, and a sample payload lints {{inboundWebhookRequest.*}} refs', async () => {
+  const { gw } = mockGateway();
+  const ir = { name: 'Hook W', triggers: [{ ref: 'h', type: 'inbound_webhook', name: 'Inbound Webhook', filters: [] }],
+    sampleWebhookPayload: { lead: { email: 'sample@example.com' }, dealRefId: 'X' },
+    graph: [{ ref: 'n', kind: 'action', type: 'add_notes', name: 'Note', attributes: { html: '<p>{{inboundWebhookRequest.dealRefId}} {{inboundWebhookRequest.lead.emial}}</p>', type: 'add_notes' } }] };
+  const report = await orchestrate(ir, gw);
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  assert.deepEqual(report.triggers.ids, [{ type: 'inbound_webhook', name: 'Inbound Webhook', id: 'TRIG_1' }]);
+  assert.deepEqual(report.webhookUrls, [{ name: 'Inbound Webhook', triggerId: 'TRIG_1', url: 'https://services.leadconnectorhq.com/hooks/LOC/webhook-trigger/TRIG_1' }]);
+  assert.ok(report.warnings.some((w) => /lead\.emial/.test(w) && /did you mean lead\.email/.test(w)), JSON.stringify(report.warnings));
+  assert.ok(!report.warnings.some((w) => /dealRefId/.test(w)), 'the valid path does not warn');
+});
+
+test('a non-webhook build reports no webhook URLs and no trigger-id surprises', async () => {
+  const { gw } = mockGateway({ tags: ['new-tag'] });
+  const report = await orchestrate(tagIR(), gw);
+  assert.deepEqual(report.webhookUrls, []);
+  assert.deepEqual(report.triggers.ids, [{ type: 'contact_tag', name: 'T', id: 'TRIG_1' }]);
+});

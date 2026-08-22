@@ -67,7 +67,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `list_workflows` | `GET /workflow/{loc}/list` |
 | `get_workflow` | summary + step count (use `export_workflow` for the graph) |
 | `export_workflow` | workflow body + triggers + sticky notes |
-| `get_workflow_logs` | executions, per-step counts, enrollment roster |
+| `get_workflow_logs` | executions, per-step counts, enrollment roster; `executionId` = one run's full step trace |
 | `get_workflow_runtime_window` | one workflow's complete, evidence-qualified runtime window (see **Audit profile**) |
 | `list_workflows_complete` | the whole roster walked to a reconciled terminal proof (see **Audit profile**) |
 | `get_ai_configuration_bundle` | Conversation AI + Voice AI + Agent Studio discovery and detail (see **Audit profile**) |
@@ -75,6 +75,10 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `get_workflow_stats` | the builder's Stats view as data: per-step SMS/email aggregates, per-trigger attempted/matched, contacts per step (last 30 days) |
 | `list_workflow_versions` | version history (saved/published snapshots, newest first; 30 days or last 10) |
 | `get_workflow_version` | one version snapshot with its full step graph, by number or id |
+| `get_trigger_logs` | why a trigger did/didn't fire: per-contact attempts with qualified, failedReason, actual vs expected value, plus ranked top-failed-reasons |
+| `get_account_workflow_overview` | the Workflow Overview page as data: location counts, weekly enrollment, Needs-Review list + error-email settings, batched enrolled/finished totals |
+| `test_custom_code` | run Custom Code in GHL's sandbox with sample inputData (the builder's Test button) — output validity + console, nothing touched |
+| `pin_webhook_sample` | POST a sample to an inbound_webhook trigger's receiving URL, pin it as the trigger's reference, return its `{{inboundWebhookRequest.*}}` tags — preview + `confirm` (it REPLACES the active reference) |
 | `list_account_entities` | pipelines, calendars, users, forms, custom fields, AI agents |
 | `list_marketplace_apps` | third-party apps INSTALLED in a location, with each app's triggers/actions — `key`, `version`, `templateId`, full `customVars`/`inputs` schema (`compact:true` by default) |
 | `list_courses` | course summaries with status and available chapter/lesson/offer counts |

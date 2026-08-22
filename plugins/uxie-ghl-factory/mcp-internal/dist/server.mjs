@@ -795,6 +795,102 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "workflow-history"
         ]
+      },
+      get_trigger_logs: {
+        description: "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-08-22); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-08-22)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "trigger-logs-triggerId",
+          "trigger-logs-top-failed-reasons",
+          "trigger-count-by-triggerId"
+        ],
+        proofFloorRows: [
+          "trigger-logs-triggerId"
+        ],
+        riskRows: [
+          "trigger-logs-triggerId",
+          "trigger-logs-top-failed-reasons",
+          "trigger-count-by-triggerId"
+        ],
+        rows: [
+          "trigger-logs-triggerId",
+          "trigger-logs-top-failed-reasons",
+          "trigger-count-by-triggerId"
+        ]
+      },
+      get_account_workflow_overview: {
+        description: "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-08-22); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-08-22)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "workflows-statistics",
+          "logs-weekly-enrollment-data",
+          "error-notification-list",
+          "status-enroll-stats"
+        ],
+        proofFloorRows: [
+          "workflows-statistics"
+        ],
+        riskRows: [
+          "workflows-statistics",
+          "logs-weekly-enrollment-data",
+          "error-notification-list",
+          "status-enroll-stats"
+        ],
+        rows: [
+          "workflows-statistics",
+          "logs-weekly-enrollment-data",
+          "error-notification-count",
+          "error-notification-list",
+          "error-notification-settings",
+          "status-enroll-stats",
+          "status-enroll-stats-cache"
+        ]
+      },
+      test_custom_code: {
+        description: "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-08-22); risk: sandbox-exec",
+        risk: "sandbox-exec",
+        proof: "live-runtime (2026-08-22)",
+        proofFloor: "live-runtime (2026-08-22)",
+        proofRows: [
+          "custom-code-run-test"
+        ],
+        proofFloorRows: [
+          "custom-code-run-test"
+        ],
+        riskRows: [
+          "custom-code-run-test"
+        ],
+        rows: [
+          "custom-code-run-test"
+        ]
+      },
+      pin_webhook_sample: {
+        description: "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-canary (2026-08-22); risk: write (replaces the trigger's reference)",
+        risk: "write",
+        proof: "live-canary (2026-08-22)",
+        proofFloor: "live-canary (2026-08-22)",
+        proofRows: [
+          "hooks-webhook-trigger-post",
+          "hooks-inbound-webhook-request-trigger",
+          "hooks-set-as-reference",
+          "hooks-reference"
+        ],
+        proofFloorRows: [
+          "hooks-set-as-reference"
+        ],
+        riskRows: [
+          "hooks-set-as-reference"
+        ],
+        rows: [
+          "hooks-webhook-trigger-post",
+          "hooks-inbound-webhook-request-trigger",
+          "hooks-set-as-reference",
+          "hooks-reference"
+        ]
       }
     };
   }
@@ -36313,6 +36409,91 @@ function checkGoghlSyntax(templates, ctx = {}) {
   return findings;
 }
 
+// ../skills/create-ghl-workflow/engine/webhook-rail.mjs
+init_define_TOOL_CATALOG();
+
+// ../skills/create-ghl-workflow/engine/webhook-mergetags.mjs
+init_define_TOOL_CATALOG();
+var PREFIX = "inboundWebhookRequest";
+function webhookMergeTags(payload, { prefix = PREFIX, includeHeaders = false } = {}) {
+  const out = {};
+  const walk2 = (val, path) => {
+    if (val !== null && typeof val === "object") {
+      if (Array.isArray(val)) val.forEach((v, i) => walk2(v, path ? `${path}.${i}` : String(i)));
+      else for (const [k, v] of Object.entries(val)) walk2(v, path ? `${path}.${k}` : k);
+    } else {
+      out[path] = `{{${prefix}.${path}}}`;
+    }
+  };
+  walk2(payload, "");
+  if (!includeHeaders) {
+    for (const k of Object.keys(out)) if (k === "headers" || k.startsWith("headers.")) delete out[k];
+  }
+  return out;
+}
+
+// ../skills/create-ghl-workflow/engine/webhook-rail.mjs
+var WEBHOOK_HOOKS_BASE = "https://services.leadconnectorhq.com/hooks";
+var WEBHOOK_TRIGGER_TYPE = "inbound_webhook";
+var REF_RE = /\{\{\s*inboundWebhookRequest(?:\.([A-Za-z0-9_.$-]+))?\s*\}\}/g;
+var webhookTriggerUrl = (loc, triggerId) => `${WEBHOOK_HOOKS_BASE}/${loc}/webhook-trigger/${triggerId}`;
+function findWebhookRefs(templates) {
+  const refs = [];
+  for (const t of templates ?? []) {
+    const walk2 = (v) => {
+      if (typeof v === "string") {
+        for (const m of v.matchAll(REF_RE)) refs.push({ step: t.name ?? t.id ?? "?", path: m[1] ?? "" });
+      } else if (Array.isArray(v)) v.forEach(walk2);
+      else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+    };
+    walk2(t?.attributes);
+  }
+  return refs;
+}
+function checkWebhookRefs(templates, samplePayload, ctx = {}) {
+  if (ctx.skipWebhookCheck === true || samplePayload == null || typeof samplePayload !== "object") return [];
+  const warn = (m) => {
+    if (typeof ctx.warn === "function") ctx.warn(m);
+  };
+  const leaves = Object.keys(webhookMergeTags(samplePayload, { includeHeaders: true }));
+  const known = new Set(leaves);
+  for (const l of leaves) {
+    const parts = l.split(".");
+    for (let i = 1; i < parts.length; i++) known.add(parts.slice(0, i).join("."));
+  }
+  const findings = [];
+  for (const r of findWebhookRefs(templates)) {
+    if (r.path === "" || known.has(r.path)) continue;
+    const near = nearMisses(r.path, leaves);
+    const msg = `'${r.step}' references {{inboundWebhookRequest.${r.path}}} but the sample payload has no such path` + (near.length ? ` (did you mean ${near.join(", ")}?)` : "") + " \u2014 at runtime it renders EMPTY.";
+    findings.push({ step: r.step, path: r.path, near });
+    warn(`webhook: ${msg}`);
+  }
+  return findings;
+}
+function editDistance(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+function nearMisses(path, leaves) {
+  const want = path.split(".").pop().toLowerCase();
+  return leaves.filter((l) => {
+    const last = l.split(".").pop().toLowerCase();
+    return last.includes(want) || want.includes(last) || editDistance(last, want) <= 2;
+  }).slice(0, 3);
+}
+function webhookUrlsFor(loc, triggerBodies) {
+  return (triggerBodies ?? []).filter((tb) => tb?.type === WEBHOOK_TRIGGER_TYPE && (tb.id || tb.predeterminedId)).map((tb) => ({ name: tb.name ?? null, triggerId: tb.id ?? tb.predeterminedId, url: webhookTriggerUrl(loc, tb.id ?? tb.predeterminedId) }));
+}
+
 // ../skills/create-ghl-workflow/engine/step-outputs.mjs
 init_define_TOOL_CATALOG();
 var STEP_OUTPUTS = Object.freeze({
@@ -36328,10 +36509,10 @@ var STEP_OUTPUTS = Object.freeze({
   "task-notification": { ns: "[task-notification]", fields: ["id", "title", "body", "bodyRawText", "dueDate", "assignedTo"], kind: "fixed", note: "bracketed namespace" }
 });
 var NS_TO_TYPE = Object.freeze(Object.fromEntries(Object.entries(STEP_OUTPUTS).map(([ty, v]) => [v.ns.replace(/^\[|\]$/g, ""), ty])));
-var REF_RE = /\{\{\s*\[?([a-z_][a-z0-9_-]*)\]?\.(\d+)\.([^}\s]+)\s*\}\}/gi;
+var REF_RE2 = /\{\{\s*\[?([a-z_][a-z0-9_-]*)\]?\.(\d+)\.([^}\s]+)\s*\}\}/gi;
 function findOutputRefs(text) {
   if (typeof text !== "string") return [];
-  return [...text.matchAll(REF_RE)].filter((m) => NS_TO_TYPE[m[1].toLowerCase()]).map((m) => ({ ns: m[1], type: NS_TO_TYPE[m[1].toLowerCase()], n: Number(m[2]), field: m[3], raw: m[0] }));
+  return [...text.matchAll(REF_RE2)].filter((m) => NS_TO_TYPE[m[1].toLowerCase()]).map((m) => ({ ns: m[1], type: NS_TO_TYPE[m[1].toLowerCase()], n: Number(m[2]), field: m[3], raw: m[0] }));
 }
 function checkStepOutputRefs(templates, ctx = {}) {
   if (ctx.skipStepOutputCheck === true) return [];
@@ -38500,6 +38681,7 @@ function compile(ir, ctx) {
   checkMergeTags(templates, ctx?.catalog, ctx);
   checkStepOutputRefs(templates, ctx);
   checkGoghlSyntax(templates, ctx);
+  checkWebhookRefs(templates, ctx?.sampleWebhookPayload ?? norm2?.sampleWebhookPayload ?? ir?.sampleWebhookPayload, ctx);
   if (norm2.customObjectType && ctx?.skipObjectRules !== true) {
     const OBJECT_ALLOWED = /* @__PURE__ */ new Set([
       "if_else",
@@ -101600,7 +101782,8 @@ async function orchestrate(ir, gw, opts = {}) {
     warnings: [],
     stickyNotes: { planned: 0, posted: 0, failed: [] },
     readiness: [],
-    triggers: { posted: 0, failed: [] },
+    triggers: { posted: 0, failed: [], ids: [] },
+    webhookUrls: [],
     verify: { pass: 0, issues: [] },
     published: false,
     aborted: null,
@@ -101707,6 +101890,10 @@ async function orchestrate(ir, gw, opts = {}) {
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
       // parseIR passes through). Without either, email steps fall back to {{location.*}}.
       senderDefault: opts.senderDefault ?? ir.senderDefault,
+      // Inbound-webhook sample payload (opts or top-level IR key): lets the compiler lint every
+      // {{inboundWebhookRequest.*}} reference against the paths that will exist once the sample is
+      // pinned as the trigger's reference (webhook-rail.mjs).
+      sampleWebhookPayload: opts.sampleWebhookPayload ?? ir.sampleWebhookPayload,
       // Deliberate override for STEP_TYPE_UNKNOWN — see compiler.mjs. Off by default:
       // an unrecognised type builds a step the builder cannot render or open.
       skipEnforcement: opts.skipEnforcement,
@@ -101794,14 +101981,18 @@ async function orchestrate(ir, gw, opts = {}) {
       if (!r) return report;
       if (r.ok) break;
     }
-    if (r?.ok) report.triggers.posted++;
-    else report.triggers.failed.push({
+    if (r?.ok) {
+      report.triggers.posted++;
+      const id = r.json?.id ?? r.json?._id ?? null;
+      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id });
+    } else report.triggers.failed.push({
       type: tb.type,
       name: tb.name,
       status: r?.status,
       error: JSON.stringify(r?.json ?? "").slice(0, 160)
     });
   }
+  report.webhookUrls = webhookUrlsFor(loc, report.triggers.ids);
   for (const np of notePlans) {
     const r = await callAt("sticky_note_create", np.method, np.path, swap(np.body));
     if (!r) return report;
@@ -105381,7 +105572,7 @@ var TOOLS2 = [
   },
   {
     name: "get_workflow_logs",
-    description: describe3("get_workflow_logs", "Read executions, enrollment and per-step contact counts."),
+    description: describe3("get_workflow_logs", "Read executions, enrollment and per-step contact counts; executionId returns one run's full step trace."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -105392,6 +105583,10 @@ var TOOLS2 = [
       fromDate: external_exports.number().int().nonnegative().optional(),
       toDate: external_exports.number().int().nonnegative().optional(),
       eventType: external_exports.string().optional(),
+      // Per-run TRACE: every log row of ONE execution (the `workflowStatusId` of any log row /
+      // enrollment `id`). logs/v2 only — the roster rejects unknown params. Live-proven GROM AU
+      // 2026-08-22 (6 rows for one run incl. the remove_from_workflow exit row).
+      executionId: external_exports.string().optional(),
       // Walk the enrollment roster to completion via the action=next cursor
       // instead of returning only page one. Bounded by maxEnrollmentPages.
       allEnrollments: external_exports.boolean().default(false),
@@ -105422,6 +105617,7 @@ var TOOLS2 = [
       };
       const logsQuery = withFilters(base);
       logsQuery.set("limit", String(limit));
+      if (typeof args.executionId === "string" && args.executionId.length) logsQuery.set("executionId", args.executionId);
       const [logs, counts] = await Promise.all([
         gw.call("GET", `/workflows/logs/v2?${logsQuery}`),
         gw.call("GET", `/workflows/status/search/count-per-step?${new URLSearchParams(base)}`)
@@ -105873,6 +106069,203 @@ var TOOLS2 = [
         stepCount: templates.length,
         templates,
         meta: v.meta ?? null
+      });
+    }, args)
+  },
+  {
+    name: "get_trigger_logs",
+    description: describe3(
+      "get_trigger_logs",
+      "Why a trigger did or did not fire: per-contact attempt rows with qualified / failedReason / actualValue vs expectedValue, plus the ranked top-failed-reasons \u2014 for every trigger of a workflow or one trigger."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      // Either a workflowId (all its triggers) or an explicit triggerId + triggerType pair.
+      workflowId: external_exports.string().optional(),
+      triggerId: external_exports.string().optional(),
+      // The list + reasons endpoints REQUIRE triggerType (422 "triggerType must be a string"
+      // without it); count-by-triggerId does not.
+      triggerType: external_exports.string().optional(),
+      days: external_exports.number().int().positive().max(90).default(30),
+      // qualified=false → only the attempts that did NOT match (the "why not" view).
+      qualified: external_exports.boolean().optional(),
+      limit: external_exports.number().int().positive().max(200).default(25),
+      includeFailedReasons: external_exports.boolean().default(true)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/trigger" },
+      { method: "GET", path: "/workflows/trigger/logs/count-by-triggerId" },
+      { method: "GET", path: "/workflows/trigger/logs/triggerId" },
+      { method: "GET", path: "/workflows/trigger/logs/top-failed-reasons" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      let triggers = [];
+      if (args.triggerId) {
+        if (!args.triggerType) return fail(CODES.VALIDATION_FAILED, "triggerType is required with triggerId (the trigger-log endpoints reject the call without it); pass workflowId instead to have it resolved.");
+        triggers = [{ id: args.triggerId, type: args.triggerType, name: null }];
+      } else if (args.workflowId) {
+        const tr = await gw.call("GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: args.workflowId })}`);
+        if (!tr.ok) return fromHttp(tr.status, tr.json);
+        const list = Array.isArray(tr.json) ? tr.json : tr.json?.triggers ?? tr.json?.data ?? [];
+        triggers = list.map((t) => ({ id: t.id ?? t._id, type: t.type, name: t.name ?? null, active: t.active ?? null }));
+      } else {
+        return fail(CODES.VALIDATION_FAILED, "pass workflowId (all its triggers) or triggerId + triggerType.");
+      }
+      const now = deps.now ? new Date(deps.now) : /* @__PURE__ */ new Date();
+      const toDate = now.getTime();
+      const fromDate = toDate - (args.days ?? 30) * 864e5;
+      const base = { locationId: args.locationId, dateType: "custom", fromDate: String(fromDate), toDate: String(toDate) };
+      const parseMaybeJson = (v) => {
+        if (typeof v !== "string") return v ?? null;
+        try {
+          return JSON.parse(v);
+        } catch {
+          return v;
+        }
+      };
+      const out = [];
+      for (const trig of triggers) {
+        const item = { id: trig.id, name: trig.name, type: trig.type, active: trig.active ?? null };
+        const c = await gw.call("GET", `/workflows/trigger/logs/count-by-triggerId?${new URLSearchParams({ ...base, triggerId: trig.id, recordId: "" })}`);
+        const row = Array.isArray(c.json) ? c.json[0] ?? null : null;
+        item.attempted = Number(row?.total ?? 0);
+        item.matched = Number(row?.matched ?? 0);
+        item.unmatched = Math.max(0, item.attempted - item.matched);
+        if (!c.ok) item.countError = { status: c.status };
+        const lq = new URLSearchParams({ ...base, triggerId: trig.id, triggerType: trig.type, limit: String(args.limit ?? 25), action: "first" });
+        if (typeof args.qualified === "boolean") lq.set("qualified", String(args.qualified));
+        const l = await gw.call("GET", `/workflows/trigger/logs/triggerId?${lq}`);
+        if (l.ok) {
+          const rows = Array.isArray(l.json) ? l.json : recordsFrom(l.json, "rows", "data");
+          item.attempts = rows.map((r) => ({
+            id: r._id ?? r.id ?? null,
+            at: r.createdAt ?? null,
+            contactId: r.recordId ?? r.contactId ?? null,
+            qualified: r.qualified ?? null,
+            failedReason: r.failedReason ?? null,
+            actualValue: parseMaybeJson(r.actualValue),
+            expectedValue: parseMaybeJson(r.expectedValue)
+          }));
+          item.attemptsTruncated = rows.length >= (args.limit ?? 25);
+        } else item.attemptsError = { status: l.status, body: l.json ?? null };
+        if (args.includeFailedReasons !== false) {
+          const f = await gw.call("GET", `/workflows/trigger/logs/top-failed-reasons?${new URLSearchParams({ ...base, triggerId: trig.id, triggerType: trig.type })}`);
+          item.failedReasons = f.ok ? (Array.isArray(f.json) ? f.json : []).map((r) => ({ reason: r.failedReason ?? null, failures: Number(r.failures ?? 0) })) : null;
+          if (!f.ok) item.failedReasonsError = { status: f.status };
+        }
+        out.push(item);
+      }
+      return ok({
+        window: { fromDate, toDate, days: args.days ?? 30 },
+        triggers: out,
+        note: "Same endpoints as the builder's trigger Stats modal. contactId is the attempt's recordId; actualValue/expectedValue are the filter comparison that decided qualified. Seven trigger types keep no stats: mailgun_email_event, opportunity_decay, call_status, custom_date_reminder, customer_appointment, birthday_reminder, task_due_date_reminder."
+      });
+    }, args)
+  },
+  {
+    name: "get_account_workflow_overview",
+    description: describe3(
+      "get_account_workflow_overview",
+      "The Workflow Overview page as data: location-wide counts, weekly enrollment series, the Needs-Review list (workflows with failing steps) + error-email settings, and batched enrolled/finished totals for given workflowIds."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      // Batched { total, finished } per workflow — from the list-page endpoints.
+      workflowIds: external_exports.array(external_exports.string()).default([]),
+      needsReviewLimit: external_exports.number().int().positive().max(100).default(25)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflows/statistics" },
+      { method: "GET", path: "/workflows/logs/weekly-enrollment-data" },
+      { method: "GET", path: "/workflow/{loc}/error-notification/count" },
+      { method: "GET", path: "/workflow/{loc}/error-notification/list" },
+      { method: "GET", path: "/workflow/{loc}/error-notification/settings" },
+      { method: "GET", path: "/workflows/status/search/enroll-stats" },
+      { method: "GET", path: "/workflows/status/search/enroll-stats-cache" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const loc = encodeURIComponent(args.locationId);
+      const lq = new URLSearchParams({ locationId: args.locationId });
+      const [stats, weekly, count, list, settings] = await Promise.all([
+        gw.call("GET", `/workflows/statistics?${lq}`),
+        gw.call("GET", `/workflows/logs/weekly-enrollment-data?${lq}`),
+        gw.call("GET", `/workflow/${loc}/error-notification/count`),
+        gw.call("GET", `/workflow/${loc}/error-notification/list?${new URLSearchParams({ skip: "0", limit: String(args.needsReviewLimit ?? 25) })}`),
+        gw.call("GET", `/workflow/${loc}/error-notification/settings`)
+      ]);
+      if (!stats.ok) return fromHttp(stats.status, stats.json);
+      const { traceId: _t, ...statistics } = stats.json ?? {};
+      const enrollment = [];
+      const ids = Array.isArray(args.workflowIds) ? args.workflowIds.filter(Boolean) : [];
+      for (let i = 0; i < ids.length; i += 20) {
+        const chunk = ids.slice(i, i + 20);
+        const q = new URLSearchParams({ locationId: args.locationId });
+        for (const id of chunk) q.append("workflowIds[]", id);
+        const [live, cache] = await Promise.all([
+          gw.call("GET", `/workflows/status/search/enroll-stats?${q}`),
+          gw.call("GET", `/workflows/status/search/enroll-stats-cache?${q}`)
+        ]);
+        const byId = /* @__PURE__ */ new Map();
+        for (const r of cache.ok && Array.isArray(cache.json) ? cache.json : []) byId.set(r.workflowId, { workflowId: r.workflowId, total: Number(r.total ?? 0), finished: Number(r.finished ?? 0), source: "cache" });
+        for (const r of live.ok && Array.isArray(live.json) ? live.json : []) byId.set(r.workflowId, { workflowId: r.workflowId, total: Number(r.total ?? 0), finished: Number(r.finished ?? 0), source: "live" });
+        for (const id of chunk) enrollment.push(byId.get(id) ?? { workflowId: id, total: null, finished: null, source: null });
+      }
+      return ok({
+        statistics,
+        weeklyEnrollment: weekly.ok ? Array.isArray(weekly.json) ? weekly.json : recordsFrom(weekly.json, "data") : null,
+        needsReview: {
+          count: count.ok ? typeof count.json === "number" ? count.json : Number(count.json?.count ?? count.json ?? 0) : null,
+          totalCount: list.ok ? list.json?.totalCount ?? null : null,
+          workflows: list.ok ? (list.json?.list ?? []).map((w) => ({ workflowId: w.workflowId, name: w.name ?? null, lastOccurred: w.lastOccurred ?? null })) : null,
+          errorEmailSettings: settings.ok ? settings.json ?? null : null
+        },
+        enrollment,
+        note: "Needs Review = workflows with a recent failing step (the list page's tab badge). errorEmailSettings.users are who GHL emails on failures; null = never configured. Clearing a flag is a DELETE on error-notification/{workflowId} \u2014 deliberately not exposed here."
+      });
+    }, args)
+  },
+  {
+    name: "test_custom_code",
+    description: describe3(
+      "test_custom_code",
+      `Run a Custom Code step's code in GHL's sandbox with sample inputData (the builder's "Test code" button) and report output / console / errors \u2014 no workflow or contact is touched.`
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      code: external_exports.string(),
+      language: external_exports.enum(["javascript", "python"]).default("javascript"),
+      // Sample values for the step's custom-input variables, keyed by variable name.
+      inputData: external_exports.record(external_exports.unknown()).default({})
+    }),
+    capabilities: [
+      { method: "POST", path: "/workflow/custom-code/run-test" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const r = await gw.call("POST", "/workflow/custom-code/run-test", {
+        location_id: args.locationId,
+        attributes: { language: args.language ?? "javascript", code: args.code, inputData: args.inputData ?? {} }
+      });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const j = r.json ?? {};
+      const output = j.output;
+      const outputValid = output !== null && typeof output === "object" && !Array.isArray(output) && Object.keys(output).length > 0;
+      return ok({
+        passed: j.hasError !== true && outputValid,
+        hasError: j.hasError === true,
+        errorMessage: j.errorMessage ?? null,
+        output: output ?? null,
+        outputValid,
+        outputKeys: outputValid ? Object.keys(output) : [],
+        consoleLogs: j.consoleLogs ?? [],
+        consoleWarnings: j.consoleWarnings ?? [],
+        consoleErrors: j.consoleErrors ?? [],
+        memoryUsage: j.memoryUsage ?? null,
+        processTime: j.processTime ?? null,
+        note: outputValid ? "Store this output on the step (attributes.output) so downstream {{custom_code.N.<key>}} refs are pickable in the UI." : "Not a valid step output: assign a non-empty object to `output` (JS) / `output = {...}` (Python)."
       });
     }, args)
   },
@@ -107161,6 +107554,91 @@ var TOOLS2 = [
         folder,
         verified,
         ...verified ? {} : { note: "Created, but the folder did not appear in the folder list on read-back. Confirm before filing fields into it." }
+      });
+    }, args)
+  },
+  {
+    name: "pin_webhook_sample",
+    description: describe3(
+      "pin_webhook_sample",
+      "Make an inbound_webhook trigger's merge tags real: POST a sample payload to its receiving URL, wait for GHL to record it, pin it as the trigger's REFERENCE, and return the {{inboundWebhookRequest.*}} tags it now offers."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      // From build_workflow's report.webhookUrls[].triggerId / report.triggers.ids, or get_workflow.
+      triggerId: external_exports.string(),
+      samplePayload: external_exports.record(external_exports.unknown()),
+      // Skip the POST and pin the newest already-received request instead (e.g. the real system
+      // already fired once).
+      pinLatestExisting: external_exports.boolean().default(false),
+      pollMs: external_exports.number().int().positive().max(2e4).default(1500),
+      maxPolls: external_exports.number().int().positive().max(20).default(8),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "POST", path: "/hooks/{loc}/webhook-trigger/{triggerId}" },
+      { method: "GET", path: "/hooks/inbound-webhook-request/trigger/{triggerId}" },
+      { method: "PUT", path: "/hooks/inbound-webhook-request/set-as-reference/{requestId}" },
+      { method: "GET", path: "/hooks/inbound-webhook-request/reference/{triggerId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const loc = args.locationId;
+      const tid = encodeURIComponent(args.triggerId);
+      const receivingUrl = `https://services.leadconnectorhq.com/hooks/${encodeURIComponent(loc)}/webhook-trigger/${tid}`;
+      if (args.confirm !== true) {
+        return ok({ preview: true, receivingUrl, plan: [
+          args.pinLatestExisting ? "skip POST (pinLatestExisting)" : `POST samplePayload \u2192 ${receivingUrl} (unauthenticated by design)`,
+          `poll GET /hooks/inbound-webhook-request/trigger/${args.triggerId} until the request is recorded`,
+          "PUT /hooks/inbound-webhook-request/set-as-reference/{requestId} (REPLACES the active reference)",
+          `GET /hooks/inbound-webhook-request/reference/${args.triggerId} and derive the merge tags`
+        ], note: "Re-run with confirm:true to execute. The reference decides which {{inboundWebhookRequest.*}} paths exist at runtime for this trigger." });
+      }
+      const gw = deps.makeGw({ loc, state: deps.state });
+      const lq = new URLSearchParams({ locationId: loc });
+      let posted = null;
+      if (args.pinLatestExisting !== true) {
+        const p = await gw.call("POST", `/hooks/${encodeURIComponent(loc)}/webhook-trigger/${tid}`, args.samplePayload, "https://services.leadconnectorhq.com");
+        posted = { status: p.status, body: p.json ?? null };
+        if (!p.ok) return fromHttp(p.status, p.json);
+      }
+      const sig = JSON.stringify(args.samplePayload);
+      const sleep = deps.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
+      let request = null;
+      for (let i = 0; i < (args.maxPolls ?? 8); i++) {
+        if (i > 0 || args.pinLatestExisting !== true) await sleep(args.pollMs ?? 1500);
+        const l = await gw.call("GET", `/hooks/inbound-webhook-request/trigger/${tid}?${new URLSearchParams({ limit: "10", locationId: loc })}`);
+        if (!l.ok) return fromHttp(l.status, l.json);
+        const rows = Array.isArray(l.json) ? l.json : [];
+        request = args.pinLatestExisting === true ? rows[0] ?? null : rows.find((r) => {
+          const { headers: _h, ...rest } = r?.payload ?? {};
+          return JSON.stringify(rest) === sig;
+        }) ?? null;
+        if (request) break;
+      }
+      if (!request) return fail(CODES.VALIDATION_FAILED, "the sample was not recorded against this trigger within the poll window (or no request exists for pinLatestExisting)", "check the triggerId is an inbound_webhook trigger of THIS location; re-run with a longer pollMs/maxPolls");
+      const s = await gw.call("PUT", `/hooks/inbound-webhook-request/set-as-reference/${encodeURIComponent(request._id)}?${lq}`, { locationId: loc });
+      if (!s.ok) return fromHttp(s.status, s.json);
+      const g = await gw.call("GET", `/hooks/inbound-webhook-request/reference/${tid}?${lq}`);
+      if (!g.ok) return fromHttp(g.status, g.json);
+      const ref = g.json ?? {};
+      const tags = {};
+      const walk2 = (v, path) => {
+        if (v !== null && typeof v === "object") {
+          if (Array.isArray(v)) v.forEach((x, i) => walk2(x, path ? `${path}.${i}` : String(i)));
+          else for (const [k, x] of Object.entries(v)) walk2(x, path ? `${path}.${k}` : k);
+        } else tags[path] = `{{inboundWebhookRequest.${path}}}`;
+      };
+      walk2(ref.payload ?? {}, "");
+      const mergeTags = Object.fromEntries(Object.entries(tags).filter(([k]) => k !== "headers" && !k.startsWith("headers.")));
+      return ok({
+        receivingUrl,
+        posted,
+        requestId: request._id,
+        referenceId: typeof s.json === "string" ? s.json : ref._id ?? null,
+        reference: { id: ref._id ?? null, requestId: ref.requestId ?? null, triggerId: ref.triggerId ?? null, updatedAt: ref.updatedAt ?? null },
+        mergeTags,
+        headerTagsOmitted: Object.keys(tags).length - Object.keys(mergeTags).length,
+        note: 'These paths are what {{inboundWebhookRequest.*}} resolves to for this trigger now. Live-proven GROM AU 2026-08-22: POST \u2192 {"status":"Success: test request received"}, set-as-reference \u2192 the reference id.'
       });
     }, args)
   },

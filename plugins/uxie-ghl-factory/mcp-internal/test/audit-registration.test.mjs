@@ -583,17 +583,24 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
   // immediately after `get_contacts_at_step`. Outside the audit profile (not frozen evidence).
   // 31 -> 33: `list_workflow_versions` + `get_workflow_version` (read-only version history),
   // registered after `get_workflow_stats`. Outside the audit profile.
-  assert.equal(TOOLS.length, 33, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 33 -> 36: `get_trigger_logs` + `get_account_workflow_overview` (read-only runtime rails) +
+  // `test_custom_code` (POST to the sandbox run-test — no account mutation, but a non-GET
+  // capability, so outside the audit profile by construction), registered after
+  // `get_workflow_version`.
+  // 36 -> 37: `pin_webhook_sample` (inbound-webhook sample → reference; a WRITE that replaces
+  // the trigger's active reference, confirm-gated), registered before `fast_forward_contacts`.
+  assert.equal(TOOLS.length, 37, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
     'list_workflows', 'get_workflow', 'check_workflow', 'export_workflow',
     'get_workflow_logs', 'get_workflow_runtime_window', 'list_workflows_complete',
-    'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_workflow_versions', 'get_workflow_version', 'list_account_entities',
+    'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_workflow_versions', 'get_workflow_version',
+    'get_trigger_logs', 'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
     'publish_workflow', 'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',
-    'fast_forward_contacts', 'raw_request',
+    'pin_webhook_sample', 'fast_forward_contacts', 'raw_request',
   ]);
   const normal = stripComments(readFileSync(NORMAL_ENTRY, 'utf8'));
   assert.equal(
