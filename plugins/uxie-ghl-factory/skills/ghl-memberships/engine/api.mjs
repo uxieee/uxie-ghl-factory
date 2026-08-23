@@ -188,11 +188,27 @@ export class GhlMembershipsApi {
   }
 
   // ---------- offers (access control) ----------
-  createOffer({ title, productIds, type = 'free', amount = 0, currency = 'EUR' }) {
-    return this.req('POST', `${this.M}/offers`, {
-      title, type, isLivePaymentMode: true, locationId: this.loc,
-      productIds, amount, currency,
-    });
+  // `type` is the WIRE enum: free | onetime | subscription | multiple (models/Offer.ts).
+  // NOT one_time/recurring — those 500 with a bare "Internal server error", which was
+  // long misread as "paid offers need a payment provider". Proven 2026-08-24: the wrong
+  // enum 500s on an account that HAS Stripe, the right one succeeds. See
+  // corpus/memberships-courses/20-api/offers.md.
+  // LIVE-CHECKED 2026-08-24: the server defaults `isLivePaymentMode` to FALSE (test). This
+  // used to hardcode `true`, which silently wired every paid offer to LIVE payments. It is
+  // now opt-in: omit it and the account's own default stands.
+  createOffer({ title, productIds, type = 'free', amount = 0, currency = 'EUR',
+                interval, intervalCount, paymentProvider, isLivePaymentMode,
+                setupFee, trialDays, numberOfPayments }) {
+    const body = { title, type, locationId: this.loc, productIds, amount, currency };
+    if (interval) body.interval = interval;
+    if (intervalCount) body.intervalCount = String(intervalCount);
+    if (paymentProvider) body.paymentProvider = paymentProvider;
+    if (isLivePaymentMode !== undefined) body.isLivePaymentMode = isLivePaymentMode;
+    // All three persist on read-back; setupFee comes back as a string.
+    if (setupFee !== undefined) body.setupFee = setupFee;
+    if (trialDays !== undefined) body.trialDays = trialDays;
+    if (numberOfPayments !== undefined) body.numberOfPayments = numberOfPayments;
+    return this.req('POST', `${this.M}/offers`, body);
   }
 
   // ---------- assessments ----------

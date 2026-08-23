@@ -36,15 +36,43 @@ test('course preview reports every object class without performing account acces
   assert.equal(preview.wouldCreate.embeds, 1);
 });
 
-test('MCP preview rejects paid offers and non-absolute local media before writes', () => {
+// CORRECTED 2026-08-24 (live, GROM UK with Stripe + GROM AU): this test used to assert
+// that ANY paid offer was rejected because "paid offers return 500 without a payment
+// provider". That premise was false. The 500 came from sending one_time/recurring, which
+// are not the wire enum — models/Offer.ts says free|onetime|subscription|multiple. The
+// differential: the wrong enum 500s on an account that HAS Stripe; the right enum creates
+// an offer that reads back with its amount. Paid offers are now supported; what is
+// rejected is a paid offer with no amount.
+test('MCP preview rejects a paid offer with no amount, and non-absolute local media', () => {
   const preview = previewCourseSpec({
     course: { title: 'Launchpad' },
     chapters: [{ title: 'Start', lessons: [{ title: 'Watch', video: './intro.mp4' }] }],
     offer: { type: 'one_time' },
   }, { requireAbsoluteMediaPaths: true });
 
-  assert.match(preview.errors.join('\n'), /Only "free" is proven/);
+  assert.match(preview.errors.join('\n'), /requires offer\.amount > 0/);
   assert.match(preview.errors.join('\n'), /absolute local path/);
+});
+
+test('a paid offer WITH an amount validates, in both spellings', () => {
+  for (const type of ['one_time', 'onetime', 'recurring', 'subscription']) {
+    const spec = {
+      course: { title: 'Launchpad' },
+      chapters: [{ title: 'Start', lessons: [{ title: 'Intro', text: '<p>hi</p>' }] }],
+      offer: { type, amount: 1000, currency: 'USD',
+        ...(type === 'recurring' || type === 'subscription' ? { interval: 'month' } : {}) },
+    };
+    assert.deepEqual(validateCourseSpec(spec), [], `${type} should validate`);
+  }
+});
+
+test('offer.interval is refused on a non-recurring offer', () => {
+  const errs = validateCourseSpec({
+    course: { title: 'x' },
+    chapters: [{ title: 'c', lessons: [{ title: 'l', text: '<p>t</p>' }] }],
+    offer: { type: 'one_time', amount: 500, interval: 'month' },
+  });
+  assert.match(errs.join('\n'), /interval only applies/);
 });
 
 // ─── Unknown spec keys must fail at PREVIEW, not after objects exist ──────────────────

@@ -31,10 +31,22 @@ const KNOWN_KEYS = {
   // class this guard exists to stop still slips through the sub-objects — e.g.
   // `theme.brandColour` would no-op with no error (review MF2). `offer` also honours
   // `title`/`currency`, read by the engine though absent from the doc example.
-  offer: ['type', 'title', 'currency', 'publish'],
+  offer: ['type', 'title', 'currency', 'publish', 'amount', 'interval', 'intervalCount',
+    'setupFee', 'trialDays', 'numberOfPayments', 'isLivePaymentMode'],
   theme: ['name', 'templateId', 'brandColor', 'heroTitleColor', 'instructor'],
   instructor: ['name', 'title', 'bio'],
   credential: ['title', 'type'],
+};
+
+// Friendly spec value -> the wire enum from models/Offer.ts. Both spellings accepted so
+// existing specs keep working; `one_time`/`recurring` are aliases, not wire values.
+const OFFER_TYPE_WIRE = {
+  free: 'free',
+  one_time: 'onetime',
+  onetime: 'onetime',
+  recurring: 'subscription',
+  subscription: 'subscription',
+  multiple: 'multiple',
 };
 
 function checkKeys(obj, allowed, at, errors, hints = {}) {
@@ -119,11 +131,19 @@ export function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } =
   checkKeys(spec.theme?.instructor, KNOWN_KEYS.instructor, 'spec.theme.instructor', errors);
   checkKeys(spec.credential, KNOWN_KEYS.credential, 'spec.credential', errors);
 
+  // Spec vocabulary is the friendly one; OFFER_TYPE_WIRE maps it to the enum the API
+  // actually accepts. Paid offers were blocked here until 2026-08-24 with the reason
+  // "returns 500 without a payment provider" — that was WRONG. The 500 came from sending
+  // one_time/recurring, which are not the wire values. Live-proven both ways.
   const offerType = spec.offer?.type;
-  if (offerType && !['free', 'one_time', 'recurring'].includes(offerType)) {
-    errors.push('offer.type must be free|one_time|recurring');
-  } else if (offerType && offerType !== 'free') {
-    errors.push(`offer.type "${offerType}" is unsupported: paid offers return 500 without a payment provider. Only "free" is proven.`);
+  if (offerType && !Object.hasOwn(OFFER_TYPE_WIRE, offerType)) {
+    errors.push(`offer.type must be one of ${Object.keys(OFFER_TYPE_WIRE).join('|')}`);
+  }
+  if (offerType && offerType !== 'free' && !(spec.offer?.amount > 0)) {
+    errors.push(`offer.type "${offerType}" requires offer.amount > 0`);
+  }
+  if (spec.offer?.interval && OFFER_TYPE_WIRE[offerType] !== 'subscription') {
+    errors.push('offer.interval only applies to a recurring/subscription offer');
   }
   if (spec.credential && !spec.credential.title) {
     errors.push('credential.title is required when credential is present');
@@ -197,7 +217,7 @@ export function previewCourseSpec(spec, options = {}) {
     },
     notes: [
       'Preview only: validation and counts perform no account calls.',
-      'Paid offers are unsupported; only free offers are proven.',
+      'Paid offers use the wire enum onetime|subscription; one_time/recurring are spec aliases.',
       'Embeds are lesson.embed on a video post followed by PUT embedJson; embed is not a content_type.',
     ],
   };
@@ -377,18 +397,25 @@ export async function buildCourse({
     if (spec.offer !== null) {
       const offerSpec = spec.offer || {};
       phase('offer_create');
+      const wireType = OFFER_TYPE_WIRE[offerSpec.type ?? 'free'];
       const offer = await api.createOffer({
         title: offerSpec.title || spec.course.title,
         productIds: [product.id],
-        type: 'free',
-        amount: 0,
+        type: wireType,
+        amount: offerSpec.amount ?? 0,
         currency: offerSpec.currency || 'EUR',
+        interval: offerSpec.interval,
+        intervalCount: offerSpec.intervalCount,
+        setupFee: offerSpec.setupFee,
+        trialDays: offerSpec.trialDays,
+        numberOfPayments: offerSpec.numberOfPayments,
+        isLivePaymentMode: offerSpec.isLivePaymentMode,
       });
       built.offerId = offer.id;
       if (offerSpec.publish !== false) {
         phase('offer_publish');
         await members.publishOffer(offer.id);
-        log(`+ offer (free, published) -> ${offer.id}`);
+        log(`+ offer (${offerSpec.type ?? 'free'}, published) -> ${offer.id}`);
       } else {
         log(`+ offer (free, draft) -> ${offer.id}`);
       }
