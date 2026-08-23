@@ -231,7 +231,7 @@ entirely. Behaviour is identical either way — this is housekeeping, not a fix.
 
 > Capture the missing `conversationai_*` step-examples and retire `engine/required-fields.mjs`.
 >
-> Repo: `/Volumes/Xander SSD/Vibe Code/Misc/ghl-plugin` (plugin, v0.14.0) with its mirror in
+> Repo: `/Volumes/Xander SSD/Vibe Code/Misc/gohighlevel/plugin` (plugin, v0.14.0) with its mirror in
 > `ghl-workflow-api-docs`. **Read `ghl-plugin/HANDOFF.md` first** — it has the retirement
 > procedure, eleven traps that already cost time, and the standing rules.
 >
