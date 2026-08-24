@@ -11,6 +11,51 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.28.0] — 2026-08-25
+
+A verification fix on the Voice AI rail, and the evidence behind it.
+
+### Fixed
+
+- **The Voice AI verifier was watching a third of what it wrote.** The full-replace PUT sends
+  ~55 fields flat; the GET returns most of them nested under `agentSettings`, wraps two as
+  objects, and renames two more:
+
+  ```
+  sent  voiceId / language / voiceModel / ringDurationSeconds: 5 / inboundPhoneNumber
+  read  agentSettings.voice{voiceId,…} / agentSettings.language{code,…} /
+        agentSettings.voiceModel / agentSettings.ringDurationMs: 5000 / inboundNumber
+  ```
+
+  The July fix had reclassified absent keys as `unverified` rather than `mismatched`, which
+  correctly stopped 37 false alarms on a working agent — but left those 37 with no assertion
+  behind them. A **real** failure would also have read `unverified`, indistinguishable from
+  "the read does not expose it".
+
+  `normalizeRead` now lifts `agentSettings`, unwraps `voice`/`language`, and undoes both
+  renames, for the `voiceai` kind only. Live on the test sub-account, same agent:
+
+  | | confirmed | unverified | mismatches |
+  |---|---:|---:|---:|
+  | before | 22 | 37 | 0 |
+  | after | **52** | **4** | 0 |
+
+  Each of the 52 was checked against the compiler's `DEFAULTS` — every value had in fact
+  persisted, so the old run was under-reporting rather than the write failing.
+
+### Documented
+
+- **The 2026-07-21 "Voice AI update is broken (422)" entry was stale.** Re-proven end to end:
+  create → full-replace update → verify returns **200** and `verified:true, mismatches:[]`. The
+  422 came from `DEFAULTS` supplying `''` for `businessName` / `welcomeMessage` / `timezone`;
+  `OMIT_WHEN_EMPTY` fixed it and has shipped since **0.20.0**. The corpus said a working
+  capability was broken for five weeks.
+- **The 4 fields that remain unverified are described honestly**, each checked against *two*
+  agents rather than one: `backchannelFrequency` and `prompts` are **conditional** (present only
+  when backchannel is on / the agent is configured); `numberPoolId` and `knowledgeBasePrompt`
+  are **unknown** — absent on both agents tested, but neither agent was in a state that would
+  reveal them. Absence in a single read is not evidence about the contract.
+
 ## [0.27.0] — 2026-08-24
 
 The public rail moves off the hosted Cloudflare Worker and onto a local npm package, and the
