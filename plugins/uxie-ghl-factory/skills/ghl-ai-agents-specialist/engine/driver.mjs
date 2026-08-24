@@ -89,11 +89,18 @@ const mergeClass = (parts) => parts.reduce((acc, part) => {
 // or genuinely mismatched. Verified field-by-field against the compiler's DEFAULTS on the same
 // live agent — all 37 had in fact persisted.
 //
-// Live result of this fix on the same agent: **37 unverified -> 5**, 51 confirmed, 0 mismatches.
-// The 5 the read genuinely never exposes are `inboundPhoneNumber` (the read calls it
-// `inboundNumber`), `numberPoolId`, `knowledgeBasePrompt`, `backchannelFrequency` (present only
-// when `enableBackchannel` is on) and `prompts`. Those stay `unverified` — correctly, since the
-// read cannot speak to them.
+// Live result of this fix on the same agent: **37 unverified -> 4**, 52 confirmed, 0 mismatches.
+//
+// What remains unverified, and why — each checked against TWO live agents (a fresh probe and a
+// fully configured production agent), because "absent from one read" is not "never exposed":
+//   backchannelFrequency  CONDITIONAL — absent when `enableBackchannel:false`, present (0.5)
+//                         when true. Unverifiable in the off state, correctly.
+//   prompts               CONDITIONAL — absent on a fresh agent, `{}` on a configured one.
+//   numberPoolId          UNKNOWN — absent on both, but neither agent has a pool assigned, so
+//                         "never returned" and "returned only when set" are indistinguishable
+//                         from this evidence. Do not assume.
+//   knowledgeBasePrompt   UNKNOWN — absent even on an agent that HAS a knowledge base attached,
+//                         so likely write-only, but not proven.
 const normalizeRead = (kind, json) => {
   if (kind !== 'voiceai' || !json || typeof json !== 'object') return json;
   const settings = json.agentSettings;
@@ -112,6 +119,12 @@ const normalizeRead = (kind, json) => {
   // and undo the unit conversion so `ringDurationSeconds` compares against what we sent
   if (typeof settings.ringDurationMs === 'number' && !('ringDurationSeconds' in json)) {
     lifted.ringDurationSeconds = settings.ringDurationMs / 1000;
+  }
+  // `inboundPhoneNumber` is written under that name and read back as `inboundNumber` — the same
+  // class of rename as ringDurationMs. Verified on two live agents: both expose `inboundNumber`
+  // at the top level and neither exposes `inboundPhoneNumber`.
+  if ('inboundNumber' in json && !('inboundPhoneNumber' in json)) {
+    lifted.inboundPhoneNumber = json.inboundNumber;
   }
   return lifted;
 };

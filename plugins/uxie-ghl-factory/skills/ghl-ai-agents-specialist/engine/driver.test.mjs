@@ -151,6 +151,7 @@ test('voiceai verify sees fields nested under agentSettings', async () => {
         voiceModel: 'auto', responsiveness: 1, interruptionSensitivity: 0.75,
         sttMode: 'accurate', ringDurationMs: 5000, maxCallDuration: 900,
       },
+      inboundNumber: null,     // the read's name for what the PUT sends as inboundPhoneNumber
     });
   } };
   const plan = {
@@ -164,6 +165,7 @@ test('voiceai verify sees fields nested under agentSettings', async () => {
       responsiveness: 1,
       sttMode: 'accurate',
       ringDurationSeconds: 5,             // sent in SECONDS, read as ringDurationMs 5000
+      inboundPhoneNumber: null,           // sent under this name, read back as inboundNumber
       maxCallDuration: 900,
     },
   };
@@ -173,7 +175,7 @@ test('voiceai verify sees fields nested under agentSettings', async () => {
   assert.deepEqual(out.verification.unverified, [],
     'every flat field must resolve against the nested read — none may fall through to unverified');
   for (const k of ['voiceId', 'language', 'voiceModel', 'responsiveness', 'sttMode',
-                   'ringDurationSeconds', 'maxCallDuration']) {
+                   'ringDurationSeconds', 'inboundPhoneNumber', 'maxCallDuration']) {
     assert.ok(out.verification.confirmed.includes(k), `${k} should be confirmed, not unverified`);
   }
 });
