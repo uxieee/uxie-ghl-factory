@@ -589,7 +589,11 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
   // `get_workflow_version`.
   // 36 -> 37: `pin_webhook_sample` (inbound-webhook sample → reference; a WRITE that replaces
   // the trigger's active reference, confirm-gated), registered before `fast_forward_contacts`.
-  assert.equal(TOOLS.length, 37, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 37 -> 39: `search_step_types` + `describe_step_type` — the workflow step/trigger type
+  // catalog. Both are pure reads of a shipped data file: no gateway, no auth, no locationId,
+  // `capabilities: []`. They touch no account, so they are outside the audit profile, which
+  // selects on declared GET capabilities and these declare none.
+  assert.equal(TOOLS.length, 39, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -598,7 +602,8 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
     'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_workflow_versions', 'get_workflow_version',
     'get_trigger_logs', 'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
-    'publish_workflow', 'list_workflow_folders', 'create_workflow_folder',
+    'publish_workflow', 'search_step_types', 'describe_step_type',
+    'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',
     'pin_webhook_sample', 'fast_forward_contacts', 'raw_request',
   ]);

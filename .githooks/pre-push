@@ -7,3 +7,4 @@
 # block a push.
 set -e
 node scripts/check-mcp-contract.mjs
+node scripts/check-type-catalog.mjs
