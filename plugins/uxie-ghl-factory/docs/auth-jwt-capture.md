@@ -116,7 +116,7 @@ The current JWT payload (decode locally, e.g. via jwt.io — it decodes client-s
 - **`get-ghl-workflow-json`** (export) — read-only `GET` calls only. Uses this doc's §1–§4 in full; never issues writes.
 - **`create-ghl-workflow`** — issues writes (`POST`/`PUT`/`PATCH`) against the workflow-builder API. Uses this doc's §1–§4 for auth *and* must additionally satisfy `${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md` (owned-account check + one-time ToS disclosure) before any write executes.
 - **`ghl-funnels-pages`** — issues writes against `/funnels/*`, which authenticates with **`token-id`**, NOT `Bearer` — see §9. Capture procedure differs too (§9.2). Write rails still apply.
-- **`ghl-conversation-ai` / `ghl-voice-ai`** — issues writes against the **AI internal services** (Conversation AI, Voice AI, Agent Studio, Knowledge Base). Those require a separate dual-credential pair — see §7. Write rails (`${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`) still apply.
+- **`ghl-voice-ai`** (and `ghl-conversation-ai` for the per-contact switch only — its other reads and writes go through the public rail) — issues writes against the **AI internal services** (Conversation AI, Voice AI, Agent Studio, Knowledge Base). Those require a separate dual-credential pair — see §7. Write rails (`${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md`) still apply.
 - **`ghl-memberships`** — issues writes against the **Memberships / client-portal** surface. Auth is §1 **plus a `sourceid` header**, and the member-facing rail uses a different token class entirely — see §8. Write rails still apply.
 - No other plugin component should embed JWT header formats, capture steps, or UID/CID derivation — they point here instead.
 
