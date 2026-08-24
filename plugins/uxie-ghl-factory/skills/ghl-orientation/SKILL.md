@@ -13,7 +13,9 @@ Read the reference that matches your gap; don't load all three by default:
 Ground rules for agents working GHL:
 1. Recon before asking: read the account via the ghl MCP first.
 2. Respect the two-API boundary: prefer public; internal only via this
-   plugin's capability skills with their gates.
+   plugin's capability skills with their gates. Setting up, scoping or
+   repairing the public rail is `ghl-public-mcp-setup`; the internal rail
+   is /uxie-ghl-factory:connect.
 3. Per-client state lives in .ghl/<locationId>/ (brief.md = client context).
 
 ## Specialists

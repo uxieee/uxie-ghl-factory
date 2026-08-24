@@ -62,6 +62,9 @@ Run these in order; report a pass/fail table at the end.
    one-time workspace-trust prompt. If the user already runs their own public GHL MCP here,
    skip this and say so.
 
+   The **`ghl-public-mcp-setup`** skill carries the full procedure, every failure mode and
+   the Codex form — load it rather than working from memory.
+
    *Already on the hosted Cloudflare Worker?* It still answers today but is being retired.
    Migrate with the two commands above, then remove the old registration
    (`claude mcp remove ghl`). Do not set up new folders on the Worker.
