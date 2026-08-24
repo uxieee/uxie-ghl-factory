@@ -85,6 +85,25 @@ Agent name ≤40 chars · greeting ≤190 · execution message ≤500 · folder 
 custom API actions need `apiUrl` and, when auth is on, an API key.
 Full set: `ai-agents/40-rules/constraints.md`.
 
+## Proven status (state this honestly to the user)
+
+| Surface | Status |
+|---|---|
+| create → full-replace update → verify | **live-proven end-to-end.** `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` applies the config and the re-read confirms it |
+| `CALL_TRANSFER`, `DATA_EXTRACTION` | **live-fired** |
+| the other 5 action types | **capture-verified, not live-fired** — validated against `voiceai-actions-all.json`, never individually round-tripped |
+| `IN_CALL_DATA_EXTRACTION`, `MCP` | **untested.** Do not assume `IN_CALL_DATA_EXTRACTION` mirrors `DATA_EXTRACTION` |
+
+The seven types are `CALL_TRANSFER`, `WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`,
+`APPOINTMENT_BOOKING`, `CAP`, `AGENT_TRANSFER_CHILD`.
+
+**Verification covers 52 of the ~55 fields the update sends.** Four stay unverified because the
+read does not expose them in every state: `backchannelFrequency` (only when backchannel is on),
+`prompts` (only once configured), `numberPoolId` and `knowledgeBasePrompt` (state unknown).
+
+**Treat the first real use of any capture-verified type as a validation run.** A failed
+configuration step leaves a real, unconfigured agent on the account — no rollback.
+
 ## Scope
 
 Voice AI only. Conversation AI is a **public-rail** product — see `ghl-orientation`.

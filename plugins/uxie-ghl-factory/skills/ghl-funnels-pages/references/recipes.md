@@ -11,9 +11,8 @@ Source: `ghl-workflow-api-docs/docs/superpowers/specs/2026-07-11-pipelines-funne
 below is copied from those two sources — nothing invented.
 
 > ⚠️ **Auth: `/funnels/*` uses `token-id`, NOT `Authorization: Bearer`.** Every
-> recipe below previously said "Bearer JWT"; that was wrong and the endpoints
-> reject it. The 2026-07 migration to `Bearer` was **workflow-builder-only** —
-> funnels still run the older scheme. Corrected 2026-07-21 after a live build.
+> **Auth on this rail:** funnels use `token-id`, not a Bearer JWT. Newer funnels may run a
+> different scheme; if a call 401s with `token-id`, check which the account's funnels use.
 
 Auth headers on every call: see `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`
 **§9** (funnels rail — `token-id` + `channel`/`source`/`version`/`accept`, and a
