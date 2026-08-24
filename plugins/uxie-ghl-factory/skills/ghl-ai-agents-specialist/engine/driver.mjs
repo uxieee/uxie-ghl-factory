@@ -69,6 +69,53 @@ const mergeClass = (parts) => parts.reduce((acc, part) => {
   return acc;
 }, emptyClass());
 
+// Voice AI writes FLAT and reads NESTED. The full-replace PUT sends ~55 fields at the top
+// level; the GET returns most of them under `agentSettings`, with two of them wrapped as
+// objects and one unit-converted:
+//
+//   sent  voiceId / language / voiceModel / ringDurationSeconds: 5
+//   read  agentSettings.voice{voiceId,name,provider}
+//         agentSettings.language{code,name}
+//         agentSettings.voiceModel
+//         agentSettings.ringDurationMs: 5000                  (seconds x 1000)
+//
+// LIVE-CAUGHT 2026-08-25 (test sub-account): a create->update->verify run that applied every
+// field correctly reported 22 confirmed and **37 unverified**, because the comparison was
+// flat-to-nested. Reclassifying absent keys as `unverified` (the 2026-07-21 fix) stopped the
+// false mismatches but left two thirds of the write surface unwatched — a REAL failure in any
+// of those 37 would have been reported as `unverified`, indistinguishable from "not exposed".
+//
+// Normalising the read closes that: the fields become visible, so they are genuinely confirmed
+// or genuinely mismatched. Verified field-by-field against the compiler's DEFAULTS on the same
+// live agent — all 37 had in fact persisted.
+//
+// Live result of this fix on the same agent: **37 unverified -> 5**, 51 confirmed, 0 mismatches.
+// The 5 the read genuinely never exposes are `inboundPhoneNumber` (the read calls it
+// `inboundNumber`), `numberPoolId`, `knowledgeBasePrompt`, `backchannelFrequency` (present only
+// when `enableBackchannel` is on) and `prompts`. Those stay `unverified` — correctly, since the
+// read cannot speak to them.
+const normalizeRead = (kind, json) => {
+  if (kind !== 'voiceai' || !json || typeof json !== 'object') return json;
+  const settings = json.agentSettings;
+  if (!settings || typeof settings !== 'object') return json;
+  const lifted = { ...settings, ...json };          // top level wins on genuine collisions
+  for (const [key, value] of Object.entries(settings)) {
+    if (!(key in json)) lifted[key] = value;
+  }
+  // unwrap the two object-wrapped scalars back to what the PUT sent
+  if (settings.voice && typeof settings.voice === 'object' && !('voiceId' in json)) {
+    lifted.voiceId = settings.voice.voiceId;
+  }
+  if (settings.language && typeof settings.language === 'object' && !('language' in json)) {
+    lifted.language = settings.language.code;
+  }
+  // and undo the unit conversion so `ringDurationSeconds` compares against what we sent
+  if (typeof settings.ringDurationMs === 'number' && !('ringDurationSeconds' in json)) {
+    lifted.ringDurationSeconds = settings.ringDurationMs / 1000;
+  }
+  return lifted;
+};
+
 const partitionVerification = (actual, expected) => {
   const result = emptyClass();
   for (const [key, value] of Object.entries(expected ?? {})) {
@@ -183,7 +230,7 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   if (!reread.ok) return failure(`HTTP_${reread.status}`, 'verify', report, { verifyStatus: reread.status });
 
   const expected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
-  const { mismatches, unverified, confirmed } = partitionVerification(reread.json, expected);
+  const { mismatches, unverified, confirmed } = partitionVerification(normalizeRead(kind, reread.json), expected);
   report.verification = {
     path: readPathFor(kind, report.agentId, gw.loc),
     // D3 (review): "no mismatches" is not proof of success when NOTHING was actually
