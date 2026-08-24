@@ -891,6 +891,22 @@ var init_define_TOOL_CATALOG = __esm({
           "hooks-set-as-reference",
           "hooks-reference"
         ]
+      },
+      search_step_types: {
+        description: "Search workflow step and trigger types \u2014 proof: source-derived (284 corpus cards); risk: read",
+        risk: "read",
+        proof: "source-derived (corpus 30-types, 2026-08-25)",
+        proofFloor: "documented",
+        rows: [],
+        riskRows: []
+      },
+      describe_step_type: {
+        description: "Describe one workflow step or trigger type \u2014 proof: source-derived (284 corpus cards); risk: read",
+        risk: "read",
+        proof: "source-derived (corpus 30-types, 2026-08-25)",
+        proofFloor: "documented",
+        rows: [],
+        riskRows: []
       }
     };
   }
@@ -32099,6 +32115,7 @@ import { dirname as dirname2, resolve as resolve3 } from "node:path";
 
 // core/tools.mjs
 init_define_TOOL_CATALOG();
+import { readFileSync as readFileSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve as resolve2 } from "node:path";
 import { createHash as createHash4 } from "node:crypto";
@@ -104813,7 +104830,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
 var HERE = dirname(fileURLToPath(import.meta.url));
 var CATALOG = true ? define_TOOL_CATALOG_default : (() => {
   try {
-    return JSON.parse(readFileSync(resolve2(HERE, "../tool-descriptions.json"), "utf8"));
+    return JSON.parse(readFileSync2(resolve2(HERE, "../tool-descriptions.json"), "utf8"));
   } catch {
     return {};
   }
@@ -104832,6 +104849,55 @@ var credentialFailure = (code = CODES.VALIDATION_FAILED) => fail(
 );
 var sharedAuditLimiter = null;
 var sharedAuditCircuit = null;
+var TYPE_CARDS = null;
+var typeCards = () => {
+  if (TYPE_CARDS) return TYPE_CARDS;
+  try {
+    TYPE_CARDS = JSON.parse(readFileSync2(resolve2(HERE, "../../skills/create-ghl-workflow/catalog/type-cards.json"), "utf8")).cards ?? [];
+  } catch {
+    TYPE_CARDS = [];
+  }
+  return TYPE_CARDS;
+};
+var CARD_STOP = /* @__PURE__ */ new Set(["a", "an", "the", "to", "of", "for", "and", "or", "in", "on", "with", "my", "me", "i", "it", "is", "that", "this", "when", "how", "do", "does", "add", "set", "use"]);
+var cardWords = (s) => String(s || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !CARD_STOP.has(w));
+var scoreCard = (card, terms) => {
+  if (!terms.length) return 0;
+  const type = String(card.type || "").toLowerCase();
+  const slug = new Set(type.split(/[^a-z0-9]+/).filter(Boolean));
+  const hay = [
+    card.type,
+    card.title,
+    card.summary,
+    card.family,
+    card.validator,
+    ...(card.fields ?? []).map((f) => f.name)
+  ].join(" ").toLowerCase();
+  let score = 0, slugHits = 0;
+  for (const t of terms) {
+    if (slug.has(t)) {
+      score += 25;
+      slugHits++;
+    } else if (type.includes(t)) {
+      score += 10;
+      slugHits++;
+    }
+    if (hay.includes(t)) score += 4;
+  }
+  if (type === terms.join("_") || type === terms.join("")) score += 200;
+  score += slugHits * slugHits * 8;
+  if (slugHits === slug.size && slug.size > 1) score += 15;
+  if (card.fields?.length) score += 2;
+  if (!card.family?.includes("marketplace")) score += 6;
+  return score;
+};
+var cardStub = (card) => ({
+  type: card.type,
+  family: card.family,
+  summary: card.summary?.slice(0, 160),
+  fields: card.fields?.length ?? 0,
+  configSurface: card.configSurface
+});
 function processAuditPacing() {
   sharedAuditLimiter ??= makeAuditLimiter();
   sharedAuditCircuit ??= makeAuditCircuit();
@@ -107304,6 +107370,65 @@ var TOOLS2 = [
   // `company_id` / `company_age` are accepted but NOT required on either write (verified
   // by omitting both: the server fills them from the location and the created record comes
   // back carrying the right values), so no tool here makes a caller supply them and none
+  // Two catalog tools. Neither touches an account — no gateway, no auth, no location. They
+  // exist so a builder can see the REAL field set for a step or trigger type instead of
+  // mirroring a single captured example, which teaches one value of every discriminator.
+  {
+    name: "search_step_types",
+    description: `${describe3("search_step_types", "Search workflow step and trigger types \u2014 risk: read")}. Ranked search over all 284 documented GHL workflow step and trigger types. Returns compact STUBS \u2014 type, family, one-line summary, field count. Call describe_step_type on the ONE type you pick to get its field table. Do not build a step from a stub, and do not copy a captured example without checking the card: an example pins one value of every discriminator field. Reads no account data.`,
+    inputSchema: schema({
+      intent: external_exports.string().describe('what the step should DO, in plain words \u2014 e.g. "send an sms", "wait until a date", "update a contact field"'),
+      family: external_exports.enum(["steps", "triggers", "steps-marketplace", "triggers-marketplace"]).optional(),
+      limit: external_exports.number().default(10)
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const terms = cardWords(args.intent);
+      let pool = typeCards();
+      if (args.family) pool = pool.filter((c) => c.family === args.family);
+      const ranked = pool.map((c) => ({ c, score: scoreCard(c, terms) })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.c.type.length - b.c.type.length || a.c.type.localeCompare(b.c.type)).slice(0, args.limit ?? 10);
+      if (!ranked.length) {
+        return {
+          ok: true,
+          data: {
+            results: [],
+            total: 0,
+            note: `No type matched "${args.intent}". Try the action in GHL's own words (the UI label), or drop the family filter. ${pool.length} types are documented${args.family ? ` in ${args.family}` : ""}.`
+          }
+        };
+      }
+      return {
+        ok: true,
+        data: {
+          results: ranked.map((x) => cardStub(x.c)),
+          total: pool.filter((c) => scoreCard(c, terms) > 0).length,
+          next: "describe_step_type with the type you want \u2014 the stub is not enough to build from"
+        }
+      };
+    })
+  },
+  {
+    name: "describe_step_type",
+    description: `${describe3("describe_step_type", "Describe one workflow step or trigger type \u2014 risk: read")}. The full card for ONE step or trigger type: every field with its type, whether it is required, its default, and the notes that matter (discriminators, validator rules, stored-as-string traps). Also carries filter rows for triggers, custom variables the type exposes downstream, and the validator name. This is the union of valid values \u2014 a captured example is one sample of it. Reads no account data.`,
+    inputSchema: schema({
+      type: external_exports.string().describe('the exact type slug, e.g. "chatgpt", "send_sms", "contact_changed"')
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const cards = typeCards();
+      const card = cards.find((c) => c.type === args.type) ?? cards.find((c) => c.type.toLowerCase() === String(args.type).toLowerCase());
+      if (!card) {
+        const near = cards.filter((c) => c.type.includes(String(args.type).toLowerCase())).slice(0, 5).map((c) => c.type);
+        return {
+          ok: false,
+          code: "UNKNOWN_TYPE",
+          detail: `No card for type "${args.type}".`,
+          remediation: near.length ? `Did you mean: ${near.join(", ")}?` : "Use search_step_types to find the right slug."
+        };
+      }
+      return { ok: true, data: card };
+    })
+  },
   // spends a read fetching them.
   {
     name: "list_workflow_folders",

@@ -83,6 +83,63 @@ const credentialFailure = (code = CODES.VALIDATION_FAILED) => fail(
 // server too, while an injected pair still wins for the Task 5 driver and for tests.
 let sharedAuditLimiter = null;
 let sharedAuditCircuit = null;
+// ── Step/trigger type cards ───────────────────────────────────────────────────────────────
+// The corpus documents 284 step and trigger types with their real field tables; the plugin
+// used to ship only 68 single step examples, and one example pins ONE value of every
+// discriminator (see create-ghl-workflow/references/step-shapes.md). Loading all 284 is not an
+// option — the catalog is ~134,000 tokens. So it is served the way the public rail serves its
+// API catalog: a ranked search returning stubs, then one card on request.
+//
+//   whole catalog  ~134,000 tokens     one search page  ~360     one card  ~400
+//
+// Read lazily and cached: a session that never builds a workflow never pays for it.
+let TYPE_CARDS = null;
+const typeCards = () => {
+  if (TYPE_CARDS) return TYPE_CARDS;
+  try {
+    TYPE_CARDS = JSON.parse(readFileSync(resolve(HERE, '../../skills/create-ghl-workflow/catalog/type-cards.json'), 'utf8')).cards ?? [];
+  } catch { TYPE_CARDS = []; }
+  return TYPE_CARDS;
+};
+
+const CARD_STOP = new Set(['a','an','the','to','of','for','and','or','in','on','with','my','me','i','it','is','that','this','when','how','do','does','add','set','use']);
+const cardWords = (s) => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1 && !CARD_STOP.has(w));
+
+// Ranking rewards COVERAGE of the caller's terms, not one strong hit. "update a contact field"
+// must return `update_contact_field` above `contact`: the short slug matches one term exactly
+// and would otherwise win on the exact-match bonus alone, while the type the caller actually
+// wants matches three.
+const scoreCard = (card, terms) => {
+  if (!terms.length) return 0;
+  const type = String(card.type || '').toLowerCase();
+  const slug = new Set(type.split(/[^a-z0-9]+/).filter(Boolean));
+  const hay = [card.type, card.title, card.summary, card.family, card.validator,
+               ...(card.fields ?? []).map(f => f.name)].join(' ').toLowerCase();
+  let score = 0, slugHits = 0;
+  for (const t of terms) {
+    if (slug.has(t)) { score += 25; slugHits++; }
+    else if (type.includes(t)) { score += 10; slugHits++; }
+    if (hay.includes(t)) score += 4;
+  }
+  if (type === terms.join('_') || type === terms.join('')) score += 200;  // they named the slug
+  score += slugHits * slugHits * 8;              // covering more of the intent compounds
+  if (slugHits === slug.size && slug.size > 1) score += 15;  // every word of the slug was asked for
+  if (card.fields?.length) score += 2;
+  // Native before third-party. "send an sms" means GHL's SMS step, not a marketplace app that
+  // happens to have "sms" in its slug — and without this the two tie and sort alphabetically,
+  // which put `manual-sms` above `sms`.
+  if (!card.family?.includes('marketplace')) score += 6;
+  return score;
+};
+
+const cardStub = (card) => ({
+  type: card.type,
+  family: card.family,
+  summary: card.summary?.slice(0, 160),
+  fields: card.fields?.length ?? 0,
+  configSurface: card.configSurface,
+});
+
 export function processAuditPacing() {
   sharedAuditLimiter ??= makeAuditLimiter();
   sharedAuditCircuit ??= makeAuditCircuit();
@@ -2841,6 +2898,79 @@ export const TOOLS = [
   // `company_id` / `company_age` are accepted but NOT required on either write (verified
   // by omitting both: the server fills them from the location and the created record comes
   // back carrying the right values), so no tool here makes a caller supply them and none
+  // Two catalog tools. Neither touches an account — no gateway, no auth, no location. They
+  // exist so a builder can see the REAL field set for a step or trigger type instead of
+  // mirroring a single captured example, which teaches one value of every discriminator.
+  {
+    name: 'search_step_types',
+    description: `${describe('search_step_types', 'Search workflow step and trigger types — risk: read')}. `
+      + 'Ranked search over all 284 documented GHL workflow step and trigger types. Returns compact '
+      + 'STUBS — type, family, one-line summary, field count. Call describe_step_type on the ONE type '
+      + 'you pick to get its field table. Do not build a step from a stub, and do not copy a captured '
+      + 'example without checking the card: an example pins one value of every discriminator field. '
+      + 'Reads no account data.',
+    inputSchema: schema({
+      intent: z.string().describe('what the step should DO, in plain words — e.g. "send an sms", "wait until a date", "update a contact field"'),
+      family: z.enum(['steps', 'triggers', 'steps-marketplace', 'triggers-marketplace']).optional(),
+      limit: z.number().default(10),
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const terms = cardWords(args.intent);
+      let pool = typeCards();
+      if (args.family) pool = pool.filter(c => c.family === args.family);
+      const ranked = pool
+        .map(c => ({ c, score: scoreCard(c, terms) }))
+        .filter(x => x.score > 0)
+        .sort((a, b) => b.score - a.score
+          || a.c.type.length - b.c.type.length          // the plainer slug is usually the one meant
+          || a.c.type.localeCompare(b.c.type))
+        .slice(0, args.limit ?? 10);
+      if (!ranked.length) {
+        return {
+          ok: true,
+          data: { results: [], total: 0,
+            note: `No type matched "${args.intent}". Try the action in GHL's own words (the UI label), or drop the family filter. `
+                + `${pool.length} types are documented${args.family ? ` in ${args.family}` : ''}.` },
+        };
+      }
+      return {
+        ok: true,
+        data: {
+          results: ranked.map(x => cardStub(x.c)),
+          total: pool.filter(c => scoreCard(c, terms) > 0).length,
+          next: 'describe_step_type with the type you want — the stub is not enough to build from',
+        },
+      };
+    }),
+  },
+  {
+    name: 'describe_step_type',
+    description: `${describe('describe_step_type', 'Describe one workflow step or trigger type — risk: read')}. `
+      + 'The full card for ONE step or trigger type: every field with its type, whether it is required, '
+      + 'its default, and the notes that matter (discriminators, validator rules, stored-as-string traps). '
+      + 'Also carries filter rows for triggers, custom variables the type exposes downstream, and the '
+      + 'validator name. This is the union of valid values — a captured example is one sample of it. '
+      + 'Reads no account data.',
+    inputSchema: schema({
+      type: z.string().describe('the exact type slug, e.g. "chatgpt", "send_sms", "contact_changed"'),
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const cards = typeCards();
+      const card = cards.find(c => c.type === args.type)
+        ?? cards.find(c => c.type.toLowerCase() === String(args.type).toLowerCase());
+      if (!card) {
+        const near = cards.filter(c => c.type.includes(String(args.type).toLowerCase())).slice(0, 5).map(c => c.type);
+        return {
+          ok: false, code: 'UNKNOWN_TYPE',
+          detail: `No card for type "${args.type}".`,
+          remediation: near.length ? `Did you mean: ${near.join(', ')}?` : 'Use search_step_types to find the right slug.',
+        };
+      }
+      return { ok: true, data: card };
+    }),
+  },
   // spends a read fetching them.
   {
     name: 'list_workflow_folders',

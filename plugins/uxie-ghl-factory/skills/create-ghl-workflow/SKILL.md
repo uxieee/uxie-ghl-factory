@@ -17,6 +17,22 @@ wiring, casing, situational fields, dependency pre-creation, name→ID resolutio
 build, and round-trip verify. You do NOT hand-write UUIDs, `parentKey`, field
 soup, or raw API calls.
 
+## Before you author a step: read its card
+
+`search_step_types` then `describe_step_type` give you the **real field set** for any of the 284
+documented step and trigger types — every field, its type, whether it is required, its default,
+and the notes that matter.
+
+```
+search_step_types   { intent: "update a contact field" }   → ranked stubs
+describe_step_type  { type: "update_contact_field" }        → the full card
+```
+
+**Do this instead of mirroring `catalog/step-examples/`.** An example is one capture, so it pins
+**one value of every discriminator** — copy it and you get a step that saves, appears on the
+canvas, and does the wrong thing. The card carries the union; the example carries one member of
+it. 29 documented types ship no example at all.
+
 ## The one rule that matters most
 
 **ALWAYS build through `scripts/build.mjs` (→ the orchestrator).** Never

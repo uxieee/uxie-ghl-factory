@@ -1,6 +1,6 @@
 {
   "build_workflow": {
-    "description": "Build workflow — proof: live-runtime (2026-07-17), floor: documented; risk: write",
+    "description": "Build workflow \u2014 proof: live-runtime (2026-07-17), floor: documented; risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-07-17)",
     "proofFloor": "documented",
@@ -33,7 +33,7 @@
     ]
   },
   "get_workflow": {
-    "description": "Get workflow — proof: documented; risk: read",
+    "description": "Get workflow \u2014 proof: documented; risk: read",
     "risk": "read",
     "proof": "documented",
     "proofFloor": "documented",
@@ -51,7 +51,7 @@
     ]
   },
   "export_workflow": {
-    "description": "Export workflow — proof: documented; risk: read",
+    "description": "Export workflow \u2014 proof: documented; risk: read",
     "risk": "read",
     "proof": "documented",
     "proofFloor": "documented",
@@ -77,7 +77,7 @@
     ]
   },
   "edit_workflow": {
-    "description": "Edit workflow — proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-17); risk: destructive",
+    "description": "Edit workflow \u2014 proof: live-runtime (2026-07-17), floor: live-roundtrip (2026-07-17); risk: destructive",
     "risk": "destructive",
     "proof": "live-runtime (2026-07-17)",
     "proofFloor": "live-roundtrip (2026-07-17)",
@@ -104,7 +104,7 @@
     ]
   },
   "publish_workflow": {
-    "description": "Publish workflow — proof: live-runtime (2026-07-11), floor: documented; risk: destructive",
+    "description": "Publish workflow \u2014 proof: live-runtime (2026-07-11), floor: documented; risk: destructive",
     "risk": "destructive",
     "proof": "live-runtime (2026-07-11)",
     "proofFloor": "documented",
@@ -124,7 +124,7 @@
     ]
   },
   "list_workflows": {
-    "description": "List workflows — proof: documented; risk: read",
+    "description": "List workflows \u2014 proof: documented; risk: read",
     "risk": "read",
     "proof": "documented",
     "proofFloor": "documented",
@@ -142,7 +142,7 @@
     ]
   },
   "get_workflow_logs": {
-    "description": "Get workflow logs — proof: live-runtime (2026-07-24), floor: documented; risk: read",
+    "description": "Get workflow logs \u2014 proof: live-runtime (2026-07-24), floor: documented; risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-07-24)",
     "proofFloor": "documented",
@@ -171,7 +171,7 @@
     ]
   },
   "get_workflow_runtime_window": {
-    "description": "Collect one workflow's complete, evidence-qualified runtime window (definition, executions read by cursor over a dateType=custom window (the window is INERT without that switch — the endpoint otherwise serves a silent 30-day default), enrollment walk, per-step counts, requested step rosters, enrollment totals) — proof: external-receipt-required; risk: read. Every failure is complete:false with a coded warning, never an empty window. `complete` covers RUNTIME EVENT COVERAGE only: the separate configurationBinding field records that nothing on this rail proves the captured definition governed the events in the window, so no consumer may claim it did. Live canary required before Full audit.",
+    "description": "Collect one workflow's complete, evidence-qualified runtime window (definition, executions read by cursor over a dateType=custom window (the window is INERT without that switch \u2014 the endpoint otherwise serves a silent 30-day default), enrollment walk, per-step counts, requested step rosters, enrollment totals) \u2014 proof: external-receipt-required; risk: read. Every failure is complete:false with a coded warning, never an empty window. `complete` covers RUNTIME EVENT COVERAGE only: the separate configurationBinding field records that nothing on this rail proves the captured definition governed the events in the window, so no consumer may claim it did. Live canary required before Full audit.",
     "risk": "read",
     "proof": "external-receipt-required",
     "proofFloor": "external-receipt-required",
@@ -223,7 +223,7 @@
     ]
   },
   "list_workflows_complete": {
-    "description": "Walk the whole workflow roster to a reconciled terminal proof — proof: external-receipt-required; risk: read. The offset walk records every page, applied query, unique-progress step and reported total, and publishes only when the unique count equals a STABLE reported total. A failed page, a conflicting duplicate, a moving total, a stalled offset or an exhausted page budget is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit.",
+    "description": "Walk the whole workflow roster to a reconciled terminal proof \u2014 proof: external-receipt-required; risk: read. The offset walk records every page, applied query, unique-progress step and reported total, and publishes only when the unique count equals a STABLE reported total. A failed page, a conflicting duplicate, a moving total, a stalled offset or an exhausted page budget is complete:false with a coded warning and a null roster, never an empty list. Live canary required before Full audit.",
     "risk": "read",
     "proof": "external-receipt-required",
     "proofFloor": "external-receipt-required",
@@ -242,7 +242,7 @@
     "undocumentedCapabilities": []
   },
   "get_ai_configuration_bundle": {
-    "description": "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail — proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Live canary required before Full audit.",
+    "description": "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Live canary required before Full audit.",
     "risk": "read",
     "proof": "external-receipt-required",
     "proofFloor": "external-receipt-required",
@@ -258,7 +258,7 @@
     "rows": [
       "entities-ai-employees-agents-list"
     ],
-    "_rowsNote": "This entry used to also cite `entities-voice-ai-agents-list`, which is the row for list_account_entities's BARE /voice-ai/agents — precisely the legacy route core/audit-configuration.mjs goes out of its way to disavow. This bundle reads /voice-ai/agents/simple, a different capability with a different receipt, so the citation was removed rather than corrected: the matrix that defines row ids is not in this repository (the README defines none, and a repo-wide grep finds row ids only in this file), so there is no id to correct it to and inventing one would mint documentation provenance that does not exist.",
+    "_rowsNote": "This entry used to also cite `entities-voice-ai-agents-list`, which is the row for list_account_entities's BARE /voice-ai/agents \u2014 precisely the legacy route core/audit-configuration.mjs goes out of its way to disavow. This bundle reads /voice-ai/agents/simple, a different capability with a different receipt, so the citation was removed rather than corrected: the matrix that defines row ids is not in this repository (the README defines none, and a repo-wide grep finds row ids only in this file), so there is no id to correct it to and inventing one would mint documentation provenance that does not exist.",
     "undocumentedCapabilities": [
       {
         "path": "/voice-ai/agents/simple",
@@ -283,7 +283,7 @@
     ]
   },
   "get_contacts_at_step": {
-    "description": "List contacts at step — proof: live-runtime (2026-07-18); risk: read",
+    "description": "List contacts at step \u2014 proof: live-runtime (2026-07-18); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-07-18)",
     "proofFloor": "live-runtime (2026-07-18)",
@@ -301,7 +301,7 @@
     ]
   },
   "fast_forward_contacts": {
-    "description": "Fast-forward contacts — proof: live-runtime (2026-07-18); risk: write",
+    "description": "Fast-forward contacts \u2014 proof: live-runtime (2026-07-18); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-07-18)",
     "proofFloor": "live-runtime (2026-07-18)",
@@ -327,7 +327,7 @@
     ]
   },
   "list_account_entities": {
-    "description": "List account entities — proof: live-runtime (2026-07-18), floor: documented; risk: read",
+    "description": "List account entities \u2014 proof: live-runtime (2026-07-18), floor: documented; risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-07-18)",
     "proofFloor": "documented",
@@ -358,7 +358,7 @@
     ]
   },
   "list_marketplace_apps": {
-    "description": "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions — key, version, templateId, and the full customVars / inputs schema — proof: live-runtime (2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked gateway, not live-invoked); risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only — a single app's full schema is large.",
+    "description": "List the third-party marketplace apps INSTALLED in a sub-account, with each app's triggers and actions \u2014 key, version, templateId, and the full customVars / inputs schema \u2014 proof: live-runtime (2026-08-16: the endpoint and its dual-credential rail were called against a real sub-account and returned the installed app with appId/publisher; the handler itself is unit-tested against a mocked gateway, not live-invoked); risk: read. The workflow builder renders its own Add-trigger and Add-action panels from these two reads, so the list is complete by construction ONLY when both GETs succeed; a failed leg reports `complete:false` with that leg's data as null (never a silently empty list) and names which leg failed in `sources`, so a partial read can never be misread as \"this app has none\". Use it for account recon, to confirm an app is installed before building a workflow that references it, and to read the current version/templateId a marketplace step must bind to. compact:true (the default) returns identity plus keys and versions only \u2014 a single app's full schema is large.",
     "risk": "read",
     "proof": "documented",
     "proofFloor": "documented",
@@ -380,7 +380,7 @@
     ]
   },
   "build_course": {
-    "description": "Build course — proof: live-runtime (2026-07-19), floor: documented; risk: write",
+    "description": "Build course \u2014 proof: live-runtime (2026-07-19), floor: documented; risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-07-19)",
     "proofFloor": "documented",
@@ -470,7 +470,7 @@
     ]
   },
   "list_courses": {
-    "description": "List courses — proof: documented; risk: read",
+    "description": "List courses \u2014 proof: documented; risk: read",
     "risk": "read",
     "proof": "documented",
     "proofFloor": "documented",
@@ -488,7 +488,7 @@
     ]
   },
   "create_convai_agent": {
-    "description": "Create Conversation AI agent — proof: live-runtime (2026-07-21); risk: write",
+    "description": "Create Conversation AI agent \u2014 proof: live-runtime (2026-07-21); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-07-21)",
     "proofFloor": "live-runtime (2026-07-21)",
@@ -506,7 +506,7 @@
     ]
   },
   "create_voiceai_agent": {
-    "description": "Create Voice AI agent — proof: live-runtime (2026-07-21); risk: write",
+    "description": "Create Voice AI agent \u2014 proof: live-runtime (2026-07-21); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-07-21)",
     "proofFloor": "live-runtime (2026-07-21)",
@@ -524,7 +524,7 @@
     ]
   },
   "create_studio_agent": {
-    "description": "Create Agent Studio agent — proof: live-runtime (2026-07-21); risk: write",
+    "description": "Create Agent Studio agent \u2014 proof: live-runtime (2026-07-21); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-07-21)",
     "proofFloor": "live-runtime (2026-07-21)",
@@ -542,7 +542,7 @@
     ]
   },
   "get_contact_ai_status": {
-    "description": "Read per-contact Conversation AI status — proof: live-runtime (2026-08-08); risk: read",
+    "description": "Read per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-08-08)",
     "proofFloor": "live-runtime (2026-08-08)",
@@ -560,7 +560,7 @@
     ]
   },
   "set_contact_ai_status": {
-    "description": "Set per-contact Conversation AI status — proof: live-runtime (2026-08-08); risk: write",
+    "description": "Set per-contact Conversation AI status \u2014 proof: live-runtime (2026-08-08); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-08-08)",
     "proofFloor": "live-runtime (2026-08-08)",
@@ -578,7 +578,7 @@
     ]
   },
   "list_workflow_folders": {
-    "description": "List workflow folders — proof: live-runtime (2026-08-18); risk: read",
+    "description": "List workflow folders \u2014 proof: live-runtime (2026-08-18); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-08-18)",
     "proofFloor": "live-runtime (2026-08-18)",
@@ -596,7 +596,7 @@
     ]
   },
   "create_workflow_folder": {
-    "description": "Create workflow folder — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Create workflow folder \u2014 proof: live-runtime (2026-08-18); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-08-18)",
     "proofFloor": "live-runtime (2026-08-18)",
@@ -617,7 +617,7 @@
     ]
   },
   "duplicate_workflow": {
-    "description": "Duplicate workflow — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Duplicate workflow \u2014 proof: live-runtime (2026-08-18); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-08-18)",
     "proofFloor": "live-runtime (2026-08-18)",
@@ -641,7 +641,7 @@
     ]
   },
   "move_workflows": {
-    "description": "Move workflows between folders and root — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Move workflows between folders and root \u2014 proof: live-runtime (2026-08-18); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-08-18)",
     "proofFloor": "live-runtime (2026-08-18)",
@@ -669,7 +669,7 @@
     ]
   },
   "create_custom_field_folder": {
-    "description": "Create custom field folder — proof: live-runtime (2026-08-18); risk: write",
+    "description": "Create custom field folder \u2014 proof: live-runtime (2026-08-18); risk: write",
     "risk": "write",
     "proof": "live-runtime (2026-08-18)",
     "proofFloor": "live-runtime (2026-08-18)",
@@ -690,7 +690,7 @@
     ]
   },
   "get_workflow_stats": {
-    "description": "Workflow stats view — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Workflow stats view \u2014 proof: live-runtime (2026-08-22); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-08-22)",
     "proofFloor": "live-runtime (2026-08-22)",
@@ -714,7 +714,7 @@
     ]
   },
   "list_workflow_versions": {
-    "description": "List workflow versions — proof: live-runtime (2026-08-22); risk: read",
+    "description": "List workflow versions \u2014 proof: live-runtime (2026-08-22); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-08-22)",
     "proofFloor": "live-runtime (2026-08-22)",
@@ -732,7 +732,7 @@
     ]
   },
   "get_workflow_version": {
-    "description": "Get workflow version snapshot — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Get workflow version snapshot \u2014 proof: live-runtime (2026-08-22); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-08-22)",
     "proofFloor": "live-runtime (2026-08-22)",
@@ -750,7 +750,7 @@
     ]
   },
   "get_trigger_logs": {
-    "description": "Trigger attempt logs + top failed reasons — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Trigger attempt logs + top failed reasons \u2014 proof: live-runtime (2026-08-22); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-08-22)",
     "proofFloor": "live-runtime (2026-08-22)",
@@ -774,7 +774,7 @@
     ]
   },
   "get_account_workflow_overview": {
-    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals — proof: live-runtime (2026-08-22); risk: read",
+    "description": "Workflow Overview page: statistics, weekly enrollment, Needs Review, enrollment totals \u2014 proof: live-runtime (2026-08-22); risk: read",
     "risk": "read",
     "proof": "live-runtime (2026-08-22)",
     "proofFloor": "live-runtime (2026-08-22)",
@@ -804,7 +804,7 @@
     ]
   },
   "test_custom_code": {
-    "description": "Custom Code sandbox test-run (no account mutation) — proof: live-runtime (2026-08-22); risk: sandbox-exec",
+    "description": "Custom Code sandbox test-run (no account mutation) \u2014 proof: live-runtime (2026-08-22); risk: sandbox-exec",
     "risk": "sandbox-exec",
     "proof": "live-runtime (2026-08-22)",
     "proofFloor": "live-runtime (2026-08-22)",
@@ -822,7 +822,7 @@
     ]
   },
   "pin_webhook_sample": {
-    "description": "Inbound-webhook sample → reference pin → merge tags — proof: live-canary (2026-08-22); risk: write (replaces the trigger's reference)",
+    "description": "Inbound-webhook sample \u2192 reference pin \u2192 merge tags \u2014 proof: live-canary (2026-08-22); risk: write (replaces the trigger's reference)",
     "risk": "write",
     "proof": "live-canary (2026-08-22)",
     "proofFloor": "live-canary (2026-08-22)",
@@ -844,5 +844,21 @@
       "hooks-set-as-reference",
       "hooks-reference"
     ]
+  },
+  "search_step_types": {
+    "description": "Search workflow step and trigger types \u2014 proof: source-derived (284 corpus cards); risk: read",
+    "risk": "read",
+    "proof": "source-derived (corpus 30-types, 2026-08-25)",
+    "proofFloor": "documented",
+    "rows": [],
+    "riskRows": []
+  },
+  "describe_step_type": {
+    "description": "Describe one workflow step or trigger type \u2014 proof: source-derived (284 corpus cards); risk: read",
+    "risk": "read",
+    "proof": "source-derived (corpus 30-types, 2026-08-25)",
+    "proofFloor": "documented",
+    "rows": [],
+    "riskRows": []
   }
 }

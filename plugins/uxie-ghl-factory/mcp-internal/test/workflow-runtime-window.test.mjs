@@ -2376,7 +2376,19 @@ test('every row id the tool catalog cites — in EVERY entry — exists in the r
   // it: `get_ai_configuration_bundle` cited `entities-voice-ai-agents-list`, the row for
   // list_account_entities's BARE /voice-ai/agents — the very route this bundle disavows.
   const catalog = JSON.parse(readFileSync(new URL('../tool-descriptions.json', import.meta.url), 'utf8'));
+  // A tool that reaches NO endpoint cites no rows, and that is correct rather than a gap:
+  // search_step_types and describe_step_type read a shipped data file, declare
+  // `capabilities: []`, and touch no account. The invariant here is "every row an entry cites
+  // must be real" — vacuously satisfied by an entry citing none. The non-empty check assumed
+  // every tool has an endpoint, which stopped being true when the step-type catalog landed.
+  const ENDPOINTLESS = new Set(['search_step_types', 'describe_step_type']);
   for (const [name, entry] of Object.entries(catalog)) {
+    if (ENDPOINTLESS.has(name)) {
+      for (const field of CATALOG_ROW_FIELDS) {
+        assert.deepEqual(entry[field] ?? [], [], `${name}.${field} must be empty — it reaches no endpoint`);
+      }
+      continue;
+    }
     // The vocabulary for an entry is every row id cited by every OTHER entry — the same
     // relation the original test used, now evaluated per entry.
     const vocabulary = new Set(
