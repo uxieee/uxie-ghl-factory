@@ -43,7 +43,6 @@ therefore fails here rather than passing against a lenient stub.
 ### Roster (`workflow-roster.json`)
 
 - The response envelope defaults to the **live-observed** `{ rows: [...], count: N }`.
-  Corrected 2026-07-27: this file previously documented `{ workflows: [...], total: N }`, a
   shape no captured GHL response has ever carried. The real one is
   `{rows, count, isLocationRateLimited}` with a numeric `count`, per
   `ghl-internal-api-research/docs/03-endpoints.md:167`, `DISCOVERIES.md:121`, the

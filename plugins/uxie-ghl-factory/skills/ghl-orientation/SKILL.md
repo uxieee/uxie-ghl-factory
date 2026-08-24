@@ -36,9 +36,8 @@ before building — follow the specialist contract instead of duplicating it her
 The one internal exception on Conversation AI is the **per-contact AI switch**
 (`/conversations-ai/employeeConfigs`), which has no public equivalent.
 
-⚠️ This reversed the earlier prefer-internal-for-AI guidance. The steering documents have been
-corrected to match; endpoint maps and audit fixtures still describe the internal AI routes,
-which is accurate — they document what those endpoints do, not which rail to choose.
+Endpoint maps and audit references still describe the internal AI routes; that is what those
+endpoints do, and is separate from which rail to choose for a task.
 
 ## Auditor
 

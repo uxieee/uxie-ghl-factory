@@ -32,11 +32,8 @@ the internal rail only for:
   No public equivalent. This silences one bot for one contact; DND is worse on every count.
 - **prompt version history** (`oldPromptIds`), if a rollback is actually needed.
 
-This reversed the earlier prefer-internal guidance, and the documents that steered that way
-have been corrected (`README.md`, `docs/auth-jwt-capture.md`, and this skill's own
-`references/conversation-ai.md`). That reference still documents the internal endpoints —
-correctly, because the per-contact switch needs them — so read it as *how they behave*, not as
-*what to reach for first*.
+`references/conversation-ai.md` documents the internal endpoints — read it when you need the
+per-contact switch or prompt history, not as the default path.
 
 ## Contract
 Follow `${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md` (recon → brief → intake →
@@ -103,46 +100,17 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 
 | Surface | Status |
 |---|---|
-| Conversation AI — create, read, delete, `humanHandOver` action | **Live-create-proven** (engine → internal API → real agent → verified → deleted) |
-| Knowledge Base — rich-text create | **Live-proven** |
-| Voice AI — agent create + full-replace update | **FULLY LIVE-PROVEN end-to-end (2026-07-21, GROM AU): create → full-replace update → verified re-read, `agentName` persisted, agent deleted.** `POST /voice-ai/agents` takes only `{locationId}` and returns an id; the follow-up `PUT …?publishAgent=true&mode=update` then applies the config. Three bugs had to be fixed to get here — see `mcp-internal/README.md` §"Live proof ledger — AI agent tools". |
-| Agent Studio — Super Agent create (SSE build) + full-replace update | **FULLY LIVE-PROVEN end-to-end (2026-07-21, GROM AU): SSE build → terminal `agent_saved`/`done` → follow-up PUT → verified re-read → `ok:true, verified:true`, canary deleted.** SSE is real (200 `text/event-stream`, ~16.5s, 757 chunks). ⚠️ Tool needs BOTH `systemPrompt` (IR) and `buildPrompt` (build message). Verification asserts only identity (name/systemPrompt) — triggers/actions are AI-generated, not asserted. |
+| create → read → verify → delete | **live-proven** — engine drove a real agent through the internal API and it round-tripped |
+| `humanHandOver` action | **live-proven** |
+| the other 6 action types | **capture-verified, not live-fired.** Each validates its required fields against `convai-actions-all.json` and merges capture-grounded defaults, but none has been individually round-tripped |
+| merge-PUT semantics | **capture-derived** — observed on captures, not independently round-tripped |
 
-ConvAI + KB rich-text are live-proven.
+The seven types are `humanHandOver`, `appointmentBooking`, `triggerWorkflow`,
+`updateContactField`, `stopBot`, `transferBot`, `advancedFollowup`.
 
-⚠️ **Voice AI: the engine's CREATE is proven; its UPDATE is proven broken.** Superseded
-2026-07-21 — this section previously said the engine was unproven outright. Two distinct
-bodies of evidence, do not conflate them:
-- **Shapes** (2026-07-17): `DATA_EXTRACTION` creation, `APPOINTMENT_BOOKING` calendar
-  repointing, `patch-agent`, voices read — all via the **public `voice-ai-v3` MCP**, never
-  through `voiceai-compiler.mjs`. These prove the shapes, not the compiler.
-- **Engine** (2026-07-21): `voiceai-compiler.mjs` drove a real create through the internal
-  API and produced a real agent. Its full-replace PUT then 422'd. So the compiler's create
-  path works and its update path does not.
-
-✅ **RESOLVED 2026-07-21 — the agent-create question is settled.** A throwaway live-fire
-through the internal compilers (via the `uxie-ghl-internal-mcp` AI rail) on GROM AU created a
-real agent in **all three** products, then deleted them. Evidence: `mcp-internal/README.md`
-§"Live proof ledger — AI agent tools".
-
-The old contradiction (memory said proven, this banner said not) resolves as **both partly
-right**: **create works everywhere**; the **follow-up configuration step fails** in Voice AI
-(422 on the full-replace PUT) and Agent Studio (400), and ConvAI's post-create *verification*
-failed. So an agent-create call leaves a REAL, UNCONFIGURED agent on the account — it does not
-no-op, and it does not roll back. Clean up after failures.
-it is unconfirmed rather than promising either way. See `references/voice-ai.md` §Status. ConvAI now has
-verified (not passthrough) support for all 7 captured action types (`humanHandOver` +
-`appointmentBooking`, `triggerWorkflow`, `updateContactField`, `stopBot`, `transferBot`,
-`advancedFollowup`), and Voice AI for all 7 captured types (`CALL_TRANSFER` +
-`WORKFLOW_TRIGGER`, `SMS`, `DATA_EXTRACTION`, `APPOINTMENT_BOOKING`, `CAP`,
-`AGENT_TRANSFER_CHILD`) — each validates its capture-required fields and merges
-capture-grounded defaults, per `convai-actions-all.json` / `voiceai-actions-all.json`. KB
-also gained verified descriptor-builders for Tables (`compileKbTableUpload`) and Files
-(`compileKbFileUpload`), alongside the live-proven rich-text path — per
-`knowledge-base-tables-files.json`. None of this is yet **live-fired** (each type is
-unit-tested against its capture, not each individually round-tripped against a real
-account). Treat the first real use of any given action/source type as a validation run
-(small, throwaway, verified, cleaned up), not a routine operation.
+**Treat the first real use of any capture-verified type as a validation run** — small,
+throwaway, verified, cleaned up. A failed configuration step leaves a real, unconfigured agent
+on the account: it does not no-op and it does not roll back.
 
 ## Scope
 **IN:** designing/building/configuring Conversation AI (both `PROMPT_BASED_BOT` and the

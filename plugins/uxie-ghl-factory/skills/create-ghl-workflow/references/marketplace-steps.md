@@ -82,9 +82,8 @@ Read it from the ASSETS endpoint (`GET /workflows-marketplace/location/{loc}/ass
 **not** `list_marketplace_apps`. That tool reads the MODULE endpoint (install truth), and
 its `schemaFor` projection (`mcp-internal/core/tools.mjs`) emits `key, version, templateId,
 inputs, customVars, branchesConfig, info` — no `filters`. The module payload may not even
-carry `filters[]` at all; only the assets response is confirmed to. Don't guess from
-`customVars` either; see `docs/marketplace-rail.md` §5 for why an earlier draft of this
-feature got that backwards.
+carry `filters[]` at all; only the assets response is confirmed to. Don't infer them from
+`customVars` — see `docs/marketplace-rail.md` §5.
 
 **Operator vocabulary is exactly two values, and there is no equals:**
 

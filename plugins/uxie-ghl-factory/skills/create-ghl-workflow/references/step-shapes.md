@@ -318,7 +318,7 @@ canvas. Only a human manually clicking the node is a valid panel test.
 
 ### `next` is the runtime edge, `parentKey` is builder hygiene
 
-**Corrected 2026-07-17f (was: "`parentKey` IS the DAG edge").** Two edge fields, two jobs:
+Two edge fields, two jobs:
 
 - **`next`** is what GHL's **runtime** follows step to step. This is the load-bearing edge.
 - **`parentKey`** is the **builder's** inbound back-pointer — it renders the canvas tree and
