@@ -1,3 +1,10 @@
+
+> **Rail note (2026-08-25).** Conversation AI **reads and most writes now go through the PUBLIC
+> rail** — see this skill's `SKILL.md`. This document covers the **internal** rail, which is
+> still required for the per-contact AI switch (`/conversations-ai/employeeConfigs`) and prompt
+> version history (`oldPromptIds`), and remains the reference for how the internal endpoints
+> behave. Do not read it as a recommendation to prefer them.
+
 # Conversation AI (chat "AI Employee")
 
 > Ground truth: `ghl-workflow-api-docs/research/ai-agents-internal/conversation-ai-internal.md`

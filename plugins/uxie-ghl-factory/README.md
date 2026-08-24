@@ -14,7 +14,7 @@
 | Skill | `get-ghl-workflow-logs` | Read-only capture of a workflow's runtime — execution logs, enrollment history, per-step contact counts — from the internal builder API |
 | Skill | `ghl-workflow-fast-forward` | Fast-forwards contacts parked at a workflow WAIT step to the next step via the internal API — drives multi-day wait ladders to completion in minutes for end-to-end testing (write) |
 | Skill | `create-ghl-workflow` | Creates/edits GHL workflows via the internal builder API (draft-only; publish path untested) |
-| Skill | `ghl-conversation-ai` / `ghl-voice-ai` | Designs and builds GHL's three internal AI products — Conversation AI (chat), Voice AI (phone), Agent Studio (super agents) — plus rich-text Knowledge Base content, via the internal API (write) |
+| Skill | `ghl-conversation-ai` / `ghl-voice-ai` | Designs and builds GHL's AI products — Conversation AI (public rail) (chat), Voice AI (phone), Agent Studio (super agents) — plus rich-text Knowledge Base content, via the internal API (write) |
 | Skill | `ghl-funnels-pages` | Builds funnels/pages, custom HTML, tracking, and SEO via the internal API |
 | Skill | `ghl-memberships` | Builds courses/membership portals via the internal API — lessons (text/video/audio/PDF/embed), quizzes with questions, assignments, offers, themes, credentials, enrollment, progress, submissions, communities. Ships a spec→course compiler and a **live conformance suite** (21/0/4) |
 | Skill | `ghl-orientation` | GHL object model, terminology, and public-vs-internal API guidance for agents new to GHL |

@@ -32,8 +32,11 @@ the internal rail only for:
   No public equivalent. This silences one bot for one contact; DND is worse on every count.
 - **prompt version history** (`oldPromptIds`), if a rollback is actually needed.
 
-This reverses earlier guidance. If you find a document telling you to prefer internal for
-Conversation AI, it predates the 2026-08-25 measurement.
+This reversed the earlier prefer-internal guidance, and the documents that steered that way
+have been corrected (`README.md`, `docs/auth-jwt-capture.md`, and this skill's own
+`references/conversation-ai.md`). That reference still documents the internal endpoints —
+correctly, because the per-contact switch needs them — so read it as *how they behave*, not as
+*what to reach for first*.
 
 ## Contract
 Follow `${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md` (recon → brief → intake →
