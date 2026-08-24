@@ -11,6 +11,61 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.27.0] — 2026-08-24
+
+The public rail moves off the hosted Cloudflare Worker and onto a local npm package, and the
+setup becomes something an agent and a person can do together instead of a prompt only a
+person can answer.
+
+### Added
+
+- **`/uxie-ghl-factory:add-account`** — add one GHL sub-account to the public rail. The
+  agent cannot fetch either value (both live behind a browser login), so the command is
+  explicit about the split: it works out what is missing and verifies what comes back, the
+  person fetches. Verification is GHL's, not ours — a successful add returns the
+  sub-account's **real name** from the API, which is what proves the token reaches that
+  location rather than something either party typed.
+- **`/uxie-ghl-factory:scope`** — point a folder at one client's sub-accounts **by name**.
+  One credential file, narrowed per project.
+
+### Changed
+
+- **`/uxie-ghl-factory:setup` no longer sets up the Cloudflare Worker.** Step 3 previously
+  ran `claude mcp add --transport http` against the hosted Worker with one token per folder.
+  That Worker is being retired, so the command now sets up `@uxieee/ghl-mcp` from npm, adds
+  sub-accounts to one verified credential file, and scopes the folder. Existing Worker users
+  get a migration note rather than being left on it.
+- **The trust note lost half its content, correctly.** It used to disclose that the user's
+  Private Integration Token was forwarded *through* the author's Cloudflare Worker on every
+  call. Running locally, the token goes only to GoHighLevel, so that paragraph is no longer
+  true and is gone. What remains is the honest half: the server's tool descriptions and
+  responses are still third-party code, and deserve the same scrutiny as any third-party MCP
+  server.
+- **Codex config is now the stdio form** in both READMEs — `command`/`args`/`env` rather than
+  `url`/`http_headers`. Codex infers transport from `command`, and forwards only a fixed set
+  of parent environment variables to a stdio child, so `GHL_ACCOUNTS_FILE` is named in `env`
+  rather than assumed from the shell. `~/.codex/config.toml` is global, so the per-client
+  pattern there is one named server per client rather than per-project config.
+- **Both rails are still per-project, but for different reasons**, and `setup.md` now says
+  which is which. The public rail no longer collides on credentials (they live in one file);
+  folders are separated by *scope*. The internal rail holds a ~1-hour browser JWT for one
+  account, so it cannot be global — and per-folder is the safer default anyway, since the
+  rail that writes workflows is then armed only where it was deliberately set up.
+
+### Corrected
+
+- **`1,207 actions across 83 categories` → `671 distinct operations across 45 categories`**,
+  in six places including the Claude manifest description, `ghl-orientation`'s
+  `api-worlds.md`, and `ghl-audit-primitives`' surface map. The catalog still holds 1,207
+  entries; the server now collapses the v2/v3 twins and returns one row per operation naming
+  the other id, so 671/45 is what a caller actually sees. The number was read back from a
+  live `list_categories` rather than copied from a README.
+- `audit-io.md` claimed 83 categories were "deduped across v2/v3". They were not — 45 is the
+  deduped count.
+- The self-hosting link pointed at `github.com/uxieee/ghl-mcp-server`; the repository is
+  `uxieee/uxie-ghl-mcp-server`.
+- `setup.md` had two steps numbered 4.
+
 ## [0.26.0] — 2026-08-18
 
 ### Added

@@ -13,12 +13,14 @@ in.
 - **Status:** documented, versioned, in-Terms-of-Service. This is GHL's
   supported integration surface — the same one third-party apps in the
   Marketplace use.
-- **Coverage (live, verified 2026-07-11 via this plugin's bundled MCP
-  server's `list_categories`):** **1,207 actions across 83 categories.**
-  Categories come in pairs — a legacy-shaped one (e.g. `contacts`) and a
-  `-v3` one (e.g. `contacts-v3`) covering the newer API v3 surface
-  (`Version` header `v3`, camelCase params). Prefer the `-v3` category when
-  both exist; it's the actively-developed one. Full category list and
+- **Coverage (live, verified 2026-08-24 via the `ghl` MCP server's
+  `list_categories`):** **671 distinct operations across 45 categories.**
+  Most endpoints are published twice — a legacy-shaped category (e.g.
+  `contacts`) and a `-v3` one (e.g. `contacts-v3`) covering the newer API v3
+  surface (`Version` header `v3`, camelCase params). Search returns **one row
+  per operation** and names the other id, so you no longer have to pick; a
+  `(+v3)` marker means the v3 twin exists. Prefer v3 when you call one
+  directly; it's the actively-developed one. Full category list and
   per-category action counts: run `list_categories` on the bundled MCP
   server (`uxie-ghl-mcp`) — treat that live call as the source of truth over
   any number written in a doc, including this one.
