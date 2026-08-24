@@ -250,7 +250,7 @@ capped at `low` regardless of how compelling the gap looks in isolation — see
 - **Remediation:** narrative — recommend evaluating a Conversation AI agent
   for the channel; actual prompt/KB authoring and Flow Builder design are a
   content/config task for the account owner (or a future
-  `ghl-ai-agents-specialist`, out of this plugin's current scope per the
+  `ghl-conversation-ai` / `ghl-voice-ai`, out of this plugin's current scope per the
   plan's v1.1-deferred note) rather than a build this catalog's remediation
   pointer can hand to an existing specialist.
 - **Source:** public-category confirmation —

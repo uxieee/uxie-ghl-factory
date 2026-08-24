@@ -36,10 +36,10 @@ import { buildMarketplaceIndex, parseInstalledModules } from '../../skills/creat
 import { makeFF } from '../../skills/ghl-workflow-fast-forward/engine/ff.mjs';
 import { GhlMembershipsApi } from '../../skills/ghl-memberships/engine/api.mjs';
 import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/engine/course-builder.mjs';
-import { compileConvaiAgent } from '../../skills/ghl-ai-agents-specialist/engine/convai-compiler.mjs';
-import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../skills/ghl-ai-agents-specialist/engine/voiceai-compiler.mjs';
-import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../skills/ghl-ai-agents-specialist/engine/studio-compiler.mjs';
-import { executeAgentPlan } from '../../skills/ghl-ai-agents-specialist/engine/driver.mjs';
+import { compileConvaiAgent } from '../../engines/ai/convai-compiler.mjs';
+import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../engines/ai/voiceai-compiler.mjs';
+import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
+import { executeAgentPlan } from '../../engines/ai/driver.mjs';
 
 // In the bundle the catalog is inlined via esbuild --define (__HAS_CATALOG__/__TOOL_CATALOG__,
 // see scripts/esbuild-config.mjs), so descriptions work on a user's machine with no external

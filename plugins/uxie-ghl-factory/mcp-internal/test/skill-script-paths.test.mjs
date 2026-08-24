@@ -18,8 +18,8 @@ const CASES = [
     skillDir: "skills/ghl-workflow-specialist",
   },
   {
-    file: "skills/ghl-ai-agents-specialist/references/conversation-ai.md",
-    skillDir: "skills/ghl-ai-agents-specialist",
+    file: "skills/ghl-conversation-ai/references/conversation-ai.md",
+    skillDir: "skills/ghl-conversation-ai",
   },
 ]
 

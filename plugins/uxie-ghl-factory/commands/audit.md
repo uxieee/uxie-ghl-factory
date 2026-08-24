@@ -116,7 +116,7 @@ Workflow step logic + trigger JSON are already in the shared corpus from Phase
 This phase is for what the corpus does NOT cover: runtime execution logs (via
 `get-ghl-workflow-logs`), and non-workflow browser internals a surface-auditor
 flagged (funnel page contents → the `ghl-funnels-pages` read recipes; form-builder
-internals; ConvAI prompts → `ghl-ai-agents-specialist` / `ghl-reverse-engineering`).
+internals; ConvAI prompts → `ghl-conversation-ai` / `ghl-voice-ai` / `ghl-reverse-engineering`).
 For any additional workflow-JSON not yet captured, use the `get-ghl-workflow-json`
 skill's read-only capture path exactly as documented — do not hand-roll the
 fetch or restate its auth mechanics. This is a human-paced handoff (browser

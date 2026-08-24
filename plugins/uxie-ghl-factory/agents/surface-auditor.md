@@ -124,7 +124,7 @@ bodies, not every reference file.)
 - For a surface's depth dive that needs browser internals beyond the workflow
   corpus: funnel page contents + tracking pixels → the `ghl-funnels-pages` skill's
   read-only recipes (`GET /funnels/funnel/fetch/{id}`, `GET /funnels/builder/page/data`);
-  ConvAI/Voice/Studio agent internals → the `ghl-ai-agents-specialist` (read-only)
+  ConvAI/Voice/Studio agent internals → the `ghl-conversation-ai` / `ghl-voice-ai` (read-only)
   or `ghl-reverse-engineering` skill. For anything no skill captures yet
   (form-builder internals), do not drive the browser yourself — pause and use the
   human-pace handoff prompt from `audit-io.md` §3 verbatim, wait for `ready`, then
