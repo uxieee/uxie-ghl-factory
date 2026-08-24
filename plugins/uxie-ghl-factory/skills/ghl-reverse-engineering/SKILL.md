@@ -1,50 +1,158 @@
 ---
 name: ghl-reverse-engineering
-description: "Reverse-engineer GoHighLevel's internal (browser/backend) APIs to understand and automate configuration the public API doesn't expose — capturing real request payloads from an authenticated session with Playwright, mapping endpoints and object schemas, and documenting them. Use when the user wants to figure out how a GHL feature works under the hood, capture the API call/payload behind a UI action, extend an engine to a new GHL object the public API lacks, or asks to reverse-engineer / sniff / capture / trace a GHL internal endpoint. GHL permits inspecting your own account's traffic."
+description: "Map a GoHighLevel internal surface exhaustively — enumerate every screen, panel, control and save path a feature has, capture the real request behind each one, prove what each field does by differential, and write the result into the corpus. Use when the user wants to understand how a GHL feature works under the hood, extend an engine to an object the public API can't reach, re-sweep a surface that already has partial coverage, or asks to reverse-engineer / sniff / capture / trace anything internal. GHL permits inspecting your own account's traffic. This is a MAPPING skill, not a lookup: it finishes when the surface is exhausted, not when the first endpoint is found."
 ---
 
 # GHL Reverse-Engineering
 
 Capture and document GoHighLevel's **internal** APIs — the `backend.leadconnectorhq.com` /
-`services.leadconnectorhq.com` endpoints the app UI uses — so agents can automate configuration the
-public API doesn't reach (AI agents, workflow-builder internals, funnels, etc.). This is legitimate
-inspection of the operator's own account traffic.
+`services.leadconnectorhq.com` endpoints the app's own UI calls — so agents can automate
+configuration the public API cannot reach.
 
-## When to reach for this
-- A UI action does something the public API can't, and you need the exact endpoint + payload.
-- You're extending a compiler/engine (like `create-ghl-workflow`) to a new step/object type.
-- You need to know an object's real field schema, or how the UI references another object (by id vs literal).
+## The stance
 
-## The method (see `references/capture-playbook.md` for the full procedure)
-1. **Authenticated browser.** Use the Playwright MCP against an already-logged-in `app.gohighlevel.com`
-   session. Deep links 404 — only `/` is served; reach any screen by **clicking** through the SPA.
-2. **Do the action, read the network.** Perform the config action, then
-   `browser_network_requests` (filter to the service) → `browser_network_request` on the specific
-   call to get method, URL, headers, and the full request/response **body** (the schema is the prize).
-3. **Grab the right auth.** Auth is **service-dependent** — see `references/internal-api-map.md`.
-   Capture a fresh token from the session's own network history (JWTs expire ~1 hr).
-4. **Capture with discipline.** Create → capture → delete. Name throwaway objects `TEST-CAP-*`,
-   keep them DRAFT, delete them after. Never publish, never enroll a contact, never place a real call.
-5. **Document.** Save raw payloads + write a reference (endpoint map, object schema, merge-vs-replace
-   note, auth header) into a research area, e.g. `ghl-workflow-api-docs/research/`.
+**You are mapping a surface, not answering a question.** A request phrased as one endpoint
+("how does it save a wait step?") is the entry point to a surface, never the scope. The scope
+is the whole feature: every screen it has, every panel, every control, every save path, every
+list-vs-detail difference, every error state.
+
+Three rules follow, and they are the difference between this skill and a network sniff:
+
+1. **Enumerate before you capture.** You cannot know what you missed if you never wrote down
+   what exists.
+2. **Follow every neighbour.** Anything you find has a settings panel, a list view, an edit
+   path, a delete path, and a log somewhere. Check them before moving on.
+3. **Stop on evidence, not on satisfaction.** The session ends after two consecutive rounds
+   that surface nothing new — not when the original question is answered.
+
+A surface with 90% coverage is a surface that will silently mislead someone later. The one
+endpoint you did not open is where the field you eventually need is defined.
+
+## Phase 0 — mine what is already recovered (do this FIRST)
+
+GHL serves its own source maps publicly. Before opening a browser, read them: this often
+answers the whole question and always narrows the live work.
+
+- `knowledge/sniffs/bundle-*/recovered-source/` — GHL's own TypeScript, ~1,870 sources
+  including the lazy-chunk page layer. Models, validators, enums, constructors, defaults.
+- `knowledge/sniffs/*/i18n-*.json` — every label and error string. **An error string implies
+  a code path that raises it**; the absence of one is evidence a check does not exist.
+- `knowledge/reference/`, `knowledge/corpus/` — what is already documented, and at what status.
+- `knowledge/samples/by-location/` — real stored objects. The ground truth for "what values
+  does this field actually carry in the wild".
+
+Read the enum, the interface, and the constructor before you read the network. A union type
+in the source is authoritative; a captured example only proves the one value it happened to
+carry.
+
+If a capture is stale or a chunk has rotated, re-derive it (`recapture.mjs --check`) rather
+than working from a bundle that no longer matches production.
+
+## Phase 1 — enumerate the surface (mandatory, before any capture)
+
+Open the feature in the UI and write down **everything it has**, to a file, before capturing
+anything. This list is the work-list and the coverage record.
+
+For the surface, enumerate:
+
+- every **screen** and every **tab** within it
+- every **panel, drawer and modal**, including ones that only open from a row action
+- every **button, menu item and overflow (⋯) action**
+- every **settings toggle**, including account-level settings that change the feature
+- every **empty state** and every **error state** you can reach
+- every **list view** and its **detail view** (they rarely return the same fields)
+- the **save, publish, duplicate, move, rename, archive and delete** paths
+- anything **gated** — feature flags, plan tiers, allowlists — noted as gated, not skipped
+
+Write it as a checklist. Nothing is captured until the checklist exists.
+
+## Phase 2 — capture, breadth-first
+
+Work the checklist. Prefer breadth over depth on the first pass: one capture per item beats
+three captures of the first item.
+
+1. **Authenticated browser.** Playwright MCP against a logged-in `app.gohighlevel.com`. Deep
+   links 404 — only `/` is served, so reach every screen by **clicking** through the SPA.
+2. **Act, then read the network.** Perform the action, then `browser_network_requests`
+   (filtered to the service) → `browser_network_request` on the specific call. Method, URL,
+   headers, and the full request/response **body** — the body is the prize.
+3. **Auth is per-surface.** Never assume a token carries across services. See
+   `references/internal-api-map.md`. Tokens expire ~1 hr; re-capture from the session's own
+   network history.
+4. **Record the negative results too.** A control that fires no request, a save that returns
+   200 without changing anything, a screen with no backing endpoint — each is a finding.
+
+### The neighbour rule
+
+Every time you capture something, before moving on, ask the six questions:
+
+| | |
+|---|---|
+| **List vs detail** | Does the list endpoint return fields the detail one does not, or vice versa? |
+| **Save** | What does *save* send — the whole object, or a diff? |
+| **Edit** | Is the edit path the same endpoint as create, or a different one? |
+| **Delete** | Soft or hard? Does it cascade? |
+| **Settings** | Is there a settings panel for this object, and what does *it* send? |
+| **Logs** | Is there a runtime/history/log view, and what does it read? |
+
+Anything that answers "I don't know" goes on the checklist.
+
+## Phase 3 — prove it, by differential
+
+A capture shows a field's **shape**. It does not show that the field **does** anything.
+
+To prove a field works: make the same call twice, once with it and once without, and compare
+the results. To prove a filter works: same query with and without the filter, compare rows.
+
+**Accepted is not applied.** A `200` proves the request was well-formed. Read the object back
+on a *separate request* and compare field by field. When a write returns success and the value
+did not change, **that is the finding** — record it as one, do not retry until it looks clean.
+
+For a discriminated field, capture **one object per discriminator value**. A single capture
+pins one value of every union and teaches the catalog that the other values do not exist.
+
+## Phase 4 — the completeness check (before reporting)
+
+Answer these in writing. The answers become the next round's checklist:
+
+- Which screens on my Phase-1 list did I never open?
+- Which buttons did I never press?
+- Which endpoints did I see *referenced* in source or in a response, but never call?
+- Which fields did I observe but never **vary**?
+- Which discriminator values have no capture?
+- What did I assume because it was obvious?
+
+**Stop condition:** two consecutive rounds where Phase 4 produces nothing new. One quiet round
+is a coincidence; two is a surface.
+
+## Phase 5 — write it down
+
+Findings go into the **corpus** (`knowledge/corpus/`), on the surface's own page, under the
+layer that matches (`10-anatomy`, `20-api`, `30-types`, `40-rules`, `50-runtime`,
+`60-recipes`, `70-research`). Follow `corpus/_template/PAGE-CONTRACT.md`.
+
+Every page carries a `status` floor: `proven-live` means executed against a live account **and
+read back on a separate request**. Anything weaker says so. Raw captures go to `sniffs/`, and
+pages cite them rather than copying them.
+
+Turning a finding into a skill or an engine capability is a **separate, later decision** — do
+not fold it into a mapping session.
 
 ## Non-negotiables
-- **Test on the operator's own / a test sub-account.** Prefer a dedicated test location; if a surface
-  is feature-gated (e.g. Voice AI outbound needs KYC enabled), find a location where it's enabled
-  rather than enabling compliance features yourself.
-- **Reads by default; writes are throwaway.** Any write is a `TEST-CAP-*` draft you delete. Confirm
-  cleanup succeeded and report it.
-- **Redact tokens.** Never write a captured JWT/token value into a saved file or report.
-- **Ground everything.** Record which capture each documented field came from. Don't infer fields you
-  didn't see — mark unconfirmed items explicitly.
 
-## Static shortcut
-Before (or alongside) live capture, mine already-recovered material: bundle source maps
-(`sniffs/bundle/recovered-source/`), microservice route lists (`reference/microservices.md`), and
-prior research (`research/`) in the GHL API-docs repo often already contain the endpoint or model.
+- **Test on a designated test sub-account, never a client's.** If a surface is feature-gated,
+  find a location where it is already enabled rather than enabling compliance features
+  yourself.
+- **Reads by default; writes are throwaway.** Any write is a `TEST-CAP-*` draft. Never publish,
+  never enrol a real contact, never place a real call.
+- **Nothing is deleted.** Probe artifacts stay in place, clearly named, for a human to remove.
+  Report what you left behind and where.
+- **Redact tokens.** Never write a captured JWT or token value into a file, a report, or a
+  message. Claim *names* and counts are fine; values never are.
+- **Ground every claim.** Record which capture each documented field came from. Do not infer a
+  field you did not see. Mark unconfirmed items explicitly rather than smoothing them over.
 
-## Proven output shape
-A good reverse-engineering deliverable (see `research/ai-agents-internal/` in the api-docs repo for a
-worked example covering Conversation AI, Voice AI, and Agent Studio): an **endpoint map** table, the
-**object schema** by section with example values, the **PUT merge-vs-replace** behavior, the **auth
-header** used, action/sub-resource schemas, and raw payloads under `captures/`.
+## Knowledge
+
+- `references/capture-playbook.md` — the full capture procedure
+- `references/internal-api-map.md` — per-service base URLs and which credential each takes
