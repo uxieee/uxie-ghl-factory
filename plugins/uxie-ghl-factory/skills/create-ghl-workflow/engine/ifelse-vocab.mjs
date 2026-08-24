@@ -1,10 +1,26 @@
 // IF/ELSE condition vocabulary check — the engine is the ONLY guard here.
 //
-// `if_else` is proven-zero: GHL ships no step validator for it (the single structural check,
-// validateIfElseCondition, runs for workflow_ai-authored workflows only). A condition with a
-// misspelled subtype or an operator the picker would never offer compiles clean, saves clean,
-// renders clean — and MATCHES WRONGLY at runtime, silently. That is the worst class of defect
-// this project exists to kill, and until 2026-08-22 the engine had no vocabulary to check against.
+// `if_else` is proven-zero, and as of 2026-08-25 that is proven LIVE rather than read off source.
+//
+// No STEP validator is registered: the registry entry's `validation.code` is commented out
+// (src/utils/workflows.ts:636-646) and `ifElseValidator` is defined nowhere in any capture.
+// template-validator.ts:378-381 returns early for a non-marketplace action with no `code`, so
+// nothing is checked and no error is recorded.
+//
+// The two guards that DO exist never run for us. `validateIfElseCondition` is gated on the stored
+// `creationSource === 'workflow_ai'`, and the emptiness chain (IfElseMain.hasErrors → Branch →
+// Segment.isValidCondition) gates the side-panel Save button. Both are browser-side models an API
+// write never constructs — so for a programmatic write the guards are always off, not usually off.
+//
+// LIVE PROOF (test sub-account, 2026-08-25): a condition carrying conditionSubType
+// 'zzz_not_a_real_subtype' and conditionOperator 'wobbles_like' returned validate-assets 200 with
+// 0 errors / 0 warnings, created 200, auto-saved 200, and READ BACK VERBATIM. Nothing rewrote it,
+// nothing flagged it. validate-assets could not report it even in principle: its finding shape
+// addresses stepId/triggerId only, with no branch/segment/condition granularity.
+//
+// So a misspelled subtype or an operator the picker would never offer compiles clean, saves clean,
+// renders clean — and MATCHES WRONGLY at runtime, silently. That is the worst class of defect this
+// project exists to kill, and this check is the ONLY guard in existence, on either rail.
 //
 // Vocabulary (catalog.ifElseConditions, extracted from utils/ifelse_conditions.ts +
 // utils/conditions.ts, corpus-replayed over 544 stored conditions):

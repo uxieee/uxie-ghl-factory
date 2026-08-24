@@ -135,7 +135,7 @@ is accepted as an equivalent alias. Both compile to `attributes.startAfter {type
 
 ```json
 { "ref": "w2", "kind": "wait", "name": "24h before appt",
-  "attributes": { "type": "appointment", "appointmentCondition": "appointment",
+  "attributes": { "type": "appointment", "appointmentCondition": "skip",
     "appointmentStartAfter": { "when": "before", "type": "hours", "value": 24, "distributed": {} } } }
 ```
 

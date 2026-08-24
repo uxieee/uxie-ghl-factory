@@ -272,23 +272,206 @@ export const REQUIRED_FIELDS = {
 // Defaults that only apply once another field takes a particular value. sleepEnabled's
 // default of `true` would otherwise trip the coupled check below, since a reactivation
 // needs its schedule — so supply the same schedule the capture and the schema show.
+// The five wait variants that hang off an appointment-like date and therefore carry the
+// "what if that moment has already passed" branch.
+const APPOINTMENT_WAIT_TYPES = new Set([
+  'appointment', 'service_booking', 'rental_booking', 'attendee_event_date', 'overdue',
+]);
+
 const CONDITIONAL_DEFAULTS = {
   conversationai_end: (attrs) => (attrs.sleepEnabled === true
     ? { sleepDuration: attrs.sleepDuration ?? 1, sleepUnit: attrs.sleepUnit ?? 'hours' }
     : {}),
+
+  // GHL's OWN default, not ours. `Wait.setAppointmentStartAfter()` assigns
+  // `appointmentConditionType.SKIP_SENDING_OPTION` the moment an appointment wait is created
+  // (src/models/conditions/Wait.ts:756), so a UI-built step always carries it. The corpus
+  // agrees overwhelmingly: of the stored appointmentCondition values, 94 are 'skip', 6
+  // 'specific-step', 2 'next' — 92%, clear of the ≥90% bar uiDefaults requires.
+  //
+  // Emitting it is what makes an engine-built appointment wait match a UI-built one. Leaving
+  // it out is not neutral: the field is optional to GHL, so the step saves either way and the
+  // past-time behaviour becomes whatever the backend falls back to, with nothing on screen to
+  // say which. 'skip' means skip the outbound send and move on.
+  wait: (attrs) => (APPOINTMENT_WAIT_TYPES.has(attrs.type) && attrs.appointmentCondition === undefined
+    ? { appointmentCondition: 'skip' }
+    : {}),
 };
 
-// `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
-// halves of it. Enabling it without a duration/unit persists an incomplete schedule.
-function checkCoupledFields(node, attrs) {
-  if (node.type !== 'conversationai_end') return;
-  if (attrs.sleepEnabled !== true) return;
-  const missing = ['sleepDuration', 'sleepUnit'].filter((k) => !suppliedNonEmpty(attrs, k));
-  if (missing.length)
-    throw new IRError('REQUIRED_FIELD',
-      `conversationai_end '${node.ref ?? node.name ?? '?'}' sets sleepEnabled:true without [${missing.join(', ')}]. `
-      + `Reactivation is a schedule and needs both halves — the committed capture is `
-      + `{sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.`);
+// Fields that only become required once ANOTHER field takes a particular value. The generated
+// catalog cannot express this shape — its enforcement rules are flat per-field guards — so
+// conditional couplings live here, each carrying its own evidence.
+//
+// A rule reads the FINAL attributes (post-default) in `when`, then states EITHER:
+//   require: [keys]                  those keys must be non-empty
+//   check:   (attrs) => string|null  a problem description, or null when clean
+// and carries the severity GHL itself assigns to the same rule:
+//   severity 'throw' (default)  GHL says result:'error'    -> refuse the build
+//   severity 'warn'             GHL says result:'warning'  -> surface it, build anyway
+//
+// Matching GHL's tier is the point. Promoting a warning to a throw refuses documents the builder
+// opens happily, which breaks the engine's contract in the other direction.
+//
+// `why` is quoted verbatim in the message: a coupling with no stated reason is indistinguishable
+// from a typo.
+const hasAttachments = (a) => Boolean(a.attachments?.length || a.urlAttachments?.length);
+
+const COUPLED_FIELDS = {
+  // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
+  // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
+  conversationai_end: [{
+    when: (a) => a.sleepEnabled === true,
+    require: ['sleepDuration', 'sleepUnit'],
+    why: 'Reactivation is a schedule and needs both halves — the committed capture is '
+       + '{sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.',
+  }],
+
+  // THE ONE THE ENGINE ITSELF CREATES. compiler.mjs's email envelope writes `html: a.html ?? ''`
+  // on the inline (non-template) path, so an author who supplies a subject and no body gets a
+  // step carrying an empty body — which compiles, saves, opens clean, and SENDS BLANK.
+  // GHL's own sendEmailActionValidator requires it (`!isTemplateSelected && !cleanHTML(html)`);
+  // the generated catalog carried the sibling `subject` rule across and dropped this one.
+  // We test non-empty rather than GHL's cleanHTML(), so markup that renders to nothing
+  // (`<p></p>`) still passes here — stricter than nothing, not yet as strict as GHL.
+  email: [{
+    when: (a) => !a.template_id,
+    require: ['html'],
+    why: 'An inline email carries its body on the step. With no template_id and no html the '
+       + 'step sends a blank email — it saves clean and the builder shows no error.',
+  }],
+
+  // messenger and instagram-dm have NO enforcement block at all in the generated catalog, and
+  // the missing field is the entire payload. Both delegate through to baseSmsValidator, so this
+  // mirrors the `sms.body` guard verbatim: `!hasAttachments && !body.trim()`. GHL does not
+  // exempt a template there, and neither does this.
+  messenger: [{
+    when: (a) => !hasAttachments(a),
+    require: ['body'],
+    why: 'The body IS the message. With no body and no attachment the step sends nothing. '
+       + 'Same rule GHL applies to sms — messengerValidator delegates to baseSmsValidator.',
+  }],
+  'instagram-dm': [{
+    when: (a) => !hasAttachments(a),
+    require: ['body'],
+    why: 'The body IS the message. With no body and no attachment the step sends nothing. '
+       + 'Same rule GHL applies to sms — instagramDmValidator delegates to baseSmsValidator.',
+  }],
+
+  wait: [{
+    // GHL's OWN rule, never carried across: validateAppointmentWait requires the jump target
+    // when the branch is 'specific-step' (wait-validator.ts:288-294, result:'error'). wait has
+    // 19 generated throw rules and none covered it.
+    when: (a) => a.appointmentCondition === 'specific-step',
+    require: ['appointmentSpecificStep'],
+    why: 'appointmentCondition:"specific-step" means jump to a named step, so the target is not '
+       + 'optional. GHL\'s own validateAppointmentWait requires it.',
+  }, {
+    // No GHL rule behind this one — stated as ours. Structurally identical to the rule above,
+    // on the specific_date variant instead of the appointment variants.
+    when: (a) => a.specificDatePassed === 'specific_step',
+    require: ['specificDateStep'],
+    why: 'specificDatePassed:"specific_step" means jump to a named step once the date has '
+       + 'passed, so the target is not optional. Same shape as appointmentSpecificStep.',
+  }, {
+    // validateTimeWait, wait-validator.ts:151-157, result:'error'. The generated rules cover
+    // window.condition === 'when' (start and end) but not the 'exact' branch at all.
+    when: (a) => a.type === 'time' && a.window?.condition === 'exact',
+    check: (a) => (a.window?.start ? null : 'sets window.condition:"exact" without window.start'),
+    why: 'An exact-time window has to say WHICH time. Without a start the backend has nothing '
+       + 'to snap the wait to.',
+  }, {
+    // validateConditionWait, wait-validator.ts:195-215, result:'error'. Reached through a
+    // `switch` on attributes.type, which the guard-AST extractor does not follow — so the whole
+    // sub-validator was dropped. A branch with no segments, or a segment with no conditions,
+    // never evaluates true: contacts reach the wait and park there permanently.
+    when: (a) => a.type === 'condition',
+    check: (a) => {
+      const branches = a.condition?.branches ?? [];
+      for (let b = 0; b < branches.length; b++) {
+        const segments = branches[b].segments ?? [];
+        if (!segments.length) return `has condition.branches[${b}] with no segments`;
+        for (let g = 0; g < segments.length; g++) {
+          if (!(segments[g].conditions ?? []).length)
+            return `has condition.branches[${b}].segments[${g}] with no conditions`;
+        }
+      }
+      return null;
+    },
+    why: 'A conditional wait with an empty branch never becomes true, so every contact that '
+       + 'reaches it stops there for good — with nothing anywhere reporting it.',
+  }],
+
+  // workflowSplitValidator, additional-action-validators.ts:896-909. result:'warning' in GHL, so
+  // it warns here too. compiler.mjs passes author weights through verbatim, so a 30/30 split
+  // ships silently and every number measured downstream of it is wrong.
+  workflow_split: [{
+    when: (a) => a.condition === 'random-split',
+    check: (a) => {
+      const dist = a.extras?.weightDistribution ?? {};
+      const total = Math.round((a.paths ?? []).reduce((n, p) => n + (dist[p?.id] || 0), 0) * 10) / 10;
+      return total === 100 ? null : `has random-split weights totalling ${total}, not 100`;
+    },
+    severity: 'warn',
+    why: 'GHL rounds the weights to one decimal and requires exactly 100. Anything else '
+       + 'mis-splits traffic, which corrupts the measurement the split exists to produce.',
+  }],
+
+  // createUpdateContactValidator / findContactValidator, contact-action-validators.ts:107-113
+  // and :170-176. Both result:'warning'.
+  create_update_contact: [{
+    when: () => true,
+    check: (a) => {
+      const bad = rowsMissingValue(a);
+      return bad.length ? `has field row(s) with no value: ${bad.join(', ')}` : null;
+    },
+    severity: 'warn',
+    why: 'A row with no value writes an empty value over whatever the contact already had.',
+  }],
+  find_contact: [{
+    when: () => true,
+    check: (a) => {
+      const bad = rowsMissingValue(a);
+      return bad.length ? `has field row(s) with no value: ${bad.join(', ')}` : null;
+    },
+    severity: 'warn',
+    why: 'A lookup on an empty value does not identify the contact you meant.',
+  }],
+};
+
+// GHL's own emptiness test for a contact field row, reproduced verbatim from
+// contact-action-validators.ts:107 — an explicit `false` and a `0` are real values, and a date
+// row set to 'currentDate' supplies itself.
+function rowsMissingValue(attrs) {
+  return (attrs.fields ?? [])
+    .filter((f) => f && f.value !== false && !f.value && f.date !== 'currentDate' && f.value !== 0)
+    .map((f) => f.field ?? '(unnamed)');
+}
+
+// A rule states EITHER `require` (these keys must be non-empty) or `check` (returns a problem
+// string, or null when clean), and carries the severity GHL itself assigns:
+//
+//   severity: 'throw'  GHL's validator says result:'error'   → refuse the build
+//   severity: 'warn'   GHL's validator says result:'warning' → surface it, build anyway
+//
+// Matching GHL's tier is the point. Promoting a warning to a throw refuses documents the builder
+// would happily open, which breaks the engine's contract in the other direction — and the audit
+// already found two rules that had drifted that way.
+function checkCoupledFields(node, attrs, ctx) {
+  for (const rule of COUPLED_FIELDS[node?.type] ?? []) {
+    if (!rule.when(attrs)) continue;
+    let problem = null;
+    if (rule.require) {
+      const missing = rule.require.filter((k) => !suppliedNonEmpty(attrs, k));
+      if (missing.length) problem = `is missing [${missing.join(', ')}]`;
+    } else if (rule.check) {
+      const found = rule.check(attrs);
+      if (found) problem = found;
+    }
+    if (!problem) continue;
+    const msg = `${node.type} '${node.ref ?? node.name ?? '?'}' ${problem}. ${rule.why}`;
+    if (rule.severity === 'warn') ctx?.warn?.(`COUPLED_SOFT: ${msg}`);
+    else throw new IRError('REQUIRED_FIELD', msg);
+  }
 }
 
 // Fill every defaultable required field and hard-fail the rest. Returns a NEW attrs
@@ -298,9 +481,13 @@ function checkCoupledFields(node, attrs) {
 // "the builder can actually publish it". Before it existed, a flow bot could report
 // authored:9 / compiled:14 / verify:{pass:14, issues:[]} while the builder showed
 // "Resolve 7 Errors".
-export function enforceRequiredFields(node, attrs) {
+export function enforceRequiredFields(node, attrs, ctx) {
   const spec = REQUIRED_FIELDS[node?.type];
-  if (!spec) return attrs;
+  // A type can carry CONDITIONAL_DEFAULTS and COUPLED_FIELDS rules without an unconditional
+  // REQUIRED_FIELDS entry — `wait` is exactly that: nothing is required of every wait, but an
+  // appointment wait takes GHL's own default and a jump branch obliges you to name its target.
+  // Returning early on a missing `spec` skipped both, so the tail always runs.
+  if (!spec) return finish(node, attrs, ctx);
   const out = { ...attrs };
   const ref = node.ref ?? node.name ?? '?';
 
@@ -324,9 +511,18 @@ export function enforceRequiredFields(node, attrs) {
       + (spec.precondition ? ` ${spec.precondition}` : ''));
   }
 
-  Object.assign(out, CONDITIONAL_DEFAULTS[node.type]?.(out) ?? {});
-  checkCoupledFields(node, out);
-  return out;
+  return finish(node, out, ctx);
+}
+
+/** The tail every path shares: apply conditional defaults, then check the couplings.
+ *  A type with nothing to add gets its own object back unchanged — callers on the no-spec
+ *  path have always relied on that identity, and copying unconditionally would silently
+ *  change it for every step type in the catalog. */
+function finish(node, out, ctx) {
+  const defaults = CONDITIONAL_DEFAULTS[node?.type]?.(out) ?? {};
+  const next = Object.keys(defaults).length ? Object.assign({ ...out }, defaults) : out;
+  checkCoupledFields(node, next, ctx);
+  return next;
 }
 
 // The required set as plain keys, for the round-trip verify pass (which reads persisted

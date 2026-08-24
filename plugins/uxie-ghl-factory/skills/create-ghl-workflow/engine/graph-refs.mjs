@@ -27,6 +27,10 @@
 export const STEP_REF_FIELDS = [
   ['goto', 'targetNodeId', 'single'],
   ['wait', 'appointmentSpecificStep', 'single'],
+  // The specific_date variant's jump target — the same role appointmentSpecificStep plays on
+  // the appointment variants, and it was missing here, so a jump to a deleted step went
+  // undetected on that whole variant.
+  ['wait', 'specificDateStep', 'single'],
   ['wait', 'reply', 'array'],
   ['wait', 'emailEventSteps', 'array'],
   ['workflow_goal', 'segments[].conditions[].extras.stepIds', 'array'],
