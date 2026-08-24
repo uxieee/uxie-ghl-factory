@@ -28,7 +28,7 @@ account being targeted can change session to session.
    user. If that user's session isn't associated with the target
    `locationId` at all, refuse immediately — the user isn't even
    authenticated against this sub-account, let alone an admin on it.
-3. **Verify admin role on that location.** Use the plugin's bundled MCP
+3. **Verify admin role on that location.** Use the `ghl` MCP
    server (public API) to look up the user's role on the target location
    — e.g. a user-lookup/search action scoped to `locationId`, matched
    against the authenticated user's ID. Accept the check if:

@@ -21,7 +21,7 @@ in.
   per operation** and names the other id, so you no longer have to pick; a
   `(+v3)` marker means the v3 twin exists. Prefer v3 when you call one
   directly; it's the actively-developed one. Full category list and
-  per-category action counts: run `list_categories` on the bundled MCP
+  per-category action counts: run `list_categories` on the `ghl` MCP
   server (`uxie-ghl-mcp`) — treat that live call as the source of truth over
   any number written in a doc, including this one.
 - **What it covers well:** contacts, **opportunities/pipelines (full CRUD,
@@ -101,7 +101,7 @@ public-API path:
 | Create/edit a workflow's structure | Internal, write | `create-ghl-workflow` — no public equivalent; write rails apply |
 | Create a funnel, add a page, inject custom HTML | Internal, write | `ghl-funnels-pages` — no public equivalent; write rails apply |
 | Configure a Conversation AI bot's prompt/KB | Neither — UI only | Not exposed on either surface today |
-| Anything you're not sure has a public endpoint | Public (MCP) — check first | `search_actions` on the bundled MCP server before assuming a gap; the catalog changes (pipelines are a recent example of a "gap" closing) |
+| Anything you're not sure has a public endpoint | Public (MCP) — check first | `search_actions` on the `ghl` MCP server before assuming a gap; the catalog changes (pipelines are a recent example of a "gap" closing) |
 
 If in doubt and the public MCP genuinely doesn't cover it, that's the signal
 to consider the internal-API capability skills — never Playwright-scrape or
