@@ -1,6 +1,6 @@
 ---
 name: ghl-audit-primitives
-description: Shared substrate for whole-account GHL audits — the finding record schema, the audit folder layout, the deterministic impact-ranking rubric, throttle/concurrency limits, and the human-pace handoff gate. Read-only, never writes to the account. Use before or during any GHL audit work (surface-level audits, the aggregated whole-account audit, or a finding-verifier pass) so every piece writes findings and artifacts in the same shape.
+description: Shared substrate for the whole-account GHL audit: the finding schema, severity scale, evidence rules, and surface-coverage map. LOADED BY `/uxie-ghl-factory:audit` and its `surface-auditor` / `finding-verifier` subagents — it is not a task a user asks for directly. If you are looking for a capability, you want one of the surface skills instead.
 ---
 
 # GHL Audit Primitives

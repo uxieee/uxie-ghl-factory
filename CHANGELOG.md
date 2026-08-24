@@ -11,6 +11,59 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.29.0] — 2026-08-25
+
+Two capabilities, and a portfolio that now has a rule behind it.
+
+### Added
+
+- **The workflow type catalog.** A builder could see 68 step examples; the union of valid values
+  lived in 284 corpus cards that did not ship, and 29 step types shipped nothing at all. An
+  example pins ONE value of every discriminator, which `references/step-shapes.md` calls
+  "actively misleading" — the result saves, renders on the canvas, and does the wrong thing.
+
+  `search_step_types` → ranked stubs, `describe_step_type` → the one card. The whole catalog is
+  ~134,000 tokens and is never loaded: a search page costs ~360, a card ~400, and a session that
+  never builds a workflow pays nothing.
+
+  Proven end to end on a live account with `array_functions`, a type with **no example**: built
+  from its card alone, opens in the builder, every value landed. The first attempt wrote
+  `operation` where the card says `operations` — it saved, rendered, opened, and had nothing
+  selected. The card was right; the reader was not. That is exactly the failure this closes.
+
+- **`ghl-events`** — ticketed and RSVP events, tickets, add-ons, sessions, speakers, attendees
+  and the three-step public registration flow. The public rail has no events surface at all, so
+  this was a registered corpus surface with proven-live pages and no way to act on it.
+
+### Changed
+
+- **`ghl-ai-agents-specialist` split three ways.** One skill covered four products and this
+  week's measurements gave them four different answers, so it could not carry all of them:
+  `ghl-conversation-ai` (**public** rail — 17/17 sub-accounts return 200, every agent with its
+  system prompt, and public exposes `fullPrompt`/`instructions`/`personality` that internal
+  does not), `ghl-voice-ai` (**internal** — public shows 27 fields to internal's 51, and the gap
+  is the whole behaviour layer), `ghl-knowledge-base` (**internal** — 5 of 9 source types have
+  no public equivalent). Agent Studio is out of scope. The shared compilers moved to
+  `engines/ai/`, since they served all three and had no business inside one of them.
+
+- **Three "skills" are declared as libraries.** `ghl-audit-primitives`, `ghl-defect-catalog` and
+  `ghl-opportunity-catalog` are only ever loaded by `/audit` and its subagents — nothing
+  user-facing triggers them. Their descriptions now say so instead of competing for user intent.
+  The loading paths are untouched.
+
+### Fixed
+
+- **The Voice AI verifier watched a third of what it wrote** (0.28.0), now 52 of ~55 fields.
+- **A memberships test asserted a contract that no longer exists** — paid offers work; the
+  rejection message it expected was gone and the test had been red since.
+
+### Documented
+
+- Nine places narrated their own history ("this reverses earlier guidance", "Corrected 2026-…",
+  "previously said"). All rewritten to state the fact. One proven-status block had four layers
+  of correction stacked on it and contradicted itself three times in twenty lines.
+- `scripts/check-type-catalog.mjs` asserts the shipped cards match the corpus, at pre-push.
+
 ## [0.28.0] — 2026-08-25
 
 A verification fix on the Voice AI rail, and the evidence behind it.
