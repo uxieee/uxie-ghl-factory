@@ -124,19 +124,29 @@ test('build_course preview validates and returns CONFIRM_REQUIRED without constr
   assert.equal(madeGateway, false);
 });
 
-test('build_course rejects paid offers before account access', async () => {
-  let madeGateway = false;
-  const paid = spec();
-  paid.offer = { type: 'recurring' };
-  const result = await tool('build_course').handler(
-    { locationId: 'LOC1', spec: paid, confirm: true },
-    { state: {}, makeGw: () => { madeGateway = true; throw new Error('invalid spec must not access account'); } },
-  );
+test('build_course rejects an invalid offer before touching the account', async () => {
+  // Paid offers are supported — a recurring offer simply needs an amount. What must hold is
+  // that an invalid spec is caught locally: no gateway call, no half-built course on someone's
+  // account.
+  for (const [offer, expected] of [
+    [{ type: 'recurring' },                /requires offer\.amount > 0/],
+    [{ type: 'one_time' },                 /requires offer\.amount > 0/],
+    [{ type: 'nonsense', amount: 10 },     /offer\.type must be one of/],
+    [{ type: 'free', interval: 'month' },  /only applies to a recurring/],
+  ]) {
+    let madeGateway = false;
+    const bad = spec();
+    bad.offer = offer;
+    const result = await tool('build_course').handler(
+      { locationId: 'LOC1', spec: bad, confirm: true },
+      { state: {}, makeGw: () => { madeGateway = true; throw new Error('invalid spec must not access account'); } },
+    );
 
-  assert.equal(result.ok, false);
-  assert.equal(result.code, 'VALIDATION_FAILED');
-  assert.match(result.detail, /Only "free" is proven/);
-  assert.equal(madeGateway, false);
+    assert.equal(result.ok, false, `offer ${JSON.stringify(offer)} should be rejected`);
+    assert.equal(result.code, 'VALIDATION_FAILED');
+    assert.match(result.detail, expected);
+    assert.equal(madeGateway, false, 'validation must run before any account access');
+  }
 });
 
 test('confirmed build_course returns created ids and verification evidence', async () => {
