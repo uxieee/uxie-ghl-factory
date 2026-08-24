@@ -226,7 +226,7 @@ the user, logged verbatim to `log.md` — never a silent override.
 
 A whole-account audit must inspect **every surfaceable area of the sub-account**, not
 just the ones with deep rule catalogs. GHL exposes ~42 distinct domains (the `ghl` MCP's
-83 categories, deduped across v2/v3). This map is the single source of truth for what an
+45 categories, which already collapse the v2/v3 twins). This map is the single source of truth for what an
 audit run covers; the orchestrator enumerates it in Phase 1 and dispatches a surface-auditor
 for every row. Two tiers:
 

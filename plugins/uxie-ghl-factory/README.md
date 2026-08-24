@@ -2,13 +2,13 @@
 
 ## What this is
 
-`ghl` is a plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts in **Claude Code** or **Codex**. It provides a hosted MCP server covering GHL's public API (1,207 actions across 83 categories) — set up **per project** so each client folder uses its own token — plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), funnel/page building, memberships/course building, AI-agent building, and fast-forwarding test enrollments — built against GHL's undocumented internal API, with explicit safety gates around that surface. Those internal-API engines are also available as a **per-project local MCP server** (`uxie-ghl-internal-mcp`, set up per folder with `/uxie-ghl-factory:connect`), so an agent can call them as confirmation-gated tools instead of running the skills' scripts — see [Internal-API MCP server](#internal-api-mcp-server).
+`ghl` is a plugin for working with GoHighLevel (GHL / HighLevel) sub-accounts in **Claude Code** or **Codex**. It provides a local MCP server covering GHL's public API (671 distinct operations across 45 categories, run from npm so your token never leaves your machine) — set up **per project** so each client folder is scoped to that client — plus a set of skills and commands for the parts of GHL the public API doesn't reach — workflow export, workflow creation (draft-only), funnel/page building, memberships/course building, AI-agent building, and fast-forwarding test enrollments — built against GHL's undocumented internal API, with explicit safety gates around that surface. Those internal-API engines are also available as a **per-project local MCP server** (`uxie-ghl-internal-mcp`, set up per folder with `/uxie-ghl-factory:connect`), so an agent can call them as confirmation-gated tools instead of running the skills' scripts — see [Internal-API MCP server](#internal-api-mcp-server).
 
 > **Codex note:** Codex plugins load **skills only** — not slash commands or subagents — so in Codex the `/uxie-ghl-factory:*` commands and the multi-agent `/uxie-ghl-factory:audit` are unavailable; invoke the skills directly instead, and configure the MCP server yourself. See [Install](#install) and [Using in Codex](#using-in-codex).
 
 | Component | Name | What it does |
 |---|---|---|
-| MCP server (per-project) | `ghl` | Public GHL API v2/v3 — search/execute across 1,207 actions (contacts, pipelines, calendars, conversations, etc.). Added per folder via `/uxie-ghl-factory:setup` (each folder = its own token); the plugin registers nothing globally |
+| MCP server (per-project) | `ghl` | Public GHL API v2/v3 — search/describe/execute across 671 distinct operations (contacts, pipelines, calendars, conversations, etc.). Runs locally from npm; added per folder via `/uxie-ghl-factory:setup` and scoped to that client with `/uxie-ghl-factory:scope`; the plugin registers nothing globally |
 | MCP server (per-project) | `uxie-ghl-internal-mcp` | GHL **internal** API — 17 stdio tools that execute the internal-API engines (build/edit/publish workflows, fast-forward, memberships, AI agents) behind confirmation gates and round-trip verification. Set up per folder with `/uxie-ghl-factory:connect` (each folder = its own account token). See [`mcp-internal/README.md`](mcp-internal/README.md) |
 | Skill | `get-ghl-workflow-json` | Read-only export of a workflow's raw JSON from the internal builder API |
 | Skill | `get-ghl-workflow-logs` | Read-only capture of a workflow's runtime — execution logs, enrollment history, per-step contact counts — from the internal builder API |
@@ -67,13 +67,29 @@ Codex plugins load **skills, MCP servers, hooks, and apps** — but not slash co
 
 ```toml
 [mcp_servers.ghl]
-url = "https://ghl-mcp-server.xanderjohnrazonroque.workers.dev/mcp"
-
-[mcp_servers.ghl.http_headers]
-X-GHL-Token = "YOUR_GHL_PRIVATE_INTEGRATION_TOKEN"
+command = "npx"
+args = ["-y", "@uxieee/ghl-mcp"]
+env = { GHL_ACCOUNTS_FILE = "/Users/you/.ghl/accounts.json" }
 ```
 
-Without it, the skills that only *reason* about GHL still load, but anything that *calls* the API needs this server. (Self-hosting the Worker? Point `url` at your own deployment — see [Trust model](#trust-model).)
+Set the accounts file up first with `npx -y @uxieee/ghl-mcp accounts add` (once per
+sub-account). Codex infers the transport from `command`, and forwards only a fixed set of
+parent environment variables to a stdio server, so `GHL_ACCOUNTS_FILE` must be named in `env`
+as above rather than exported in your shell.
+
+For a single sub-account, `env = { GHL_API_TOKEN = "pit-…" }` works instead and needs no file.
+
+`~/.codex/config.toml` is global, so Codex has no per-project scoping. Give each client its
+own named server, each narrowed to that client's sub-accounts:
+
+```toml
+[mcp_servers.ghl_acme]
+command = "npx"
+args = ["-y", "@uxieee/ghl-mcp"]
+env = { GHL_ACCOUNTS_FILE = "/Users/you/.ghl/accounts.json", GHL_ALLOWED_LOCATIONS = "<id>" }
+```
+
+Without it, the skills that only *reason* about GHL still load, but anything that *calls* the API needs this server. The server runs locally, so your token goes only to GoHighLevel — see [Trust model](#trust-model).
 
 ## Internal-API MCP server
 
@@ -108,12 +124,12 @@ This isn't hypothetical: GHL's internal-API auth already migrated once (2026-07,
 
 ## Trust model
 
-By default, this plugin routes your GHL requests through the plugin author's Cloudflare Worker, and that means trusting the author on two separate things, not just one:
+The public GHL rail runs **on your own machine** as an npm package (`@uxieee/ghl-mcp`), started over stdio. That leaves one thing to trust instead of two:
 
-- **Credential forwarding** — your GHL Private Integration Token is sent *through* the plugin author's Cloudflare Worker on every call. The author's infrastructure is in a position to see or misuse that token.
-- **Tool/response trust** — the MCP server's tool descriptions and the responses it returns are also authored by the plugin author — a third party to you, the installer. Using this server means trusting that its tool metadata and results aren't manipulative or tampered with, the same way you'd scrutinize any third-party MCP server.
+- **Credentials stay local.** Your Private Integration Token is read from a file on your machine and sent only to GoHighLevel. It does not pass through the plugin author's infrastructure. (Earlier versions routed calls through the author's Cloudflare Worker, which did see the token on every call. That Worker is being retired — if you are still on it, `/uxie-ghl-factory:setup` migrates you.)
+- **Tool and response trust remains.** The MCP server's tool descriptions and the responses it returns are written by a third party to you, the installer. Running it means trusting that its tool metadata and results are not manipulative or tampered with, the same scrutiny you would give any third-party MCP server. The source is [`github.com/uxieee/uxie-ghl-mcp-server`](https://github.com/uxieee/uxie-ghl-mcp-server) and the npm package is published from it, so you can read what you are running.
 
-To remove **both** dependencies, self-host: deploy [`github.com/uxieee/ghl-mcp-server`](https://github.com/uxieee/ghl-mcp-server) yourself and set `GHL_MCP_URL` to your own Worker URL — then the author's infrastructure is out of the loop for both credential handling and tool/response trust.
+The **internal** rail is a different trust question, covered in `docs/write-rails.md`: it uses your own browser session's token, held per project, and its writes go through this plugin's gates.
 
 `/uxie-ghl-factory:setup` shows this same notice on first run.
 

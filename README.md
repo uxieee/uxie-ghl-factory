@@ -24,7 +24,7 @@ The Codex build ships the **skills only** and does **not** bundle the MCP server
 
 ## What's inside
 
-The plugin is built in layers: **knowledge** the agent reasons with → **capabilities** it acts through → **specialists** that compose those capabilities → an **auditor** that inspects the whole system. It all sits on a bundled MCP server exposing **1,207 actions / 83 categories** of GoHighLevel's official public API (you supply your own Private Integration token at setup).
+The plugin is built in layers: **knowledge** the agent reasons with → **capabilities** it acts through → **specialists** that compose those capabilities → an **auditor** that inspects the whole system. It all sits on an MCP server exposing **671 distinct operations across 45 categories** of GoHighLevel's official public API — run locally from npm, with your own Private Integration token, set up at first run.
 
 ### Commands (what you type)
 
@@ -89,10 +89,26 @@ Codex plugins load **skills, MCP servers, hooks, and apps** — but **not** slas
 
 ```toml
 [mcp_servers.ghl]
-url = "https://ghl-mcp-server.xanderjohnrazonroque.workers.dev/mcp"
+command = "npx"
+args = ["-y", "@uxieee/ghl-mcp"]
+env = { GHL_ACCOUNTS_FILE = "/Users/you/.ghl/accounts.json" }
+```
 
-[mcp_servers.ghl.http_headers]
-X-GHL-Token = "YOUR_GHL_PRIVATE_INTEGRATION_TOKEN"
+Set the accounts file up first with `npx -y @uxieee/ghl-mcp accounts add` (once per
+sub-account). Codex infers the transport from `command`, and forwards only a fixed set of
+parent environment variables to a stdio server, so `GHL_ACCOUNTS_FILE` must be named in `env`
+as above rather than exported in your shell.
+
+For a single sub-account, `env = { GHL_API_TOKEN = "pit-…" }` works instead and needs no file.
+
+`~/.codex/config.toml` is global, so Codex has no per-project scoping. Give each client its
+own named server, each narrowed to that client's sub-accounts:
+
+```toml
+[mcp_servers.ghl_acme]
+command = "npx"
+args = ["-y", "@uxieee/ghl-mcp"]
+env = { GHL_ACCOUNTS_FILE = "/Users/you/.ghl/accounts.json", GHL_ALLOWED_LOCATIONS = "<id>" }
 ```
 
 Without it, the skills that reason about GHL (orientation, workflow/pipeline design) still load, but anything that *calls* the API needs this server.
