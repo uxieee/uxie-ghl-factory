@@ -19,7 +19,12 @@ import { checkMergeTags } from './merge-tags.mjs';
 
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
-  if (node.kind === 'wait') return waitAttributes(node);
+  // A wait is authored as `kind:'wait'` with no `type`, and it takes this dedicated builder
+  // instead of the generic normalizeAttrs path — which is where enforceRequiredFields is wired.
+  // So waits used to reach GHL having run NONE of the conditional defaults or coupled-field
+  // rules; the unit tests missed it because they call enforceRequiredFields directly.
+  // The synthetic `type:'wait'` is what lets those rules key off it, exactly as typeFor() does.
+  if (node.kind === 'wait') return enforceRequiredFields({ ...node, type: 'wait' }, waitAttributes(node), ctx);
   if (node.type === 'email') return emailAttributes(node, ctx);
   if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {}, node.ref);
   if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {}, node.ref);
@@ -167,7 +172,9 @@ function normalizeAttrs(node, attrs, ctx) {
   // node that is merely missing a default does not first trip ATTR_KEY on the injected
   // key. A missing required field is what makes the builder show "Resolve N Errors" on a
   // workflow this engine reported as a clean pass.
-  const out = { ...enforceRequiredFields(node, attrs) };
+  // ctx carries `warn` — the warn-tier couplings (GHL's own result:'warning' rules) are silently
+  // dropped without it, which is the failure mode that made them invisible in the first place.
+  const out = { ...enforceRequiredFields(node, attrs, ctx) };
   if (meta.usesCustomInputs && !('__customInputs__' in out)) out.__customInputs__ = {};
   if (Array.isArray(meta.attrKeys) && meta.attrKeys.includes('type') && !('type' in out)) {
     // internal_notification's attributes.type is the CHANNEL, not the step type —

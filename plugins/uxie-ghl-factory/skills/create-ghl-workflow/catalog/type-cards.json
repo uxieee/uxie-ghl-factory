@@ -9735,8 +9735,8 @@
    "type": "if_else",
    "family": "steps",
    "title": "if_else",
-   "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "lastVerified": "2026-08-25",
    "summary": "Multi-path container that routes execution by evaluating segment-and-condition groups against contact/runtime state.",
    "meta": {
     "Section": "`internal`",

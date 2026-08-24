@@ -208,3 +208,241 @@ test('isSupplied applies presence vs non-empty per field', () => {
   assert.equal(isSupplied('conversationai_ai_splitter', 'description', { description: '  ' }), false);
   assert.equal(isSupplied('conversationai_services_booking', 'conversationai_services', { conversationai_services: [] }), false);
 });
+
+// ── wait: the two "jump to a named step" couplings ────────────────────────────────────
+// Both are the same defect shape: the author picks a branch that means "go to a specific
+// step" and never names the step. GHL accepts the node, so the reference is simply absent
+// and the branch has nowhere to go at runtime. The appointment one is GHL's OWN rule
+// (validateAppointmentWait, corpus/workflows/30-types/steps/wait.md:58) which the generated
+// enforcement block never carried across — wait has 19 throw rules and none covered it.
+
+const waitNode = (attributes) => ({ type: 'wait', ref: 'W1', name: 'Wait', attributes });
+
+test('wait: appointmentCondition specific-step without a target is refused', () => {
+  assert.throws(
+    () => enforceRequiredFields(waitNode({ type: 'appointment', appointmentCondition: 'specific-step' }), {
+      type: 'appointment', appointmentCondition: 'specific-step',
+    }),
+    (e) => e.code === 'REQUIRED_FIELD' && /appointmentSpecificStep/.test(e.message));
+});
+
+test('wait: appointmentCondition specific-step WITH a target passes', () => {
+  const attrs = { type: 'appointment', appointmentCondition: 'specific-step', appointmentSpecificStep: 'step-1' };
+  assert.doesNotThrow(() => enforceRequiredFields(waitNode(attrs), attrs));
+});
+
+test('wait: a non-jump appointmentCondition does not demand a target', () => {
+  const attrs = { type: 'appointment', appointmentCondition: 'next' };
+  assert.doesNotThrow(() => enforceRequiredFields(waitNode(attrs), attrs));
+});
+
+test('wait: specificDatePassed specific_step without a target is refused', () => {
+  assert.throws(
+    () => enforceRequiredFields(waitNode({ type: 'specific_date', specificDatePassed: 'specific_step' }), {
+      type: 'specific_date', specificDatePassed: 'specific_step',
+    }),
+    (e) => e.code === 'REQUIRED_FIELD' && /specificDateStep/.test(e.message));
+});
+
+test('wait: specificDatePassed specific_step WITH a target passes', () => {
+  const attrs = { type: 'specific_date', specificDatePassed: 'specific_step', specificDateStep: 'step-2' };
+  assert.doesNotThrow(() => enforceRequiredFields(waitNode(attrs), attrs));
+});
+
+test('wait: an empty-string target counts as missing, not supplied', () => {
+  assert.throws(
+    () => enforceRequiredFields(waitNode({ type: 'appointment', appointmentCondition: 'specific-step', appointmentSpecificStep: '' }), {
+      type: 'appointment', appointmentCondition: 'specific-step', appointmentSpecificStep: '',
+    }),
+    (e) => e.code === 'REQUIRED_FIELD');
+});
+
+// ── the send-nothing family ───────────────────────────────────────────────────────────
+// email/messenger/instagram-dm all had a payload field GHL requires and the engine did not.
+// The email one is the worst of the three because the engine ACTIVELY produces it:
+// compiler.mjs's envelope writes `html: a.html ?? ''` on the inline path, so "subject, no
+// body" became a step that saves clean, opens clean, and sends a blank email.
+
+const node = (type, attributes) => ({ type, ref: 'N1', name: type, attributes });
+
+test('email: inline path with no html is refused', () => {
+  assert.throws(
+    () => enforceRequiredFields(node('email', { subject: 'Hi' }), { subject: 'Hi' }),
+    (e) => e.code === 'REQUIRED_FIELD' && /html/.test(e.message));
+});
+
+test('email: the engine-written empty html is still treated as missing', () => {
+  assert.throws(
+    () => enforceRequiredFields(node('email', { subject: 'Hi', html: '' }), { subject: 'Hi', html: '' }),
+    (e) => e.code === 'REQUIRED_FIELD' && /html/.test(e.message));
+});
+
+test('email: the template path carries its body in the template, so html is not demanded', () => {
+  const attrs = { subject: 'Hi', template_id: 'tpl-1' };
+  assert.doesNotThrow(() => enforceRequiredFields(node('email', attrs), attrs));
+});
+
+test('email: an inline body passes', () => {
+  const attrs = { subject: 'Hi', html: '<p>hello</p>' };
+  assert.doesNotThrow(() => enforceRequiredFields(node('email', attrs), attrs));
+});
+
+for (const type of ['messenger', 'instagram-dm']) {
+  test(`${type}: no body and no attachment is refused`, () => {
+    assert.throws(
+      () => enforceRequiredFields(node(type, {}), {}),
+      (e) => e.code === 'REQUIRED_FIELD' && /body/.test(e.message));
+  });
+
+  test(`${type}: an attachment alone satisfies it, matching GHL's sms rule`, () => {
+    const attrs = { attachments: ['file-1'] };
+    assert.doesNotThrow(() => enforceRequiredFields(node(type, attrs), attrs));
+  });
+
+  test(`${type}: a urlAttachment alone satisfies it too`, () => {
+    const attrs = { urlAttachments: ['https://example.com/a.png'] };
+    assert.doesNotThrow(() => enforceRequiredFields(node(type, attrs), attrs));
+  });
+
+  test(`${type}: a body passes`, () => {
+    const attrs = { body: 'hello' };
+    assert.doesNotThrow(() => enforceRequiredFields(node(type, attrs), attrs));
+  });
+}
+
+// ── the appointment wait's past-time branch ───────────────────────────────────────────
+// GHL's own Wait model assigns SKIP_SENDING_OPTION on creation (Wait.ts:756) and 94 of the
+// 102 stored appointmentCondition values in the corpus are 'skip'. Emitting it is what makes
+// an engine-built appointment wait match a UI-built one.
+
+test('wait: an appointment wait takes GHL\'s own default of skip', () => {
+  const attrs = { type: 'appointment', appointmentStartAfter: { when: 'before', type: 'hours', value: 24 } };
+  const out = enforceRequiredFields(node('wait', attrs), attrs);
+  assert.equal(out.appointmentCondition, 'skip');
+});
+
+test('wait: every appointment-like variant gets it', () => {
+  for (const type of ['appointment', 'service_booking', 'rental_booking', 'attendee_event_date', 'overdue']) {
+    const attrs = { type };
+    assert.equal(enforceRequiredFields(node('wait', attrs), attrs).appointmentCondition, 'skip', type);
+  }
+});
+
+test('wait: an explicit choice is never overwritten', () => {
+  const attrs = { type: 'appointment', appointmentCondition: 'exit' };
+  assert.equal(enforceRequiredFields(node('wait', attrs), attrs).appointmentCondition, 'exit');
+});
+
+test('wait: a non-appointment variant gets no appointmentCondition at all', () => {
+  const attrs = { type: 'time', startAfter: { type: 'hours', value: 1 } };
+  assert.equal('appointmentCondition' in enforceRequiredFields(node('wait', attrs), attrs), false);
+});
+
+test('wait: the default is only ever one of GHL\'s four enum values', () => {
+  const attrs = { type: 'appointment' };
+  const legal = new Set(['skip', 'next', 'specific-step', 'exit']);
+  assert.ok(legal.has(enforceRequiredFields(node('wait', attrs), attrs).appointmentCondition));
+});
+
+// ── the sub-validators the guard-AST extractor could not reach ────────────────────────
+// validateConditionWait / validateTimeWait sit behind a `switch` on attributes.type, and the
+// extractor only translates flat `if (!attributes.x)` guards — so whole sub-validators were
+// dropped. workflow_split and the contact actions were missed for a different reason: their
+// rules loop over a row array. GHL's severity is mirrored, not promoted.
+
+const warnings = [];
+const warnCtx = { warn: (m) => warnings.push(m) };
+const run = (type, attrs) => {
+  warnings.length = 0;
+  return enforceRequiredFields({ type, ref: 'N', name: type, attributes: attrs }, attrs, warnCtx);
+};
+
+test('wait/condition: a branch with no segments is refused', () => {
+  assert.throws(() => run('wait', { type: 'condition', condition: { branches: [{ name: 'Yes', segments: [] }] } }),
+    (e) => e.code === 'REQUIRED_FIELD' && /branches\[0\] with no segments/.test(e.message));
+});
+
+test('wait/condition: a segment with no conditions is refused, and names its index', () => {
+  assert.throws(() => run('wait', { type: 'condition', condition: { branches: [{ segments: [{ conditions: [] }] }] } }),
+    (e) => /branches\[0\]\.segments\[0\] with no conditions/.test(e.message));
+});
+
+test('wait/condition: a populated branch passes', () => {
+  const attrs = { type: 'condition', condition: { branches: [{ segments: [{ conditions: [{ conditionType: 'contact_detail' }] }] }] } };
+  assert.doesNotThrow(() => run('wait', attrs));
+});
+
+test('wait/time: an exact window with no start is refused; window.condition "when" is untouched', () => {
+  assert.throws(() => run('wait', { type: 'time', window: { condition: 'exact' } }),
+    (e) => /window\.condition:"exact" without window\.start/.test(e.message));
+  assert.doesNotThrow(() => run('wait', { type: 'time', window: { condition: 'exact', start: '09:00' } }));
+  assert.doesNotThrow(() => run('wait', { type: 'time', window: { condition: 'when' } }));
+});
+
+test('workflow_split: random-split weights that miss 100 WARN rather than throw', () => {
+  const attrs = { condition: 'random-split', paths: [{ id: 'p1' }, { id: 'p2' }],
+    extras: { weightDistribution: { p1: 30, p2: 30 } } };
+  assert.doesNotThrow(() => run('workflow_split', attrs));
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /totalling 60, not 100/);
+});
+
+test('workflow_split: weights summing to 100 are silent, and even-split is not judged', () => {
+  run('workflow_split', { condition: 'random-split', paths: [{ id: 'p1' }, { id: 'p2' }],
+    extras: { weightDistribution: { p1: 55.5, p2: 44.5 } } });
+  assert.equal(warnings.length, 0);
+  run('workflow_split', { condition: 'even-split', paths: [{ id: 'p1' }] });
+  assert.equal(warnings.length, 0);
+});
+
+test('create_update_contact: an empty row warns; false, 0 and currentDate are real values', () => {
+  run('create_update_contact', { fields: [{ field: 'firstName', value: '' }] });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /firstName/);
+
+  run('create_update_contact', { fields: [
+    { field: 'optedIn', value: false }, { field: 'score', value: 0 },
+    { field: 'signupDate', date: 'currentDate' }, { field: 'email', value: 'a@example.com' }] });
+  assert.equal(warnings.length, 0, 'GHL exempts false, 0 and currentDate');
+});
+
+test('find_contact: the same row rule applies, also as a warning', () => {
+  run('find_contact', { fields: [{ field: 'email', value: null }] });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /no value: email/);
+});
+
+// ── the wiring itself ─────────────────────────────────────────────────────────────────
+// Live-caught 2026-08-25: a wait is authored as `kind:'wait'` with no `type`, and takes a
+// dedicated builder instead of the generic normalizeAttrs path where enforceRequiredFields is
+// wired. Every wait rule above was therefore DEAD in the real compile path, while these unit
+// tests passed because they call enforceRequiredFields directly. The regression test has to go
+// through compile(), not through the function.
+
+test('a wait compiled end-to-end actually receives the appointment default', async () => {
+  const { compile } = await import('./compiler.mjs');
+  const { loadCatalog } = await import('./catalog.mjs');
+  const { makeSeededIdGen } = await import('./idgen.mjs');
+  const ctx = { loc: 'L', cid: 'C', uid: 'U', companyAge: 1, idGen: makeSeededIdGen('w'), catalog: loadCatalog() };
+  const built = compile({
+    name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'w', kind: 'wait', name: 'Before appt',
+      attributes: { type: 'appointment', appointmentStartAfter: { when: 'before', type: 'hours', value: 24, distributed: {} } } }],
+  }, ctx);
+  const wait = built.autoSaveBody.workflowData.templates.find((t) => t.type === 'wait');
+  assert.equal(wait.attributes.appointmentCondition, 'skip',
+    'the coupled/default rules must run on the wait path, not only via enforceRequiredFields');
+});
+
+test('a wait compiled end-to-end is refused when its jump target is missing', async () => {
+  const { compile } = await import('./compiler.mjs');
+  const { loadCatalog } = await import('./catalog.mjs');
+  const { makeSeededIdGen } = await import('./idgen.mjs');
+  const ctx = { loc: 'L', cid: 'C', uid: 'U', companyAge: 1, idGen: makeSeededIdGen('w2'), catalog: loadCatalog() };
+  assert.throws(() => compile({
+    name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'w', kind: 'wait', name: 'Before appt',
+      attributes: { type: 'appointment', appointmentCondition: 'specific-step',
+        appointmentStartAfter: { when: 'before', type: 'hours', value: 24, distributed: {} } } }],
+  }, ctx), (e) => /appointmentSpecificStep/.test(e.message));
+});

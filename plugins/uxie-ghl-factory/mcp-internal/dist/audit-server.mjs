@@ -36940,22 +36940,158 @@ var REQUIRED_FIELDS = {
     }
   }
 };
+var APPOINTMENT_WAIT_TYPES = /* @__PURE__ */ new Set([
+  "appointment",
+  "service_booking",
+  "rental_booking",
+  "attendee_event_date",
+  "overdue"
+]);
 var CONDITIONAL_DEFAULTS = {
-  conversationai_end: (attrs) => attrs.sleepEnabled === true ? { sleepDuration: attrs.sleepDuration ?? 1, sleepUnit: attrs.sleepUnit ?? "hours" } : {}
+  conversationai_end: (attrs) => attrs.sleepEnabled === true ? { sleepDuration: attrs.sleepDuration ?? 1, sleepUnit: attrs.sleepUnit ?? "hours" } : {},
+  // GHL's OWN default, not ours. `Wait.setAppointmentStartAfter()` assigns
+  // `appointmentConditionType.SKIP_SENDING_OPTION` the moment an appointment wait is created
+  // (src/models/conditions/Wait.ts:756), so a UI-built step always carries it. The corpus
+  // agrees overwhelmingly: of the stored appointmentCondition values, 94 are 'skip', 6
+  // 'specific-step', 2 'next' — 92%, clear of the ≥90% bar uiDefaults requires.
+  //
+  // Emitting it is what makes an engine-built appointment wait match a UI-built one. Leaving
+  // it out is not neutral: the field is optional to GHL, so the step saves either way and the
+  // past-time behaviour becomes whatever the backend falls back to, with nothing on screen to
+  // say which. 'skip' means skip the outbound send and move on.
+  wait: (attrs) => APPOINTMENT_WAIT_TYPES.has(attrs.type) && attrs.appointmentCondition === void 0 ? { appointmentCondition: "skip" } : {}
 };
-function checkCoupledFields(node, attrs) {
-  if (node.type !== "conversationai_end") return;
-  if (attrs.sleepEnabled !== true) return;
-  const missing = ["sleepDuration", "sleepUnit"].filter((k) => !suppliedNonEmpty(attrs, k));
-  if (missing.length)
-    throw new IRError(
-      "REQUIRED_FIELD",
-      `conversationai_end '${node.ref ?? node.name ?? "?"}' sets sleepEnabled:true without [${missing.join(", ")}]. Reactivation is a schedule and needs both halves \u2014 the committed capture is {sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.`
-    );
+var hasAttachments = (a) => Boolean(a.attachments?.length || a.urlAttachments?.length);
+var COUPLED_FIELDS = {
+  // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
+  // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
+  conversationai_end: [{
+    when: (a) => a.sleepEnabled === true,
+    require: ["sleepDuration", "sleepUnit"],
+    why: 'Reactivation is a schedule and needs both halves \u2014 the committed capture is {sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.'
+  }],
+  // THE ONE THE ENGINE ITSELF CREATES. compiler.mjs's email envelope writes `html: a.html ?? ''`
+  // on the inline (non-template) path, so an author who supplies a subject and no body gets a
+  // step carrying an empty body — which compiles, saves, opens clean, and SENDS BLANK.
+  // GHL's own sendEmailActionValidator requires it (`!isTemplateSelected && !cleanHTML(html)`);
+  // the generated catalog carried the sibling `subject` rule across and dropped this one.
+  // We test non-empty rather than GHL's cleanHTML(), so markup that renders to nothing
+  // (`<p></p>`) still passes here — stricter than nothing, not yet as strict as GHL.
+  email: [{
+    when: (a) => !a.template_id,
+    require: ["html"],
+    why: "An inline email carries its body on the step. With no template_id and no html the step sends a blank email \u2014 it saves clean and the builder shows no error."
+  }],
+  // messenger and instagram-dm have NO enforcement block at all in the generated catalog, and
+  // the missing field is the entire payload. Both delegate through to baseSmsValidator, so this
+  // mirrors the `sms.body` guard verbatim: `!hasAttachments && !body.trim()`. GHL does not
+  // exempt a template there, and neither does this.
+  messenger: [{
+    when: (a) => !hasAttachments(a),
+    require: ["body"],
+    why: "The body IS the message. With no body and no attachment the step sends nothing. Same rule GHL applies to sms \u2014 messengerValidator delegates to baseSmsValidator."
+  }],
+  "instagram-dm": [{
+    when: (a) => !hasAttachments(a),
+    require: ["body"],
+    why: "The body IS the message. With no body and no attachment the step sends nothing. Same rule GHL applies to sms \u2014 instagramDmValidator delegates to baseSmsValidator."
+  }],
+  wait: [{
+    // GHL's OWN rule, never carried across: validateAppointmentWait requires the jump target
+    // when the branch is 'specific-step' (wait-validator.ts:288-294, result:'error'). wait has
+    // 19 generated throw rules and none covered it.
+    when: (a) => a.appointmentCondition === "specific-step",
+    require: ["appointmentSpecificStep"],
+    why: `appointmentCondition:"specific-step" means jump to a named step, so the target is not optional. GHL's own validateAppointmentWait requires it.`
+  }, {
+    // No GHL rule behind this one — stated as ours. Structurally identical to the rule above,
+    // on the specific_date variant instead of the appointment variants.
+    when: (a) => a.specificDatePassed === "specific_step",
+    require: ["specificDateStep"],
+    why: 'specificDatePassed:"specific_step" means jump to a named step once the date has passed, so the target is not optional. Same shape as appointmentSpecificStep.'
+  }, {
+    // validateTimeWait, wait-validator.ts:151-157, result:'error'. The generated rules cover
+    // window.condition === 'when' (start and end) but not the 'exact' branch at all.
+    when: (a) => a.type === "time" && a.window?.condition === "exact",
+    check: (a) => a.window?.start ? null : 'sets window.condition:"exact" without window.start',
+    why: "An exact-time window has to say WHICH time. Without a start the backend has nothing to snap the wait to."
+  }, {
+    // validateConditionWait, wait-validator.ts:195-215, result:'error'. Reached through a
+    // `switch` on attributes.type, which the guard-AST extractor does not follow — so the whole
+    // sub-validator was dropped. A branch with no segments, or a segment with no conditions,
+    // never evaluates true: contacts reach the wait and park there permanently.
+    when: (a) => a.type === "condition",
+    check: (a) => {
+      const branches = a.condition?.branches ?? [];
+      for (let b = 0; b < branches.length; b++) {
+        const segments = branches[b].segments ?? [];
+        if (!segments.length) return `has condition.branches[${b}] with no segments`;
+        for (let g = 0; g < segments.length; g++) {
+          if (!(segments[g].conditions ?? []).length)
+            return `has condition.branches[${b}].segments[${g}] with no conditions`;
+        }
+      }
+      return null;
+    },
+    why: "A conditional wait with an empty branch never becomes true, so every contact that reaches it stops there for good \u2014 with nothing anywhere reporting it."
+  }],
+  // workflowSplitValidator, additional-action-validators.ts:896-909. result:'warning' in GHL, so
+  // it warns here too. compiler.mjs passes author weights through verbatim, so a 30/30 split
+  // ships silently and every number measured downstream of it is wrong.
+  workflow_split: [{
+    when: (a) => a.condition === "random-split",
+    check: (a) => {
+      const dist = a.extras?.weightDistribution ?? {};
+      const total = Math.round((a.paths ?? []).reduce((n, p) => n + (dist[p?.id] || 0), 0) * 10) / 10;
+      return total === 100 ? null : `has random-split weights totalling ${total}, not 100`;
+    },
+    severity: "warn",
+    why: "GHL rounds the weights to one decimal and requires exactly 100. Anything else mis-splits traffic, which corrupts the measurement the split exists to produce."
+  }],
+  // createUpdateContactValidator / findContactValidator, contact-action-validators.ts:107-113
+  // and :170-176. Both result:'warning'.
+  create_update_contact: [{
+    when: () => true,
+    check: (a) => {
+      const bad = rowsMissingValue(a);
+      return bad.length ? `has field row(s) with no value: ${bad.join(", ")}` : null;
+    },
+    severity: "warn",
+    why: "A row with no value writes an empty value over whatever the contact already had."
+  }],
+  find_contact: [{
+    when: () => true,
+    check: (a) => {
+      const bad = rowsMissingValue(a);
+      return bad.length ? `has field row(s) with no value: ${bad.join(", ")}` : null;
+    },
+    severity: "warn",
+    why: "A lookup on an empty value does not identify the contact you meant."
+  }]
+};
+function rowsMissingValue(attrs) {
+  return (attrs.fields ?? []).filter((f) => f && f.value !== false && !f.value && f.date !== "currentDate" && f.value !== 0).map((f) => f.field ?? "(unnamed)");
 }
-function enforceRequiredFields(node, attrs) {
+function checkCoupledFields(node, attrs, ctx) {
+  for (const rule of COUPLED_FIELDS[node?.type] ?? []) {
+    if (!rule.when(attrs)) continue;
+    let problem = null;
+    if (rule.require) {
+      const missing = rule.require.filter((k) => !suppliedNonEmpty(attrs, k));
+      if (missing.length) problem = `is missing [${missing.join(", ")}]`;
+    } else if (rule.check) {
+      const found = rule.check(attrs);
+      if (found) problem = found;
+    }
+    if (!problem) continue;
+    const msg = `${node.type} '${node.ref ?? node.name ?? "?"}' ${problem}. ${rule.why}`;
+    if (rule.severity === "warn") ctx?.warn?.(`COUPLED_SOFT: ${msg}`);
+    else throw new IRError("REQUIRED_FIELD", msg);
+  }
+}
+function enforceRequiredFields(node, attrs, ctx) {
   const spec = REQUIRED_FIELDS[node?.type];
-  if (!spec) return attrs;
+  if (!spec) return finish(node, attrs, ctx);
   const out = { ...attrs };
   const ref = node.ref ?? node.name ?? "?";
   for (const [key, f] of Object.entries(spec.fields)) {
@@ -36973,9 +37109,13 @@ function enforceRequiredFields(node, attrs) {
       `${node.type} '${ref}' is missing the required attribute '${key}' ("${f.label}"). The builder renders this node with a red error badge and the flow CANNOT be published, while the build pipeline still reports success \u2014 so this must fail at compile time.` + (f.hint ? ` ${f.hint}` : "") + (spec.precondition ? ` ${spec.precondition}` : "")
     );
   }
-  Object.assign(out, CONDITIONAL_DEFAULTS[node.type]?.(out) ?? {});
-  checkCoupledFields(node, out);
-  return out;
+  return finish(node, out, ctx);
+}
+function finish(node, out, ctx) {
+  const defaults = CONDITIONAL_DEFAULTS[node?.type]?.(out) ?? {};
+  const next = Object.keys(defaults).length ? Object.assign({ ...out }, defaults) : out;
+  checkCoupledFields(node, next, ctx);
+  return next;
 }
 function requiredKeysFor(type) {
   return Object.keys(REQUIRED_FIELDS[type]?.fields ?? {});
@@ -37254,6 +37394,10 @@ init_define_TOOL_CATALOG();
 var STEP_REF_FIELDS = [
   ["goto", "targetNodeId", "single"],
   ["wait", "appointmentSpecificStep", "single"],
+  // The specific_date variant's jump target — the same role appointmentSpecificStep plays on
+  // the appointment variants, and it was missing here, so a jump to a deleted step went
+  // undetected on that whole variant.
+  ["wait", "specificDateStep", "single"],
   ["wait", "reply", "array"],
   ["wait", "emailEventSteps", "array"],
   ["workflow_goal", "segments[].conditions[].extras.stepIds", "array"],
@@ -37459,7 +37603,7 @@ function checkMergeTags(templates, catalog, ctx) {
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 function attributesFor(node, ctx) {
   if (node.marketplace === true) return marketplaceAttributes(node, ctx);
-  if (node.kind === "wait") return waitAttributes(node);
+  if (node.kind === "wait") return enforceRequiredFields({ ...node, type: "wait" }, waitAttributes(node), ctx);
   if (node.type === "email") return emailAttributes(node, ctx);
   if (node.type === "custom_webhook") return webhookAttributes(node.attributes ?? {}, node.ref);
   if (node.type === "custom_code") return codeAttributes(node.attributes ?? {}, node.ref);
@@ -37524,7 +37668,7 @@ function marketplaceAttributes(node, ctx) {
 function normalizeAttrs(node, attrs, ctx) {
   const meta3 = ctx?.catalog?.step(node.type);
   if (!meta3) return attrs;
-  const out = { ...enforceRequiredFields(node, attrs) };
+  const out = { ...enforceRequiredFields(node, attrs, ctx) };
   if (meta3.usesCustomInputs && !("__customInputs__" in out)) out.__customInputs__ = {};
   if (Array.isArray(meta3.attrKeys) && meta3.attrKeys.includes("type") && !("type" in out)) {
     out.type = node.type === "internal_notification" ? ["sms", "email", "notification", "whatsapp"].find((c) => c in out) ?? node.type : node.type;
