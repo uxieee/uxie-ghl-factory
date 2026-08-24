@@ -4,3 +4,4 @@
 set -e
 node scripts/check-privacy.mjs --staged
 node scripts/check-manifest-parity.mjs
+# The MCP contract check runs at pre-push instead — it needs the network.

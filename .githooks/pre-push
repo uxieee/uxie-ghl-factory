@@ -1,0 +1,9 @@
+#!/bin/sh
+# Push is when the docs become public, so it is where the claims get checked against the
+# live server. Not pre-commit: this starts the published MCP server over npx, which needs
+# the network and takes ~40s — too slow to pay on every commit.
+#
+# The check SKIPS (exit 0) when the package cannot be reached, so being offline does not
+# block a push.
+set -e
+node scripts/check-mcp-contract.mjs
