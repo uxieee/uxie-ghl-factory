@@ -1,6 +1,6 @@
 ---
 name: ghl-defect-catalog
-description: The DEFECT lens for whole-account GHL audits — per-surface rules for things that are wrong (not merely absent) across workflows, pipelines, funnels, calendars, forms, ai-agents, messaging, and tracking. Each rule states what to look for, how to detect it via read-only recon, a default severity, and which specialist/skill remediates it — every rule cites its source. Use during any surface-auditor pass to know what defects to scan for on that surface; findings are filed in the ghl-audit-primitives finding schema.
+description: The DEFECT lens for the whole-account GHL audit: rules for what is broken, misconfigured, or silently failing across each surface, with the read that proves each one. LOADED BY `/uxie-ghl-factory:audit` and its `surface-auditor` / `finding-verifier` subagents — it is not a task a user asks for directly.
 ---
 
 # GHL Defect Catalog

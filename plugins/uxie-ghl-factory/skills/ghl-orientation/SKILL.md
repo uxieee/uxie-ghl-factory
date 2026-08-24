@@ -39,6 +39,17 @@ The one internal exception on Conversation AI is the **per-contact AI switch**
 Endpoint maps and audit references still describe the internal AI routes; that is what those
 endpoints do, and is separate from which rail to choose for a task.
 
+**Surfaces the public rail does not reach at all**, so there is no choice to make:
+
+| Surface | Skill |
+|---|---|
+| workflow builder | `create-ghl-workflow` (build/edit), `get-ghl-workflow-json` (export), `get-ghl-workflow-logs` (runtime), `ghl-workflow-fast-forward` |
+| memberships & courses | `ghl-memberships` |
+| **events** | `ghl-events` — ticketed/RSVP events, tickets, sessions, speakers, attendees, public registration |
+| funnels & pages | `ghl-funnels-pages` |
+| knowledge bases | `ghl-knowledge-base` |
+| Voice AI | `ghl-voice-ai` |
+
 ## Auditor
 
 For a whole-account health check, use `/uxie-ghl-factory:audit` instead of building or
