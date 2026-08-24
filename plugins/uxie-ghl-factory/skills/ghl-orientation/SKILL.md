@@ -24,7 +24,20 @@ For design-level work, hand off to a specialist rather than building directly:
 `ghl-workflow-specialist` (workflows), `ghl-pipeline-specialist` (pipelines), and
 `ghl-funnels-pages` (funnels/pages) all recon, blueprint, and get explicit approval
 before building — follow the specialist contract instead of duplicating it here.
-(AI agents — Conversation/Voice/Studio — go to `ghl-ai-agents-specialist`.)
+**The AI products do not share a rail.** Measured 2026-08-25 across 17 sub-accounts:
+
+| Product | Rail | Skill | Why |
+|---|---|---|---|
+| **Conversation AI** (chat "AI Employee") | **public** | `ghl-conversation-ai` | same objects on both rails; public returns 36 fields to internal's 39 and carries `fullPrompt` / `instructions` / `personality` that internal lacks. 17/17 accounts returned 200, every agent with its prompt. |
+| **Voice AI** (phone agent) | **internal** | `ghl-voice-ai` | public exposes 27 fields, internal 51 — the 24-field gap is the whole behaviour layer (actions, booking, KB, LLM, MCP servers). |
+| **Knowledge Base** | **internal** | `ghl-knowledge-base` | 5 of 9 source types have no public equivalent, `rich_text` among them. |
+| **Agent Studio** | — | — | out of scope. |
+
+The one internal exception on Conversation AI is the **per-contact AI switch**
+(`/conversations-ai/employeeConfigs`), which has no public equivalent.
+
+⚠️ This reverses earlier guidance that preferred internal for all AI work. Anything saying
+otherwise predates the measurement.
 
 ## Auditor
 

@@ -276,7 +276,7 @@ proven from config alone. Per surface:
 |---|---|---|---|
 | `workflows` | list/count | **`get-ghl-workflow-json`** — step logic, trigger JSON, sticky notes (→ shared corpus, Phase 1.5) | **`get-ghl-workflow-logs`** — `logs/v2`, `count-per-step`, enrollment history (the only true execution log in GHL) |
 | `funnels` / `tracking` | list | **`ghl-funnels-pages`** read recipes — `GET /funnels/funnel/fetch`, `/builder/page/data` (page content + tracking codes) | ⚠️ GAP — pageview/conversion analytics not captured (see below) |
-| `ai-agents` | `conversation-ai` list | **`ghl-ai-agents-specialist`** (token-id, read) — bot config, actions, KB | conversation outcomes surface under `messaging` |
+| `ai-agents` | `conversation-ai` list | **`ghl-conversation-ai` / `ghl-voice-ai`** (token-id, read) — bot config, actions, KB | conversation outcomes surface under `messaging` |
 | `pipelines` | opportunities list | — | stage aging / open-count via MCP (runtime-ish) |
 | `calendars` | calendars list | — | appointment statuses (booked/no-show/cancelled) via MCP |
 | `forms` | forms/surveys list | — | submission counts/recency via MCP |

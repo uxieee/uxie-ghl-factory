@@ -211,7 +211,7 @@ an opp-stage branch.
   branch). Pre-set 2-branch finders (`find_contact`/`find_opportunity`/`lc_merge_contact`)
   use `onFound`/`onNotFound`.
 - **Conversation-AI flow-builder containers** (for `FLOW_BUILDER_BOT` flows — see
-  the `ghl-ai-agents-specialist` skill): `conversationai_book_appointment` uses scope
+  the `ghl-conversation-ai` / `ghl-voice-ai` skill): `conversationai_book_appointment` uses scope
   keys `onBooked`/`onNotBooked`; `conversationai_ai_splitter` uses `branches: [{name, then}]`
   + an optional `default: [...]` "No condition met" tail. The other 7 `conversationai_*`
   nodes are linear `action`s. Bind the flow to its agent by putting `convTriggerBotId: <agentId>`

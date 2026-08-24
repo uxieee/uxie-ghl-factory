@@ -915,7 +915,7 @@ default here is what a surface-auditor should propose absent other signal.
 - **Remediation:** narrative — flow redesign is a content/config task for
   the account owner; no specialist build in this plugin's current scope
   owns Conversation AI flow authoring (v1.1 deferred, per the plan's
-  out-of-scope note on a future `ghl-ai-agents-specialist`).
+  out-of-scope note on a future `ghl-conversation-ai` / `ghl-voice-ai`).
 - **Source:** `ghl-specialist references/common-audit-findings.md` #17
   ("any agent whose Flow Builder has no explicit fallback/escalate-to-
   human node").

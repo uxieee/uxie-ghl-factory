@@ -1,15 +1,39 @@
 ---
-name: ghl-ai-agents-specialist
-description: "GoHighLevel AI-agent architect for the three internal AI products: Conversation AI (chat 'AI Employee'), Voice AI (phone agent), and Agent Studio (Super Agents) — plus rich-text Knowledge Base content that feeds all three. Use when the user wants to set up a Conversation AI / chat bot, build an AI booking bot, configure Voice AI / a phone agent, set up an Agent Studio super agent, add rich-text knowledge base content, design a GHL AI agent, or says something like 'my AI agent isn't responding / isn't picking up the KB / isn't handing off to a human'. Recons + reads the client brief before proposing anything. Internal-API (undocumented, token-id auth; GHL permits operating your own account) — write rails apply."
+name: ghl-conversation-ai
+description: "GoHighLevel Conversation AI (the chat 'AI Employee') — bot config, the three-part prompt, actions (human handover, transfer, follow-up, contact-field updates, workflow triggers, appointment booking), knowledge-base triggers, channels, and the per-contact AI on/off switch. Use when the user says 'set up a chat bot', 'AI Employee', 'my bot isn't replying', 'it should hand over to a human', 'turn the AI off for this one contact', or names a Conversation AI agent. READS AND MOST WRITES GO THROUGH THE PUBLIC RAIL — see Rail routing below."
 ---
-
-# GHL AI Agents Specialist
+# GHL Conversation AI
 
 > **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `create_convai_agent` / `create_voiceai_agent` / `create_studio_agent` tools over running this skill's scripts directly — the tools wrap these same compilers behind confirmation gates and round-trip verification. Fall back to this skill's own scripts when the server is not registered.
 
-You design and build GoHighLevel's AI products: **Conversation AI** (chat bot), **Voice AI**
-(phone agent), and **Agent Studio** (Super Agents) — three separate products with three
-separate internal APIs, plus the rich-text **Knowledge Base** content that feeds all of them.
+You design and build GoHighLevel's **Conversation AI** — the chat "AI Employee" that answers
+SMS, WebChat, Live Chat, Facebook, Instagram and WhatsApp.
+
+## Rail routing — read this first
+
+**Conversation AI is a PUBLIC-rail product.** Measured across 17 sub-accounts: the public
+`conversation-ai` endpoints returned 200 on every one, and every agent came back with its full
+system prompt. Both rails address the *same objects* — the same agent id from
+`/conversation-ai/agents/search` (public) and `/ai-employees/employees/search` (internal) — and
+public is the richer of the two:
+
+| | fields |
+|---|---:|
+| public `/conversation-ai/agents` | 36 |
+| internal `/ai-employees/employees` | 39 |
+
+Public carries `fullPrompt`, `instructions` and `personality`, which internal does not. Internal
+carries `botType`, `oldPromptIds` (prompt version history) and three flags, which public does not.
+
+**So: use the `ghl` MCP (public) for reading and configuring Conversation AI agents.** Reach for
+the internal rail only for:
+
+- **the per-contact AI switch** — `GET`/`PUT /conversations-ai/employeeConfigs[/{configId}]`.
+  No public equivalent. This silences one bot for one contact; DND is worse on every count.
+- **prompt version history** (`oldPromptIds`), if a rollback is actually needed.
+
+This reverses earlier guidance. If you find a document telling you to prefer internal for
+Conversation AI, it predates the 2026-08-25 measurement.
 
 ## Contract
 Follow `${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md` (recon → brief → intake →
@@ -25,12 +49,12 @@ Recon here = read existing agents before asking anything:
 Never ask the user something recon or the brief already answers.
 
 ## Knowledge (load what the task needs)
-- `references/conversation-ai.md` — Conversation AI (chat "AI Employee"): agent config,
-  actions, merge-PUT semantics, driving `convai-compiler.mjs`.
-- `references/voice-ai.md` — Voice AI (phone agent): full-replace update, config sections,
-  CALL_TRANSFER action, driving `voiceai-compiler.mjs`.
-- `references/agent-studio.md` — Agent Studio Super Agents: config, full-replace PUT,
-  NL-build create, driving `studio-compiler.mjs`.
+- `references/conversation-ai.md` — agent config, the 7 action types, merge-PUT semantics,
+  driving `convai-compiler.mjs`.
+- `references/agent-studio.md` — Agent Studio, kept for reference only; **out of scope**.
+
+Sibling skills: **`ghl-voice-ai`** (phone agents, internal rail) and **`ghl-knowledge-base`**
+(the content both products consume).
 
 Rich-text Knowledge Base (feeds all three products) is covered inline below and in
 `references/conversation-ai.md`'s KB-triggers section — it doesn't need its own file since

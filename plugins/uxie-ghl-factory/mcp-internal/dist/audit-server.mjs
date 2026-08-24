@@ -102754,16 +102754,37 @@ ${detail.slice(0, 400)}`);
     );
   }
   // ---------- offers (access control) ----------
-  createOffer({ title, productIds, type = "free", amount = 0, currency = "EUR" }) {
-    return this.req("POST", `${this.M}/offers`, {
-      title,
-      type,
-      isLivePaymentMode: true,
-      locationId: this.loc,
-      productIds,
-      amount,
-      currency
-    });
+  // `type` is the WIRE enum: free | onetime | subscription | multiple (models/Offer.ts).
+  // NOT one_time/recurring — those 500 with a bare "Internal server error", which was
+  // long misread as "paid offers need a payment provider". Proven 2026-08-24: the wrong
+  // enum 500s on an account that HAS Stripe, the right one succeeds. See
+  // corpus/memberships-courses/20-api/offers.md.
+  // LIVE-CHECKED 2026-08-24: the server defaults `isLivePaymentMode` to FALSE (test). This
+  // used to hardcode `true`, which silently wired every paid offer to LIVE payments. It is
+  // now opt-in: omit it and the account's own default stands.
+  createOffer({
+    title,
+    productIds,
+    type = "free",
+    amount = 0,
+    currency = "EUR",
+    interval,
+    intervalCount,
+    paymentProvider,
+    isLivePaymentMode,
+    setupFee,
+    trialDays,
+    numberOfPayments
+  }) {
+    const body = { title, type, locationId: this.loc, productIds, amount, currency };
+    if (interval) body.interval = interval;
+    if (intervalCount) body.intervalCount = String(intervalCount);
+    if (paymentProvider) body.paymentProvider = paymentProvider;
+    if (isLivePaymentMode !== void 0) body.isLivePaymentMode = isLivePaymentMode;
+    if (setupFee !== void 0) body.setupFee = setupFee;
+    if (trialDays !== void 0) body.trialDays = trialDays;
+    if (numberOfPayments !== void 0) body.numberOfPayments = numberOfPayments;
+    return this.req("POST", `${this.M}/offers`, body);
   }
   // ---------- assessments ----------
   async createQuiz({ title, productId, categoryId, sequenceNo = 0 }) {
@@ -103242,10 +103263,30 @@ var KNOWN_KEYS = {
   // class this guard exists to stop still slips through the sub-objects — e.g.
   // `theme.brandColour` would no-op with no error (review MF2). `offer` also honours
   // `title`/`currency`, read by the engine though absent from the doc example.
-  offer: ["type", "title", "currency", "publish"],
+  offer: [
+    "type",
+    "title",
+    "currency",
+    "publish",
+    "amount",
+    "interval",
+    "intervalCount",
+    "setupFee",
+    "trialDays",
+    "numberOfPayments",
+    "isLivePaymentMode"
+  ],
   theme: ["name", "templateId", "brandColor", "heroTitleColor", "instructor"],
   instructor: ["name", "title", "bio"],
   credential: ["title", "type"]
+};
+var OFFER_TYPE_WIRE = {
+  free: "free",
+  one_time: "onetime",
+  onetime: "onetime",
+  recurring: "subscription",
+  subscription: "subscription",
+  multiple: "multiple"
 };
 function checkKeys(obj, allowed, at, errors, hints = {}) {
   if (!obj || typeof obj !== "object" || Array.isArray(obj)) return;
@@ -103320,10 +103361,14 @@ function validateCourseSpec(spec, { requireAbsoluteMediaPaths = false } = {}) {
   checkKeys(spec.theme?.instructor, KNOWN_KEYS.instructor, "spec.theme.instructor", errors);
   checkKeys(spec.credential, KNOWN_KEYS.credential, "spec.credential", errors);
   const offerType = spec.offer?.type;
-  if (offerType && !["free", "one_time", "recurring"].includes(offerType)) {
-    errors.push("offer.type must be free|one_time|recurring");
-  } else if (offerType && offerType !== "free") {
-    errors.push(`offer.type "${offerType}" is unsupported: paid offers return 500 without a payment provider. Only "free" is proven.`);
+  if (offerType && !Object.hasOwn(OFFER_TYPE_WIRE, offerType)) {
+    errors.push(`offer.type must be one of ${Object.keys(OFFER_TYPE_WIRE).join("|")}`);
+  }
+  if (offerType && offerType !== "free" && !(spec.offer?.amount > 0)) {
+    errors.push(`offer.type "${offerType}" requires offer.amount > 0`);
+  }
+  if (spec.offer?.interval && OFFER_TYPE_WIRE[offerType] !== "subscription") {
+    errors.push("offer.interval only applies to a recurring/subscription offer");
   }
   if (spec.credential && !spec.credential.title) {
     errors.push("credential.title is required when credential is present");
@@ -103390,7 +103435,7 @@ function previewCourseSpec(spec, options = {}) {
     },
     notes: [
       "Preview only: validation and counts perform no account calls.",
-      "Paid offers are unsupported; only free offers are proven.",
+      "Paid offers use the wire enum onetime|subscription; one_time/recurring are spec aliases.",
       "Embeds are lesson.embed on a video post followed by PUT embedJson; embed is not a content_type."
     ]
   };
@@ -103558,18 +103603,25 @@ async function buildCourse({
     if (spec.offer !== null) {
       const offerSpec = spec.offer || {};
       phase("offer_create");
+      const wireType = OFFER_TYPE_WIRE[offerSpec.type ?? "free"];
       const offer = await api.createOffer({
         title: offerSpec.title || spec.course.title,
         productIds: [product.id],
-        type: "free",
-        amount: 0,
-        currency: offerSpec.currency || "EUR"
+        type: wireType,
+        amount: offerSpec.amount ?? 0,
+        currency: offerSpec.currency || "EUR",
+        interval: offerSpec.interval,
+        intervalCount: offerSpec.intervalCount,
+        setupFee: offerSpec.setupFee,
+        trialDays: offerSpec.trialDays,
+        numberOfPayments: offerSpec.numberOfPayments,
+        isLivePaymentMode: offerSpec.isLivePaymentMode
       });
       built.offerId = offer.id;
       if (offerSpec.publish !== false) {
         phase("offer_publish");
         await members.publishOffer(offer.id);
-        log(`+ offer (free, published) -> ${offer.id}`);
+        log(`+ offer (${offerSpec.type ?? "free"}, published) -> ${offer.id}`);
       } else {
         log(`+ offer (free, draft) -> ${offer.id}`);
       }
@@ -103683,10 +103735,10 @@ async function buildCourse({
   }
 }
 
-// ../skills/ghl-ai-agents-specialist/engine/convai-compiler.mjs
+// ../engines/ai/convai-compiler.mjs
 init_define_TOOL_CATALOG();
 
-// ../skills/ghl-ai-agents-specialist/engine/convai-ir.mjs
+// ../engines/ai/convai-ir.mjs
 init_define_TOOL_CATALOG();
 var IRError2 = class extends Error {
   constructor(code, message) {
@@ -103765,7 +103817,7 @@ function parseConvaiIR(ir) {
   return { ...ir };
 }
 
-// ../skills/ghl-ai-agents-specialist/engine/convai-compiler.mjs
+// ../engines/ai/convai-compiler.mjs
 var AUTH_HEADER = "ai";
 var DEFAULT_WAIT = { value: 2, unit: "seconds" };
 var DEFAULT_SLEEP = { enabled: false, onManualMessage: false, onWorkflowMessage: false, time: 2, timeUnit: "hours" };
@@ -103984,10 +104036,10 @@ function compileConvaiAgent(ir, { locationId } = {}) {
   return { create, actions, authHeader: AUTH_HEADER };
 }
 
-// ../skills/ghl-ai-agents-specialist/engine/voiceai-compiler.mjs
+// ../engines/ai/voiceai-compiler.mjs
 init_define_TOOL_CATALOG();
 
-// ../skills/ghl-ai-agents-specialist/engine/voiceai-ir.mjs
+// ../engines/ai/voiceai-ir.mjs
 init_define_TOOL_CATALOG();
 var DENOISING_MODES = ["noise-cancellation"];
 var STT_MODES = ["accurate", "fast", "custom"];
@@ -104122,7 +104174,7 @@ function parseVoiceAiIR(ir) {
   return { ...ir };
 }
 
-// ../skills/ghl-ai-agents-specialist/engine/voiceai-compiler.mjs
+// ../engines/ai/voiceai-compiler.mjs
 var AUTH_HEADER2 = "ai";
 var DEFAULTS2 = {
   voiceId: "g6xIsTj2HwM6VR4iXFCw",
@@ -104435,10 +104487,10 @@ function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
   };
 }
 
-// ../skills/ghl-ai-agents-specialist/engine/studio-compiler.mjs
+// ../engines/ai/studio-compiler.mjs
 init_define_TOOL_CATALOG();
 
-// ../skills/ghl-ai-agents-specialist/engine/studio-ir.mjs
+// ../engines/ai/studio-ir.mjs
 init_define_TOOL_CATALOG();
 var DEFAULT_MODEL = "anthropic/claude-sonnet-4-6";
 var TOOLS = ["web_search", "image_generation", "kb_search"];
@@ -104510,7 +104562,7 @@ function parseSuperAgentIR(ir) {
   return { ...ir, model: ir.model ?? DEFAULT_MODEL };
 }
 
-// ../skills/ghl-ai-agents-specialist/engine/studio-compiler.mjs
+// ../engines/ai/studio-compiler.mjs
 var AUTH_HEADER3 = "ai";
 var DEFAULTS3 = {
   contextManagement: { strategy: "summarize", keepRecentTurns: 10, compactionThreshold: 0.9 },
@@ -104574,7 +104626,7 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
   return { method: "POST", path: "/agent-studio/super-agents/build", body, authHeader: AUTH_HEADER3 };
 }
 
-// ../skills/ghl-ai-agents-specialist/engine/driver.mjs
+// ../engines/ai/driver.mjs
 init_define_TOOL_CATALOG();
 var AI_BASE = "https://services.leadconnectorhq.com";
 var kindFor = (create) => {
@@ -104622,6 +104674,28 @@ var mergeClass = (parts) => parts.reduce((acc, part) => {
   acc.confirmed.push(...part.confirmed);
   return acc;
 }, emptyClass());
+var normalizeRead = (kind, json2) => {
+  if (kind !== "voiceai" || !json2 || typeof json2 !== "object") return json2;
+  const settings = json2.agentSettings;
+  if (!settings || typeof settings !== "object") return json2;
+  const lifted = { ...settings, ...json2 };
+  for (const [key, value] of Object.entries(settings)) {
+    if (!(key in json2)) lifted[key] = value;
+  }
+  if (settings.voice && typeof settings.voice === "object" && !("voiceId" in json2)) {
+    lifted.voiceId = settings.voice.voiceId;
+  }
+  if (settings.language && typeof settings.language === "object" && !("language" in json2)) {
+    lifted.language = settings.language.code;
+  }
+  if (typeof settings.ringDurationMs === "number" && !("ringDurationSeconds" in json2)) {
+    lifted.ringDurationSeconds = settings.ringDurationMs / 1e3;
+  }
+  if ("inboundNumber" in json2 && !("inboundPhoneNumber" in json2)) {
+    lifted.inboundPhoneNumber = json2.inboundNumber;
+  }
+  return lifted;
+};
 var partitionVerification = (actual, expected) => {
   const result = emptyClass();
   for (const [key, value] of Object.entries(expected ?? {})) {
@@ -104716,7 +104790,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   }
   if (!reread.ok) return failure(`HTTP_${reread.status}`, "verify", report, { verifyStatus: reread.status });
   const expected = verifyExpected ?? plan.verifyExpected ?? plan.create.body;
-  const { mismatches, unverified, confirmed } = partitionVerification(reread.json, expected);
+  const { mismatches, unverified, confirmed } = partitionVerification(normalizeRead(kind, reread.json), expected);
   report.verification = {
     path: readPathFor(kind, report.agentId, gw.loc),
     // D3 (review): "no mismatches" is not proof of success when NOTHING was actually
