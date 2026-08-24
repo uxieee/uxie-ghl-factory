@@ -102,6 +102,64 @@ const typeCards = () => {
   return TYPE_CARDS;
 };
 
+// ── the internal ENDPOINT catalog ─────────────────────────────────────────────────────────
+// 222 endpoints mined from GHL's own recovered builder source by
+// knowledge/scripts/build-endpoint-catalog.mjs. This exists because the internal rail had no
+// discovery layer: 39 hand-written tools, and everything else reachable only if you already knew
+// the path. The public rail solved the same problem with search -> describe -> execute over a
+// catalog; this is that, for reads.
+//
+// DELIBERATELY NOT AN EXECUTOR. There is no execute_endpoint, because raw_request already
+// executes internal paths and already carries the confirm gate, the host/rail selection and the
+// secret scrub. A second execution path would double the surface that has to stay correct and
+// would inevitably drift from the first. Discovery is what was missing, so discovery is what
+// this adds — describe_endpoint hands the caller to raw_request.
+//
+// A row is SOURCE-DERIVED: it proves the builder calls that path, not that the path is reachable
+// with your token, and definitely not that it is safe to call. Twelve rows were probed live on
+// 2026-08-25 and answered; two on the /workflows/* rail returned 401 with a Bearer that works on
+// every /workflow/* row, because those are different auth scopes on the same host.
+let ENDPOINTS = null;
+const endpoints = () => {
+  if (ENDPOINTS) return ENDPOINTS;
+  try {
+    ENDPOINTS = JSON.parse(readFileSync(resolve(HERE, '../catalog/internal-endpoints.json'), 'utf8')).endpoints ?? [];
+  } catch { ENDPOINTS = []; }
+  return ENDPOINTS;
+};
+
+const scoreEndpoint = (e, terms) => {
+  if (!terms.length) return 0;
+  const path = String(e.path || '').toLowerCase();
+  const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
+  const hay = `${e.method} ${e.base} ${e.path} ${(e.sources || []).join(' ')}`.toLowerCase();
+  let score = 0, segHits = 0;
+  for (const t of terms) {
+    // Match on a STEM, not the whole word. GHL names the path segment `error-notification` while
+    // a caller asks about "erroring workflows" — exact-word matching returned neither, and put
+    // unrelated marketplace rows on top instead.
+    const stem = t.length > 4 ? t.replace(/(ing|ed|es|s)$/, '') : t;
+    const hit = (v) => v === t || v === stem || v.startsWith(stem);
+    if ([...segs].some(hit)) { score += 25; segHits++; }
+    else if (path.includes(stem)) { score += 10; segHits++; }
+    if (hay.includes(stem)) score += 3;
+  }
+  score += segHits * segHits * 8;
+  // A path with fewer parameters is the more general entry point for the same noun —
+  // /workflow/:locationId/list should outrank /workflow/:locationId/:workflowId/logs for "list".
+  score -= (path.match(/:/g) ?? []).length;
+  // Prefer the builder's own service over the resolver endpoints it merely reads from.
+  if (e.base.endsWith('/workflow')) score += 5;
+  return score;
+};
+
+const endpointStub = (e) => ({
+  method: e.method,
+  path: e.path,
+  base: e.base,
+  callSites: e.callSites,
+});
+
 const CARD_STOP = new Set(['a','an','the','to','of','for','and','or','in','on','with','my','me','i','it','is','that','this','when','how','do','does','add','set','use']);
 const cardWords = (s) => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1 && !CARD_STOP.has(w));
 
@@ -3741,6 +3799,83 @@ export const TOOLS = [
       });
     }, args),
   },
+  {
+    name: 'search_endpoints',
+    description: `${describe('search_endpoints', 'Search the internal API surface — risk: read')}. `
+      + 'Ranked search over 222 internal endpoints mined from GHL\'s own builder source. Returns '
+      + 'compact STUBS — method, path, base. Call describe_endpoint on the one you pick. '
+      + 'Use this when no typed tool covers what you need, BEFORE reaching for raw_request. '
+      + 'Reads no account data. A hit proves the GHL builder calls that path — NOT that your '
+      + 'token can reach it, and not that calling it is safe.',
+    inputSchema: schema({
+      intent: z.string().describe('what you want to do, in plain words — e.g. "list workflow folders", "erroring workflows", "scheduled pause"'),
+      method: z.string().trim().optional().describe('filter to one HTTP method, e.g. GET'),
+      limit: z.number().default(10),
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const terms = cardWords(args.intent);
+      let pool = endpoints();
+      if (!pool.length) {
+        return fail(CODES.VALIDATION_FAILED,
+          'the internal endpoint catalog is missing or unreadable',
+          'Regenerate it: node knowledge/scripts/build-endpoint-catalog.mjs');
+      }
+      const wanted = args.method ? String(args.method).toUpperCase() : null;
+      if (wanted) pool = pool.filter((e) => e.method === wanted);
+      const ranked = pool
+        .map((e) => ({ e, score: scoreEndpoint(e, terms) }))
+        .filter((x) => x.score > 0)
+        .sort((a, b) => b.score - a.score || a.e.path.length - b.e.path.length)
+        .slice(0, args.limit ?? 10);
+      if (!ranked.length) {
+        return { ok: true, data: { results: [], total: 0,
+          note: `No endpoint matched "${args.intent}"${wanted ? ` with method ${wanted}` : ''}. `
+              + `${pool.length} endpoints are catalogued. Try GHL's own noun for the thing `
+              + `(the URL segment), or drop the method filter.` } };
+      }
+      return { ok: true, data: {
+        results: ranked.map((x) => endpointStub(x.e)),
+        total: pool.filter((e) => scoreEndpoint(e, terms) > 0).length,
+        next: 'describe_endpoint with the method and path you want',
+      } };
+    }),
+  },
+  {
+    name: 'describe_endpoint',
+    description: `${describe('describe_endpoint', 'Detail for one internal endpoint — risk: read')}. `
+      + 'Full record for ONE endpoint from search_endpoints: method, path with its :params, base '
+      + 'host, how many places the builder calls it, and the source files that do. '
+      + 'Reads no account data.',
+    inputSchema: schema({
+      method: z.string().trim().describe('HTTP method, e.g. GET'),
+      path: z.string().describe('the catalogued path, e.g. /:locationId/error-notification/list'),
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const want = String(args.method).toUpperCase();
+      const pool = endpoints();
+      const hit = pool.find((e) => e.method === want && e.path === args.path)
+        ?? pool.find((e) => e.method === want && e.path.replace(/:\w+/g, ':x') === String(args.path).replace(/:\w+/g, ':x'));
+      if (!hit) {
+        return fail(CODES.VALIDATION_FAILED,
+          `no catalogued endpoint matches ${want} ${args.path}`,
+          'Run search_endpoints first and copy the method and path from a result.');
+      }
+      return { ok: true, data: {
+        ...hit,
+        status: 'source-derived',
+        meaning: 'The GHL builder calls this path. That is NOT proof your token reaches it, nor '
+               + 'that calling it is safe — /workflow/* and /workflows/* are different auth '
+               + 'scopes on the same host, and some rows are permission-gated.',
+        next: hit.method === 'GET'
+          ? 'Call it with raw_request (GET needs no confirm). Read the result back before trusting it.'
+          : 'This is a WRITE. Prefer a typed tool if one covers it — those carry the compiler and '
+            + 'the verification. raw_request needs confirm:true and does neither.',
+      } };
+    }),
+  },
+
 ];
 
 export function registerTools(server, deps, tools = TOOLS) {
