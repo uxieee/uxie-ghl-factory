@@ -593,7 +593,13 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
   // catalog. Both are pure reads of a shipped data file: no gateway, no auth, no locationId,
   // `capabilities: []`. They touch no account, so they are outside the audit profile, which
   // selects on declared GET capabilities and these declare none.
-  assert.equal(TOOLS.length, 39, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 39 -> 41: `search_endpoints` + `describe_endpoint` — the INTERNAL ENDPOINT catalog, the
+  // discovery layer the internal rail never had (39 hand-written tools, and everything else
+  // reachable only if you already knew the path). Same shape as the step-type pair above: pure
+  // reads of a shipped data file, no gateway, no auth, no locationId, `capabilities: []`, so
+  // outside the audit profile by the same construction. Registered last, after `raw_request`,
+  // because they hand the caller TO it — there is deliberately no `execute_endpoint`.
+  assert.equal(TOOLS.length, 41, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -606,6 +612,7 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
     'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',
     'pin_webhook_sample', 'fast_forward_contacts', 'raw_request',
+    'search_endpoints', 'describe_endpoint',
   ]);
   const normal = stripComments(readFileSync(NORMAL_ENTRY, 'utf8'));
   assert.equal(

@@ -1,0 +1,2166 @@
+{
+  "generated": "build-endpoint-catalog.mjs",
+  "source": "sniffs/bundle-2026-08-21-2/recovered-source/src",
+  "note": "Relative axios URLs carry the /workflow prefix (main.ts:44). Query strings are stripped — they belong to the calling tool, not the endpoint identity.",
+  "count": 235,
+  "endpoints": [
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/",
+      "sources": [
+        "services/marketplaceServices/CustomObjectsService.ts:17"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/:id",
+      "sources": [
+        "services/marketplaceServices/LocationsService.ts:11"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/:objectKey",
+      "sources": [
+        "services/marketplaceServices/CustomObjectsService.ts:29"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/:objectKey/records/search",
+      "sources": [
+        "services/marketplaceServices/CustomObjectsService.ts:41"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/ad-publishing",
+      "path": "/facebook/page/:pageId/instagram",
+      "sources": [
+        "services/marketplaceServices/AdPublishing.ts:64"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/ad-publishing",
+      "path": "/facebook/pages",
+      "sources": [
+        "services/marketplaceServices/AdPublishing.ts:49"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/ad-publishing",
+      "path": "/facebook/pixels",
+      "sources": [
+        "services/marketplaceServices/AdPublishing.ts:20",
+        "services/marketplaceServices/AdPublishing.ts:42"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/affiliate-manager",
+      "path": "/:locationId/affiliates/:id",
+      "sources": [
+        "services/marketplaceServices/AffiliateService.ts:36"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/affiliate-manager",
+      "path": "/:locationId/campaigns",
+      "sources": [
+        "services/marketplaceServices/AffiliateService.ts:19"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/affiliate-manager",
+      "path": "/affiliates/workflow-filters",
+      "sources": [
+        "services/marketplaceServices/AffiliateService.ts:32"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/appengine",
+      "path": "/dialogflow/eliza-location-status/:locationId",
+      "sources": [
+        "services/ElizaService.ts:18"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/appengine",
+      "path": "/shopify/update_shopify_webhooks",
+      "sources": [
+        "services/ShopifyService.ts:12"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/campaign",
+      "sources": [
+        "services/marketplaceServices/CampaignService.ts:11"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/configuration/company/:companyId/:PRODUCT_ID",
+      "sources": [
+        "services/marketplaceServices/WorkflowResellerService.ts:45"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/configuration/location/:locationId",
+      "sources": [
+        "services/marketplaceServices/CalendarService.ts:11"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/configuration/location/:locationId/:BLACK_FRIDAY_PRODUCT_ID",
+      "sources": [
+        "services/marketplaceServices/WorkflowResellerService.ts:55"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/configuration/location/:locationId/:PRODUCT_ID",
+      "sources": [
+        "services/marketplaceServices/WorkflowResellerService.ts:61"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/conversations-reporting/emails",
+      "sources": [
+        "services/api/email-stats-service.ts:14",
+        "services/marketplaceServices/EmailStatsReportService.ts:10"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/conversations-reporting/emails/aggregate",
+      "sources": [
+        "services/api/email-stats-service.ts:9",
+        "services/marketplaceServices/EmailStatsReportService.ts:14",
+        "services/marketplaceServices/WorkflowStatsService.ts:28"
+      ],
+      "callSites": 3
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/conversations-reporting/messages",
+      "sources": [
+        "services/api/sms-stats-service.ts:13",
+        "services/marketplaceServices/SmsStatsReportService.ts:12"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/conversations-reporting/messages/aggregate",
+      "sources": [
+        "services/api/sms-stats-service.ts:8",
+        "services/marketplaceServices/SmsStatsReportService.ts:8",
+        "services/marketplaceServices/WorkflowStatsService.ts:37"
+      ],
+      "callSites": 3
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/conversations",
+      "path": "/messages/:messageId",
+      "sources": [
+        "services/marketplaceServices/ConversationMessageService.ts:10"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/conversations/preferences/custom-subtypes",
+      "sources": [
+        "services/EmailService.ts:234"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/conversations/providers/tiktok/posts",
+      "sources": [
+        "services/marketplaceServices/TikTokService.ts:19"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/conversations/providers/tiktok/posts/:id",
+      "sources": [
+        "services/marketplaceServices/TikTokService.ts:25"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/custom-data/conversations",
+      "sources": [
+        "services/marketplaceServices/CustomDataService.ts:37"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/emails/builder/custom-value-defaults/track",
+      "sources": [
+        "services/marketplaceServices/TemplateService.ts:688"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/emails/builder/meta/:locationId/:id",
+      "sources": [
+        "services/marketplaceServices/TemplateService.ts:217"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/emails/trigger/:locationId/:triggerId",
+      "sources": [
+        "services/EmailService.ts:183"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/facebook/:locationId/pages",
+      "sources": [
+        "services/marketplaceServices/FacebookService.ts:39"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/facebook/posts",
+      "sources": [
+        "services/marketplaceServices/FacebookService.ts:65",
+        "services/marketplaceServices/FacebookService.ts:123"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/files",
+      "sources": [
+        "services/marketplaceServices/MediaService.ts:11"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/forms",
+      "path": "/",
+      "sources": [
+        "services/api/workflow-overview.service.ts:224",
+        "services/marketplaceServices/FormsService.ts:21"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/forms",
+      "path": "/forms-list",
+      "sources": [
+        "services/marketplaceServices/FormsService.ts:25"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/funnels",
+      "path": "/funnel/fetch/:id",
+      "sources": [
+        "services/marketplaceServices/FunnelsService.ts:21"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/funnels",
+      "path": "/funnel/list",
+      "sources": [
+        "services/marketplaceServices/FunnelsService.ts:11"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/funnels",
+      "path": "/page",
+      "sources": [
+        "services/marketplaceServices/FunnelsService.ts:25"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/funnels",
+      "path": "/page/:id",
+      "sources": [
+        "services/marketplaceServices/FunnelsService.ts:35"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/funnels",
+      "path": "/page/product",
+      "sources": [
+        "services/marketplaceServices/FunnelsService.ts:39"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/funnels",
+      "path": "/page/product/:id",
+      "sources": [
+        "services/marketplaceServices/FunnelsService.ts:49"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/id/:linkId",
+      "sources": [
+        "services/marketplaceServices/LinksService.ts:29"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/instagram/posts",
+      "sources": [
+        "services/marketplaceServices/FacebookService.ts:94",
+        "services/marketplaceServices/FacebookService.ts:137"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/integrations",
+      "path": "/google/oauth/start",
+      "sources": [
+        "services/GoogleSheetsService.ts:14"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/integrations/public/:appId",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:414"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/integrations/public/:appId/payment-plans",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:442"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/intents/:locationId",
+      "sources": [
+        "services/marketplaceServices/ConversationAIService.ts:18"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/locations/:locationId/customFields",
+      "sources": [
+        "services/marketplaceServices/OpportunityCustomFieldService.ts:9"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/locations/:locationId/tags",
+      "sources": [
+        "services/EmailService.ts:218"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/locations/:locationId/templates",
+      "sources": [
+        "services/marketplaceServices/TemplateService.ts:282"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/locations/:locationId/templates/:id",
+      "sources": [
+        "services/marketplaceServices/TemplateService.ts:240"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/locations/search",
+      "sources": [
+        "services/marketplaceServices/SubLocationsService.ts:14"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/logs",
+      "path": "/metric",
+      "sources": [
+        "services/marketplaceServices/LogsService.ts:11"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/marketplace",
+      "via": "url-literal",
+      "sources": [
+        "services/api/slack-marketplace-install-service.ts:62"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/marketplace/app/:appId/versions/latest",
+      "sources": [
+        "services/api/slack-marketplace-install-service.ts:64",
+        "services/api/slack-marketplace-install-service.ts:71"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/marketplace/app/installationDetails",
+      "sources": [
+        "services/api/slack-marketplace-install-service.ts:99"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/marketplace/billing/usage/meters/public",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:455"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/marketplace/collections",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:318"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/marketplace/core/search/module",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:377"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/numbers/location/:locationId",
+      "sources": [
+        "services/marketplaceServices/PhoneSystemService.ts:15"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth",
+      "via": "url-literal",
+      "sources": [
+        "services/api/slack-marketplace-install-service.ts:119"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth/2/login/signin/refresh",
+      "sources": [
+        "states/app.ts:854"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth/authorize:",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:492"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth/clients/:appId/authentication/location/:locationId",
+      "via": "url-literal",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:510"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth/clients/:appId/authentication/locations/:locationId/accounts",
+      "via": "url-literal",
+      "sources": [
+        "services/api/slack-marketplace-install-service.ts:219",
+        "services/api/slack-marketplace-install-service.ts:236",
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:417",
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:674"
+      ],
+      "callSites": 5
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth/clients/:appId/authentication/locations/:locationId/accounts/:accountId",
+      "via": "url-literal",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:424",
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:694"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth/clients/:appId/authentication/oauth2/location/:locationId/url",
+      "via": "url-literal",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:491"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/oauth/whitelabel/:id",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:430"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/objectKey/:objectKey",
+      "sources": [
+        "services/marketplaceServices/AssociationsService.ts:17"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/opportunities/lost-reason",
+      "sources": [
+        "services/marketplaceServices/OpportunityCustomFieldService.ts:19"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/phone-system/location/:locationId/recordings/:recordingSid",
+      "sources": [
+        "services/IVRService.ts:38"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/phone-system/numbers/location/:locationId",
+      "via": "url-literal",
+      "sources": [
+        "services/SaasTwilioService.ts:21"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/phone-system/whatsapp/location/:locationId/template",
+      "sources": [
+        "services/marketplaceServices/TemplateService.ts:374"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/product",
+      "sources": [
+        "services/marketplaceServices/WorkflowResellerService.ts:36"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/reputation/integrations/review-link-list",
+      "sources": [
+        "services/ReputationService.ts:22"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/saas_service/isv-mode/status/:locationId",
+      "sources": [
+        "services/SaasTwilioService.ts:7"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/saas-billing-v2/billing-config/:entityType/:entityId/:product",
+      "sources": [
+        "services/marketplaceServices/SaasService.ts:12"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/saas-billing-v2/billing-config/:locationId",
+      "sources": [
+        "services/marketplaceServices/SaasService.ts:20"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/saas-billing-v2/billing-config/COMPANY/:companyId/:product",
+      "sources": [
+        "services/marketplaceServices/SaasService.ts:16"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/saas-billing-v2/billing-config/LOCATION/:locationId/conversation_AI",
+      "sources": [
+        "services/marketplaceServices/SaasService.ts:29"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/search",
+      "sources": [
+        "services/marketplaceServices/LinksService.ts:64",
+        "services/marketplaceServices/LocationsService.ts:15"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/snippets/:locationId",
+      "sources": [
+        "services/marketplaceServices/TemplateService.ts:330"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/subscription/company/:companyId",
+      "sources": [
+        "services/marketplaceServices/WorkflowResellerService.ts:80"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/subscription/location/:locationId",
+      "sources": [
+        "services/marketplaceServices/WorkflowResellerService.ts:70"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/subscription/location/:locationId/:subscriptionId",
+      "sources": [
+        "services/marketplaceServices/WorkflowResellerService.ts:89"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/surveys",
+      "sources": [
+        "services/api/workflow-overview.service.ts:245",
+        "services/marketplaceServices/SurveysService.ts:11"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/surveys/:id",
+      "sources": [
+        "services/marketplaceServices/SurveysService.ts:20"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/twilio-accounts",
+      "sources": [
+        "services/marketplaceServices/PhoneSystemService.ts:36"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/voice-call/voicemail-drop/file-validation",
+      "sources": [
+        "services/marketplaceServices/PhoneSystemService.ts:25"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:adPublishingURL/facebook/custom-audience",
+      "sources": [
+        "services/FacebookService.ts:94"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:appEngineURL/workflow/sendElizaMailToAgencyAdmin",
+      "sources": [
+        "components/actions/AddAIAppointmentBot.vue:344",
+        "components/actions/crm/SendToEliza.vue:230"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:base/events-management/events/options",
+      "sources": [
+        "models/Triggers/events-options.ts:58"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:integrationsURL/facebook/:locationId/connection",
+      "sources": [
+        "services/FacebookService.ts:49"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:listEndpoint",
+      "sources": [
+        "services/WorkflowService.ts:76",
+        "services/WorkflowService.ts:117"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId",
+      "sources": [
+        "services/BaseService.ts:36"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:id",
+      "sources": [
+        "services/BaseService.ts:54"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:id",
+      "sources": [
+        "services/BaseService.ts:30"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:id",
+      "sources": [
+        "services/BaseService.ts:46"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:id/auto-save",
+      "sources": [
+        "services/BaseService.ts:42"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:id/recover",
+      "sources": [
+        "services/BaseService.ts:58"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/commit-auto-save",
+      "via": "url-literal",
+      "sources": [
+        "states/workflow.ts:233",
+        "states/workflow.ts:252"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/copy-workflow",
+      "sources": [
+        "services/WorkflowService.ts:568"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/download",
+      "sources": [
+        "states/app.ts:577"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/logs",
+      "sources": [
+        "services/WorkflowService.ts:229"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/remove-stuck-statuses/:stepId",
+      "sources": [
+        "services/WorkflowService.ts:425",
+        "services/WorkflowService.ts:449"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/requeue-stuck-statuses/:stepId",
+      "sources": [
+        "services/WorkflowService.ts:407",
+        "services/WorkflowService.ts:413"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/start-workflow",
+      "sources": [
+        "services/WorkflowService.ts:462"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowId/upload",
+      "sources": [
+        "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
+        "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
+        "states/app.ts:566"
+      ],
+      "callSites": 3
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowStatusId/force-resume",
+      "sources": [
+        "services/WorkflowService.ts:385"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/:workflowStatusId/stop-execution",
+      "sources": [
+        "services/WorkflowService.ts:368"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/adwords",
+      "sources": [
+        "services/WorkflowService.ts:690"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/ai/assistant",
+      "sources": [
+        "workflow-ai/service/index.ts:14"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/ai/custom-code-ai",
+      "sources": [
+        "workflow-ai/service/custom-code-ai.ts:23"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/ai/email-ai",
+      "sources": [
+        "workflow-ai/service/email-ai.ts:18"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/ai/feedback",
+      "sources": [
+        "workflow-ai/service/feedback.ts:14"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/ai/sms-ai",
+      "sources": [
+        "workflow-ai/service/sms-ai.ts:14"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/change-status",
+      "sources": [
+        "services/WorkflowService.ts:603"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/change-status/:workflowId",
+      "sources": [
+        "services/WorkflowService.ts:596"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/delete",
+      "sources": [
+        "services/WorkflowService.ts:653"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/directory",
+      "sources": [
+        "services/WorkflowService.ts:149"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/eliza-users",
+      "sources": [
+        "services/WorkflowService.ts:612"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/email/location-email-provider",
+      "sources": [
+        "services/api/workflow-overview.service.ts:260"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/email/send-test-email",
+      "sources": [
+        "services/EmailService.ts:132"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/error-notification/:workflowId",
+      "sources": [
+        "services/ErrorNotificationService.ts:63"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/error-notification/:workflowId",
+      "sources": [
+        "services/ErrorNotificationService.ts:54"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/error-notification/count",
+      "sources": [
+        "services/ErrorNotificationService.ts:33"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/error-notification/list",
+      "sources": [
+        "services/ErrorNotificationService.ts:43",
+        "services/api/workflow-overview.service.ts:166"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/error-notification/settings",
+      "sources": [
+        "services/ErrorNotificationService.ts:72"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/error-notification/settings/is-active",
+      "sources": [
+        "services/ErrorNotificationService.ts:81"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/error-notification/settings/users",
+      "sources": [
+        "services/ErrorNotificationService.ts:90"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/list",
+      "sources": [
+        "services/ScheduledPauseService.ts:52",
+        "services/api/workflow-overview.service.ts:203"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/move",
+      "sources": [
+        "services/WorkflowService.ts:639"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/move-directory/:workflowId",
+      "sources": [
+        "services/WorkflowService.ts:201"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/only-triggers/:id",
+      "sources": [
+        "services/BaseService.ts:50"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/permission/:workflowId",
+      "sources": [
+        "services/WorkflowService.ts:211"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/permissions",
+      "sources": [
+        "services/WorkflowService.ts:668"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/phone-numbers",
+      "sources": [
+        "services/FilterService.ts:179"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/premium-tier-usage/:tier",
+      "sources": [
+        "services/PremiumTierUsageService.ts:21"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/remove-directory/:folderId",
+      "sources": [
+        "services/WorkflowService.ts:192"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/rename-directory/:folderId",
+      "sources": [
+        "services/WorkflowService.ts:166"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/rename-workflow/:workflowId",
+      "sources": [
+        "services/WorkflowService.ts:178"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/restore",
+      "sources": [
+        "services/WorkflowService.ts:628"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/run-single-action",
+      "sources": [
+        "services/CustomWebhookService.ts:44"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/scheduled-pause/config",
+      "sources": [
+        "services/ScheduledPauseService.ts:64"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/scheduled-pause/config",
+      "sources": [
+        "services/ScheduledPauseService.ts:74"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/scheduled-pause/config/:recordId",
+      "sources": [
+        "services/ScheduledPauseService.ts:102"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/scheduled-pause/config/:recordId",
+      "sources": [
+        "services/ScheduledPauseService.ts:92"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/secret-manager",
+      "sources": [
+        "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/secret-manager/:secretId",
+      "sources": [
+        "services/SecretManagerService.ts:33"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/secret-manager/:value",
+      "sources": [
+        "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/sms/send-test-sms",
+      "sources": [
+        "services/SmsService.ts:20"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/split",
+      "sources": [
+        "services/SplitService.ts:47"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/split/isExecuted",
+      "sources": [
+        "services/SplitService.ts:33"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/split/stats",
+      "sources": [
+        "services/SplitService.ts:18"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/tags/create",
+      "sources": [
+        "services/TagService.ts:10"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/v2/ai/assistant",
+      "sources": [
+        "workflow-ai/service/assistant-v2.ts:53"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/v2/ai/build-sub-tree",
+      "sources": [
+        "components/workflow-canvas/WorkflowAI.vue:135"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/v2/ai/build-workflow",
+      "sources": [
+        "workflow-ai/service/ai-builder.ts:15"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/v2/ai/learn-ai",
+      "sources": [
+        "workflow-ai/helpers/learn-ai/index.ts:57"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/v3/ai/wait",
+      "via": "url-literal",
+      "sources": [
+        "workflow-ai/v3/hooks/use-wait-ai.ts:243"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:locationId/workflow-templates",
+      "sources": [
+        "services/WorkflowService.ts:558"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/forms",
+      "sources": [
+        "services/FacebookService.ts:122"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/pages",
+      "sources": [
+        "services/FacebookService.ts:148"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:marketPlaceBackendURL/locations/:locationId/customFields/search",
+      "sources": [
+        "services/CustomFieldService.ts:14",
+        "services/CustomFieldService.ts:32"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:marketPlaceBackendURL/locations/:locationId/tags/search:",
+      "sources": [
+        "services/FilterService.ts:188"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:marketplaceBaseUrl/marketplace/core/apps/connection-status/bulk",
+      "sources": [
+        "services/McpConnectionService.ts:170"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/:marketplaceBaseUrl/workflows-marketplace/integration-apps",
+      "sources": [
+        "services/McpConnectionService.ts:154"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/agent/:locationId/feedback",
+      "via": "url-literal",
+      "sources": [
+        "services/AgentTraceService.ts:399"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/agent/:locationId/feedback/:threadId",
+      "via": "url-literal",
+      "sources": [
+        "services/AgentTraceService.ts:429"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/agent/:locationId/mcp-connections/:id",
+      "sources": [
+        "services/McpConnectionService.ts:120"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/agent/:locationId/models",
+      "via": "url-literal",
+      "sources": [
+        "services/AgentTraceService.ts:455"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/agent/:locationId/trace/:threadId",
+      "via": "url-literal",
+      "sources": [
+        "services/AgentTraceService.ts:340"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/custom-code/run-test",
+      "sources": [
+        "components/actions/premium-actions/custom-code-components/CustomCodeTest.vue:149"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/auth",
+      "sources": [
+        "services/FlowGuardService.ts:86"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/blacklist/:type/:id",
+      "sources": [
+        "services/FlowGuardService.ts:197"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/blacklist/contact",
+      "sources": [
+        "services/FlowGuardService.ts:119"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/blacklist/contact/:contactId",
+      "sources": [
+        "services/FlowGuardService.ts:160"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/blacklist/step",
+      "sources": [
+        "services/FlowGuardService.ts:129"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/blacklist/step/:stepId",
+      "sources": [
+        "services/FlowGuardService.ts:176"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/blacklist/workflow",
+      "sources": [
+        "services/FlowGuardService.ts:109"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/blacklist/workflow/:workflowId",
+      "sources": [
+        "services/FlowGuardService.ts:144"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/loop-lock/:workflowId",
+      "sources": [
+        "services/FlowGuardService.ts:271"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/rate-limiting/bypass",
+      "sources": [
+        "services/FlowGuardService.ts:208"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/rate-limiting/bypass",
+      "sources": [
+        "services/FlowGuardService.ts:230"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/rate-limiting/bypass/:id",
+      "sources": [
+        "services/FlowGuardService.ts:255"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/flowguard/workflow-rendering/:workflowId",
+      "sources": [
+        "services/FlowGuardService.ts:289"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/ivr/get-mappings-by-phones",
+      "sources": [
+        "services/IVRService.ts:25"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/oauth2/delete-token",
+      "sources": [
+        "services/CustomWebhookService.ts:131"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "DELETE",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/oauth2/delete-token-by-state",
+      "sources": [
+        "services/CustomWebhookService.ts:83"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/oauth2/get-all-tokens",
+      "sources": [
+        "services/CustomWebhookService.ts:99"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/oauth2/ping-to-get-token",
+      "sources": [
+        "services/CustomWebhookService.ts:114"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/oauth2/refresh-token",
+      "sources": [
+        "services/CustomWebhookService.ts:147"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/oauth2/save-token",
+      "sources": [
+        "services/CustomWebhookService.ts:52"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "backend.leadconnectorhq.com/workflow",
+      "path": "/oauth2/update-token",
+      "sources": [
+        "services/CustomWebhookService.ts:67"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "METHOD-UNKNOWN",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows",
+      "via": "url-literal",
+      "sources": [
+        "services/api/sticky-notes.ts:6",
+        "services/api/workflow-overview.service.ts:5"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/:assetType/dynamic-source/:key",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:279"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/:actionType/branches",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:171"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/:actionType/custom-input-fields",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:623"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/dynamic-source-details/:key",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:568"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/options/:key",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:210"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/options/:key/:fieldName",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:194"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/published/:actionType/dynamic-fields",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:155"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/published/:key",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:138"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/actions/stats/:actionKey",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:321"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows-marketplace/integration-apps",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651"
+      ],
+      "callSites": 2
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/integration-apps/reset-token/:appId",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:639"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/integration/:appId/install",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:471"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/integration/:appId/oauth",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:407"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/integration/slack/oauth/start",
+      "sources": [
+        "services/SlackService.ts:32"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/internal-actions/test-action",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:390"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/internal-triggers/deregister-test-webhook",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:350"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/internal-triggers/integration/webhook-operation",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:606"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/internal-triggers/register-test-polling",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:340"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/internal-triggers/register-test-webhook",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:330"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/internal-triggers/test-trigger",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:362"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/location/:locationId/assets",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:124"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/triggers/dynamic-source-details/:key",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:596"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/triggers/options/:key/:fieldName",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:294"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com/workflows-marketplace",
+      "path": "/triggers/published/:triggerType/dynamic-fields",
+      "sources": [
+        "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:312"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/copyWorkflow/internalLogList",
+      "sources": [
+        "services/marketplaceServices/WorkflowCopyLogsService.ts:20"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/copyWorkflow/logList",
+      "sources": [
+        "services/marketplaceServices/WorkflowCopyLogsService.ts:29"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/copyWorkflow/statusList",
+      "sources": [
+        "services/marketplaceServices/WorkflowCopyLogsService.ts:10"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/logs/weekly-enrollment-data",
+      "sources": [
+        "services/api/workflow-overview.service.ts:149"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/statistics",
+      "sources": [
+        "services/api/workflow-overview.service.ts:157"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/status/enroll-stats",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:237"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/status/search/count-per-step",
+      "sources": [
+        "services/marketplaceServices/WorkflowMarketplaceService.ts:181"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/sticky-note",
+      "sources": [
+        "services/api/sticky-notes.ts:9"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/trigger/logs/count",
+      "sources": [
+        "services/api/workflow-overview.service.ts:142"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/trigger/logs/count-by-triggerId",
+      "sources": [
+        "services/api/trigger-stats-service.ts:15"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/trigger/logs/top-failed-reasons",
+      "sources": [
+        "services/api/trigger-stats-service.ts:25"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "backend.leadconnectorhq.com",
+      "path": "/workflows/trigger/logs/triggerId",
+      "sources": [
+        "services/api/trigger-stats-service.ts:20"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "services.leadconnectorhq.com/hooks",
+      "path": "/inbound-webhook-request/reference/:triggerId",
+      "sources": [
+        "services/marketplaceServices/InboundWebhookRequestService.ts:20"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "PUT",
+      "base": "services.leadconnectorhq.com/hooks",
+      "path": "/inbound-webhook-request/set-as-reference/:requestId",
+      "sources": [
+        "services/marketplaceServices/InboundWebhookRequestService.ts:26"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "GET",
+      "base": "services.leadconnectorhq.com/hooks",
+      "path": "/inbound-webhook-request/trigger/:triggerId",
+      "sources": [
+        "services/marketplaceServices/InboundWebhookRequestService.ts:13"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "services.leadconnectorhq.com",
+      "path": "/templates/list",
+      "sources": [
+        "services/TemplateLibraryService.ts:18"
+      ],
+      "callSites": 1
+    },
+    {
+      "method": "POST",
+      "base": "services.leadconnectorhq.com",
+      "path": "/templates/template/load",
+      "sources": [
+        "services/TemplateLibraryService.ts:43"
+      ],
+      "callSites": 1
+    }
+  ]
+}

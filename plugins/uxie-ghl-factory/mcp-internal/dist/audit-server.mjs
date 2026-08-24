@@ -105003,6 +105003,45 @@ var typeCards = () => {
   }
   return TYPE_CARDS;
 };
+var ENDPOINTS = null;
+var endpoints = () => {
+  if (ENDPOINTS) return ENDPOINTS;
+  try {
+    ENDPOINTS = JSON.parse(readFileSync2(resolve2(HERE, "../catalog/internal-endpoints.json"), "utf8")).endpoints ?? [];
+  } catch {
+    ENDPOINTS = [];
+  }
+  return ENDPOINTS;
+};
+var scoreEndpoint = (e, terms) => {
+  if (!terms.length) return 0;
+  const path = String(e.path || "").toLowerCase();
+  const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
+  const hay = `${e.method} ${e.base} ${e.path} ${(e.sources || []).join(" ")}`.toLowerCase();
+  let score = 0, segHits = 0;
+  for (const t of terms) {
+    const stem = t.length > 4 ? t.replace(/(ing|ed|es|s)$/, "") : t;
+    const hit = (v) => v === t || v === stem || v.startsWith(stem);
+    if ([...segs].some(hit)) {
+      score += 25;
+      segHits++;
+    } else if (path.includes(stem)) {
+      score += 10;
+      segHits++;
+    }
+    if (hay.includes(stem)) score += 3;
+  }
+  score += segHits * segHits * 8;
+  score -= (path.match(/:/g) ?? []).length;
+  if (e.base.endsWith("/workflow")) score += 5;
+  return score;
+};
+var endpointStub = (e) => ({
+  method: e.method,
+  path: e.path,
+  base: e.base,
+  callSites: e.callSites
+});
 var CARD_STOP = /* @__PURE__ */ new Set(["a", "an", "the", "to", "of", "for", "and", "or", "in", "on", "with", "my", "me", "i", "it", "is", "that", "this", "when", "how", "do", "does", "add", "set", "use"]);
 var cardWords = (s) => String(s || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !CARD_STOP.has(w));
 var scoreCard = (card, terms) => {
@@ -108336,6 +108375,69 @@ var TOOLS2 = [
         partialProgress
       });
     }, args)
+  },
+  {
+    name: "search_endpoints",
+    description: `${describe3("search_endpoints", "Search the internal API surface \u2014 risk: read")}. Ranked search over 222 internal endpoints mined from GHL's own builder source. Returns compact STUBS \u2014 method, path, base. Call describe_endpoint on the one you pick. Use this when no typed tool covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves the GHL builder calls that path \u2014 NOT that your token can reach it, and not that calling it is safe.`,
+    inputSchema: schema({
+      intent: external_exports.string().describe('what you want to do, in plain words \u2014 e.g. "list workflow folders", "erroring workflows", "scheduled pause"'),
+      method: external_exports.string().trim().optional().describe("filter to one HTTP method, e.g. GET"),
+      limit: external_exports.number().default(10)
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const terms = cardWords(args.intent);
+      let pool = endpoints();
+      if (!pool.length) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "the internal endpoint catalog is missing or unreadable",
+          "Regenerate it: node knowledge/scripts/build-endpoint-catalog.mjs"
+        );
+      }
+      const wanted = args.method ? String(args.method).toUpperCase() : null;
+      if (wanted) pool = pool.filter((e) => e.method === wanted);
+      const ranked = pool.map((e) => ({ e, score: scoreEndpoint(e, terms) })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.e.path.length - b.e.path.length).slice(0, args.limit ?? 10);
+      if (!ranked.length) {
+        return { ok: true, data: {
+          results: [],
+          total: 0,
+          note: `No endpoint matched "${args.intent}"${wanted ? ` with method ${wanted}` : ""}. ${pool.length} endpoints are catalogued. Try GHL's own noun for the thing (the URL segment), or drop the method filter.`
+        } };
+      }
+      return { ok: true, data: {
+        results: ranked.map((x) => endpointStub(x.e)),
+        total: pool.filter((e) => scoreEndpoint(e, terms) > 0).length,
+        next: "describe_endpoint with the method and path you want"
+      } };
+    })
+  },
+  {
+    name: "describe_endpoint",
+    description: `${describe3("describe_endpoint", "Detail for one internal endpoint \u2014 risk: read")}. Full record for ONE endpoint from search_endpoints: method, path with its :params, base host, how many places the builder calls it, and the source files that do. Reads no account data.`,
+    inputSchema: schema({
+      method: external_exports.string().trim().describe("HTTP method, e.g. GET"),
+      path: external_exports.string().describe("the catalogued path, e.g. /:locationId/error-notification/list")
+    }),
+    capabilities: [],
+    handler: async (args) => guard(async () => {
+      const want = String(args.method).toUpperCase();
+      const pool = endpoints();
+      const hit = pool.find((e) => e.method === want && e.path === args.path) ?? pool.find((e) => e.method === want && e.path.replace(/:\w+/g, ":x") === String(args.path).replace(/:\w+/g, ":x"));
+      if (!hit) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `no catalogued endpoint matches ${want} ${args.path}`,
+          "Run search_endpoints first and copy the method and path from a result."
+        );
+      }
+      return { ok: true, data: {
+        ...hit,
+        status: "source-derived",
+        meaning: "The GHL builder calls this path. That is NOT proof your token reaches it, nor that calling it is safe \u2014 /workflow/* and /workflows/* are different auth scopes on the same host, and some rows are permission-gated.",
+        next: hit.method === "GET" ? "Call it with raw_request (GET needs no confirm). Read the result back before trusting it." : "This is a WRITE. Prefer a typed tool if one covers it \u2014 those carry the compiler and the verification. raw_request needs confirm:true and does neither."
+      } };
+    })
   }
 ];
 function registerTools(server2, deps, tools = TOOLS2) {
