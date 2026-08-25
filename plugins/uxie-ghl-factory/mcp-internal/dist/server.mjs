@@ -41,6 +41,2203 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// <define:__ENDPOINT_CATALOG__>
+var define_ENDPOINT_CATALOG_default;
+var init_define_ENDPOINT_CATALOG = __esm({
+  "<define:__ENDPOINT_CATALOG__>"() {
+    define_ENDPOINT_CATALOG_default = {
+      generated: "build-endpoint-catalog.mjs",
+      source: "sniffs/bundle-2026-08-21-2/recovered-source/src",
+      note: "Relative axios URLs carry the /workflow prefix (main.ts:44). Query strings are stripped \u2014 they belong to the calling tool, not the endpoint identity.",
+      count: 235,
+      endpoints: [
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/",
+          sources: [
+            "services/marketplaceServices/CustomObjectsService.ts:17"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/:id",
+          sources: [
+            "services/marketplaceServices/LocationsService.ts:11"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/:objectKey",
+          sources: [
+            "services/marketplaceServices/CustomObjectsService.ts:29"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/:objectKey/records/search",
+          sources: [
+            "services/marketplaceServices/CustomObjectsService.ts:41"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/ad-publishing",
+          path: "/facebook/page/:pageId/instagram",
+          sources: [
+            "services/marketplaceServices/AdPublishing.ts:64"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/ad-publishing",
+          path: "/facebook/pages",
+          sources: [
+            "services/marketplaceServices/AdPublishing.ts:49"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/ad-publishing",
+          path: "/facebook/pixels",
+          sources: [
+            "services/marketplaceServices/AdPublishing.ts:20",
+            "services/marketplaceServices/AdPublishing.ts:42"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/affiliate-manager",
+          path: "/:locationId/affiliates/:id",
+          sources: [
+            "services/marketplaceServices/AffiliateService.ts:36"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/affiliate-manager",
+          path: "/:locationId/campaigns",
+          sources: [
+            "services/marketplaceServices/AffiliateService.ts:19"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/affiliate-manager",
+          path: "/affiliates/workflow-filters",
+          sources: [
+            "services/marketplaceServices/AffiliateService.ts:32"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/appengine",
+          path: "/dialogflow/eliza-location-status/:locationId",
+          sources: [
+            "services/ElizaService.ts:18"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/appengine",
+          path: "/shopify/update_shopify_webhooks",
+          sources: [
+            "services/ShopifyService.ts:12"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/campaign",
+          sources: [
+            "services/marketplaceServices/CampaignService.ts:11"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/configuration/company/:companyId/:PRODUCT_ID",
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:45"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/configuration/location/:locationId",
+          sources: [
+            "services/marketplaceServices/CalendarService.ts:11"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/configuration/location/:locationId/:BLACK_FRIDAY_PRODUCT_ID",
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:55"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/configuration/location/:locationId/:PRODUCT_ID",
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:61"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/conversations-reporting/emails",
+          sources: [
+            "services/api/email-stats-service.ts:14",
+            "services/marketplaceServices/EmailStatsReportService.ts:10"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/conversations-reporting/emails/aggregate",
+          sources: [
+            "services/api/email-stats-service.ts:9",
+            "services/marketplaceServices/EmailStatsReportService.ts:14",
+            "services/marketplaceServices/WorkflowStatsService.ts:28"
+          ],
+          callSites: 3
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/conversations-reporting/messages",
+          sources: [
+            "services/api/sms-stats-service.ts:13",
+            "services/marketplaceServices/SmsStatsReportService.ts:12"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/conversations-reporting/messages/aggregate",
+          sources: [
+            "services/api/sms-stats-service.ts:8",
+            "services/marketplaceServices/SmsStatsReportService.ts:8",
+            "services/marketplaceServices/WorkflowStatsService.ts:37"
+          ],
+          callSites: 3
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/conversations",
+          path: "/messages/:messageId",
+          sources: [
+            "services/marketplaceServices/ConversationMessageService.ts:10"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/conversations/preferences/custom-subtypes",
+          sources: [
+            "services/EmailService.ts:234"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/conversations/providers/tiktok/posts",
+          sources: [
+            "services/marketplaceServices/TikTokService.ts:19"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/conversations/providers/tiktok/posts/:id",
+          sources: [
+            "services/marketplaceServices/TikTokService.ts:25"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/custom-data/conversations",
+          sources: [
+            "services/marketplaceServices/CustomDataService.ts:37"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/emails/builder/custom-value-defaults/track",
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:688"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/emails/builder/meta/:locationId/:id",
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:217"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com",
+          path: "/emails/trigger/:locationId/:triggerId",
+          sources: [
+            "services/EmailService.ts:183"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/facebook/:locationId/pages",
+          sources: [
+            "services/marketplaceServices/FacebookService.ts:39"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/facebook/posts",
+          sources: [
+            "services/marketplaceServices/FacebookService.ts:65",
+            "services/marketplaceServices/FacebookService.ts:123"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/files",
+          sources: [
+            "services/marketplaceServices/MediaService.ts:11"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/forms",
+          path: "/",
+          sources: [
+            "services/api/workflow-overview.service.ts:224",
+            "services/marketplaceServices/FormsService.ts:21"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/forms",
+          path: "/forms-list",
+          sources: [
+            "services/marketplaceServices/FormsService.ts:25"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/funnels",
+          path: "/funnel/fetch/:id",
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:21"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/funnels",
+          path: "/funnel/list",
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:11"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/funnels",
+          path: "/page",
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:25"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/funnels",
+          path: "/page/:id",
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:35"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/funnels",
+          path: "/page/product",
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:39"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/funnels",
+          path: "/page/product/:id",
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:49"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/id/:linkId",
+          sources: [
+            "services/marketplaceServices/LinksService.ts:29"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/instagram/posts",
+          sources: [
+            "services/marketplaceServices/FacebookService.ts:94",
+            "services/marketplaceServices/FacebookService.ts:137"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/integrations",
+          path: "/google/oauth/start",
+          sources: [
+            "services/GoogleSheetsService.ts:14"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/integrations/public/:appId",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:414"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/integrations/public/:appId/payment-plans",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:442"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/intents/:locationId",
+          sources: [
+            "services/marketplaceServices/ConversationAIService.ts:18"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/locations/:locationId/customFields",
+          sources: [
+            "services/marketplaceServices/OpportunityCustomFieldService.ts:9"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/locations/:locationId/tags",
+          sources: [
+            "services/EmailService.ts:218"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/locations/:locationId/templates",
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:282"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/locations/:locationId/templates/:id",
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:240"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/locations/search",
+          sources: [
+            "services/marketplaceServices/SubLocationsService.ts:14"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/logs",
+          path: "/metric",
+          sources: [
+            "services/marketplaceServices/LogsService.ts:11"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/marketplace",
+          via: "url-literal",
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:62"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/marketplace/app/:appId/versions/latest",
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:64",
+            "services/api/slack-marketplace-install-service.ts:71"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/marketplace/app/installationDetails",
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:99"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/marketplace/billing/usage/meters/public",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:455"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/marketplace/collections",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:318"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/marketplace/core/search/module",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:377"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/numbers/location/:locationId",
+          sources: [
+            "services/marketplaceServices/PhoneSystemService.ts:15"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth",
+          via: "url-literal",
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:119"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth/2/login/signin/refresh",
+          sources: [
+            "states/app.ts:854"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth/authorize:",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:492"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth/clients/:appId/authentication/location/:locationId",
+          via: "url-literal",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:510"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth/clients/:appId/authentication/locations/:locationId/accounts",
+          via: "url-literal",
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:219",
+            "services/api/slack-marketplace-install-service.ts:236",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:417",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:674"
+          ],
+          callSites: 5
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth/clients/:appId/authentication/locations/:locationId/accounts/:accountId",
+          via: "url-literal",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:424",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:694"
+          ],
+          callSites: 2
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth/clients/:appId/authentication/oauth2/location/:locationId/url",
+          via: "url-literal",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:491"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/oauth/whitelabel/:id",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:430"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/objectKey/:objectKey",
+          sources: [
+            "services/marketplaceServices/AssociationsService.ts:17"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/opportunities/lost-reason",
+          sources: [
+            "services/marketplaceServices/OpportunityCustomFieldService.ts:19"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/phone-system/location/:locationId/recordings/:recordingSid",
+          sources: [
+            "services/IVRService.ts:38"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/phone-system/numbers/location/:locationId",
+          via: "url-literal",
+          sources: [
+            "services/SaasTwilioService.ts:21"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/phone-system/whatsapp/location/:locationId/template",
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:374"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/product",
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:36"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/reputation/integrations/review-link-list",
+          sources: [
+            "services/ReputationService.ts:22"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/saas_service/isv-mode/status/:locationId",
+          sources: [
+            "services/SaasTwilioService.ts:7"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/saas-billing-v2/billing-config/:entityType/:entityId/:product",
+          sources: [
+            "services/marketplaceServices/SaasService.ts:12"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com",
+          path: "/saas-billing-v2/billing-config/:locationId",
+          sources: [
+            "services/marketplaceServices/SaasService.ts:20"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/saas-billing-v2/billing-config/COMPANY/:companyId/:product",
+          sources: [
+            "services/marketplaceServices/SaasService.ts:16"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/saas-billing-v2/billing-config/LOCATION/:locationId/conversation_AI",
+          sources: [
+            "services/marketplaceServices/SaasService.ts:29"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/search",
+          sources: [
+            "services/marketplaceServices/LinksService.ts:64",
+            "services/marketplaceServices/LocationsService.ts:15"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/snippets/:locationId",
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:330"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/subscription/company/:companyId",
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:80"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/subscription/location/:locationId",
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:70"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com",
+          path: "/subscription/location/:locationId/:subscriptionId",
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:89"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/surveys",
+          sources: [
+            "services/api/workflow-overview.service.ts:245",
+            "services/marketplaceServices/SurveysService.ts:11"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/surveys/:id",
+          sources: [
+            "services/marketplaceServices/SurveysService.ts:20"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/twilio-accounts",
+          sources: [
+            "services/marketplaceServices/PhoneSystemService.ts:36"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/voice-call/voicemail-drop/file-validation",
+          sources: [
+            "services/marketplaceServices/PhoneSystemService.ts:25"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:adPublishingURL/facebook/custom-audience",
+          sources: [
+            "services/FacebookService.ts:94"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:appEngineURL/workflow/sendElizaMailToAgencyAdmin",
+          sources: [
+            "components/actions/AddAIAppointmentBot.vue:344",
+            "components/actions/crm/SendToEliza.vue:230"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:base/events-management/events/options",
+          sources: [
+            "models/Triggers/events-options.ts:58"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:integrationsURL/facebook/:locationId/connection",
+          sources: [
+            "services/FacebookService.ts:49"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:listEndpoint",
+          sources: [
+            "services/WorkflowService.ts:76",
+            "services/WorkflowService.ts:117"
+          ],
+          callSites: 2
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId",
+          sources: [
+            "services/BaseService.ts:36"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:id",
+          sources: [
+            "services/BaseService.ts:54"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:id",
+          sources: [
+            "services/BaseService.ts:30"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:id",
+          sources: [
+            "services/BaseService.ts:46"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:id/auto-save",
+          sources: [
+            "services/BaseService.ts:42"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:id/recover",
+          sources: [
+            "services/BaseService.ts:58"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/commit-auto-save",
+          via: "url-literal",
+          sources: [
+            "states/workflow.ts:233",
+            "states/workflow.ts:252"
+          ],
+          callSites: 2
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/copy-workflow",
+          sources: [
+            "services/WorkflowService.ts:568"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/download",
+          sources: [
+            "states/app.ts:577"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/logs",
+          sources: [
+            "services/WorkflowService.ts:229"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/remove-stuck-statuses/:stepId",
+          sources: [
+            "services/WorkflowService.ts:425",
+            "services/WorkflowService.ts:449"
+          ],
+          callSites: 2
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/requeue-stuck-statuses/:stepId",
+          sources: [
+            "services/WorkflowService.ts:407",
+            "services/WorkflowService.ts:413"
+          ],
+          callSites: 2
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/start-workflow",
+          sources: [
+            "services/WorkflowService.ts:462"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowId/upload",
+          sources: [
+            "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
+            "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
+            "states/app.ts:566"
+          ],
+          callSites: 3
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowStatusId/force-resume",
+          sources: [
+            "services/WorkflowService.ts:385"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/:workflowStatusId/stop-execution",
+          sources: [
+            "services/WorkflowService.ts:368"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/adwords",
+          sources: [
+            "services/WorkflowService.ts:690"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/ai/assistant",
+          sources: [
+            "workflow-ai/service/index.ts:14"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/ai/custom-code-ai",
+          sources: [
+            "workflow-ai/service/custom-code-ai.ts:23"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/ai/email-ai",
+          sources: [
+            "workflow-ai/service/email-ai.ts:18"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/ai/feedback",
+          sources: [
+            "workflow-ai/service/feedback.ts:14"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/ai/sms-ai",
+          sources: [
+            "workflow-ai/service/sms-ai.ts:14"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/change-status",
+          sources: [
+            "services/WorkflowService.ts:603"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/change-status/:workflowId",
+          sources: [
+            "services/WorkflowService.ts:596"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/delete",
+          sources: [
+            "services/WorkflowService.ts:653"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/directory",
+          sources: [
+            "services/WorkflowService.ts:149"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/eliza-users",
+          sources: [
+            "services/WorkflowService.ts:612"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/email/location-email-provider",
+          sources: [
+            "services/api/workflow-overview.service.ts:260"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/email/send-test-email",
+          sources: [
+            "services/EmailService.ts:132"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/error-notification/:workflowId",
+          sources: [
+            "services/ErrorNotificationService.ts:63"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/error-notification/:workflowId",
+          sources: [
+            "services/ErrorNotificationService.ts:54"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/error-notification/count",
+          sources: [
+            "services/ErrorNotificationService.ts:33"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/error-notification/list",
+          sources: [
+            "services/ErrorNotificationService.ts:43",
+            "services/api/workflow-overview.service.ts:166"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/error-notification/settings",
+          sources: [
+            "services/ErrorNotificationService.ts:72"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/error-notification/settings/is-active",
+          sources: [
+            "services/ErrorNotificationService.ts:81"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/error-notification/settings/users",
+          sources: [
+            "services/ErrorNotificationService.ts:90"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/list",
+          sources: [
+            "services/ScheduledPauseService.ts:52",
+            "services/api/workflow-overview.service.ts:203"
+          ],
+          callSites: 2
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/move",
+          sources: [
+            "services/WorkflowService.ts:639"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/move-directory/:workflowId",
+          sources: [
+            "services/WorkflowService.ts:201"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/only-triggers/:id",
+          sources: [
+            "services/BaseService.ts:50"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/permission/:workflowId",
+          sources: [
+            "services/WorkflowService.ts:211"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/permissions",
+          sources: [
+            "services/WorkflowService.ts:668"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/phone-numbers",
+          sources: [
+            "services/FilterService.ts:179"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/premium-tier-usage/:tier",
+          sources: [
+            "services/PremiumTierUsageService.ts:21"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/remove-directory/:folderId",
+          sources: [
+            "services/WorkflowService.ts:192"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/rename-directory/:folderId",
+          sources: [
+            "services/WorkflowService.ts:166"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/rename-workflow/:workflowId",
+          sources: [
+            "services/WorkflowService.ts:178"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/restore",
+          sources: [
+            "services/WorkflowService.ts:628"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/run-single-action",
+          sources: [
+            "services/CustomWebhookService.ts:44"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/scheduled-pause/config",
+          sources: [
+            "services/ScheduledPauseService.ts:64"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/scheduled-pause/config",
+          sources: [
+            "services/ScheduledPauseService.ts:74"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/scheduled-pause/config/:recordId",
+          sources: [
+            "services/ScheduledPauseService.ts:102"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/scheduled-pause/config/:recordId",
+          sources: [
+            "services/ScheduledPauseService.ts:92"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/secret-manager",
+          sources: [
+            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/secret-manager/:secretId",
+          sources: [
+            "services/SecretManagerService.ts:33"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/secret-manager/:value",
+          sources: [
+            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/sms/send-test-sms",
+          sources: [
+            "services/SmsService.ts:20"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/split",
+          sources: [
+            "services/SplitService.ts:47"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/split/isExecuted",
+          sources: [
+            "services/SplitService.ts:33"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/split/stats",
+          sources: [
+            "services/SplitService.ts:18"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/tags/create",
+          sources: [
+            "services/TagService.ts:10"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/v2/ai/assistant",
+          sources: [
+            "workflow-ai/service/assistant-v2.ts:53"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/v2/ai/build-sub-tree",
+          sources: [
+            "components/workflow-canvas/WorkflowAI.vue:135"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/v2/ai/build-workflow",
+          sources: [
+            "workflow-ai/service/ai-builder.ts:15"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/v2/ai/learn-ai",
+          sources: [
+            "workflow-ai/helpers/learn-ai/index.ts:57"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/v3/ai/wait",
+          via: "url-literal",
+          sources: [
+            "workflow-ai/v3/hooks/use-wait-ai.ts:243"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:locationId/workflow-templates",
+          sources: [
+            "services/WorkflowService.ts:558"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/forms",
+          sources: [
+            "services/FacebookService.ts:122"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/pages",
+          sources: [
+            "services/FacebookService.ts:148"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:marketPlaceBackendURL/locations/:locationId/customFields/search",
+          sources: [
+            "services/CustomFieldService.ts:14",
+            "services/CustomFieldService.ts:32"
+          ],
+          callSites: 2
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:marketPlaceBackendURL/locations/:locationId/tags/search:",
+          sources: [
+            "services/FilterService.ts:188"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:marketplaceBaseUrl/marketplace/core/apps/connection-status/bulk",
+          sources: [
+            "services/McpConnectionService.ts:170"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/:marketplaceBaseUrl/workflows-marketplace/integration-apps",
+          sources: [
+            "services/McpConnectionService.ts:154"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/agent/:locationId/feedback",
+          via: "url-literal",
+          sources: [
+            "services/AgentTraceService.ts:399"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/agent/:locationId/feedback/:threadId",
+          via: "url-literal",
+          sources: [
+            "services/AgentTraceService.ts:429"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/agent/:locationId/mcp-connections/:id",
+          sources: [
+            "services/McpConnectionService.ts:120"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/agent/:locationId/models",
+          via: "url-literal",
+          sources: [
+            "services/AgentTraceService.ts:455"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/agent/:locationId/trace/:threadId",
+          via: "url-literal",
+          sources: [
+            "services/AgentTraceService.ts:340"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/custom-code/run-test",
+          sources: [
+            "components/actions/premium-actions/custom-code-components/CustomCodeTest.vue:149"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/auth",
+          sources: [
+            "services/FlowGuardService.ts:86"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/blacklist/:type/:id",
+          sources: [
+            "services/FlowGuardService.ts:197"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/blacklist/contact",
+          sources: [
+            "services/FlowGuardService.ts:119"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/blacklist/contact/:contactId",
+          sources: [
+            "services/FlowGuardService.ts:160"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/blacklist/step",
+          sources: [
+            "services/FlowGuardService.ts:129"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/blacklist/step/:stepId",
+          sources: [
+            "services/FlowGuardService.ts:176"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/blacklist/workflow",
+          sources: [
+            "services/FlowGuardService.ts:109"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/blacklist/workflow/:workflowId",
+          sources: [
+            "services/FlowGuardService.ts:144"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/loop-lock/:workflowId",
+          sources: [
+            "services/FlowGuardService.ts:271"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/rate-limiting/bypass",
+          sources: [
+            "services/FlowGuardService.ts:208"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/rate-limiting/bypass",
+          sources: [
+            "services/FlowGuardService.ts:230"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/rate-limiting/bypass/:id",
+          sources: [
+            "services/FlowGuardService.ts:255"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/flowguard/workflow-rendering/:workflowId",
+          sources: [
+            "services/FlowGuardService.ts:289"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/ivr/get-mappings-by-phones",
+          sources: [
+            "services/IVRService.ts:25"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/oauth2/delete-token",
+          sources: [
+            "services/CustomWebhookService.ts:131"
+          ],
+          callSites: 1
+        },
+        {
+          method: "DELETE",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/oauth2/delete-token-by-state",
+          sources: [
+            "services/CustomWebhookService.ts:83"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/oauth2/get-all-tokens",
+          sources: [
+            "services/CustomWebhookService.ts:99"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/oauth2/ping-to-get-token",
+          sources: [
+            "services/CustomWebhookService.ts:114"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/oauth2/refresh-token",
+          sources: [
+            "services/CustomWebhookService.ts:147"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/oauth2/save-token",
+          sources: [
+            "services/CustomWebhookService.ts:52"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "backend.leadconnectorhq.com/workflow",
+          path: "/oauth2/update-token",
+          sources: [
+            "services/CustomWebhookService.ts:67"
+          ],
+          callSites: 1
+        },
+        {
+          method: "METHOD-UNKNOWN",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows",
+          via: "url-literal",
+          sources: [
+            "services/api/sticky-notes.ts:6",
+            "services/api/workflow-overview.service.ts:5"
+          ],
+          callSites: 2
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/:assetType/dynamic-source/:key",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:279"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/:actionType/branches",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:171"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/:actionType/custom-input-fields",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:623"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/dynamic-source-details/:key",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:568"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/options/:key",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:210"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/options/:key/:fieldName",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:194"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/published/:actionType/dynamic-fields",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:155"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/published/:key",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:138"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/actions/stats/:actionKey",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:321"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows-marketplace/integration-apps",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651"
+          ],
+          callSites: 2
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/integration-apps/reset-token/:appId",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:639"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/integration/:appId/install",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:471"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/integration/:appId/oauth",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:407"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/integration/slack/oauth/start",
+          sources: [
+            "services/SlackService.ts:32"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/internal-actions/test-action",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:390"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/internal-triggers/deregister-test-webhook",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:350"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/internal-triggers/integration/webhook-operation",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:606"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/internal-triggers/register-test-polling",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:340"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/internal-triggers/register-test-webhook",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:330"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/internal-triggers/test-trigger",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:362"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/location/:locationId/assets",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:124"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/triggers/dynamic-source-details/:key",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:596"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/triggers/options/:key/:fieldName",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:294"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com/workflows-marketplace",
+          path: "/triggers/published/:triggerType/dynamic-fields",
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:312"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/copyWorkflow/internalLogList",
+          sources: [
+            "services/marketplaceServices/WorkflowCopyLogsService.ts:20"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/copyWorkflow/logList",
+          sources: [
+            "services/marketplaceServices/WorkflowCopyLogsService.ts:29"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/copyWorkflow/statusList",
+          sources: [
+            "services/marketplaceServices/WorkflowCopyLogsService.ts:10"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/logs/weekly-enrollment-data",
+          sources: [
+            "services/api/workflow-overview.service.ts:149"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/statistics",
+          sources: [
+            "services/api/workflow-overview.service.ts:157"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/status/enroll-stats",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:237"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/status/search/count-per-step",
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:181"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/sticky-note",
+          sources: [
+            "services/api/sticky-notes.ts:9"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/trigger/logs/count",
+          sources: [
+            "services/api/workflow-overview.service.ts:142"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/trigger/logs/count-by-triggerId",
+          sources: [
+            "services/api/trigger-stats-service.ts:15"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/trigger/logs/top-failed-reasons",
+          sources: [
+            "services/api/trigger-stats-service.ts:25"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "backend.leadconnectorhq.com",
+          path: "/workflows/trigger/logs/triggerId",
+          sources: [
+            "services/api/trigger-stats-service.ts:20"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "services.leadconnectorhq.com/hooks",
+          path: "/inbound-webhook-request/reference/:triggerId",
+          sources: [
+            "services/marketplaceServices/InboundWebhookRequestService.ts:20"
+          ],
+          callSites: 1
+        },
+        {
+          method: "PUT",
+          base: "services.leadconnectorhq.com/hooks",
+          path: "/inbound-webhook-request/set-as-reference/:requestId",
+          sources: [
+            "services/marketplaceServices/InboundWebhookRequestService.ts:26"
+          ],
+          callSites: 1
+        },
+        {
+          method: "GET",
+          base: "services.leadconnectorhq.com/hooks",
+          path: "/inbound-webhook-request/trigger/:triggerId",
+          sources: [
+            "services/marketplaceServices/InboundWebhookRequestService.ts:13"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "services.leadconnectorhq.com",
+          path: "/templates/list",
+          sources: [
+            "services/TemplateLibraryService.ts:18"
+          ],
+          callSites: 1
+        },
+        {
+          method: "POST",
+          base: "services.leadconnectorhq.com",
+          path: "/templates/template/load",
+          sources: [
+            "services/TemplateLibraryService.ts:43"
+          ],
+          callSites: 1
+        }
+      ]
+    };
+  }
+});
+
+// <define:__ENDPOINT_KINDS__>
+var define_ENDPOINT_KINDS_default;
+var init_define_ENDPOINT_KINDS = __esm({
+  "<define:__ENDPOINT_KINDS__>"() {
+    define_ENDPOINT_KINDS_default = {
+      _note: "Overlay: what an endpoint DOES, for ranking. Keyed by wire identity 'METHOD /path' as the catalogue records it today; when the extractor corrects a path its key orphans and the build names it. Anything absent defaults by method (GET=read, DELETE=destructive, else write), so this file only needs the rows whose danger the method does not reveal. Curated rather than inferred because there is no prose here to infer from. This is RANKING metadata, not authorization: raw_request gates every non-GET on confirm regardless of what this says.",
+      kinds: {
+        "PUT /:locationId/change-status": "destructive",
+        "PUT /:locationId/permissions": "destructive",
+        "POST /:locationId/:workflowId/start-workflow": "destructive",
+        "POST /:locationId/:workflowId/remove-stuck-statuses/:stepId": "destructive",
+        "POST /:locationId/:workflowId/requeue-stuck-statuses/:stepId": "destructive",
+        "POST /:locationId/:workflowId/stop-execution": "destructive",
+        "POST /flowguard/rate-limiting/bypass": "destructive",
+        "POST /flowguard/blacklist/workflow/:workflowId": "destructive",
+        "POST /flowguard/blacklist/step/:stepId": "destructive",
+        "POST /flowguard/blacklist/contact/:contactId": "destructive",
+        "POST /:locationId/email/send-test-email": "destructive",
+        "POST /:locationId/sms/send-test-sms": "destructive"
+      }
+    };
+  }
+});
+
 // <define:__TOOL_CATALOG__>
 var define_TOOL_CATALOG_default;
 var init_define_TOOL_CATALOG = __esm({
@@ -916,6 +3113,8 @@ var init_define_TOOL_CATALOG = __esm({
 var require_code = __commonJS({
   "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
@@ -1071,6 +3270,8 @@ var require_code = __commonJS({
 var require_scope = __commonJS({
   "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
@@ -1217,6 +3418,8 @@ var require_scope = __commonJS({
 var require_codegen = __commonJS({
   "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
@@ -1938,6 +4141,8 @@ var require_codegen = __commonJS({
 var require_util = __commonJS({
   "node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
@@ -2106,6 +4311,8 @@ var require_util = __commonJS({
 var require_names = __commonJS({
   "node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -2146,6 +4353,8 @@ var require_names = __commonJS({
 var require_errors = __commonJS({
   "node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
@@ -2269,6 +4478,8 @@ var require_errors = __commonJS({
 var require_boolSchema = __commonJS({
   "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
@@ -2321,6 +4532,8 @@ var require_boolSchema = __commonJS({
 var require_rules = __commonJS({
   "node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRules = exports.isJSONType = void 0;
@@ -2353,6 +4566,8 @@ var require_rules = __commonJS({
 var require_applicability = __commonJS({
   "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
@@ -2377,6 +4592,8 @@ var require_applicability = __commonJS({
 var require_dataType = __commonJS({
   "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
@@ -2562,6 +4779,8 @@ var require_dataType = __commonJS({
 var require_defaults = __commonJS({
   "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assignDefaults = void 0;
@@ -2600,6 +4819,8 @@ var require_defaults = __commonJS({
 var require_code2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
@@ -2734,6 +4955,8 @@ var require_code2 = __commonJS({
 var require_keyword = __commonJS({
   "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
@@ -2853,6 +5076,8 @@ var require_keyword = __commonJS({
 var require_subschema = __commonJS({
   "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
@@ -2937,6 +5162,8 @@ var require_subschema = __commonJS({
 var require_fast_deep_equal = __commonJS({
   "node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     module.exports = function equal(a, b) {
       if (a === b) return true;
@@ -2973,6 +5200,8 @@ var require_fast_deep_equal = __commonJS({
 var require_json_schema_traverse = __commonJS({
   "node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     var traverse = module.exports = function(schema2, opts, cb) {
       if (typeof opts == "function") {
@@ -3062,6 +5291,8 @@ var require_json_schema_traverse = __commonJS({
 var require_resolve = __commonJS({
   "node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
@@ -3219,6 +5450,8 @@ var require_resolve = __commonJS({
 var require_validate = __commonJS({
   "node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
@@ -3728,6 +5961,8 @@ var require_validate = __commonJS({
 var require_validation_error = __commonJS({
   "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var ValidationError = class extends Error {
@@ -3745,6 +5980,8 @@ var require_validation_error = __commonJS({
 var require_ref_error = __commonJS({
   "node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var resolve_1 = require_resolve();
@@ -3763,6 +6000,8 @@ var require_ref_error = __commonJS({
 var require_compile = __commonJS({
   "node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
@@ -4007,6 +6246,8 @@ var require_data = __commonJS({
 var require_utils = __commonJS({
   "node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
@@ -4321,6 +6562,8 @@ var require_utils = __commonJS({
 var require_schemes = __commonJS({
   "node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     var { isUUID } = require_utils();
     var URN_REG = /([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-.:;=@]|%[\da-f]{2})+)/iu;
@@ -4532,6 +6775,8 @@ var require_schemes = __commonJS({
 var require_fast_uri = __commonJS({
   "node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, escapePreservingEscapes, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
@@ -4825,6 +7070,8 @@ var require_fast_uri = __commonJS({
 var require_uri = __commonJS({
   "node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var uri = require_fast_uri();
@@ -4837,6 +7084,8 @@ var require_uri = __commonJS({
 var require_core = __commonJS({
   "node_modules/ajv/dist/core.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
@@ -5449,6 +7698,8 @@ var require_core = __commonJS({
 var require_id = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var def = {
@@ -5465,6 +7716,8 @@ var require_id = __commonJS({
 var require_ref = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.callRef = exports.getValidate = void 0;
@@ -5588,6 +7841,8 @@ var require_ref = __commonJS({
 var require_core2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var id_1 = require_id();
@@ -5610,6 +7865,8 @@ var require_core2 = __commonJS({
 var require_limitNumber = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5643,6 +7900,8 @@ var require_limitNumber = __commonJS({
 var require_multipleOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5672,6 +7931,8 @@ var require_multipleOf = __commonJS({
 var require_ucs2length = __commonJS({
   "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     function ucs2length(str) {
@@ -5699,6 +7960,8 @@ var require_ucs2length = __commonJS({
 var require_limitLength = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5732,6 +7995,8 @@ var require_limitLength = __commonJS({
 var require_pattern = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5770,6 +8035,8 @@ var require_pattern = __commonJS({
 var require_limitProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5800,6 +8067,8 @@ var require_limitProperties = __commonJS({
 var require_required = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5883,6 +8152,8 @@ var require_required = __commonJS({
 var require_limitItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5913,6 +8184,8 @@ var require_limitItems = __commonJS({
 var require_equal = __commonJS({
   "node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
@@ -5925,6 +8198,8 @@ var require_equal = __commonJS({
 var require_uniqueItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var dataType_1 = require_dataType();
@@ -5993,6 +8268,8 @@ var require_uniqueItems = __commonJS({
 var require_const = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6023,6 +8300,8 @@ var require_const = __commonJS({
 var require_enum = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6073,6 +8352,8 @@ var require_enum = __commonJS({
 var require_validation = __commonJS({
   "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var limitNumber_1 = require_limitNumber();
@@ -6112,6 +8393,8 @@ var require_validation = __commonJS({
 var require_additionalItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateAdditionalItems = void 0;
@@ -6166,6 +8449,8 @@ var require_additionalItems = __commonJS({
 var require_items = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateTuple = void 0;
@@ -6224,6 +8509,8 @@ var require_items = __commonJS({
 var require_prefixItems = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var items_1 = require_items();
@@ -6242,6 +8529,8 @@ var require_prefixItems = __commonJS({
 var require_items2020 = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6278,6 +8567,8 @@ var require_items2020 = __commonJS({
 var require_contains = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6373,6 +8664,8 @@ var require_contains = __commonJS({
 var require_dependencies = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
@@ -6468,6 +8761,8 @@ var require_dependencies = __commonJS({
 var require_propertyNames = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6512,6 +8807,8 @@ var require_propertyNames = __commonJS({
 var require_additionalProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6619,6 +8916,8 @@ var require_additionalProperties = __commonJS({
 var require_properties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var validate_1 = require_validate();
@@ -6678,6 +8977,8 @@ var require_properties = __commonJS({
 var require_patternProperties = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6753,6 +9054,8 @@ var require_patternProperties = __commonJS({
 var require_not = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6785,6 +9088,8 @@ var require_not = __commonJS({
 var require_anyOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -6803,6 +9108,8 @@ var require_anyOf = __commonJS({
 var require_oneOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6862,6 +9169,8 @@ var require_oneOf = __commonJS({
 var require_allOf = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6890,6 +9199,8 @@ var require_allOf = __commonJS({
 var require_if = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6960,6 +9271,8 @@ var require_if = __commonJS({
 var require_thenElse = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6979,6 +9292,8 @@ var require_thenElse = __commonJS({
 var require_applicator = __commonJS({
   "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var additionalItems_1 = require_additionalItems();
@@ -7028,6 +9343,8 @@ var require_applicator = __commonJS({
 var require_format = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -7119,6 +9436,8 @@ var require_format = __commonJS({
 var require_format2 = __commonJS({
   "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
@@ -7131,6 +9450,8 @@ var require_format2 = __commonJS({
 var require_metadata = __commonJS({
   "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.contentVocabulary = exports.metadataVocabulary = void 0;
@@ -7155,6 +9476,8 @@ var require_metadata = __commonJS({
 var require_draft7 = __commonJS({
   "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var core_1 = require_core2();
@@ -7178,6 +9501,8 @@ var require_draft7 = __commonJS({
 var require_types = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiscrError = void 0;
@@ -7193,6 +9518,8 @@ var require_types = __commonJS({
 var require_discriminator = __commonJS({
   "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -7456,6 +9783,8 @@ var require_json_schema_draft_07 = __commonJS({
 var require_ajv = __commonJS({
   "node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = exports.Ajv = void 0;
@@ -7527,6 +9856,8 @@ var require_ajv = __commonJS({
 var require_formats = __commonJS({
   "node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatNames = exports.fastFormats = exports.fullFormats = void 0;
@@ -7731,6 +10062,8 @@ var require_formats = __commonJS({
 var require_limit = __commonJS({
   "node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatLimitDefinition = void 0;
@@ -7804,6 +10137,8 @@ var require_limit = __commonJS({
 var require_dist = __commonJS({
   "node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
+    init_define_ENDPOINT_CATALOG();
+    init_define_ENDPOINT_KINDS();
     init_define_TOOL_CATALOG();
     Object.defineProperty(exports, "__esModule", { value: true });
     var formats_1 = require_formats();
@@ -7844,30 +10179,48 @@ var require_dist = __commonJS({
 });
 
 // stdio.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/errors.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/locales/en.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/ZodError.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/util.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var util;
 (function(util2) {
@@ -8226,6 +10579,8 @@ function getErrorMap() {
 }
 
 // node_modules/zod/v3/helpers/parseUtil.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var makeIssue = (params) => {
   const { data: data2, path, errorMaps, issueData } = params;
@@ -8336,9 +10691,13 @@ var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
 // node_modules/zod/v3/types.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v3/helpers/errorUtil.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var errorUtil;
 (function(errorUtil2) {
@@ -11750,6 +14109,8 @@ var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
 // node_modules/zod/v4/mini/external.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/index.js
@@ -12030,9 +14391,13 @@ __export(core_exports2, {
   util: () => util_exports,
   version: () => version
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/core.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var _a;
 var NEVER = /* @__PURE__ */ Object.freeze({
@@ -12111,9 +14476,13 @@ function config(newConfig) {
 }
 
 // node_modules/zod/v4/core/parse.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/errors.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/util.js
@@ -12183,6 +14552,8 @@ __export(util_exports, {
   uint8ArrayToHex: () => uint8ArrayToHex,
   unwrapMessage: () => unwrapMessage
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function assertEqual(val) {
   return val;
@@ -13041,9 +15412,13 @@ var _safeDecodeAsync = (_Err) => async (schema2, value, _ctx) => {
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
 // node_modules/zod/v4/core/schemas.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/checks.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/core/regexes.js
@@ -13109,6 +15484,8 @@ __export(regexes_exports, {
   uuid7: () => uuid7,
   xid: () => xid
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var cuid = /^[cC][0-9a-z]{6,}$/;
 var cuid2 = /^[0-9a-z]+$/;
@@ -13755,6 +16132,8 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
 });
 
 // node_modules/zod/v4/core/doc.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var Doc = class {
   constructor(args = []) {
@@ -13792,6 +16171,8 @@ var Doc = class {
 };
 
 // node_modules/zod/v4/core/versions.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var version = {
   major: 4,
@@ -15948,9 +18329,13 @@ __export(locales_exports, {
   zhCN: () => zh_CN_default,
   zhTW: () => zh_TW_default
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/ar.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error = () => {
   const Sizable = {
@@ -16059,6 +18444,8 @@ function ar_default() {
 }
 
 // node_modules/zod/v4/locales/az.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error2 = () => {
   const Sizable = {
@@ -16166,6 +18553,8 @@ function az_default() {
 }
 
 // node_modules/zod/v4/locales/be.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function getBelarusianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
@@ -16324,6 +18713,8 @@ function be_default() {
 }
 
 // node_modules/zod/v4/locales/bg.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error4 = () => {
   const Sizable = {
@@ -16446,6 +18837,8 @@ function bg_default() {
 }
 
 // node_modules/zod/v4/locales/ca.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error5 = () => {
   const Sizable = {
@@ -16556,6 +18949,8 @@ function ca_default() {
 }
 
 // node_modules/zod/v4/locales/cs.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error6 = () => {
   const Sizable = {
@@ -16669,6 +19064,8 @@ function cs_default() {
 }
 
 // node_modules/zod/v4/locales/da.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error7 = () => {
   const Sizable = {
@@ -16786,6 +19183,8 @@ function da_default() {
 }
 
 // node_modules/zod/v4/locales/de.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error8 = () => {
   const Sizable = {
@@ -16896,6 +19295,8 @@ function de_default() {
 }
 
 // node_modules/zod/v4/locales/el.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error9 = () => {
   const Sizable = {
@@ -17007,6 +19408,8 @@ function el_default() {
 }
 
 // node_modules/zod/v4/locales/en.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error10 = () => {
   const Sizable = {
@@ -17121,6 +19524,8 @@ function en_default2() {
 }
 
 // node_modules/zod/v4/locales/eo.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error11 = () => {
   const Sizable = {
@@ -17232,6 +19637,8 @@ function eo_default() {
 }
 
 // node_modules/zod/v4/locales/es.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error12 = () => {
   const Sizable = {
@@ -17366,6 +19773,8 @@ function es_default() {
 }
 
 // node_modules/zod/v4/locales/fa.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error13 = () => {
   const Sizable = {
@@ -17482,6 +19891,8 @@ function fa_default() {
 }
 
 // node_modules/zod/v4/locales/fi.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error14 = () => {
   const Sizable = {
@@ -17596,6 +20007,8 @@ function fi_default() {
 }
 
 // node_modules/zod/v4/locales/fr.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error15 = () => {
   const Sizable = {
@@ -17723,6 +20136,8 @@ function fr_default() {
 }
 
 // node_modules/zod/v4/locales/fr-CA.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error16 = () => {
   const Sizable = {
@@ -17832,6 +20247,8 @@ function fr_CA_default() {
 }
 
 // node_modules/zod/v4/locales/he.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error17 = () => {
   const TypeNames = {
@@ -18028,6 +20445,8 @@ function he_default() {
 }
 
 // node_modules/zod/v4/locales/hr.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error18 = () => {
   const Sizable = {
@@ -18152,6 +20571,8 @@ function hr_default() {
 }
 
 // node_modules/zod/v4/locales/hu.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error19 = () => {
   const Sizable = {
@@ -18262,6 +20683,8 @@ function hu_default() {
 }
 
 // node_modules/zod/v4/locales/hy.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function getArmenianPlural(count, one, many) {
   return Math.abs(count) === 1 ? one : many;
@@ -18411,6 +20834,8 @@ function hy_default() {
 }
 
 // node_modules/zod/v4/locales/id.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error21 = () => {
   const Sizable = {
@@ -18519,6 +20944,8 @@ function id_default() {
 }
 
 // node_modules/zod/v4/locales/is.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error22 = () => {
   const Sizable = {
@@ -18630,6 +21057,8 @@ function is_default() {
 }
 
 // node_modules/zod/v4/locales/it.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error23 = () => {
   const Sizable = {
@@ -18740,6 +21169,8 @@ function it_default() {
 }
 
 // node_modules/zod/v4/locales/ja.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error24 = () => {
   const Sizable = {
@@ -18849,6 +21280,8 @@ function ja_default() {
 }
 
 // node_modules/zod/v4/locales/ka.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error25 = () => {
   const Sizable = {
@@ -18963,9 +21396,13 @@ function ka_default() {
 }
 
 // node_modules/zod/v4/locales/kh.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/km.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error26 = () => {
   const Sizable = {
@@ -19083,6 +21520,8 @@ function kh_default() {
 }
 
 // node_modules/zod/v4/locales/ko.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error27 = () => {
   const Sizable = {
@@ -19196,6 +21635,8 @@ function ko_default() {
 }
 
 // node_modules/zod/v4/locales/lt.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var capitalizeFirstCharacter = (text) => {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -19401,6 +21842,8 @@ function lt_default() {
 }
 
 // node_modules/zod/v4/locales/mk.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error29 = () => {
   const Sizable = {
@@ -19512,6 +21955,8 @@ function mk_default() {
 }
 
 // node_modules/zod/v4/locales/ms.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error30 = () => {
   const Sizable = {
@@ -19621,6 +22066,8 @@ function ms_default() {
 }
 
 // node_modules/zod/v4/locales/nl.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error31 = () => {
   const Sizable = {
@@ -19733,6 +22180,8 @@ function nl_default() {
 }
 
 // node_modules/zod/v4/locales/no.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error32 = () => {
   const Sizable = {
@@ -19843,6 +22292,8 @@ function no_default() {
 }
 
 // node_modules/zod/v4/locales/ota.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error33 = () => {
   const Sizable = {
@@ -19954,6 +22405,8 @@ function ota_default() {
 }
 
 // node_modules/zod/v4/locales/ps.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error34 = () => {
   const Sizable = {
@@ -20070,6 +22523,8 @@ function ps_default() {
 }
 
 // node_modules/zod/v4/locales/pl.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error35 = () => {
   const Sizable = {
@@ -20181,6 +22636,8 @@ function pl_default() {
 }
 
 // node_modules/zod/v4/locales/pt.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error36 = () => {
   const Sizable = {
@@ -20291,6 +22748,8 @@ function pt_default() {
 }
 
 // node_modules/zod/v4/locales/ro.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error37 = () => {
   const Sizable = {
@@ -20412,6 +22871,8 @@ function ro_default() {
 }
 
 // node_modules/zod/v4/locales/ru.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function getRussianPlural(count, one, few, many) {
   const absCount = Math.abs(count);
@@ -20570,6 +23031,8 @@ function ru_default() {
 }
 
 // node_modules/zod/v4/locales/sl.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error39 = () => {
   const Sizable = {
@@ -20681,6 +23144,8 @@ function sl_default() {
 }
 
 // node_modules/zod/v4/locales/sv.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error40 = () => {
   const Sizable = {
@@ -20793,6 +23258,8 @@ function sv_default() {
 }
 
 // node_modules/zod/v4/locales/ta.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error41 = () => {
   const Sizable = {
@@ -20905,6 +23372,8 @@ function ta_default() {
 }
 
 // node_modules/zod/v4/locales/th.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error42 = () => {
   const Sizable = {
@@ -21017,6 +23486,8 @@ function th_default() {
 }
 
 // node_modules/zod/v4/locales/tr.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error43 = () => {
   const Sizable = {
@@ -21124,9 +23595,13 @@ function tr_default() {
 }
 
 // node_modules/zod/v4/locales/ua.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/locales/uk.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error44 = () => {
   const Sizable = {
@@ -21242,6 +23717,8 @@ function ua_default() {
 }
 
 // node_modules/zod/v4/locales/ur.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error45 = () => {
   const Sizable = {
@@ -21354,6 +23831,8 @@ function ur_default() {
 }
 
 // node_modules/zod/v4/locales/uz.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error46 = () => {
   const Sizable = {
@@ -21466,6 +23945,8 @@ function uz_default() {
 }
 
 // node_modules/zod/v4/locales/vi.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error47 = () => {
   const Sizable = {
@@ -21576,6 +24057,8 @@ function vi_default() {
 }
 
 // node_modules/zod/v4/locales/zh-CN.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error48 = () => {
   const Sizable = {
@@ -21687,6 +24170,8 @@ function zh_CN_default() {
 }
 
 // node_modules/zod/v4/locales/zh-TW.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error49 = () => {
   const Sizable = {
@@ -21796,6 +24281,8 @@ function zh_TW_default() {
 }
 
 // node_modules/zod/v4/locales/yo.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var error50 = () => {
   const Sizable = {
@@ -21905,6 +24392,8 @@ function yo_default() {
 }
 
 // node_modules/zod/v4/core/registries.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var _a2;
 var $output = /* @__PURE__ */ Symbol("ZodOutput");
@@ -21956,6 +24445,8 @@ function registry() {
 var globalRegistry = globalThis.__zod_globalRegistry;
 
 // node_modules/zod/v4/core/api.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 // @__NO_SIDE_EFFECTS__
 function _string(Class2, params) {
@@ -22996,6 +25487,8 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
 }
 
 // node_modules/zod/v4/core/to-json-schema.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function initializeContext(params) {
   let target = params?.target ?? "draft-2020-12";
@@ -23356,6 +25849,8 @@ var createStandardJSONSchemaMethod = (schema2, io, processors = {}) => (params) 
 };
 
 // node_modules/zod/v4/core/json-schema-processors.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var formatMap = {
   guid: "uuid",
@@ -23901,6 +26396,8 @@ function toJSONSchema(input, params) {
 }
 
 // node_modules/zod/v4/core/json-schema-generator.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var JSONSchemaGenerator = class {
   /** @deprecated Access via ctx instead */
@@ -23978,12 +26475,18 @@ var JSONSchemaGenerator = class {
 
 // node_modules/zod/v4/core/json-schema.js
 var json_schema_exports = {};
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/parse.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/mini/schemas.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   if (!inst._zod)
@@ -24175,6 +26678,8 @@ function getLiteralValue(schema2) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/external.js
@@ -24419,6 +26924,8 @@ __export(external_exports, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/schemas.js
@@ -24591,6 +27098,8 @@ __export(schemas_exports2, {
   xid: () => xid2,
   xor: () => xor
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/checks.js
@@ -24626,6 +27135,8 @@ __export(checks_exports2, {
   trim: () => _trim,
   uppercase: () => _uppercase
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/iso.js
@@ -24640,6 +27151,8 @@ __export(iso_exports2, {
   duration: () => duration2,
   time: () => time2
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var ZodISODateTime = /* @__PURE__ */ $constructor("ZodISODateTime", (inst, def) => {
   $ZodISODateTime.init(inst, def);
@@ -24671,9 +27184,13 @@ function duration2(params) {
 }
 
 // node_modules/zod/v4/classic/parse.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod/v4/classic/errors.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var initializer2 = (inst, issues) => {
   $ZodError.init(inst, issues);
@@ -26019,6 +28536,8 @@ function preprocess(fn, schema2) {
 }
 
 // node_modules/zod/v4/classic/compat.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var ZodIssueCode2 = {
   invalid_type: "invalid_type",
@@ -26046,6 +28565,8 @@ var ZodFirstPartyTypeKind2;
 })(ZodFirstPartyTypeKind2 || (ZodFirstPartyTypeKind2 = {}));
 
 // node_modules/zod/v4/classic/from-json-schema.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var z = {
   ...schemas_exports2,
@@ -26535,6 +29056,8 @@ __export(coerce_exports2, {
   number: () => number3,
   string: () => string3
 });
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function string3(params) {
   return _coercedString(ZodString2, params);
@@ -28087,18 +30610,26 @@ var UrlElicitationRequiredError = class extends McpError {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/index.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/Options.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
 var defaultOptions = {
@@ -28134,6 +30665,8 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/Refs.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var getRefs = (options) => {
   const _options = getDefaultOptions(options);
@@ -28156,6 +30689,8 @@ var getRefs = (options) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function addErrorMessage(res, key, errorMessage, refs) {
   if (!refs?.errorMessages)
@@ -28173,6 +30708,8 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var getRelativePath = (pathA, pathB) => {
   let i = 0;
@@ -28184,12 +30721,18 @@ var getRelativePath = (pathA, pathB) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parseDef.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/selectParser.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseAnyDef(refs) {
   if (refs.target !== "openAi") {
@@ -28207,6 +30750,8 @@ function parseAnyDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseArrayDef(def, refs) {
   const res = {
@@ -28232,6 +30777,8 @@ function parseArrayDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseBigintDef(def, refs) {
   const res = {
@@ -28279,6 +30826,8 @@ function parseBigintDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseBooleanDef() {
   return {
@@ -28287,18 +30836,24 @@ function parseBooleanDef() {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
@@ -28359,6 +30914,8 @@ var integerDateParser = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseDefaultDef(_def, refs) {
   return {
@@ -28368,12 +30925,16 @@ function parseDefaultDef(_def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseEnumDef(def) {
   return {
@@ -28383,6 +30944,8 @@ function parseEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var isJsonSchema7AllOfType = (type) => {
   if ("type" in type && type.type === "string")
@@ -28426,6 +30989,8 @@ function parseIntersectionDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseLiteralDef(def, refs) {
   const parsedType2 = typeof def.value;
@@ -28447,12 +31012,18 @@ function parseLiteralDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var emojiRegex2 = void 0;
 var zodPatterns = {
@@ -28856,6 +31427,8 @@ function parseMapDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseNativeEnumDef(def) {
   const object3 = def.values;
@@ -28871,6 +31444,8 @@ function parseNativeEnumDef(def) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseNeverDef(refs) {
   return refs.target === "openAi" ? void 0 : {
@@ -28882,6 +31457,8 @@ function parseNeverDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseNullDef(refs) {
   return refs.target === "openApi3" ? {
@@ -28893,9 +31470,13 @@ function parseNullDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var primitiveMappings = {
   ZodString: "string",
@@ -28997,6 +31578,8 @@ function parseNullableDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseNumberDef(def, refs) {
   const res = {
@@ -29047,6 +31630,8 @@ function parseNumberDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseObjectDef(def, refs) {
   const forceOptionalIntoNullable = refs.target === "openAi";
@@ -29118,6 +31703,8 @@ function safeIsOptional(schema2) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var parseOptionalDef = (def, refs) => {
   if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
@@ -29138,6 +31725,8 @@ var parseOptionalDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var parsePipelineDef = (def, refs) => {
   if (refs.pipeStrategy === "input") {
@@ -29159,12 +31748,16 @@ var parsePipelineDef = (def, refs) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseSetDef(def, refs) {
   const items = parseDef(def.valueType._def, {
@@ -29186,6 +31779,8 @@ function parseSetDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseTupleDef(def, refs) {
   if (def.rest) {
@@ -29215,6 +31810,8 @@ function parseTupleDef(def, refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseUndefinedDef(refs) {
   return {
@@ -29223,12 +31820,16 @@ function parseUndefinedDef(refs) {
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
@@ -29367,9 +31968,13 @@ var addMeta = (def, refs, jsonSchema) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parseTypes.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var zodToJsonSchema = (schema2, options) => {
   const refs = getRefs(options);
@@ -30429,6 +33034,8 @@ function mergeCapabilities(base, additional) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var import_ajv = __toESM(require_ajv(), 1);
 var import_ajv_formats = __toESM(require_dist(), 1);
@@ -30498,6 +33105,8 @@ var AjvJsonSchemaValidator = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var ExperimentalServerTasks = class {
   constructor(_server) {
@@ -30712,6 +33321,8 @@ var ExperimentalServerTasks = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
@@ -31128,6 +33739,8 @@ var Server = class extends Protocol {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema2) {
@@ -31143,9 +33756,13 @@ var McpZodTypeKind;
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/uriTemplate.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 function validateToolName(name) {
@@ -31205,6 +33822,8 @@ function validateAndWarnToolName(name) {
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var ExperimentalMcpServerTasks = class {
   constructor(_mcpServer) {
@@ -31221,6 +33840,8 @@ var ExperimentalMcpServerTasks = class {
 };
 
 // node_modules/zod/index.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
@@ -32016,10 +34637,14 @@ var EMPTY_COMPLETION_RESULT = {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import process3 from "node:process";
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var ReadBuffer = class {
   append(chunk) {
@@ -32114,6 +34739,8 @@ import { fileURLToPath as fileURLToPath2 } from "node:url";
 import { dirname as dirname2, resolve as resolve3 } from "node:path";
 
 // core/tools.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import { readFileSync as readFileSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -32121,6 +34748,8 @@ import { dirname, resolve as resolve2 } from "node:path";
 import { createHash as createHash4 } from "node:crypto";
 
 // core/errors.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var CODES = Object.freeze({
   TOKEN_MISSING: "TOKEN_MISSING",
@@ -32357,6 +34986,8 @@ function fromHttp(status, body) {
 }
 
 // core/auth.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import { readFileSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
@@ -32453,9 +35084,13 @@ function requireAiCredentials(creds) {
 }
 
 // core/audit-gateway.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // core/audit-capabilities.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var deepFreeze = (value) => {
   if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
@@ -33504,6 +36139,8 @@ function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors 
 }
 
 // core/gateway.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var BASE = "https://backend.leadconnectorhq.com";
 var IFRAME = "https://client-app-automation-workflows.leadconnectorhq.com";
@@ -33794,6 +36431,8 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
 }
 
 // core/workflow-runtime-window.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import { createHash } from "node:crypto";
 var RUNTIME_WINDOW_CONTRACT_VERSION = "2.0.0";
@@ -34778,6 +37417,8 @@ function pickStats(json2, workflowId) {
 }
 
 // core/audit-configuration.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import { createHash as createHash2 } from "node:crypto";
 var AUDIT_CONFIGURATION_CONTRACT_VERSION = "1.0.0";
@@ -35932,12 +38573,18 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/compiler.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/ir.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var IRError = class extends Error {
   constructor(code, message) {
@@ -36165,6 +38812,8 @@ function checkOpportunityAssociation(norm2, oppTriggerTypes) {
 }
 
 // ../skills/create-ghl-workflow/engine/opp-shapes.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/catalog/opp-field-shapes.json
@@ -36301,6 +38950,8 @@ function checkAgainstRulebook(field, ref) {
 }
 
 // ../skills/create-ghl-workflow/engine/goghl.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var BUTTON_TYPES = /* @__PURE__ */ new Set(["quick_reply", "cta_url", "cta_call", "cta_copy"]);
 var GOGHL_DRIP_MS = Object.freeze({ bulk: 15e3, normal: [3e3, 5e3], warming: [1e4, 2e4], minimum: 1e3 });
@@ -36427,9 +39078,13 @@ function checkGoghlSyntax(templates, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/webhook-rail.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/webhook-mergetags.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var PREFIX = "inboundWebhookRequest";
 function webhookMergeTags(payload, { prefix = PREFIX, includeHeaders = false } = {}) {
@@ -36512,6 +39167,8 @@ function webhookUrlsFor(loc, triggerBodies) {
 }
 
 // ../skills/create-ghl-workflow/engine/step-outputs.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var STEP_OUTPUTS = Object.freeze({
   chatgpt: { ns: "chatgpt", fields: ["response"], kind: "fixed" },
@@ -36578,6 +39235,8 @@ function checkStepOutputRefs(templates, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/settings.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var TIMEZONES = ["account", "contact"];
 var WINDOW_CONDITIONS = ["when"];
@@ -36726,6 +39385,8 @@ function normalizeSettings(settings, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/step-notes.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function stepNoteRecord(text, { uid, now, idGen } = {}) {
   if (typeof text !== "string" || !text.trim()) throw new Error(`a step note needs non-empty text`);
@@ -36738,6 +39399,8 @@ function stepNotesToComments(notes, ctx = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/contact-field-shapes.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var CONTACT_FIELD_ACTION_TYPES = ["update_field_data", "clear_field_data"];
 var DEFAULT_CONTACT_FIELD_ACTION_TYPE = "update_field_data";
@@ -36793,9 +39456,13 @@ function lintContactFieldTemplates(templates, stepIds, warn) {
 }
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/text-rules.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var HANDLEBARS_EXPRESSION = /\{\{(?:(?!\}\}).)*\}\}/g;
 function hasNestedBracketsInExpressions(str) {
@@ -98652,6 +101319,8 @@ function isSupplied(type, key, attrs) {
 }
 
 // ../skills/create-ghl-workflow/engine/action-schema.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var PSEUDO_FIELDS = /* @__PURE__ */ new Set(["DYNAMIC"]);
 function isBlank(v) {
@@ -98790,6 +101459,8 @@ async function fetchActionSchema(call, loc) {
 }
 
 // ../skills/create-ghl-workflow/engine/enforce.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var get = (o, p) => p === "" ? o : p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
 var RE_CACHE = /* @__PURE__ */ new Map();
@@ -98915,6 +101586,8 @@ function enforceTemplates(templates, catalog, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/graph-refs.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var STEP_REF_FIELDS = [
   ["goto", "targetNodeId", "single"],
@@ -98979,6 +101652,8 @@ GHL grades this a WARNING \u2014 the builder's panel shows "0 Errors" while the 
 }
 
 // ../skills/create-ghl-workflow/engine/ui-defaults.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var clone2 = (v) => v === void 0 ? v : JSON.parse(JSON.stringify(v));
 function applyUiDefaults(templates, catalog, ctx) {
@@ -99007,6 +101682,8 @@ function applyUiDefaults(templates, catalog, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/ifelse-vocab.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var NO_VALUE_DATE_OPS = /* @__PURE__ */ new Set(["today", "yesterday", "tomorrow"]);
 var ABSOLUTE_DATE_OPS = /* @__PURE__ */ new Set(["on", "between", "afterDate", "beforeDate"]);
@@ -99090,6 +101767,8 @@ Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true 
 }
 
 // ../skills/create-ghl-workflow/engine/merge-tags.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var TOKEN = /\{\{\s*([A-Za-z_][\w]*)(\.[^{}]*)?\s*\}\}/g;
 function evaluateMergeTags(templates, mergeTags) {
@@ -100410,6 +103089,8 @@ function compile(ir, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/preflight.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var SMS_TYPES = /* @__PURE__ */ new Set(["sms", "manual-sms"]);
 var IG_TYPES = /* @__PURE__ */ new Set(["instagram-dm", "ig_interactive_messenger"]);
@@ -100488,6 +103169,8 @@ async function runReadinessChecks(plan, { call, loc }) {
 }
 
 // ../skills/create-ghl-workflow/engine/sticky-notes.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var STICKY_COLORS = ["yellow", "blue", "green", "orange", "cyan", "gray", "teal", "purple", "fuchsia", "rose"];
 var STICKY_DEFAULTS = Object.freeze({ color: "yellow", width: 400, height: 400, x: 320, y: 180 });
@@ -100560,6 +103243,8 @@ function planStickyNoteOp(op, { loc, wid, skipStickyCheck } = {}) {
 var STICKY_OPS = /* @__PURE__ */ new Set(["addStickyNote", "updateStickyNote"]);
 
 // ../skills/create-ghl-workflow/engine/idgen.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import { createHash as createHash3, randomUUID } from "node:crypto";
 function makeUuidV4() {
@@ -100578,6 +103263,8 @@ function makeDeterministicIdGen(seed) {
 }
 
 // ../skills/create-ghl-workflow/engine/catalog.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function data() {
   return catalog_data_default;
@@ -100631,6 +103318,8 @@ function loadCatalog() {
 }
 
 // ../skills/create-ghl-workflow/engine/tags.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function collectRequiredTags(ir) {
   const byLower = /* @__PURE__ */ new Map();
@@ -100693,6 +103382,8 @@ function missingTags(requiredNames, existingNames) {
 }
 
 // ../skills/create-ghl-workflow/engine/resolve.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var norm = (s) => String(s ?? "").trim().toLowerCase();
 var STANDARD_CONTACT_FIELDS = /* @__PURE__ */ new Set([
@@ -100910,6 +103601,8 @@ function resolveIR(ir, r) {
 }
 
 // ../skills/create-ghl-workflow/engine/edit.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function rootTail(templates) {
   const byId = new Map(templates.map((t) => [t.id, t]));
@@ -101610,6 +104303,8 @@ function replaceTagInTriggerConditions(conditions, oldTag, newTag) {
 }
 
 // ../skills/create-ghl-workflow/engine/marketplace.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var entryFrom = (kind, appName, raw) => ({
   kind,
@@ -101705,6 +104400,8 @@ function buildMarketplaceIndex({ assets, modules } = {}) {
 }
 
 // ../skills/create-ghl-workflow/engine/asset-preflight.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var EMPTY = Object.freeze([]);
 function normalizeFinding(f) {
@@ -101751,6 +104448,8 @@ async function validateAssets(call, loc, { templates, triggers, companyId } = {}
 }
 
 // ../skills/create-ghl-workflow/engine/server-validation.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function parseServerValidation(json2) {
   const meta3 = json2?.errorMetadata ?? json2?.response?.data?.errorMetadata;
@@ -101770,6 +104469,8 @@ function describeServerFindings(parsed) {
 }
 
 // ../skills/create-ghl-workflow/engine/graph-rules.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var has = (v) => v != null && v !== "" && !(Array.isArray(v) && !v.length);
 var present = (v) => !(v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Array.isArray(v) && !Object.keys(v).length);
@@ -101925,6 +104626,8 @@ Fix the structure, or pass skipWorkflowRules (true, or ['${live[0].rule}']) if y
 }
 
 // ../skills/create-ghl-workflow/engine/graph-context-rules.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function gotoPlacement(templates) {
   const out = [];
@@ -102558,6 +105261,8 @@ function sortKeysDeep(o) {
 }
 
 // ../skills/create-ghl-workflow/engine/edit-driver.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers"]);
 var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
@@ -102841,6 +105546,8 @@ function applyOps(templates, ops, { ctx, idGen }) {
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 function makeFF({ gw }) {
   const { call, loc, uid } = gw;
@@ -102897,6 +105604,8 @@ function makeFF({ gw }) {
 }
 
 // ../skills/ghl-memberships/engine/api.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import { readFile } from "node:fs/promises";
 import { randomUUID as randomUUID2 } from "node:crypto";
@@ -103231,10 +105940,14 @@ async function probeDuration(filePath) {
 }
 
 // ../skills/ghl-memberships/engine/course-builder.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 import { isAbsolute, resolve } from "node:path";
 
 // ../skills/ghl-memberships/engine/assessments.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var BACKEND2 = "https://backend.leadconnectorhq.com";
 var SERVICES = "https://services.leadconnectorhq.com";
@@ -103329,6 +106042,8 @@ var Assessments = class {
 };
 
 // ../skills/ghl-memberships/engine/credentials.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var BACKEND3 = "https://backend.leadconnectorhq.com";
 var Credentials = class {
@@ -103482,6 +106197,8 @@ function isoEndOfToday() {
 }
 
 // ../skills/ghl-memberships/engine/members.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var BACKEND4 = "https://backend.leadconnectorhq.com";
 var SERVICES2 = "https://services.leadconnectorhq.com";
@@ -104104,9 +106821,13 @@ async function buildCourse({
 }
 
 // ../engines/ai/convai-compiler.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/convai-ir.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var IRError2 = class extends Error {
   constructor(code, message) {
@@ -104405,9 +107126,13 @@ function compileConvaiAgent(ir, { locationId } = {}) {
 }
 
 // ../engines/ai/voiceai-compiler.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/voiceai-ir.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var DENOISING_MODES = ["noise-cancellation"];
 var STT_MODES = ["accurate", "fast", "custom"];
@@ -104856,9 +107581,13 @@ function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
 }
 
 // ../engines/ai/studio-compiler.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 
 // ../engines/ai/studio-ir.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var DEFAULT_MODEL = "anthropic/claude-sonnet-4-6";
 var TOOLS = ["web_search", "image_generation", "kb_search"];
@@ -104995,6 +107724,8 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
 }
 
 // ../engines/ai/driver.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var AI_BASE = "https://services.leadconnectorhq.com";
 var kindFor = (create) => {
@@ -105224,6 +107955,10 @@ var typeCards = () => {
 var ENDPOINTS = null;
 var endpoints = () => {
   if (ENDPOINTS) return ENDPOINTS;
+  if (true) {
+    ENDPOINTS = define_ENDPOINT_CATALOG_default.endpoints ?? [];
+    return ENDPOINTS;
+  }
   try {
     ENDPOINTS = JSON.parse(readFileSync2(resolve2(HERE, "../catalog/internal-endpoints.json"), "utf8")).endpoints ?? [];
   } catch {
@@ -105234,6 +107969,10 @@ var endpoints = () => {
 var KINDS = null;
 var kinds = () => {
   if (KINDS) return KINDS;
+  if (true) {
+    KINDS = define_ENDPOINT_KINDS_default.kinds ?? {};
+    return KINDS;
+  }
   try {
     KINDS = JSON.parse(readFileSync2(resolve2(HERE, "../catalog/endpoint-kinds.json"), "utf8")).kinds ?? {};
   } catch {
@@ -108747,6 +111486,8 @@ function registerTools(server2, deps, tools = TOOLS2) {
 }
 
 // core/instructions.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_KINDS();
 init_define_TOOL_CATALOG();
 var FULL_INSTRUCTIONS = `GoHighLevel internal API \u2014 undocumented builder endpoints, local stdio, one browser JWT.
 

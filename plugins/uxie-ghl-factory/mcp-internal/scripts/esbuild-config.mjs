@@ -17,9 +17,20 @@ export const AUDIT_OUTFILE = resolve(ROOT, 'dist/audit-server.mjs');
 //                      and falls back to the co-located file in the un-bundled dev entry
 //   __TOOL_CATALOG__ — the tool-description catalog, inlined as a JS object literal (raw
 //                      JSON is a valid object-literal expression)
+//   __HAS_ENDPOINTS__ / __ENDPOINT_CATALOG__
+//                    — the same treatment for the internal ENDPOINT catalog, which was left out.
+//                      The reasoning above was applied to tool-descriptions.json and simply never
+//                      extended here, so the bundle only found the endpoint catalog when a sibling
+//                      catalog/ happened to sit next to it. Proven by copying dist/server.mjs to a
+//                      bare directory: search_endpoints returned "the internal endpoint catalog is
+//                      missing or unreadable", with remediation pointing at a script in a
+//                      knowledge/ repo the user does not have. The bundle test only called
+//                      tools/list, so it passed the whole time.
 function optionsFor(entry, extra = {}) {
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const catalog = readFileSync(resolve(ROOT, 'tool-descriptions.json'), 'utf8');
+  const endpoints = readFileSync(resolve(ROOT, 'catalog/internal-endpoints.json'), 'utf8');
+  const kinds = readFileSync(resolve(ROOT, 'catalog/endpoint-kinds.json'), 'utf8');
   return {
     entryPoints: [resolve(ROOT, entry)],
     bundle: true,
@@ -29,6 +40,9 @@ function optionsFor(entry, extra = {}) {
       __MCP_VERSION__: JSON.stringify(pkg.version),
       __HAS_CATALOG__: 'true',
       __TOOL_CATALOG__: catalog,
+      __HAS_ENDPOINTS__: 'true',
+      __ENDPOINT_CATALOG__: endpoints,
+      __ENDPOINT_KINDS__: kinds,
     },
     logLevel: 'warning',
     ...extra,

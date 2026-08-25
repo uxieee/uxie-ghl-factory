@@ -171,9 +171,16 @@ const typeCards = () => {
 // wrong: the token is the same, and GHL named the real cause in the response body while the
 // status code invited the other conclusion. Proven by differential 2026-08-25 — see
 // corpus/workflows/70-research/AUTH-HEADERS-2026-08-25.md.
+// Inlined at build time like the tool-description catalog, and for the same reason: dist/ ships
+// with no siblings. Before this, the bundle silently depended on a catalog/ directory next to it,
+// so search_endpoints worked in the repo and failed everywhere else.
 let ENDPOINTS = null;
 const endpoints = () => {
   if (ENDPOINTS) return ENDPOINTS;
+  if (typeof __HAS_ENDPOINTS__ !== 'undefined') {
+    ENDPOINTS = __ENDPOINT_CATALOG__.endpoints ?? [];
+    return ENDPOINTS;
+  }
   try {
     ENDPOINTS = JSON.parse(readFileSync(resolve(HERE, '../catalog/internal-endpoints.json'), 'utf8')).endpoints ?? [];
   } catch { ENDPOINTS = []; }
@@ -189,6 +196,10 @@ const endpoints = () => {
 let KINDS = null;
 const kinds = () => {
   if (KINDS) return KINDS;
+  if (typeof __HAS_ENDPOINTS__ !== 'undefined') {
+    KINDS = __ENDPOINT_KINDS__.kinds ?? {};
+    return KINDS;
+  }
   try { KINDS = JSON.parse(readFileSync(resolve(HERE, '../catalog/endpoint-kinds.json'), 'utf8')).kinds ?? {}; }
   catch { KINDS = {}; }
   return KINDS;

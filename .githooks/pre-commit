@@ -1,6 +1,10 @@
 #!/bin/sh
 # Gates for a PUBLIC, dual-harness plugin repo. Enable with:
 #     git config core.hooksPath .githooks
+#
+# These are ALSO wired into mcp-internal's `pretest`, because a hook nobody enabled is a gate that
+# does not exist -- a clone that never ran `git config core.hooksPath` had no privacy scan and no
+# manifest-parity check at all. The hook stays for the --staged scan, which `npm test` cannot do.
 set -e
 node scripts/check-privacy.mjs --staged
 node scripts/check-manifest-parity.mjs

@@ -10,7 +10,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test \"test/**/*.test.mjs\"",
-    "manifest": "node scripts/gen-manifest.mjs"
+    "manifest": "node scripts/gen-manifest.mjs",
+    "pretest": "cd ../../.. && node scripts/check-privacy.mjs && node scripts/check-manifest-parity.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

@@ -22,6 +22,10 @@ const listCmd = staged
 // deps carry arbitrary long numeric constants — e.g. int64/uint64 bounds — that trip the
 // "long opaque account id" rule). Their authored source (mcp-internal/core, stdio.mjs) is
 // tracked and scanned on its own, so nothing that could actually leak is skipped.
+// RUN THIS FROM THE PLUGIN ROOT. The pattern below is written against the path as seen from here,
+// so running the script with a different cwd silently stops skipping the bundles and then trips on
+// the Int64 min/max constants inside vendored SDK code, reported as account ids.
+// The bundles are excluded because they are generated; their INPUTS are scanned as source.
 const SKIP_PATHS = [/(^|\/)mcp-internal\/dist\//];
 const files = execFileSync('git', listCmd, { encoding: 'utf8' })
   .split('\0')

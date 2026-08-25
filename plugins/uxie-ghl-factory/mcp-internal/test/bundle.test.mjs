@@ -112,3 +112,35 @@ test('the two bundles are built from different entry points and neither is the o
   assert.equal(auditOptions.format, 'esm');
   assert.equal(auditOptions.platform, 'node');
 });
+
+// P1 — the bundle must be SELF-CONTAINED, which is the whole reason defines exist. It was not:
+// the endpoint catalog was read from a sibling catalog/ directory, so search_endpoints worked in
+// this repo and failed anywhere else. The test above never caught it because listing tools does
+// not touch the catalog. This copies the committed bundle somewhere with no siblings and CALLS it.
+test('committed bundles carry the endpoint catalog with no sibling files', async () => {
+  const { mkdtemp, copyFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+
+  const dir = await mkdtemp(join(tmpdir(), 'ghl-bundle-'));
+  try {
+    const lone = join(dir, 'server.mjs');
+    await copyFile(distServer, lone);
+    const t = new StdioClientTransport({ command: 'node', args: [lone], stderr: 'pipe' });
+    const c = new Client({ name: 'isolated-bundle-test', version: '0' }, { capabilities: {} });
+    try {
+      await c.connect(t);
+      const res = await c.callTool({
+        name: 'search_endpoints',
+        arguments: { intent: 'list the workflow folders', limit: 3 },
+      });
+      const parsed = JSON.parse(res.content[0].text);
+      assert.equal(parsed.ok, true, `isolated bundle could not search: ${parsed.detail ?? ''}`);
+      assert.ok(parsed.data.results.length > 0, 'isolated bundle returned no endpoint rows');
+    } finally {
+      await c.close().catch(() => {});
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
