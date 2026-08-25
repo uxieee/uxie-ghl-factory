@@ -1,6 +1,8 @@
 # uxie-ghl-factory
 
-A plugin that turns **Claude Code** — or **Codex** — into a competent **GoHighLevel operator**: it can read a sub-account, design and build workflows, funnels, pipelines, and AI agents, run a whole-account audit, and reverse-engineer GHL's own internal APIs when the public API falls short.
+A plugin that turns **Claude Code** — or **Codex** — into a competent **GoHighLevel operator**: it
+reads a sub-account, designs and builds workflows, courses, funnels, events, pipelines and AI
+agents, and reverse-engineers GHL's own internal APIs when the public one falls short.
 
 ### Install in Claude Code
 
@@ -9,7 +11,8 @@ A plugin that turns **Claude Code** — or **Codex** — into a competent **GoHi
 /plugin install uxie-ghl-factory@uxieee
 ```
 
-Then run `/uxie-ghl-factory:setup`.
+Then run `/uxie-ghl-factory:setup` for the public rail, and
+`/uxie-ghl-factory:internal-connect` for the internal one.
 
 ### Install in Codex
 
@@ -18,74 +21,140 @@ codex plugin marketplace add uxieee/uxie-ghl-factory
 codex plugin add uxie-ghl-factory@uxieee
 ```
 
-The Codex build ships the **skills only** and does **not** bundle the MCP server — configure it yourself (one-time), and note that the slash commands and the multi-agent audit are Claude Code-only. See **[Using in Codex](#using-in-codex)** below.
+The Codex build ships the **skills only** and does **not** bundle the MCP servers — configure them
+yourself (one-time). Slash commands are Claude Code-only. See
+**[Using in Codex](#using-in-codex)**.
 
 ---
 
-## What's inside
+## The two rails
 
-The plugin is built in layers: **knowledge** the agent reasons with → **capabilities** it acts through → **specialists** that compose those capabilities → an **auditor** that inspects the whole system. It all sits on an MCP server exposing **671 distinct operations across 45 categories** of GoHighLevel's official public API — run locally from npm, with your own Private Integration token, set up at first run.
+Almost every decision here comes down to which one you are on.
 
-### Commands (what you type)
+| | Public rail | Internal rail |
+|---|---|---|
+| What | GHL's official, documented v2/v3 API | the same endpoints GHL's own web app calls |
+| Auth | a Private Integration Token, long-lived | a browser session JWT, ~1 hour |
+| Surface | **671 operations across 45 categories** | **806 catalogued endpoints** |
+| Server | `@uxieee/ghl-mcp` (npm, runs locally) | `uxie-ghl-internal-mcp` (bundled, local stdio) |
+| Status | supported, stable | undocumented, can change without notice |
+
+Default to public. The internal rail exists because the public API cannot reach the workflow
+builder, memberships and courses, events, funnel/page content, Voice AI behaviour, or knowledge
+bases at all.
+
+Inspecting your own account's traffic is permitted; what GHL does not owe is compatibility. Every
+internal write passes two gates — an owned-account check each session, and a one-time
+acknowledgement per workspace.
+
+## Finding things — the same shape on both rails
+
+Neither rail asks you to know an endpoint in advance.
+
+```
+public    search_actions   → describe_action   → execute_action
+internal  search_endpoints → describe_endpoint → raw_request (or a typed tool)
+```
+
+The internal catalogue holds **806 endpoints** across every product this project knows, from four
+kinds of evidence, and each row says which: mined from GHL's own recovered front-end source,
+transcribed into the corpus from live traffic, or adopted from what the shipped tools call.
+
+A search result tells you the four things that decide what to do next:
+
+| | |
+|---|---|
+| `coveredBy` | a typed tool already wraps this — **call that**. It carries the compiler, the required query switches, the cursor walk and the read-back |
+| `kind` | `read` / `write` / `destructive`, curated where the method alone misleads (one route is named `getSampleResponse` and sends real messages) |
+| `reach` | `proven` — called live and it answered · `refused` — 401s from this rail, don't spend a turn · `source-only` — GHL's app calls it, nobody here has |
+| `note` | the one trap worth knowing before you pick it |
+
+`describe_endpoint` then hands you a copy-pasteable call — or says plainly that `raw_request`
+cannot make it (multipart, blob, SSE, or a header it has no way to set).
+
+## Commands
 
 | Command | What it does |
 |---|---|
-| `/uxie-ghl-factory:setup` | First-run: token, connection test, prerequisites |
-| `/uxie-ghl-factory:brief` | Create/update the persisted per-client account brief |
-| `/uxie-ghl-factory:audit` | Whole-account, **read-only**, two-altitude audit → Mermaid map + impact-ranked report |
-| `/uxie-ghl-factory:build-workflow` | Design + build a workflow (draft-only) via the workflow specialist |
-| `/uxie-ghl-factory:build-funnel` | Build a funnel/page with custom HTML, tracking, SEO |
-| `/uxie-ghl-factory:pipeline` | Design/build/diagnose a pipeline and its stages |
-| `/uxie-ghl-factory:export-workflow` | Read-only export of a workflow's raw JSON |
+| `/uxie-ghl-factory:setup` | first run on the public rail: token, connection test, prerequisites |
+| `/uxie-ghl-factory:public-add-account` | add a sub-account and its Private Integration Token |
+| `/uxie-ghl-factory:public-scope` | point this folder at one client |
+| `/uxie-ghl-factory:internal-connect` | register + authorise the internal MCP for this project (the agent drives the browser; you just log in) |
+| `/uxie-ghl-factory:brief` | create/update the persisted per-client account brief |
+| `/uxie-ghl-factory:build-workflow` | design + build a workflow — **draft only** |
+| `/uxie-ghl-factory:build-course` | build a whole course from a spec |
+| `/uxie-ghl-factory:build-funnel` | build a funnel/page with custom HTML, tracking, SEO |
+| `/uxie-ghl-factory:pipeline` | design / build / diagnose a pipeline and its stages |
+| `/uxie-ghl-factory:export-workflow` | read-only export of a workflow's raw JSON |
+| `/uxie-ghl-factory:workflow-logs` | read what a workflow actually DID at runtime |
 
-### Skills (how it reasons and builds)
+**The account brief** is a persisted per-client doc — business, ideal client, offer, goals — that
+every specialist reads *before* asking you anything, so nothing re-interviews you from scratch.
 
-| Skill | Layer | What it does |
-|---|---|---|
-| `ghl-orientation` | Knowledge | The object model, terminology, and which API surface can do what — the fluency every other skill assumes |
-| `create-ghl-workflow` | Capability | Compiles a clean IR into a real workflow via the builder's internal API — each supported step reverse-engineered + test-locked (draft-only) |
-| `get-ghl-workflow-json` | Capability | Read-only export/inspection of a workflow's raw JSON |
-| `get-ghl-workflow-logs` | Capability | Read-only runtime — execution logs, enrollment history, per-step occupancy |
-| `ghl-workflow-fast-forward` | Capability | Moves contacts parked at a wait step to the next step (builder's "Action statistics → move to next step") — turns a multi-day chase-ladder test into minutes; **write** skill, gated |
-| `ghl-funnels-pages` | Capability | Build funnels & pages, inject full-bleed custom HTML, set tracking code + SEO |
-| `ghl-workflow-specialist` | Specialist | Senior automation architect — full trigger/action catalog (28 triggers / 66 steps from real production workflows), patterns + anti-patterns; delegates the build to `create-ghl-workflow` |
-| `ghl-pipeline-specialist` | Specialist | Stage design (stages are *states*), opportunity hygiene, pipeline↔automation interplay — public-API only, ToS-clean |
-| `ghl-ai-agents-specialist` | Specialist | Builds **Conversation AI**, **Voice AI**, and **Agent Studio** agents + rich-text **Knowledge Base** via their internal APIs — tested engine (4 compilers), **live-create-proven** |
-| `ghl-reverse-engineering` | Meta | The methodology for capturing GHL's internal APIs (auth map, capture discipline) — how the engines grow to cover new surfaces |
-| `ghl-audit-primitives`, `ghl-defect-catalog`, `ghl-opportunity-catalog`, `ghl-mermaid-map` | Audit | The finding schema, defect rules, opportunity rules, and system-map grammar the auditor runs on |
+## Skills
 
-### Agents (the audit fan-out)
+Fifteen, in three roles. The tools do the execution and the catalogue does the lookup, so what a
+skill carries is what neither can hold: **order, consequence, and when not to.**
 
-| Agent | What it does |
+**Judgement — how to decide**
+
+| Skill | |
 |---|---|
-| `surface-auditor` | Recons one GHL surface (read-only) through both a defect lens and an opportunity lens, returns structured findings |
-| `finding-verifier` | Adversarially re-checks each finding, stamping confirmed / plausible / refuted before it reaches the report |
+| `ghl-orientation` | the object model, the terminology, and which rail can do what. Every other skill assumes it |
+| `ghl-workflow-specialist` | senior automation architect: patterns, anti-patterns, multi-workflow architecture. Decides *what* to build, delegates *how* |
+| `ghl-pipeline-specialist` | stages as states, opportunity hygiene, pipeline↔automation interplay. Public API only |
+| `ghl-reverse-engineering` | the method for mapping a new internal surface exhaustively — and for checking the catalogue before opening a browser |
 
-**How the audit works:** `/uxie-ghl-factory:audit` fans `surface-auditor` across eight surfaces (workflows, pipelines, funnels, calendars, forms, AI agents, messaging, tracking), verifies every finding, ranks them against the client's stated goals, and synthesizes a Mermaid system map + report. It never writes to the account.
+**Build — engines and procedure**
 
-**The account brief** (`/uxie-ghl-factory:brief`) is a persisted per-client doc — business, ideal client avatar, offer, goals — that every specialist and the auditor read *before* asking you anything, so they never re-interview from scratch.
+| Skill | |
+|---|---|
+| `create-ghl-workflow` | compiles an IR into a real workflow through the builder's internal API. 33 engine modules, 147 enforced rules, **draft-first** |
+| `ghl-memberships` | courses end to end: chapters, drip, lessons, quizzes, offers, certificates, enrolment |
+| `ghl-funnels-pages` | funnels, steps, pages, full-bleed HTML, tracking code, and the three-call public-path fix |
+| `ghl-events` | ticketed and RSVP events: tickets, sessions, speakers, attendees, public registration |
+| `ghl-voice-ai` | phone agents — the behaviour layer the public API cannot see (27 fields vs 51) |
+| `ghl-conversation-ai` | the chat AI Employee. **Mostly a public-rail product** — internal only for the per-contact switch and prompt history |
+| `ghl-knowledge-base` | the content both AI products consume. 5 of its 9 source types have no public equivalent |
+| `ghl-workflow-fast-forward` | move contacts parked at a wait to the next step. Turns a multi-day ladder into minutes. **Write skill, three gates** |
 
----
+**Read**
 
-## The two API worlds (and honest limits)
+| Skill | |
+|---|---|
+| `get-ghl-workflow-json` | export a workflow's raw config |
+| `get-ghl-workflow-logs` | runtime: execution logs, enrolment history, per-step occupancy — and what the rows *mean* |
+| `ghl-public-mcp-setup` | set up, scope or repair the public rail |
 
-| | Public API | Internal API |
-|---|---|---|
-| What | Official, documented, stable, in-ToS | The same endpoints GHL's own app UI uses |
-| Auth | Private Integration token | Your logged-in session token (captured via Playwright) |
-| Used by | MCP server, orientation, pipelines, audit recon | Workflow creation, funnels, AI-agent builders |
-| Caveat | — | Undocumented, can change without notice (GHL permits operating your own account this way) |
+## The internal MCP server
 
-The internal-API builders (`create-ghl-workflow`, the AI builders) are **draft-first** and were proven by creating-then-deleting real objects against a live account — but they're grounded in what's been captured, not a full spec, so coverage expands one reverse-engineered surface at a time.
+Bundled and local. **41 tools** — the workflow build/edit/publish rail, runtime reads, memberships,
+AI agent creation, folders, versions — plus `search_endpoints` / `describe_endpoint` over the
+catalogue and `raw_request` as the escape hatch. Every non-GET requires an explicit `confirm`.
+
+A **second, separate server** exposes 7 read-only audit tools whose GET-only lock is structural,
+not configuration.
+
+## Honest limits
+
+- **709 of the 806 catalogued endpoints are `source-only`** — GHL's app calls them, nobody here
+  has. 72 are proven live, 25 are confirmed dead ends. A row is a path, not a proven behaviour.
+- **Whole surfaces are unmapped.** Social planner and blogs have no coverage at all; calendars,
+  reputation and media are thin. Most are reachable on the public rail instead.
+- **385 step types and 204 trigger types** are buildable, but only 71 step types have been fired
+  live. 282 are marketplace actions that build correctly and only *run* if the app is installed.
+- **Publishing is never implied.** Workflows build as drafts; publishing is a separate, gated step.
+- **The audit was retired** in 0.32.0 pending a redesign. Nothing was deleted — it is kept whole in
+  `archive/audit-retired-2026-08-25/`, with a note on what a rebuild should change.
 
 ## Using in Codex
 
-Codex plugins load **skills, MCP servers, hooks, and apps** — but **not** slash commands or subagents. So the Codex build is skills-only, with two consequences:
+Codex plugins load **skills, MCP servers, hooks and apps** — but **not** slash commands or
+subagents. So the Codex build is skills-only: invoke the skills directly (*"use
+`create-ghl-workflow` to build…"*, *"use `ghl-workflow-specialist` to design…"*). All the build,
+export, logs, pipeline and funnel functionality lives in skills, so you keep it.
 
-- **Slash commands are Claude Code-only.** In Codex there are no `/uxie-ghl-factory:*` commands — invoke the underlying skills directly instead (e.g. *"use `create-ghl-workflow` to build…"*, *"use `ghl-workflow-specialist` to design…"*, *"use `get-ghl-workflow-json` to export…"*). The build / export / logs / pipeline / funnel functionality all lives in skills, so you keep it.
-- **The multi-agent audit is Claude Code-only.** `/uxie-ghl-factory:audit` fans out to the `surface-auditor` and `finding-verifier` subagents, which Codex can't load. The audit *knowledge* skills (`ghl-audit-primitives`, `ghl-defect-catalog`, `ghl-opportunity-catalog`, `ghl-mermaid-map`) still load and can guide a manual audit.
-
-**MCP server (configure once).** The Codex plugin does not bundle the GHL MCP. Add it to `~/.codex/config.toml`:
+**Public MCP server (configure once)** in `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.ghl]
@@ -94,15 +163,13 @@ args = ["-y", "@uxieee/ghl-mcp"]
 env = { GHL_ACCOUNTS_FILE = "/Users/you/.ghl/accounts.json" }
 ```
 
-Set the accounts file up first with `npx -y @uxieee/ghl-mcp accounts add` (once per
-sub-account). Codex infers the transport from `command`, and forwards only a fixed set of
-parent environment variables to a stdio server, so `GHL_ACCOUNTS_FILE` must be named in `env`
-as above rather than exported in your shell.
+Set the accounts file up first with `npx -y @uxieee/ghl-mcp accounts add` (once per sub-account).
+Codex forwards only a fixed set of parent environment variables to a stdio server, so
+`GHL_ACCOUNTS_FILE` must be named in `env` rather than exported in your shell. For a single
+sub-account, `env = { GHL_API_TOKEN = "pit-…" }` works instead and needs no file.
 
-For a single sub-account, `env = { GHL_API_TOKEN = "pit-…" }` works instead and needs no file.
-
-`~/.codex/config.toml` is global, so Codex has no per-project scoping. Give each client its
-own named server, each narrowed to that client's sub-accounts:
+`~/.codex/config.toml` is global, so there is no per-project scoping. Give each client its own
+named server, narrowed to that client's sub-accounts:
 
 ```toml
 [mcp_servers.ghl_acme]
@@ -111,19 +178,31 @@ args = ["-y", "@uxieee/ghl-mcp"]
 env = { GHL_ACCOUNTS_FILE = "/Users/you/.ghl/accounts.json", GHL_ALLOWED_LOCATIONS = "<id>" }
 ```
 
-Without it, the skills that reason about GHL (orientation, workflow/pipeline design) still load, but anything that *calls* the API needs this server.
+**Internal MCP server**, if you want the internal rail in Codex:
+
+```toml
+[mcp_servers.uxie-ghl-internal-mcp]
+command = "node"
+args = ["/Users/you/.uxie-ghl-internal-mcp/launch.mjs"]
+env = { GHL_TOK_FILE = "/path/to/project/.ghl/uxie-ghl-internal-mcp-tok.txt" }
+```
+
+Without either server the reasoning skills still load; anything that *calls* GHL needs one.
 
 ## Prerequisites
 
 | Requirement | Needed for |
 |---|---|
-| **Node ≥ 18** | The compiler engines |
-| **A Playwright MCP server** | Internal-API features only — without it, the public MCP, orientation, pipelines, and audit recon still work fully |
-| **A GHL account (admin) + Private Integration token** | Everything |
+| **Node ≥ 18** | the compiler engines and both servers |
+| **A GHL account (admin) + Private Integration Token** | everything on the public rail |
+| **A Playwright MCP server** | capturing the internal rail's token — without it the public rail still works fully |
 
 ## Repository layout
 
-The plugin lives in [`plugins/uxie-ghl-factory/`](plugins/uxie-ghl-factory/). The repo root carries **both** marketplace manifests so either host can install it: `.claude-plugin/marketplace.json` (Claude Code) and `.agents/plugins/marketplace.json` (Codex). The plugin itself carries both plugin manifests: `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (skills-only). That's all that's here.
+The plugin lives in [`plugins/uxie-ghl-factory/`](plugins/uxie-ghl-factory/). The repo root carries
+**both** marketplace manifests so either host can install it: `.claude-plugin/marketplace.json`
+(Claude Code) and `.agents/plugins/marketplace.json` (Codex). The plugin carries both plugin
+manifests: `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` (skills-only).
 
 ## License
 
