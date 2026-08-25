@@ -3918,7 +3918,19 @@ export const TOOLS = [
       // a Bearer-only call, so a base override without the rail would just 401.
       const onAi = host === 'ai';
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state, ...(onAi ? { rail: 'ai' } : {}) });
-      const callOpts = onAi ? { base: 'https://services.leadconnectorhq.com' } : undefined;
+      // `sourceid` is pinned by the memberships front-end on every one of its requests, and without
+      // it that whole surface -- 160 catalogued endpoints, the entire course and certificate rail --
+      // is unreachable through this tool. Its value is the locationId, which this tool already
+      // requires, so there is nothing to ask the caller for.
+      //
+      // Sent on every call rather than only the membership prefixes: it is a header the other rails
+      // ignore, and a prefix allowlist here would be a second place to keep in sync with the
+      // catalogue. The gateway still strips authorization/token-id from overrides, so this cannot
+      // reach the credential rails.
+      const callOpts = {
+        ...(onAi ? { base: 'https://services.leadconnectorhq.com' } : {}),
+        headers: { sourceid: args.locationId },
+      };
       if (method === 'GET') {
         const response = await gw.call('GET', args.path, undefined, callOpts);
         return response.ok
