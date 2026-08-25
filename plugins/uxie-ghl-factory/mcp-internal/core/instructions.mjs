@@ -10,6 +10,12 @@
 
 export const FULL_INSTRUCTIONS = `GoHighLevel internal API — undocumented builder endpoints, local stdio, one browser JWT.
 
+START WITH search_endpoints WHEN NO TYPED TOOL OBVIOUSLY FITS. It covers every GHL surface this
+project knows -- workflow builder, memberships and courses, conversation AI, voice AI, agent
+studio, funnels, calendars, media, billing -- not workflows only. Each hit says what the endpoint
+does, whether a typed tool already covers it, and whether a location token has been proven to
+reach it. describe_endpoint then hands you the exact call.
+
 A TYPED TOOL ALWAYS WINS over raw_request for the same endpoint. Typed tools carry the compiler,
 the required query switches, the cursor walk and the read-back verification; raw_request carries
 none of them. search_endpoints names a covering tool in coveredBy when one exists — call that

@@ -4,6 +4,10 @@ description: "GoHighLevel Conversation AI (the chat 'AI Employee') — bot confi
 ---
 # GHL Conversation AI
 
+> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
+> endpoints across every GHL product, with the typed tool that covers each one and whether a
+> location token is proven to reach it. Search before concluding something is not possible.
+
 > **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `create_convai_agent` / `create_voiceai_agent` / `create_studio_agent` tools over running this skill's scripts directly — the tools wrap these same compilers behind confirmation gates and round-trip verification. Fall back to this skill's own scripts when the server is not registered.
 
 You design and build GoHighLevel's **Conversation AI** — the chat "AI Employee" that answers

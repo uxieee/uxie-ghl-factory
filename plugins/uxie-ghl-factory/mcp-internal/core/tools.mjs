@@ -3976,11 +3976,16 @@ export const TOOLS = [
   {
     name: 'search_endpoints',
     description: `${describe('search_endpoints', 'Search the internal API surface — risk: read')}. `
-      + `Ranked search over ${endpoints().length} internal endpoints mined from GHL's own builder source. Returns `
-      + 'compact STUBS — method, path, base. Call describe_endpoint on the one you pick. '
-      + 'Use this when no typed tool covers what you need, BEFORE reaching for raw_request. '
-      + 'Reads no account data. A hit proves the GHL builder calls that path — NOT that your '
-      + 'token can reach it, and not that calling it is safe.',
+      + `Ranked search over ${endpoints().length} internal endpoints across EVERY GHL surface this `
+      + 'project knows: the workflow builder, memberships and courses, conversation AI, voice AI, '
+      + 'agent studio, funnels, calendars, media, billing. Not workflows only. '
+      + 'Returns compact stubs — id, method, path, kind, and where known a one-line summary, the '
+      + 'typed tool that already covers it, the one trap worth knowing, and whether a location '
+      + 'token has been proven to reach it. Call describe_endpoint with the id you pick. '
+      + 'Use this whenever no typed tool obviously covers what you need, BEFORE reaching for '
+      + 'raw_request. Reads no account data. '
+      + 'A hit proves a GHL front-end calls that path — NOT that your token reaches it, and not '
+      + 'that calling it is safe.',
     inputSchema: schema({
       intent: z.string().describe('what you want to do, in plain words — e.g. "list workflow folders", "erroring workflows", "scheduled pause"'),
       method: z.string().trim().optional().describe('filter to one HTTP method, e.g. GET'),
@@ -4019,8 +4024,12 @@ export const TOOLS = [
   {
     name: 'describe_endpoint',
     description: `${describe('describe_endpoint', 'Detail for one internal endpoint — risk: read')}. `
-      + 'Full record for ONE endpoint from search_endpoints: method, path with its :params, base '
-      + 'host, how many places the builder calls it, and the source files that do. '
+      + 'Full record for ONE endpoint: the absolute url, its path parameters, every query key known '
+      + '(including ones learned by CALLING it and reading what GHL asked for), the request body and '
+      + 'response shape where the source declares them, and the typed tools that already cover it. '
+      + 'Ends with callWith — a copy-pasteable raw_request path — EXCEPT where raw_request cannot '
+      + 'make the call at all (multipart, blob, SSE, or a header it has no way to set), where it '
+      + 'says so instead. Address it by `id` from search_endpoints; method+path still works. '
       + 'Reads no account data.',
     inputSchema: schema({
       id: z.string().trim().optional().describe('the endpoint id from search_endpoints — the preferred key'),

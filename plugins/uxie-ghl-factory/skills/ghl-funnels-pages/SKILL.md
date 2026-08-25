@@ -5,6 +5,10 @@ description: Build GoHighLevel funnels and pages via the internal API — create
 
 # GHL Funnels & Pages Builder
 
+> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
+> endpoints across every GHL product, with the typed tool that covers each one and whether a
+> location token is proven to reach it. Search before concluding something is not possible.
+
 Writes to a GHL account via the undocumented internal API.
 
 ## Before any write
