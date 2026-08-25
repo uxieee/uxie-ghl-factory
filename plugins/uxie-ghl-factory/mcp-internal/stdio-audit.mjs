@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { makeGatewayFactory, processAuditPacing, registerTools } from './core/tools.mjs';
 import { toolsForProfile } from './core/audit-profile.mjs';
+import { AUDIT_INSTRUCTIONS } from './core/instructions.mjs';
 import { readOnlyGateway } from './core/audit-readonly.mjs';
 import { makeGateway } from './core/gateway.mjs';
 import { DEFAULT_TOKEN_FILE } from './core/auth.mjs';
@@ -49,7 +50,9 @@ const makeGw = makeGatewayFactory({
   gatewayImpl: (options) => readOnlyGateway(makeGateway(options)),
 });
 
-const server = new McpServer({ name: 'uxie-ghl-internal-mcp-audit', version: pkgVersion });
+// Its OWN instructions, not the full profile's: this server exposes no raw_request, and telling
+// an agent to prefer a typed tool over a hatch that is not here would be noise at best.
+const server = new McpServer({ name: 'uxie-ghl-internal-mcp-audit', version: pkgVersion }, { instructions: AUDIT_INSTRUCTIONS });
 registerTools(
   server,
   { state, makeGw, auditLimiter: limiter, auditCircuit: circuit },

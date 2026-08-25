@@ -105231,7 +105231,68 @@ var endpoints = () => {
   }
   return ENDPOINTS;
 };
-var scoreEndpoint = (e, terms) => {
+var KINDS = null;
+var kinds = () => {
+  if (KINDS) return KINDS;
+  try {
+    KINDS = JSON.parse(readFileSync2(resolve2(HERE, "../catalog/endpoint-kinds.json"), "utf8")).kinds ?? {};
+  } catch {
+    KINDS = {};
+  }
+  return KINDS;
+};
+var endpointKind = (e) => kinds()[`${e.method} ${e.path}`] ?? (e.method === "GET" ? "read" : e.method === "DELETE" ? "destructive" : "write");
+var MUTATION_VERBS = /* @__PURE__ */ new Set([
+  "create",
+  "make",
+  "new",
+  "build",
+  "update",
+  "edit",
+  "change",
+  "modify",
+  "delete",
+  "remove",
+  "clear",
+  "drop",
+  "publish",
+  "unpublish",
+  "install",
+  "uninstall",
+  "start",
+  "stop",
+  "pause",
+  "resume",
+  "enroll",
+  "move",
+  "restore",
+  "send",
+  "reset",
+  "register",
+  "deregister",
+  "requeue",
+  "bypass",
+  "blacklist"
+]);
+var DESTRUCTIVE_VERBS = /* @__PURE__ */ new Set([
+  "delete",
+  "remove",
+  "clear",
+  "drop",
+  "stop",
+  "bypass",
+  "blacklist",
+  "reset",
+  "deregister",
+  "requeue",
+  "unpublish",
+  "uninstall"
+]);
+var intentVerbs = (terms) => ({
+  mutating: terms.some((t) => MUTATION_VERBS.has(t)),
+  destructive: terms.some((t) => DESTRUCTIVE_VERBS.has(t))
+});
+var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (!terms.length) return 0;
   const path = String(e.path || "").toLowerCase();
   const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
@@ -105252,6 +105313,9 @@ var scoreEndpoint = (e, terms) => {
   score += segHits * segHits * 8;
   score -= (path.match(/:/g) ?? []).length;
   if (e.base.endsWith("/workflow")) score += 5;
+  const kind = endpointKind(e);
+  if (kind === "destructive" && !verbs.destructive) return 0;
+  if (kind === "write" && !verbs.mutating) score -= 40;
   return score;
 };
 var endpointStub = (e) => ({
@@ -108618,7 +108682,8 @@ var TOOLS2 = [
       }
       const wanted = args.method ? String(args.method).toUpperCase() : null;
       if (wanted) pool = pool.filter((e) => e.method === wanted);
-      const ranked = pool.map((e) => ({ e, score: scoreEndpoint(e, terms) })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.e.path.length - b.e.path.length).slice(0, args.limit ?? 10);
+      const verbs = intentVerbs(terms);
+      const ranked = pool.map((e) => ({ e, score: scoreEndpoint(e, terms, verbs) })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.e.path.length - b.e.path.length).slice(0, args.limit ?? 10);
       if (!ranked.length) {
         return { ok: true, data: {
           results: [],
@@ -108628,7 +108693,7 @@ var TOOLS2 = [
       }
       return { ok: true, data: {
         results: ranked.map((x) => endpointStub(x.e)),
-        total: pool.filter((e) => scoreEndpoint(e, terms) > 0).length,
+        total: pool.filter((e) => scoreEndpoint(e, terms, verbs) > 0).length,
         next: "describe_endpoint with the method and path you want"
       } };
     })
@@ -108714,6 +108779,23 @@ function toolsForProfile(profile, tools = TOOLS2) {
   return selected;
 }
 
+// core/instructions.mjs
+init_define_TOOL_CATALOG();
+var AUDIT_INSTRUCTIONS = `GoHighLevel internal API \u2014 READ-ONLY audit profile.
+
+This profile is structurally read-only: the registry admits GET capabilities only, and that lock
+lives in the server, not in configuration. There is no escape hatch and no arbitrary-request tool
+here by design. If you need one, you are on the wrong profile.
+
+AUTH AND HEADERS ARE ADDED FOR YOU. Never set them.
+
+Every composite reports completeness explicitly. A failure is complete:false with a coded warning
+and a null payload \u2014 never an empty list, which would read as "there is nothing there". Do not
+collapse the two.
+
+A description that says proof: external-receipt-required means THIS RAIL HAS NEVER BEEN
+LIVE-PROVEN. A live canary is required before its output may be published as an audit finding.`;
+
 // core/audit-readonly.mjs
 init_define_TOOL_CATALOG();
 function auditError2(code, detail, remediation) {
@@ -108778,7 +108860,7 @@ var makeGw = makeGatewayFactory({
   state,
   gatewayImpl: (options) => readOnlyGateway(makeGateway(options))
 });
-var server = new McpServer({ name: "uxie-ghl-internal-mcp-audit", version: pkgVersion });
+var server = new McpServer({ name: "uxie-ghl-internal-mcp-audit", version: pkgVersion }, { instructions: AUDIT_INSTRUCTIONS });
 registerTools(
   server,
   { state, makeGw, auditLimiter: limiter, auditCircuit: circuit },

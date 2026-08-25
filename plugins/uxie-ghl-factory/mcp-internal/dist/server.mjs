@@ -105231,7 +105231,68 @@ var endpoints = () => {
   }
   return ENDPOINTS;
 };
-var scoreEndpoint = (e, terms) => {
+var KINDS = null;
+var kinds = () => {
+  if (KINDS) return KINDS;
+  try {
+    KINDS = JSON.parse(readFileSync2(resolve2(HERE, "../catalog/endpoint-kinds.json"), "utf8")).kinds ?? {};
+  } catch {
+    KINDS = {};
+  }
+  return KINDS;
+};
+var endpointKind = (e) => kinds()[`${e.method} ${e.path}`] ?? (e.method === "GET" ? "read" : e.method === "DELETE" ? "destructive" : "write");
+var MUTATION_VERBS = /* @__PURE__ */ new Set([
+  "create",
+  "make",
+  "new",
+  "build",
+  "update",
+  "edit",
+  "change",
+  "modify",
+  "delete",
+  "remove",
+  "clear",
+  "drop",
+  "publish",
+  "unpublish",
+  "install",
+  "uninstall",
+  "start",
+  "stop",
+  "pause",
+  "resume",
+  "enroll",
+  "move",
+  "restore",
+  "send",
+  "reset",
+  "register",
+  "deregister",
+  "requeue",
+  "bypass",
+  "blacklist"
+]);
+var DESTRUCTIVE_VERBS = /* @__PURE__ */ new Set([
+  "delete",
+  "remove",
+  "clear",
+  "drop",
+  "stop",
+  "bypass",
+  "blacklist",
+  "reset",
+  "deregister",
+  "requeue",
+  "unpublish",
+  "uninstall"
+]);
+var intentVerbs = (terms) => ({
+  mutating: terms.some((t) => MUTATION_VERBS.has(t)),
+  destructive: terms.some((t) => DESTRUCTIVE_VERBS.has(t))
+});
+var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (!terms.length) return 0;
   const path = String(e.path || "").toLowerCase();
   const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
@@ -105252,6 +105313,9 @@ var scoreEndpoint = (e, terms) => {
   score += segHits * segHits * 8;
   score -= (path.match(/:/g) ?? []).length;
   if (e.base.endsWith("/workflow")) score += 5;
+  const kind = endpointKind(e);
+  if (kind === "destructive" && !verbs.destructive) return 0;
+  if (kind === "write" && !verbs.mutating) score -= 40;
   return score;
 };
 var endpointStub = (e) => ({
@@ -108618,7 +108682,8 @@ var TOOLS2 = [
       }
       const wanted = args.method ? String(args.method).toUpperCase() : null;
       if (wanted) pool = pool.filter((e) => e.method === wanted);
-      const ranked = pool.map((e) => ({ e, score: scoreEndpoint(e, terms) })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.e.path.length - b.e.path.length).slice(0, args.limit ?? 10);
+      const verbs = intentVerbs(terms);
+      const ranked = pool.map((e) => ({ e, score: scoreEndpoint(e, terms, verbs) })).filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.e.path.length - b.e.path.length).slice(0, args.limit ?? 10);
       if (!ranked.length) {
         return { ok: true, data: {
           results: [],
@@ -108628,7 +108693,7 @@ var TOOLS2 = [
       }
       return { ok: true, data: {
         results: ranked.map((x) => endpointStub(x.e)),
-        total: pool.filter((e) => scoreEndpoint(e, terms) > 0).length,
+        total: pool.filter((e) => scoreEndpoint(e, terms, verbs) > 0).length,
         next: "describe_endpoint with the method and path you want"
       } };
     })
@@ -108681,6 +108746,30 @@ function registerTools(server2, deps, tools = TOOLS2) {
   }
 }
 
+// core/instructions.mjs
+init_define_TOOL_CATALOG();
+var FULL_INSTRUCTIONS = `GoHighLevel internal API \u2014 undocumented builder endpoints, local stdio, one browser JWT.
+
+A TYPED TOOL ALWAYS WINS over raw_request for the same endpoint. Typed tools carry the compiler,
+the required query switches, the cursor walk and the read-back verification; raw_request carries
+none of them. search_endpoints names a covering tool in coveredBy when one exists \u2014 call that
+instead. Reach for raw_request only when nothing covers the endpoint, or when you need a parameter
+the typed tool does not expose.
+
+AUTH AND HEADERS ARE ADDED FOR YOU on every call \u2014 Bearer plus channel/source/version. Never set
+them yourself. A 401 whose body says "version header was not found" is NOT an auth failure and
+re-capturing the token will not help.
+
+host:"ai" is ONE decision, not two: it switches the origin to services.leadconnectorhq.com AND
+attaches the second credential (token-id). Do not reach for it just to change host.
+
+A 200 IS NOT PROOF the write applied. GHL stores unrecognised keys verbatim, and at least one
+search endpoint returns 200 with a plausible WRONG row for a filter it does not understand. Read
+back on a separate request before reporting a result.
+
+A catalogue hit proves the GHL builder calls that path. It does not prove your token reaches it,
+and it does not prove calling it is safe.`;
+
 // stdio.mjs
 var HERE2 = dirname2(fileURLToPath2(import.meta.url));
 var pkgVersion = true ? "0.1.0" : (() => {
@@ -108692,6 +108781,6 @@ var pkgVersion = true ? "0.1.0" : (() => {
 })();
 var state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
 var makeGw = makeGatewayFactory({ state });
-var server = new McpServer({ name: "uxie-ghl-internal-mcp", version: pkgVersion });
+var server = new McpServer({ name: "uxie-ghl-internal-mcp", version: pkgVersion }, { instructions: FULL_INSTRUCTIONS });
 registerTools(server, { state, makeGw });
 await server.connect(new StdioServerTransport());
