@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-08-25",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 794,
+      count: 806,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -2602,37 +2602,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "ai-agents--operations-cancel",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/crawler/operations/cancel",
-          path: "/crawler/operations/cancel",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:67"
-          ]
-        },
-        {
           id: "workflows--custom-code-run-test",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/custom-code/run-test",
@@ -3615,76 +3584,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "events--event",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/event/{anything}",
-          path: "/event/{anything}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "events",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "anything"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:38"
-          ]
-        },
-        {
-          id: "events--event-speakers",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/event/{id}/speakers",
-          path: "/event/{id}/speakers",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "events",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "events/20-api/events-management-api.md:194"
-          ]
-        },
-        {
           id: "events--events-management-add-ons",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/events-management/add-ons/{eventId}",
@@ -4023,6 +3922,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "events--events-management-event-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/events-management/event/{anything}",
+          path: "/events-management/event/{anything}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "anything"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:38"
+          ]
+        },
+        {
           id: "events--events-management-event-put",
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/events-management/event/{eventId}",
@@ -4097,6 +4031,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "events/20-api/events-management-api.md:91"
+          ]
+        },
+        {
+          id: "events--event-speakers",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/events-management/event/{id}/speakers",
+          path: "/events-management/event/{id}/speakers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:194"
           ]
         },
         {
@@ -4361,7 +4330,69 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "events--events-management-speaker",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/events-management/speaker",
+          path: "/events-management/speaker",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:193"
+          ]
+        },
+        {
           id: "events--events-management-speakers",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/events-management/speakers",
+          path: "/events-management/speakers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:193"
+          ]
+        },
+        {
+          id: "events--events-management-speakers-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/events-management/speakers/{eventId}",
           path: "/events-management/speakers/{eventId}",
@@ -4510,107 +4541,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "events/20-api/events-management-api.md:106"
-          ]
-        },
-        {
-          id: "ai-agents--faqs",
-          method: "DELETE",
-          url: "https://backend.leadconnectorhq.com/faqs/{faqId}",
-          path: "/faqs/{faqId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "faqId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:57"
-          ]
-        },
-        {
-          id: "ai-agents--faqs-put",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/faqs/{faqId}",
-          path: "/faqs/{faqId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "faqId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:56"
-          ]
-        },
-        {
-          id: "ai-agents--faqs-bulk-delete",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/faqs/bulk-delete",
-          path: "/faqs/bulk-delete",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:58"
           ]
         },
         {
@@ -5685,45 +5615,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FunnelsService.ts:49"
-          ]
-        },
-        {
-          id: "ai-agents--gaps-counts",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/gaps/counts",
-          path: "/gaps/counts",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [],
-          query: [
-            {
-              name: "knowledgeBaseIds",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:52",
-            "ai-agents/20-api/knowledge-base.md:76"
           ]
         },
         {
@@ -12978,37 +12869,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "memberships-courses--user-hl-user-details",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/user/hl-user-details",
-          path: "/user/hl-user-details",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "memberships-courses",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:68"
-          ]
-        },
-        {
           id: "typed--list_account_entities--users",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/users/",
@@ -13149,181 +13009,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "capability-manifest.json (create_voiceai_agent)"
-          ]
-        },
-        {
-          id: "ai-agents--web-search",
-          method: "DELETE",
-          url: "https://backend.leadconnectorhq.com/web-search/{id}",
-          path: "/web-search/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "destructive",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:66"
-          ]
-        },
-        {
-          id: "ai-agents--web-search-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/web-search/{id}",
-          path: "/web-search/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:61"
-          ]
-        },
-        {
-          id: "ai-agents--web-search-patch",
-          method: "PATCH",
-          url: "https://backend.leadconnectorhq.com/web-search/{id}",
-          path: "/web-search/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:65"
-          ]
-        },
-        {
-          id: "ai-agents--web-search-put",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/web-search/{id}",
-          path: "/web-search/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:64"
-          ]
-        },
-        {
-          id: "ai-agents--web-search-kb",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/web-search/kb/{knowledgeBaseId}",
-          path: "/web-search/kb/{knowledgeBaseId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "ai-agents",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "knowledgeBaseId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "ai-agents/20-api/knowledge-base.md:62"
           ]
         },
         {
@@ -26467,6 +26152,182 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--knowledge-base",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}",
+          path: "/knowledge-base/{knowledgeBaseId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:49"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}",
+          path: "/knowledge-base/{knowledgeBaseId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:45"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}",
+          path: "/knowledge-base/{knowledgeBaseId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:59",
+            "ai-agents/20-api/knowledge-base.md:109"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}",
+          path: "/knowledge-base/{knowledgeBaseId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:48"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-bulk",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/{knowledgeBaseId}/bulk",
+          path: "/knowledge-base/{knowledgeBaseId}/bulk",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:60"
+          ]
+        },
+        {
           id: "ai-agents--knowledge-base-all",
           method: "GET",
           url: "https://services.leadconnectorhq.com/knowledge-base/all",
@@ -26501,7 +26362,70 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:281"
+            "ai-agents/20-api/12-ai-agents-api.md:281",
+            "ai-agents/20-api/knowledge-base.md:46"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-associated-entities",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/associated-entities",
+          path: "/knowledge-base/associated-entities",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:51"
+          ]
+        },
+        {
+          id: "ai-agents--operations-cancel",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/crawler/operations/cancel",
+          path: "/knowledge-base/crawler/operations/cancel",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:67"
           ]
         },
         {
@@ -26534,7 +26458,210 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:280",
             "ai-agents/20-api/conversation-ai-boundary.md:79",
+            "ai-agents/20-api/knowledge-base.md:50",
             "ai-agents/20-api/knowledge-base.md:70"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-faqs",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/faqs",
+          path: "/knowledge-base/faqs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:54"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-faqs-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/faqs",
+          path: "/knowledge-base/faqs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:55"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-faqs-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/knowledge-base/faqs/{faqId}",
+          path: "/knowledge-base/faqs/{faqId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "faqId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:57"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-faqs-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/knowledge-base/faqs/{faqId}",
+          path: "/knowledge-base/faqs/{faqId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "faqId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:56"
+          ]
+        },
+        {
+          id: "ai-agents--faqs-bulk-delete",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/faqs/bulk-delete",
+          path: "/knowledge-base/faqs/bulk-delete",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:58"
+          ]
+        },
+        {
+          id: "ai-agents--gaps-counts",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/gaps/counts",
+          path: "/knowledge-base/gaps/counts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "knowledgeBaseIds",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:52",
+            "ai-agents/20-api/knowledge-base.md:76"
           ]
         },
         {
@@ -26638,6 +26765,243 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:278"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-trained-urls",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/trained-urls",
+          path: "/knowledge-base/trained-urls",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:53"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-web-search",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/web-search",
+          path: "/knowledge-base/web-search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:63"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-web-search-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/knowledge-base/web-search/{id}",
+          path: "/knowledge-base/web-search/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:66"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-web-search-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/web-search/{id}",
+          path: "/knowledge-base/web-search/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:61"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-web-search-patch",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/knowledge-base/web-search/{id}",
+          path: "/knowledge-base/web-search/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:65"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-web-search-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/knowledge-base/web-search/{id}",
+          path: "/knowledge-base/web-search/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:64"
+          ]
+        },
+        {
+          id: "ai-agents--web-search-kb",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/web-search/kb/{knowledgeBaseId}",
+          path: "/knowledge-base/web-search/kb/{knowledgeBaseId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:62"
           ]
         },
         {
@@ -26761,6 +27125,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "restAgent.ts:204"
+          ]
+        },
+        {
+          id: "memberships-courses--membership-check-domain-linked",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/membership/check-domain-linked/",
+          path: "/membership/check-domain-linked/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:55"
           ]
         },
         {
@@ -33314,7 +33709,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/UserService.ts:6"
+            "services/UserService.ts:6",
+            "memberships-courses/20-api/endpoints.md:68"
           ]
         },
         {
