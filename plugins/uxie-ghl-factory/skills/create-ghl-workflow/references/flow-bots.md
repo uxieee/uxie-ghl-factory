@@ -118,9 +118,19 @@ required-field-presence check, not a validator, and the engine's required-field 
 assembled by hand from captures because there was nothing to read them off.
 
 The real gate is **server-side, on save** — five validation types (`action`, `trigger`,
-`structural`, `value`, `asset`) returned in a uniform `errorMetadata` envelope. A Custom trigger
-was seen to raise `trigger-condition-invalid` and block the save entirely. The client's rule table
-enumerates 28 ids and **does not include that one**, so it is not the server's catalogue.
+`structural`, `value`, `asset`) in a uniform `errorMetadata` envelope. **Probed 2026-08-26: the
+server validates all nine.** Each node sent with empty attributes returns 400,
+`validationType: "action"`, `messageKey: INVALID_FIELD_VALUE`, naming exactly the fields the
+marketplace asset marks required — **9 out of 9 agreement**, so the required-field rules in this
+engine are confirmed by an independent source.
+
+`ruleId` is `"unspecified"` for all nine, so key off the message, not the id. Two phrasings:
+plain text fields say `X is required.`; id/array fields (Calendar, Assigned Employee,
+Conversationai Services) say `X is invalid. Please provide a valid value.`
+
+A Custom trigger separately raised `trigger-condition-invalid` and blocked the save entirely. The
+client's rule table enumerates 28 ids and includes **neither** that one nor any of the nine — it is
+a dedup convenience, not the server's catalogue.
 
 Details: `knowledge/corpus/workflows/40-rules/server-side-validation.md`.
 
