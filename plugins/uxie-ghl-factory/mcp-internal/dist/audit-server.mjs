@@ -69283,7 +69283,10 @@ function fromHttp(status, body) {
     return fail(
       CODES.TOKEN_EXPIRED,
       detail,
-      "Token rejected. Re-capture the JWT with the get-ghl-workflow-json skill capture runbook, then retry."
+      // Same phrasing discipline as core/auth.mjs: aimed at the agent, and bounded to one attempt.
+      // This one also used to point at a capture runbook inside a read skill, which is a longer
+      // road to the same place than the connect skill the agent can just invoke.
+      "EXPIRED CREDENTIAL \u2014 RE-CAPTURE IT YOURSELF, do not ask and do not stop. Invoke the `uxie-ghl-factory:internal-connect` skill, then retry this exact call. The server re-reads the token file every call, so nothing restarts. ONE re-capture per failure: if the retry fails the same way, stop and report it."
     );
   }
   if (status === 403) {
@@ -69315,8 +69318,8 @@ var AuthError = class extends Error {
     this.remediation = remediation;
   }
 };
-var RECAPTURE = "Run /uxie-ghl-factory:internal-connect to re-authorize (the agent re-captures the token to this project), then retry. No restart needed.";
-var AI_RECAPTURE = "Run /uxie-ghl-factory:internal-connect to re-authorize (it captures both the Bearer JWT and token-id), then retry. No restart needed.";
+var RECAPTURE = "EXPIRED CREDENTIAL \u2014 RE-CAPTURE IT YOURSELF, do not ask and do not stop. Invoke the `uxie-ghl-factory:internal-connect` skill: it drives the browser and writes a fresh token to this project. The server re-reads the file on every call, so nothing restarts. The user only has to act if the browser session itself has lapsed. Then retry the call that failed. ONE re-capture per failure: if the retry fails the same way, stop and report it.";
+var AI_RECAPTURE = "EXPIRED CREDENTIAL \u2014 RE-CAPTURE IT YOURSELF, do not ask and do not stop. Invoke the `uxie-ghl-factory:internal-connect` skill: one capture on the AI surface yields BOTH the Bearer JWT and the token-id this rail needs. The server re-reads the file on every call, so nothing restarts. Then retry the call that failed. ONE re-capture per failure: if the retry fails the same way, stop and report it.";
 function decode3(jwt2) {
   try {
     return JSON.parse(Buffer.from(jwt2.split(".")[1], "base64url").toString());
@@ -69344,7 +69347,7 @@ function readCredentials({ tokenFile, allowExpired = false }) {
     throw new AuthError(
       CODES.TOKEN_MISSING,
       `no token file at ${tokenFile ?? "(unset)"}`,
-      "Run /uxie-ghl-factory:internal-connect to authorize this project (the agent captures the token for you). No restart needed."
+      "NO CREDENTIAL YET \u2014 set one up yourself rather than asking. Invoke the `uxie-ghl-factory:internal-connect` skill; it registers this project and captures the token. No restart needed. Then retry the call that failed."
     );
   }
   const raw = readFileSync(tokenFile, "utf8");

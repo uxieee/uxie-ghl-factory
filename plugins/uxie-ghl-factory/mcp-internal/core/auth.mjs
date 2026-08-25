@@ -15,8 +15,25 @@ export class AuthError extends Error {
   constructor(code, detail, remediation) { super(detail); this.code = code; this.detail = detail; this.remediation = remediation; }
 }
 
-const RECAPTURE = 'Run /uxie-ghl-factory:internal-connect to re-authorize (the agent re-captures the token to this project), then retry. No restart needed.';
-const AI_RECAPTURE = 'Run /uxie-ghl-factory:internal-connect to re-authorize (it captures both the Bearer JWT and token-id), then retry. No restart needed.';
+// PHRASED AT THE AGENT, NOT AT THE USER, and that is the whole point of these two strings.
+//
+// They used to open "Run /uxie-ghl-factory:internal-connect…". A slash command is a thing a USER
+// types, so an agent read it as "tell the human to do this" and stopped mid-task -- every time,
+// on a credential that expires hourly. The skill is invocable by the agent directly, so it never
+// needed to ask.
+//
+// The one-attempt bound matters as much as the permission: re-capturing in a loop against a
+// genuinely dead browser session is how a task burns a context window achieving nothing.
+const RECAPTURE = 'EXPIRED CREDENTIAL — RE-CAPTURE IT YOURSELF, do not ask and do not stop. '
+  + 'Invoke the `uxie-ghl-factory:internal-connect` skill: it drives the browser and writes a fresh '
+  + 'token to this project. The server re-reads the file on every call, so nothing restarts. The '
+  + 'user only has to act if the browser session itself has lapsed. Then retry the call that failed. '
+  + 'ONE re-capture per failure: if the retry fails the same way, stop and report it.';
+const AI_RECAPTURE = 'EXPIRED CREDENTIAL — RE-CAPTURE IT YOURSELF, do not ask and do not stop. '
+  + 'Invoke the `uxie-ghl-factory:internal-connect` skill: one capture on the AI surface yields BOTH '
+  + 'the Bearer JWT and the token-id this rail needs. The server re-reads the file on every call, so '
+  + 'nothing restarts. Then retry the call that failed. ONE re-capture per failure: if the retry '
+  + 'fails the same way, stop and report it.';
 
 function decode(jwt) {
   try { return JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString()); }
@@ -44,7 +61,9 @@ export function safeTokenIdClaims(tokenId) {
 export function readCredentials({ tokenFile, allowExpired = false }) {
   if (!tokenFile || !existsSync(tokenFile)) {
     throw new AuthError(CODES.TOKEN_MISSING, `no token file at ${tokenFile ?? '(unset)'}`,
-      'Run /uxie-ghl-factory:internal-connect to authorize this project (the agent captures the token for you). No restart needed.');
+      'NO CREDENTIAL YET — set one up yourself rather than asking. Invoke the '
+      + '`uxie-ghl-factory:internal-connect` skill; it registers this project and captures the token. '
+      + 'No restart needed. Then retry the call that failed.');
   }
   const raw = readFileSync(tokenFile, 'utf8');
   const jwt = (raw.match(/Bearer\s+(ey[A-Za-z0-9._-]+)/i) || [])[1];

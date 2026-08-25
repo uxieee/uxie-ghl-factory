@@ -224,7 +224,13 @@ export function fromHttp(status, body) {
   // same endpoint returning 401 "Unauthorized" — so the two are cleanly separable by status.
   if (status === 401) {
     return fail(CODES.TOKEN_EXPIRED, detail,
-      'Token rejected. Re-capture the JWT with the get-ghl-workflow-json skill capture runbook, then retry.');
+      // Same phrasing discipline as core/auth.mjs: aimed at the agent, and bounded to one attempt.
+      // This one also used to point at a capture runbook inside a read skill, which is a longer
+      // road to the same place than the connect skill the agent can just invoke.
+      'EXPIRED CREDENTIAL — RE-CAPTURE IT YOURSELF, do not ask and do not stop. Invoke the '
+      + '`uxie-ghl-factory:internal-connect` skill, then retry this exact call. The server re-reads '
+      + 'the token file every call, so nothing restarts. ONE re-capture per failure: if the retry '
+      + 'fails the same way, stop and report it.');
   }
   if (status === 403) {
     return fail(CODES.ACCESS_DENIED, detail,
