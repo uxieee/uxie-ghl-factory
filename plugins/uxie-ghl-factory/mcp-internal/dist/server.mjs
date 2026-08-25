@@ -702,7 +702,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/appengine/workflow/sendElizaMailToAgencyAdmin",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Sends a real email to the agency admin.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1159,7 +1160,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/conversations/providers/tiktok/posts",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1222,7 +1223,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/conversations/providers/tiktok/posts/{id}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1882,7 +1883,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/emails/tracking/links",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4001,7 +4002,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/marketplace/billing/usage/meters/public",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
+          summary: "Premium-action and AI billing usage meters for the account.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4074,7 +4076,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/marketplace/core/apps/connection-status/bulk",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4870,7 +4872,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/objects/{objectKey}/records/search",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
+          summary: "Search records of a custom object by filter.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -5649,7 +5652,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/saas-billing-v2/billing-config/{locationId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Changes the sub-account BILLING PLAN. Money.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -6037,7 +6041,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{companyId}/workflow-company-setting/bulk-location-settings",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "COMPANY-scope bulk write across sub-accounts, not one location.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -7374,7 +7379,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/adwords",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -7819,7 +7824,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/change-status/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Publishes or unpublishes a workflow. A live automation stops or starts.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -8047,7 +8053,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/drip-schedule/preview",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -8613,7 +8619,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/move",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Bulk move across workflows. Moving a PUBLISHED workflow is how a live automation ends up filed in a staging folder.",
           reach: "source-only",
           coveredBy: [
             "move_workflows"
@@ -8731,7 +8738,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/permission/{workflowId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Changes who can see or edit a workflow.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -9027,7 +9035,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/{locationId}/run-single-action",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -12615,7 +12624,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/ivr/get-mappings-by-phones",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -12849,7 +12858,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/oauth2/save-token",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Writes to the OAuth credential rail.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -12974,7 +12984,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflow/oauth2/update-token",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Writes to the OAuth credential rail.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13099,7 +13110,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/{assetType}/dynamic-source/{key}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13144,7 +13155,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/actions/{actionType}/branches",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13237,7 +13248,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/actions/dynamic-source-details/{key}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13396,7 +13407,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/actions/published/{actionType}/dynamic-fields",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13602,7 +13613,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/integration-apps/reset-token/{appId}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Invalidates the live credential for an installed marketplace app. Anything using it breaks until reconnected.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13651,7 +13663,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/integration/{appId}/install",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "destructive",
+          note: "Installs a marketplace app INTO an account. Check the locationId query param \u2014 it decides which account gets it.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13946,7 +13959,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/internal-triggers/integration/webhook-operation",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -14261,7 +14274,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/triggers/dynamic-source-details/{key}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -14410,7 +14423,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows-marketplace/triggers/published/{triggerType}/dynamic-fields",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -14554,7 +14567,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/workflows/es/search",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "write",
+          kind: "read",
+          summary: "Query workflows server-side by trigger type, action type, status, tags or name \u2014 the smart-list search.",
+          note: 'Answers "which workflows contain step type X" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account.',
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -16070,7 +16085,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/templates/list",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -16100,7 +16115,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           path: "/templates/template/load",
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
-          kind: "write",
+          kind: "read",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -16245,9 +16260,39 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /workflows/trigger/logs/top-failed-reasons": {
           note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope."
         },
+        "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
+          kind: "destructive",
+          note: "Sends a real email to the agency admin."
+        },
         "POST /contacts/search/2": {
           note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
           summary: "Contact search. Treat its results as unverified \u2014 see the note."
+        },
+        "POST /conversations/providers/tiktok/posts": {
+          kind: "read"
+        },
+        "POST /conversations/providers/tiktok/posts/{id}": {
+          kind: "read"
+        },
+        "POST /emails/tracking/links": {
+          kind: "read"
+        },
+        "POST /marketplace/billing/usage/meters/public": {
+          kind: "read",
+          summary: "Premium-action and AI billing usage meters for the account."
+        },
+        "POST /marketplace/core/apps/connection-status/bulk": {
+          kind: "read"
+        },
+        "POST /objects/{objectKey}/records/search": {
+          kind: "read",
+          summary: "Search records of a custom object by filter."
+        },
+        "POST /templates/list": {
+          kind: "read"
+        },
+        "POST /templates/template/load": {
+          kind: "read"
         },
         "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
           kind: "destructive"
@@ -16261,8 +16306,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
           kind: "destructive"
         },
+        "POST /workflow/{locationId}/adwords": {
+          kind: "read"
+        },
+        "POST /workflow/{locationId}/drip-schedule/preview": {
+          kind: "read"
+        },
         "POST /workflow/{locationId}/email/send-test-email": {
           kind: "destructive"
+        },
+        "POST /workflow/{locationId}/run-single-action": {
+          kind: "destructive",
+          note: "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
         },
         "POST /workflow/{locationId}/sms/send-test-sms": {
           kind: "destructive"
@@ -16291,19 +16346,84 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "refused",
           note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
         },
+        "POST /workflow/ivr/get-mappings-by-phones": {
+          kind: "read"
+        },
+        "POST /workflow/oauth2/save-token": {
+          kind: "destructive",
+          note: "Writes to the OAuth credential rail."
+        },
+        "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
+          kind: "read"
+        },
+        "POST /workflows-marketplace/actions/{actionType}/branches": {
+          kind: "read"
+        },
+        "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
+          kind: "read"
+        },
+        "POST /workflows-marketplace/actions/published/{actionType}/dynamic-fields": {
+          kind: "read"
+        },
+        "POST /workflows-marketplace/integration-apps/reset-token/{appId}": {
+          kind: "destructive",
+          note: "Invalidates the live credential for an installed marketplace app. Anything using it breaks until reconnected."
+        },
+        "POST /workflows-marketplace/integration/{appId}/install": {
+          kind: "destructive",
+          note: "Installs a marketplace app INTO an account. Check the locationId query param \u2014 it decides which account gets it."
+        },
+        "POST /workflows-marketplace/internal-triggers/integration/webhook-operation": {
+          kind: "read"
+        },
+        "POST /workflows-marketplace/triggers/dynamic-source-details/{key}": {
+          kind: "read"
+        },
+        "POST /workflows-marketplace/triggers/published/{triggerType}/dynamic-fields": {
+          kind: "read"
+        },
+        "POST /workflows/es/search": {
+          kind: "read",
+          summary: "Query workflows server-side by trigger type, action type, status, tags or name \u2014 the smart-list search.",
+          note: 'Answers "which workflows contain step type X" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account.'
+        },
         "POST /workflows/trigger/logs/count": {
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
           note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
         },
+        "PUT /saas-billing-v2/billing-config/{locationId}": {
+          kind: "destructive",
+          note: "Changes the sub-account BILLING PLAN. Money."
+        },
+        "PUT /workflow/{companyId}/workflow-company-setting/bulk-location-settings": {
+          kind: "destructive",
+          note: "COMPANY-scope bulk write across sub-accounts, not one location."
+        },
         "PUT /workflow/{locationId}/change-status": {
           kind: "destructive"
+        },
+        "PUT /workflow/{locationId}/change-status/{workflowId}": {
+          kind: "destructive",
+          note: "Publishes or unpublishes a workflow. A live automation stops or starts."
+        },
+        "PUT /workflow/{locationId}/move": {
+          kind: "destructive",
+          note: "Bulk move across workflows. Moving a PUBLISHED workflow is how a live automation ends up filed in a staging folder."
         },
         "PUT /workflow/{locationId}/move-directory/{workflowId}": {
           summary: "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
           note: 'The BATCH move cannot reach root -- null, "" and "root" all 404. Use this per-workflow route instead.'
         },
+        "PUT /workflow/{locationId}/permission/{workflowId}": {
+          kind: "destructive",
+          note: "Changes who can see or edit a workflow."
+        },
         "PUT /workflow/{locationId}/permissions": {
           kind: "destructive"
+        },
+        "PUT /workflow/oauth2/update-token": {
+          kind: "destructive",
+          note: "Writes to the OAuth credential rail."
         }
       }
     };
