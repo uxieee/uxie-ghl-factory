@@ -5,6 +5,10 @@ description: "Build and configure GoHighLevel Voice AI phone agents — the prom
 
 # GHL Voice AI
 
+> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
+> endpoints across every GHL product, with the typed tool that covers each one and whether a
+> location token is proven to reach it. Search before concluding something is not possible.
+
 > **MCP routing:** if `uxie-ghl-internal-mcp` is registered, prefer `create_voiceai_agent` —
 > it wraps this skill's compiler behind a confirmation gate and round-trip verification.
 

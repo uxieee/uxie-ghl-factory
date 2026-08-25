@@ -5,6 +5,10 @@ description: "Build and manage GoHighLevel knowledge bases — the content that 
 
 # GHL Knowledge Base
 
+> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
+> endpoints across every GHL product, with the typed tool that covers each one and whether a
+> location token is proven to reach it. Search before concluding something is not possible.
+
 The shared content layer. Both Voice AI (`knowledgeBaseIds`) and Conversation AI
 (`knowledgeBaseIds` + `knowledgeBaseTriggers`) point at the same knowledge bases, so a change
 here affects every agent attached to it. Check `GET /knowledge-base/associated-entities`

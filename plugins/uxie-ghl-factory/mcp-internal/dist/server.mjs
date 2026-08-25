@@ -138743,7 +138743,7 @@ var TOOLS2 = [
   },
   {
     name: "search_endpoints",
-    description: `${describe3("search_endpoints", "Search the internal API surface \u2014 risk: read")}. Ranked search over ${endpoints().length} internal endpoints mined from GHL's own builder source. Returns compact STUBS \u2014 method, path, base. Call describe_endpoint on the one you pick. Use this when no typed tool covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves the GHL builder calls that path \u2014 NOT that your token can reach it, and not that calling it is safe.`,
+    description: `${describe3("search_endpoints", "Search the internal API surface \u2014 risk: read")}. Ranked search over ${endpoints().length} internal endpoints across EVERY GHL surface this project knows: the workflow builder, memberships and courses, conversation AI, voice AI, agent studio, funnels, calendars, media, billing. Not workflows only. Returns compact stubs \u2014 id, method, path, kind, and where known a one-line summary, the typed tool that already covers it, the one trap worth knowing, and whether a location token has been proven to reach it. Call describe_endpoint with the id you pick. Use this whenever no typed tool obviously covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves a GHL front-end calls that path \u2014 NOT that your token reaches it, and not that calling it is safe.`,
     inputSchema: schema({
       intent: external_exports.string().describe('what you want to do, in plain words \u2014 e.g. "list workflow folders", "erroring workflows", "scheduled pause"'),
       method: external_exports.string().trim().optional().describe("filter to one HTTP method, e.g. GET"),
@@ -138780,7 +138780,7 @@ var TOOLS2 = [
   },
   {
     name: "describe_endpoint",
-    description: `${describe3("describe_endpoint", "Detail for one internal endpoint \u2014 risk: read")}. Full record for ONE endpoint from search_endpoints: method, path with its :params, base host, how many places the builder calls it, and the source files that do. Reads no account data.`,
+    description: `${describe3("describe_endpoint", "Detail for one internal endpoint \u2014 risk: read")}. Full record for ONE endpoint: the absolute url, its path parameters, every query key known (including ones learned by CALLING it and reading what GHL asked for), the request body and response shape where the source declares them, and the typed tools that already cover it. Ends with callWith \u2014 a copy-pasteable raw_request path \u2014 EXCEPT where raw_request cannot make the call at all (multipart, blob, SSE, or a header it has no way to set), where it says so instead. Address it by \`id\` from search_endpoints; method+path still works. Reads no account data.`,
     inputSchema: schema({
       id: external_exports.string().trim().optional().describe("the endpoint id from search_endpoints \u2014 the preferred key"),
       method: external_exports.string().trim().optional().describe("HTTP method, if addressing by method+path"),
@@ -138857,6 +138857,12 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 var FULL_INSTRUCTIONS = `GoHighLevel internal API \u2014 undocumented builder endpoints, local stdio, one browser JWT.
+
+START WITH search_endpoints WHEN NO TYPED TOOL OBVIOUSLY FITS. It covers every GHL surface this
+project knows -- workflow builder, memberships and courses, conversation AI, voice AI, agent
+studio, funnels, calendars, media, billing -- not workflows only. Each hit says what the endpoint
+does, whether a typed tool already covers it, and whether a location token has been proven to
+reach it. describe_endpoint then hands you the exact call.
 
 A TYPED TOOL ALWAYS WINS over raw_request for the same endpoint. Typed tools carry the compiler,
 the required query switches, the cursor walk and the read-back verification; raw_request carries

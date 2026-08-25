@@ -17,6 +17,14 @@ Ground rules for agents working GHL:
    repairing the public rail is `ghl-public-mcp-setup`; the internal rail
    is /uxie-ghl-factory:internal-connect.
 3. Per-client state lives in .ghl/<locationId>/ (brief.md = client context).
+4. **When no typed tool obviously fits, SEARCH before you conclude it is impossible.**
+   `search_endpoints` on the internal MCP covers 620 endpoints across every GHL
+   surface this project knows — workflow builder, memberships and courses,
+   conversation AI, voice AI, agent studio, funnels, calendars, media, billing —
+   not workflows only. Each hit says what the endpoint does, whether a typed tool
+   already covers it, and whether a location token has been PROVEN to reach it.
+   `describe_endpoint` then hands you the exact call. This is also the first stop
+   before any reverse-engineering: the answer is often already catalogued.
 
 ## Specialists
 

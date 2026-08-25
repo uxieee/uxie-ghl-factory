@@ -5,6 +5,23 @@ description: "Map a GoHighLevel internal surface exhaustively — enumerate ever
 
 # GHL Reverse-Engineering
 
+## Step zero: search the catalogue before you open a browser
+
+`search_endpoints` on the internal MCP holds 620 endpoints across every GHL surface this project
+knows, from four kinds of evidence: mined from recovered source, transcribed from live traffic into
+the corpus, and adopted from the capability manifest of shipped tools. `describe_endpoint` gives the
+path, its query keys, the body and response shape where the source declares them, and whether a
+location token has been PROVEN to reach it.
+
+A capture session that rediscovers a row already in the catalogue has cost an hour to learn nothing.
+This was learned the expensive way: a whole plan was drafted around "we must capture the memberships
+and AI bundles" when the memberships source was already on disk and the AI endpoints were already
+written into `corpus/ai-agents/20-api/`.
+
+Reverse-engineer when the catalogue does NOT have it, or when it has the path but not the behaviour
+you need — required parameters, allowed values, what a write actually does. Those are what capture
+is for.
+
 Capture and document GoHighLevel's **internal** APIs — the `backend.leadconnectorhq.com` /
 `services.leadconnectorhq.com` endpoints the app's own UI calls — so agents can automate
 configuration the public API cannot reach.

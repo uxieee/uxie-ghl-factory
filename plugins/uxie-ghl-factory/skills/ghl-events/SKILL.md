@@ -5,6 +5,10 @@ description: "Build and operate GoHighLevel Events — create ticketed or RSVP e
 
 # GHL Events
 
+> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
+> endpoints across every GHL product, with the typed tool that covers each one and whether a
+> location token is proven to reach it. Search before concluding something is not possible.
+
 Base: `services.leadconnectorhq.com/events-management`.
 
 **There is no public-API events surface.** Everything below is the internal rail, so the write
