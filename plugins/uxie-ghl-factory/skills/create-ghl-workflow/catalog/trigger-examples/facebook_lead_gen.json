@@ -1,0 +1,21 @@
+{
+  "id": "{triggerId}",
+  "conditions": [],
+  "date_added": "2024-12-30T22:54:29.021Z",
+  "date_updated": "2025-08-13T05:16:53.080Z",
+  "deleted": false,
+  "belongs_to": "workflow",
+  "location_id": "{locationId}",
+  "origin_id": "{id3}",
+  "active": false,
+  "workflow_id": "{workflowId}",
+  "masterType": "highlevel",
+  "name": "Facebook Lead Form Submitted",
+  "type": "facebook_lead_gen",
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ]
+}

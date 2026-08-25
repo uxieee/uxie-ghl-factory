@@ -1,0 +1,30 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-07-15T05:01:49.724Z",
+  "deleted": false,
+  "active": true,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "is-any-of",
+      "field": "form.id",
+      "value": [
+        "{id3}"
+      ],
+      "title": "Form is",
+      "type": "string"
+    }
+  ],
+  "type": "form_submission",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Form Submitted",
+  "belongs_to": "workflow",
+  "date_updated": "2025-08-13T05:16:53.100Z"
+}

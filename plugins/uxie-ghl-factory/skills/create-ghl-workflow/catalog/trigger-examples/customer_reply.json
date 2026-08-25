@@ -1,0 +1,20 @@
+{
+  "id": "{triggerId}",
+  "conditions": [],
+  "date_added": "2025-01-23T17:18:00.828Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "type": "customer_reply",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Customer Replied",
+  "belongs_to": "workflow",
+  "date_updated": "2025-01-23T17:26:02.146Z",
+  "active": false
+}

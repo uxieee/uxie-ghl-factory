@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 285,
+ "count": 294,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -6004,8 +6004,8 @@
    "type": "conv_ai_autonomous_trigger",
    "family": "triggers",
    "title": "conv_ai_autonomous_trigger",
-   "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
    "summary": "Fires from an autonomous conversation AI bot action — treated as a 'goto' jump trigger.",
    "meta": {
     "Trigger value": "`conv_ai_autonomous_trigger`",
@@ -6016,17 +6016,76 @@
     "Special flags": "`isGotoTrigger: true`",
     "Corpus frequency": "0 occurrence(s) across 326 corpus workflows"
    },
+   "fields": [
+    {
+     "name": "customTriggerType",
+     "type": "select",
+     "required": true,
+     "notes": "default `book_appointment`. Only the first option's wire value is captured."
+    },
+    {
+     "name": "customTriggerDescription",
+     "type": "textarea",
+     "required": true,
+     "notes": "the natural-language condition the model matches on. Default `The customer wants to book an appointment`."
+    },
+    {
+     "name": "customTriggerPriority",
+     "type": "number",
+     "required": true,
+     "notes": "stored as a **string** — `\"8\"`, not `8`. Default `8`."
+    },
+    {
+     "name": "customTriggerSensitivity",
+     "type": "select",
+     "required": true,
+     "notes": "stored **lower-case**; the drawer renders `Medium`. Default `medium`."
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "customTriggerType",
+     "fieldType": "select",
+     "required": true,
+     "title": "Choose custom trigger",
+     "options": "`book_appointment` · Custom scenario",
+     "notes": "default `book_appointment`. Only the first option's wire value is captured."
+    },
+    {
+     "field": "customTriggerDescription",
+     "fieldType": "textarea",
+     "required": true,
+     "title": "Describe the trigger Condition",
+     "options": "free text",
+     "notes": "the natural-language condition the model matches on. Default `The customer wants to book an appointment`."
+    },
+    {
+     "field": "customTriggerPriority",
+     "fieldType": "number",
+     "required": true,
+     "title": "Priority",
+     "options": "1–10 (stepper)",
+     "notes": "stored as a **string** — `\"8\"`, not `8`. Default `8`."
+    },
+    {
+     "field": "customTriggerSensitivity",
+     "fieldType": "select",
+     "required": true,
+     "title": "Sensitivity",
+     "options": "`low` · `medium` · `high`",
+     "notes": "stored **lower-case**; the drawer renders `Medium`. Default `medium`."
+    }
+   ],
    "validator": "None bound in TriggerMaster — picker uses runtime defaults. Per `sniffs/bundle/trigger-registry-parsed.json::entries[]` for `conv_ai_autonomous_trigger`, the `validation.code` slot is empty.",
    "notes": "- Marked `isGotoTrigger: true` — the builder treats this like an internal step transition rather than a normal entry trigger. Per `DISCOVERIES.md §15`.",
-   "hasCanonicalExample": false,
-   "configSurface": "none"
+   "hasCanonicalExample": false
   },
   {
    "type": "conv_ai_trigger",
    "family": "triggers",
    "title": "conv_ai_trigger",
-   "status": "source-derived",
-   "lastVerified": "2026-08-22",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
    "summary": "Fires when a conversation AI bot session starts for a contact.",
    "meta": {
     "Trigger value": "`conv_ai_trigger`",
@@ -6037,10 +6096,27 @@
     "Special flags": "none",
     "Corpus frequency": "1 occurrence(s) across 326 corpus workflows"
    },
+   "fields": [
+    {
+     "name": "botId",
+     "type": "input",
+     "required": true,
+     "notes": "operator: \"==\"`, `type: \"input\"`, `title: \"\"`. Renders **disabled** once the flow is bound."
+    }
+   ],
+   "filterRows": [
+    {
+     "field": "botId",
+     "fieldType": "input",
+     "required": true,
+     "title": "Select Conversation AI bot",
+     "options": "the account's eligible bots",
+     "notes": "`operator: \"==\"`, `type: \"input\"`, `title: \"\"`. Renders **disabled** once the flow is bound."
+    }
+   ],
    "validator": "None bound in TriggerMaster — picker uses runtime defaults. Per `sniffs/bundle/trigger-registry-parsed.json::entries[]` for `conv_ai_trigger`, the `validation.code` slot is empty.",
    "notes": "- Carries `inCompatibleActions()`, `recommendedActions()`, and `uiControls.disable()` functions in the registry — the builder uses these to filter the action picker and gate adding duplicate conv-AI triggers. Per `DISCOVERIES.md §15`.",
-   "hasCanonicalExample": false,
-   "configSurface": "none"
+   "hasCanonicalExample": false
   },
   {
    "type": "conversation_ai",
@@ -6205,6 +6281,259 @@
      "requiredInputs": "`conversationai_services`, `conversationai_booking_description`",
      "executionType": "INTERNAL_REQUEST",
      "host": "`ai-employees-api`"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_ai_message",
+   "family": "steps",
+   "title": "AI message",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Have the bot compose and send a message from an instruction, in its own words.",
+   "fields": [
+    {
+     "name": "message",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "placeholder `Input the prompt for the Message"
+    },
+    {
+     "name": "waitForReply",
+     "type": "checkbox",
+     "required": false,
+     "default": "true",
+     "notes": "—"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_ai_splitter",
+   "family": "steps",
+   "title": "AI splitter",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Let the model choose a branch from a natural-language description of each one.",
+   "fields": [
+    {
+     "name": "description",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "placeholder `Describe the branching logic, e.g., whether the customer owns a house or not"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_book_appointment",
+   "family": "steps",
+   "title": "Book appointment",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Hand the conversation to the booking flow for one calendar, then branch on the outcome.",
+   "fields": [
+    {
+     "name": "promptInstructions",
+     "type": "textarea",
+     "required": false,
+     "default": "Get the customer to book an appointment",
+     "notes": "placeholder `Input the prompt"
+    },
+    {
+     "name": "calendarId",
+     "type": "select",
+     "required": false,
+     "default": "—",
+     "notes": "—"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_continue",
+   "family": "steps",
+   "title": "Continue conversation",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Return the contact to the bot’s general conversation, driven by the global prompt and knowledge base.",
+   "fields": [
+    {
+     "name": "instructions",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "—"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_custom_message",
+   "family": "steps",
+   "title": "Custom message",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Send an exact message, verbatim, with no model rewriting.",
+   "fields": [
+    {
+     "name": "message",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "placeholder `Enter Message"
+    },
+    {
+     "name": "waitForReply",
+     "type": "checkbox",
+     "required": false,
+     "default": "true",
+     "notes": "—"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_end",
+   "family": "steps",
+   "title": "End conversation",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Stop the bot replying to this contact for a configured period, and reset the flow.",
+   "fields": [
+    {
+     "name": "message",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "placeholder `Enter custom message"
+    },
+    {
+     "name": "sleepEnabled",
+     "type": "checkbox",
+     "required": false,
+     "default": "true",
+     "notes": "—"
+    },
+    {
+     "name": "sleepDuration",
+     "type": "(from capture)",
+     "required": false,
+     "default": "—",
+     "notes": "stored and round-trips, but NOT in the marketplace asset’s field list"
+    },
+    {
+     "name": "sleepUnit",
+     "type": "(from capture)",
+     "required": false,
+     "default": "—",
+     "notes": "stored and round-trips, but NOT in the marketplace asset’s field list"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_objective",
+   "family": "steps",
+   "title": "AI capture information",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Ask the contact for one piece of information and store the answer on a contact field.",
+   "fields": [
+    {
+     "name": "objective",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "placeholder `Input the prompt for the objective "
+    },
+    {
+     "name": "contactField",
+     "type": "select",
+     "required": false,
+     "default": "—",
+     "notes": "placeholder `Select"
+    },
+    {
+     "name": "instructions",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "—"
+    },
+    {
+     "name": "responseExample",
+     "type": "textarea",
+     "required": false,
+     "default": "—",
+     "notes": "placeholder `Add responses example that you expect from the customer "
+    },
+    {
+     "name": "skipIfFilled",
+     "type": "checkbox",
+     "required": false,
+     "default": "false",
+     "notes": "—"
+    },
+    {
+     "name": "maxAttempts",
+     "type": "numerical",
+     "required": false,
+     "default": "5",
+     "notes": "—"
+    },
+    {
+     "name": "proceedIfNotMet",
+     "type": "checkbox",
+     "required": false,
+     "default": "false",
+     "notes": "—"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_services_booking",
+   "family": "steps",
+   "title": "Services booking",
+   "status": "source-derived",
+   "lastVerified": "2026-08-26",
+   "summary": "Book a commerce **service** (rather than a calendar) from inside the conversation.",
+   "fields": [
+    {
+     "name": "conversationai_services",
+     "type": "multiselect",
+     "required": false,
+     "default": "—",
+     "notes": "array"
+    },
+    {
+     "name": "conversationai_booking_description",
+     "type": "textarea",
+     "required": false,
+     "default": "Get customer to book a service",
+     "notes": "—"
+    }
+   ],
+   "hasCanonicalExample": false
+  },
+  {
+   "type": "conversationai_transfer_bot",
+   "family": "steps",
+   "title": "Transfer bot",
+   "status": "proven-live",
+   "lastVerified": "2026-08-26",
+   "summary": "Hand the conversation to another AI employee.",
+   "fields": [
+    {
+     "name": "assignedEmployeeId",
+     "type": "select",
+     "required": false,
+     "default": "—",
+     "notes": "—"
     }
    ],
    "hasCanonicalExample": false

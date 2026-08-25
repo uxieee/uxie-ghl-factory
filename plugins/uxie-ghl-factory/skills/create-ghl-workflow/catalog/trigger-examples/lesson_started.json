@@ -1,0 +1,39 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-09-22T14:44:27.024Z",
+  "deleted": false,
+  "belongs_to": "workflow",
+  "location_id": "{locationId}",
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "masterType": "highlevel",
+  "name": "Business Insurance Lesson started",
+  "type": "lesson_started",
+  "workflow_id": "{workflowId}",
+  "conditions": [
+    {
+      "operator": "is-any-of",
+      "field": "membership.product.id",
+      "value": [
+        "{id4}"
+      ],
+      "title": "Product",
+      "type": "multiselect"
+    },
+    {
+      "operator": "is-any-of",
+      "field": "membership.category.id",
+      "value": [
+        "{id5}"
+      ],
+      "title": "Category",
+      "type": "multiselect"
+    }
+  ],
+  "date_updated": "2025-10-29T07:08:46.499Z",
+  "active": true
+}

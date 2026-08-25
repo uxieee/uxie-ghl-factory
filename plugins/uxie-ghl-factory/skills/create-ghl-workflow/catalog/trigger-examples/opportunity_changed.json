@@ -1,0 +1,29 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2026-01-14T08:33:50.409Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "opportunity.assignedTo",
+      "value": "{id3}",
+      "title": "Assigned to",
+      "type": "select"
+    }
+  ],
+  "type": "opportunity_changed",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Opportunity Changed",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "date_updated": "2026-01-14T08:35:48.175Z",
+  "active": true
+}

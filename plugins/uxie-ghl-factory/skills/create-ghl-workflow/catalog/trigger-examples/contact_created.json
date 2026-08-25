@@ -1,0 +1,20 @@
+{
+  "id": "{triggerId}",
+  "conditions": [],
+  "date_added": "2025-04-08T22:24:12.852Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "type": "contact_created",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Contact Created",
+  "belongs_to": "workflow",
+  "date_updated": "2025-07-01T19:44:55.292Z",
+  "active": false
+}

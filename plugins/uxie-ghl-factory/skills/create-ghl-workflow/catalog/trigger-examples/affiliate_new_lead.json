@@ -1,0 +1,29 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-08-06T18:17:38.393Z",
+  "deleted": false,
+  "belongs_to": "workflow",
+  "location_id": "{locationId}",
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "masterType": "internal",
+  "name": "Lead Created",
+  "type": "affiliate_new_lead",
+  "workflow_id": "{workflowId}",
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "campaign",
+      "value": "{id4}",
+      "title": "Campaign",
+      "type": "select",
+      "id": "campaign"
+    }
+  ],
+  "date_updated": "2025-08-06T18:21:13.764Z",
+  "active": true
+}

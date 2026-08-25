@@ -1,0 +1,48 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-03-30T11:16:57.220Z",
+  "deleted": false,
+  "active": true,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "is-any-of",
+      "field": "membership.product.id",
+      "value": [
+        "{id3}"
+      ],
+      "title": "Product",
+      "type": "multiselect"
+    },
+    {
+      "operator": "is-any-of",
+      "field": "membership.category.id",
+      "value": [
+        "{id4}"
+      ],
+      "title": "Category",
+      "type": "multiselect"
+    },
+    {
+      "operator": "is-any-of",
+      "field": "membership.lesson.id",
+      "value": [
+        "{id5}"
+      ],
+      "title": "Lesson",
+      "type": "multiselect"
+    }
+  ],
+  "type": "lesson_completed",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Lesson Completed",
+  "belongs_to": "workflow",
+  "date_updated": "2025-03-30T11:16:57.703Z"
+}

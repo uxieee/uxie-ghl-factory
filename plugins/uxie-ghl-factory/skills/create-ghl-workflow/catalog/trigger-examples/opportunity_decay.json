@@ -1,0 +1,43 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2024-12-30T22:54:29.029Z",
+  "date_updated": "2025-08-13T05:16:53.098Z",
+  "deleted": false,
+  "belongs_to": "workflow",
+  "location_id": "{locationId}",
+  "origin_id": "{id3}",
+  "active": false,
+  "workflow_id": "{workflowId}",
+  "masterType": "highlevel",
+  "name": "'Booked' 7 Days",
+  "type": "opportunity_decay",
+  "conditions": [
+    {
+      "field": "opportunity.pipelineId",
+      "title": "In pipeline",
+      "type": "select",
+      "value": "{id5}",
+      "operator": "=="
+    },
+    {
+      "field": "opportunity.pipelineStageId",
+      "title": "Pipeline stage",
+      "type": "select",
+      "value": "{id6}",
+      "operator": "=="
+    },
+    {
+      "field": "opportunity.lastActionDate",
+      "title": "Duration in days",
+      "type": "number",
+      "value": 7,
+      "operator": "time-diff-now-gte"
+    }
+  ],
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ]
+}

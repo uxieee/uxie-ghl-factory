@@ -1,0 +1,28 @@
+{
+  "id": "{triggerId}",
+  "date_updated": "2024-11-15T00:59:19.467Z",
+  "date_added": "2024-11-04T23:39:15.876Z",
+  "deleted": false,
+  "belongs_to": "workflow",
+  "location_id": "{locationId}",
+  "active": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "select",
+      "title": "Appointment status is",
+      "operator": "==",
+      "field": "appointment.status",
+      "value": "confirmed"
+    }
+  ],
+  "masterType": "highlevel",
+  "name": "Appointment",
+  "type": "appointment",
+  "workflow_id": "{workflowId}"
+}

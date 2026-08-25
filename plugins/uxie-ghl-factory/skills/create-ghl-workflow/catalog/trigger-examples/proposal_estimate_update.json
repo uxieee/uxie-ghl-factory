@@ -1,0 +1,29 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-05-08T00:00:53.249Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "status",
+      "value": "COMPLETED",
+      "title": "Status",
+      "type": "select",
+      "id": "status"
+    }
+  ],
+  "type": "proposal_estimate_update",
+  "masterType": "internal",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Documents & Contracts",
+  "belongs_to": "workflow",
+  "date_updated": "2025-08-07T16:37:48.575Z",
+  "active": false
+}

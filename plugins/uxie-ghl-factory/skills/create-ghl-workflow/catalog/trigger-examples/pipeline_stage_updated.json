@@ -1,0 +1,29 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2026-05-14T06:16:59.642Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "opportunity.pipelineId",
+      "value": "{id3}",
+      "title": "In pipeline",
+      "type": "select"
+    }
+  ],
+  "type": "pipeline_stage_updated",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Pipeline Stage Changed",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "date_updated": "2026-05-14T06:24:20.532Z",
+  "active": true
+}

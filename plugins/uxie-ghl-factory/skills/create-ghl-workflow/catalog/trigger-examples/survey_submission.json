@@ -1,0 +1,30 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-07-23T13:08:50.732Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "is-any-of",
+      "field": "survey.id",
+      "value": [
+        "{id3}"
+      ],
+      "title": "Survey is",
+      "type": "string"
+    }
+  ],
+  "type": "survey_submission",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Survey Submitted",
+  "belongs_to": "workflow",
+  "date_updated": "2025-07-23T13:08:56.187Z",
+  "active": true
+}
