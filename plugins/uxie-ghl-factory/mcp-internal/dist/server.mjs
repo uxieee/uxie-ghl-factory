@@ -137423,9 +137423,55 @@ function buildTrigger(t, ctx, wid, refMap) {
     // The binding is the botId condition row.
   };
 }
+var SENSITIVITY = /* @__PURE__ */ new Set(["low", "medium", "high"]);
+var MAX_CUSTOM_TRIGGERS = 3;
+function checkFlowTriggers(triggers, ctx) {
+  const list = triggers ?? [];
+  const gotos = list.filter((t) => t.type === "conv_ai_autonomous_trigger");
+  if (!gotos.length) return;
+  if (!list.some((t) => t.type === "conv_ai_trigger")) {
+    throw new IRError(
+      "FLOW_TRIGGER",
+      'FLOW_TRIGGER: a conv_ai_autonomous_trigger ("Custom trigger") requires a conv_ai_trigger on the same workflow \u2014 it does not start a flow, it jumps into one. The API accepts it without one; the builder does not.'
+    );
+  }
+  if (gotos.length > MAX_CUSTOM_TRIGGERS) {
+    throw new IRError(
+      "FLOW_TRIGGER",
+      `FLOW_TRIGGER: ${gotos.length} custom triggers, but the builder allows at most ${MAX_CUSTOM_TRIGGERS} ("Can't add more than 3 custom triggers"). The API accepts more \u2014 live-proven with 8 \u2014 and the drawer then refuses to work with them.`
+    );
+  }
+  const seen = /* @__PURE__ */ new Set();
+  for (const t of gotos) {
+    const by = (f) => (t.filters ?? []).find((x) => (x.field ?? x.on) === f)?.value;
+    const where = `'${t.name ?? t.type}'`;
+    const prio = by("customTriggerPriority");
+    if (prio !== void 0 && !(Number(prio) >= 1 && Number(prio) <= 10)) {
+      throw new IRError(
+        "FLOW_TRIGGER",
+        `FLOW_TRIGGER: ${where} has customTriggerPriority '${prio}'. The drawer's stepper is 1-10; the API stored 999 without complaint. Priority decides which scenario wins when several match, so an out-of-range value is not harmless.`
+      );
+    }
+    const sens = by("customTriggerSensitivity");
+    if (sens !== void 0 && !SENSITIVITY.has(String(sens))) {
+      throw new IRError(
+        "FLOW_TRIGGER",
+        `FLOW_TRIGGER: ${where} has customTriggerSensitivity '${sens}'. Allowed: ${[...SENSITIVITY].join(" | ")} (stored lower-case). The API accepted 'telepathic'.`
+      );
+    }
+    const target = t.target ?? t.targetActionId;
+    if (target) {
+      if (seen.has(target)) {
+        ctx?.warn?.(`FLOW_TRIGGER: ${where} targets the same step as an earlier custom trigger. Both persist; which one runs is decided by customTriggerPriority.`);
+      }
+      seen.add(target);
+    }
+  }
+}
 function compile(ir, ctx) {
   const norm2 = parseIR(ir);
   checkMarketplaceFilters(norm2.triggers, ctx);
+  checkFlowTriggers(norm2.triggers, ctx);
   const oppTriggerTypes = new Set(
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === "opportunities")
   );
