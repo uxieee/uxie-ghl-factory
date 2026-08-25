@@ -2,7 +2,7 @@
 // Stable launcher for the uxie-ghl-internal-mcp server.
 //
 // Per-project MCP configs point at a COPY of this file in a stable home
-// (~/.uxie-ghl-internal-mcp/launch.mjs), written by /uxie-ghl-factory:connect — so a plugin
+// (~/.uxie-ghl-internal-mcp/launch.mjs), written by /uxie-ghl-factory:internal-connect — so a plugin
 // version update never breaks the path the way pointing straight at the versioned plugin
 // cache (…/plugins/cache/uxieee/uxie-ghl-factory/<version>/…) would. At launch it resolves
 // the NEWEST installed plugin build and runs its bundled server, inheriting env (GHL_TOK_FILE)
@@ -30,7 +30,7 @@ const server = versions
 if (!server) {
   process.stderr.write(
     `uxie-ghl-internal-mcp: no installed plugin build found under ${CACHE}. ` +
-    `Install/enable the uxie-ghl-factory plugin, then re-run /uxie-ghl-factory:connect.\n`,
+    `Install/enable the uxie-ghl-factory plugin, then re-run /uxie-ghl-factory:internal-connect.\n`,
   );
   process.exit(1);
 }

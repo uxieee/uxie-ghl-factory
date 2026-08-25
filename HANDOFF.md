@@ -245,6 +245,6 @@ entirely. Behaviour is identical either way — this is housekeeping, not a fix.
 > `_services_booking` needs an account with configured commerce services — AU has none, so do
 > that one on a client account or leave it and say so.
 >
-> **Live-prove before pushing.** Re-authorize with `/uxie-ghl-factory:connect` if the token has
+> **Live-prove before pushing.** Re-authorize with `/uxie-ghl-factory:internal-connect` if the token has
 > expired, and remember trap 8: test with the repo's own `scripts/build.mjs`, not the installed
 > plugin build.

@@ -67,7 +67,7 @@ const MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 // auth failures (code + remediation) and tells the caller to RE-CAPTURE — not the generic
 // "gateway transport failed, inspect account state", which sends them hunting the account
 // for a problem that is really just an expired/absent token (review SC1).
-const RECAPTURE = 'Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token), then retry. No restart needed.';
+const RECAPTURE = 'Run /uxie-ghl-factory:internal-connect to re-authorize (the agent re-captures the token), then retry. No restart needed.';
 
 const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

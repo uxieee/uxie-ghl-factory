@@ -87,7 +87,7 @@ Run these in order; report a pass/fail table at the end.
 7. INTERNAL-API MCP SERVER: the `uxie-ghl-internal-mcp` server (workflow
    build/edit/publish, funnel/membership/AI-agent building, fast-forward — 17 tools) is
    **per-project, not global** — you add it to each GHL folder you work in. In the folder
-   you want it, run `/uxie-ghl-factory:connect`: it registers a project-scoped server
+   you want it, run `/uxie-ghl-factory:internal-connect`: it registers a project-scoped server
    (its own account token per folder), then the agent opens a browser, the user logs into
    GHL, and it captures the token. First time in a folder, accept the workspace-trust
    prompt. Present the ToS disclosure from ${CLAUDE_PLUGIN_ROOT}/docs/write-rails.md once

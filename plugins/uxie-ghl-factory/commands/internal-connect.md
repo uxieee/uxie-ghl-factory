@@ -2,7 +2,7 @@
 description: Set up + authorize the uxie-ghl-internal-mcp server FOR THE CURRENT PROJECT — registers a project-scoped server (its own account token per folder), the agent opens Playwright, you log into GHL, the agent captures the token. Also the re-authorize path on TOKEN_EXPIRED.
 ---
 
-# /uxie-ghl-factory:connect
+# /uxie-ghl-factory:internal-connect
 
 Sets up the internal MCP server **for the current project only** — it is NOT global. Run it in
 each GHL client folder you work in; each folder gets its own server registration and its own

@@ -2,7 +2,7 @@
 description: Add a GHL sub-account to the public rail — you ask for the two values, the tool verifies them against GHL before anything is written
 ---
 
-# /uxie-ghl-factory:add-account
+# /uxie-ghl-factory:public-add-account
 
 Use the **`ghl-public-mcp-setup`** skill and follow its *Add a sub-account* section. Everything
 this command needs — where the two values live, what each failure means, what you must never
@@ -17,4 +17,4 @@ npx -y @uxieee/ghl-mcp accounts add --token "$GHL_PIT" --location "$LOCATION_ID"
 ```
 
 Report the `name` **GHL** returns, and confirm it is the client they meant. Nothing is written
-unless it verifies. Then offer `/uxie-ghl-factory:scope` to point a folder at it.
+unless it verifies. Then offer `/uxie-ghl-factory:public-scope` to point a folder at it.

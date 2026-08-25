@@ -11,6 +11,36 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+### Changed
+
+- **Commands renamed to name their rail.** `/setup` sets up both rails, so it keeps its name;
+  the three rail-specific commands now say which one they touch:
+  `/add-account` → **`/public-add-account`**, `/scope` → **`/public-scope`**,
+  `/connect` → **`/internal-connect`**. Nothing about their behaviour changed. The old names
+  are gone rather than aliased — an alias would leave two ways to say the same thing in a
+  surface whose whole problem was ambiguity about which rail you are on.
+
+### Added
+
+- **`search_endpoints` and `describe_endpoint`** — a discovery layer for the internal rail,
+  over 235 endpoints mined from GHL's own builder source. Previously the rail had 39 typed
+  tools and nothing else: any other endpoint was reachable only if you already knew its path.
+  There is deliberately no `execute_endpoint`; `raw_request` already executes, already carries
+  the confirm gate and the secret scrub, and a second executor would drift from the first.
+- **`scripts/capture-token.mjs`** — out-of-band internal-token capture. The token is read off
+  the wire inside its own process and written at mode 0600; only claim names, a TTL and the
+  origin are ever printed. It also enforces the iframe-origin scoping rule, refusing a Bearer
+  that would 401 on every workflow endpoint later.
+
+### Fixed
+
+- Nine enforcement rules GHL states that the generated catalog had dropped, including
+  `email.html` — the engine wrote `html: ''` on the inline path, so "subject, no body"
+  compiled, saved, opened clean and **sent blank**.
+- README counts that had gone stale: 17 → 41 internal tools, 45 → 83 public categories.
+
 ## [0.29.0] — 2026-08-25
 
 Two capabilities, and a portfolio that now has a rule behind it.

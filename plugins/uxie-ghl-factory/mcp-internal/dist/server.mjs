@@ -32370,8 +32370,8 @@ var AuthError = class extends Error {
     this.remediation = remediation;
   }
 };
-var RECAPTURE = "Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token to this project), then retry. No restart needed.";
-var AI_RECAPTURE = "Run /uxie-ghl-factory:connect to re-authorize (it captures both the Bearer JWT and token-id), then retry. No restart needed.";
+var RECAPTURE = "Run /uxie-ghl-factory:internal-connect to re-authorize (the agent re-captures the token to this project), then retry. No restart needed.";
+var AI_RECAPTURE = "Run /uxie-ghl-factory:internal-connect to re-authorize (it captures both the Bearer JWT and token-id), then retry. No restart needed.";
 function decode3(jwt2) {
   try {
     return JSON.parse(Buffer.from(jwt2.split(".")[1], "base64url").toString());
@@ -32399,7 +32399,7 @@ function readCredentials({ tokenFile, allowExpired = false }) {
     throw new AuthError(
       CODES.TOKEN_MISSING,
       `no token file at ${tokenFile ?? "(unset)"}`,
-      "Run /uxie-ghl-factory:connect to authorize this project (the agent captures the token for you). No restart needed."
+      "Run /uxie-ghl-factory:internal-connect to authorize this project (the agent captures the token for you). No restart needed."
     );
   }
   const raw = readFileSync(tokenFile, "utf8");
@@ -33530,7 +33530,7 @@ var parseAsctimeGmt = (text) => {
   return valid ? at : NaN;
 };
 var MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
-var RECAPTURE2 = "Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token), then retry. No restart needed.";
+var RECAPTURE2 = "Run /uxie-ghl-factory:internal-connect to re-authorize (the agent re-captures the token), then retry. No restart needed.";
 var defaultSleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
 function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep2, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
   const creds = readCredentials({ tokenFile, allowExpired: true });

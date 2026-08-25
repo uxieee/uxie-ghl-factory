@@ -17,14 +17,14 @@ re-proven live through the real server before shipping (see the 0.8.0 re-proof n
 ## Credential model
 
 Credentials live in a **file on your machine**, written by the agent-driven capture flow
-(`/uxie-ghl-factory:connect`, which builds on `docs/auth-jwt-capture.md`). They are never
+(`/uxie-ghl-factory:internal-connect`, which builds on `docs/auth-jwt-capture.md`). They are never
 accepted as a tool argument, never logged, and never echoed in a response or error.
 
 - Default location: **`~/.uxie-ghl-internal-mcp/tok.txt`** (`DEFAULT_TOKEN_FILE`). Override
   with `GHL_TOK_FILE=<path>` or the `set_token_file` tool (a **path**, never a token — a
   JWT-looking value is rejected without echoing it back).
 - The file is re-read **on every call**, so re-capturing mid-session works with no restart.
-- JWTs last ~1 hour. On expiry you get `TOKEN_EXPIRED` — re-run `/uxie-ghl-factory:connect`.
+- JWTs last ~1 hour. On expiry you get `TOKEN_EXPIRED` — re-run `/uxie-ghl-factory:internal-connect`.
 - Capture is from the **AI Agents surface** (`app.gohighlevel.com`), which yields a Bearer
   **and** the `token-id` the AI tools need. **Live-proven (GROM AU, 2026-07-21):** that same
   Bearer also authenticates the workflow/backend surface (`list_workflows` → 45 workflows),
@@ -39,7 +39,7 @@ It is registered **per-project, not globally** — a plugin `.mcp.json` would lo
 folder against one credential, which is wrong when you operate multiple GHL accounts across
 different folders. Instead:
 
-- **Claude Code:** run `/uxie-ghl-factory:connect` in the folder you want it. It registers a
+- **Claude Code:** run `/uxie-ghl-factory:internal-connect` in the folder you want it. It registers a
   project-scoped server (`claude mcp add --scope local`) pointing at a stable launcher
   (`~/.uxie-ghl-internal-mcp/launch.mjs`, which resolves the newest installed plugin build so
   version updates don't break the path), captures that account's token to a project-local file
@@ -315,7 +315,7 @@ classified `AUTH_REJECTED` on `sourceRoutes[]`, files a `COMPONENT_READ_FAILED` 
 latches that rail, after which further reads throw `CIRCUIT_OPEN` (which does carry
 `error.partial`). `TOKEN_EXPIRED` is the code for `get_workflow` and `export_workflow` only.
 
-Re-capture with `/uxie-ghl-factory:connect`. Latch scopes are not uniform: a `401` or a
+Re-capture with `/uxie-ghl-factory:internal-connect`. Latch scopes are not uniform: a `401` or a
 transport failure latches only its own rail, three consecutive unusable response bodies latch
 that rail too, a `429` or a location-level throttle latches the whole process, and a `403`
 latches nothing at all (it is an entitlement fact about one resource, so a component can

@@ -1,6 +1,6 @@
 ---
 name: ghl-public-mcp-setup
-description: Set up, scope, or repair the public GoHighLevel MCP server (`@uxieee/ghl-mcp`) — install it in a folder, add sub-accounts with a Private Integration Token, point a folder at one client, or diagnose why a GHL tool can't see an account. Use when the user says "set up GHL here", "add a sub-account", "add a PIT", "connect this client", "why can't I see <client>", "no GHL tools in this folder", or when a GHL call fails with 401/403 or an unknown-location error. Covers both Claude Code and Codex. Public API only (ToS-clean) — the internal rail is /uxie-ghl-factory:connect instead.
+description: Set up, scope, or repair the public GoHighLevel MCP server (`@uxieee/ghl-mcp`) — install it in a folder, add sub-accounts with a Private Integration Token, point a folder at one client, or diagnose why a GHL tool can't see an account. Use when the user says "set up GHL here", "add a sub-account", "add a PIT", "connect this client", "why can't I see <client>", "no GHL tools in this folder", or when a GHL call fails with 401/403 or an unknown-location error. Covers both Claude Code and Codex. Public API only (ToS-clean) — the internal rail is /uxie-ghl-factory:internal-connect instead.
 ---
 
 # Setting up the public GHL rail
@@ -114,5 +114,5 @@ the shell.
   `doctor --json` and read the names back; do not infer from the folder name.
 - Never edit `accounts.json` by hand to get past a failed verification. The verification is
   the point: it is what stops a wrong id becoming a silent write to another client.
-- Never use this rail's credentials for the internal API. That is `/uxie-ghl-factory:connect`,
+- Never use this rail's credentials for the internal API. That is `/uxie-ghl-factory:internal-connect`,
   a different token with a different lifetime — see `ghl-orientation`.

@@ -15,8 +15,8 @@ export class AuthError extends Error {
   constructor(code, detail, remediation) { super(detail); this.code = code; this.detail = detail; this.remediation = remediation; }
 }
 
-const RECAPTURE = 'Run /uxie-ghl-factory:connect to re-authorize (the agent re-captures the token to this project), then retry. No restart needed.';
-const AI_RECAPTURE = 'Run /uxie-ghl-factory:connect to re-authorize (it captures both the Bearer JWT and token-id), then retry. No restart needed.';
+const RECAPTURE = 'Run /uxie-ghl-factory:internal-connect to re-authorize (the agent re-captures the token to this project), then retry. No restart needed.';
+const AI_RECAPTURE = 'Run /uxie-ghl-factory:internal-connect to re-authorize (it captures both the Bearer JWT and token-id), then retry. No restart needed.';
 
 function decode(jwt) {
   try { return JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString()); }
@@ -44,7 +44,7 @@ export function safeTokenIdClaims(tokenId) {
 export function readCredentials({ tokenFile, allowExpired = false }) {
   if (!tokenFile || !existsSync(tokenFile)) {
     throw new AuthError(CODES.TOKEN_MISSING, `no token file at ${tokenFile ?? '(unset)'}`,
-      'Run /uxie-ghl-factory:connect to authorize this project (the agent captures the token for you). No restart needed.');
+      'Run /uxie-ghl-factory:internal-connect to authorize this project (the agent captures the token for you). No restart needed.');
   }
   const raw = readFileSync(tokenFile, 'utf8');
   const jwt = (raw.match(/Bearer\s+(ey[A-Za-z0-9._-]+)/i) || [])[1];
