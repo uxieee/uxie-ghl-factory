@@ -108641,7 +108641,8 @@ var TOOLS2 = [
       return { ok: true, data: {
         ...hit,
         status: "source-derived",
-        meaning: "The GHL builder calls this path. That is NOT proof your token reaches it, nor that calling it is safe \u2014 /workflow/* and /workflows/* are different auth scopes on the same host, and some rows are permission-gated.",
+        meaning: "The GHL builder calls this path. That is NOT proof your token reaches it, nor that calling it is safe \u2014 some rows are permission-gated.",
+        headers: hit.base.endsWith("/workflow") ? "Standard Bearer. The marketplace headers below are tolerated but not required here." : 'REQUIRES Channel: APP, Source: WEB_USER, Version: 2021-04-15 in addition to the Bearer. Without them this returns 401 with the body "version header was not found", which reads like an auth failure and is not one.',
         next: hit.method === "GET" ? "Call it with raw_request (GET needs no confirm). Read the result back before trusting it." : "This is a WRITE. Prefer a typed tool if one covers it \u2014 those carry the compiler and the verification. raw_request needs confirm:true and does neither."
       } };
     })

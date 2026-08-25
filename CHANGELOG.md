@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.31.1] — 2026-08-25
+
+### Fixed
+
+- **`describe_endpoint` was telling users something false.** It claimed `/workflow/*` and
+  `/workflows/*` are "different auth scopes on the same host". They are not — they share the
+  token. Endpoints outside the `/workflow/*` prefix need three extra headers
+  (`Channel: APP`, `Source: WEB_USER`, `Version: 2021-04-15`) and return `401` with the body
+  *"version header was not found"* without them, which reads like an auth failure and is not one.
+
+  Proven by differential: one endpoint, one Bearer, five header sets — only the set carrying
+  `Version` returned `200`. Three endpoints previously written off as unreachable all answer
+  `200` with the headers, and a `/workflow/*` control still answers with or without them, so the
+  headers are additive and safe everywhere on this host.
+
+  `describe_endpoint` now reports the header requirement per row instead of asserting a scope
+  split.
+
 ## [0.31.0] — 2026-08-25
 
 ### Added

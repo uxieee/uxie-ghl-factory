@@ -116,9 +116,21 @@ const typeCards = () => {
 // this adds — describe_endpoint hands the caller to raw_request.
 //
 // A row is SOURCE-DERIVED: it proves the builder calls that path, not that the path is reachable
-// with your token, and definitely not that it is safe to call. Twelve rows were probed live on
-// 2026-08-25 and answered; two on the /workflows/* rail returned 401 with a Bearer that works on
-// every /workflow/* row, because those are different auth scopes on the same host.
+// with your token, and definitely not that it is safe to call.
+//
+// HEADERS, not scope. Anything outside the /workflow/* prefix — /workflows/*,
+// /workflows-marketplace/*, /marketplace/*, /conversations-reporting/* — needs three extra
+// headers or it returns 401 with the body `version header was not found`:
+//
+//     Channel: APP   Source: WEB_USER   Version: 2021-04-15
+//
+// (services/marketplaceServices/BaseService.ts:19-48 sets exactly these.) /workflow/* does not
+// require them but tolerates them, so they are safe to send everywhere on this host.
+//
+// An earlier pass read those 401s as proof of a separate auth scope and wrote that here. It was
+// wrong: the token is the same, and GHL named the real cause in the response body while the
+// status code invited the other conclusion. Proven by differential 2026-08-25 — see
+// corpus/workflows/70-research/AUTH-HEADERS-2026-08-25.md.
 let ENDPOINTS = null;
 const endpoints = () => {
   if (ENDPOINTS) return ENDPOINTS;
@@ -3866,8 +3878,12 @@ export const TOOLS = [
         ...hit,
         status: 'source-derived',
         meaning: 'The GHL builder calls this path. That is NOT proof your token reaches it, nor '
-               + 'that calling it is safe — /workflow/* and /workflows/* are different auth '
-               + 'scopes on the same host, and some rows are permission-gated.',
+               + 'that calling it is safe — some rows are permission-gated.',
+        headers: hit.base.endsWith('/workflow')
+          ? 'Standard Bearer. The marketplace headers below are tolerated but not required here.'
+          : 'REQUIRES Channel: APP, Source: WEB_USER, Version: 2021-04-15 in addition to the '
+            + 'Bearer. Without them this returns 401 with the body "version header was not found", '
+            + 'which reads like an auth failure and is not one.',
         next: hit.method === 'GET'
           ? 'Call it with raw_request (GET needs no confirm). Read the result back before trusting it.'
           : 'This is a WRITE. Prefer a typed tool if one covers it — those carry the compiler and '
