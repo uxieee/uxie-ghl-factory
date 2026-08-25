@@ -39,30 +39,18 @@ separate request and compare field by field — a 200 here is not evidence.
 
 ## The surface
 
-```
-POST  /events-management/event                      create
-PUT   /events-management/event/{eventId}            update
-POST  /events-management/event/list                 list
-GET   /events-management/events/options
-PATCH /events-management/event/{eventId}/publish    publish
-GET   /events-management/tickets   ·  POST /events-management/tickets
-GET   /events-management/add-ons/{eventId}   ·  POST /events-management/add-ons/{eventId}
-GET   /events-management/schedule/{eventId}  ·  POST /events-management/schedule/{eventId}
-GET   /events-management/speakers/{eventId}  ·  POST /events-management/speakers/{eventId}
-GET   /events-management/settings/{eventId}  ·  PUT  /events-management/settings/{eventId}
-POST  /events-management/attendees/list
-GET   /events-management/attendees/metrics
-DELETE /events-management/attendees/{attendeeId}
-GET   /events-management/branding-palette
-```
+Every `/events-management/*` route is in the endpoint catalogue — `search_endpoints`, then
+`describe_endpoint` for the exact call. The corpus page
+`events/20-api/events-management-api.md` carries the field tables and every 422 observed.
 
-`settings/{eventId}` is where the event page lives — it carries `customCss` and `pageSections`
-alongside branding and check-in.
+Two worth naming here because they are where the surface hides things:
 
-The block above is what has been proven. `search_endpoints` on the internal MCP indexes every
-`/events-management/*` route the corpus records; `describe_endpoint` gives the exact call. Anything
-there and not here is a path with no proven body — and on this surface the 422s are specific
-enough (see the five traps) that a first call is a cheap probe.
+- **`settings/{eventId}`** is the event PAGE — it carries `customCss` and `pageSections`
+  alongside branding and check-in, so "edit the event page" is a settings write, not a
+  separate resource.
+- **`attendees/list`** is a POST, and the only admin read of the roster. Creating or removing a
+  registration as an admin is still unlocated — registrations made while testing can only be
+  cleaned up through the UI.
 
 ## Public registration (the buyer's side)
 

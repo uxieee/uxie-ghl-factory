@@ -28,26 +28,14 @@ prose rather than scraped pages, and there is no way to create one through the p
 
 ## The endpoints
 
-```
-GET    /knowledge-base/all?locationId=          list
-GET    /knowledge-base/{id}                     read one
-POST   /knowledge-base/                         create
-PUT    /knowledge-base/{id}                     update
-DELETE /knowledge-base/{id}
-POST   /knowledge-base/rich-text/               create a rich-text document — ASYNC, poll status
-POST   /knowledge-base/{id}  ·  /{id}/bulk      add source(s)
-GET    /knowledge-base/faqs      POST · PUT /faqs/{id} · DELETE · POST /faqs/bulk-delete
-GET    /knowledge-base/web-search/kb/{id}       POST · PUT · PATCH · DELETE /web-search/{id}
-GET    /knowledge-base/trained-urls
-GET    /knowledge-base/gaps/counts?locationId&knowledgeBaseIds=<csv>
-POST   /knowledge-base/crawler/operations/cancel
-GET    /knowledge-base/associated-entities      which agents use this KB
-```
+All 25 are in the endpoint catalogue — `search_endpoints`, then `describe_endpoint`. The corpus
+page `ai-agents/20-api/knowledge-base.md` carries the source-type enum, the analytics vocabulary
+that reveals the per-plan caps, and the training routes.
 
-That is the proven subset. `search_endpoints` on the internal MCP indexes every
-`/knowledge-base/*` route the corpus records, and `describe_endpoint` gives the exact call and
-whether a location token has been proven to reach it. A route in the catalogue and not above has
-a path and nothing else — no proven body, no proven semantics. Treat a first call as a probe.
+The shape worth holding in your head: a knowledge base is a record with **sources attached to it**.
+`POST /knowledge-base/` makes the record; `POST /knowledge-base/{id}` (or `/{id}/bulk`) attaches a
+source to it. `rich_text` is the exception — it has its own sub-resource,
+`POST /knowledge-base/rich-text/`, and creation is **asynchronous**.
 
 ## The traps
 

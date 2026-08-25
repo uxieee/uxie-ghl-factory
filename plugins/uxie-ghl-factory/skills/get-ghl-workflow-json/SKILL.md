@@ -5,9 +5,23 @@ description: Capture, export, and validate GoHighLevel / HighLevel workflow JSON
 
 # Get GHL Workflow JSON
 
-> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its read tools (`export_workflow`, `get_workflow`, `list_workflows`) over running this skill's scripts directly. Fall back to this skill's own scripts when the server is not registered.
+Get the raw JSON behind a HighLevel workflow — its config, triggers, sticky notes and settings.
 
-Capture the raw JSON behind a HighLevel workflow builder view, preserve it on disk, and validate that the capture is structurally useful. This is a narrow extraction skill, not a full audit skill.
+## Start here: the tools
+
+With `uxie-ghl-internal-mcp` registered, this is one call and no browser:
+
+| Want | Tool |
+|---|---|
+| the full body, triggers and sticky notes in one read | `export_workflow` |
+| a summary rather than the whole graph | `get_workflow` |
+| what exists on the account | `list_workflows`, `list_workflows_complete` |
+| a specific saved version | `get_workflow_version`, `list_workflow_versions` |
+
+They handle auth, throttling and the read-back. **Prefer them.** Everything below is the fallback
+for a session where the server is not registered — it is the same reads, done by hand.
+
+This is a narrow extraction skill, not a full audit skill.
 
 ## Boundaries
 
@@ -18,7 +32,7 @@ Capture the raw JSON behind a HighLevel workflow builder view, preserve it on di
 - Call `scripts/throttle.py wait` before every internal fetch. If any fetch returns `429` or `403`, call `scripts/throttle.py reject <status>`, stop, and tell the user.
 - Auth header format, capture procedure, and token lifetime: see `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` (the canonical auth doc). Do not use `refreshedToken` or other localStorage tokens. (The old `token-id` header was retired in GHL's 2026-07 auth migration and now returns 401.)
 
-## Default Workflow
+## The manual path (no MCP server)
 
 1. Parse the target.
    - Workflow URL shape: `https://app.gohighlevel.com/location/{LOCATION_ID}/workflow/{WORKFLOW_ID}`.
