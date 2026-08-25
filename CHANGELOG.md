@@ -11,6 +11,40 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.32.0] — 2026-08-25
+
+### Removed
+
+- **The audit is retired**, pending a focused redesign. `/uxie-ghl-factory:audit`, the
+  `surface-auditor` and `finding-verifier` agents, and the four audit skills
+  (`ghl-audit-primitives`, `ghl-defect-catalog`, `ghl-opportunity-catalog`, `ghl-mermaid-map`)
+  are unregistered and moved **whole** to `archive/audit-retired-2026-08-25/`, with a note on why
+  and what a rebuild should change. Nothing was deleted. 19 skills → 15, 12 commands → 11.
+
+### Fixed
+
+- **`get_workflow_logs` now labels GHL's lifecycle rows.** `add_to_workflow`,
+  `added_to_workflow` and `remove_from_workflow` are emitted alongside authored steps, carry a
+  `stepName` that reads like a real step, and match no `templates[]` entry — so correlating them
+  invents steps that do not exist. They are flagged `isLifecycleRow: true` rather than dropped,
+  because `added_to_workflow` is still the only proof a trigger fired.
+- **The tool's note now says what `finished` means.** A roster status of `finished` covers both
+  *completed the workflow* and *was removed from it*; the roster cannot distinguish them, so any
+  completion rate computed from it overstates.
+
+### Changed
+
+- `get-ghl-workflow-logs` teaches the three traps that cost real time — `finished` is not
+  completion, some log rows are not steps, and execution logs carry contact PII
+  (`contactName`/`contactEmail` on every row).
+- `ghl-workflow-specialist`'s anti-patterns records that **`allowMultiple: false` has two
+  bypasses** — an appointment **or invoice** trigger, and opportunity fan-out — and that re-entry
+  during an active enrolment is *skipped, not queued*.
+- The gateway documents why `channel`/`source`/`version` are sent on every call: without them
+  anything outside `/workflow/*` returns 401 with `version header was not found`, which reads as
+  an auth failure and is not one. The version value is validated against an allowlist, not merely
+  required.
+
 ## [0.31.1] — 2026-08-25
 
 ### Fixed

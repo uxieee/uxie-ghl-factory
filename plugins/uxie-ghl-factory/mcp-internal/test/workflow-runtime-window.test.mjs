@@ -2500,8 +2500,50 @@ test('get_workflow_logs keeps its existing single-page response shape', async ()
   assert.equal(result.data.perStepCounts.length, 1);
   assert.equal(result.data.enrollments.length, 1);
   assert.equal(result.data.enrollmentsComplete, undefined, 'single-page shape must stay unchanged');
-  assert.equal(result.data.note, 'added_to_workflow in logs is the ONLY proof a trigger fired.');
+  // The note gained two caveats (lifecycle rows, and what `finished` really means), so this
+  // asserts the load-bearing CLAIM survives rather than pinning a whole paragraph — a string
+  // equality here means every future caveat is a failing test rather than a passing one.
+  assert.match(result.data.note, /added_to_workflow in logs is the ONLY proof a trigger fired/);
+  assert.match(result.data.note, /isLifecycleRow/, 'consumers must be told lifecycle rows exist');
+  assert.match(result.data.note, /"finished" means the contact LEFT/, 'finished is not completion');
   assert.equal(gw.calls.length, 3, 'the default path must not gain extra reads');
+});
+
+test('get_workflow_logs labels GHL lifecycle rows without dropping them', async () => {
+  // GHL emits add_to_workflow / added_to_workflow / remove_from_workflow alongside the rows for
+  // authored steps. They carry a stepName that reads like a real step and a stepId matching no
+  // template, so correlating them to workflowData.templates invents steps. They must survive —
+  // added_to_workflow is the only proof a trigger fired — but be distinguishable.
+  const gw = gwStub({
+    'logs/v2': { logs: [
+      { id: 'l1', type: 'added_to_workflow', stepName: 'Add to workflow' },
+      { id: 'l2', type: 'add_contact_tag', stepName: 'Harmless tag' },
+      { id: 'l3', type: 'remove_from_workflow', stepName: 'Remove from workflow' },
+    ] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { rows: [] },
+  });
+  const result = await tool('get_workflow_logs').handler({ locationId: 'L', workflowId: 'w1', limit: 20 }, deps(gw));
+
+  assert.equal(result.data.logs.length, 3, 'lifecycle rows are labelled, never dropped');
+  const byId = Object.fromEntries(result.data.logs.map((r) => [r.id, r]));
+  assert.equal(byId.l1.isLifecycleRow, true);
+  assert.equal(byId.l3.isLifecycleRow, true);
+  assert.equal(byId.l2.isLifecycleRow, undefined, 'an authored step must NOT be flagged');
+});
+
+test('get_workflow_logs labelling survives the bare-array response shape', async () => {
+  // /workflows/logs/v2 returns a bare array, not {logs:[…]}. A consumer reaching for .logs gets
+  // undefined and reports no executions for a workflow that ran.
+  const gw = gwStub({
+    'logs/v2': [{ id: 'l1', type: 'added_to_workflow' }, { id: 'l2', type: 'sms' }],
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { rows: [] },
+  });
+  const result = await tool('get_workflow_logs').handler({ locationId: 'L', workflowId: 'w1', limit: 20 }, deps(gw));
+  assert.equal(result.data.logs.length, 2);
+  assert.equal(result.data.logs[0].isLifecycleRow, true);
+  assert.equal(result.data.logs[1].isLifecycleRow, undefined);
 });
 
 test('get_workflow_logs keeps its full enrollment walk and totals behaviour', async () => {

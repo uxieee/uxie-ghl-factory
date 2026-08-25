@@ -106340,8 +106340,11 @@ var TOOLS2 = [
           if (mine) enrollmentStats = { ...mine, source, proof: "live-runtime (2026-07-24)" };
         }
       }
+      const LIFECYCLE_TYPES = /* @__PURE__ */ new Set(["add_to_workflow", "added_to_workflow", "remove_from_workflow"]);
+      const rawLogs = logs.json?.logs ?? logs.json ?? [];
+      const labelledLogs = Array.isArray(rawLogs) ? rawLogs.map((r) => LIFECYCLE_TYPES.has(r?.type) ? { ...r, isLifecycleRow: true } : r) : rawLogs;
       return ok({
-        logs: logs.json?.logs ?? logs.json ?? [],
+        logs: labelledLogs,
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
         enrollments,
         // Only meaningful when the caller asked for the full walk; undefined keeps
@@ -106349,7 +106352,7 @@ var TOOLS2 = [
         ...args.allEnrollments ? { enrollmentsComplete, enrollmentPages: pages } : {},
         ...rateLimited ? { rateLimited: true } : {},
         ...enrollmentStats ? { enrollmentStats } : {},
-        note: "added_to_workflow in logs is the ONLY proof a trigger fired."
+        note: 'added_to_workflow in logs is the ONLY proof a trigger fired. Rows flagged isLifecycleRow are GHL-generated, not authored steps \u2014 do not correlate them to workflowData.templates. A roster status of "finished" means the contact LEFT the workflow, which covers both completing it and being removed from it \u2014 it is not a completion signal.'
       });
     }, args)
   },

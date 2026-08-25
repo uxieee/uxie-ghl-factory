@@ -102,6 +102,27 @@ misconfiguration).
 
 ---
 
+## 5a. `allowMultiple: false` has TWO bypasses — proven live 2026-08-25
+
+Turning re-entry off is not a guarantee of single enrolment. GHL says so in the Settings tab's own
+help text, and both routes are easy to miss:
+
+| bypass | condition |
+|---|---|
+| **trigger class** | the workflow has an **appointment OR invoice** based trigger — those re-enter regardless of the toggle |
+| **opportunity fan-out** | `allowMultipleOpportunity` is on and the contact has several opportunities; each becomes a **distinct execution** |
+
+So a sequence written for single entry — a welcome message, a one-time discount, an onboarding
+email — repeats per appointment, per invoice event, or per opportunity, while the setting that was
+supposed to prevent it reads "off".
+
+The appointment case was already known. **The invoice trigger class and the opportunity route were
+not.** Check all three conditions before promising a client that something sends once.
+
+Related, and also from GHL's copy: re-entry attempted *while the contact is still enrolled* is
+**skipped, not queued** — the trigger is discarded, not deferred to when they exit. A design
+relying on "it will pick that up afterwards" is wrong.
+
 ## 5. Unintended re-entry (or its opposite: expected re-entry that got blocked)
 
 **What it looks like:** Two failure directions, same root cause — misunderstanding
