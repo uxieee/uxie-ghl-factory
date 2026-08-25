@@ -153,6 +153,21 @@ Two traps if you ever hand-roll the PUT: `next: null` is rejected (omit the key 
 server stores it), and a successful PUT bumps `version`, so re-read before every write or the next
 one 422s.
 
+**There IS a validator for these nodes, and it runs in the browser.** The marketplace catalog
+carries per-field rules the builder evaluates to produce "Resolve N Errors" — **11 across seven of
+the nine**, and the server enforces none of them:
+
+| field | limit |
+|---|---|
+| `ai_message.message` · `custom_message.message` | 600 chars |
+| `ai_splitter.description` · `book_appointment.promptInstructions` · `objective.objective` | 500 |
+| `continue.instructions` · `objective.instructions` | 1000 |
+| `end.message` · `objective.responseExample` | 300 |
+| `objective.maxAttempts` | 1–5 |
+
+`check_workflow` enforces these as of 0.34.0. Exceed one and the flow saves clean while the builder
+shows a red badge — `maxAttempts: 99999` was written and stored in a live probe.
+
 Details: `knowledge/corpus/workflows/40-rules/server-side-validation.md`.
 
 ## Known unknowns

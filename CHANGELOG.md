@@ -43,6 +43,19 @@ saves and cannot branch. All three are fixed and live-proven.
 
 ### Added
 
+- **Per-field validation rules are enforced.** The marketplace catalog carries a `validations[]`
+  array on each input — 55 fields across 307 actions — holding the rules the builder evaluates in
+  the browser for its "Resolve N Errors" banner. The engine parsed required-ness and dropped these
+  entirely. **Eleven sit on seven of the nine flow-bot nodes**: 600-character caps on
+  `ai_message`/`custom_message`, 500 on `ai_splitter.description`, `book_appointment
+  .promptInstructions` and `objective.objective`, 1000 on the two `instructions` fields, 300 on
+  `end.message` and `objective.responseExample`, and `objective.maxAttempts` bounded to 1–5.
+  **The server enforces none of them** — `maxAttempts: 99999` was written and stored clean in a
+  live probe — so exceeding one produces a workflow that saves and carries a red badge.
+  🔴 Rule strings are **never evaluated**: the catalog arrives over the network, so its
+  arrow-function sources are untrusted input. Two shapes are pattern-matched into comparators and
+  everything else is skipped and named by `unreadableRules()` — 44 of 59 readable, all 11 flow-bot
+  rules among them, the 15 remaining being composite expressions on third-party app actions.
 - **Custom (goto) triggers are authorable.** `conv_ai_autonomous_trigger` — "Custom trigger" in
   the UI — does not start a flow, it **jumps the contact to a named step**. Author it with
   `target: "<step ref>"`, resolved to the real step id exactly as `goto` does; a dangling ref

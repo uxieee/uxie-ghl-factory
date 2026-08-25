@@ -105,6 +105,10 @@ export function parseActionSchema(assets) {
           required: f.required === true,
           fieldType: f.fieldType,
           default: coerceDefault(f.value, f.fieldType),
+          // The builder's "Resolve N Errors" banner is not required-fields-only: 55 fields
+          // across the catalog carry per-field RULES (length caps, numeric ranges, regexes),
+          // and 11 of them sit on the conversation-AI nodes. Dropped until 2026-08-26.
+          validations: Array.isArray(f.validations) ? f.validations : [],
         }));
       byType.set(action.key, {
         type: action.key,
@@ -200,6 +204,70 @@ export function missingForStep(step, schema) {
     }));
 }
 
+// ─── Per-field validation rules ────────────────────────────────────────────────────────────
+//
+// The catalog ships each rule as a STRING — either a regex source, or the SOURCE TEXT of a
+// JavaScript arrow function the builder evaluates in the browser:
+//
+//     "(value) => value.length <= 600"     "(value) => value >= 1"     "\\b(1[0-9]|2[0-5])\\b"
+//
+// 🔴 THESE ARE NEVER EVALUATED HERE. Running vendor-supplied source text is a remote-code
+// path, and the catalog is fetched over the network. Instead the two shapes that actually
+// occur are pattern-matched into a comparator; anything else is SKIPPED and reported by name,
+// never guessed at. A rule this cannot read is a rule the engine does not enforce — which is
+// the honest failure, unlike inventing an interpretation of it.
+const LEN_RULE = /^\(\s*\w+\s*\)\s*=>\s*\w+\??\.length\s*(<=|<|>=|>)\s*(\d+)\s*$/;
+const NUM_RULE = /^\(\s*\w+\s*\)\s*=>\s*\w+\s*(<=|<|>=|>)\s*(\d+)\s*$/;
+const CMP = { '<=': (a, b) => a <= b, '<': (a, b) => a < b, '>=': (a, b) => a >= b, '>': (a, b) => a > b };
+
+/** A predicate for one rule string, or null when this engine cannot read it. */
+export function parseValidationRule(rule) {
+  if (typeof rule !== 'string' || !rule.trim()) return null;
+  const len = rule.match(LEN_RULE);
+  if (len) return (v) => v == null || CMP[len[1]](String(v).length, Number(len[2]));
+  const num = rule.match(NUM_RULE);
+  if (num) return (v) => v == null || v === '' || !Number.isFinite(Number(v)) || CMP[num[1]](Number(v), Number(num[2]));
+  if (!rule.startsWith('(')) {                       // a bare regex source
+    try { const re = new RegExp(rule); return (v) => v == null || v === '' || re.test(String(v)); }
+    catch { return null; }
+  }
+  return null;
+}
+
+/** Rule violations for one step. Blank values are the required-check's job, not this one. */
+export function violationsForStep(step, schema) {
+  const spec = schema?.get?.(step?.type);
+  if (!spec) return [];
+  const attrs = step.attributes ?? {};
+  const out = [];
+  for (const f of spec.fields) {
+    const value = attrs[f.field];
+    if (isBlank(value)) continue;
+    for (const v of f.validations ?? []) {
+      const pred = parseValidationRule(v.rule);
+      if (!pred) continue;                            // unreadable — skipped, surfaced by unreadableRules()
+      if (!pred(value)) {
+        out.push({ field: f.field, title: f.title,
+          message: `"${f.title}": ${v.errorMessage ?? 'value fails the builder\'s validation rule'}` });
+      }
+    }
+  }
+  return out;
+}
+
+/** Every rule in the catalog this engine cannot read — named, so the gap is visible. */
+export function unreadableRules(schema) {
+  const out = [];
+  for (const spec of schema?.values?.() ?? []) {
+    for (const f of spec.fields) {
+      for (const v of f.validations ?? []) {
+        if (!parseValidationRule(v.rule)) out.push({ type: spec.type, field: f.field, rule: v.rule });
+      }
+    }
+  }
+  return out;
+}
+
 // Reproduce the builder's error list for a whole workflow. Returns the same shape the
 // builder's panel renders: one entry per offending step, with its id and messages.
 //
@@ -212,6 +280,13 @@ export function checkWorkflow(templates, schema, { triggerTypes } = {}) {
     const missing = missingForStep(step, schema);
     if (missing.length) {
       errors.push({ stepId: step.id, step: step.name, type: step.type, messages: missing.map((m) => m.message), fields: missing.map((m) => m.field) });
+    }
+    // Per-field rules — the other half of the builder's banner. A 601-character AI message is
+    // as broken as a missing one, and the SERVER accepts both (probed 2026-08-26: maxAttempts
+    // 99999 saved clean), so this check exists nowhere else.
+    const bad = violationsForStep(step, schema);
+    if (bad.length) {
+      errors.push({ stepId: step.id, step: step.name, type: step.type, messages: bad.map((m) => m.message), fields: bad.map((m) => m.field) });
     }
     if (triggerTypes) {
       const need = schema?.get?.(step.type)?.requiredTriggers ?? [];

@@ -269,3 +269,56 @@ test('a goto trigger pointing at a ref that does not exist is rejected, not sile
     graph: [{ ref: 'msg', kind: 'action', type: 'conversationai_ai_message', name: 'Greet', attributes: { message: 'hi', waitForReply: false } }],
   }, ctx()), /REF_DANGLING/);
 });
+
+// ── the builder's OTHER half: per-field validation rules ────────────────────────────────────
+test('per-field validation rules are enforced, and vendor rule source is never evaluated', async () => {
+  const { parseActionSchema, checkWorkflow, parseValidationRule, unreadableRules } = await import('./action-schema.mjs');
+  const schema = parseActionSchema({ actions: [{ appName: 'x', actions: [
+    { key: 'conversationai_ai_message', inputs: [
+      { field: 'message', title: 'Message', required: true, fieldType: 'textarea',
+        validations: [{ rule: '(value) => value.length <= 600', errorMessage: 'Maximum 600 characters are allowed' }] },
+      { field: 'waitForReply', title: 'Wait For Reply', required: true, fieldType: 'checkbox' }] },
+    { key: 'conversationai_objective', inputs: [
+      { field: 'objective', title: 'Objective', required: true, fieldType: 'textarea' },
+      { field: 'maxAttempts', title: 'Maximum Attempts', fieldType: 'numerical',
+        validations: [{ rule: '(value) => value >= 1', errorMessage: 'Minimum 1 attempt is allowed' },
+                      { rule: '(value) => value <= 5', errorMessage: 'Maximum 5 attempts are allowed' }] }] },
+    // A rule this engine cannot read must be SKIPPED, never guessed at.
+    { key: 'weird_third_party', inputs: [
+      { field: 'thing', title: 'Thing', fieldType: 'string',
+        validations: [{ rule: '(d) => { try { return JSON.parse(d) } catch (e) { return false } }', errorMessage: 'nope' }] }] },
+  ] }] });
+
+  const errs = checkWorkflow([
+    { id: 's1', name: 'too long', type: 'conversationai_ai_message', attributes: { message: 'x'.repeat(601), waitForReply: false } },
+    { id: 's2', name: 'fine', type: 'conversationai_ai_message', attributes: { message: 'hi', waitForReply: false } },
+    { id: 's3', name: 'attempts', type: 'conversationai_objective', attributes: { objective: 'o', maxAttempts: 99999 } },
+    { id: 's4', name: 'unreadable rule', type: 'weird_third_party', attributes: { thing: 'not json' } },
+  ], schema);
+
+  const flagged = errs.map((e) => e.step);
+  assert.ok(flagged.includes('too long'), 'a 601-character message must be flagged');
+  assert.ok(flagged.includes('attempts'), 'maxAttempts 99999 must be flagged — the SERVER accepts it (probed 2026-08-26)');
+  assert.ok(!flagged.includes('fine'), 'a valid step must not be flagged');
+  assert.ok(!flagged.includes('unreadable rule'), 'an unreadable rule is skipped, not guessed at');
+  assert.match(errs.find((e) => e.step === 'attempts').messages[0], /Maximum 5 attempts/);
+
+  // the boundary is inclusive: exactly 600 is fine, 601 is not
+  assert.equal(parseValidationRule('(value) => value.length <= 600')('x'.repeat(600)), true);
+  assert.equal(parseValidationRule('(value) => value.length <= 600')('x'.repeat(601)), false);
+  // and the gap is visible rather than silent
+  assert.equal(unreadableRules(schema).length, 1);
+  assert.equal(unreadableRules(schema)[0].type, 'weird_third_party');
+});
+
+test('parseValidationRule NEVER evaluates rule source — an exploit string yields no predicate', async () => {
+  const { parseValidationRule } = await import('./action-schema.mjs');
+  // The catalog is fetched over the network, so its rule strings are untrusted input. Anything
+  // outside the two pattern-matched shapes must return null rather than run.
+  for (const evil of [
+    '(v) => { process.exit(1) }',
+    '(v) => require("child_process").execSync("id")',
+    '(v) => globalThis.leaked = 1',
+  ]) assert.equal(parseValidationRule(evil), null, `must not interpret: ${evil}`);
+  assert.equal(globalThis.leaked, undefined);
+});
