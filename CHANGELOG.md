@@ -11,6 +11,21 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.31.0] — 2026-08-25
+
+### Added
+
+- **Graph-context rules** — the last two GHL validators that could not live in the attribute
+  layer, because one needs the node's parent and the other needs every other step of its type.
+  Both warn, matching GHL's own severity.
+  - **`goto` placement.** A goto jumps away, so any step below it in the same branch can never
+    run. GHL asks whether the parent still points onward; so do we.
+  - **`math_operation` upstream references.** A math step can read an earlier one's result via
+    `{{math_operation.N.result}}`. Two failures are invisible on the node itself: the upstream
+    step was deleted, or its type drifted (the first op switched to `date` while this one still
+    declares `numerical`). GHL resolves N by `stepIndex` and falls back to template order when
+    it is unset — both paths reproduced, because they disagree in the tree view.
+
 ## [0.30.1] — 2026-08-25
 
 ### Fixed

@@ -34,6 +34,7 @@ import { walkNodes } from './ir.mjs';
 import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
 import { checkWorkflowRules } from './graph-rules.mjs';
+import { checkGraphContextRules } from './graph-context-rules.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -345,6 +346,12 @@ export async function orchestrate(ir, gw, opts = {}) {
     report.aborted = `${e.code ?? 'WORKFLOW_RULE'}: ${e.message}`;
     return report;
   }
+  // Graph-CONTEXT rules: GHL validators that need the whole template list rather than one node's
+  // attributes — goto placement (needs the parent) and math_operation's upstream reference (needs
+  // every other math step). Both are result:'warning' in GHL, so both warn and neither aborts.
+  checkGraphContextRules(built.autoSaveBody?.workflowData?.templates,
+    { warn: (m) => report.warnings.push(m), skipGraphContextRules: opts.skipGraphContextRules });
+
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
     triggers: built.triggerBodies,

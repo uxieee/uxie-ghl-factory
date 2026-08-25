@@ -101924,6 +101924,57 @@ Fix the structure, or pass skipWorkflowRules (true, or ['${live[0].rule}']) if y
   );
 }
 
+// ../skills/create-ghl-workflow/engine/graph-context-rules.mjs
+init_define_TOOL_CATALOG();
+function gotoPlacement(templates) {
+  const out = [];
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  for (const t of templates) {
+    if (t.type !== "goto") continue;
+    const parent = [...byId.values()].find((p) => p.next === t.id);
+    if (!parent) continue;
+    if (typeof t.next === "string" && t.next) {
+      out.push(`goto '${t.name ?? t.id}' has a step after it. A goto jumps away, so anything below it in the same branch is unreachable \u2014 move it to the end of the branch.`);
+    }
+  }
+  return out;
+}
+function mathUpstreamRefs(templates) {
+  const out = [];
+  const mathOps = templates.filter((t) => t.type === "math_operation" && t.attributes);
+  const sourceTypeFor = (selectField) => {
+    const m = String(selectField ?? "").match(/\{\{math_operation\.(\d+)\.result\}\}/);
+    if (!m || !mathOps.length) return null;
+    const n = parseInt(m[1], 10);
+    const byStepIndex = mathOps.find((t) => (t.stepIndex ?? 0) === n);
+    if (byStepIndex?.attributes) return byStepIndex.attributes.selectFieldtype || "numerical";
+    const byOrder = mathOps[n];
+    if (!byOrder?.attributes) return null;
+    return byOrder.attributes.selectFieldtype || "numerical";
+  };
+  for (const t of mathOps) {
+    const selectField = t.attributes?.selectField;
+    const isRef = /\{\{math_operation\.\d+\.result\}\}/.test(String(selectField ?? ""));
+    const sourceType = sourceTypeFor(selectField);
+    const ref = t.name ?? t.id;
+    if (isRef && !sourceType) {
+      out.push(`math_operation '${ref}' reads {{math_operation.N.result}} from a step that does not exist \u2014 the upstream math step was deleted, so this computes from nothing.`);
+      continue;
+    }
+    if (sourceType && t.attributes?.selectFieldtype !== sourceType) {
+      out.push(`math_operation '${ref}' declares selectFieldtype '${t.attributes?.selectFieldtype}' but its upstream math step now produces '${sourceType}' \u2014 the types drifted apart.`);
+    }
+  }
+  return out;
+}
+function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {}) {
+  if (skipGraphContextRules === true) return [];
+  const list = Array.isArray(templates) ? templates : [];
+  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list)];
+  for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
+  return findings;
+}
+
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
 function missingRequiredFields(step) {
   const keys = requiredKeysFor(step?.type);
@@ -102236,6 +102287,10 @@ async function orchestrate(ir, gw, opts = {}) {
     report.aborted = `${e.code ?? "WORKFLOW_RULE"}: ${e.message}`;
     return report;
   }
+  checkGraphContextRules(
+    built.autoSaveBody?.workflowData?.templates,
+    { warn: (m) => report.warnings.push(m), skipGraphContextRules: opts.skipGraphContextRules }
+  );
   const assetCheck = await validateAssets(call, loc, {
     templates: built.autoSaveBody?.workflowData?.templates,
     triggers: built.triggerBodies,
