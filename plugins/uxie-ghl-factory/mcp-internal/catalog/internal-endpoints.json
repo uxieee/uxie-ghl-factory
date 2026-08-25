@@ -14831,7 +14831,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "How many contacts are sitting at each step right now.",
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs.",
       "reach": "source-only",
       "coveredBy": [
         "fast_forward_contacts",
@@ -14849,6 +14849,12 @@
       "query": [
         {
           "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
+        {
+          "name": "workflowId",
           "type": "string",
           "required": true,
           "source": "live-probe"

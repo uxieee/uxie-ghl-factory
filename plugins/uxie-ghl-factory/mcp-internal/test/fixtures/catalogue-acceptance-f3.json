@@ -1,0 +1,100 @@
+{
+  "ranAt": "2026-08-25",
+  "note": "F3 — the frozen A0 intents, top result executed through its own callWith. Writes are never fired. Paths templated back.",
+  "firstCallSuccess": 6,
+  "executed": 9,
+  "intents": [
+    {
+      "intent": "why did a premium step not run on this account",
+      "pick": "premium-tier-usage-service--get-premium-tier-usage",
+      "path": "/workflow/{locationId}/premium-tier-usage/{tier}",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 200,
+      "outcome": "FIRST CALL SUCCEEDED"
+    },
+    {
+      "intent": "which workflows contain an SMS step",
+      "pick": "workflow-marketplace-service--get-contact-count-per-step",
+      "path": "/workflows/status/search/count-per-step",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 422,
+      "outcome": "first call 422",
+      "hint": "{\"message\":[\"workflowId must be a string\"],\"error\":\"Unprocessable Entity\",\"statusCode\":422"
+    },
+    {
+      "intent": "is this workflow paused on a schedule",
+      "pick": "scheduled-pause-service--get-scheduled-pause-settings",
+      "path": "/workflow/{locationId}/scheduled-pause/config",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 200,
+      "outcome": "FIRST CALL SUCCEEDED"
+    },
+    {
+      "intent": "read the split test results for this workflow",
+      "pick": "split-service--get-stats",
+      "path": "/workflow/{locationId}/split/stats",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 200,
+      "outcome": "FIRST CALL SUCCEEDED"
+    },
+    {
+      "intent": "list the workflow folders",
+      "pick": "workflow-service--get-folders-and-workflows",
+      "path": "/workflow/{locationId}/list",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 200,
+      "outcome": "FIRST CALL SUCCEEDED"
+    },
+    {
+      "intent": "find the error notifications for this account",
+      "pick": "backend--list",
+      "path": "/workflow/{locationId}/error-notification/list",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 200,
+      "outcome": "FIRST CALL SUCCEEDED"
+    },
+    {
+      "intent": "what did this specific execution do step by step",
+      "pick": "workflow-marketplace-service--get-contact-count-per-step",
+      "path": "/workflows/status/search/count-per-step",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 422,
+      "outcome": "first call 422",
+      "hint": "{\"message\":[\"workflowId must be a string\"],\"error\":\"Unprocessable Entity\",\"statusCode\":422"
+    },
+    {
+      "intent": "register a test webhook for a marketplace trigger",
+      "pick": "workflows-marketplace-platform-service--register-test-webhook",
+      "path": "/workflows-marketplace/internal-triggers/register-test-webhook",
+      "kind": "write",
+      "hasCallWith": true,
+      "outcome": "not-executed (write — the run does not fire writes)"
+    },
+    {
+      "intent": "read the account email deliverability posture",
+      "pick": "backend--location-email-provider",
+      "path": "/workflow/{locationId}/email/location-email-provider",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 201,
+      "outcome": "FIRST CALL SUCCEEDED"
+    },
+    {
+      "intent": "which contacts are sitting at step X right now",
+      "pick": "workflow-marketplace-service--get-contact-count-per-step",
+      "path": "/workflows/status/search/count-per-step",
+      "kind": "read",
+      "hasCallWith": true,
+      "status": 422,
+      "outcome": "first call 422",
+      "hint": "{\"message\":[\"workflowId must be a string\"],\"error\":\"Unprocessable Entity\",\"statusCode\":422"
+    }
+  ]
+}

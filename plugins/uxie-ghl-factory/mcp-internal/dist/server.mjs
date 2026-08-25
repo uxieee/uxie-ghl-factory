@@ -14878,7 +14878,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "How many contacts are sitting at each step right now.",
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs.",
           reach: "source-only",
           coveredBy: [
             "fast_forward_contacts",
@@ -14896,6 +14896,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           query: [
             {
               name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "workflowId",
               type: "string",
               required: true,
               source: "live-probe"
@@ -16368,7 +16374,7 @@ var define_ENDPOINT_OVERLAY_default;
 var init_define_ENDPOINT_OVERLAY = __esm({
   "<define:__ENDPOINT_OVERLAY__>"() {
     define_ENDPOINT_OVERLAY_default = {
-      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.",
+      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
       rows: {
         "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
           reach: "refused",
@@ -16730,9 +16736,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /workflows/status/search/count-per-step": {
           summary: "How many contacts are sitting at each step right now.",
           requiredQuery: [
-            "locationId"
+            "locationId",
+            "workflowId"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs."
         },
         "GET /workflows/status/search/details-by-step": {
           requiredQuery: [
