@@ -122,37 +122,62 @@ The orchestrator prints exactly what it did. Check it:
   after retries means the workflow has NO working trigger — fix before done.
 - `UNRESOLVED (built anyway): …` → only appears with `--ignore-unresolved`.
 
-## Critical gotchas (the engine handles these — don't re-introduce them)
+## What the engine guarantees, so you do not have to
 
-- `Authorization: Bearer`, **NOT** `token-id`.
-- Order is fixed: **deps → create → auto-save (steps) → trigger → publish.** Steps go
-  through `/auto-save`, never the plain PUT.
-- **Mirror, don't invent** step fields — the catalog carries verified-live shapes; the
-  compiler injects `workflowsActionType:INTERNAL` / `stepIndex` only where the corpus
-  shows them. Never add `cat`/`parent`/`sibling`/`nodeType` yourself.
-- `if_else` container needs `attributes.conditionName` or the node renders "undefined"
-  (compiler sets it). `goto` must be the last node in its branch.
-- Trigger casing: root `workflowId` **camelCase**; `location_id`/`company_id` snake.
-  The compiler's casing-lint enforces this.
-- Filters: trigger conditions are `{field, operator, value, title, type}` (engine
-  expands lean intent filters); `if_else` conditions author as SIMPLE intent
-  (`{conditionType, tag}` / `{conditionType, stage}` / `{conditionType, conditionSubType,
-  conditionValue}`) and the compiler's `normalizeCondition` emits the correct stored
-  `{conditionType, conditionSubType, conditionOperator, conditionValue}` shape per type —
-  see the condition-authoring table above. NEVER hand-craft the tag/stage shape.
-- `DELETE /workflow/{loc}/{wid}` works (confirmed) — used for clean teardown of
-  throwaway/failed builds.
-- **Opportunity actions need an associated opportunity.** `update_opportunity` is a runtime no-op unless the contact entered via an opportunity trigger (`opportunity_created`, `opportunity_status_changed`, `opportunity_changed`, `pipeline_stage_updated`, `opportunity_decay` — and ALL triggers must be opp-based, a mixed set doesn't count), or the path already ran `create_opportunity`, or the step sits in a `find_opportunity` **Opportunity Found** branch. The engine hard-fails with `OPP_UNASSOCIATED` otherwise — build the find-or-create pattern (see `references/build-recipe.md` §6). `assocGuaranteed: true` on the node/branch is the escape hatch for shapes the checker can't prove (trigger-identity if/else, goto convergence).
+These were once warnings. They are now 147 throw sites and a compiler, so an agent going through
+`build_workflow` / `build.mjs` **cannot** get them wrong. They are listed as guarantees rather than
+gotchas because a warning about an enforced rule implies you are responsible for it, and you are
+not — it sends you checking something that cannot fail.
+
+| Guaranteed | How |
+|---|---|
+| `Authorization: Bearer`, never `token-id` | the gateway attaches auth after any caller override, so it cannot be shadowed |
+| build order: deps → create → auto-save → trigger → publish | the orchestrator owns the sequence; steps go through `/auto-save`, never the plain PUT |
+| `if_else` carries `attributes.conditionName` | the compiler sets it (without it the node renders "undefined") |
+| trigger casing — root `workflowId` camelCase, `location_id`/`company_id` snake | the compiler's casing-lint, `CASING` |
+| condition shapes | author SIMPLE intent (`{conditionType, tag}` / `{conditionType, stage}`); `normalizeCondition` emits the stored four-key shape per type. Never hand-craft the tag/stage shape |
+| trigger filters | author lean intent; the engine expands to `{field, operator, value, title, type}` |
+| opportunity association | `OPP_UNASSOCIATED` hard-fails a build whose `update_opportunity` has no opp trigger, no prior `create_opportunity`, and no `find_opportunity` Found branch |
+| missing account dependencies | the build ABORTS before creating anything, naming what is missing |
+| dropped subtrees | `authored` / `compiled` / `round-trip` are reported together, because round-trip alone compares sent-vs-got and once hid a dropped 51-step subtree |
+
+**Mirror, don't invent** is the one doctrine here that is only half-enforced: the compiler injects
+`workflowsActionType:INTERNAL` / `stepIndex` where the corpus shows them, but nothing stops you
+adding `cat`/`parent`/`sibling`/`nodeType` yourself. Don't.
+
+## What the engine does NOT catch — these are yours
+
+The list above is long, which makes this one easy to skim past. Don't: everything below produces a
+workflow that builds clean, verifies clean, and behaves wrongly at runtime.
+
+- **A `DEAD_BRANCH` abort is a question, not an obstacle.** The engine tells you a branch now ends
+  at END; only you know whether that is the routing you meant. Do not reflexively pass
+  `--ack-dead-branch` — the inverse shipped once and the normal path silently released nothing.
+- **Edit-mode has three unchecked opportunity cases.** `editCommitBody` throws when an edit CREATES
+  an unassociated `internal_update_opportunity`, but it does not catch moving an existing update
+  out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation
+  that skips `editCommitBody`. Verify those yourself.
+- **`workflow_id` takes an ID, not a name.** The engine does not resolve it and the validator does
+  not check it exists, so a wrong id publishes clean and silently no-ops at runtime.
+- **Marketplace steps build fine and only RUN if the app is installed** on that location. 282 of the
+  385 step types are marketplace; a build is not a proof it will fire.
+- **A step type's card, not its example.** An example is one capture, so it pins one value of every
+  discriminator. `describe_step_type` carries the union.
+- **Publishing is never implied.** Everything builds as `draft`; `--publish` is opt-in and gated on
+  the user's explicit OK.
+- `DELETE /workflow/{loc}/{wid}` works — use it to tear down throwaway builds rather than leaving
+  them on the account.
 
 ## Red flags — STOP
 
-- About to POST create/auto-save/trigger by hand → use `scripts/build.mjs`.
+- About to POST create/auto-save/trigger by hand → use `build_workflow` (or `scripts/build.mjs`).
+  Through the tool this is not reachable; it stays here for anyone driving the API directly.
 - Build report says `created tags: (none needed)` but your workflow uses new tags →
   something's wrong; the orchestrator should have created them.
 - About to ignore an `ABORTED` / `UNRESOLVED` line → don't; that's a missing dependency.
 - About to `--publish` without the user's explicit OK → stop.
 - Got a 401 → JWT expired; re-capture and resume.
-- About to add `update_opportunity` with no opp trigger, no prior `create_opportunity`, and outside a `find_opportunity` Found branch → the update will silently do nothing at runtime; build find-or-create first.
+- About to add `update_opportunity` with no opp trigger, no prior `create_opportunity`, and outside a `find_opportunity` Found branch → the engine aborts with `OPP_UNASSOCIATED`; build find-or-create first.
 - Got `DEAD_BRANCH` on a commit → do NOT reflexively pass `--ack-dead-branch`. Read which branch took the existing chain and which one now ends at END, and confirm that is the routing you meant. This guard exists because the inverse shipped once and the normal path silently released nothing.
 - Adding an opportunity step via EDIT-MODE → `editCommitBody` now throws `OPP_UNASSOCIATED` when the edit CREATES an unassociated `internal_update_opportunity`; pass `assumeAssociated: true` only after verifying ALL the workflow's triggers are opportunity-based. Still unchecked: moving an existing update out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation that skips `editCommitBody` — verify those yourself.
 

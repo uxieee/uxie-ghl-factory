@@ -5,7 +5,24 @@ description: Read the RUNTIME of a GoHighLevel / HighLevel workflow — its exec
 
 # Get GHL Workflow Logs
 
-> **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `get_workflow_logs` tool over running this skill's scripts directly. Fall back to this skill's own scripts when the server is not registered.
+## Start here: the tools
+
+With `uxie-ghl-internal-mcp` registered, every read below is one call and no browser:
+
+| The question | Tool |
+|---|---|
+| what fired, per contact, per step | `get_workflow_logs` (pass `executionId` for one run's full trace) |
+| why didn't my trigger fire | `get_trigger_logs` — attempted vs matched, with the filter comparison that decided it |
+| where is everyone parked | `get_workflow_stats`, `get_contacts_at_step` |
+| how is the whole account doing | `get_account_workflow_overview` |
+| a complete, evidence-qualified window | `get_workflow_runtime_window` |
+
+**Prefer them** — they send the required query switches, walk the cursor, and reconcile the
+per-step counts. The manual path further down is the same reads done by hand, for a session with
+no server registered.
+
+**The interpretation below is the part that matters either way.** The tools get you the rows; what
+those rows MEAN is this skill's real content, and it is what stops a confident wrong answer.
 
 Capture the *runtime* behind a HighLevel workflow — the execution trace, the enrollment records, and the live per-step occupancy — and turn it into evidence the user can act on. Where `get-ghl-workflow-json` answers "how is this workflow built," this skill answers "what happened when contacts ran through it."
 
@@ -83,7 +100,7 @@ trigger type/id, or `workflow_status_page` + user), `meta.removedFrom.type`
 missing-data / active-already / …), `meta.delayedFor.type` (rate-limit / system-delay),
 `nextExecutionAt` (when a waiting contact resumes), `recordType` (custom-object runs).
 
-## Default Workflow
+## The manual path (no MCP server)
 
 1. **Parse the target.** Workflow URL shape: `https://app.gohighlevel.com/location/{LOCATION_ID}/workflow/{WORKFLOW_ID}`. If either ID is missing, ask for the workflow URL or both IDs.
 2. **Understand the ask.** Match the user's intent to the right endpoint(s) so you don't over-fetch:
