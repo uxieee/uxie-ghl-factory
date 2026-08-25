@@ -11,6 +11,61 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.33.0] — 2026-08-25
+
+The internal rail gains discovery. Capability used to arrive only through hand-written
+skills and tools; an endpoint nobody had wrapped was, for an agent, an endpoint that did
+not exist. **`search_endpoints` / `describe_endpoint` now index 806 endpoints across every
+GHL product this project knows** — the mirror of `search_actions` on the public rail.
+
+### Added
+
+- **806-endpoint catalogue**, from four kinds of evidence, and every row says which:
+  324 mined from the workflow builder's own recovered source, 160 from the memberships
+  front-end, 308 transcribed into the corpus from live traffic, 14 adopted from what the
+  shipped tools call. A row carries what it DOES (`kind`), what it returns (`summary`),
+  the typed tool that already covers it (`coveredBy`), whether a location token has been
+  PROVEN to reach it (`reach`), and the one trap worth knowing (`note`).
+- **`describe_endpoint` hands you `callWith`** — a copy-pasteable `raw_request` path with
+  the prefix folded in — or says plainly that `raw_request` cannot make the call at all
+  (multipart, blob, SSE, or a header it has no way to set). 31 rows are in that category.
+- **A funnels corpus surface**, 9 pages. That surface's entire body of knowledge had lived
+  inside one skill's recipe file, outside the corpus.
+- **Server instructions on both profiles** — neither published any before.
+- `scripts/build-surfaces.mjs` in `knowledge/`, because SURFACES.md claimed "this table is
+  generated from the tree, so it cannot drift" and nothing generated it. It had drifted
+  four ways.
+
+### Changed
+
+- **Skills stop warning about what the engine enforces.** `create-ghl-workflow`'s gotchas
+  are split into what the engine GUARANTEES (147 throw sites: auth header, build order,
+  casing, condition shapes, `OPP_UNASSOCIATED`, the pre-write abort) and what it does NOT
+  catch — the ones that build clean and behave wrongly at runtime. The second list was
+  buried under the first.
+- **The two capture skills lead with their tools**, not with JWT capture. `get-ghl-workflow-logs`
+  says outright that the tools get you the rows while the interpretation is what stops a
+  confident wrong answer.
+- **`ghl-events` and `ghl-knowledge-base` drop their endpoint tables**, keeping every trap.
+  `ghl-events`' public-registration sequence survives — it is procedure, not a lookup.
+- **`ghl-orientation`'s router gains the internal mirror rule.** It had "unsure about a
+  public endpoint? `search_actions` first" and no equivalent for the internal rail.
+- Ranking knows what an endpoint DOES. A destructive row no longer surfaces for a
+  read-shaped question, and 25 rows proven to 401 from this rail are demoted rather than
+  wasting a turn.
+- `raw_request` sends `sourceid`, which the memberships surface pins on every request.
+
+### Fixed
+
+- **The committed bundles carry the endpoint catalogue.** `dist/` read it from a sibling
+  directory, so `search_endpoints` worked in this repo and failed anywhere else — and the
+  bundle test passed because listing tools never touches the catalogue.
+- **The capability manifest was stale**, 137 rows against 158; 21 real capabilities were
+  missing from the shipped artefact with nothing failing.
+- **The privacy and manifest gates run in `npm test`.** They ran only from an opt-in git
+  hook, so a fresh clone had neither.
+- A stub catalogue entry no longer shadows a hand-written tool description.
+
 ## [0.32.0] — 2026-08-25
 
 ### Removed
