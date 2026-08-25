@@ -69,6 +69,12 @@ through the MCP server (`uxie-ghl-internal-mcp`) when it is registered:
 | **Which workflows are failing right now? How busy is the account?** | `get_account_workflow_overview` → `workflows/statistics`, `logs/weekly-enrollment-data`, `error-notification/{count,list,settings}` (the list page's Needs-Review tab + who gets error emails), batched `status/search/enroll-stats(-cache)` totals per workflow. |
 | **Which step is leaking / who's parked there?** | `get_workflow_stats` (aggregates, 30 days) + `get_contacts_at_step` (`details-by-step` wants `currentStepId`, not `stepId`). |
 
+Those tables are the proven, tool-wrapped subset. `search_endpoints` on the internal MCP indexes
+every runtime route the builder source calls — scheduled-pause config, split-test stats,
+premium-tier usage, the smart-list query that answers "which workflows use step X" in one
+request — each stub naming the typed tool that covers it, if one does. Look there when the
+question is not on the tables.
+
 Log-row fields worth knowing: `workflowStatusId` (the enrollment/run id), `meta.version`
 (the workflow version the run executed on), `meta.addedSource` (how the contact entered —
 trigger type/id, or `workflow_status_page` + user), `meta.removedFrom.type`

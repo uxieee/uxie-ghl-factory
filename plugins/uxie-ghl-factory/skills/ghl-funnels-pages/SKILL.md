@@ -5,10 +5,6 @@ description: Build GoHighLevel funnels and pages via the internal API — create
 
 # GHL Funnels & Pages Builder
 
-> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
-> endpoints across every GHL product, with the typed tool that covers each one and whether a
-> location token is proven to reach it. Search before concluding something is not possible.
-
 Writes to a GHL account via the undocumented internal API.
 
 ## Before any write
@@ -101,4 +97,9 @@ Never report a page as shipped off a `201` alone. State which of draft/live you 
 verified, and name the URL you fetched.
 
 ## Recipes
-See references/recipes.md. Never call an endpoint not documented there.
+See references/recipes.md. **Never WRITE through an endpoint that is not in it** — every recipe
+exists because a write here has a trap: draft vs live, the three-call public path, a
+`201` from `update-settings` that applied nothing. Reads are different. `search_endpoints` on the
+internal MCP indexes every `/funnels/*` route the builder source calls, and `describe_endpoint`
+hands you the `raw_request`. A write you discover that way goes through `ghl-reverse-engineering`
+and into recipes.md first; it does not go straight to a client funnel.

@@ -5,23 +5,6 @@ description: "Map a GoHighLevel internal surface exhaustively — enumerate ever
 
 # GHL Reverse-Engineering
 
-## Step zero: search the catalogue before you open a browser
-
-`search_endpoints` on the internal MCP holds 620 endpoints across every GHL surface this project
-knows, from four kinds of evidence: mined from recovered source, transcribed from live traffic into
-the corpus, and adopted from the capability manifest of shipped tools. `describe_endpoint` gives the
-path, its query keys, the body and response shape where the source declares them, and whether a
-location token has been PROVEN to reach it.
-
-A capture session that rediscovers a row already in the catalogue has cost an hour to learn nothing.
-This was learned the expensive way: a whole plan was drafted around "we must capture the memberships
-and AI bundles" when the memberships source was already on disk and the AI endpoints were already
-written into `corpus/ai-agents/20-api/`.
-
-Reverse-engineer when the catalogue does NOT have it, or when it has the path but not the behaviour
-you need — required parameters, allowed values, what a write actually does. Those are what capture
-is for.
-
 Capture and document GoHighLevel's **internal** APIs — the `backend.leadconnectorhq.com` /
 `services.leadconnectorhq.com` endpoints the app's own UI calls — so agents can automate
 configuration the public API cannot reach.
@@ -47,11 +30,24 @@ endpoint you did not open is where the field you eventually need is defined.
 
 ## Phase 0 — mine what is already recovered (do this FIRST)
 
-GHL serves its own source maps publicly. Before opening a browser, read them: this often
-answers the whole question and always narrows the live work.
+GHL serves its own source maps publicly, and this project has already mined them. Before
+opening a browser, read what is recovered: this often answers the whole question and always
+narrows the live work.
 
-- `knowledge/sniffs/bundle-*/recovered-source/` — GHL's own TypeScript, ~1,870 sources
-  including the lazy-chunk page layer. Models, validators, enums, constructors, defaults.
+- **The catalogue first.** `search_endpoints` on the internal MCP is the compiled index of
+  everything else in this list — every route the recovered source calls, every route the
+  corpus has recorded, every route a shipped tool calls — and `describe_endpoint` gives path,
+  query keys, body and response shape where the source declares them, and whether a location
+  token has been PROVEN to reach it. Ten seconds there can end the session. A capture that
+  rediscovers a catalogued row costs an hour to learn nothing; this was learned the expensive
+  way, when a plan was drafted to capture the memberships bundle while its source sat on disk
+  already mined. Capture is for what the catalogue does NOT have — or has as a path without
+  the behaviour you need: required parameters, allowed values, what a write actually does.
+- `knowledge/sniffs/bundle-2026-08-21-2/recovered-source/` — the workflow builder's own
+  TypeScript, 1,867 sources including the lazy-chunk page layer, and
+  `sniffs/memberships-builder-2026-08-24/recovered-source/` for memberships. Models,
+  validators, enums, constructors, defaults. (The AI apps have no recovered source; their
+  rows come from the corpus.)
 - `knowledge/sniffs/*/i18n-*.json` — every label and error string. **An error string implies
   a code path that raises it**; the absence of one is evidence a check does not exist.
 - `knowledge/reference/`, `knowledge/corpus/` — what is already documented, and at what status.

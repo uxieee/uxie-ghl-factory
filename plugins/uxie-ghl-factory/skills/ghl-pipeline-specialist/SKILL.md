@@ -5,10 +5,6 @@ description: GoHighLevel pipeline architect — designs opportunity pipelines an
 
 # GHL Pipeline Specialist
 
-> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
-> endpoints across every GHL product, with the typed tool that covers each one and whether a
-> location token is proven to reach it. Search before concluding something is not possible.
-
 ## Contract
 Follow ${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md. Recon here = read existing
 pipelines, stages, and opportunity distribution via the ghl MCP before asking.

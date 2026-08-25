@@ -5,10 +5,6 @@ description: "Build and configure GoHighLevel Voice AI phone agents — the prom
 
 # GHL Voice AI
 
-> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
-> endpoints across every GHL product, with the typed tool that covers each one and whether a
-> location token is proven to reach it. Search before concluding something is not possible.
-
 > **MCP routing:** if `uxie-ghl-internal-mcp` is registered, prefer `create_voiceai_agent` —
 > it wraps this skill's compiler behind a confirmation gate and round-trip verification.
 
@@ -39,7 +35,11 @@ blueprint → approval → execute → verify). Recon = read the existing agents
 ## Knowledge
 
 - `references/voice-ai.md` — endpoints, the full-replace update, action payloads, the
-  compiler.
+  compiler. **The proven subset, with the semantics.**
+- `search_endpoints` on the internal MCP — every `/voice-ai/*` route the corpus records,
+  including ones this skill never exercises; `describe_endpoint` gives the exact `raw_request`.
+  The index, not the semantics: a route that is there and not in the reference has a path and
+  nothing else proven about it.
 
 Corpus (deeper, account-agnostic): `ai-agents/10-anatomy/voice-ai-agent-shape.md`,
 `ai-agents/30-types/voice-ai-actions.md`, `ai-agents/40-rules/constraints.md`.
