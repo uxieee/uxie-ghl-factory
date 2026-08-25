@@ -1,0 +1,134 @@
+{
+  "_note": "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.",
+  "pending": {
+    "GET /workflows/logs/v2": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history.",
+    "POST /contacts/search/2": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead."
+  },
+  "_pendingNote": "Traps for endpoints the catalogue does not contain YET. Both are among the most expensive things this project has learned, and both are on paths the current generator drops, so they have nowhere to attach. Recorded here rather than lost; they move into `rows` when the extractor emits their rows, and the orphan gate must not count them.",
+  "rows": {
+    "PUT /:locationId/change-status": {
+      "kind": "destructive"
+    },
+    "PUT /:locationId/permissions": {
+      "kind": "destructive"
+    },
+    "POST /:locationId/:workflowId/start-workflow": {
+      "kind": "destructive"
+    },
+    "POST /:locationId/:workflowId/remove-stuck-statuses/:stepId": {
+      "kind": "destructive"
+    },
+    "POST /:locationId/:workflowId/requeue-stuck-statuses/:stepId": {
+      "kind": "destructive"
+    },
+    "POST /:locationId/:workflowId/stop-execution": {
+      "kind": "destructive"
+    },
+    "POST /flowguard/rate-limiting/bypass": {
+      "kind": "destructive",
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "POST /flowguard/blacklist/workflow/:workflowId": {
+      "kind": "destructive",
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "POST /flowguard/blacklist/step/:stepId": {
+      "kind": "destructive",
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "POST /flowguard/blacklist/contact/:contactId": {
+      "kind": "destructive",
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "POST /:locationId/email/send-test-email": {
+      "kind": "destructive"
+    },
+    "POST /:locationId/sms/send-test-sms": {
+      "kind": "destructive"
+    },
+    "GET /flowguard/auth": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "DELETE /flowguard/blacklist/:type/:id": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "GET /flowguard/blacklist/contact": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "GET /flowguard/blacklist/step": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "GET /flowguard/blacklist/workflow": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "POST /flowguard/loop-lock/:workflowId": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "GET /flowguard/rate-limiting/bypass": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "DELETE /flowguard/rate-limiting/bypass/:id": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "GET /flowguard/workflow-rendering/:workflowId": {
+      "reach": "refused",
+      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+    },
+    "PUT /:locationId/move-directory/:workflowId": {
+      "summary": "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
+      "note": "The BATCH move cannot reach root -- null, \"\" and \"root\" all 404. Use this per-workflow route instead."
+    },
+    "GET /:locationId/list": {
+      "summary": "The workflow roster for a location; also lists FOLDERS when asked for them.",
+      "note": "Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as \"this account has no folders\"."
+    },
+    "GET /:locationId/premium-tier-usage/:tier": {
+      "summary": "Premium-action CONSUMPTION for one tier on this sub-account.",
+      "note": "Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer \"why did a premium step not run\"."
+    },
+    "GET /:locationId/email/location-email-provider": {
+      "summary": "The sending domain, warm-up state and rate limit behind this account's email steps."
+    },
+    "GET /workflows/statistics": {
+      "summary": "Account-level automation KPIs: total workflows, published workflows, total enrollments."
+    },
+    "GET /workflows/logs/weekly-enrollment-data": {
+      "summary": "Enrollment counts for the last 7 weeks, for the Automation Overview chart."
+    },
+    "POST /workflows/trigger/logs/count": {
+      "summary": "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
+      "note": "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
+    },
+    "GET /workflows/trigger/logs/top-failed-reasons": {
+      "note": "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope."
+    },
+    "GET /workflows/status/enroll-stats": {
+      "summary": "Total and active enrolled counts. A workflow with a large total and zero active has finished with everyone.",
+      "note": "Batched: ask for the workflows you want in one call rather than looping per workflow."
+    },
+    "GET /workflows/status/search/count-per-step": {
+      "summary": "How many contacts are sitting at each step right now."
+    },
+    "GET /:locationId/split/stats": {
+      "summary": "Per-branch results for an A/B split step."
+    },
+    "GET /:locationId/scheduled-pause/config": {
+      "summary": "Whether this workflow is paused on a schedule, and the window if so."
+    },
+    "GET /:locationId/error-notification/list": {
+      "summary": "Workflows in this account that are currently erroring, and who is notified."
+    }
+  }
+}

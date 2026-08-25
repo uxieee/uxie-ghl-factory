@@ -193,18 +193,19 @@ const endpoints = () => {
 //
 // This is RANKING metadata and nothing else. raw_request gates every non-GET on `confirm`
 // regardless of what this file says, so a missing row here can never widen what may be called.
-let KINDS = null;
-const kinds = () => {
-  if (KINDS) return KINDS;
+let OVERLAY = null;
+const overlay = () => {
+  if (OVERLAY) return OVERLAY;
   if (typeof __HAS_ENDPOINTS__ !== 'undefined') {
-    KINDS = __ENDPOINT_KINDS__.kinds ?? {};
-    return KINDS;
+    OVERLAY = __ENDPOINT_OVERLAY__.rows ?? {};
+    return OVERLAY;
   }
-  try { KINDS = JSON.parse(readFileSync(resolve(HERE, '../catalog/endpoint-kinds.json'), 'utf8')).kinds ?? {}; }
-  catch { KINDS = {}; }
-  return KINDS;
+  try { OVERLAY = JSON.parse(readFileSync(resolve(HERE, '../catalog/endpoint-overlay.json'), 'utf8')).rows ?? {}; }
+  catch { OVERLAY = {}; }
+  return OVERLAY;
 };
-const endpointKind = (e) => kinds()[`${e.method} ${e.path}`]
+const overlayFor = (e) => overlay()[`${e.method} ${e.path}`] ?? {};
+const endpointKind = (e) => overlayFor(e).kind
   ?? (e.method === 'GET' ? 'read' : e.method === 'DELETE' ? 'destructive' : 'write');
 
 // Verbs that mean the caller intends to CHANGE something. `add` and `set` are deliberately absent:
@@ -232,7 +233,12 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (!terms.length) return 0;
   const path = String(e.path || '').toLowerCase();
   const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
-  const hay = `${e.method} ${e.base} ${e.path} ${(e.sources || []).join(' ')}`.toLowerCase();
+  // The overlay's own words are part of the haystack. GHL names a route `/{loc}/list` and a caller
+  // asks for "workflow folders" -- no path token matches, so the right row lost to copyWorkflow rows
+  // that merely share the word "workflow". Indexing the human sentence is the single thing that
+  // makes the public rail's search work, and it costs nothing here.
+  const words = overlayFor(e);
+  const hay = `${e.method} ${e.base} ${e.path} ${(e.sources || []).join(' ')} ${words.summary ?? ''} ${words.note ?? ''}`.toLowerCase();
   let score = 0, segHits = 0;
   for (const t of terms) {
     // Match on a STEM, not the whole word. GHL names the path segment `error-notification` while
@@ -243,6 +249,7 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
     if ([...segs].some(hit)) { score += 25; segHits++; }
     else if (path.includes(stem)) { score += 10; segHits++; }
     if (hay.includes(stem)) score += 3;
+    if ((words.summary ?? '').toLowerCase().includes(stem)) { score += 12; segHits++; }
   }
   score += segHits * segHits * 8;
   // A path with fewer parameters is the more general entry point for the same noun —
@@ -259,15 +266,32 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   const kind = endpointKind(e);
   if (kind === 'destructive' && !verbs.destructive) return 0;
   if (kind === 'write' && !verbs.mutating) score -= 40;
+
+  // A row proven to 401 from this rail is a guaranteed wasted turn. The whole /flowguard/* family
+  // is exactly that -- live-proven 2026-08-22, a location-user Bearer never gets through -- and
+  // those rows were ranking FIRST for several read-shaped questions because their paths carry
+  // "workflow", "step" and "contact". Demoted, not hidden: the path is real, and a caller with a
+  // higher credential class may still want it.
+  if (overlayFor(e).reach === 'refused') score -= 60;
   return score;
 };
 
-const endpointStub = (e) => ({
-  method: e.method,
-  path: e.path,
-  base: e.base,
-  callSites: e.callSites,
-});
+// What the agent sees BEFORE it spends a turn on describe_endpoint. `callSites` is gone: 211 of the
+// 235 rows carry the same value, so it never discriminated between two candidates while occupying
+// the most budget-sensitive payload on the rail. What replaces it is what a caller actually picks
+// on -- what the endpoint does, what it returns, and the one trap.
+const endpointStub = (e) => {
+  const extra = overlayFor(e);
+  return {
+    method: e.method,
+    path: e.path,
+    base: e.base,
+    kind: endpointKind(e),
+    ...(extra.summary ? { summary: extra.summary } : {}),
+    ...(extra.note ? { note: extra.note } : {}),
+    ...(extra.reach ? { reach: extra.reach } : {}),
+  };
+};
 
 const CARD_STOP = new Set(['a','an','the','to','of','for','and','or','in','on','with','my','me','i','it','is','that','this','when','how','do','does','add','set','use']);
 const cardWords = (s) => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1 && !CARD_STOP.has(w));
