@@ -56,6 +56,13 @@ saves and cannot branch. All three are fixed and live-proven.
   arrow-function sources are untrusted input. Two shapes are pattern-matched into comparators and
   everything else is skipped and named by `unreadableRules()` — 44 of 59 readable, all 11 flow-bot
   rules among them, the 15 remaining being composite expressions on third-party app actions.
+- **Flow-trigger guards (`FLOW_TRIGGER`).** Probed live: the API enforces **none** of the drawer's
+  custom-trigger rules — it accepted 8 custom triggers on one workflow (the cap is 3), a
+  `targetActionId` naming no step, no target at all, duplicate targets, `priority: "999"` and
+  `sensitivity: "telepathic"`, all 200 and all persisted. The engine now refuses them, because
+  nothing downstream does: a custom trigger without a `conv_ai_trigger` to jump within, more than
+  three of them, an out-of-range priority, or a sensitivity outside `low|medium|high`. Two custom
+  triggers on the same target warn rather than throw — legal, but usually a slip.
 - **Custom (goto) triggers are authorable.** `conv_ai_autonomous_trigger` — "Custom trigger" in
   the UI — does not start a flow, it **jumps the contact to a named step**. Author it with
   `target: "<step ref>"`, resolved to the real step id exactly as `goto` does; a dangling ref

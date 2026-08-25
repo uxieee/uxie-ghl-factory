@@ -77,9 +77,13 @@ skip straight to booking when the customer asks for it.
   `conv_ai_trigger`'s `botId` row uses. Two conventions on one document type.
 - `customTriggerPriority` is stored as a **string**; `customTriggerSensitivity` is **lower-case**
   (`low` / `medium` / `high`).
-- **Rules:** a `conv_ai_trigger` must already exist on the workflow · **max 3** custom triggers ·
-  Conversation AI must be enabled · gated on the flow-builder beta
-  (`GET /ai-employees/beta/{loc}?feature=flow_builder` → `isAllowed`).
+- **Rules, and NONE of them are enforced by the API** — probed 2026-08-26, all accepted and
+  persisted: 8 custom triggers on one workflow, a target naming no step, no target at all,
+  duplicate targets, `priority: "999"`, `sensitivity: "telepathic"`. The drawer requires a
+  `conv_ai_trigger` present, **max 3** custom triggers, priority 1–10, sensitivity
+  `low|medium|high`, Conversation AI enabled, and the flow-builder beta
+  (`GET /ai-employees/beta/{loc}?feature=flow_builder` → `isAllowed`). **The engine refuses these
+  itself (`FLOW_TRIGGER`)** — nothing downstream will.
 - **Runtime semantics, per the drawer:** the jump fires *after the main flow completes*, moving the
   contact to the alternate branch. Not executed here — treat as the vendor's claim.
 

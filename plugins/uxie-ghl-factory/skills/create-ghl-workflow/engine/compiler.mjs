@@ -1569,9 +1569,70 @@ export function buildTrigger(t, ctx, wid, refMap) {
   };
 }
 
+// ─── Flow-bot trigger rules ────────────────────────────────────────────────────────────────
+//
+// EVERY ONE OF THESE IS CLIENT-SIDE ONLY. Probed 2026-08-26 against the live trigger POST: the
+// API accepted 8 custom triggers on one workflow (the drawer caps it at 3), a targetActionId
+// naming no step, NO targetActionId at all, two triggers on the same target, priority "999",
+// sensitivity "telepathic", and an unverified customTriggerType — all 200, all stored. So the
+// builder's uiControls are the only thing that has ever enforced them, and an engine-built flow
+// gets no enforcement at all unless it happens here.
+const SENSITIVITY = new Set(['low', 'medium', 'high']);
+const MAX_CUSTOM_TRIGGERS = 3;
+
+function checkFlowTriggers(triggers, ctx) {
+  const list = triggers ?? [];
+  const gotos = list.filter((t) => t.type === 'conv_ai_autonomous_trigger');
+  if (!gotos.length) return;
+
+  // "Conversation AI trigger is mandatory for adding custom trigger."
+  if (!list.some((t) => t.type === 'conv_ai_trigger')) {
+    throw new IRError('FLOW_TRIGGER',
+      'FLOW_TRIGGER: a conv_ai_autonomous_trigger ("Custom trigger") requires a conv_ai_trigger on '
+      + 'the same workflow — it does not start a flow, it jumps into one. The API accepts it '
+      + 'without one; the builder does not.');
+  }
+  if (gotos.length > MAX_CUSTOM_TRIGGERS) {
+    throw new IRError('FLOW_TRIGGER',
+      `FLOW_TRIGGER: ${gotos.length} custom triggers, but the builder allows at most `
+      + `${MAX_CUSTOM_TRIGGERS} ("Can't add more than 3 custom triggers"). The API accepts more — `
+      + 'live-proven with 8 — and the drawer then refuses to work with them.');
+  }
+  const seen = new Set();
+  for (const t of gotos) {
+    const by = (f) => (t.filters ?? []).find((x) => (x.field ?? x.on) === f)?.value;
+    const where = `'${t.name ?? t.type}'`;
+
+    const prio = by('customTriggerPriority');
+    if (prio !== undefined && !(Number(prio) >= 1 && Number(prio) <= 10)) {
+      throw new IRError('FLOW_TRIGGER',
+        `FLOW_TRIGGER: ${where} has customTriggerPriority '${prio}'. The drawer's stepper is 1-10; `
+        + 'the API stored 999 without complaint. Priority decides which scenario wins when several '
+        + 'match, so an out-of-range value is not harmless.');
+    }
+    const sens = by('customTriggerSensitivity');
+    if (sens !== undefined && !SENSITIVITY.has(String(sens))) {
+      throw new IRError('FLOW_TRIGGER',
+        `FLOW_TRIGGER: ${where} has customTriggerSensitivity '${sens}'. Allowed: `
+        + `${[...SENSITIVITY].join(' | ')} (stored lower-case). The API accepted 'telepathic'.`);
+    }
+    // Two triggers on one target is accepted by the API and is almost certainly an authoring
+    // slip: the same jump described twice, with whichever priority wins deciding silently.
+    const target = t.target ?? t.targetActionId;
+    if (target) {
+      if (seen.has(target)) {
+        ctx?.warn?.(`FLOW_TRIGGER: ${where} targets the same step as an earlier custom trigger. `
+          + 'Both persist; which one runs is decided by customTriggerPriority.');
+      }
+      seen.add(target);
+    }
+  }
+}
+
 export function compile(ir, ctx) {
   const norm = parseIR(ir);
   checkMarketplaceFilters(norm.triggers, ctx);
+  checkFlowTriggers(norm.triggers, ctx);
   // update_opportunity needs an associated opportunity at runtime — enforce the
   // invariant with the catalog-derived set of opportunity-attaching triggers.
   const oppTriggerTypes = new Set(

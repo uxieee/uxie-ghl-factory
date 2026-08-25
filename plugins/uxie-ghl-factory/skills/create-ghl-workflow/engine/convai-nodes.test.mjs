@@ -322,3 +322,50 @@ test('parseValidationRule NEVER evaluates rule source — an exploit string yiel
   ]) assert.equal(parseValidationRule(evil), null, `must not interpret: ${evil}`);
   assert.equal(globalThis.leaked, undefined);
 });
+
+// ── goto-trigger rules: the API enforces NONE of these (probed 2026-08-26) ───────────────────
+test('flow-trigger guards hold the rules only the builder ever enforced', async () => {
+  const { compile: c2 } = await import('./compiler.mjs');
+  const entry = { ref: 't1', type: 'conv_ai_trigger', name: 'Chat', filters: [], convTriggerBotId: 'A9' };
+  const graph = [{ ref: 'm', kind: 'action', type: 'conversationai_ai_message', name: 'Greet', attributes: { message: 'hi', waitForReply: false } }];
+  const goto = (over = {}, filters = []) => ({ ref: 'g', type: 'conv_ai_autonomous_trigger', name: 'Custom', target: 'm', filters, ...over });
+  const build = (triggers) => c2({ name: 'F', workflowType: 'agent', triggers, graph }, ctx());
+
+  // a custom trigger with no conv_ai_trigger to jump within — the API takes it, the drawer will not
+  assert.throws(() => build([goto()]), /requires a conv_ai_trigger/);
+
+  // the drawer caps custom triggers at 3; the API stored EIGHT
+  assert.throws(() => build([entry, goto({ ref: 'g1' }), goto({ ref: 'g2' }), goto({ ref: 'g3' }), goto({ ref: 'g4' })]),
+    /at most 3/);
+
+  // priority is a 1-10 stepper; the API stored "999"
+  assert.throws(() => build([entry, goto({}, [{ field: 'customTriggerPriority', value: '999' }])]),
+    /customTriggerPriority/);
+
+  // sensitivity is a three-value enum; the API stored 'telepathic'
+  assert.throws(() => build([entry, goto({}, [{ field: 'customTriggerSensitivity', value: 'telepathic' }])]),
+    /customTriggerSensitivity/);
+
+  // and the legal build still compiles, with the jump resolved to a real step id
+  const ok = build([entry, goto({}, [
+    { field: 'customTriggerType', value: 'book_appointment' },
+    { field: 'customTriggerPriority', value: '8' },
+    { field: 'customTriggerSensitivity', value: 'medium' }])]);
+  const stepId = ok.autoSaveBody.workflowData.templates[0].id;
+  assert.equal(ok.triggerBodies[1].targetActionId, stepId);
+});
+
+test('two custom triggers on one target warn rather than throw — legal, but a likely slip', async () => {
+  const { compile: c2 } = await import('./compiler.mjs');
+  const warnings = [];
+  const c = { ...ctx(), warn: (m) => warnings.push(m) };
+  c2({ name: 'F', workflowType: 'agent',
+    triggers: [
+      { ref: 't1', type: 'conv_ai_trigger', name: 'Chat', filters: [], convTriggerBotId: 'A9' },
+      { ref: 'g1', type: 'conv_ai_autonomous_trigger', name: 'One', target: 'm', filters: [] },
+      { ref: 'g2', type: 'conv_ai_autonomous_trigger', name: 'Two', target: 'm', filters: [] },
+    ],
+    graph: [{ ref: 'm', kind: 'action', type: 'conversationai_ai_message', name: 'Greet', attributes: { message: 'hi', waitForReply: false } }],
+  }, c);
+  assert.ok(warnings.some((w) => /targets the same step/.test(w)), JSON.stringify(warnings));
+});
