@@ -11,6 +11,24 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.30.1] — 2026-08-25
+
+### Fixed
+
+- **Two of the enforcement rules shipped in 0.30.0 were dead.** Nine step types take a dedicated
+  attribute builder, and `enforceRequiredFields` is wired into the generic path only — so those
+  types reached GHL having run none of their rules. `email.html` was among them: the rule that
+  stops a step **sending a blank email** shipped doing nothing, as did both `custom_webhook`
+  body-shape rules.
+
+  This was found on `wait` during 0.30.0 and patched per-branch, which fixed one symptom and left
+  the rest. The seam now wraps the whole dedicated-builder set, so a tenth builder cannot silently
+  disarm its rules.
+
+  Found by live-fire, not by tests: all 866 unit tests passed throughout, because they call
+  `enforceRequiredFields` directly and never exercise the dispatch. The new regression test asserts
+  the invariant through `compile()` and is proven to fail when the seam is bypassed.
+
 ## [0.30.0] — 2026-08-25
 
 ### Changed
