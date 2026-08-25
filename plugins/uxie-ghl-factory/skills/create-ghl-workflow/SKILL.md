@@ -79,8 +79,9 @@ catalog rather than improvising a shape.
 2. Auth: `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`. `Authorization: Bearer`,
    **NOT** `token-id`. Save the captured `Authorization: Bearer …` line to the file
    `scripts/build.mjs` reads — set `GHL_TOK_FILE=<path>` (recommended) or drop it at
-   the default `plugins/.playwright-mcp/tok.txt`. JWT ~1 hr; on 401 mid-run stop,
-   re-capture, resume — never retry-loop.
+   the default `plugins/.playwright-mcp/tok.txt`. JWT ~1 hr, so it WILL expire mid-run: on 401,
+   re-capture it YOURSELF (invoke `uxie-ghl-factory:internal-connect`) and resume where you left
+   off. Do not ask first. One re-capture per failure — never retry-loop.
 3. **Draft-first.** Everything builds as `draft`. Publish is a separate, opt-in
    `--publish` run gated on explicit user confirmation.
 
@@ -176,7 +177,8 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   something's wrong; the orchestrator should have created them.
 - About to ignore an `ABORTED` / `UNRESOLVED` line → don't; that's a missing dependency.
 - About to `--publish` without the user's explicit OK → stop.
-- Got a 401 → JWT expired; re-capture and resume.
+- Got a 401 → the JWT expired. Re-capture it yourself via `uxie-ghl-factory:internal-connect`
+  and resume; this is not a reason to stop or to ask.
 - About to add `update_opportunity` with no opp trigger, no prior `create_opportunity`, and outside a `find_opportunity` Found branch → the engine aborts with `OPP_UNASSOCIATED`; build find-or-create first.
 - Got `DEAD_BRANCH` on a commit → do NOT reflexively pass `--ack-dead-branch`. Read which branch took the existing chain and which one now ends at END, and confirm that is the routing you meant. This guard exists because the inverse shipped once and the normal path silently released nothing.
 - Adding an opportunity step via EDIT-MODE → `editCommitBody` now throws `OPP_UNASSOCIATED` when the edit CREATES an unassociated `internal_update_opportunity`; pass `assumeAssociated: true` only after verifying ALL the workflow's triggers are opportunity-based. Still unchecked: moving an existing update out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation that skips `editCommitBody` — verify those yourself.

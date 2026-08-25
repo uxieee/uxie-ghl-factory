@@ -126,8 +126,16 @@ test('403 is ACCESS_DENIED, not TOKEN_EXPIRED, and says re-auth will not help', 
   assert.doesNotMatch(r.remediation, /Re-capture the JWT with/);
 });
 
-test('401 stays TOKEN_EXPIRED and still points at the capture runbook', () => {
+test('401 stays TOKEN_EXPIRED and tells the AGENT to re-capture, itself, once', () => {
   const r = fromHttp(401, 'Unauthorized');
   assert.equal(r.code, CODES.TOKEN_EXPIRED);
-  assert.match(r.remediation, /Re-capture the JWT/);
+  // The remediation is addressed to the agent, not the user. It used to open "Run
+  // /uxie-ghl-factory:internal-connect", and a slash command is something a USER types -- so the
+  // agent read it as "ask the human" and stopped mid-task, on a credential that expires hourly.
+  assert.match(r.remediation, /RE-CAPTURE IT YOURSELF/);
+  assert.match(r.remediation, /do not ask and do not stop/);
+  assert.match(r.remediation, /internal-connect/);
+  // And bounded: re-capturing in a loop against a dead browser session achieves nothing loudly.
+  assert.match(r.remediation, /ONE re-capture per failure/);
+  assert.doesNotMatch(r.remediation, /^Run \//);
 });

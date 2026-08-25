@@ -13,7 +13,8 @@ Writes to a GHL account via the undocumented internal API.
    `/funnels/*` uses a **`token-id`** header, NOT `Authorization: Bearer`; §1 is the
    workflow-builder rail and its token is rejected here. §9.2 has the capture procedure
    (hook `fetch`/`XHR` BEFORE navigating — deep links to the funnels area 404, and a
-   `location.reload()` wipes the hook). Short-lived, never stored, re-capture on 401.
+   `location.reload()` wipes the hook). Short-lived and never stored. On a 401 re-capture it yourself via
+   `uxie-ghl-factory:internal-connect` and carry on — do not stop to ask.
 
 ## Contract (uniform specialist contract)
 Recon (MCP read of existing funnels) → read the account brief
