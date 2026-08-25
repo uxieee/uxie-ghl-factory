@@ -50,9 +50,8 @@ endpoints do, and is separate from which rail to choose for a task.
 | knowledge bases | `ghl-knowledge-base` |
 | Voice AI | `ghl-voice-ai` |
 
-## Auditor
+## Whole-account health checks
 
-For a whole-account health check, use `/uxie-ghl-factory:audit` instead of building or
-diagnosing surface-by-surface — it runs a read-only, two-altitude (defect +
-opportunity) sweep across **every GHL surface** (8 deep-catalog surfaces + baseline
-coverage of all the rest) and produces a Mermaid system map plus an impact-ranked report.
+There is currently **no audit command** — it was retired 2026-08-25 pending a redesign, and its
+material is kept whole in `archive/audit-retired-2026-08-25/`. Diagnose surface-by-surface with
+the specialist skills until it returns.

@@ -1463,8 +1463,23 @@ export const TOOLS = [
         }
       }
 
+      // GHL emits LIFECYCLE rows alongside the rows for authored steps: add_to_workflow,
+      // added_to_workflow and remove_from_workflow. They carry a `stepName` that reads like a
+      // real step ("Add to workflow", "Remove from workflow") and a `stepId` that matches NO
+      // entry in workflowData.templates, so anything correlating log rows to steps reports steps
+      // that do not exist. Proven live 2026-08-25 on a two-step workflow whose log had five rows.
+      //
+      // They are NOT dropped — added_to_workflow is the only proof a trigger fired, which the
+      // note below has always said. They are LABELLED, so a consumer can tell a lifecycle row
+      // from a step row without knowing the vocabulary.
+      const LIFECYCLE_TYPES = new Set(['add_to_workflow', 'added_to_workflow', 'remove_from_workflow']);
+      const rawLogs = logs.json?.logs ?? logs.json ?? [];
+      const labelledLogs = Array.isArray(rawLogs)
+        ? rawLogs.map((r) => (LIFECYCLE_TYPES.has(r?.type) ? { ...r, isLifecycleRow: true } : r))
+        : rawLogs;
+
       return ok({
-        logs: logs.json?.logs ?? logs.json ?? [],
+        logs: labelledLogs,
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
         enrollments,
         // Only meaningful when the caller asked for the full walk; undefined keeps
@@ -1472,7 +1487,11 @@ export const TOOLS = [
         ...(args.allEnrollments ? { enrollmentsComplete, enrollmentPages: pages } : {}),
         ...(rateLimited ? { rateLimited: true } : {}),
         ...(enrollmentStats ? { enrollmentStats } : {}),
-        note: 'added_to_workflow in logs is the ONLY proof a trigger fired.',
+        note: 'added_to_workflow in logs is the ONLY proof a trigger fired. '
+            + 'Rows flagged isLifecycleRow are GHL-generated, not authored steps — do not '
+            + 'correlate them to workflowData.templates. '
+            + 'A roster status of "finished" means the contact LEFT the workflow, which covers '
+            + 'both completing it and being removed from it — it is not a completion signal.',
       });
     }, args),
   },

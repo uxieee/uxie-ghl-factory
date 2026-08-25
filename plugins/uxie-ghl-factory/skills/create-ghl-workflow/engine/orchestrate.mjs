@@ -444,6 +444,14 @@ export async function orchestrate(ir, gw, opts = {}) {
   // Trigger POSTs right after auto-save intermittently 400 {"message":"Workflow
   // not found"} — the workflow doc hasn't settled server-side yet (observed live
   // 2026-07-13). Retry with backoff, and RECORD failures instead of dropping them.
+  //
+  // ⚠ That 400 has a SECOND cause and the message does not distinguish them (proven live
+  // 2026-08-25). The workflow id appears TWICE in a trigger body — `workflowId` at the top
+  // level and `workflow_id` inside actions[] — and a stale id in EITHER produces the identical
+  // "Workflow not found", which no amount of backoff fixes. `swap()` above is what makes this
+  // a non-issue here: it replaces the placeholder across the whole serialised document rather
+  // than field by field. Keep it that way — a targeted per-field substitution reintroduces the
+  // bug in the id nobody remembers. See corpus/workflows/20-api/trigger-create.md.
   const backoff = opts.triggerBackoffMs ?? [0, 700, 2000];
   for (const tb of built.triggerBodies.map(swap)) {
     let r;

@@ -9,7 +9,30 @@ description: Read the RUNTIME of a GoHighLevel / HighLevel workflow — its exec
 
 Capture the *runtime* behind a HighLevel workflow — the execution trace, the enrollment records, and the live per-step occupancy — and turn it into evidence the user can act on. Where `get-ghl-workflow-json` answers "how is this workflow built," this skill answers "what happened when contacts ran through it."
 
-This is a narrow, read-only extraction-and-interpretation skill, not a full audit. It gets the runtime data onto disk and explains what it means. A whole-account audit is `/uxie-ghl-factory:audit`.
+This is a narrow, read-only extraction-and-interpretation skill, not a full audit. It gets the runtime data onto disk and explains what it means.
+
+## Three things that will mislead you, all proven live 2026-08-25
+
+**`finished` is not completion.** A roster status of `finished` means the contact LEFT the
+workflow — which covers both *ran every step* and *was removed from it*. Force-to-next-step and
+remove-stuck-records both end at `finished`, and the roster cannot tell them apart. To know which,
+read that contact's execution log or check the side effect the last step should have produced. Any
+completion rate computed from roster status overstates.
+
+**Some log rows are not steps.** GHL emits lifecycle rows — `add_to_workflow`,
+`added_to_workflow`, `remove_from_workflow` — alongside the rows for authored steps. They carry a
+`stepName` that reads like a real step ("Add to workflow") and a `stepId` matching nothing in
+`workflowData.templates`. `get_workflow_logs` flags them as `isLifecycleRow: true`; never
+correlate a flagged row to a step. `added_to_workflow` is still the only proof a trigger fired, so
+they matter — they just are not steps.
+
+**Execution logs are contact PII.** Every row carries `contactName` and `contactEmail`, not just
+ids. Treat a saved log file the way you would treat a contact export: it does not belong in a
+public repo, a ticket, or a screenshot.
+
+A fourth, for when a workflow "stopped working": a **scheduled pause puts workflows into `draft`**,
+so a paused workflow is indistinguishable from one somebody unpublished by hand. Check
+`GET /workflow/{loc}/scheduled-pause/config` before concluding anything was changed.
 
 ## Boundaries
 

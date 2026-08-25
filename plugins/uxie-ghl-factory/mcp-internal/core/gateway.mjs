@@ -84,6 +84,16 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
   const creds = readCredentials({ tokenFile, allowExpired: true });   // throws AuthError; tools map it
 
   const headers = (isWrite, overrides = {}, base = BASE) => {
+    // channel/source/version are NOT optional outside the /workflow/* prefix. Anything on
+    // /workflows/*, /workflows-marketplace/*, /marketplace/* or /conversations-reporting/*
+    // returns 401 without them — with the body `version header was not found`, which reads like
+    // an auth failure and is not one. /workflow/* tolerates them, so sending them everywhere is
+    // both correct and simpler than deciding per path.
+    //
+    // The version value is VALIDATED against an allowlist, not merely required: a bogus value
+    // returns `version header is invalid` rather than passing. Both 2021-07-28 (ours) and
+    // 2021-04-15 (what GHL's own marketplace wrapper sends) are accepted — differential
+    // 2026-08-25. Do not change this string casually; it is checked server-side.
     const h = { channel: 'APP', source: 'WEB_USER', version: '2021-07-28', accept: 'application/json, text/plain, */*' };
     if (isWrite) {
       h['content-type'] = 'application/json';
