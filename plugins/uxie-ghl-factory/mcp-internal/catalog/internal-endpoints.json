@@ -68,7 +68,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -174,7 +175,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -322,7 +323,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -367,6 +368,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -380,7 +382,14 @@
       "operation": "getAffiliates",
       "service": "AffiliateService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -401,7 +410,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -545,7 +554,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -592,7 +601,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -695,7 +704,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -740,7 +750,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -778,6 +788,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -787,7 +798,14 @@
       "operation": "getChat",
       "service": null,
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": {
         "typeName": "GetChatWidgetResponse",
@@ -852,7 +870,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -890,6 +908,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -903,7 +922,14 @@
       "operation": "getNewEmailStats",
       "service": "EmailStatsReportService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -925,6 +951,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_workflow_stats"
@@ -940,7 +967,14 @@
       "operation": "getAggregateStatsNew",
       "service": "EmailStatsReportService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -963,6 +997,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -976,7 +1011,14 @@
       "operation": "getSmsStatsWithContacts",
       "service": "SmsStatsReportService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -998,6 +1040,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_workflow_stats"
@@ -1013,7 +1056,14 @@
       "operation": "getSmsStats",
       "service": "SmsStatsReportService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -1232,7 +1282,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1275,7 +1325,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1441,7 +1491,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -1619,7 +1669,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2093,6 +2143,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -2107,6 +2158,12 @@
       "service": "FormsService",
       "pathParams": [],
       "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "formIds",
           "type": "string",
@@ -2172,7 +2229,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2431,7 +2488,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2488,7 +2545,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2523,7 +2580,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2602,7 +2659,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2708,7 +2765,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2950,7 +3007,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3074,6 +3131,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -3087,7 +3145,14 @@
       "operation": "getLinks",
       "service": "LinksService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -3377,7 +3442,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3415,7 +3480,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "build_workflow",
         "create_custom_field_folder",
@@ -3480,7 +3545,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3658,7 +3723,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -3756,7 +3821,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4060,6 +4126,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "edit_workflow",
@@ -4072,7 +4139,14 @@
       "operation": "getMarketplaceApps",
       "service": "WorkflowMarketplaceService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -4093,6 +4167,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -4107,6 +4182,12 @@
       "service": "MediaService",
       "pathParams": [],
       "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "altType",
           "type": "\"location\"",
@@ -4194,7 +4275,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4272,7 +4354,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4320,7 +4402,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4694,7 +4776,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4869,6 +4952,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -4882,7 +4966,14 @@
       "operation": "getLostReasonCustomFieldOptions",
       "service": "OpportunityCustomFieldService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -4940,7 +5031,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -4979,7 +5070,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5142,7 +5234,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5193,7 +5285,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5268,7 +5361,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5306,7 +5399,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5344,7 +5437,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5423,7 +5516,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5515,7 +5608,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5697,7 +5790,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5742,7 +5835,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -5879,7 +5972,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -6255,7 +6349,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -6703,7 +6797,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "list_workflow_versions"
       ],
@@ -6826,7 +6920,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "list_workflow_versions"
       ],
@@ -7676,7 +7770,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -8049,7 +8143,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -8239,7 +8333,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -8276,7 +8370,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -8363,7 +8457,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -8469,7 +8563,7 @@
       "kind": "read",
       "summary": "The workflow roster for a location; also lists FOLDERS when asked for them.",
       "note": "Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as \"this account has no folders\".",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "create_workflow_folder",
         "list_workflow_folders",
@@ -9065,7 +9159,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "Whether this workflow is paused on a schedule, and the window if so.",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -9523,7 +9617,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -10403,7 +10497,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -10471,7 +10565,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -10610,7 +10704,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -11316,7 +11410,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -11633,7 +11727,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -11801,7 +11895,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -11902,7 +11996,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -13524,7 +13619,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -14180,7 +14276,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "check_workflow",
         "edit_workflow"
@@ -14324,7 +14420,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -14419,6 +14515,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -14432,7 +14529,14 @@
       "operation": "getDetailLogsList",
       "service": "WorkflowCopyLogsService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -14453,6 +14557,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -14466,7 +14571,14 @@
       "operation": "getLogsList",
       "service": "WorkflowCopyLogsService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -14487,6 +14599,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -14500,7 +14613,14 @@
       "operation": "getStatusList",
       "service": "WorkflowCopyLogsService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -14554,7 +14674,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "Execution log rows for one workflow; executionId returns one run's full step trace.",
-      "note": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history.",
+      "note": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_workflow_logs",
@@ -14567,7 +14687,14 @@
       "operation": "getLogs",
       "service": "WorkflowMarketplaceService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -14589,7 +14716,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -14629,7 +14756,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "get_account_workflow_overview"
       ],
@@ -14704,6 +14831,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "How many contacts are sitting at each step right now.",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "fast_forward_contacts",
@@ -14718,7 +14846,14 @@
       "operation": "getContactCountPerStep",
       "service": "WorkflowMarketplaceService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -14739,6 +14874,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "fast_forward_contacts",
@@ -14752,7 +14888,14 @@
       "operation": "getContactDetailsPerStep",
       "service": "WorkflowMarketplaceService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -14774,6 +14917,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_account_workflow_overview"
@@ -14786,6 +14930,12 @@
       "service": "WorkflowMarketplaceService",
       "pathParams": [],
       "query": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        },
         {
           "name": "workflowIds",
           "type": "any",
@@ -15368,6 +15518,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_workflow_logs",
@@ -15380,7 +15531,14 @@
       "operation": "getStatuses",
       "service": "WorkflowMarketplaceService",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -15587,7 +15745,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [
         "export_workflow",
         "get_workflow_runtime_window"
@@ -15714,6 +15872,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_trigger_logs",
@@ -15726,7 +15885,14 @@
       "operation": null,
       "service": null,
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -15747,7 +15913,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "note": "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope.",
+      "note": "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_trigger_logs"
@@ -15759,7 +15925,14 @@
       "operation": null,
       "service": null,
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -15780,6 +15953,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
       "reach": "source-only",
       "coveredBy": [
         "get_trigger_logs"
@@ -15791,7 +15965,14 @@
       "operation": null,
       "service": null,
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "live-probe"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -15847,7 +16028,8 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+      "reach": "refused",
       "coveredBy": [
         "build_workflow",
         "pin_webhook_sample"
@@ -16000,7 +16182,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -16099,7 +16281,7 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
