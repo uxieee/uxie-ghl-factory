@@ -135746,7 +135746,11 @@ function parseActionSchema(assets) {
         title: f.title ?? f.field,
         required: f.required === true,
         fieldType: f.fieldType,
-        default: coerceDefault(f.value, f.fieldType)
+        default: coerceDefault(f.value, f.fieldType),
+        // The builder's "Resolve N Errors" banner is not required-fields-only: 55 fields
+        // across the catalog carry per-field RULES (length caps, numeric ranges, regexes),
+        // and 11 of them sit on the conversation-AI nodes. Dropped until 2026-08-26.
+        validations: Array.isArray(f.validations) ? f.validations : []
       }));
       byType.set(action.key, {
         type: action.key,
@@ -135818,12 +135822,57 @@ function missingForStep(step, schema2) {
     message: `"${f.title}" is a required field`
   }));
 }
+var LEN_RULE = /^\(\s*\w+\s*\)\s*=>\s*\w+\??\.length\s*(<=|<|>=|>)\s*(\d+)\s*$/;
+var NUM_RULE = /^\(\s*\w+\s*\)\s*=>\s*\w+\s*(<=|<|>=|>)\s*(\d+)\s*$/;
+var CMP = { "<=": (a, b) => a <= b, "<": (a, b) => a < b, ">=": (a, b) => a >= b, ">": (a, b) => a > b };
+function parseValidationRule(rule) {
+  if (typeof rule !== "string" || !rule.trim()) return null;
+  const len = rule.match(LEN_RULE);
+  if (len) return (v) => v == null || CMP[len[1]](String(v).length, Number(len[2]));
+  const num = rule.match(NUM_RULE);
+  if (num) return (v) => v == null || v === "" || !Number.isFinite(Number(v)) || CMP[num[1]](Number(v), Number(num[2]));
+  if (!rule.startsWith("(")) {
+    try {
+      const re = new RegExp(rule);
+      return (v) => v == null || v === "" || re.test(String(v));
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+function violationsForStep(step, schema2) {
+  const spec = schema2?.get?.(step?.type);
+  if (!spec) return [];
+  const attrs = step.attributes ?? {};
+  const out = [];
+  for (const f of spec.fields) {
+    const value = attrs[f.field];
+    if (isBlank(value)) continue;
+    for (const v of f.validations ?? []) {
+      const pred = parseValidationRule(v.rule);
+      if (!pred) continue;
+      if (!pred(value)) {
+        out.push({
+          field: f.field,
+          title: f.title,
+          message: `"${f.title}": ${v.errorMessage ?? "value fails the builder's validation rule"}`
+        });
+      }
+    }
+  }
+  return out;
+}
 function checkWorkflow(templates, schema2, { triggerTypes } = {}) {
   const errors = [];
   for (const step of templates ?? []) {
     const missing = missingForStep(step, schema2);
     if (missing.length) {
       errors.push({ stepId: step.id, step: step.name, type: step.type, messages: missing.map((m) => m.message), fields: missing.map((m) => m.field) });
+    }
+    const bad = violationsForStep(step, schema2);
+    if (bad.length) {
+      errors.push({ stepId: step.id, step: step.name, type: step.type, messages: bad.map((m) => m.message), fields: bad.map((m) => m.field) });
     }
     if (triggerTypes) {
       const need = schema2?.get?.(step.type)?.requiredTriggers ?? [];
