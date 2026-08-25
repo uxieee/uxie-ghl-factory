@@ -5,10 +5,6 @@ description: "Build and operate GoHighLevel Events — create ticketed or RSVP e
 
 # GHL Events
 
-> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
-> endpoints across every GHL product, with the typed tool that covers each one and whether a
-> location token is proven to reach it. Search before concluding something is not possible.
-
 Base: `services.leadconnectorhq.com/events-management`.
 
 **There is no public-API events surface.** Everything below is the internal rail, so the write
@@ -62,6 +58,11 @@ GET   /events-management/branding-palette
 
 `settings/{eventId}` is where the event page lives — it carries `customCss` and `pageSections`
 alongside branding and check-in.
+
+The block above is what has been proven. `search_endpoints` on the internal MCP indexes every
+`/events-management/*` route the corpus records; `describe_endpoint` gives the exact call. Anything
+there and not here is a path with no proven body — and on this surface the 422s are specific
+enough (see the five traps) that a first call is a cheap probe.
 
 ## Public registration (the buyer's side)
 

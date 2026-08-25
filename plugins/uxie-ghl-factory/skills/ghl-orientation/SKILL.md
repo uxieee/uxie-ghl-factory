@@ -18,8 +18,8 @@ Ground rules for agents working GHL:
    is /uxie-ghl-factory:internal-connect.
 3. Per-client state lives in .ghl/<locationId>/ (brief.md = client context).
 4. **When no typed tool obviously fits, SEARCH before you conclude it is impossible.**
-   `search_endpoints` on the internal MCP covers 620 endpoints across every GHL
-   surface this project knows — workflow builder, memberships and courses,
+   `search_endpoints` on the internal MCP covers every internal endpoint this
+   project knows — hundreds, across every GHL surface — workflow builder, memberships and courses,
    conversation AI, voice AI, agent studio, funnels, calendars, media, billing —
    not workflows only. Each hit says what the endpoint does, whether a typed tool
    already covers it, and whether a location token has been PROVEN to reach it.

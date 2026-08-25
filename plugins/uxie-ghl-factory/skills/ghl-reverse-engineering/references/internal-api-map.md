@@ -3,6 +3,11 @@
 What's known about GHL's internal hosts, auth, and quirks — the orientation for a capture session.
 Verified live 2026-07-11; treat specifics as a starting point and re-confirm against the session.
 
+**The compiled form of everything below is the endpoint catalogue** — `search_endpoints` /
+`describe_endpoint` on `uxie-ghl-internal-mcp`. It carries every host, prefix and auth rail here as
+a field on each row, plus whether a location token has been proven to reach it. Read a row before
+you read a bundle.
+
 ## Hosts
 - `backend.leadconnectorhq.com` — workflow builder, oauth/session, most agency/location data.
 - `services.leadconnectorhq.com` — AI services (ai-employees, voice-ai, agent-studio, knowledge-base),
@@ -16,10 +21,13 @@ There is no single internal auth scheme. Match the header to the service:
 | Surface | Auth header | Token kind |
 |---|---|---|
 | Workflow builder (`/workflow/...`, `/workflows-marketplace/...`) | `Authorization: Bearer <JWT>` | LeadConnector JWT (migrated from `token-id` on 2026-07-10) |
-| AI services — Conversation AI (`/ai-employees/...`, `/conversations-ai/...`), Voice AI (`/voice-ai/...`), Agent Studio (`/agent-studio/...`) | **`token-id: <JWT>`** | Google securetoken RS256 (`iss: securetoken.google.com/highlevel-backend`; claims `user_id`, `company_id`, `role`, `locations[]`) |
+| AI services — Conversation AI (`/ai-employees/...`, `/conversations-ai/...`), Voice AI (`/voice-ai/...`), Agent Studio (`/agent-studio/...`) | `Authorization: Bearer <JWT>` **and** `token-id: <JWT>` together — the dual-credential rail | the `token-id` is a Google securetoken RS256 (`iss: securetoken.google.com/highlevel-backend`; claims `user_id`, `company_id`, `role`, `locations[]`). The plugin's gateway attaches both on `host:"ai"` / `rail:'ai'`, live-proven by the agent-create tools; through the MCP you never set either |
 
 Both are ~1 hr-lived session tokens; capture fresh from the live session, don't reuse saved ones.
-Other common headers seen: `channel: APP`, `source: WEB_USER`, `version: <date>`.
+`channel: APP`, `source: WEB_USER`, `version: <date>` are **required outside `/workflow/*`** —
+without them 21 of 39 probed prefixes returned a 401 whose body says `version header was not
+found` (reach differential, 2026-08-25). The gateway sends them on every call; a hand-rolled
+request must too.
 
 ## Object-write semantics differ by product (the #2 gotcha)
 An engine must know whether `PUT` merges or replaces:
@@ -43,6 +51,10 @@ literal values (e.g. a workflow's `voice_ai_outbound_call` step stores `fromPhon
 E.164 string, not a number-pool id). Capture confirms which.
 
 ## Where the worked examples live
-`ghl-workflow-api-docs/research/ai-agents-internal/` — full endpoint maps + schemas for Conversation AI,
-Voice AI, and Agent Studio, plus the `voice_ai_outbound_call` workflow step (live-create-proven). Use
-those as the template for documenting a new surface. Static bundle source: `sniffs/bundle/recovered-source/`.
+The corpus — `knowledge/corpus/ai-agents/` for Conversation AI, Voice AI and Agent Studio,
+`memberships-courses/`, `events/`, `workflows/` — is the source of truth and the template for
+documenting a new surface. Recovered source, mined into the catalogue:
+`sniffs/bundle-2026-08-21-2/recovered-source/` (the workflow builder, 1,867 files including the
+page layer — NOT the older `sniffs/bundle/`, which is the same app at a third of the size) and
+`sniffs/memberships-builder-2026-08-24/recovered-source/`. The AI apps have no recovered source;
+their catalogue rows come from the corpus.

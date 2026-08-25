@@ -4,10 +4,6 @@ description: "GoHighLevel Conversation AI (the chat 'AI Employee') — bot confi
 ---
 # GHL Conversation AI
 
-> **Hitting a wall?** `search_endpoints` on the internal MCP covers this surface too — 620
-> endpoints across every GHL product, with the typed tool that covers each one and whether a
-> location token is proven to reach it. Search before concluding something is not possible.
-
 > **MCP routing:** If the `uxie-ghl-internal-mcp` server is registered in this session, prefer its `create_convai_agent` / `create_voiceai_agent` / `create_studio_agent` tools over running this skill's scripts directly — the tools wrap these same compilers behind confirmation gates and round-trip verification. Fall back to this skill's own scripts when the server is not registered.
 
 You design and build GoHighLevel's **Conversation AI** — the chat "AI Employee" that answers
@@ -37,7 +33,10 @@ the internal rail only for:
 - **prompt version history** (`oldPromptIds`), if a rollback is actually needed.
 
 `references/conversation-ai.md` documents the internal endpoints — read it when you need the
-per-contact switch or prompt history, not as the default path.
+per-contact switch or prompt history, not as the default path. Those two, and every other
+`/ai-employees/*` and `/conversations-ai/*` route the corpus records, are indexed by
+`search_endpoints` on the internal MCP; use it to confirm a path before hand-typing one — **not**
+as a reason to leave the public rail for reads and config it already covers.
 
 ## Contract
 Follow `${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md` (recon → brief → intake →
@@ -77,8 +76,9 @@ never make live calls; the caller/executor attaches auth and issues the HTTP req
 | Agent Studio | `/agent-studio/super-agent/*` | `POST /agent-studio/super-agents/build` (NL-prompt, SSE) | `PUT /agent-studio/super-agent/agents/:id` **full-replace** | `studio-compiler.mjs` |
 | Knowledge Base (rich-text) | `/knowledge-base/rich-text/` | `POST` (async — response is `status:"training"`; poll until `"trained"`) | — | `kb-compiler.mjs` |
 
-**Auth is `token-id`** (a Google `securetoken` JWT), **NOT** the workflow-builder's
-`Authorization: Bearer` scheme — this is a different, service-dependent auth surface.
+**Auth is `token-id`** (a Google `securetoken` JWT) **alongside** the Bearer — the dual-credential
+rail, which the MCP's `host:"ai"` attaches for you. Running the scripts directly is a different,
+service-dependent auth surface.
 Capture it per `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md` **§7 "AI-services auth
 (`token-id`)"** — the dedicated procedure + `services.leadconnectorhq.com` host for this
 domain. (The `token-id`-is-retired note in `get-ghl-workflow-json` applies ONLY to the
