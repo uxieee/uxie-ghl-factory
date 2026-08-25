@@ -132,10 +132,17 @@ A Custom trigger separately raised `trigger-condition-invalid` and blocked the s
 client's rule table enumerates 28 ids and includes **neither** that one nor any of the nine — it is
 a dedup convenience, not the server's catalogue.
 
-**The server does NOT check graph shape.** Probed 2026-08-26: dangling `next`, duplicate node ids,
-orphan `parentKey`, a step wired after a terminal `end`, a multipath container with no transitions,
-an orphaned `transition`, and a two-node cycle — **all seven accepted**. The engine's `REF_DANGLING`
-throw and parent-key repair are not redundant with a server check; there is no server check.
+**The server does NOT check graph shape** — tested against every path we know. Dangling `next`,
+duplicate node ids, orphan `parentKey`, a step wired after a terminal `end`, a multipath container
+with no transitions, an orphaned `transition`, a two-node cycle: all accepted on the auto-save PUT,
+on `isAutoSave:false`, with the change manifest (`createdSteps`/`modifiedSteps`), under the **full
+publish body**, and by `validate-assets` (0 errors, 0 warnings). Publish is the same endpoint, so
+there is no stricter route left for a check to hide in.
+
+The three checks partition cleanly: **attributes** on the PUT, **references** in `validate-assets`
+(`ASSET_CALENDAR_NOT_FOUND` is an error; `ASSET_TAG_NOT_FOUND` only a warning, because tags
+auto-create), and **graph shape — nobody**. The engine's `REF_DANGLING` throw and parent-key repair
+are not redundant with a server check; there is no server check.
 
 It type-checks values but nothing more: `waitForReply: "yes"` is a 400
 (`Expected boolean, received string`), while a bad `sleepUnit` enum, a negative `sleepDuration`,
