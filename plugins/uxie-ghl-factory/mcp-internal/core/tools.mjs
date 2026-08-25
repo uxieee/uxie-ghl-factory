@@ -180,7 +180,44 @@ const endpoints = () => {
   return ENDPOINTS;
 };
 
-const scoreEndpoint = (e, terms) => {
+// What an endpoint DOES, for ranking only. The overlay (catalog/endpoint-kinds.json) carries the
+// rows whose danger the method does not reveal -- a POST that starts a mass enrolment or sends a
+// real SMS. Everything else defaults by method.
+//
+// This is RANKING metadata and nothing else. raw_request gates every non-GET on `confirm`
+// regardless of what this file says, so a missing row here can never widen what may be called.
+let KINDS = null;
+const kinds = () => {
+  if (KINDS) return KINDS;
+  try { KINDS = JSON.parse(readFileSync(resolve(HERE, '../catalog/endpoint-kinds.json'), 'utf8')).kinds ?? {}; }
+  catch { KINDS = {}; }
+  return KINDS;
+};
+const endpointKind = (e) => kinds()[`${e.method} ${e.path}`]
+  ?? (e.method === 'GET' ? 'read' : e.method === 'DELETE' ? 'destructive' : 'write');
+
+// Verbs that mean the caller intends to CHANGE something. `add` and `set` are deliberately absent:
+// CARD_STOP strips both before scoring ever sees them, so listing them here would be a rule that
+// silently never fires.
+const MUTATION_VERBS = new Set([
+  'create', 'make', 'new', 'build', 'update', 'edit', 'change', 'modify', 'delete', 'remove',
+  'clear', 'drop', 'publish', 'unpublish', 'install', 'uninstall', 'start', 'stop', 'pause',
+  'resume', 'enroll', 'move', 'restore', 'send', 'reset', 'register', 'deregister', 'requeue',
+  'bypass', 'blacklist',
+]);
+// The subset that means the caller intends to DESTROY something. A destructive row surfaces only
+// when one of these is present: "publish the workflow" must not return flowguard/blacklist, which
+// STOPS the workflow, however well its path happens to match.
+const DESTRUCTIVE_VERBS = new Set([
+  'delete', 'remove', 'clear', 'drop', 'stop', 'bypass', 'blacklist', 'reset', 'deregister',
+  'requeue', 'unpublish', 'uninstall',
+]);
+const intentVerbs = (terms) => ({
+  mutating: terms.some((t) => MUTATION_VERBS.has(t)),
+  destructive: terms.some((t) => DESTRUCTIVE_VERBS.has(t)),
+});
+
+const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (!terms.length) return 0;
   const path = String(e.path || '').toLowerCase();
   const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
@@ -202,6 +239,15 @@ const scoreEndpoint = (e, terms) => {
   score -= (path.match(/:/g) ?? []).length;
   // Prefer the builder's own service over the resolver endpoints it merely reads from.
   if (e.base.endsWith('/workflow')) score += 5;
+
+  // A0 measured what this fixes. Across ten read-shaped intents, 18 of 30 top-3 slots were writes
+  // and only one intent had a clean read-only top 3. "which contacts are sitting at step X right
+  // now" -- a pure read -- returned remove-stuck-statuses and requeue-stuck-statuses at #1 and #2,
+  // both destructive runtime mutations. "read the email deliverability posture" put send-test-email
+  // at #2, which sends a real message. The scorer had no notion of what a row DOES.
+  const kind = endpointKind(e);
+  if (kind === 'destructive' && !verbs.destructive) return 0;
+  if (kind === 'write' && !verbs.mutating) score -= 40;
   return score;
 };
 
@@ -3894,8 +3940,9 @@ export const TOOLS = [
       }
       const wanted = args.method ? String(args.method).toUpperCase() : null;
       if (wanted) pool = pool.filter((e) => e.method === wanted);
+      const verbs = intentVerbs(terms);
       const ranked = pool
-        .map((e) => ({ e, score: scoreEndpoint(e, terms) }))
+        .map((e) => ({ e, score: scoreEndpoint(e, terms, verbs) }))
         .filter((x) => x.score > 0)
         .sort((a, b) => b.score - a.score || a.e.path.length - b.e.path.length)
         .slice(0, args.limit ?? 10);
@@ -3907,7 +3954,7 @@ export const TOOLS = [
       }
       return { ok: true, data: {
         results: ranked.map((x) => endpointStub(x.e)),
-        total: pool.filter((e) => scoreEndpoint(e, terms) > 0).length,
+        total: pool.filter((e) => scoreEndpoint(e, terms, verbs) > 0).length,
         next: 'describe_endpoint with the method and path you want',
       } };
     }),

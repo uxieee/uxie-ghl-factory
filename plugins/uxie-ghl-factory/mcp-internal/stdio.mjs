@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { makeGatewayFactory, registerTools } from './core/tools.mjs';
+import { FULL_INSTRUCTIONS } from './core/instructions.mjs';
 import { DEFAULT_TOKEN_FILE } from './core/auth.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -27,6 +28,7 @@ const state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engin
 // the Task 2 carry-forward warns about, with the tool's own comment asserting the opposite.
 const makeGw = makeGatewayFactory({ state });
 
-const server = new McpServer({ name: 'uxie-ghl-internal-mcp', version: pkgVersion });
+// Instructions ride the initialize result, not tools/list.
+const server = new McpServer({ name: 'uxie-ghl-internal-mcp', version: pkgVersion }, { instructions: FULL_INSTRUCTIONS });
 registerTools(server, { state, makeGw });
 await server.connect(new StdioServerTransport());

@@ -128,3 +128,36 @@ test('stdio.mjs boots and stays alive (real process, not a mock)', async () => {
   // A missing token file must NOT prevent startup — credentials are read per call.
   assert.ok(!/inputSchema|Zod/i.test(stderr), `schema error on boot:\n${stderr}`);
 });
+
+// A2 — instructions ride the INITIALIZE result, not tools/list. Neither entry point published any
+// until now, so every routing rule below had to be inferred from 41 short tool descriptions.
+test('both profiles publish server instructions, and the audit profile gets its own', async () => {
+  const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
+  const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio.js');
+  const { fileURLToPath } = await import('node:url');
+  const { dirname, resolve } = await import('node:path');
+  const HERE = dirname(fileURLToPath(import.meta.url));
+
+  const full = { has: [/typed tool always wins/i, /added for you/i, /200 is not proof/i], hasNot: [] };
+  // The audit profile exposes no raw_request, so naming it would send an agent after a tool that
+  // is not there.
+  const audit = { has: [/read-only/i, /external-receipt-required/i], hasNot: [/raw_request/] };
+  // Source AND the committed bundles: dist/ is what a user actually launches, and a source-only
+  // assertion would let a bundle ship with no instructions at all.
+  for (const [entry, expectations] of [
+    ['stdio.mjs', full], ['stdio-audit.mjs', audit],
+    ['dist/server.mjs', full], ['dist/audit-server.mjs', audit],
+  ]) {
+    const t = new StdioClientTransport({ command: 'node', args: [resolve(HERE, '..', entry)], stderr: 'pipe' });
+    const c = new Client({ name: 'instructions-test', version: '0' }, { capabilities: {} });
+    try {
+      await c.connect(t);
+      const text = c.getInstructions();
+      assert.ok(text && text.length > 100, `${entry} publishes no instructions`);
+      for (const re of expectations.has) assert.match(text, re, `${entry} instructions`);
+      for (const re of expectations.hasNot) assert.doesNotMatch(text, re, `${entry} instructions`);
+    } finally {
+      await c.close().catch(() => {});
+    }
+  }
+});
