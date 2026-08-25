@@ -82,7 +82,16 @@ const endpoints = source.endpoints.map((row) => {
     operation: row.operation,
     service: row.service,
     pathParams: [...String(row.path).matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((m) => ({ name: m[1] })),
-    query: row.query ?? [],
+    // Keys LEARNED FROM THE WIRE. The F2 ledger called the endpoint, it answered 400/422, and GHL
+    // named what it wanted. The static extractor cannot reach these: the builder passes them through
+    // a spread it can only honestly mark open-map. They are merged in front of the mined keys and
+    // marked required, because the endpoint said so.
+    query: [
+      ...(extra.requiredQuery ?? [])
+        .filter((n) => !(row.query ?? []).some((q) => q.name === n))
+        .map((n) => ({ name: n, type: 'string', required: true, source: 'live-probe' })),
+      ...(row.query ?? []),
+    ],
     body: row.body ?? null,
     returns: row.returns ?? null,
     confidence: row.confidence,

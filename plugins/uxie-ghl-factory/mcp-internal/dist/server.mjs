@@ -115,7 +115,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -221,7 +222,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -369,7 +370,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -414,6 +415,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -427,7 +429,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getAffiliates",
           service: "AffiliateService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -448,7 +457,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -592,7 +601,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -639,7 +648,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -742,7 +751,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -787,7 +797,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -825,6 +835,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -834,7 +845,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getChat",
           service: null,
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: {
             typeName: "GetChatWidgetResponse",
@@ -899,7 +917,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -937,6 +955,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -950,7 +969,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getNewEmailStats",
           service: "EmailStatsReportService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -972,6 +998,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_workflow_stats"
@@ -987,7 +1014,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getAggregateStatsNew",
           service: "EmailStatsReportService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -1010,6 +1044,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -1023,7 +1058,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getSmsStatsWithContacts",
           service: "SmsStatsReportService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -1045,6 +1087,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_workflow_stats"
@@ -1060,7 +1103,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getSmsStats",
           service: "SmsStatsReportService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -1279,7 +1329,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1322,7 +1372,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1488,7 +1538,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1666,7 +1716,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2140,6 +2190,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -2154,6 +2205,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "FormsService",
           pathParams: [],
           query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "formIds",
               type: "string",
@@ -2219,7 +2276,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2478,7 +2535,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2535,7 +2592,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2570,7 +2627,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2649,7 +2706,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2755,7 +2812,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2997,7 +3054,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3121,6 +3178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -3134,7 +3192,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getLinks",
           service: "LinksService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -3424,7 +3489,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3462,7 +3527,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "build_workflow",
             "create_custom_field_folder",
@@ -3527,7 +3592,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3705,7 +3770,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -3803,7 +3868,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4107,6 +4173,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "edit_workflow",
@@ -4119,7 +4186,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getMarketplaceApps",
           service: "WorkflowMarketplaceService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -4140,6 +4214,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4154,6 +4229,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "MediaService",
           pathParams: [],
           query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "altType",
               type: '"location"',
@@ -4241,7 +4322,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4319,7 +4401,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4367,7 +4449,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4741,7 +4823,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -4916,6 +4999,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -4929,7 +5013,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getLostReasonCustomFieldOptions",
           service: "OpportunityCustomFieldService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -4987,7 +5078,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5026,7 +5117,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5189,7 +5281,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5240,7 +5332,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5315,7 +5408,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5353,7 +5446,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5391,7 +5484,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5470,7 +5563,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5562,7 +5655,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5744,7 +5837,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5789,7 +5882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -5926,7 +6019,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6302,7 +6396,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -6750,7 +6844,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -6873,7 +6967,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "list_workflow_versions"
           ],
@@ -7723,7 +7817,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8096,7 +8190,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8286,7 +8380,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -8323,7 +8417,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -8410,7 +8504,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -8516,7 +8610,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
           note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "create_workflow_folder",
             "list_workflow_folders",
@@ -9112,7 +9206,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Whether this workflow is paused on a schedule, and the window if so.",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -9570,7 +9664,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -10450,7 +10544,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -10518,7 +10612,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -10657,7 +10751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11363,7 +11457,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11680,7 +11774,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11848,7 +11942,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -11949,7 +12043,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -13571,7 +13666,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14227,7 +14323,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "check_workflow",
             "edit_workflow"
@@ -14371,7 +14467,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -14466,6 +14562,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -14479,7 +14576,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getDetailLogsList",
           service: "WorkflowCopyLogsService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -14500,6 +14604,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -14513,7 +14618,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getLogsList",
           service: "WorkflowCopyLogsService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -14534,6 +14646,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -14547,7 +14660,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getStatusList",
           service: "WorkflowCopyLogsService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -14601,7 +14721,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Execution log rows for one workflow; executionId returns one run's full step trace.",
-          note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history.",
+          note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_workflow_logs",
@@ -14614,7 +14734,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getLogs",
           service: "WorkflowMarketplaceService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -14636,7 +14763,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -14676,7 +14803,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "get_account_workflow_overview"
           ],
@@ -14751,6 +14878,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "How many contacts are sitting at each step right now.",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "fast_forward_contacts",
@@ -14765,7 +14893,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getContactCountPerStep",
           service: "WorkflowMarketplaceService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -14786,6 +14921,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "fast_forward_contacts",
@@ -14799,7 +14935,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getContactDetailsPerStep",
           service: "WorkflowMarketplaceService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -14821,6 +14964,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_account_workflow_overview"
@@ -14833,6 +14977,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "WorkflowMarketplaceService",
           pathParams: [],
           query: [
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
             {
               name: "workflowIds",
               type: "any",
@@ -15415,6 +15565,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_workflow_logs",
@@ -15427,7 +15578,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: "getStatuses",
           service: "WorkflowMarketplaceService",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -15634,7 +15792,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [
             "export_workflow",
             "get_workflow_runtime_window"
@@ -15761,6 +15919,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_trigger_logs",
@@ -15773,7 +15932,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: null,
           service: null,
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -15794,7 +15960,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope.",
+          note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_trigger_logs"
@@ -15806,7 +15972,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: null,
           service: null,
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -15827,6 +16000,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
           reach: "source-only",
           coveredBy: [
             "get_trigger_logs"
@@ -15838,7 +16012,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           operation: null,
           service: null,
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -15894,7 +16075,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it.",
+          reach: "refused",
           coveredBy: [
             "build_workflow",
             "pin_webhook_sample"
@@ -16047,7 +16229,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16146,7 +16328,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16186,7 +16368,7 @@ var define_ENDPOINT_OVERLAY_default;
 var init_define_ENDPOINT_OVERLAY = __esm({
   "<define:__ENDPOINT_OVERLAY__>"() {
     define_ENDPOINT_OVERLAY_default = {
-      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.",
+      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.",
       rows: {
         "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
           reach: "refused",
@@ -16196,25 +16378,283 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "refused",
           note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
         },
+        "GET /ad-publishing/facebook/custom-audience": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /ad-publishing/facebook/pages": {
+          reach: "proven"
+        },
+        "GET /affiliate-manager/{locationId}/campaigns": {
+          reach: "proven"
+        },
+        "GET /affiliate-manager/affiliates/workflow-filters": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /ai-employees/beta/{locationId}": {
+          reach: "proven"
+        },
+        "GET /ai-employees/employees/list": {
+          reach: "proven"
+        },
+        "GET /appengine/dialogflow/eliza-location-status/{locationId}": {
+          reach: "proven"
+        },
+        "GET /associations/objectKey/{objectKey}": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /calendars/configuration/location/{locationId}": {
+          reach: "proven"
+        },
+        "GET /chat-widget/list": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /conversations-ai/intents/{locationId}": {
+          reach: "proven"
+        },
+        "GET /conversations-reporting/emails": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /conversations-reporting/emails/aggregate": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /conversations-reporting/messages": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /conversations-reporting/messages/aggregate": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /custom-data/conversations": {
+          reach: "proven"
+        },
+        "GET /emails/builder": {
+          reach: "proven"
+        },
+        "GET /emails/builder/all": {
+          reach: "proven"
+        },
+        "GET /emails/builder/settings/{locationId}": {
+          reach: "proven"
+        },
+        "GET /forms/forms-list": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /funnels/funnel/list": {
+          reach: "proven"
+        },
+        "GET /hooks/inbound-webhook-request/reference/{triggerId}": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /integrations/facebook/{locationId}/allAdAccounts": {
+          reach: "proven"
+        },
+        "GET /integrations/facebook/{locationId}/connection": {
+          reach: "proven"
+        },
+        "GET /integrations/facebook/{locationId}/pages": {
+          reach: "proven"
+        },
+        "GET /integrations/facebook/{locationId}/trigger/pages": {
+          reach: "proven"
+        },
+        "GET /integrations/google/connections": {
+          reach: "proven"
+        },
+        "GET /integrations/tiktok": {
+          reach: "proven"
+        },
+        "GET /links/search": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /locations/{locationId}/customFields": {
+          reach: "proven"
+        },
+        "GET /locations/{locationId}/customFields/search": {
+          reach: "proven"
+        },
+        "GET /locations/{locationId}/customValues": {
+          reach: "proven"
+        },
+        "GET /locations/{locationId}/customValues/search": {
+          reach: "proven"
+        },
+        "GET /locations/{locationId}/templates": {
+          reach: "proven"
+        },
+        "GET /locations/search": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /marketplace/core/search/module": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /medias/files": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /membership/smart-list/categories": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /membership/smart-list/location/{locationId}/workflow": {
+          reach: "proven"
+        },
+        "GET /membership/smart-list/offers-products/{locationId}": {
+          reach: "proven"
+        },
+        "GET /oauth/whitelabel/{id}": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /opportunities/lost-reason": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /phone-system/numbers/location/{locationId}": {
+          reach: "proven"
+        },
+        "GET /phone-system/twilio-accounts": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /phone-system/whatsapp/location/{locationId}/template": {
+          reach: "proven"
+        },
+        "GET /reputation/integrations/review-link-list": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /reselling/configuration/location/{locationId}/starter_plus_workflow_premium_actions_triggers": {
+          reach: "proven"
+        },
+        "GET /reselling/configuration/location/{locationId}/workflow_pro_black_friday": {
+          reach: "proven"
+        },
+        "GET /reselling/product": {
+          reach: "proven"
+        },
+        "GET /reselling/subscription/location/{locationId}": {
+          reach: "proven"
+        },
+        "GET /saas_service/isv-mode/status/{locationId}": {
+          reach: "proven"
+        },
+        "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
+          reach: "proven"
+        },
+        "GET /snippets/{locationId}": {
+          reach: "proven"
+        },
+        "GET /users/search": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /workflow/{locationId}": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/{workflowId}/history": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/{workflowId}/history/v2": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/auto-save/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/eliza-users": {
+          reach: "proven"
+        },
         "GET /workflow/{locationId}/email/location-email-provider": {
           summary: "The sending domain, warm-up state and rate limit behind this account's email steps."
+        },
+        "GET /workflow/{locationId}/error-notification/{workflowId}": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/error-notification/count": {
+          reach: "proven"
         },
         "GET /workflow/{locationId}/error-notification/list": {
           summary: "Workflows in this account that are currently erroring, and who is notified."
         },
+        "GET /workflow/{locationId}/error-notification/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/instagram/connected-accounts": {
+          reach: "proven"
+        },
         "GET /workflow/{locationId}/list": {
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
-          note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".'
+          note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
+          reach: "proven"
         },
         "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
           note: 'Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer "why did a premium step not run".'
         },
         "GET /workflow/{locationId}/scheduled-pause/config": {
-          summary: "Whether this workflow is paused on a schedule, and the window if so."
+          summary: "Whether this workflow is paused on a schedule, and the window if so.",
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/split/isExecuted": {
+          reach: "proven"
         },
         "GET /workflow/{locationId}/split/stats": {
           summary: "Per-branch results for an A/B split step."
+        },
+        "GET /workflow/{locationId}/workflow-ai/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/workflow-location-setting/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/workflow-templates": {
+          reach: "proven"
+        },
+        "GET /workflow/agent/{locationId}/mcp-connections": {
+          reach: "proven"
+        },
+        "GET /workflow/agent/{locationId}/mcp-connections/oauth2-tokens": {
+          reach: "proven"
+        },
+        "GET /workflow/agent/{locationId}/models": {
+          reach: "proven"
+        },
+        "GET /workflow/campaign": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
         },
         "GET /workflow/flowguard/auth": {
           reach: "refused",
@@ -16240,25 +16680,98 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "refused",
           note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
         },
+        "GET /workflows-marketplace/integration-apps": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+        },
+        "GET /workflows-marketplace/location/{locationId}/assets": {
+          reach: "proven"
+        },
+        "GET /workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId": {
+          reach: "proven"
+        },
+        "GET /workflows/copyWorkflow/internalLogList": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /workflows/copyWorkflow/logList": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /workflows/copyWorkflow/statusList": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
         "GET /workflows/logs/v2": {
-          note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history.",
-          summary: "Execution log rows for one workflow; executionId returns one run's full step trace."
+          note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+          summary: "Execution log rows for one workflow; executionId returns one run's full step trace.",
+          requiredQuery: [
+            "locationId"
+          ]
         },
         "GET /workflows/logs/weekly-enrollment-data": {
-          summary: "Enrollment counts for the last 7 weeks, for the Automation Overview chart."
+          summary: "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
+          reach: "proven"
         },
         "GET /workflows/statistics": {
-          summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments."
+          summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
+          reach: "proven"
         },
         "GET /workflows/status/enroll-stats": {
           summary: "Total and active enrolled counts. A workflow with a large total and zero active has finished with everyone.",
           note: "Batched: ask for the workflows you want in one call rather than looping per workflow."
         },
         "GET /workflows/status/search/count-per-step": {
-          summary: "How many contacts are sitting at each step right now."
+          summary: "How many contacts are sitting at each step right now.",
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /workflows/status/search/details-by-step": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /workflows/status/search/enroll-stats": {
+          requiredQuery: [
+            "workflowId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /workflows/status/search/workflow-with-filter": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /workflows/sticky-notes-all": {
+          reach: "proven"
+        },
+        "GET /workflows/trigger/logs/count-by-triggerId": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
         "GET /workflows/trigger/logs/top-failed-reasons": {
-          note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope."
+          note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+          requiredQuery: [
+            "locationId"
+          ]
+        },
+        "GET /workflows/trigger/logs/triggerId": {
+          requiredQuery: [
+            "locationId"
+          ],
+          note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
         "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
           kind: "destructive",
