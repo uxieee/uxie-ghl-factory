@@ -86,6 +86,12 @@
 // generated catalog still disagrees with all four. The retirement path above is unchanged:
 // capture the three missing step-examples, and the test will name what to delete.
 import { IRError } from './ir.mjs';
+import { hasNestedBracketsInExpressions, illegalSmsWords } from './text-rules.mjs';
+import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
+
+// GHL ships this list in its own bundle and it rides in the catalog already — 83 words that
+// nothing read until now.
+const ILLEGAL_SMS_WORDS = CATALOG_DATA?.workflowRules?.vocab?.illegalWordsSms ?? [];
 
 // Corrections applied over the generated catalog entry, merged in catalog.mjs.
 // `reason` is required — an unexplained correction is indistinguishable from a typo.
@@ -316,6 +322,30 @@ const CONDITIONAL_DEFAULTS = {
 // from a typo.
 const hasAttachments = (a) => Boolean(a.attachments?.length || a.urlAttachments?.length);
 
+// The attributes GHL runs isValidHandleBar over, by step type. Only the BRACKET half of that
+// check is mirrored (see text-rules.mjs) — the parser half is not portable.
+const HANDLEBAR_FIELDS = {
+  sms: ['body'],
+  messenger: ['body'],
+  'instagram-dm': ['body'],
+  chatgpt: ['promptText'],
+  workflow_ai_generate_image: ['prompt'],
+  event_start_date: ['value'],
+  add_appointment_booking_ai_bot: ['first_message', 'success_message'],
+};
+
+/** One coupling per handlebar-bearing type, generated rather than hand-repeated seven times. */
+const handlebarRules = (fields) => [{
+  when: (a) => fields.some((f) => hasNestedBracketsInExpressions(a[f])),
+  check: (a) => {
+    const bad = fields.filter((f) => hasNestedBracketsInExpressions(a[f]));
+    return `has a nested bracket inside a handlebar expression in [${bad.join(', ')}]`;
+  },
+  why: 'A bracket segment containing [ or ] parses fine and then resolves to the WRONG value at '
+     + "runtime — ] closes the segment early and [ desynchronises the backend's path splitting. "
+     + 'Use {{prefix.[key with spaces].id}}, never a bracket inside a bracket.',
+}];
+
 const COUPLED_FIELDS = {
   // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
   // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
@@ -333,6 +363,24 @@ const COUPLED_FIELDS = {
   // the generated catalog carried the sibling `subject` rule across and dropped this one.
   // We test non-empty rather than GHL's cleanHTML(), so markup that renders to nothing
   // (`<p></p>`) still passes here — stricter than nothing, not yet as strict as GHL.
+  // GHL's spam-word gate applies to `type === 'sms'` ONLY (WorkflowValidator.ts:227) — not to
+  // messenger or instagram-dm, despite those sharing the sms body validator. Scoped to match.
+  sms: [...handlebarRules(HANDLEBAR_FIELDS.sms), {
+    when: (a) => illegalSmsWords(a.body, ILLEGAL_SMS_WORDS).length > 0,
+    check: (a) => {
+      const hits = illegalSmsWords(a.body, ILLEGAL_SMS_WORDS);
+      return `has SMS body word(s) on GHL's blocked list: ${hits.join(', ')}`;
+    },
+    why: "GHL throws SpamSmsBodyError and ABORTS THE SAVE on these — it is not advisory. The "
+       + "list is GHL's and it is blunt (it contains 'pot', 'joint', 'pipe', 'dab'), so an "
+       + 'innocent sentence can trip it. Reword the body or the save will fail in GHL anyway.',
+  }],
+
+  chatgpt: handlebarRules(HANDLEBAR_FIELDS.chatgpt),
+  workflow_ai_generate_image: handlebarRules(HANDLEBAR_FIELDS.workflow_ai_generate_image),
+  event_start_date: handlebarRules(HANDLEBAR_FIELDS.event_start_date),
+  add_appointment_booking_ai_bot: handlebarRules(HANDLEBAR_FIELDS.add_appointment_booking_ai_bot),
+
   email: [{
     when: (a) => !a.template_id,
     require: ['html'],
@@ -344,13 +392,13 @@ const COUPLED_FIELDS = {
   // the missing field is the entire payload. Both delegate through to baseSmsValidator, so this
   // mirrors the `sms.body` guard verbatim: `!hasAttachments && !body.trim()`. GHL does not
   // exempt a template there, and neither does this.
-  messenger: [{
+  messenger: [...handlebarRules(HANDLEBAR_FIELDS.messenger), {
     when: (a) => !hasAttachments(a),
     require: ['body'],
     why: 'The body IS the message. With no body and no attachment the step sends nothing. '
        + 'Same rule GHL applies to sms — messengerValidator delegates to baseSmsValidator.',
   }],
-  'instagram-dm': [{
+  'instagram-dm': [...handlebarRules(HANDLEBAR_FIELDS['instagram-dm']), {
     when: (a) => !hasAttachments(a),
     require: ['body'],
     why: 'The body IS the message. With no body and no attachment the step sends nothing. '

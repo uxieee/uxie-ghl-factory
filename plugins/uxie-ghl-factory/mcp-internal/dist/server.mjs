@@ -36794,2260 +36794,39 @@ function lintContactFieldTemplates(templates, stepIds, warn) {
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
 init_define_TOOL_CATALOG();
-var CATALOG_CORRECTIONS = {
-  // 🔴 The generated keys for this node are WRONG. Authoring the documented
-  // `reactivate: false` was accepted, persisted as an unknown key, and left the
-  // actually-required `sleepEnabled` unset — so the node kept its error badge. The shape
-  // below was captured verbatim by filling the node in the builder, clicking Save action
-  // then Save workflow, and exporting. Promoted to verified-live on that capture, which
-  // also switches on the ATTR_KEY guard (it only fires on verified-live types) so an
-  // invented key can no longer pass through here.
-  conversationai_end: {
-    reason: "documented keys customMessage/reactivate/duration are wrong; committed capture is {message, sleepEnabled, sleepDuration, sleepUnit} (2026-07-25 AU)",
-    confidence: "verified-live",
-    attrKeys: ["message", "sleepEnabled", "sleepDuration", "sleepUnit", "type", "__customInputs__"],
-    example: "research/ai-agents-internal/flow-builder-required-fields.md",
-    note: 'committed shape captured 2026-07-25 on AU. UI label -> key: End custom message = message, Reactivate After bot (REQUIRED) = sleepEnabled, Reactivate After value = sleepDuration, unit = sleepUnit ("hours").'
-  },
-  // Committed capture is `{}` — no fields at all, and the node renders clean. The
-  // generated `prompt` key came from a recon read of the panel and does not persist;
-  // the marketplace schema confirms this node has no `prompt`. It DOES have an optional
-  // `instructions` — absent from the capture only because nothing was authored, which is
-  // not evidence the key does not exist.
-  conversationai_continue: {
-    reason: "the recon-derived `prompt` key does not persist; the real optional field is `instructions`",
-    confidence: "verified-live",
-    attrKeys: ["instructions", "type", "__customInputs__"],
-    example: "research/ai-agents-internal/flow-builder-required-fields.md",
-    note: "committed shape captured 2026-07-25 on AU is {} (nothing required). `instructions` is an optional textarea per reference/steps/marketplace/conversation-ai.md."
-  },
-  // 🔴 The recon panel-read named these `services` / `description`. The assets-endpoint
-  // schema gives the real keys, and the OPTIONS ENDPOINT corroborates the first one — it
-  // returns `{"conversationai_services": []}`, i.e. the option key IS the attribute key
-  // (the same holds for objective's `contactField`). The live findings doc inferred
-  // `services`/`description` from UI LABELS only; services_booking was omitted from the
-  // rebuild because AU has no commerce services, so there is no committed capture to
-  // settle it. Whoever first runs this on an account WITH commerce services should
-  // capture the committed shape and promote this to verified-live.
-  conversationai_services_booking: {
-    reason: "recon named these services/description; the assets schema + options endpoint say conversationai_services / conversationai_booking_description",
-    attrKeys: ["conversationai_services", "conversationai_booking_description", "type", "__customInputs__"],
-    note: "NO committed capture \u2014 keys come from the marketplace assets schema, with `conversationai_services` corroborated by the options-endpoint response key. Unusable on an account with no commerce services."
-  },
-  // Committed capture is {assignedEmployeeId} only — the documented `prompt` did NOT
-  // persist. Dropping it from attrKeys turns a silent drop into an ATTR_KEY error.
-  conversationai_transfer_bot: {
-    reason: "the documented `prompt` key did not persist in the committed capture (2026-07-25 AU)",
-    attrKeys: ["assignedEmployeeId", "type", "__customInputs__"],
-    note: "committed shape captured 2026-07-25 on AU: assignedEmployeeId only. Bot ids come from GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}."
-  }
-};
-var suppliedPresence = (attrs, key) => key in attrs && attrs[key] !== void 0;
-var suppliedNonEmpty = (attrs, key) => {
-  const v = attrs[key];
-  if (v === void 0 || v === null) return false;
-  if (typeof v === "string") return v.trim() !== "";
-  if (Array.isArray(v)) return v.length > 0;
-  return true;
-};
-var REQUIRED_FIELDS = {
-  conversationai_continue: { fields: {} },
-  // attested clean: nothing required
-  // `objective` is the node's entire purpose and the schema marks it required. The live
-  // probe authored it, which is why no builder error was ever seen for it.
-  conversationai_objective: {
-    fields: {
-      objective: { label: "Objective", hint: "Author attributes.objective \u2014 the prompt describing what to find out." }
-    }
-  },
-  conversationai_ai_message: {
-    fields: {
-      // Required per the schema. Never surfaced as a builder error live because the probe
-      // always supplied it — absence of an observed error is not evidence of optionality.
-      message: { label: "Message prompt", hint: "Author attributes.message \u2014 the prompt the bot generates from." },
-      waitForReply: {
-        label: "Wait for contact reply",
-        presence: true,
-        // The schema's own default, matching the captured step-examples.
-        default: () => true
-      }
-    }
-  },
-  conversationai_custom_message: {
-    fields: {
-      message: { label: "Message", hint: "Author attributes.message \u2014 the literal message to send." },
-      waitForReply: { label: "Wait for contact reply", presence: true, default: () => true }
-    }
-  },
-  conversationai_ai_splitter: {
-    fields: {
-      description: {
-        label: "Description",
-        // The LLM routes on this text, so the node name is a meaningful fallback — but an
-        // unnamed splitter has nothing to fall back TO, and an empty description is what
-        // the builder rejects. Defaulting to '' would just re-create the defect.
-        default: (node) => node.name,
-        hint: "This is the text the LLM routes on. Author attributes.description, or give the node a `name` to derive it from."
-      }
-    }
-  },
-  conversationai_book_appointment: {
-    fields: {
-      calendarId: {
-        label: "Select Calendar",
-        hint: "A real calendar id is required and cannot be defaulted. List them with the calendars read tool, then author attributes.calendarId."
-      }
-    }
-  },
-  conversationai_transfer_bot: {
-    fields: {
-      assignedEmployeeId: {
-        label: "Select Bot to Transfer to",
-        hint: 'A real bot id is required and cannot be defaulted. List them with GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC} (the response also carries a {value:"keep-same"} sentinel), then author attributes.assignedEmployeeId.'
-      }
-    }
-  },
-  conversationai_services_booking: {
-    // 🔴 Unusable on a fresh account: the options endpoint returns
-    // {"conversationai_services": []} on AU, so there is no id that could satisfy
-    // `services` and the node can NEVER go clean. Treat as opt-in per client.
-    precondition: 'This node requires a configured commerce service. On AU the options endpoint returned {"conversationai_services": []}, meaning no service exists to select and the node can never be satisfied. Confirm the account has commerce services before using it: GET backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_services_booking?optionType=default&workflowId={WID}&locationId={LOC} (locationId is REQUIRED or it 400s).',
-    fields: {
-      conversationai_services: {
-        label: "Select Services",
-        hint: "Requires configured commerce services \u2014 see the precondition above. NOTE the key is `conversationai_services`, not `services`: the options endpoint returns it under that exact name."
-      },
-      conversationai_booking_description: {
-        label: "Service Booking Description",
-        // The schema's own default for this textarea.
-        default: () => "Get customer to book a service"
-      }
-    }
-  },
-  conversationai_end: {
-    fields: {
-      sleepEnabled: {
-        label: "Reactivate After bot",
-        presence: true,
-        // ATTESTED, not inferred: the assets-endpoint schema records this checkbox's
-        // default as `true`, and the committed capture agrees — {sleepEnabled: true,
-        // sleepDuration: 1, sleepUnit: "hours"}. Defaulting to `true` reproduces what the
-        // BUILDER itself produces for an untouched node, which is the standard this
-        // compiler holds itself to. Author `sleepEnabled: false` to opt out; the schedule
-        // halves are then irrelevant and not required.
-        default: () => true
-      }
-    }
-  }
-};
-var APPOINTMENT_WAIT_TYPES = /* @__PURE__ */ new Set([
-  "appointment",
-  "service_booking",
-  "rental_booking",
-  "attendee_event_date",
-  "overdue"
-]);
-var CONDITIONAL_DEFAULTS = {
-  conversationai_end: (attrs) => attrs.sleepEnabled === true ? { sleepDuration: attrs.sleepDuration ?? 1, sleepUnit: attrs.sleepUnit ?? "hours" } : {},
-  // GHL's OWN default, not ours. `Wait.setAppointmentStartAfter()` assigns
-  // `appointmentConditionType.SKIP_SENDING_OPTION` the moment an appointment wait is created
-  // (src/models/conditions/Wait.ts:756), so a UI-built step always carries it. The corpus
-  // agrees overwhelmingly: of the stored appointmentCondition values, 94 are 'skip', 6
-  // 'specific-step', 2 'next' — 92%, clear of the ≥90% bar uiDefaults requires.
-  //
-  // Emitting it is what makes an engine-built appointment wait match a UI-built one. Leaving
-  // it out is not neutral: the field is optional to GHL, so the step saves either way and the
-  // past-time behaviour becomes whatever the backend falls back to, with nothing on screen to
-  // say which. 'skip' means skip the outbound send and move on.
-  wait: (attrs) => APPOINTMENT_WAIT_TYPES.has(attrs.type) && attrs.appointmentCondition === void 0 ? { appointmentCondition: "skip" } : {}
-};
-var hasAttachments = (a) => Boolean(a.attachments?.length || a.urlAttachments?.length);
-var COUPLED_FIELDS = {
-  // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
-  // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
-  conversationai_end: [{
-    when: (a) => a.sleepEnabled === true,
-    require: ["sleepDuration", "sleepUnit"],
-    why: 'Reactivation is a schedule and needs both halves \u2014 the committed capture is {sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.'
-  }],
-  // THE ONE THE ENGINE ITSELF CREATES. compiler.mjs's email envelope writes `html: a.html ?? ''`
-  // on the inline (non-template) path, so an author who supplies a subject and no body gets a
-  // step carrying an empty body — which compiles, saves, opens clean, and SENDS BLANK.
-  // GHL's own sendEmailActionValidator requires it (`!isTemplateSelected && !cleanHTML(html)`);
-  // the generated catalog carried the sibling `subject` rule across and dropped this one.
-  // We test non-empty rather than GHL's cleanHTML(), so markup that renders to nothing
-  // (`<p></p>`) still passes here — stricter than nothing, not yet as strict as GHL.
-  email: [{
-    when: (a) => !a.template_id,
-    require: ["html"],
-    why: "An inline email carries its body on the step. With no template_id and no html the step sends a blank email \u2014 it saves clean and the builder shows no error."
-  }],
-  // messenger and instagram-dm have NO enforcement block at all in the generated catalog, and
-  // the missing field is the entire payload. Both delegate through to baseSmsValidator, so this
-  // mirrors the `sms.body` guard verbatim: `!hasAttachments && !body.trim()`. GHL does not
-  // exempt a template there, and neither does this.
-  messenger: [{
-    when: (a) => !hasAttachments(a),
-    require: ["body"],
-    why: "The body IS the message. With no body and no attachment the step sends nothing. Same rule GHL applies to sms \u2014 messengerValidator delegates to baseSmsValidator."
-  }],
-  "instagram-dm": [{
-    when: (a) => !hasAttachments(a),
-    require: ["body"],
-    why: "The body IS the message. With no body and no attachment the step sends nothing. Same rule GHL applies to sms \u2014 instagramDmValidator delegates to baseSmsValidator."
-  }],
-  wait: [{
-    // GHL's OWN rule, never carried across: validateAppointmentWait requires the jump target
-    // when the branch is 'specific-step' (wait-validator.ts:288-294, result:'error'). wait has
-    // 19 generated throw rules and none covered it.
-    when: (a) => a.appointmentCondition === "specific-step",
-    require: ["appointmentSpecificStep"],
-    why: `appointmentCondition:"specific-step" means jump to a named step, so the target is not optional. GHL's own validateAppointmentWait requires it.`
-  }, {
-    // No GHL rule behind this one — stated as ours. Structurally identical to the rule above,
-    // on the specific_date variant instead of the appointment variants.
-    when: (a) => a.specificDatePassed === "specific_step",
-    require: ["specificDateStep"],
-    why: 'specificDatePassed:"specific_step" means jump to a named step once the date has passed, so the target is not optional. Same shape as appointmentSpecificStep.'
-  }, {
-    // validateTimeWait, wait-validator.ts:151-157, result:'error'. The generated rules cover
-    // window.condition === 'when' (start and end) but not the 'exact' branch at all.
-    when: (a) => a.type === "time" && a.window?.condition === "exact",
-    check: (a) => a.window?.start ? null : 'sets window.condition:"exact" without window.start',
-    why: "An exact-time window has to say WHICH time. Without a start the backend has nothing to snap the wait to."
-  }, {
-    // validateConditionWait, wait-validator.ts:195-215, result:'error'. Reached through a
-    // `switch` on attributes.type, which the guard-AST extractor does not follow — so the whole
-    // sub-validator was dropped. A branch with no segments, or a segment with no conditions,
-    // never evaluates true: contacts reach the wait and park there permanently.
-    when: (a) => a.type === "condition",
-    check: (a) => {
-      const branches = a.condition?.branches ?? [];
-      for (let b = 0; b < branches.length; b++) {
-        const segments = branches[b].segments ?? [];
-        if (!segments.length) return `has condition.branches[${b}] with no segments`;
-        for (let g = 0; g < segments.length; g++) {
-          if (!(segments[g].conditions ?? []).length)
-            return `has condition.branches[${b}].segments[${g}] with no conditions`;
-        }
-      }
-      return null;
-    },
-    why: "A conditional wait with an empty branch never becomes true, so every contact that reaches it stops there for good \u2014 with nothing anywhere reporting it."
-  }],
-  // workflowSplitValidator, additional-action-validators.ts:896-909. result:'warning' in GHL, so
-  // it warns here too. compiler.mjs passes author weights through verbatim, so a 30/30 split
-  // ships silently and every number measured downstream of it is wrong.
-  workflow_split: [{
-    when: (a) => a.condition === "random-split",
-    check: (a) => {
-      const dist = a.extras?.weightDistribution ?? {};
-      const total = Math.round((a.paths ?? []).reduce((n, p) => n + (dist[p?.id] || 0), 0) * 10) / 10;
-      return total === 100 ? null : `has random-split weights totalling ${total}, not 100`;
-    },
-    severity: "warn",
-    why: "GHL rounds the weights to one decimal and requires exactly 100. Anything else mis-splits traffic, which corrupts the measurement the split exists to produce."
-  }],
-  // createUpdateContactValidator / findContactValidator, contact-action-validators.ts:107-113
-  // and :170-176. Both result:'warning'.
-  create_update_contact: [{
-    when: () => true,
-    check: (a) => {
-      const bad = rowsMissingValue(a);
-      return bad.length ? `has field row(s) with no value: ${bad.join(", ")}` : null;
-    },
-    severity: "warn",
-    why: "A row with no value writes an empty value over whatever the contact already had."
-  }],
-  find_contact: [{
-    when: () => true,
-    check: (a) => {
-      const bad = rowsMissingValue(a);
-      return bad.length ? `has field row(s) with no value: ${bad.join(", ")}` : null;
-    },
-    severity: "warn",
-    why: "A lookup on an empty value does not identify the contact you meant."
-  }]
-};
-function rowsMissingValue(attrs) {
-  return (attrs.fields ?? []).filter((f) => f && f.value !== false && !f.value && f.date !== "currentDate" && f.value !== 0).map((f) => f.field ?? "(unnamed)");
-}
-function checkCoupledFields(node, attrs, ctx) {
-  for (const rule of COUPLED_FIELDS[node?.type] ?? []) {
-    if (!rule.when(attrs)) continue;
-    let problem = null;
-    if (rule.require) {
-      const missing = rule.require.filter((k) => !suppliedNonEmpty(attrs, k));
-      if (missing.length) problem = `is missing [${missing.join(", ")}]`;
-    } else if (rule.check) {
-      const found = rule.check(attrs);
-      if (found) problem = found;
-    }
-    if (!problem) continue;
-    const msg = `${node.type} '${node.ref ?? node.name ?? "?"}' ${problem}. ${rule.why}`;
-    if (rule.severity === "warn") ctx?.warn?.(`COUPLED_SOFT: ${msg}`);
-    else throw new IRError("REQUIRED_FIELD", msg);
-  }
-}
-function enforceRequiredFields(node, attrs, ctx) {
-  const spec = REQUIRED_FIELDS[node?.type];
-  if (!spec) return finish(node, attrs, ctx);
-  const out = { ...attrs };
-  const ref = node.ref ?? node.name ?? "?";
-  for (const [key, f] of Object.entries(spec.fields)) {
-    const supplied = f.presence ? suppliedPresence : suppliedNonEmpty;
-    if (supplied(out, key)) continue;
-    if (f.default) {
-      const value = f.default(node);
-      if (supplied({ [key]: value }, key)) {
-        out[key] = value;
-        continue;
-      }
-    }
-    throw new IRError(
-      "REQUIRED_FIELD",
-      `${node.type} '${ref}' is missing the required attribute '${key}' ("${f.label}"). The builder renders this node with a red error badge and the flow CANNOT be published, while the build pipeline still reports success \u2014 so this must fail at compile time.` + (f.hint ? ` ${f.hint}` : "") + (spec.precondition ? ` ${spec.precondition}` : "")
-    );
-  }
-  return finish(node, out, ctx);
-}
-function finish(node, out, ctx) {
-  const defaults = CONDITIONAL_DEFAULTS[node?.type]?.(out) ?? {};
-  const next = Object.keys(defaults).length ? Object.assign({ ...out }, defaults) : out;
-  checkCoupledFields(node, next, ctx);
-  return next;
-}
-function requiredKeysFor(type) {
-  return Object.keys(REQUIRED_FIELDS[type]?.fields ?? {});
-}
-function isSupplied(type, key, attrs) {
-  const f = REQUIRED_FIELDS[type]?.fields?.[key];
-  if (!f) return true;
-  return (f.presence ? suppliedPresence : suppliedNonEmpty)(attrs ?? {}, key);
-}
 
-// ../skills/create-ghl-workflow/engine/action-schema.mjs
+// ../skills/create-ghl-workflow/engine/text-rules.mjs
 init_define_TOOL_CATALOG();
-var PSEUDO_FIELDS = /* @__PURE__ */ new Set(["DYNAMIC"]);
-function isBlank(v) {
-  if (v === void 0 || v === null) return true;
-  if (typeof v === "string") return v.trim() === "";
-  if (Array.isArray(v)) return v.length === 0;
+var HANDLEBARS_EXPRESSION = /\{\{(?:(?!\}\}).)*\}\}/g;
+function hasNestedBracketsInExpressions(str) {
+  const expressions = String(str ?? "").match(HANDLEBARS_EXPRESSION);
+  if (!expressions) return false;
+  for (const expr of expressions) {
+    const inner = expr.slice(2, -2).trim();
+    if (inner.startsWith("#") || inner.startsWith("/")) continue;
+    let i = 0;
+    while (i < inner.length) {
+      if (inner[i] === "[") {
+        const start = i + 1;
+        const end = inner.indexOf("]", start);
+        if (end === -1) break;
+        const segment = inner.substring(start, end);
+        if (segment.includes("[") || segment.includes("]")) return true;
+        i = end + 1;
+      } else {
+        i++;
+      }
+    }
+  }
   return false;
 }
-function coerceDefault(raw, fieldType) {
-  if (raw === void 0 || raw === null || raw === "") return void 0;
-  if (fieldType === "checkbox" || fieldType === "toggle") {
-    if (raw === true || raw === false) return raw;
-    if (raw === "true") return true;
-    if (raw === "false") return false;
-    return void 0;
-  }
-  if (fieldType === "numerical") {
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : void 0;
-  }
-  return raw;
+function illegalSmsWords(body, vocab) {
+  const list = vocab ?? [];
+  if (!body || !list.length) return [];
+  const found = String(body).toLowerCase().match(/\b(\w+)\b/g) ?? [];
+  const banned = new Set(list.map((w) => String(w).toLowerCase()));
+  return [...new Set(found.filter((w) => banned.has(w)))];
 }
-function parseActionSchema(assets) {
-  const byType = /* @__PURE__ */ new Map();
-  for (const app of assets?.actions ?? []) {
-    for (const action of app?.actions ?? []) {
-      if (!action?.key || !Array.isArray(action.inputs)) continue;
-      const fields = action.inputs.filter((f) => f?.field && !PSEUDO_FIELDS.has(f.field)).map((f) => ({
-        field: f.field,
-        title: f.title ?? f.field,
-        required: f.required === true,
-        fieldType: f.fieldType,
-        default: coerceDefault(f.value, f.fieldType)
-      }));
-      byType.set(action.key, {
-        type: action.key,
-        app: app.appName,
-        section: action.section,
-        // No `version`/`templateId` here, deliberately: drift is TRIGGER-ONLY (see
-        // marketplaceDrift below) — a stored marketplace ACTION step records no version to
-        // compare against in the first place, so retaining these on the action entry would
-        // be dead data implying a comparison this schema never performs.
-        fields,
-        requiredFields: fields.filter((f) => f.required).map((f) => f.field),
-        requiredTriggers: action.requiredTriggers ?? [],
-        isPremium: action.additionalConfig?.isPremium === true,
-        isMultipath: action.branchesConfig != null
-      });
-    }
-  }
-  return byType;
-}
-function parseTriggerSchema(assets) {
-  const byType = /* @__PURE__ */ new Map();
-  for (const app of assets?.triggers ?? []) {
-    for (const trigger of app?.triggers ?? []) {
-      if (!trigger?.key) continue;
-      byType.set(trigger.key, {
-        type: trigger.key,
-        app: app.appName,
-        version: trigger.version,
-        templateId: trigger.templateId
-      });
-    }
-  }
-  return byType;
-}
-function marketplaceDrift(storedTriggers, triggerSchema) {
-  const out = [];
-  for (const t of storedTriggers ?? []) {
-    if (t?.masterType !== "marketplace") continue;
-    const spec = triggerSchema?.get?.(t.type);
-    if (!spec) continue;
-    if (t.templateId && spec.templateId && t.templateId !== spec.templateId) {
-      out.push({
-        type: t.type,
-        name: t.name,
-        kind: "templateId",
-        stored: { version: t.version, templateId: t.templateId },
-        installed: { version: spec.version, templateId: spec.templateId }
-      });
-      continue;
-    }
-    if (t.version && spec.version && t.version !== spec.version) {
-      out.push({
-        type: t.type,
-        name: t.name,
-        kind: "version",
-        stored: { version: t.version, templateId: t.templateId },
-        installed: { version: spec.version, templateId: spec.templateId }
-      });
-    }
-  }
-  return out;
-}
-function missingForStep(step, schema2) {
-  const spec = schema2?.get?.(step?.type);
-  if (!spec) return [];
-  return spec.fields.filter((f) => f.required && isBlank((step.attributes ?? {})[f.field])).map((f) => ({
-    field: f.field,
-    title: f.title,
-    message: `"${f.title}" is a required field`
-  }));
-}
-function checkWorkflow(templates, schema2, { triggerTypes } = {}) {
-  const errors = [];
-  for (const step of templates ?? []) {
-    const missing = missingForStep(step, schema2);
-    if (missing.length) {
-      errors.push({ stepId: step.id, step: step.name, type: step.type, messages: missing.map((m) => m.message), fields: missing.map((m) => m.field) });
-    }
-    if (triggerTypes) {
-      const need = schema2?.get?.(step.type)?.requiredTriggers ?? [];
-      if (need.length && !need.some((t) => triggerTypes.includes(t))) {
-        errors.push({
-          stepId: step.id,
-          step: step.name,
-          type: step.type,
-          messages: [`'${step.type}' requires one of these triggers: ${need.join(", ")} \u2014 this workflow has [${triggerTypes.join(", ") || "none"}]`],
-          fields: []
-        });
-      }
-    }
-  }
-  return errors;
-}
-async function fetchActionSchema(call, loc) {
-  try {
-    const r = await call("GET", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
-    if (!r?.ok || !r.json) return null;
-    const schema2 = parseActionSchema(r.json);
-    return schema2.size ? schema2 : null;
-  } catch {
-    return null;
-  }
-}
-
-// ../skills/create-ghl-workflow/engine/enforce.mjs
-init_define_TOOL_CATALOG();
-var get = (o, p) => p === "" ? o : p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
-var RE_CACHE = /* @__PURE__ */ new Map();
-var cachedRe = (src, flags) => {
-  const k = `${src} ${flags}`;
-  let r = RE_CACHE.get(k);
-  if (!r) {
-    r = new RegExp(src, flags);
-    RE_CACHE.set(k, r);
-  }
-  return r;
-};
-function evaluate(ast, attrs, item) {
-  switch (ast.op) {
-    case "lit":
-      return ast.v;
-    case "path":
-      return get(attrs, ast.p);
-    case "not":
-      return !evaluate(ast.a, attrs, item);
-    case "and":
-      return evaluate(ast.a, attrs, item) && evaluate(ast.b, attrs, item);
-    case "or":
-      return evaluate(ast.a, attrs, item) || evaluate(ast.b, attrs, item);
-    case "eq":
-      return evaluate(ast.a, attrs, item) === evaluate(ast.b, attrs, item);
-    case "neq":
-      return evaluate(ast.a, attrs, item) !== evaluate(ast.b, attrs, item);
-    case "gt":
-      return evaluate(ast.a, attrs, item) > evaluate(ast.b, attrs, item);
-    case "lt":
-      return evaluate(ast.a, attrs, item) < evaluate(ast.b, attrs, item);
-    case "gte":
-      return evaluate(ast.a, attrs, item) >= evaluate(ast.b, attrs, item);
-    case "lte":
-      return evaluate(ast.a, attrs, item) <= evaluate(ast.b, attrs, item);
-    case "len": {
-      const v = evaluate(ast.a, attrs, item);
-      return v == null ? void 0 : v.length ?? (typeof v === "object" ? Object.keys(v).length : void 0);
-    }
-    case "trim": {
-      const v = evaluate(ast.a, attrs, item);
-      return typeof v === "string" ? v.trim() : v;
-    }
-    case "includes": {
-      const v = evaluate(ast.a, attrs, item);
-      const x = evaluate(ast.v, attrs, item);
-      return Array.isArray(v) || typeof v === "string" ? v.includes(x) : false;
-    }
-    case "isArray":
-      return Array.isArray(evaluate(ast.a, attrs, item));
-    case "has": {
-      const o = evaluate(ast.a, attrs, item);
-      const k = evaluate(ast.k, attrs, item);
-      return o != null && typeof o === "object" && k in o;
-    }
-    case "empty": {
-      const v = evaluate(ast.a, attrs, item);
-      return v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Object.keys(v).length;
-    }
-    case "it":
-      return get(item, ast.p);
-    case "coalesce": {
-      const v = evaluate(ast.a, attrs, item);
-      return v == null ? evaluate(ast.b, attrs, item) : v;
-    }
-    case "typeof":
-      return typeof evaluate(ast.a, attrs, item);
-    case "num":
-      return Number(evaluate(ast.a, attrs, item));
-    case "some":
-    case "every": {
-      const v = evaluate(ast.a, attrs, item);
-      if (!Array.isArray(v)) return ast.op === "every";
-      return v[ast.op]((el) => !!evaluate(ast.it, attrs, el));
-    }
-    case "count": {
-      const v = evaluate(ast.a, attrs, item);
-      return Array.isArray(v) ? v.filter((el) => !!evaluate(ast.it, attrs, el)).length : 0;
-    }
-    case "regexTest": {
-      const v = evaluate(ast.a, attrs, item);
-      return typeof v === "string" ? cachedRe(ast.re, ast.flags).test(v) : false;
-    }
-    default:
-      throw new Error(`unknown op ${ast.op}`);
-  }
-}
-function fires(rule, attrs) {
-  try {
-    return rule.ast.outer.every((o) => !!evaluate(o, attrs)) && !!evaluate(rule.ast.guard, attrs);
-  } catch {
-    return false;
-  }
-}
-var ruleKey = (type, r) => `${type}.${r.field}${r.variant ? "@" + r.variant : ""}`;
-var skipped = (skip, key) => skip === true || Array.isArray(skip) && skip.includes(key);
-function checkEnforcement(node, attrs, meta3, ctx) {
-  const e = meta3?.enforcement;
-  if (!e) return;
-  const skip = ctx?.skipEnforcement;
-  const fired = (e.throw ?? []).filter((r) => !skipped(skip, ruleKey(meta3.type, r)) && fires(r, attrs));
-  for (const r of e.warn ?? []) {
-    if (skipped(skip, ruleKey(meta3.type, r))) continue;
-    if (fires(r, attrs)) ctx?.warn?.(`ENFORCEMENT_SOFT: '${node.ref ?? node.name ?? "?"}' (${meta3.type}) trips GHL's rule on '${r.field}' \u2014 guard: ${r.guard} \u2014 ${r.support}`);
-  }
-  if (!fired.length) return;
-  const lines = fired.map((r) => `  - '${r.field}'${r.variant ? ` (mode: ${r.variant})` : ""} \u2014 GHL's guard: ${r.guard} \u2014 ${r.support}`);
-  throw new IRError(
-    "ENFORCEMENT",
-    `ENFORCEMENT: step '${node.ref ?? node.name ?? "?"}' (${meta3.type}) is missing required field(s) GHL will flag:
-${lines.join("\n")}
-GHL would SAVE this step and flag it (or silently no-op at runtime) \u2014 this engine refuses instead. Fill the field(s), or pass skipEnforcement (true, or ['${ruleKey(meta3.type, fired[0])}']) if you are certain.`
-  );
-}
-function enforceTemplates(templates, catalog, ctx) {
-  for (const t of templates ?? []) {
-    if (!t?.type || t.type === "transition" || !t.attributes) continue;
-    const meta3 = catalog?.step?.(t.type);
-    if (!meta3?.enforcement) continue;
-    checkEnforcement({ ref: t.name ?? t.id, name: t.name }, t.attributes, meta3, ctx);
-  }
-}
-
-// ../skills/create-ghl-workflow/engine/graph-refs.mjs
-init_define_TOOL_CATALOG();
-var STEP_REF_FIELDS = [
-  ["goto", "targetNodeId", "single"],
-  ["wait", "appointmentSpecificStep", "single"],
-  // The specific_date variant's jump target — the same role appointmentSpecificStep plays on
-  // the appointment variants, and it was missing here, so a jump to a deleted step went
-  // undetected on that whole variant.
-  ["wait", "specificDateStep", "single"],
-  ["wait", "reply", "array"],
-  ["wait", "emailEventSteps", "array"],
-  ["workflow_goal", "segments[].conditions[].extras.stepIds", "array"],
-  ["workflow_goal", "segments[].conditions[].extras.invoiceStepId", "single"]
-];
-var get2 = (o, p) => p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
-var getAll = (o, path) => {
-  let cur = [o];
-  for (const seg of path.split(".")) {
-    if (seg.endsWith("[]")) {
-      const k = seg.slice(0, -2);
-      cur = cur.flatMap((x) => {
-        const v = x == null ? void 0 : x[k];
-        return Array.isArray(v) ? v : [];
-      });
-    } else {
-      cur = cur.map((x) => x == null ? void 0 : x[seg]);
-    }
-  }
-  return cur.filter((v) => v != null);
-};
-function stepRefsOf(t) {
-  const out = [];
-  for (const [type, path, kind] of STEP_REF_FIELDS) {
-    if (t.type !== type) continue;
-    const vals = path.includes("[]") ? getAll(t.attributes ?? {}, path) : [get2(t.attributes ?? {}, path)];
-    for (const v of vals) {
-      if (v == null || v === "") continue;
-      for (const id of kind === "array" ? Array.isArray(v) ? v : [] : [v]) {
-        if (typeof id === "string" && id) out.push({ path, id });
-      }
-    }
-  }
-  return out;
-}
-function danglingStepRefs(templates) {
-  const ids = new Set((templates ?? []).map((t) => t.id));
-  const out = [];
-  for (const t of templates ?? []) {
-    for (const { path, id } of stepRefsOf(t)) {
-      if (!ids.has(id)) out.push({ id: t.id, name: t.name, type: t.type, path, missing: id });
-    }
-  }
-  return out;
-}
-function checkStepRefs(templates, errCtor = null) {
-  const bad = danglingStepRefs(templates);
-  if (!bad.length) return;
-  const lines = bad.map((b) => `  - '${b.name ?? b.id}' (${b.type}) ${b.path} \u2192 '${b.missing}' does not exist in this workflow`);
-  const msg = `REF_DANGLING: ${bad.length} step reference(s) point at steps that do not exist:
-${lines.join("\n")}
-GHL grades this a WARNING \u2014 the builder's panel shows "0 Errors" while the step renders a broken link and the runtime has nowhere to go. Fix the reference or remove the step.`;
-  throw errCtor ? new errCtor("REF_DANGLING", msg) : Object.assign(new Error(msg), { code: "REF_DANGLING" });
-}
-
-// ../skills/create-ghl-workflow/engine/ui-defaults.mjs
-init_define_TOOL_CATALOG();
-var clone2 = (v) => v === void 0 ? v : JSON.parse(JSON.stringify(v));
-function applyUiDefaults(templates, catalog, ctx) {
-  if (!catalog?.step || ctx?.skipUiDefaults === true) return 0;
-  let added = 0;
-  for (const t of templates ?? []) {
-    if (!t?.type || t.type === "transition") continue;
-    const meta3 = catalog.step(t.type);
-    if (!meta3) continue;
-    const attrs = t.attributes ?? (t.attributes = {});
-    for (const [k, v] of Object.entries(meta3.uiDefaults ?? {})) {
-      if (attrs[k] === void 0) {
-        attrs[k] = clone2(v);
-        added++;
-      }
-    }
-    for (const [k, v] of Object.entries(meta3.uiForced ?? {})) {
-      if (attrs[k] === void 0) {
-        attrs[k] = clone2(v);
-        added++;
-      } else if (JSON.stringify(attrs[k]) !== JSON.stringify(v))
-        ctx?.warn?.(`UI_FORCED_MISMATCH: '${t.name ?? t.id}' (${t.type}) emits ${k}=${JSON.stringify(attrs[k])} but the UI's constructor always sets ${JSON.stringify(v)}`);
-    }
-  }
-  return added;
-}
-
-// ../skills/create-ghl-workflow/engine/ifelse-vocab.mjs
-init_define_TOOL_CATALOG();
-var NO_VALUE_DATE_OPS = /* @__PURE__ */ new Set(["today", "yesterday", "tomorrow"]);
-var ABSOLUTE_DATE_OPS = /* @__PURE__ */ new Set(["on", "between", "afterDate", "beforeDate"]);
-function evaluateIfElseVocab(templates, vocab, ctx) {
-  if (!vocab?.groups) return [];
-  const groups = new Map(vocab.groups.map((g) => [g.value, g]));
-  const leafOf = (g, sub) => {
-    for (const c of g.conditions ?? []) {
-      if (c.value === sub) return c;
-      for (const ch of c.children ?? []) if (ch.value === sub) return ch;
-    }
-    return null;
-  };
-  const opsFor = (operatorType) => {
-    const base = (vocab.operatorTable?.[operatorType] ?? []).map((o) => o?.value).filter((x) => typeof x === "string");
-    return /* @__PURE__ */ new Set([...base, ...vocab.legacyOperators?.[operatorType] ?? []]);
-  };
-  const dynamicLeafGroups = new Set(vocab.dynamicLeafGroups ?? []);
-  const customFieldById = /* @__PURE__ */ new Map();
-  for (const f of ctx?.customFields ?? []) {
-    const id = f?.id ?? f?._id;
-    if (id) customFieldById.set(id, f);
-  }
-  const F = [];
-  for (const t of templates ?? []) {
-    if (t?.type !== "if_else" || t.nodeType !== "condition-node") continue;
-    const where = `if/else '${t.name ?? t.id}'`;
-    for (const b of t.attributes?.branches ?? []) for (const s of b?.segments ?? []) for (const c of s?.conditions ?? []) {
-      if (!c || typeof c !== "object") continue;
-      const g = groups.get(c.conditionType);
-      if (!g) {
-        F.push({ where, branch: b.name, msg: `conditionType '${c.conditionType}' is not one GHL's picker offers (${[...groups.keys()].slice(0, 6).join(", ")}, \u2026)` });
-        continue;
-      }
-      if (!g.conditions?.length) continue;
-      let leaf = leafOf(g, c.conditionSubType);
-      let operatorType = leaf?.operatorType ?? null;
-      if (!leaf) {
-        if (dynamicLeafGroups.has(g.value)) {
-          const cf = customFieldById.get(c.conditionSubType);
-          if (cf) {
-            const dt = cf.dataType ?? cf.data_type ?? cf.type;
-            if (dt && vocab.fieldTypeMap?.[dt]) operatorType = vocab.fieldTypeMap[dt];
-            else continue;
-          } else if (customFieldById.size) {
-            F.push({ where, branch: b.name, msg: `conditionSubType '${c.conditionSubType}' (${g.value}) is not a picker field and matches no custom field on this account` });
-            continue;
-          } else continue;
-        } else {
-          F.push({ where, branch: b.name, msg: `conditionSubType '${c.conditionSubType}' is not a field of '${g.value}' (${(g.conditions ?? []).slice(0, 6).map((x) => x.value).join(", ")}, \u2026)` });
-          continue;
-        }
-      }
-      if (operatorType) {
-        const legal = opsFor(operatorType);
-        if (legal.size && !legal.has(c.conditionOperator)) {
-          F.push({ where, branch: b.name, msg: `operator '${c.conditionOperator}' is not legal for '${c.conditionSubType}' (${operatorType}: ${[...legal].join(", ")})` });
-          continue;
-        }
-        if (operatorType === "date" && c.conditionValueOperator != null) {
-          const vo = c.conditionValueOperator;
-          if (!(vocab.dateFieldOperators ?? []).includes(vo)) F.push({ where, branch: b.name, msg: `date sub-operator '${vo}' is not one of ${(vocab.dateFieldOperators ?? []).join(", ")}` });
-          else if (!NO_VALUE_DATE_OPS.has(vo) && !ABSOLUTE_DATE_OPS.has(vo) && !c.conditionValueUnit) F.push({ where, branch: b.name, msg: `date sub-operator '${vo}' requires conditionValueUnit (days|weeks|months|years)` });
-        }
-      }
-    }
-  }
-  return F;
-}
-function checkIfElseVocab(templates, catalog, ctx) {
-  if (ctx?.skipIfElseVocab === true) return [];
-  const F = evaluateIfElseVocab(templates, catalog?.ifElseConditions, ctx);
-  if (!F.length) return [];
-  const lines = F.map((f) => `  - ${f.where}${f.branch ? ` / branch '${f.branch}'` : ""}: ${f.msg}`);
-  throw new IRError(
-    "IFELSE_VOCAB",
-    `IFELSE_VOCAB: ${F.length} if/else condition(s) the GHL picker could never produce \u2014 GHL has NO validator for if/else, so this would save clean and MATCH WRONGLY at runtime:
-${lines.join("\n")}
-Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true if you are certain.`
-  );
-}
-
-// ../skills/create-ghl-workflow/engine/merge-tags.mjs
-init_define_TOOL_CATALOG();
-var TOKEN = /\{\{\s*([A-Za-z_][\w]*)(\.[^{}]*)?\s*\}\}/g;
-function evaluateMergeTags(templates, mergeTags) {
-  if (!mergeTags?.tags) return [];
-  const known = new Set(mergeTags.tags.map((t) => String(t.tag).replace(/\s+/g, "")));
-  const closed = new Set(mergeTags.closedNamespaces ?? []);
-  const out = [];
-  const walk2 = (v, cb) => {
-    if (typeof v === "string") cb(v);
-    else if (Array.isArray(v)) v.forEach((x) => walk2(x, cb));
-    else if (v && typeof v === "object") Object.values(v).forEach((x) => walk2(x, cb));
-  };
-  for (const t of templates ?? []) {
-    if (!t?.attributes || t.type === "transition") continue;
-    const where = `'${t.name ?? t.id}' (${t.type})`;
-    walk2(t.attributes, (s) => {
-      const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
-      if (opens !== closes) out.push({ where, kind: "unbalanced", msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? "\u2026" : ""}"` });
-      for (const m of s.matchAll(TOKEN)) {
-        const ns = m[1], full = `{{${ns}${(m[2] ?? "").replace(/\s+/g, "")}}}`;
-        if (!closed.has(ns) || known.has(full)) continue;
-        const near = mergeTags.tags.filter((x) => String(x.tag).startsWith(`{{${ns}.`)).map((x) => x.tag).slice(0, 4).join(", ");
-        out.push({ where, kind: "unknown", msg: `${full} is not a picker variable in the closed namespace '${ns}' (known: ${near}${near ? ", \u2026" : ""}) \u2014 it will render literally at runtime` });
-      }
-    });
-  }
-  return out;
-}
-function checkMergeTags(templates, catalog, ctx) {
-  if (ctx?.skipMergeTagCheck === true) return [];
-  const F = evaluateMergeTags(templates, catalog?.mergeTags);
-  for (const f of F) ctx?.warn?.(`MERGE_TAG_SOFT: ${f.where}: ${f.msg}`);
-  return F;
-}
-
-// ../skills/create-ghl-workflow/engine/compiler.mjs
-function attributesFor(node, ctx) {
-  if (node.marketplace === true) return marketplaceAttributes(node, ctx);
-  if (node.kind === "wait") return enforceRequiredFields({ ...node, type: "wait" }, waitAttributes(node), ctx);
-  if (node.type === "email") return emailAttributes(node, ctx);
-  if (node.type === "custom_webhook") return webhookAttributes(node.attributes ?? {}, node.ref);
-  if (node.type === "custom_code") return codeAttributes(node.attributes ?? {}, node.ref);
-  if (node.type === "voice_ai_outbound_call") return voiceAiOutboundCallAttributes(node.attributes ?? {});
-  if (node.type === "internal_notification") return internalNotificationAttributes(node.attributes ?? {}, ctx);
-  if (node.type === "create_opportunity") return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
-  if (node.type === "update_opportunity") return updateOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
-  const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
-  if (node.type === "update_contact_field")
-    checkContactFieldShape(out, { ref: node.ref ?? node.name ?? "?", warn: ctx?.warn });
-  return out;
-}
-var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
-  "__customInputs__",
-  "__dynamicAttachments__",
-  "__customInputFields__",
-  "type"
-]);
-function marketplaceEntry(node, ctx, kind) {
-  const entry = ctx?.marketplace?.get?.(node.type, kind);
-  if (!entry) {
-    const otherKind = kind === "action" ? "trigger" : "action";
-    const existsAsOtherKind = ctx?.marketplace?.get?.(node.type, otherKind);
-    throw new IRError(
-      "MARKETPLACE_KEY_UNKNOWN",
-      existsAsOtherKind ? `'${node.type}' on '${node.ref}' is flagged marketplace:true and was looked up as a marketplace ${kind}, but '${node.type}' is only published in this location as a marketplace ${otherKind}. This node is using a ${otherKind} key in a ${kind} slot \u2014 fix the type, or move this node to where a ${otherKind} key belongs.` : `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available marketplace ${kind} in this location publishes that key. Run list_marketplace_apps for this locationId to see what is actually there, or drop the marketplace flag if you meant a native step.`
-    );
-  }
-  if (!entry.installed)
-    throw new IRError(
-      "MARKETPLACE_APP_NOT_INSTALLED",
-      `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", which is NOT installed in this location. The step would save and never run. Install the app in the sub-account first.`
-    );
-  return entry;
-}
-function marketplaceAttributes(node, ctx) {
-  const entry = marketplaceEntry(node, ctx, "action");
-  const out = { ...node.attributes ?? {} };
-  out.type = node.type;
-  if (out.__customInputs__ === void 0) out.__customInputs__ = {};
-  const blank = (v) => v === void 0 || v === null || typeof v === "string" && v.trim() === "" || Array.isArray(v) && v.length === 0;
-  for (const f of entry.inputs) {
-    if (!f?.field || f.value === void 0 || !blank(out[f.field])) continue;
-    const coerced = coerceDefault(f.value, f.fieldType);
-    if (coerced === void 0) continue;
-    out[f.field] = coerced;
-    ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' blank; filled it with the value "${entry.appName}" declares in its own schema (${coerced}). Confirm this is what you intend.`);
-  }
-  const missing = entry.inputs.filter((f) => f?.required === true && f.field && f.field !== "DYNAMIC" && blank(out[f.field])).map((f) => f.field);
-  if (missing.length)
-    throw new IRError(
-      "MARKETPLACE_REQUIRED_FIELD",
-      `marketplace step '${node.ref}' (${node.type}, "${entry.appName}") is missing required input(s): ${missing.join(", ")}. The builder would show "Resolve N Errors".`
-    );
-  const declared = new Set(entry.inputs.map((f) => f?.field).filter(Boolean));
-  for (const key of Object.keys(out)) {
-    if (MARKETPLACE_ENVELOPE_KEYS.has(key) || declared.has(key)) continue;
-    ctx?.warn?.(`marketplace step '${node.ref}' (${node.type}) sets '${key}', which "${entry.appName}" does not declare in its inputs. It will be stored verbatim; confirm the key is right.`);
-  }
-  return out;
-}
-function normalizeAttrs(node, attrs, ctx) {
-  const meta3 = ctx?.catalog?.step(node.type);
-  if (!meta3) return attrs;
-  const out = { ...enforceRequiredFields(node, attrs, ctx) };
-  if (meta3.usesCustomInputs && !("__customInputs__" in out)) out.__customInputs__ = {};
-  if (Array.isArray(meta3.attrKeys) && meta3.attrKeys.includes("type") && !("type" in out)) {
-    out.type = node.type === "internal_notification" ? ["sms", "email", "notification", "whatsapp"].find((c) => c in out) ?? node.type : node.type;
-  }
-  checkAttrKeys(node, out, meta3);
-  return out;
-}
-var ENGINE_ATTR_KEYS = /* @__PURE__ */ new Set([
-  "type",
-  "__customInputs__",
-  "__customInputFields__",
-  "_template",
-  "user",
-  "calendar",
-  "agent",
-  "employee",
-  "assignedEmployeeId",
-  "pipeline",
-  "stage"
-]);
-function checkAttrKeys(node, out, meta3) {
-  if (meta3.confidence !== "verified-live" || !Array.isArray(meta3.attrKeys) || meta3.attrKeys.length === 0) return;
-  const known = /* @__PURE__ */ new Set([...meta3.attrKeys, ...(meta3.requiredFields ?? []).map((k) => k.split(".")[0]), ...ENGINE_ATTR_KEYS]);
-  const bad = Object.keys(out).filter((k) => !known.has(k));
-  if (bad.length)
-    throw new IRError(
-      "ATTR_KEY",
-      `unknown attribute key(s) [${bad.join(", ")}] on '${node.ref}' (${node.type}) \u2014 known keys for this type: ${meta3.attrKeys.join(", ")}. An invented key saves but renders a blank step; check the corpus example (${meta3.example ?? "catalog"}) for the real shape.`
-    );
-}
-function coerceOppValue(value, valueFieldType) {
-  if (valueFieldType !== "numerical") return value;
-  if (typeof value === "number") return value;
-  if (typeof value === "string" && value.trim() !== "") {
-    const n = Number(value);
-    if (Number.isFinite(n)) return n;
-  }
-  return value;
-}
-function oppField(filterField, value, dataType, valueFieldType) {
-  const f = { __customInputs__: {}, filterField, value: coerceOppValue(value, valueFieldType), valueFieldType };
-  if (dataType !== void 0) f.dataType = dataType;
-  return f;
-}
-function stdOppField(filterField, value) {
-  const { valueFieldType, dataType } = defaultOppFieldShape(filterField);
-  return oppField(filterField, value, dataType, valueFieldType);
-}
-function enforceLostReasonPrerequisite(f, ref, stepType) {
-  const lostAt = f.findIndex((x) => x.filterField === "lostReasonId");
-  if (lostAt === -1) return;
-  const statusAt = f.findIndex((x) => x.filterField === "status");
-  const statusVal = statusAt === -1 ? void 0 : f[statusAt].value;
-  if (statusAt === -1 || String(statusVal).toLowerCase() !== "lost")
-    throw new IRError(
-      "OPP_LOST_REASON_NO_LOST_STATUS",
-      `${stepType} '${ref}' sets 'lostReasonId' but ${statusAt === -1 ? "the step has no 'status' field" : `the step's status is '${statusVal}', not 'lost'`}. GHL only accepts a lost reason on an opportunity being marked LOST: the builder disables the Lost Reason picker until Status is 'lost', and DELETES an existing lostReasonId entry when it isn't \u2014 so this step would save, round-trip clean, and drop the reason. Set status to 'lost' in the same step${statusAt === -1 ? "" : ", or drop 'lostReasonId'"}.${statusVal !== void 0 && /\{\{/.test(String(statusVal)) ? " (A merge-field status can't be proven to be 'lost' at compile time \u2014 author the literal status on the step that sets the lost reason.)" : ""}`
-    );
-  if (statusAt > lostAt) f.splice(lostAt, 0, f.splice(statusAt, 1)[0]);
-}
-var CREATE_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
-  "pipelineId",
-  "stageId",
-  "status",
-  "name",
-  "source",
-  "value",
-  "lostReasonId",
-  "forecastExpectedCloseDate",
-  "forecastProbability",
-  "pipeline",
-  "stage"
-  // pre-resolve name path (resolve.mjs → pipelineId/stageId)
-]);
-var CREATE_OPP_ALIASES = {
-  pipelineStageId: "stageId",
-  stage_id: "stageId",
-  pipeline_stage_id: "stageId",
-  pipeline_id: "pipelineId",
-  monetaryValue: "value"
-};
-function createOpportunityAttributes(a, ref, ctx) {
-  const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
-  if (bad.length)
-    throw new IRError(
-      "UNKNOWN_ATTR",
-      `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => CREATE_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...CREATE_OPP_AUTHOR_KEYS].join(", ")}. NOTE the asymmetry \u2014 you author 'stageId', which compiles to the filterField 'pipelineStageId'. An ignored key compiles to a step that saves, round-trips clean, and creates an opportunity with no pipeline.`
-    );
-  if (a.stageId != null && a.pipelineId == null)
-    throw new IRError(
-      "OPP_STAGE_NO_PIPELINE",
-      `create_opportunity '${ref}' sets stageId without pipelineId. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Always author pipelineId alongside stageId.`
-    );
-  const f = [];
-  if (a.name != null) f.push(oppField("name", a.name, "TEXT", "string"));
-  if (a.stageId != null) f.push(oppField("pipelineStageId", a.stageId, "SINGLE_OPTIONS", "select"));
-  f.push(oppField("status", a.status ?? "open", "SINGLE_OPTIONS", "select"));
-  if (a.lostReasonId != null) f.push(stdOppField("lostReasonId", a.lostReasonId));
-  if (a.source != null) f.push(oppField("source", a.source, "TEXT", "string"));
-  if (a.value != null) f.push(oppField("monetaryValue", a.value, "NUMERICAL", "numerical"));
-  if (a.forecastExpectedCloseDate != null) f.push(stdOppField("forecastExpectedCloseDate", a.forecastExpectedCloseDate));
-  if (a.forecastProbability != null) f.push(stdOppField("forecastProbability", a.forecastProbability));
-  enforceLostReasonPrerequisite(f, ref, "create_opportunity");
-  for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
-  return { pipelineId: a.pipelineId, type: "internal_create_opportunity", __customInputFields__: f, __customInputs__: {} };
-}
-var UPDATE_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
-  "updates",
-  "pipelineId",
-  "stageId",
-  "status",
-  "name",
-  "source",
-  "value",
-  "allowBackward",
-  // added 2026-08-03 — see CREATE_OPP_AUTHOR_KEYS. Author key == emitted filterField.
-  "lostReasonId",
-  "forecastExpectedCloseDate",
-  "forecastProbability",
-  "pipeline",
-  "stage"
-  // pre-resolve name path (resolve.mjs → pipelineId/stageId)
-]);
-var UPDATE_OPP_ALIASES = { pipelineStageId: "stageId", stage_id: "stageId", pipeline_id: "pipelineId", monetaryValue: "value" };
-function resolveOppUpdateField(u, ref, ctx) {
-  const ff = u.field;
-  if (STANDARD_OPP_FIELDS.has(ff)) {
-    const vft = u.valueFieldType ?? defaultOppFieldShape(ff).valueFieldType;
-    const f = oppField(ff, u.value, u.dataType, vft);
-    checkOppFieldShape(f, { ref, warn: ctx?.warn });
-    return f;
-  }
-  const cf = ctx?.customFields?.find((c) => c.id === ff || c.fieldKey === ff);
-  if (cf) {
-    ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' custom field '${ff}' shape not validated (contact->opp dataType join pending, spec \xA77b) \u2014 emitted as authored`);
-    return oppField(ff, u.value, u.dataType, u.valueFieldType ?? "string");
-  }
-  if (Array.isArray(ctx?.customFields)) {
-    throw new IRError(
-      "OPP_FIELD_UNKNOWN",
-      `update_opportunity '${ref}': filterField '${ff}' is neither a standard opportunity field (${[...STANDARD_OPP_FIELDS].join(", ")}) nor a custom field in this account. Pass explicit dataType/valueFieldType, or check the field id.`
-    );
-  }
-  ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' filterField '${ff}' not classified (no customFields list in this compile context) \u2014 emitted as authored`);
-  return oppField(ff, u.value, u.dataType, u.valueFieldType ?? "string");
-}
-function updateOpportunityAttributes(a, ref, ctx) {
-  const bad = Object.keys(a).filter((k) => !UPDATE_OPP_AUTHOR_KEYS.has(k));
-  if (bad.length)
-    throw new IRError(
-      "UNKNOWN_ATTR",
-      `update_opportunity '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => UPDATE_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => UPDATE_OPP_ALIASES[k]).map((k) => `'${UPDATE_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...UPDATE_OPP_AUTHOR_KEYS].join(", ")}. NOTE the asymmetry \u2014 you author 'stageId', which compiles to the filterField 'pipelineStageId'; 'pipelineId' is the same on both sides. An ignored key compiles to a step that saves, round-trips clean, and no-ops at runtime.`
-    );
-  const f = (a.updates ?? []).map((u) => resolveOppUpdateField(u, ref, ctx));
-  if (!f.length) {
-    if (a.pipelineId != null) f.push(oppField("pipelineId", a.pipelineId, "SINGLE_OPTIONS", "select"));
-    if (a.stageId != null) f.push(oppField("pipelineStageId", a.stageId, "SINGLE_OPTIONS", "select"));
-    if (a.status != null) f.push(oppField("status", a.status, "SINGLE_OPTIONS", "select"));
-    if (a.lostReasonId != null) f.push(stdOppField("lostReasonId", a.lostReasonId));
-    if (a.name != null) f.push(oppField("name", a.name, "TEXT", "string"));
-    if (a.source != null) f.push(oppField("source", a.source, "TEXT", "string"));
-    if (a.value != null) f.push(oppField("monetaryValue", a.value, "NUMERICAL", "numerical"));
-    if (a.forecastExpectedCloseDate != null) f.push(stdOppField("forecastExpectedCloseDate", a.forecastExpectedCloseDate));
-    if (a.forecastProbability != null) f.push(stdOppField("forecastProbability", a.forecastProbability));
-    for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
-  }
-  if (!f.length)
-    throw new IRError(
-      "EMPTY_STEP",
-      `update_opportunity '${ref}' has nothing to update \u2014 it would compile to __customInputFields__:[] and no-op at runtime while round-tripping clean. Author either attributes.updates:[{field,value}] or the name path attributes:{pipeline,stage,status,...}.`
-    );
-  enforceLostReasonPrerequisite(f, ref, "update_opportunity");
-  const idx = (ff) => f.findIndex((x) => x.filterField === ff);
-  const stageAt = idx("pipelineStageId");
-  if (stageAt !== -1) {
-    const pipeAt = idx("pipelineId");
-    if (pipeAt === -1)
-      throw new IRError(
-        "OPP_STAGE_NO_PIPELINE",
-        `update_opportunity '${ref}' sets a pipeline stage without a pipeline. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Author pipelineId alongside stageId (or add a pipelineId entry to updates[]).`
-      );
-    if (pipeAt > stageAt) f.unshift(f.splice(pipeAt, 1)[0]);
-  }
-  return { allowBackward: a.allowBackward ?? false, type: "internal_update_opportunity", __customInputFields__: f, __customInputs__: {} };
-}
-function voiceAiOutboundCallAttributes(a) {
-  if (!a.agentId) throw new IRError("MISSING_FIELD", "voice_ai_outbound_call requires 'agentId'");
-  if (!a.fromPhoneNumber) throw new IRError("MISSING_FIELD", "voice_ai_outbound_call requires 'fromPhoneNumber'");
-  return {
-    agentId: a.agentId,
-    fromPhoneNumber: a.fromPhoneNumber,
-    outboundGuidelines: "",
-    type: "voice_ai_outbound_call",
-    __customInputs__: {}
-  };
-}
-var NOTIFICATION_CHANNELS = ["email", "sms", "notification", "whatsapp"];
-function asUserArray(v) {
-  if (v == null || v === "") return [];
-  return Array.isArray(v) ? v : [v];
-}
-var NOTIFICATION_EMITTED_KEYS = {
-  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published Living-In-Idaho
-  // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
-  // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
-  // into inline mode and made template-mode impossible to author — found by the enforcement tests.
-  email: ["from_name", "from_email", "to", "userType", "subject", "html", "attachments", "selectedUser", "cc", "preHeader", "template_id", "templatesource"],
-  sms: ["body", "userType", "attachments", "selectedUser", "template_id"],
-  notification: ["notificationType", "body", "title", "redirectPage", "userType", "selectedUser"],
-  whatsapp: ["body", "userType", "selectedUser", "template_id"]
-};
-function internalNotificationAttributes(a, ctx) {
-  const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null) ?? NOTIFICATION_CHANNELS.find((c) => c in a) ?? "email";
-  const b = a[channel] ?? {};
-  const dropped = Object.keys(b).filter((k) => !NOTIFICATION_EMITTED_KEYS[channel].includes(k));
-  if (dropped.length) {
-    ctx?.warn?.(`NOTIFICATION_KEY_DROPPED: internal_notification (${channel}) \u2014 authored key(s) [${dropped.join(", ")}] are not emitted by this channel's shape and were discarded. Emitted keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(", ")}. If one of these IS real, harvest a live example and extend the handler rather than assuming it shipped.`);
-  }
-  const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== "" ? "user" : "all");
-  const wantsUsers = userType === "user";
-  if (channel === "email") {
-    const wantsTo = userType === "custom_email" || b.to != null;
-    if (userType === "custom_email" && (b.to == null || b.to === "")) {
-      throw new IRError(
-        "MISSING_FIELD",
-        `internal_notification with userType 'custom_email' requires attributes.email.to \u2014 without it the builder shows an empty "To Custom Email" and the notification reaches nobody.`
-      );
-    }
-    return { type: "email", email: {
-      from_name: b.from_name ?? ctx?.senderDefault?.from_name ?? "{{location.name}}",
-      from_email: b.from_email ?? ctx?.senderDefault?.from_email ?? "{{location.email}}",
-      ...wantsTo ? { to: b.to } : {},
-      userType,
-      subject: b.subject ?? "",
-      // TEMPLATE-MODE: real published notifications carry email.template_id (+ templatesource
-      // 'email-builder') and NO inline html key at all — GHL's guards exempt the body on
-      // template_id, and the 3 live captures omit html entirely. Mirror them: template_id XOR
-      // html, never both (an empty inline body next to a template invites GHL to prefer it).
-      ...b.template_id != null && b.template_id !== "" && b.template_id !== "none" ? { template_id: b.template_id, ...b.templatesource != null ? { templatesource: b.templatesource } : {} } : { html: b.html ?? "" },
-      ...b.cc != null ? { cc: b.cc } : {},
-      ...b.preHeader != null ? { preHeader: b.preHeader } : {},
-      attachments: b.attachments ?? [],
-      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
-    } };
-  }
-  if (channel === "sms") {
-    return { type: "sms", sms: {
-      body: b.body ?? "",
-      ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
-      userType,
-      attachments: b.attachments ?? [],
-      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
-    } };
-  }
-  if (channel === "notification") {
-    const sel = asUserArray(b.selectedUser);
-    return { type: "notification", notification: {
-      type: b.notificationType ?? "send_notification",
-      body: b.body ?? "",
-      title: b.title ?? "",
-      redirectPage: b.redirectPage ?? "contact",
-      userType,
-      ...wantsUsers ? { selectedUser: sel[0] ?? "" } : {}
-    } };
-  }
-  return { type: "whatsapp", whatsapp: {
-    body: b.body ?? "",
-    ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
-    userType,
-    selectedUser: asUserArray(b.selectedUser)
-  } };
-}
-var WEBHOOK_EVENTS = /* @__PURE__ */ new Set(["CUSTOM"]);
-var WEBHOOK_METHODS = /* @__PURE__ */ new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
-function webhookAttributes(a, ref) {
-  const ev = a.event ?? "CUSTOM";
-  if (!WEBHOOK_EVENTS.has(ev))
-    throw new IRError(
-      "WEBHOOK_EVENT",
-      `custom_webhook '${ref ?? "?"}' has event '${ev}'. Only ${[...WEBHOOK_EVENTS].join(", ")} is attested. An unknown event leaves the builder's EVENT dropdown blank and METHOD, CONTENT-TYPE and RAW BODY never render, so the step saves with no method and no body.`
-    );
-  const method = String(a.method ?? "POST").toUpperCase();
-  if (!WEBHOOK_METHODS.has(method))
-    throw new IRError(
-      "WEBHOOK_METHOD",
-      `custom_webhook '${ref ?? "?"}' has method '${method}'. Expected one of ${[...WEBHOOK_METHODS].join(", ")}.`
-    );
-  if (!a.url)
-    throw new IRError("WEBHOOK_URL", `custom_webhook '${ref ?? "?"}' has no url \u2014 the validator requires one.`);
-  return {
-    event: ev,
-    method,
-    url: a.url ?? "",
-    body: a.body ?? { contentType: "application/json", rawData: a.rawData ?? "{}", keyValueData: [] },
-    headers: a.headers ?? [],
-    parameters: a.parameters ?? [],
-    authorization: a.authorization ?? { type: "NONE", data: null },
-    saveResponse: a.saveResponse ?? false,
-    webhookResponse: a.webhookResponse ?? { isSampleRequested: false, selectedContact: "" }
-  };
-}
-function codeAttributes(a, ref) {
-  const output = a.output ?? {};
-  if (output === null || typeof output !== "object" || Object.keys(output).length === 0)
-    throw new IRError(
-      "CODE_OUTPUT_EMPTY",
-      `custom_code '${ref ?? "?"}' has an empty \`output\`. The builder rejects this as "Code must be tested before saving" and the step cannot be published. Author a representative sample of what the code returns, e.g. output: { ok: true }.`
-    );
-  return {
-    code: a.code ?? "return {};",
-    language: a.language ?? "javascript",
-    inputData: a.inputData ?? {},
-    output
-  };
-}
-function waitAttributes(node) {
-  const a = node.attributes ?? {};
-  const hybrid = { cat: "", isHybridAction: true, hybridActionType: "wait", convertToMultipath: false, transitions: [] };
-  const wt = node.waitType ?? (node.config ? "time" : a.type ?? "time");
-  if (wt === "time") {
-    const c = node.config ?? {};
-    const startAfter = {
-      type: c.unit ?? a.startAfter?.type,
-      value: c.value ?? a.startAfter?.value,
-      when: c.when ?? a.startAfter?.when ?? "after"
-    };
-    if (startAfter.type == null || startAfter.value == null)
-      throw new IRError(
-        "EMPTY_STEP",
-        `wait '${node.ref}' has no usable duration \u2014 a time wait needs config:{unit,value,when} (or attributes.startAfter:{type,value,when}). Got startAfter:${JSON.stringify(startAfter)}. An empty/partial startAfter compiles and publishes clean but the wait DOES NOT PAUSE at runtime \u2014 every following step fires immediately.`
-      );
-    const base = { type: "time", startAfter, ...hybrid };
-    const w = node.window ?? a.window;
-    if (w) {
-      base.window = w.condition === "exact" ? { condition: "exact", days: w.days ?? [], start: w.start } : { condition: "when", days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
-      base.windowCondition = { field: "", operator: "", value: "" };
-    }
-    return base;
-  }
-  return { type: wt, ...a, ...hybrid };
-}
-function emailAttributes(node, ctx) {
-  const a = node.attributes ?? {};
-  const base = {
-    trackingOptions: a.trackingOptions ?? { hasTrackingLinks: true, hasUtmTracking: true, hasTags: false },
-    conditions: a.conditions ?? [],
-    subject: a.subject ?? "",
-    preHeader: a.preHeader ?? "",
-    from_name: a.from_name ?? ctx?.senderDefault?.from_name ?? "{{location.name}}",
-    from_email: a.from_email ?? ctx?.senderDefault?.from_email ?? "{{location.email}}",
-    templateCreationMode: a.templateCreationMode ?? "existing",
-    syncEnabled: a.syncEnabled ?? false,
-    attachments: a.attachments ?? [],
-    fieldDefaults: a.fieldDefaults ?? { subject: {} }
-  };
-  if (a.template_id) {
-    base.template_id = a.template_id;
-    base.templatesource = a.templatesource ?? "email-builder";
-  } else {
-    base.html = a.html ?? "";
-    base.htmlDefaults = a.htmlDefaults ?? {};
-  }
-  return base;
-}
-function typeFor(node) {
-  if (node.kind === "wait") return "wait";
-  if (node.type === "create_opportunity") return "internal_create_opportunity";
-  if (node.type === "update_opportunity") return "internal_update_opportunity";
-  return node.type;
-}
-function withStepDisabled(node, template, ctx) {
-  let out = template;
-  if (Array.isArray(node.notes) && node.notes.length) out = { ...out, comments: stepNotesToComments(node.notes, ctx ?? {}) };
-  if (node.disabled !== true) return out;
-  return {
-    ...out,
-    advanceCanvasMeta: {
-      ...node.advanceCanvasMeta ?? {},
-      ...out.advanceCanvasMeta ?? {},
-      isDisabled: true
-    }
-  };
-}
-function idForRef(refMap, ctx, ref) {
-  if (ref === void 0 || ref === null) return ctx.idGen();
-  if (!refMap.has(ref)) refMap.set(ref, ctx.idGen());
-  return refMap.get(ref);
-}
-var IFELSE_NESTED_DROPDOWN_TYPES = [
-  "inboundWebhookRequest",
-  "sheet",
-  "datetime_formatter",
-  "custom_webhook",
-  "array_functions",
-  "ivr_gather",
-  "ivr_connect_call",
-  "custom_code",
-  "ai_agent",
-  "task-notification"
-];
-var IFELSE_ALLOW_IS_OPERATOR_TYPES = [
-  "contact_reply",
-  "inboundWebhookRequest",
-  "custom_webhook",
-  "custom_code",
-  "ai_agent",
-  "contact_detail",
-  "array_functions",
-  "appointment",
-  "service_booking",
-  "rental_booking"
-];
-var CONDITION_INTENT_KEYS = /* @__PURE__ */ new Set([
-  "tag",
-  "stage",
-  "not",
-  "trigger",
-  "conditionType",
-  "conditionSubType",
-  "conditionOperator",
-  "conditionValue"
-]);
-function conditionExtras(c) {
-  const out = {};
-  for (const k of Object.keys(c)) if (!CONDITION_INTENT_KEYS.has(k)) out[k] = c[k];
-  return out;
-}
-function normalizeCondition(rawC) {
-  const c = canonicalizeOppStageCondition(rawC);
-  const extras = conditionExtras(c);
-  const type = c.conditionType;
-  const tagIntent = c.tag !== void 0 || c.conditionSubType === "tags" || c.conditionSubType === "tag";
-  if (type === "contact_detail" && tagIntent) {
-    const raw = c.tag ?? c.conditionValue;
-    const negate = c.not === true || c.conditionOperator === "index-of-false" || c.conditionOperator === "not-contains";
-    return {
-      ...extras,
-      conditionType: "contact_detail",
-      conditionSubType: "tags",
-      conditionOperator: negate ? "index-of-false" : "index-of-true",
-      conditionValue: raw == null ? [] : Array.isArray(raw) ? raw : [raw]
-    };
-  }
-  const stageIntent = c.stage !== void 0 || c.conditionSubType === OPP_STAGE_SUBTYPE;
-  if (type === OPP_STAGE_TYPE && stageIntent) {
-    const raw = c.conditionValue ?? c.stage;
-    return {
-      ...extras,
-      conditionType: OPP_STAGE_TYPE,
-      conditionSubType: OPP_STAGE_SUBTYPE,
-      conditionOperator: "==",
-      conditionValue: Array.isArray(raw) ? raw[0] : raw
-    };
-  }
-  if (type === "trigger") {
-    return {
-      ...extras,
-      conditionType: "trigger",
-      conditionSubType: c.conditionSubType,
-      conditionOperator: "==",
-      conditionValue: c.conditionValue ?? c.trigger
-    };
-  }
-  if (type === "contact_detail") {
-    const op = c.conditionOperator ?? "contain";
-    let val = c.conditionValue;
-    if (op === "contain" && typeof val === "string") val = val.toLowerCase();
-    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val };
-  }
-  return {
-    ...extras,
-    conditionType: type,
-    conditionSubType: c.conditionSubType,
-    conditionOperator: c.conditionOperator ?? "==",
-    conditionValue: c.conditionValue
-  };
-}
-function expandCondition(c, ctx) {
-  const n = lintConditionShape(normalizeCondition(c));
-  const out = {
-    conditionType: n.conditionType,
-    conditionSubType: n.conditionSubType,
-    conditionOperator: n.conditionOperator,
-    conditionValue: n.conditionValue,
-    __conditionId: n.__conditionId ?? ctx.idGen(),
-    ifElseNodeId: n.ifElseNodeId ?? "",
-    isWait: n.isWait ?? false,
-    nestedDropdownTypes: n.nestedDropdownTypes ?? IFELSE_NESTED_DROPDOWN_TYPES,
-    allowIsOperatorTypes: n.allowIsOperatorTypes ?? IFELSE_ALLOW_IS_OPERATOR_TYPES
-  };
-  if (n.conditionType === "contact_detail" || n.conditionType === "appointment")
-    out.__customFieldType__ = n.__customFieldType__ ?? "standard";
-  for (const k of Object.keys(n)) if (!(k in out)) out[k] = n[k];
-  return out;
-}
-function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
-  const templates = [];
-  const ids = nodes.map((n) => idForRef(refMap, ctx, n.ref));
-  nodes.forEach((n, i) => {
-    ctx.__visited?.add(n);
-    const id = ids[i];
-    const next = i < nodes.length - 1 ? ids[i + 1] : null;
-    const parentKey = i > 0 ? ids[i - 1] : parentScopeId ?? null;
-    if (n.kind === "if_else") {
-      const conditioned = n.branches.filter((b) => b.else !== true);
-      const elseBranch = n.branches.find((b) => b.else === true);
-      const conditionedIds = conditioned.map((b) => idForRef(refMap, ctx, b.ref));
-      const noneId = elseBranch ? idForRef(refMap, ctx, elseBranch.ref) : ctx.idGen();
-      const allBranchIds = [...conditionedIds, noneId];
-      const noneName = elseBranch?.name ?? "None";
-      const ifElseContainer = {
-        id,
-        type: "if_else",
-        name: n.name,
-        order: i,
-        parentKey,
-        next: allBranchIds,
-        nodeType: "condition-node",
-        cat: "conditions",
-        comments: [],
-        attributes: {
-          currentRecipeType: "CUSTOM",
-          branches: conditioned.map((b, bi) => ({
-            id: conditionedIds[bi],
-            name: b.name,
-            segments: b.conditions && b.conditions.length ? [{ __segmentId: ctx.idGen(), operator: "and", conditions: b.conditions.map((c) => expandCondition(c, ctx)) }] : [],
-            operator: "and",
-            showErrors: false,
-            branchNameError: "Branch name cannot be empty!"
-          })),
-          operator: "and",
-          if: true,
-          conditionName: n.name,
-          // <- the builder's container display label
-          version: 2,
-          noneBranchName: noneName
-        }
-      };
-      if (parentScopeId !== null) ifElseContainer.parent = parentScopeId;
-      templates.push(withStepDisabled(n, ifElseContainer, ctx));
-      conditioned.forEach((b, bi) => {
-        const child = flattenGraph(b.then ?? [], ctx, refMap, conditionedIds[bi]);
-        templates.push({
-          id: conditionedIds[bi],
-          type: "if_else",
-          name: b.name,
-          order: bi,
-          parent: id,
-          parentKey: id,
-          cat: "conditions",
-          comments: [],
-          sibling: allBranchIds.filter((x) => x !== conditionedIds[bi]),
-          nodeType: "branch-yes",
-          attributes: { if: false, conditionName: "Condition", operator: "and", branches: [] },
-          next: child.entryId
-        });
-        templates.push(...child.templates);
-      });
-      const noneChild = flattenGraph(elseBranch?.then ?? [], ctx, refMap, noneId);
-      templates.push({
-        id: noneId,
-        type: "if_else",
-        name: noneName,
-        order: conditioned.length,
-        parent: id,
-        parentKey: id,
-        cat: "conditions",
-        comments: [],
-        sibling: allBranchIds.filter((x) => x !== noneId),
-        nodeType: "branch-no",
-        attributes: { else: true },
-        next: noneChild.entryId
-      });
-      templates.push(...noneChild.templates);
-      return;
-    }
-    if (n.type === "conversationai_book_appointment") {
-      const attrs = enforceRequiredFields(n, n.attributes ?? {});
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
-      const container = {
-        id,
-        type: "conversationai_book_appointment",
-        name: n.name ?? "Book appointment",
-        order: i,
-        parentKey,
-        cat: "multi-path",
-        workflowsActionType: "INTERNAL",
-        next: [t1, t2],
-        attributes: {
-          promptInstructions: attrs.promptInstructions ?? "Get the customer to book an appointment",
-          calendarId: attrs.calendarId,
-          type: "conversationai_book_appointment",
-          __customInputs__: {},
-          cat: "multi-path",
-          convertToMultipath: true,
-          transitions: [
-            { id: t1, name: "Appointment Booked", fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
-            { id: t2, name: "Appointment Not booked", fields: { appointmentNotBooked: true }, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" }
-          ],
-          __name__: n.name ?? "Book appointment"
-        }
-      };
-      if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container, ctx));
-      const booked = flattenGraph(n.onBooked ?? [], ctx, refMap, t1);
-      templates.push({ id: t1, type: "transition", name: "Appointment Booked", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: booked.entryId });
-      templates.push(...booked.templates);
-      const notb = flattenGraph(n.onNotBooked ?? [], ctx, refMap, t2);
-      templates.push({ id: t2, type: "transition", name: "Appointment Not booked", cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, next: notb.entryId });
-      templates.push(...notb.templates);
-      return;
-    }
-    if (n.type === "conversationai_ai_splitter") {
-      const attrs = enforceRequiredFields(n, n.attributes ?? {});
-      const authorBranches = n.branches ?? [];
-      const noneId = ctx.idGen();
-      const branchIds = authorBranches.map(() => ctx.idGen());
-      const container = {
-        id,
-        type: "conversationai_ai_splitter",
-        name: n.name ?? "AI splitter",
-        order: i,
-        parentKey,
-        cat: "multi-path",
-        workflowsActionType: "INTERNAL",
-        next: [noneId, ...branchIds],
-        attributes: {
-          description: attrs.description ?? "",
-          type: "conversationai_ai_splitter",
-          __customInputs__: {},
-          cat: "multi-path",
-          convertToMultipath: true,
-          transitions: [
-            { id: noneId, name: "No condition met", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
-            ...authorBranches.map((b, bi) => ({ id: branchIds[bi], name: b.name, fields: b.fields ?? {}, meta: {}, conditionType: "user-defined" }))
-          ],
-          __name__: n.name ?? "AI splitter"
-        }
-      };
-      if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container, ctx));
-      const none = flattenGraph(n.default ?? [], ctx, refMap, noneId);
-      templates.push({ id: noneId, type: "transition", name: "No condition met", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: none.entryId });
-      templates.push(...none.templates);
-      authorBranches.forEach((b, bi) => {
-        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
-        templates.push({ id: branchIds[bi], type: "transition", name: b.name, cat: "transition", parentKey: id, parent: id, order: bi + 1, attributes: {}, next: child.entryId });
-        templates.push(...child.templates);
-      });
-      return;
-    }
-    if (n.kind === "wait" && (n.onEvent || n.onTimeout)) {
-      const wt = n.waitType ?? "reply";
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
-      const eventDesc = n.reply?.labels?.length ? `What will happen when a contact replies on ${n.reply.labels.join(", ")}` : "What will happen when the event fires";
-      const timeoutDesc = n.timeout ? `What will happen after ${n.timeout.value} ${n.timeout.unit}` : "What will happen on timeout";
-      const startAfter = n.timeout ? { type: n.timeout.unit, value: n.timeout.value, when: n.timeout.when ?? "after" } : void 0;
-      let subtype = {};
-      if (wt === "reply") {
-        const replyIds = (n.reply?.steps ?? []).map((r) => idForRef(refMap, ctx, r));
-        subtype = { reply: replyIds, replyLabel: n.reply?.labels ?? [] };
-      } else {
-        subtype = { ...n.attributes ?? {} };
-      }
-      const mkTrans = (tid, name, cond, primary, desc) => ({ id: tid, name, condition: cond, conditionType: "user-defined", isPrimaryBranch: primary, description: "", attributes: { type: primary ? `wait_${wt}` : "wait_timeout", description: desc } });
-      const container = {
-        id,
-        type: "wait",
-        name: n.name,
-        order: i,
-        parentKey,
-        next: [t1, t2],
-        cat: "multi-path",
-        attributes: {
-          type: wt,
-          ...startAfter ? { startAfter } : {},
-          ...subtype,
-          name: n.name,
-          cat: "multi-path",
-          timePeriodInputMode: "standard",
-          unitInputMode: "standard",
-          isHybridAction: true,
-          hybridActionType: "wait",
-          convertToMultipath: true,
-          transitions: [mkTrans(t1, "wait", "primary", true, eventDesc), mkTrans(t2, "timeout", "timeout", false, timeoutDesc)]
-        }
-      };
-      if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container, ctx));
-      const prim = flattenGraph(n.onEvent ?? [], ctx, refMap, t1);
-      templates.push({ id: t1, parentKey: id, parent: id, type: "transition", name: "wait", attributes: { type: `wait_${wt}`, description: eventDesc }, order: 0, cat: "transition", next: prim.entryId });
-      templates.push(...prim.templates);
-      const tout = flattenGraph(n.onTimeout ?? [], ctx, refMap, t2);
-      templates.push({ id: t2, parentKey: id, parent: id, type: "transition", name: "timeout", attributes: { type: "wait_timeout", description: timeoutDesc }, order: 1, cat: "transition", next: tout.entryId });
-      templates.push(...tout.templates);
-      return;
-    }
-    if (n.type === "find_opportunity" && (n.onFound || n.onNotFound)) {
-      if (n.attributes?.__customInputFields__ !== void 0)
-        throw new IRError(
-          "FIND_FILTERS_MISPLACED",
-          `find_opportunity '${n.ref ?? n.name}' authors attributes.__customInputFields__, which this step IGNORES \u2014 that is the emitted shape, not the author shape. Move it to the node-level find.filters: [{ field: 'pipeline_id', operator: 'eq', value: '<pipelineId>' }]. Left as authored, the finder compiles with NO filters and matches an arbitrary opportunity.`
-        );
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
-      const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? "eq", secondValue: f.value }));
-      const container = {
-        id,
-        type: "find_opportunity",
-        name: n.name,
-        order: i,
-        parentKey,
-        cat: "multi-path",
-        workflowsActionType: "INTERNAL",
-        next: [t1, t2],
-        attributes: {
-          sorting: n.find?.sorting ?? "latest",
-          type: "find_opportunity",
-          __customInputFields__: fields,
-          __customInputs__: {},
-          cat: "multi-path",
-          convertToMultipath: true,
-          transitions: [
-            { id: t1, name: "Opportunity Found", fields: [], meta: { __branchKey__: "predefined_Opportunity Found" }, conditionType: "pre-defined" },
-            { id: t2, name: "Opportunity Not Found", fields: [], meta: { __branchKey__: "predefined_Opportunity Not Found" }, conditionType: "pre-defined" }
-          ],
-          __name__: n.name
-        }
-      };
-      if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container, ctx));
-      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
-      templates.push({ id: t1, type: "transition", name: "Opportunity Found", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
-      templates.push(...found.templates);
-      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
-      templates.push({ id: t2, type: "transition", name: "Opportunity Not Found", cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, next: notf.entryId });
-      templates.push(...notf.templates);
-      return;
-    }
-    if (n.kind === "goto") {
-      if (!refMap.has(n.target)) refMap.set(n.target, ctx.idGen());
-      const gotoTarget = refMap.get(n.target);
-      if (!gotoTarget)
-        throw new IRError(
-          "REF_DANGLING",
-          `REF_DANGLING: goto '${n.ref}' targets ref '${n.target}', which does not exist in this IR. GHL would save this with a green "0 Errors" panel and a broken-link icon; the runtime would have nowhere to send the contact. Point \`target\` at a real node ref.`
-        );
-      const tmpl2 = {
-        id,
-        type: "goto",
-        name: n.name ?? "Go To",
-        order: i,
-        attributes: { targetNodeId: gotoTarget, type: "goto" },
-        next: null,
-        parentKey
-      };
-      if (parentScopeId !== null) tmpl2.parent = parentScopeId;
-      templates.push(withStepDisabled(n, tmpl2, ctx));
-      return;
-    }
-    if (n.kind === "split") {
-      const pathIds = n.paths.map(() => ctx.idGen());
-      const weighted = n.mode === "weighted" || n.mode === "random";
-      const even = Math.round(100 / n.paths.length);
-      const weightDistribution = {};
-      n.paths.forEach((p, pi) => {
-        weightDistribution[pathIds[pi]] = weighted ? p.weight ?? even : even;
-      });
-      const container = {
-        id,
-        type: "workflow_split",
-        name: n.name ?? "Split",
-        order: i,
-        parentKey,
-        cat: "multi-path",
-        next: pathIds,
-        attributes: {
-          name: n.name ?? "Split",
-          cat: "multi-path",
-          type: "workflow_split",
-          transitions: n.paths.map((p, pi) => ({
-            id: pathIds[pi],
-            name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
-            condition: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
-            conditionType: "default",
-            isPrimaryBranch: false,
-            description: "",
-            attributes: {}
-          })),
-          paths: n.paths.map((p, pi) => ({ name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`, id: pathIds[pi] })),
-          condition: n.condition ?? "random-split",
-          extras: { weightDistribution }
-        }
-      };
-      if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container, ctx));
-      n.paths.forEach((p, pi) => {
-        const child = flattenGraph(p.then ?? [], ctx, refMap, pathIds[pi]);
-        templates.push({
-          id: pathIds[pi],
-          type: "transition",
-          name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
-          cat: "transition",
-          parentKey: id,
-          parent: id,
-          order: pi,
-          attributes: {},
-          next: child.entryId
-        });
-        templates.push(...child.templates);
-      });
-      return;
-    }
-    if ((n.type === "find_contact" || n.type === "lc_merge_contact") && (n.onFound || n.onNotFound)) {
-      const t1 = ctx.idGen(), t2 = ctx.idGen();
-      const isFC = n.type === "find_contact";
-      const container = {
-        id,
-        type: n.type,
-        name: n.name ?? (isFC ? "Find Contact" : "Merge Contact"),
-        order: i,
-        parentKey,
-        cat: "multi-path",
-        next: [t1, t2],
-        attributes: isFC ? {
-          type: "find_contact",
-          fields: n.find?.fields ?? [],
-          convertToMultipath: true,
-          name: n.name ?? "Find Contact",
-          cat: "multi-path",
-          isHybridAction: true,
-          hybridActionType: "find_contact",
-          transitions: [
-            { id: t1, name: "Contact Found", condition: "contact_found", conditionType: "user-defined", isPrimaryBranch: true, description: "", attributes: { type: "contact_found", description: "Contact Found", cat: "multi-path" } },
-            { id: t2, name: "Contact Not Found", condition: "contact_not_found", conditionType: "user-defined", isPrimaryBranch: false, description: "", attributes: { type: "contact_not_found", description: "Contact Not Found" } }
-          ]
-        } : {
-          match_by: n.match_by ?? "email",
-          type: "lc_merge_contact",
-          __customInputs__: {},
-          cat: "multi-path",
-          convertToMultipath: true,
-          transitions: [
-            { id: t1, name: "Duplicate Contact Found", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
-            { id: t2, name: "Duplicate Contact Not Found", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" }
-          ],
-          __name__: n.name ?? `Merge Contact by ${n.match_by ?? "email"}`
-        }
-      };
-      if (!isFC) container.workflowsActionType = "INTERNAL";
-      if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container, ctx));
-      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
-      templates.push({ id: t1, type: "transition", name: container.attributes.transitions[0].name, cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
-      templates.push(...found.templates);
-      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
-      templates.push({ id: t2, type: "transition", name: container.attributes.transitions[1].name, cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, next: notf.entryId });
-      templates.push(...notf.templates);
-      return;
-    }
-    if (n.kind === "ai_decision") {
-      const type = n.type ?? "workflow_ai_decision_maker";
-      const defId = ctx.idGen();
-      const branchIds = n.branches.map(() => ctx.idGen());
-      const transitions = [
-        { id: defId, name: "Default Branch", fields: { description: "Go in this branch if none of the other branches make sense.", branchKey: "none" }, meta: { __branchKey__: "predefined_Default Branch" }, conditionType: "pre-defined" },
-        ...n.branches.map((b, bi) => ({
-          id: branchIds[bi],
-          name: b.name,
-          fields: { description: b.description ?? "", branchKey: b.branchKey ?? `branch_${bi}` },
-          meta: { __branchKey__: ctx.idGen() },
-          conditionType: "user-defined"
-        }))
-      ];
-      const container = {
-        id,
-        type,
-        name: n.name ?? "Workflow AI - Decision Maker",
-        order: i,
-        parentKey,
-        cat: "multi-path",
-        workflowsActionType: "INTERNAL",
-        next: [defId, ...branchIds],
-        attributes: {
-          instructions: n.instructions ?? "",
-          information: n.information ?? "",
-          type,
-          __customInputs__: {},
-          cat: "multi-path",
-          convertToMultipath: true,
-          transitions,
-          __name__: n.name ?? "Workflow AI - Decision Maker"
-        }
-      };
-      if (parentScopeId !== null) container.parent = parentScopeId;
-      templates.push(withStepDisabled(n, container, ctx));
-      const def = flattenGraph(n.default ?? [], ctx, refMap, defId);
-      templates.push({ id: defId, type: "transition", name: "Default Branch", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: def.entryId });
-      templates.push(...def.templates);
-      n.branches.forEach((b, bi) => {
-        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
-        templates.push({ id: branchIds[bi], type: "transition", name: b.name, cat: "transition", parentKey: id, parent: id, order: bi + 1, attributes: {}, next: child.entryId });
-        templates.push(...child.templates);
-      });
-      return;
-    }
-    const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
-    if (n.marketplace === true) tmpl.isMarketplaceAction = true;
-    if (parentScopeId !== null) tmpl.parent = parentScopeId;
-    templates.push(withStepDisabled(n, tmpl, ctx));
-  });
-  for (const t of templates) if (t.parentKey === null) delete t.parentKey;
-  return { templates, entryId: ids[0] ?? null };
-}
-function casingLint({ triggerBodies, autoSaveBody }) {
-  for (const tb of triggerBodies ?? []) {
-    if ("workflow_id" in tb) throw new IRError("CASING", "trigger root must use camelCase workflowId, not workflow_id");
-    if (!("workflowId" in tb)) throw new IRError("CASING", "trigger missing camelCase workflowId");
-    for (const k of ["location_id", "company_id"]) if (!(k in tb)) throw new IRError("CASING", `trigger missing snake ${k}`);
-  }
-  if (autoSaveBody && ("location_id" in autoSaveBody || "company_id" in autoSaveBody))
-    throw new IRError("CASING", "workflow body must use camelCase locationId/companyId");
-}
-var MARKETPLACE_OPERATORS = /* @__PURE__ */ new Set(["string-contains-any-of", "is-not-empty"]);
-function checkMarketplaceFilters(triggers, ctx) {
-  const values = [];
-  for (const t of triggers) {
-    if (t.marketplace !== true) continue;
-    for (const f of t.filters ?? []) {
-      if (!f.operator)
-        throw new IRError(
-          "MARKETPLACE_FILTER_OPERATOR",
-          `trigger '${t.name ?? t.type}' filters '${f.field}' with no operator. A marketplace filter requires one \u2014 GHL's marketplace filter component offers only ${[...MARKETPLACE_OPERATORS].join(" and ")}. A condition saved without an operator saves clean and never matches.`
-        );
-      if (!MARKETPLACE_OPERATORS.has(f.operator))
-        throw new IRError(
-          "MARKETPLACE_FILTER_OPERATOR",
-          `trigger '${t.name ?? t.type}' filters '${f.field}' with operator '${f.operator}', which GHL's marketplace filter component does not offer. The only operators are ${[...MARKETPLACE_OPERATORS].join(" and ")}. An unsupported operator saves and never matches.`
-        );
-      for (const v of [].concat(f.value ?? [])) if (typeof v === "string" && v) values.push(v);
-    }
-  }
-  for (const a of values) {
-    for (const b of values) {
-      if (a !== b && b.includes(a))
-        ctx?.warn?.(`marketplace trigger filter values overlap: '${a}' is a substring of '${b}'. Marketplace filters match by substring only, so anything matching '${b}' also fires '${a}'.`);
-    }
-  }
-}
-var ARRAY_OPS = /* @__PURE__ */ new Set([
-  "is-any-of",
-  "is-in-array",
-  "contains-any",
-  "contains-none",
-  "string-contains-any-of",
-  "string-matches-any-of"
-]);
-var SCALAR_OPS = /* @__PURE__ */ new Set(["index-of-true", "index-of-false"]);
-function defaultOp(type) {
-  if (type === "number" || type === "date") return "==";
-  if (type === "string" || type === "input") return "is-any-of";
-  return "==";
-}
-function expandFilter(f, rows) {
-  if (f.field && f.operator && f.title && f.type) {
-    return SCALAR_OPS.has(f.operator) && Array.isArray(f.value) && f.value.length === 1 ? { ...f, value: f.value[0] } : f;
-  }
-  const key = f.on ?? f.field ?? f.id;
-  const norm2 = (s) => String(s ?? "").toLowerCase().replace(/[\s_-]+/g, "");
-  const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm2(r.label) === norm2(key) || norm2(r.value) === norm2(key));
-  if (!row) return f;
-  const type = f.type ?? row.type ?? "select";
-  let operator = f.operator ?? row.operator ?? defaultOp(type);
-  let value = f.value;
-  if (Array.isArray(value) && operator === "==") operator = "is-any-of";
-  if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
-  if (SCALAR_OPS.has(operator) && Array.isArray(value)) {
-    if (value.length > 1) {
-      throw new IRError(
-        "FILTER_VALUE",
-        `trigger filter '${row.value}' (${operator}) takes a single tag, got ${value.length}; use one filter row per tag`
-      );
-    }
-    value = value[0];
-  }
-  const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
-  if (row.id) cond.id = row.id;
-  return cond;
-}
-function buildTrigger(t, ctx, wid) {
-  const meta3 = ctx.catalog.trigger(t.type);
-  const rows = meta3?.filterRows ?? [];
-  let conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
-  if (ctx?.skipTriggerSeeds !== true) {
-    const seedRows = (ctx?.catalog?.trigger?.(t.type)?.seededFilters?.rows ?? []).filter((r) => r.verdict === "seed-confirmed" && r.seedRow?.field);
-    for (const r of seedRows.reverse()) {
-      if (conditions.some((c) => c?.field === r.seedRow.field)) continue;
-      const { field, operator, type, title, value } = r.seedRow;
-      conditions.unshift({ operator, field, ...value !== null && value !== void 0 ? { value } : {}, ...title ? { title } : {}, ...type ? { type } : {} });
-    }
-  }
-  let marketplaceFields = {};
-  if (t.marketplace === true) {
-    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
-    marketplaceFields = { version: entry.version, templateId: entry.templateId };
-    conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
-  }
-  for (const r of meta3?.filterChecks?.shapeRules ?? []) {
-    const row = conditions.find((c) => c.field === r.field);
-    const empty2 = !row || row.value == null || row.value === "" || Array.isArray(row.value) && !row.value.length;
-    const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` \u2014 GHL: "${ctx.catalog.i18n[r.i18n]}"` : "";
-    if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}${ghlText}`);
-  }
-  return {
-    status: "draft",
-    workflowId: wid,
-    schedule_config: {},
-    conditions,
-    type: t.type,
-    masterType: t.marketplace === true ? "marketplace" : t.masterType ?? meta3?.masterType ?? "highlevel",
-    ...marketplaceFields,
-    name: t.name,
-    actions: [{ workflow_id: wid, type: "add_to_workflow" }],
-    // Marketplace triggers carry their schema flavour on the stored document. The builder
-    // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
-    // it wherever the catalog records one — and never invent it where it does not.
-    ...meta3?.workflowsTriggerType ? { workflowsTriggerType: meta3.workflowsTriggerType } : {},
-    active: t.active !== false,
-    triggersChanged: true,
-    location_id: ctx.loc,
-    company_id: ctx.cid,
-    company_age: ctx.companyAge,
-    // conv_ai_trigger binds a FLOW_BUILDER_BOT flow workflow to its agent — without
-    // convTriggerBotId the flow builder never opens the workflow as that agent's canvas
-    // (the agent→workflow half is set separately via the /ai-employees link PUT).
-    ...t.convTriggerBotId ? { convTriggerBotId: t.convTriggerBotId } : {}
-  };
-}
-function compile(ir, ctx) {
-  const norm2 = parseIR(ir);
-  checkMarketplaceFilters(norm2.triggers, ctx);
-  const oppTriggerTypes = new Set(
-    ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === "opportunities")
-  );
-  checkOpportunityAssociation(norm2, oppTriggerTypes);
-  const refMap = /* @__PURE__ */ new Map();
-  const visited = /* @__PURE__ */ new Set();
-  const { templates } = flattenGraph(norm2.graph, { ...ctx, __visited: visited }, refMap, null);
-  const missing = [];
-  let authored = 0;
-  walkNodes(norm2.graph, (n) => {
-    authored += 1;
-    if (!visited.has(n)) missing.push(n.ref ?? `<${n.type ?? n.kind} "${n.name ?? "?"}">`);
-  });
-  if (missing.length)
-    throw new IRError(
-      "NODE_DROPPED",
-      `${missing.length} authored node(s) never reached the built payload: ${missing.join(", ")}. They were silently discarded \u2014 without this check the build would have reported a clean round-trip for an incomplete workflow. Usually this means a node carries a child scope (onFound/onEvent/\u2026) that its type has no container handler for.`
-    );
-  if (!ctx.allowUnknownStepTypes) {
-    const unknown2 = [...new Set(templates.filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type)).map((t) => t.type))];
-    if (unknown2.length) {
-      const known = ctx.catalog.allSteps();
-      const near = (bad) => known.filter((k) => k.includes(bad) || bad.includes(k)).slice(0, 3);
-      throw new Error(`STEP_TYPE_UNKNOWN: ${unknown2.map((u) => {
-        const suggestions = near(u);
-        return `'${u}'${suggestions.length ? ` \u2014 did you mean ${suggestions.map((s) => `'${s}'`).join(" / ")}?` : ""}`;
-      }).join("; ")}. These types are not in the catalog, so the builder will not recognise them: the step saves, renders without its action icon, and its editor will not open. Search the catalog (node scripts/query-catalog-cli.mjs <term>) for the real slug. If you have verified the type IS real and the catalog is behind, harvest an example and pass allowUnknownStepTypes to override this guard deliberately.`);
-    }
-  }
-  let stepIndex = 0;
-  const marketplaceStepIndexCounter2 = /* @__PURE__ */ new Map();
-  for (const t of templates) {
-    const meta3 = ctx.catalog.step(t.type);
-    if (meta3 && meta3.situational?.includes("workflowsActionType") && !("workflowsActionType" in t))
-      t.workflowsActionType = "INTERNAL";
-    if (meta3?.premium && !("stepIndex" in t)) t.stepIndex = stepIndex;
-    if (t.isMarketplaceAction === true && !("stepIndex" in t)) {
-      const next = (marketplaceStepIndexCounter2.get(t.type) ?? 0) + 1;
-      marketplaceStepIndexCounter2.set(t.type, next);
-      t.stepIndex = next;
-    }
-    stepIndex += 1;
-  }
-  const wid = ctx.idGen();
-  const sessionId = ctx.idGen();
-  const createdSteps = templates.map((t) => t.id);
-  const S = normalizeSettings(norm2.settings, ctx).body;
-  const createBody = {
-    name: norm2.name,
-    status: "draft",
-    parentId: null,
-    updatedBy: ctx.uid,
-    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
-    modifiedSteps: [],
-    deletedSteps: [],
-    createdSteps: [],
-    senderAddress: S.senderAddress,
-    stopOnResponse: S.stopOnResponse,
-    allowMultiple: S.allowMultiple,
-    allowMultipleOpportunity: S.allowMultipleOpportunity,
-    autoMarkAsRead: S.autoMarkAsRead,
-    eventStartDate: S.eventStartDate,
-    timezone: "",
-    workflowData: { templates: [] },
-    triggersChanged: false,
-    company_id: ctx.cid,
-    company_age: ctx.companyAge
-  };
-  const autoSaveBody = {
-    _id: wid,
-    id: wid,
-    locationId: ctx.loc,
-    companyId: ctx.cid,
-    companyAge: ctx.companyAge,
-    name: norm2.name,
-    status: "draft",
-    version: 1,
-    dataVersion: 7,
-    type: "workflow",
-    parentId: null,
-    // A FLOW_BUILDER_BOT's flow workflow persists with workflowType:"agent" (live capture
-    // recon-flow-workflow-full.json). Plain workflows omit it. type stays "workflow".
-    ...norm2.workflowType ? { workflowType: norm2.workflowType } : {},
-    // OBJECT-BASED workflow (G8): the create/save carry the schema key top-level
-    // (utils/create-workflow-blank.ts; isObjectBasedWF tests startsWith('custom_objects.')).
-    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
-    permission: 380,
-    permissionMeta: { canRead: true, canWrite: true },
-    creationSource: "builder",
-    originType: "user",
-    isTriggerBucketMigrated: true,
-    deleted: false,
-    timezone: S.timezone,
-    allowMultiple: S.allowMultiple,
-    allowMultipleOpportunity: S.allowMultipleOpportunity,
-    removeContactFromLastStep: S.removeContactFromLastStep,
-    stopOnResponse: S.stopOnResponse,
-    autoMarkAsRead: S.autoMarkAsRead,
-    scheduledPauseDates: S.scheduledPauseDates,
-    senderAddress: S.senderAddress,
-    eventStartDate: S.eventStartDate,
-    updatedBy: ctx.uid,
-    // Settings-tab keys the engine never carried before 2026-08-22 (live-proven on the UI's
-    // own Save PUT): the time window and the workflow note. null = the UI's "off"/"empty".
-    window: S.window,
-    workflowNote: S.workflowNote,
-    triggersChanged: false,
-    isAutoSave: true,
-    autoSaveSession: { workflowId: wid, id: sessionId, userId: ctx.uid, version: 1 },
-    createdSteps,
-    modifiedSteps: [],
-    deletedSteps: [],
-    workflowData: { templates },
-    // Only present when the workflow actually HAS marketplace steps — a native-only
-    // build must emit exactly the autoSaveBody it emitted before this fix, with no new
-    // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
-    // above for what this map records and why it's per-key.
-    ...marketplaceStepIndexCounter2.size > 0 || S.statsView ? { meta: { ...marketplaceStepIndexCounter2.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
-  };
-  const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
-  applyUiDefaults(templates, ctx?.catalog, ctx);
-  if (typeof ctx?.warn === "function") {
-    for (const t of templates) {
-      if (t?.type !== "custom_code") continue;
-      const out = t.attributes?.output;
-      if (!out || typeof out !== "object" || Array.isArray(out) || !Object.keys(out).length)
-        ctx.warn(`custom_code '${t.name ?? t.id}': attributes.output is ${out === void 0 ? "missing" : "empty"} \u2014 the builder requires a successful "Run test" (POST /custom-code/run-test) and will show an error on this step until one is run in the UI`);
-    }
-  }
-  checkIfElseVocab(templates, ctx?.catalog, ctx);
-  checkMergeTags(templates, ctx?.catalog, ctx);
-  checkStepOutputRefs(templates, ctx);
-  checkGoghlSyntax(templates, ctx);
-  checkWebhookRefs(templates, ctx?.sampleWebhookPayload ?? norm2?.sampleWebhookPayload ?? ir?.sampleWebhookPayload, ctx);
-  if (norm2.customObjectType && ctx?.skipObjectRules !== true) {
-    const OBJECT_ALLOWED = /* @__PURE__ */ new Set([
-      "if_else",
-      "email",
-      "wait",
-      "update_custom_value",
-      "goto",
-      "datetime_formatter",
-      "number_formatter",
-      "text_formatter",
-      "math_operation",
-      "custom_code",
-      "add_to_workflow",
-      "remove_from_workflow",
-      "remove_from_all_workflows",
-      "array_functions",
-      "drip",
-      "add_notes",
-      "transition"
-    ]);
-    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
-    if (bad.length)
-      throw new IRError(
-        "OBJECT_STEP",
-        `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm2.customObjectType}): ` + bad.map((t) => `'${t.name ?? t.id}' (${t.type})`).join(", ") + `. The builder's picker offers only: ${[...OBJECT_ALLOWED].filter((x) => x !== "transition").join(", ")}. Remove them, target a contact workflow instead, or pass skipObjectRules: true.`
-      );
-    for (const tb of []) void tb;
-  }
-  enforceTemplates(templates, ctx?.catalog, ctx);
-  checkStepRefs(templates, IRError);
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
-  casingLint(result);
-  return result;
-}
-
-// ../skills/create-ghl-workflow/engine/preflight.mjs
-init_define_TOOL_CATALOG();
-var SMS_TYPES = /* @__PURE__ */ new Set(["sms", "manual-sms"]);
-var IG_TYPES = /* @__PURE__ */ new Set(["instagram-dm", "ig_interactive_messenger"]);
-var IG_TRIGGERS = /* @__PURE__ */ new Set(["ig_comment_on_post", "ig_follower_added"]);
-var FB_TYPES = /* @__PURE__ */ new Set(["messenger", "fb_interactive_messenger"]);
-var FB_TRIGGERS = /* @__PURE__ */ new Set(["facebook_comment_on_post", "facebook_lead_gen"]);
-var isWhatsApp = (t) => /whatsapp/i.test(t ?? "");
-function planReadinessChecks({ templates = [], triggerTypes = [], settings = {}, catalog = null } = {}) {
-  const plan = /* @__PURE__ */ new Map();
-  const need = (key, why) => {
-    const e = plan.get(key) ?? { key, why: [] };
-    if (!e.why.includes(why)) e.why.push(why);
-    plan.set(key, e);
-  };
-  for (const t of templates) {
-    const ty = t?.type;
-    if (!ty) continue;
-    if (SMS_TYPES.has(ty)) need("sms_number", `step '${t.name ?? t.id}' (${ty})`);
-    if (isWhatsApp(ty)) need("whatsapp", `step '${t.name ?? t.id}' (${ty})`);
-    if (IG_TYPES.has(ty)) need("instagram", `step '${t.name ?? t.id}' (${ty})`);
-    if (FB_TYPES.has(ty)) need("facebook", `step '${t.name ?? t.id}' (${ty})`);
-    if (ty === "email") need("email_provider", `step '${t.name ?? t.id}' (email)`);
-    const entry = catalog?.steps?.[ty] ?? (typeof catalog?.step === "function" ? catalog.step(ty) : null);
-    if (entry?.gate) need("gated_type", `step '${t.name ?? t.id}' (${ty} is availability-gated: ${entry.gate.kind ?? "allowlist"})`);
-    if (entry?.premium) need("premium", `${ty}`);
-  }
-  for (const ty of triggerTypes) {
-    if (IG_TRIGGERS.has(ty)) need("instagram", `trigger ${ty}`);
-    if (FB_TRIGGERS.has(ty)) need("facebook", `trigger ${ty}`);
-  }
-  if (settings?.senderAddress?.from_number) need("sms_number", "settings.senderAddress.from_number");
-  if (settings?.senderAddress?.from_email) need("email_provider", "settings.senderAddress.from_email");
-  return [...plan.values()];
-}
-async function runReadinessChecks(plan, { call, loc }) {
-  const g = async (p) => {
-    try {
-      const r = await call("GET", p);
-      return r?.ok ? r.json : null;
-    } catch {
-      return null;
-    }
-  };
-  const lq = new URLSearchParams({ locationId: String(loc) });
-  const lp = encodeURIComponent(String(loc));
-  const out = [];
-  for (const { key, why } of plan) {
-    if (key === "sms_number") {
-      const j = await g(`/phone-system/numbers?${lq}`);
-      const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
-      out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} number(s): ${nums.map((n) => n.title ?? n.value).join(", ")}` : "NO SMS number provisioned on this location \u2014 SMS steps will not send" });
-    } else if (key === "whatsapp") {
-      const j = await g(`/phone-system/whatsapp/location/${lp}/phone-numbers`);
-      const nums = Array.isArray(j) ? j : Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
-      const verified = nums.filter((n) => n.codeVerificationStatus === "VERIFIED");
-      out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} WhatsApp number(s); verification: ${nums.map((n) => `${n.displayPhoneNumber ?? "?"}=${n.codeVerificationStatus ?? "?"}`).join(", ")}${verified.length ? "" : " \u2014 none VERIFIED yet"}` : "no WhatsApp number connected" });
-    } else if (key === "instagram") {
-      const j = await g(`/workflow/${lp}/instagram/connected-accounts?unique=true`);
-      const pages = Array.isArray(j?.pages) ? j.pages : [];
-      out.push({ key, why, checked: j != null, ok: pages.length > 0, detail: pages.length ? `${pages.length} connected IG account(s)` : "no Instagram account connected \u2014 IG steps/triggers will not fire" });
-    } else if (key === "email_provider") {
-      const j = await g(`/workflow/${lp}/email/location-email-provider`);
-      const w = j?.warmupInfo ?? j?.provider?.warmupInfo ?? null;
-      out.push({ key, why, checked: j != null, ok: j != null, detail: j ? `provider ${j.type ?? "?"}${j.provider?.domain ? ` (${j.provider.domain})` : ""}${w ? `; warmup ${w.warmupStatus ?? "?"} (stage ${w.warmupStage ?? "?"}, ${w.warmupMode ?? "?"})` : ""}` : "email provider config not readable" });
-    } else if (key === "gated_type") {
-      out.push({ key, why, checked: false, ok: null, detail: "this type is availability-gated per location (e.g. loop allowlist) \u2014 the build may save but the type can be non-functional here; the gate list is not readable from this rail" });
-    } else if (key === "premium") {
-      out.push({ key, why: [`premium step type(s): ${why.join(", ")}`], checked: false, ok: null, detail: "premium (credit-billed) steps \u2014 wallet/rebilling state is the SaaS plane and not verifiable from this rail; confirm credits or rebilling are enabled for this location" });
-    } else if (key === "facebook") {
-      out.push({ key, why, checked: false, ok: null, detail: "Facebook page linkage has no discovery route on this rail \u2014 verify the page connection in Integrations before relying on FB steps/triggers" });
-    } else {
-      out.push({ key, why, checked: false, ok: null, detail: "no signal known for this check" });
-    }
-  }
-  return out;
-}
-
-// ../skills/create-ghl-workflow/engine/sticky-notes.mjs
-init_define_TOOL_CATALOG();
-var STICKY_COLORS = ["yellow", "blue", "green", "orange", "cyan", "gray", "teal", "purple", "fuchsia", "rose"];
-var STICKY_DEFAULTS = Object.freeze({ color: "yellow", width: 400, height: 400, x: 320, y: 180 });
-var STICKY_MIN = Object.freeze({ width: 150, height: 80 });
-var STICKY_MAX_CONTENT = 5e3;
-var NOTE_KEYS2 = /* @__PURE__ */ new Set(["content", "color", "x", "y", "width", "height", "positionX", "positionY", "ref"]);
-var escapeHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-var looksLikeHtml = (t) => /^\s*<[a-z!]/i.test(t);
-function normalizeStickyNote(note, { partial: partial2 = false, skipStickyCheck = false } = {}) {
-  const refuse = (msg) => {
-    if (!skipStickyCheck) throw new IRError("STICKY_NOTE", msg);
-  };
-  if (!note || typeof note !== "object" || Array.isArray(note)) {
-    refuse(`a sticky note must be an object {content, color?, x?, y?, width?, height?}`);
-    return {};
-  }
-  const unknown2 = Object.keys(note).filter((k) => !NOTE_KEYS2.has(k));
-  if (unknown2.length) refuse(`sticky note has unknown key(s) [${unknown2.join(", ")}] \u2014 known: content, color, x, y, width, height`);
-  const out = {};
-  if (note.content !== void 0 || !partial2) {
-    if (typeof note.content !== "string") refuse(`sticky note 'content' must be a string (plain text is wrapped in <p>\u2026</p>; HTML is kept as-is)`);
-    const raw = typeof note.content === "string" ? note.content : "";
-    out.content = raw === "" ? "" : looksLikeHtml(raw) ? raw : `<p>${escapeHtml(raw)}</p>`;
-    if (out.content.length > STICKY_MAX_CONTENT) refuse(`sticky note content is ${out.content.length} chars; the editor caps it at ${STICKY_MAX_CONTENT}`);
-  }
-  if (note.color !== void 0 || !partial2) {
-    const c = note.color ?? STICKY_DEFAULTS.color;
-    if (!STICKY_COLORS.includes(c)) refuse(`sticky note color '${c}' is not one of the 10 swatches: ${STICKY_COLORS.join(", ")}`);
-    out.color = STICKY_COLORS.includes(c) ? c : STICKY_DEFAULTS.color;
-  }
-  const num = (k, def, min) => {
-    const v = note[k] ?? (k === "x" ? note.positionX : k === "y" ? note.positionY : void 0);
-    if (v === void 0) return partial2 ? void 0 : def;
-    if (!Number.isFinite(v)) {
-      refuse(`sticky note '${k}' must be a number (got ${JSON.stringify(v)})`);
-      return def;
-    }
-    if (min !== void 0 && v < min) refuse(`sticky note '${k}' ${v} is below the UI minimum ${min}`);
-    return Math.round(v);
-  };
-  const x = num("x", STICKY_DEFAULTS.x), y = num("y", STICKY_DEFAULTS.y);
-  const width = num("width", STICKY_DEFAULTS.width, STICKY_MIN.width), height = num("height", STICKY_DEFAULTS.height, STICKY_MIN.height);
-  if (x !== void 0) out.positionX = x;
-  if (y !== void 0) out.positionY = y;
-  if (width !== void 0) out.width = width;
-  if (height !== void 0) out.height = height;
-  return out;
-}
-function planStickyNotes(notes, { loc, wid, skipStickyCheck } = {}) {
-  if (notes === void 0 || notes === null) return [];
-  if (!Array.isArray(notes)) throw new IRError("STICKY_NOTE", `stickyNotes must be an array of {content, color?, x?, y?, width?, height?}`);
-  return notes.map((n, i) => {
-    const body = normalizeStickyNote({ ...n, x: n?.x ?? n?.positionX ?? STICKY_DEFAULTS.x + i * 40, y: n?.y ?? n?.positionY ?? STICKY_DEFAULTS.y + i * 40 }, { skipStickyCheck });
-    return { method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc }, ref: n?.ref ?? null };
-  });
-}
-function planStickyNoteOp(op, { loc, wid, skipStickyCheck } = {}) {
-  if (op.op === "addStickyNote") {
-    const body = normalizeStickyNote(op.note, { skipStickyCheck });
-    return { op: op.op, method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc } };
-  }
-  if (op.op === "updateStickyNote") {
-    if (!op.noteId || typeof op.noteId !== "string") throw new IRError("STICKY_NOTE", `updateStickyNote needs 'noteId' (the note's _id from export_workflow / sticky-notes-all)`);
-    const body = normalizeStickyNote(op.note ?? {}, { partial: true, skipStickyCheck });
-    if (!Object.keys(body).length) throw new IRError("STICKY_NOTE", `updateStickyNote: 'note' carries nothing to change (content, color, x, y, width, height)`);
-    return { op: op.op, method: "PATCH", path: `/workflows/sticky-note?${new URLSearchParams({ _id: op.noteId, locationId: loc })}`, body };
-  }
-  throw new IRError("STICKY_NOTE", `unknown sticky-note op ${JSON.stringify(op.op)}`);
-}
-var STICKY_OPS = /* @__PURE__ */ new Set(["addStickyNote", "updateStickyNote"]);
-
-// ../skills/create-ghl-workflow/engine/idgen.mjs
-init_define_TOOL_CATALOG();
-import { createHash as createHash3, randomUUID } from "node:crypto";
-function makeUuidV4() {
-  return randomUUID();
-}
-function makeDeterministicIdGen(seed) {
-  let n = 0;
-  return () => {
-    n += 1;
-    const bytes = createHash3("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
-    bytes[6] = bytes[6] & 15 | 64;
-    bytes[8] = bytes[8] & 63 | 128;
-    const hex3 = bytes.toString("hex");
-    return `${hex3.slice(0, 8)}-${hex3.slice(8, 12)}-${hex3.slice(12, 16)}-${hex3.slice(16, 20)}-${hex3.slice(20)}`;
-  };
-}
-
-// ../skills/create-ghl-workflow/engine/catalog.mjs
-init_define_TOOL_CATALOG();
 
 // ../skills/create-ghl-workflow/engine/catalog.data.json
 var catalog_data_default = {
@@ -100426,7 +98205,2293 @@ Rules to Follow:
   }
 };
 
+// ../skills/create-ghl-workflow/engine/required-fields.mjs
+var ILLEGAL_SMS_WORDS = catalog_data_default?.workflowRules?.vocab?.illegalWordsSms ?? [];
+var CATALOG_CORRECTIONS = {
+  // 🔴 The generated keys for this node are WRONG. Authoring the documented
+  // `reactivate: false` was accepted, persisted as an unknown key, and left the
+  // actually-required `sleepEnabled` unset — so the node kept its error badge. The shape
+  // below was captured verbatim by filling the node in the builder, clicking Save action
+  // then Save workflow, and exporting. Promoted to verified-live on that capture, which
+  // also switches on the ATTR_KEY guard (it only fires on verified-live types) so an
+  // invented key can no longer pass through here.
+  conversationai_end: {
+    reason: "documented keys customMessage/reactivate/duration are wrong; committed capture is {message, sleepEnabled, sleepDuration, sleepUnit} (2026-07-25 AU)",
+    confidence: "verified-live",
+    attrKeys: ["message", "sleepEnabled", "sleepDuration", "sleepUnit", "type", "__customInputs__"],
+    example: "research/ai-agents-internal/flow-builder-required-fields.md",
+    note: 'committed shape captured 2026-07-25 on AU. UI label -> key: End custom message = message, Reactivate After bot (REQUIRED) = sleepEnabled, Reactivate After value = sleepDuration, unit = sleepUnit ("hours").'
+  },
+  // Committed capture is `{}` — no fields at all, and the node renders clean. The
+  // generated `prompt` key came from a recon read of the panel and does not persist;
+  // the marketplace schema confirms this node has no `prompt`. It DOES have an optional
+  // `instructions` — absent from the capture only because nothing was authored, which is
+  // not evidence the key does not exist.
+  conversationai_continue: {
+    reason: "the recon-derived `prompt` key does not persist; the real optional field is `instructions`",
+    confidence: "verified-live",
+    attrKeys: ["instructions", "type", "__customInputs__"],
+    example: "research/ai-agents-internal/flow-builder-required-fields.md",
+    note: "committed shape captured 2026-07-25 on AU is {} (nothing required). `instructions` is an optional textarea per reference/steps/marketplace/conversation-ai.md."
+  },
+  // 🔴 The recon panel-read named these `services` / `description`. The assets-endpoint
+  // schema gives the real keys, and the OPTIONS ENDPOINT corroborates the first one — it
+  // returns `{"conversationai_services": []}`, i.e. the option key IS the attribute key
+  // (the same holds for objective's `contactField`). The live findings doc inferred
+  // `services`/`description` from UI LABELS only; services_booking was omitted from the
+  // rebuild because AU has no commerce services, so there is no committed capture to
+  // settle it. Whoever first runs this on an account WITH commerce services should
+  // capture the committed shape and promote this to verified-live.
+  conversationai_services_booking: {
+    reason: "recon named these services/description; the assets schema + options endpoint say conversationai_services / conversationai_booking_description",
+    attrKeys: ["conversationai_services", "conversationai_booking_description", "type", "__customInputs__"],
+    note: "NO committed capture \u2014 keys come from the marketplace assets schema, with `conversationai_services` corroborated by the options-endpoint response key. Unusable on an account with no commerce services."
+  },
+  // Committed capture is {assignedEmployeeId} only — the documented `prompt` did NOT
+  // persist. Dropping it from attrKeys turns a silent drop into an ATTR_KEY error.
+  conversationai_transfer_bot: {
+    reason: "the documented `prompt` key did not persist in the committed capture (2026-07-25 AU)",
+    attrKeys: ["assignedEmployeeId", "type", "__customInputs__"],
+    note: "committed shape captured 2026-07-25 on AU: assignedEmployeeId only. Bot ids come from GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}."
+  }
+};
+var suppliedPresence = (attrs, key) => key in attrs && attrs[key] !== void 0;
+var suppliedNonEmpty = (attrs, key) => {
+  const v = attrs[key];
+  if (v === void 0 || v === null) return false;
+  if (typeof v === "string") return v.trim() !== "";
+  if (Array.isArray(v)) return v.length > 0;
+  return true;
+};
+var REQUIRED_FIELDS = {
+  conversationai_continue: { fields: {} },
+  // attested clean: nothing required
+  // `objective` is the node's entire purpose and the schema marks it required. The live
+  // probe authored it, which is why no builder error was ever seen for it.
+  conversationai_objective: {
+    fields: {
+      objective: { label: "Objective", hint: "Author attributes.objective \u2014 the prompt describing what to find out." }
+    }
+  },
+  conversationai_ai_message: {
+    fields: {
+      // Required per the schema. Never surfaced as a builder error live because the probe
+      // always supplied it — absence of an observed error is not evidence of optionality.
+      message: { label: "Message prompt", hint: "Author attributes.message \u2014 the prompt the bot generates from." },
+      waitForReply: {
+        label: "Wait for contact reply",
+        presence: true,
+        // The schema's own default, matching the captured step-examples.
+        default: () => true
+      }
+    }
+  },
+  conversationai_custom_message: {
+    fields: {
+      message: { label: "Message", hint: "Author attributes.message \u2014 the literal message to send." },
+      waitForReply: { label: "Wait for contact reply", presence: true, default: () => true }
+    }
+  },
+  conversationai_ai_splitter: {
+    fields: {
+      description: {
+        label: "Description",
+        // The LLM routes on this text, so the node name is a meaningful fallback — but an
+        // unnamed splitter has nothing to fall back TO, and an empty description is what
+        // the builder rejects. Defaulting to '' would just re-create the defect.
+        default: (node) => node.name,
+        hint: "This is the text the LLM routes on. Author attributes.description, or give the node a `name` to derive it from."
+      }
+    }
+  },
+  conversationai_book_appointment: {
+    fields: {
+      calendarId: {
+        label: "Select Calendar",
+        hint: "A real calendar id is required and cannot be defaulted. List them with the calendars read tool, then author attributes.calendarId."
+      }
+    }
+  },
+  conversationai_transfer_bot: {
+    fields: {
+      assignedEmployeeId: {
+        label: "Select Bot to Transfer to",
+        hint: 'A real bot id is required and cannot be defaulted. List them with GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC} (the response also carries a {value:"keep-same"} sentinel), then author attributes.assignedEmployeeId.'
+      }
+    }
+  },
+  conversationai_services_booking: {
+    // 🔴 Unusable on a fresh account: the options endpoint returns
+    // {"conversationai_services": []} on AU, so there is no id that could satisfy
+    // `services` and the node can NEVER go clean. Treat as opt-in per client.
+    precondition: 'This node requires a configured commerce service. On AU the options endpoint returned {"conversationai_services": []}, meaning no service exists to select and the node can never be satisfied. Confirm the account has commerce services before using it: GET backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_services_booking?optionType=default&workflowId={WID}&locationId={LOC} (locationId is REQUIRED or it 400s).',
+    fields: {
+      conversationai_services: {
+        label: "Select Services",
+        hint: "Requires configured commerce services \u2014 see the precondition above. NOTE the key is `conversationai_services`, not `services`: the options endpoint returns it under that exact name."
+      },
+      conversationai_booking_description: {
+        label: "Service Booking Description",
+        // The schema's own default for this textarea.
+        default: () => "Get customer to book a service"
+      }
+    }
+  },
+  conversationai_end: {
+    fields: {
+      sleepEnabled: {
+        label: "Reactivate After bot",
+        presence: true,
+        // ATTESTED, not inferred: the assets-endpoint schema records this checkbox's
+        // default as `true`, and the committed capture agrees — {sleepEnabled: true,
+        // sleepDuration: 1, sleepUnit: "hours"}. Defaulting to `true` reproduces what the
+        // BUILDER itself produces for an untouched node, which is the standard this
+        // compiler holds itself to. Author `sleepEnabled: false` to opt out; the schedule
+        // halves are then irrelevant and not required.
+        default: () => true
+      }
+    }
+  }
+};
+var APPOINTMENT_WAIT_TYPES = /* @__PURE__ */ new Set([
+  "appointment",
+  "service_booking",
+  "rental_booking",
+  "attendee_event_date",
+  "overdue"
+]);
+var CONDITIONAL_DEFAULTS = {
+  conversationai_end: (attrs) => attrs.sleepEnabled === true ? { sleepDuration: attrs.sleepDuration ?? 1, sleepUnit: attrs.sleepUnit ?? "hours" } : {},
+  // GHL's OWN default, not ours. `Wait.setAppointmentStartAfter()` assigns
+  // `appointmentConditionType.SKIP_SENDING_OPTION` the moment an appointment wait is created
+  // (src/models/conditions/Wait.ts:756), so a UI-built step always carries it. The corpus
+  // agrees overwhelmingly: of the stored appointmentCondition values, 94 are 'skip', 6
+  // 'specific-step', 2 'next' — 92%, clear of the ≥90% bar uiDefaults requires.
+  //
+  // Emitting it is what makes an engine-built appointment wait match a UI-built one. Leaving
+  // it out is not neutral: the field is optional to GHL, so the step saves either way and the
+  // past-time behaviour becomes whatever the backend falls back to, with nothing on screen to
+  // say which. 'skip' means skip the outbound send and move on.
+  wait: (attrs) => APPOINTMENT_WAIT_TYPES.has(attrs.type) && attrs.appointmentCondition === void 0 ? { appointmentCondition: "skip" } : {}
+};
+var hasAttachments = (a) => Boolean(a.attachments?.length || a.urlAttachments?.length);
+var HANDLEBAR_FIELDS = {
+  sms: ["body"],
+  messenger: ["body"],
+  "instagram-dm": ["body"],
+  chatgpt: ["promptText"],
+  workflow_ai_generate_image: ["prompt"],
+  event_start_date: ["value"],
+  add_appointment_booking_ai_bot: ["first_message", "success_message"]
+};
+var handlebarRules = (fields) => [{
+  when: (a) => fields.some((f) => hasNestedBracketsInExpressions(a[f])),
+  check: (a) => {
+    const bad = fields.filter((f) => hasNestedBracketsInExpressions(a[f]));
+    return `has a nested bracket inside a handlebar expression in [${bad.join(", ")}]`;
+  },
+  why: "A bracket segment containing [ or ] parses fine and then resolves to the WRONG value at runtime \u2014 ] closes the segment early and [ desynchronises the backend's path splitting. Use {{prefix.[key with spaces].id}}, never a bracket inside a bracket."
+}];
+var COUPLED_FIELDS = {
+  // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
+  // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
+  conversationai_end: [{
+    when: (a) => a.sleepEnabled === true,
+    require: ["sleepDuration", "sleepUnit"],
+    why: 'Reactivation is a schedule and needs both halves \u2014 the committed capture is {sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.'
+  }],
+  // THE ONE THE ENGINE ITSELF CREATES. compiler.mjs's email envelope writes `html: a.html ?? ''`
+  // on the inline (non-template) path, so an author who supplies a subject and no body gets a
+  // step carrying an empty body — which compiles, saves, opens clean, and SENDS BLANK.
+  // GHL's own sendEmailActionValidator requires it (`!isTemplateSelected && !cleanHTML(html)`);
+  // the generated catalog carried the sibling `subject` rule across and dropped this one.
+  // We test non-empty rather than GHL's cleanHTML(), so markup that renders to nothing
+  // (`<p></p>`) still passes here — stricter than nothing, not yet as strict as GHL.
+  // GHL's spam-word gate applies to `type === 'sms'` ONLY (WorkflowValidator.ts:227) — not to
+  // messenger or instagram-dm, despite those sharing the sms body validator. Scoped to match.
+  sms: [...handlebarRules(HANDLEBAR_FIELDS.sms), {
+    when: (a) => illegalSmsWords(a.body, ILLEGAL_SMS_WORDS).length > 0,
+    check: (a) => {
+      const hits = illegalSmsWords(a.body, ILLEGAL_SMS_WORDS);
+      return `has SMS body word(s) on GHL's blocked list: ${hits.join(", ")}`;
+    },
+    why: "GHL throws SpamSmsBodyError and ABORTS THE SAVE on these \u2014 it is not advisory. The list is GHL's and it is blunt (it contains 'pot', 'joint', 'pipe', 'dab'), so an innocent sentence can trip it. Reword the body or the save will fail in GHL anyway."
+  }],
+  chatgpt: handlebarRules(HANDLEBAR_FIELDS.chatgpt),
+  workflow_ai_generate_image: handlebarRules(HANDLEBAR_FIELDS.workflow_ai_generate_image),
+  event_start_date: handlebarRules(HANDLEBAR_FIELDS.event_start_date),
+  add_appointment_booking_ai_bot: handlebarRules(HANDLEBAR_FIELDS.add_appointment_booking_ai_bot),
+  email: [{
+    when: (a) => !a.template_id,
+    require: ["html"],
+    why: "An inline email carries its body on the step. With no template_id and no html the step sends a blank email \u2014 it saves clean and the builder shows no error."
+  }],
+  // messenger and instagram-dm have NO enforcement block at all in the generated catalog, and
+  // the missing field is the entire payload. Both delegate through to baseSmsValidator, so this
+  // mirrors the `sms.body` guard verbatim: `!hasAttachments && !body.trim()`. GHL does not
+  // exempt a template there, and neither does this.
+  messenger: [...handlebarRules(HANDLEBAR_FIELDS.messenger), {
+    when: (a) => !hasAttachments(a),
+    require: ["body"],
+    why: "The body IS the message. With no body and no attachment the step sends nothing. Same rule GHL applies to sms \u2014 messengerValidator delegates to baseSmsValidator."
+  }],
+  "instagram-dm": [...handlebarRules(HANDLEBAR_FIELDS["instagram-dm"]), {
+    when: (a) => !hasAttachments(a),
+    require: ["body"],
+    why: "The body IS the message. With no body and no attachment the step sends nothing. Same rule GHL applies to sms \u2014 instagramDmValidator delegates to baseSmsValidator."
+  }],
+  wait: [{
+    // GHL's OWN rule, never carried across: validateAppointmentWait requires the jump target
+    // when the branch is 'specific-step' (wait-validator.ts:288-294, result:'error'). wait has
+    // 19 generated throw rules and none covered it.
+    when: (a) => a.appointmentCondition === "specific-step",
+    require: ["appointmentSpecificStep"],
+    why: `appointmentCondition:"specific-step" means jump to a named step, so the target is not optional. GHL's own validateAppointmentWait requires it.`
+  }, {
+    // No GHL rule behind this one — stated as ours. Structurally identical to the rule above,
+    // on the specific_date variant instead of the appointment variants.
+    when: (a) => a.specificDatePassed === "specific_step",
+    require: ["specificDateStep"],
+    why: 'specificDatePassed:"specific_step" means jump to a named step once the date has passed, so the target is not optional. Same shape as appointmentSpecificStep.'
+  }, {
+    // validateTimeWait, wait-validator.ts:151-157, result:'error'. The generated rules cover
+    // window.condition === 'when' (start and end) but not the 'exact' branch at all.
+    when: (a) => a.type === "time" && a.window?.condition === "exact",
+    check: (a) => a.window?.start ? null : 'sets window.condition:"exact" without window.start',
+    why: "An exact-time window has to say WHICH time. Without a start the backend has nothing to snap the wait to."
+  }, {
+    // validateConditionWait, wait-validator.ts:195-215, result:'error'. Reached through a
+    // `switch` on attributes.type, which the guard-AST extractor does not follow — so the whole
+    // sub-validator was dropped. A branch with no segments, or a segment with no conditions,
+    // never evaluates true: contacts reach the wait and park there permanently.
+    when: (a) => a.type === "condition",
+    check: (a) => {
+      const branches = a.condition?.branches ?? [];
+      for (let b = 0; b < branches.length; b++) {
+        const segments = branches[b].segments ?? [];
+        if (!segments.length) return `has condition.branches[${b}] with no segments`;
+        for (let g = 0; g < segments.length; g++) {
+          if (!(segments[g].conditions ?? []).length)
+            return `has condition.branches[${b}].segments[${g}] with no conditions`;
+        }
+      }
+      return null;
+    },
+    why: "A conditional wait with an empty branch never becomes true, so every contact that reaches it stops there for good \u2014 with nothing anywhere reporting it."
+  }],
+  // workflowSplitValidator, additional-action-validators.ts:896-909. result:'warning' in GHL, so
+  // it warns here too. compiler.mjs passes author weights through verbatim, so a 30/30 split
+  // ships silently and every number measured downstream of it is wrong.
+  workflow_split: [{
+    when: (a) => a.condition === "random-split",
+    check: (a) => {
+      const dist = a.extras?.weightDistribution ?? {};
+      const total = Math.round((a.paths ?? []).reduce((n, p) => n + (dist[p?.id] || 0), 0) * 10) / 10;
+      return total === 100 ? null : `has random-split weights totalling ${total}, not 100`;
+    },
+    severity: "warn",
+    why: "GHL rounds the weights to one decimal and requires exactly 100. Anything else mis-splits traffic, which corrupts the measurement the split exists to produce."
+  }],
+  // createUpdateContactValidator / findContactValidator, contact-action-validators.ts:107-113
+  // and :170-176. Both result:'warning'.
+  create_update_contact: [{
+    when: () => true,
+    check: (a) => {
+      const bad = rowsMissingValue(a);
+      return bad.length ? `has field row(s) with no value: ${bad.join(", ")}` : null;
+    },
+    severity: "warn",
+    why: "A row with no value writes an empty value over whatever the contact already had."
+  }],
+  find_contact: [{
+    when: () => true,
+    check: (a) => {
+      const bad = rowsMissingValue(a);
+      return bad.length ? `has field row(s) with no value: ${bad.join(", ")}` : null;
+    },
+    severity: "warn",
+    why: "A lookup on an empty value does not identify the contact you meant."
+  }]
+};
+function rowsMissingValue(attrs) {
+  return (attrs.fields ?? []).filter((f) => f && f.value !== false && !f.value && f.date !== "currentDate" && f.value !== 0).map((f) => f.field ?? "(unnamed)");
+}
+function checkCoupledFields(node, attrs, ctx) {
+  for (const rule of COUPLED_FIELDS[node?.type] ?? []) {
+    if (!rule.when(attrs)) continue;
+    let problem = null;
+    if (rule.require) {
+      const missing = rule.require.filter((k) => !suppliedNonEmpty(attrs, k));
+      if (missing.length) problem = `is missing [${missing.join(", ")}]`;
+    } else if (rule.check) {
+      const found = rule.check(attrs);
+      if (found) problem = found;
+    }
+    if (!problem) continue;
+    const msg = `${node.type} '${node.ref ?? node.name ?? "?"}' ${problem}. ${rule.why}`;
+    if (rule.severity === "warn") ctx?.warn?.(`COUPLED_SOFT: ${msg}`);
+    else throw new IRError("REQUIRED_FIELD", msg);
+  }
+}
+function enforceRequiredFields(node, attrs, ctx) {
+  const spec = REQUIRED_FIELDS[node?.type];
+  if (!spec) return finish(node, attrs, ctx);
+  const out = { ...attrs };
+  const ref = node.ref ?? node.name ?? "?";
+  for (const [key, f] of Object.entries(spec.fields)) {
+    const supplied = f.presence ? suppliedPresence : suppliedNonEmpty;
+    if (supplied(out, key)) continue;
+    if (f.default) {
+      const value = f.default(node);
+      if (supplied({ [key]: value }, key)) {
+        out[key] = value;
+        continue;
+      }
+    }
+    throw new IRError(
+      "REQUIRED_FIELD",
+      `${node.type} '${ref}' is missing the required attribute '${key}' ("${f.label}"). The builder renders this node with a red error badge and the flow CANNOT be published, while the build pipeline still reports success \u2014 so this must fail at compile time.` + (f.hint ? ` ${f.hint}` : "") + (spec.precondition ? ` ${spec.precondition}` : "")
+    );
+  }
+  return finish(node, out, ctx);
+}
+function finish(node, out, ctx) {
+  const defaults = CONDITIONAL_DEFAULTS[node?.type]?.(out) ?? {};
+  const next = Object.keys(defaults).length ? Object.assign({ ...out }, defaults) : out;
+  checkCoupledFields(node, next, ctx);
+  return next;
+}
+function requiredKeysFor(type) {
+  return Object.keys(REQUIRED_FIELDS[type]?.fields ?? {});
+}
+function isSupplied(type, key, attrs) {
+  const f = REQUIRED_FIELDS[type]?.fields?.[key];
+  if (!f) return true;
+  return (f.presence ? suppliedPresence : suppliedNonEmpty)(attrs ?? {}, key);
+}
+
+// ../skills/create-ghl-workflow/engine/action-schema.mjs
+init_define_TOOL_CATALOG();
+var PSEUDO_FIELDS = /* @__PURE__ */ new Set(["DYNAMIC"]);
+function isBlank(v) {
+  if (v === void 0 || v === null) return true;
+  if (typeof v === "string") return v.trim() === "";
+  if (Array.isArray(v)) return v.length === 0;
+  return false;
+}
+function coerceDefault(raw, fieldType) {
+  if (raw === void 0 || raw === null || raw === "") return void 0;
+  if (fieldType === "checkbox" || fieldType === "toggle") {
+    if (raw === true || raw === false) return raw;
+    if (raw === "true") return true;
+    if (raw === "false") return false;
+    return void 0;
+  }
+  if (fieldType === "numerical") {
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : void 0;
+  }
+  return raw;
+}
+function parseActionSchema(assets) {
+  const byType = /* @__PURE__ */ new Map();
+  for (const app of assets?.actions ?? []) {
+    for (const action of app?.actions ?? []) {
+      if (!action?.key || !Array.isArray(action.inputs)) continue;
+      const fields = action.inputs.filter((f) => f?.field && !PSEUDO_FIELDS.has(f.field)).map((f) => ({
+        field: f.field,
+        title: f.title ?? f.field,
+        required: f.required === true,
+        fieldType: f.fieldType,
+        default: coerceDefault(f.value, f.fieldType)
+      }));
+      byType.set(action.key, {
+        type: action.key,
+        app: app.appName,
+        section: action.section,
+        // No `version`/`templateId` here, deliberately: drift is TRIGGER-ONLY (see
+        // marketplaceDrift below) — a stored marketplace ACTION step records no version to
+        // compare against in the first place, so retaining these on the action entry would
+        // be dead data implying a comparison this schema never performs.
+        fields,
+        requiredFields: fields.filter((f) => f.required).map((f) => f.field),
+        requiredTriggers: action.requiredTriggers ?? [],
+        isPremium: action.additionalConfig?.isPremium === true,
+        isMultipath: action.branchesConfig != null
+      });
+    }
+  }
+  return byType;
+}
+function parseTriggerSchema(assets) {
+  const byType = /* @__PURE__ */ new Map();
+  for (const app of assets?.triggers ?? []) {
+    for (const trigger of app?.triggers ?? []) {
+      if (!trigger?.key) continue;
+      byType.set(trigger.key, {
+        type: trigger.key,
+        app: app.appName,
+        version: trigger.version,
+        templateId: trigger.templateId
+      });
+    }
+  }
+  return byType;
+}
+function marketplaceDrift(storedTriggers, triggerSchema) {
+  const out = [];
+  for (const t of storedTriggers ?? []) {
+    if (t?.masterType !== "marketplace") continue;
+    const spec = triggerSchema?.get?.(t.type);
+    if (!spec) continue;
+    if (t.templateId && spec.templateId && t.templateId !== spec.templateId) {
+      out.push({
+        type: t.type,
+        name: t.name,
+        kind: "templateId",
+        stored: { version: t.version, templateId: t.templateId },
+        installed: { version: spec.version, templateId: spec.templateId }
+      });
+      continue;
+    }
+    if (t.version && spec.version && t.version !== spec.version) {
+      out.push({
+        type: t.type,
+        name: t.name,
+        kind: "version",
+        stored: { version: t.version, templateId: t.templateId },
+        installed: { version: spec.version, templateId: spec.templateId }
+      });
+    }
+  }
+  return out;
+}
+function missingForStep(step, schema2) {
+  const spec = schema2?.get?.(step?.type);
+  if (!spec) return [];
+  return spec.fields.filter((f) => f.required && isBlank((step.attributes ?? {})[f.field])).map((f) => ({
+    field: f.field,
+    title: f.title,
+    message: `"${f.title}" is a required field`
+  }));
+}
+function checkWorkflow(templates, schema2, { triggerTypes } = {}) {
+  const errors = [];
+  for (const step of templates ?? []) {
+    const missing = missingForStep(step, schema2);
+    if (missing.length) {
+      errors.push({ stepId: step.id, step: step.name, type: step.type, messages: missing.map((m) => m.message), fields: missing.map((m) => m.field) });
+    }
+    if (triggerTypes) {
+      const need = schema2?.get?.(step.type)?.requiredTriggers ?? [];
+      if (need.length && !need.some((t) => triggerTypes.includes(t))) {
+        errors.push({
+          stepId: step.id,
+          step: step.name,
+          type: step.type,
+          messages: [`'${step.type}' requires one of these triggers: ${need.join(", ")} \u2014 this workflow has [${triggerTypes.join(", ") || "none"}]`],
+          fields: []
+        });
+      }
+    }
+  }
+  return errors;
+}
+async function fetchActionSchema(call, loc) {
+  try {
+    const r = await call("GET", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+    if (!r?.ok || !r.json) return null;
+    const schema2 = parseActionSchema(r.json);
+    return schema2.size ? schema2 : null;
+  } catch {
+    return null;
+  }
+}
+
+// ../skills/create-ghl-workflow/engine/enforce.mjs
+init_define_TOOL_CATALOG();
+var get = (o, p) => p === "" ? o : p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
+var RE_CACHE = /* @__PURE__ */ new Map();
+var cachedRe = (src, flags) => {
+  const k = `${src} ${flags}`;
+  let r = RE_CACHE.get(k);
+  if (!r) {
+    r = new RegExp(src, flags);
+    RE_CACHE.set(k, r);
+  }
+  return r;
+};
+function evaluate(ast, attrs, item) {
+  switch (ast.op) {
+    case "lit":
+      return ast.v;
+    case "path":
+      return get(attrs, ast.p);
+    case "not":
+      return !evaluate(ast.a, attrs, item);
+    case "and":
+      return evaluate(ast.a, attrs, item) && evaluate(ast.b, attrs, item);
+    case "or":
+      return evaluate(ast.a, attrs, item) || evaluate(ast.b, attrs, item);
+    case "eq":
+      return evaluate(ast.a, attrs, item) === evaluate(ast.b, attrs, item);
+    case "neq":
+      return evaluate(ast.a, attrs, item) !== evaluate(ast.b, attrs, item);
+    case "gt":
+      return evaluate(ast.a, attrs, item) > evaluate(ast.b, attrs, item);
+    case "lt":
+      return evaluate(ast.a, attrs, item) < evaluate(ast.b, attrs, item);
+    case "gte":
+      return evaluate(ast.a, attrs, item) >= evaluate(ast.b, attrs, item);
+    case "lte":
+      return evaluate(ast.a, attrs, item) <= evaluate(ast.b, attrs, item);
+    case "len": {
+      const v = evaluate(ast.a, attrs, item);
+      return v == null ? void 0 : v.length ?? (typeof v === "object" ? Object.keys(v).length : void 0);
+    }
+    case "trim": {
+      const v = evaluate(ast.a, attrs, item);
+      return typeof v === "string" ? v.trim() : v;
+    }
+    case "includes": {
+      const v = evaluate(ast.a, attrs, item);
+      const x = evaluate(ast.v, attrs, item);
+      return Array.isArray(v) || typeof v === "string" ? v.includes(x) : false;
+    }
+    case "isArray":
+      return Array.isArray(evaluate(ast.a, attrs, item));
+    case "has": {
+      const o = evaluate(ast.a, attrs, item);
+      const k = evaluate(ast.k, attrs, item);
+      return o != null && typeof o === "object" && k in o;
+    }
+    case "empty": {
+      const v = evaluate(ast.a, attrs, item);
+      return v == null || v === "" || Array.isArray(v) && !v.length || typeof v === "object" && !Object.keys(v).length;
+    }
+    case "it":
+      return get(item, ast.p);
+    case "coalesce": {
+      const v = evaluate(ast.a, attrs, item);
+      return v == null ? evaluate(ast.b, attrs, item) : v;
+    }
+    case "typeof":
+      return typeof evaluate(ast.a, attrs, item);
+    case "num":
+      return Number(evaluate(ast.a, attrs, item));
+    case "some":
+    case "every": {
+      const v = evaluate(ast.a, attrs, item);
+      if (!Array.isArray(v)) return ast.op === "every";
+      return v[ast.op]((el) => !!evaluate(ast.it, attrs, el));
+    }
+    case "count": {
+      const v = evaluate(ast.a, attrs, item);
+      return Array.isArray(v) ? v.filter((el) => !!evaluate(ast.it, attrs, el)).length : 0;
+    }
+    case "regexTest": {
+      const v = evaluate(ast.a, attrs, item);
+      return typeof v === "string" ? cachedRe(ast.re, ast.flags).test(v) : false;
+    }
+    default:
+      throw new Error(`unknown op ${ast.op}`);
+  }
+}
+function fires(rule, attrs) {
+  try {
+    return rule.ast.outer.every((o) => !!evaluate(o, attrs)) && !!evaluate(rule.ast.guard, attrs);
+  } catch {
+    return false;
+  }
+}
+var ruleKey = (type, r) => `${type}.${r.field}${r.variant ? "@" + r.variant : ""}`;
+var skipped = (skip, key) => skip === true || Array.isArray(skip) && skip.includes(key);
+function checkEnforcement(node, attrs, meta3, ctx) {
+  const e = meta3?.enforcement;
+  if (!e) return;
+  const skip = ctx?.skipEnforcement;
+  const fired = (e.throw ?? []).filter((r) => !skipped(skip, ruleKey(meta3.type, r)) && fires(r, attrs));
+  for (const r of e.warn ?? []) {
+    if (skipped(skip, ruleKey(meta3.type, r))) continue;
+    if (fires(r, attrs)) ctx?.warn?.(`ENFORCEMENT_SOFT: '${node.ref ?? node.name ?? "?"}' (${meta3.type}) trips GHL's rule on '${r.field}' \u2014 guard: ${r.guard} \u2014 ${r.support}`);
+  }
+  if (!fired.length) return;
+  const lines = fired.map((r) => `  - '${r.field}'${r.variant ? ` (mode: ${r.variant})` : ""} \u2014 GHL's guard: ${r.guard} \u2014 ${r.support}`);
+  throw new IRError(
+    "ENFORCEMENT",
+    `ENFORCEMENT: step '${node.ref ?? node.name ?? "?"}' (${meta3.type}) is missing required field(s) GHL will flag:
+${lines.join("\n")}
+GHL would SAVE this step and flag it (or silently no-op at runtime) \u2014 this engine refuses instead. Fill the field(s), or pass skipEnforcement (true, or ['${ruleKey(meta3.type, fired[0])}']) if you are certain.`
+  );
+}
+function enforceTemplates(templates, catalog, ctx) {
+  for (const t of templates ?? []) {
+    if (!t?.type || t.type === "transition" || !t.attributes) continue;
+    const meta3 = catalog?.step?.(t.type);
+    if (!meta3?.enforcement) continue;
+    checkEnforcement({ ref: t.name ?? t.id, name: t.name }, t.attributes, meta3, ctx);
+  }
+}
+
+// ../skills/create-ghl-workflow/engine/graph-refs.mjs
+init_define_TOOL_CATALOG();
+var STEP_REF_FIELDS = [
+  ["goto", "targetNodeId", "single"],
+  ["wait", "appointmentSpecificStep", "single"],
+  // The specific_date variant's jump target — the same role appointmentSpecificStep plays on
+  // the appointment variants, and it was missing here, so a jump to a deleted step went
+  // undetected on that whole variant.
+  ["wait", "specificDateStep", "single"],
+  ["wait", "reply", "array"],
+  ["wait", "emailEventSteps", "array"],
+  ["workflow_goal", "segments[].conditions[].extras.stepIds", "array"],
+  ["workflow_goal", "segments[].conditions[].extras.invoiceStepId", "single"]
+];
+var get2 = (o, p) => p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
+var getAll = (o, path) => {
+  let cur = [o];
+  for (const seg of path.split(".")) {
+    if (seg.endsWith("[]")) {
+      const k = seg.slice(0, -2);
+      cur = cur.flatMap((x) => {
+        const v = x == null ? void 0 : x[k];
+        return Array.isArray(v) ? v : [];
+      });
+    } else {
+      cur = cur.map((x) => x == null ? void 0 : x[seg]);
+    }
+  }
+  return cur.filter((v) => v != null);
+};
+function stepRefsOf(t) {
+  const out = [];
+  for (const [type, path, kind] of STEP_REF_FIELDS) {
+    if (t.type !== type) continue;
+    const vals = path.includes("[]") ? getAll(t.attributes ?? {}, path) : [get2(t.attributes ?? {}, path)];
+    for (const v of vals) {
+      if (v == null || v === "") continue;
+      for (const id of kind === "array" ? Array.isArray(v) ? v : [] : [v]) {
+        if (typeof id === "string" && id) out.push({ path, id });
+      }
+    }
+  }
+  return out;
+}
+function danglingStepRefs(templates) {
+  const ids = new Set((templates ?? []).map((t) => t.id));
+  const out = [];
+  for (const t of templates ?? []) {
+    for (const { path, id } of stepRefsOf(t)) {
+      if (!ids.has(id)) out.push({ id: t.id, name: t.name, type: t.type, path, missing: id });
+    }
+  }
+  return out;
+}
+function checkStepRefs(templates, errCtor = null) {
+  const bad = danglingStepRefs(templates);
+  if (!bad.length) return;
+  const lines = bad.map((b) => `  - '${b.name ?? b.id}' (${b.type}) ${b.path} \u2192 '${b.missing}' does not exist in this workflow`);
+  const msg = `REF_DANGLING: ${bad.length} step reference(s) point at steps that do not exist:
+${lines.join("\n")}
+GHL grades this a WARNING \u2014 the builder's panel shows "0 Errors" while the step renders a broken link and the runtime has nowhere to go. Fix the reference or remove the step.`;
+  throw errCtor ? new errCtor("REF_DANGLING", msg) : Object.assign(new Error(msg), { code: "REF_DANGLING" });
+}
+
+// ../skills/create-ghl-workflow/engine/ui-defaults.mjs
+init_define_TOOL_CATALOG();
+var clone2 = (v) => v === void 0 ? v : JSON.parse(JSON.stringify(v));
+function applyUiDefaults(templates, catalog, ctx) {
+  if (!catalog?.step || ctx?.skipUiDefaults === true) return 0;
+  let added = 0;
+  for (const t of templates ?? []) {
+    if (!t?.type || t.type === "transition") continue;
+    const meta3 = catalog.step(t.type);
+    if (!meta3) continue;
+    const attrs = t.attributes ?? (t.attributes = {});
+    for (const [k, v] of Object.entries(meta3.uiDefaults ?? {})) {
+      if (attrs[k] === void 0) {
+        attrs[k] = clone2(v);
+        added++;
+      }
+    }
+    for (const [k, v] of Object.entries(meta3.uiForced ?? {})) {
+      if (attrs[k] === void 0) {
+        attrs[k] = clone2(v);
+        added++;
+      } else if (JSON.stringify(attrs[k]) !== JSON.stringify(v))
+        ctx?.warn?.(`UI_FORCED_MISMATCH: '${t.name ?? t.id}' (${t.type}) emits ${k}=${JSON.stringify(attrs[k])} but the UI's constructor always sets ${JSON.stringify(v)}`);
+    }
+  }
+  return added;
+}
+
+// ../skills/create-ghl-workflow/engine/ifelse-vocab.mjs
+init_define_TOOL_CATALOG();
+var NO_VALUE_DATE_OPS = /* @__PURE__ */ new Set(["today", "yesterday", "tomorrow"]);
+var ABSOLUTE_DATE_OPS = /* @__PURE__ */ new Set(["on", "between", "afterDate", "beforeDate"]);
+function evaluateIfElseVocab(templates, vocab, ctx) {
+  if (!vocab?.groups) return [];
+  const groups = new Map(vocab.groups.map((g) => [g.value, g]));
+  const leafOf = (g, sub) => {
+    for (const c of g.conditions ?? []) {
+      if (c.value === sub) return c;
+      for (const ch of c.children ?? []) if (ch.value === sub) return ch;
+    }
+    return null;
+  };
+  const opsFor = (operatorType) => {
+    const base = (vocab.operatorTable?.[operatorType] ?? []).map((o) => o?.value).filter((x) => typeof x === "string");
+    return /* @__PURE__ */ new Set([...base, ...vocab.legacyOperators?.[operatorType] ?? []]);
+  };
+  const dynamicLeafGroups = new Set(vocab.dynamicLeafGroups ?? []);
+  const customFieldById = /* @__PURE__ */ new Map();
+  for (const f of ctx?.customFields ?? []) {
+    const id = f?.id ?? f?._id;
+    if (id) customFieldById.set(id, f);
+  }
+  const F = [];
+  for (const t of templates ?? []) {
+    if (t?.type !== "if_else" || t.nodeType !== "condition-node") continue;
+    const where = `if/else '${t.name ?? t.id}'`;
+    for (const b of t.attributes?.branches ?? []) for (const s of b?.segments ?? []) for (const c of s?.conditions ?? []) {
+      if (!c || typeof c !== "object") continue;
+      const g = groups.get(c.conditionType);
+      if (!g) {
+        F.push({ where, branch: b.name, msg: `conditionType '${c.conditionType}' is not one GHL's picker offers (${[...groups.keys()].slice(0, 6).join(", ")}, \u2026)` });
+        continue;
+      }
+      if (!g.conditions?.length) continue;
+      let leaf = leafOf(g, c.conditionSubType);
+      let operatorType = leaf?.operatorType ?? null;
+      if (!leaf) {
+        if (dynamicLeafGroups.has(g.value)) {
+          const cf = customFieldById.get(c.conditionSubType);
+          if (cf) {
+            const dt = cf.dataType ?? cf.data_type ?? cf.type;
+            if (dt && vocab.fieldTypeMap?.[dt]) operatorType = vocab.fieldTypeMap[dt];
+            else continue;
+          } else if (customFieldById.size) {
+            F.push({ where, branch: b.name, msg: `conditionSubType '${c.conditionSubType}' (${g.value}) is not a picker field and matches no custom field on this account` });
+            continue;
+          } else continue;
+        } else {
+          F.push({ where, branch: b.name, msg: `conditionSubType '${c.conditionSubType}' is not a field of '${g.value}' (${(g.conditions ?? []).slice(0, 6).map((x) => x.value).join(", ")}, \u2026)` });
+          continue;
+        }
+      }
+      if (operatorType) {
+        const legal = opsFor(operatorType);
+        if (legal.size && !legal.has(c.conditionOperator)) {
+          F.push({ where, branch: b.name, msg: `operator '${c.conditionOperator}' is not legal for '${c.conditionSubType}' (${operatorType}: ${[...legal].join(", ")})` });
+          continue;
+        }
+        if (operatorType === "date" && c.conditionValueOperator != null) {
+          const vo = c.conditionValueOperator;
+          if (!(vocab.dateFieldOperators ?? []).includes(vo)) F.push({ where, branch: b.name, msg: `date sub-operator '${vo}' is not one of ${(vocab.dateFieldOperators ?? []).join(", ")}` });
+          else if (!NO_VALUE_DATE_OPS.has(vo) && !ABSOLUTE_DATE_OPS.has(vo) && !c.conditionValueUnit) F.push({ where, branch: b.name, msg: `date sub-operator '${vo}' requires conditionValueUnit (days|weeks|months|years)` });
+        }
+      }
+    }
+  }
+  return F;
+}
+function checkIfElseVocab(templates, catalog, ctx) {
+  if (ctx?.skipIfElseVocab === true) return [];
+  const F = evaluateIfElseVocab(templates, catalog?.ifElseConditions, ctx);
+  if (!F.length) return [];
+  const lines = F.map((f) => `  - ${f.where}${f.branch ? ` / branch '${f.branch}'` : ""}: ${f.msg}`);
+  throw new IRError(
+    "IFELSE_VOCAB",
+    `IFELSE_VOCAB: ${F.length} if/else condition(s) the GHL picker could never produce \u2014 GHL has NO validator for if/else, so this would save clean and MATCH WRONGLY at runtime:
+${lines.join("\n")}
+Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true if you are certain.`
+  );
+}
+
+// ../skills/create-ghl-workflow/engine/merge-tags.mjs
+init_define_TOOL_CATALOG();
+var TOKEN = /\{\{\s*([A-Za-z_][\w]*)(\.[^{}]*)?\s*\}\}/g;
+function evaluateMergeTags(templates, mergeTags) {
+  if (!mergeTags?.tags) return [];
+  const known = new Set(mergeTags.tags.map((t) => String(t.tag).replace(/\s+/g, "")));
+  const closed = new Set(mergeTags.closedNamespaces ?? []);
+  const out = [];
+  const walk2 = (v, cb) => {
+    if (typeof v === "string") cb(v);
+    else if (Array.isArray(v)) v.forEach((x) => walk2(x, cb));
+    else if (v && typeof v === "object") Object.values(v).forEach((x) => walk2(x, cb));
+  };
+  for (const t of templates ?? []) {
+    if (!t?.attributes || t.type === "transition") continue;
+    const where = `'${t.name ?? t.id}' (${t.type})`;
+    walk2(t.attributes, (s) => {
+      const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
+      if (opens !== closes) out.push({ where, kind: "unbalanced", msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? "\u2026" : ""}"` });
+      for (const m of s.matchAll(TOKEN)) {
+        const ns = m[1], full = `{{${ns}${(m[2] ?? "").replace(/\s+/g, "")}}}`;
+        if (!closed.has(ns) || known.has(full)) continue;
+        const near = mergeTags.tags.filter((x) => String(x.tag).startsWith(`{{${ns}.`)).map((x) => x.tag).slice(0, 4).join(", ");
+        out.push({ where, kind: "unknown", msg: `${full} is not a picker variable in the closed namespace '${ns}' (known: ${near}${near ? ", \u2026" : ""}) \u2014 it will render literally at runtime` });
+      }
+    });
+  }
+  return out;
+}
+function checkMergeTags(templates, catalog, ctx) {
+  if (ctx?.skipMergeTagCheck === true) return [];
+  const F = evaluateMergeTags(templates, catalog?.mergeTags);
+  for (const f of F) ctx?.warn?.(`MERGE_TAG_SOFT: ${f.where}: ${f.msg}`);
+  return F;
+}
+
+// ../skills/create-ghl-workflow/engine/compiler.mjs
+function attributesFor(node, ctx) {
+  if (node.marketplace === true) return marketplaceAttributes(node, ctx);
+  if (node.kind === "wait") return enforceRequiredFields({ ...node, type: "wait" }, waitAttributes(node), ctx);
+  if (node.type === "email") return emailAttributes(node, ctx);
+  if (node.type === "custom_webhook") return webhookAttributes(node.attributes ?? {}, node.ref);
+  if (node.type === "custom_code") return codeAttributes(node.attributes ?? {}, node.ref);
+  if (node.type === "voice_ai_outbound_call") return voiceAiOutboundCallAttributes(node.attributes ?? {});
+  if (node.type === "internal_notification") return internalNotificationAttributes(node.attributes ?? {}, ctx);
+  if (node.type === "create_opportunity") return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
+  if (node.type === "update_opportunity") return updateOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
+  const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
+  if (node.type === "update_contact_field")
+    checkContactFieldShape(out, { ref: node.ref ?? node.name ?? "?", warn: ctx?.warn });
+  return out;
+}
+var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
+  "__customInputs__",
+  "__dynamicAttachments__",
+  "__customInputFields__",
+  "type"
+]);
+function marketplaceEntry(node, ctx, kind) {
+  const entry = ctx?.marketplace?.get?.(node.type, kind);
+  if (!entry) {
+    const otherKind = kind === "action" ? "trigger" : "action";
+    const existsAsOtherKind = ctx?.marketplace?.get?.(node.type, otherKind);
+    throw new IRError(
+      "MARKETPLACE_KEY_UNKNOWN",
+      existsAsOtherKind ? `'${node.type}' on '${node.ref}' is flagged marketplace:true and was looked up as a marketplace ${kind}, but '${node.type}' is only published in this location as a marketplace ${otherKind}. This node is using a ${otherKind} key in a ${kind} slot \u2014 fix the type, or move this node to where a ${otherKind} key belongs.` : `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available marketplace ${kind} in this location publishes that key. Run list_marketplace_apps for this locationId to see what is actually there, or drop the marketplace flag if you meant a native step.`
+    );
+  }
+  if (!entry.installed)
+    throw new IRError(
+      "MARKETPLACE_APP_NOT_INSTALLED",
+      `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", which is NOT installed in this location. The step would save and never run. Install the app in the sub-account first.`
+    );
+  return entry;
+}
+function marketplaceAttributes(node, ctx) {
+  const entry = marketplaceEntry(node, ctx, "action");
+  const out = { ...node.attributes ?? {} };
+  out.type = node.type;
+  if (out.__customInputs__ === void 0) out.__customInputs__ = {};
+  const blank = (v) => v === void 0 || v === null || typeof v === "string" && v.trim() === "" || Array.isArray(v) && v.length === 0;
+  for (const f of entry.inputs) {
+    if (!f?.field || f.value === void 0 || !blank(out[f.field])) continue;
+    const coerced = coerceDefault(f.value, f.fieldType);
+    if (coerced === void 0) continue;
+    out[f.field] = coerced;
+    ctx?.warn?.(`MARKETPLACE_DEFAULT_FILLED: step '${node.ref}' (${node.type}) left '${f.field}' blank; filled it with the value "${entry.appName}" declares in its own schema (${coerced}). Confirm this is what you intend.`);
+  }
+  const missing = entry.inputs.filter((f) => f?.required === true && f.field && f.field !== "DYNAMIC" && blank(out[f.field])).map((f) => f.field);
+  if (missing.length)
+    throw new IRError(
+      "MARKETPLACE_REQUIRED_FIELD",
+      `marketplace step '${node.ref}' (${node.type}, "${entry.appName}") is missing required input(s): ${missing.join(", ")}. The builder would show "Resolve N Errors".`
+    );
+  const declared = new Set(entry.inputs.map((f) => f?.field).filter(Boolean));
+  for (const key of Object.keys(out)) {
+    if (MARKETPLACE_ENVELOPE_KEYS.has(key) || declared.has(key)) continue;
+    ctx?.warn?.(`marketplace step '${node.ref}' (${node.type}) sets '${key}', which "${entry.appName}" does not declare in its inputs. It will be stored verbatim; confirm the key is right.`);
+  }
+  return out;
+}
+function normalizeAttrs(node, attrs, ctx) {
+  const meta3 = ctx?.catalog?.step(node.type);
+  if (!meta3) return attrs;
+  const out = { ...enforceRequiredFields(node, attrs, ctx) };
+  if (meta3.usesCustomInputs && !("__customInputs__" in out)) out.__customInputs__ = {};
+  if (Array.isArray(meta3.attrKeys) && meta3.attrKeys.includes("type") && !("type" in out)) {
+    out.type = node.type === "internal_notification" ? ["sms", "email", "notification", "whatsapp"].find((c) => c in out) ?? node.type : node.type;
+  }
+  checkAttrKeys(node, out, meta3);
+  return out;
+}
+var ENGINE_ATTR_KEYS = /* @__PURE__ */ new Set([
+  "type",
+  "__customInputs__",
+  "__customInputFields__",
+  "_template",
+  "user",
+  "calendar",
+  "agent",
+  "employee",
+  "assignedEmployeeId",
+  "pipeline",
+  "stage"
+]);
+function checkAttrKeys(node, out, meta3) {
+  if (meta3.confidence !== "verified-live" || !Array.isArray(meta3.attrKeys) || meta3.attrKeys.length === 0) return;
+  const known = /* @__PURE__ */ new Set([...meta3.attrKeys, ...(meta3.requiredFields ?? []).map((k) => k.split(".")[0]), ...ENGINE_ATTR_KEYS]);
+  const bad = Object.keys(out).filter((k) => !known.has(k));
+  if (bad.length)
+    throw new IRError(
+      "ATTR_KEY",
+      `unknown attribute key(s) [${bad.join(", ")}] on '${node.ref}' (${node.type}) \u2014 known keys for this type: ${meta3.attrKeys.join(", ")}. An invented key saves but renders a blank step; check the corpus example (${meta3.example ?? "catalog"}) for the real shape.`
+    );
+}
+function coerceOppValue(value, valueFieldType) {
+  if (valueFieldType !== "numerical") return value;
+  if (typeof value === "number") return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return value;
+}
+function oppField(filterField, value, dataType, valueFieldType) {
+  const f = { __customInputs__: {}, filterField, value: coerceOppValue(value, valueFieldType), valueFieldType };
+  if (dataType !== void 0) f.dataType = dataType;
+  return f;
+}
+function stdOppField(filterField, value) {
+  const { valueFieldType, dataType } = defaultOppFieldShape(filterField);
+  return oppField(filterField, value, dataType, valueFieldType);
+}
+function enforceLostReasonPrerequisite(f, ref, stepType) {
+  const lostAt = f.findIndex((x) => x.filterField === "lostReasonId");
+  if (lostAt === -1) return;
+  const statusAt = f.findIndex((x) => x.filterField === "status");
+  const statusVal = statusAt === -1 ? void 0 : f[statusAt].value;
+  if (statusAt === -1 || String(statusVal).toLowerCase() !== "lost")
+    throw new IRError(
+      "OPP_LOST_REASON_NO_LOST_STATUS",
+      `${stepType} '${ref}' sets 'lostReasonId' but ${statusAt === -1 ? "the step has no 'status' field" : `the step's status is '${statusVal}', not 'lost'`}. GHL only accepts a lost reason on an opportunity being marked LOST: the builder disables the Lost Reason picker until Status is 'lost', and DELETES an existing lostReasonId entry when it isn't \u2014 so this step would save, round-trip clean, and drop the reason. Set status to 'lost' in the same step${statusAt === -1 ? "" : ", or drop 'lostReasonId'"}.${statusVal !== void 0 && /\{\{/.test(String(statusVal)) ? " (A merge-field status can't be proven to be 'lost' at compile time \u2014 author the literal status on the step that sets the lost reason.)" : ""}`
+    );
+  if (statusAt > lostAt) f.splice(lostAt, 0, f.splice(statusAt, 1)[0]);
+}
+var CREATE_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
+  "pipelineId",
+  "stageId",
+  "status",
+  "name",
+  "source",
+  "value",
+  "lostReasonId",
+  "forecastExpectedCloseDate",
+  "forecastProbability",
+  "pipeline",
+  "stage"
+  // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+]);
+var CREATE_OPP_ALIASES = {
+  pipelineStageId: "stageId",
+  stage_id: "stageId",
+  pipeline_stage_id: "stageId",
+  pipeline_id: "pipelineId",
+  monetaryValue: "value"
+};
+function createOpportunityAttributes(a, ref, ctx) {
+  const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError(
+      "UNKNOWN_ATTR",
+      `create_opportunity '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => CREATE_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => CREATE_OPP_ALIASES[k]).map((k) => `'${CREATE_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...CREATE_OPP_AUTHOR_KEYS].join(", ")}. NOTE the asymmetry \u2014 you author 'stageId', which compiles to the filterField 'pipelineStageId'. An ignored key compiles to a step that saves, round-trips clean, and creates an opportunity with no pipeline.`
+    );
+  if (a.stageId != null && a.pipelineId == null)
+    throw new IRError(
+      "OPP_STAGE_NO_PIPELINE",
+      `create_opportunity '${ref}' sets stageId without pipelineId. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Always author pipelineId alongside stageId.`
+    );
+  const f = [];
+  if (a.name != null) f.push(oppField("name", a.name, "TEXT", "string"));
+  if (a.stageId != null) f.push(oppField("pipelineStageId", a.stageId, "SINGLE_OPTIONS", "select"));
+  f.push(oppField("status", a.status ?? "open", "SINGLE_OPTIONS", "select"));
+  if (a.lostReasonId != null) f.push(stdOppField("lostReasonId", a.lostReasonId));
+  if (a.source != null) f.push(oppField("source", a.source, "TEXT", "string"));
+  if (a.value != null) f.push(oppField("monetaryValue", a.value, "NUMERICAL", "numerical"));
+  if (a.forecastExpectedCloseDate != null) f.push(stdOppField("forecastExpectedCloseDate", a.forecastExpectedCloseDate));
+  if (a.forecastProbability != null) f.push(stdOppField("forecastProbability", a.forecastProbability));
+  enforceLostReasonPrerequisite(f, ref, "create_opportunity");
+  for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
+  return { pipelineId: a.pipelineId, type: "internal_create_opportunity", __customInputFields__: f, __customInputs__: {} };
+}
+var UPDATE_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
+  "updates",
+  "pipelineId",
+  "stageId",
+  "status",
+  "name",
+  "source",
+  "value",
+  "allowBackward",
+  // added 2026-08-03 — see CREATE_OPP_AUTHOR_KEYS. Author key == emitted filterField.
+  "lostReasonId",
+  "forecastExpectedCloseDate",
+  "forecastProbability",
+  "pipeline",
+  "stage"
+  // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+]);
+var UPDATE_OPP_ALIASES = { pipelineStageId: "stageId", stage_id: "stageId", pipeline_id: "pipelineId", monetaryValue: "value" };
+function resolveOppUpdateField(u, ref, ctx) {
+  const ff = u.field;
+  if (STANDARD_OPP_FIELDS.has(ff)) {
+    const vft = u.valueFieldType ?? defaultOppFieldShape(ff).valueFieldType;
+    const f = oppField(ff, u.value, u.dataType, vft);
+    checkOppFieldShape(f, { ref, warn: ctx?.warn });
+    return f;
+  }
+  const cf = ctx?.customFields?.find((c) => c.id === ff || c.fieldKey === ff);
+  if (cf) {
+    ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' custom field '${ff}' shape not validated (contact->opp dataType join pending, spec \xA77b) \u2014 emitted as authored`);
+    return oppField(ff, u.value, u.dataType, u.valueFieldType ?? "string");
+  }
+  if (Array.isArray(ctx?.customFields)) {
+    throw new IRError(
+      "OPP_FIELD_UNKNOWN",
+      `update_opportunity '${ref}': filterField '${ff}' is neither a standard opportunity field (${[...STANDARD_OPP_FIELDS].join(", ")}) nor a custom field in this account. Pass explicit dataType/valueFieldType, or check the field id.`
+    );
+  }
+  ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' filterField '${ff}' not classified (no customFields list in this compile context) \u2014 emitted as authored`);
+  return oppField(ff, u.value, u.dataType, u.valueFieldType ?? "string");
+}
+function updateOpportunityAttributes(a, ref, ctx) {
+  const bad = Object.keys(a).filter((k) => !UPDATE_OPP_AUTHOR_KEYS.has(k));
+  if (bad.length)
+    throw new IRError(
+      "UNKNOWN_ATTR",
+      `update_opportunity '${ref}' has unknown attribute key(s) [${bad.join(", ")}]${bad.some((k) => UPDATE_OPP_ALIASES[k]) ? ` \u2014 did you mean ${bad.filter((k) => UPDATE_OPP_ALIASES[k]).map((k) => `'${UPDATE_OPP_ALIASES[k]}' (not '${k}')`).join(", ")}?` : ""}. Author keys: ${[...UPDATE_OPP_AUTHOR_KEYS].join(", ")}. NOTE the asymmetry \u2014 you author 'stageId', which compiles to the filterField 'pipelineStageId'; 'pipelineId' is the same on both sides. An ignored key compiles to a step that saves, round-trips clean, and no-ops at runtime.`
+    );
+  const f = (a.updates ?? []).map((u) => resolveOppUpdateField(u, ref, ctx));
+  if (!f.length) {
+    if (a.pipelineId != null) f.push(oppField("pipelineId", a.pipelineId, "SINGLE_OPTIONS", "select"));
+    if (a.stageId != null) f.push(oppField("pipelineStageId", a.stageId, "SINGLE_OPTIONS", "select"));
+    if (a.status != null) f.push(oppField("status", a.status, "SINGLE_OPTIONS", "select"));
+    if (a.lostReasonId != null) f.push(stdOppField("lostReasonId", a.lostReasonId));
+    if (a.name != null) f.push(oppField("name", a.name, "TEXT", "string"));
+    if (a.source != null) f.push(oppField("source", a.source, "TEXT", "string"));
+    if (a.value != null) f.push(oppField("monetaryValue", a.value, "NUMERICAL", "numerical"));
+    if (a.forecastExpectedCloseDate != null) f.push(stdOppField("forecastExpectedCloseDate", a.forecastExpectedCloseDate));
+    if (a.forecastProbability != null) f.push(stdOppField("forecastProbability", a.forecastProbability));
+    for (const field of f) checkOppFieldShape(field, { ref, warn: ctx?.warn });
+  }
+  if (!f.length)
+    throw new IRError(
+      "EMPTY_STEP",
+      `update_opportunity '${ref}' has nothing to update \u2014 it would compile to __customInputFields__:[] and no-op at runtime while round-tripping clean. Author either attributes.updates:[{field,value}] or the name path attributes:{pipeline,stage,status,...}.`
+    );
+  enforceLostReasonPrerequisite(f, ref, "update_opportunity");
+  const idx = (ff) => f.findIndex((x) => x.filterField === ff);
+  const stageAt = idx("pipelineStageId");
+  if (stageAt !== -1) {
+    const pipeAt = idx("pipelineId");
+    if (pipeAt === -1)
+      throw new IRError(
+        "OPP_STAGE_NO_PIPELINE",
+        `update_opportunity '${ref}' sets a pipeline stage without a pipeline. GHL scopes the stage picker to a pipeline, so a stage-only step renders DISABLED in the builder and never runs. Author pipelineId alongside stageId (or add a pipelineId entry to updates[]).`
+      );
+    if (pipeAt > stageAt) f.unshift(f.splice(pipeAt, 1)[0]);
+  }
+  return { allowBackward: a.allowBackward ?? false, type: "internal_update_opportunity", __customInputFields__: f, __customInputs__: {} };
+}
+function voiceAiOutboundCallAttributes(a) {
+  if (!a.agentId) throw new IRError("MISSING_FIELD", "voice_ai_outbound_call requires 'agentId'");
+  if (!a.fromPhoneNumber) throw new IRError("MISSING_FIELD", "voice_ai_outbound_call requires 'fromPhoneNumber'");
+  return {
+    agentId: a.agentId,
+    fromPhoneNumber: a.fromPhoneNumber,
+    outboundGuidelines: "",
+    type: "voice_ai_outbound_call",
+    __customInputs__: {}
+  };
+}
+var NOTIFICATION_CHANNELS = ["email", "sms", "notification", "whatsapp"];
+function asUserArray(v) {
+  if (v == null || v === "") return [];
+  return Array.isArray(v) ? v : [v];
+}
+var NOTIFICATION_EMITTED_KEYS = {
+  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published Living-In-Idaho
+  // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
+  // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
+  // into inline mode and made template-mode impossible to author — found by the enforcement tests.
+  email: ["from_name", "from_email", "to", "userType", "subject", "html", "attachments", "selectedUser", "cc", "preHeader", "template_id", "templatesource"],
+  sms: ["body", "userType", "attachments", "selectedUser", "template_id"],
+  notification: ["notificationType", "body", "title", "redirectPage", "userType", "selectedUser"],
+  whatsapp: ["body", "userType", "selectedUser", "template_id"]
+};
+function internalNotificationAttributes(a, ctx) {
+  const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null) ?? NOTIFICATION_CHANNELS.find((c) => c in a) ?? "email";
+  const b = a[channel] ?? {};
+  const dropped = Object.keys(b).filter((k) => !NOTIFICATION_EMITTED_KEYS[channel].includes(k));
+  if (dropped.length) {
+    ctx?.warn?.(`NOTIFICATION_KEY_DROPPED: internal_notification (${channel}) \u2014 authored key(s) [${dropped.join(", ")}] are not emitted by this channel's shape and were discarded. Emitted keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(", ")}. If one of these IS real, harvest a live example and extend the handler rather than assuming it shipped.`);
+  }
+  const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== "" ? "user" : "all");
+  const wantsUsers = userType === "user";
+  if (channel === "email") {
+    const wantsTo = userType === "custom_email" || b.to != null;
+    if (userType === "custom_email" && (b.to == null || b.to === "")) {
+      throw new IRError(
+        "MISSING_FIELD",
+        `internal_notification with userType 'custom_email' requires attributes.email.to \u2014 without it the builder shows an empty "To Custom Email" and the notification reaches nobody.`
+      );
+    }
+    return { type: "email", email: {
+      from_name: b.from_name ?? ctx?.senderDefault?.from_name ?? "{{location.name}}",
+      from_email: b.from_email ?? ctx?.senderDefault?.from_email ?? "{{location.email}}",
+      ...wantsTo ? { to: b.to } : {},
+      userType,
+      subject: b.subject ?? "",
+      // TEMPLATE-MODE: real published notifications carry email.template_id (+ templatesource
+      // 'email-builder') and NO inline html key at all — GHL's guards exempt the body on
+      // template_id, and the 3 live captures omit html entirely. Mirror them: template_id XOR
+      // html, never both (an empty inline body next to a template invites GHL to prefer it).
+      ...b.template_id != null && b.template_id !== "" && b.template_id !== "none" ? { template_id: b.template_id, ...b.templatesource != null ? { templatesource: b.templatesource } : {} } : { html: b.html ?? "" },
+      ...b.cc != null ? { cc: b.cc } : {},
+      ...b.preHeader != null ? { preHeader: b.preHeader } : {},
+      attachments: b.attachments ?? [],
+      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
+    } };
+  }
+  if (channel === "sms") {
+    return { type: "sms", sms: {
+      body: b.body ?? "",
+      ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
+      userType,
+      attachments: b.attachments ?? [],
+      ...wantsUsers ? { selectedUser: asUserArray(b.selectedUser) } : {}
+    } };
+  }
+  if (channel === "notification") {
+    const sel = asUserArray(b.selectedUser);
+    return { type: "notification", notification: {
+      type: b.notificationType ?? "send_notification",
+      body: b.body ?? "",
+      title: b.title ?? "",
+      redirectPage: b.redirectPage ?? "contact",
+      userType,
+      ...wantsUsers ? { selectedUser: sel[0] ?? "" } : {}
+    } };
+  }
+  return { type: "whatsapp", whatsapp: {
+    body: b.body ?? "",
+    ...b.template_id != null && b.template_id !== "" ? { template_id: b.template_id } : {},
+    userType,
+    selectedUser: asUserArray(b.selectedUser)
+  } };
+}
+var WEBHOOK_EVENTS = /* @__PURE__ */ new Set(["CUSTOM"]);
+var WEBHOOK_METHODS = /* @__PURE__ */ new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
+function webhookAttributes(a, ref) {
+  const ev = a.event ?? "CUSTOM";
+  if (!WEBHOOK_EVENTS.has(ev))
+    throw new IRError(
+      "WEBHOOK_EVENT",
+      `custom_webhook '${ref ?? "?"}' has event '${ev}'. Only ${[...WEBHOOK_EVENTS].join(", ")} is attested. An unknown event leaves the builder's EVENT dropdown blank and METHOD, CONTENT-TYPE and RAW BODY never render, so the step saves with no method and no body.`
+    );
+  const method = String(a.method ?? "POST").toUpperCase();
+  if (!WEBHOOK_METHODS.has(method))
+    throw new IRError(
+      "WEBHOOK_METHOD",
+      `custom_webhook '${ref ?? "?"}' has method '${method}'. Expected one of ${[...WEBHOOK_METHODS].join(", ")}.`
+    );
+  if (!a.url)
+    throw new IRError("WEBHOOK_URL", `custom_webhook '${ref ?? "?"}' has no url \u2014 the validator requires one.`);
+  return {
+    event: ev,
+    method,
+    url: a.url ?? "",
+    body: a.body ?? { contentType: "application/json", rawData: a.rawData ?? "{}", keyValueData: [] },
+    headers: a.headers ?? [],
+    parameters: a.parameters ?? [],
+    authorization: a.authorization ?? { type: "NONE", data: null },
+    saveResponse: a.saveResponse ?? false,
+    webhookResponse: a.webhookResponse ?? { isSampleRequested: false, selectedContact: "" }
+  };
+}
+function codeAttributes(a, ref) {
+  const output = a.output ?? {};
+  if (output === null || typeof output !== "object" || Object.keys(output).length === 0)
+    throw new IRError(
+      "CODE_OUTPUT_EMPTY",
+      `custom_code '${ref ?? "?"}' has an empty \`output\`. The builder rejects this as "Code must be tested before saving" and the step cannot be published. Author a representative sample of what the code returns, e.g. output: { ok: true }.`
+    );
+  return {
+    code: a.code ?? "return {};",
+    language: a.language ?? "javascript",
+    inputData: a.inputData ?? {},
+    output
+  };
+}
+function waitAttributes(node) {
+  const a = node.attributes ?? {};
+  const hybrid = { cat: "", isHybridAction: true, hybridActionType: "wait", convertToMultipath: false, transitions: [] };
+  const wt = node.waitType ?? (node.config ? "time" : a.type ?? "time");
+  if (wt === "time") {
+    const c = node.config ?? {};
+    const startAfter = {
+      type: c.unit ?? a.startAfter?.type,
+      value: c.value ?? a.startAfter?.value,
+      when: c.when ?? a.startAfter?.when ?? "after"
+    };
+    if (startAfter.type == null || startAfter.value == null)
+      throw new IRError(
+        "EMPTY_STEP",
+        `wait '${node.ref}' has no usable duration \u2014 a time wait needs config:{unit,value,when} (or attributes.startAfter:{type,value,when}). Got startAfter:${JSON.stringify(startAfter)}. An empty/partial startAfter compiles and publishes clean but the wait DOES NOT PAUSE at runtime \u2014 every following step fires immediately.`
+      );
+    const base = { type: "time", startAfter, ...hybrid };
+    const w = node.window ?? a.window;
+    if (w) {
+      base.window = w.condition === "exact" ? { condition: "exact", days: w.days ?? [], start: w.start } : { condition: "when", days: w.days ?? [0, 1, 2, 3, 4, 5, 6], start: w.start, end: w.end };
+      base.windowCondition = { field: "", operator: "", value: "" };
+    }
+    return base;
+  }
+  return { type: wt, ...a, ...hybrid };
+}
+function emailAttributes(node, ctx) {
+  const a = node.attributes ?? {};
+  const base = {
+    trackingOptions: a.trackingOptions ?? { hasTrackingLinks: true, hasUtmTracking: true, hasTags: false },
+    conditions: a.conditions ?? [],
+    subject: a.subject ?? "",
+    preHeader: a.preHeader ?? "",
+    from_name: a.from_name ?? ctx?.senderDefault?.from_name ?? "{{location.name}}",
+    from_email: a.from_email ?? ctx?.senderDefault?.from_email ?? "{{location.email}}",
+    templateCreationMode: a.templateCreationMode ?? "existing",
+    syncEnabled: a.syncEnabled ?? false,
+    attachments: a.attachments ?? [],
+    fieldDefaults: a.fieldDefaults ?? { subject: {} }
+  };
+  if (a.template_id) {
+    base.template_id = a.template_id;
+    base.templatesource = a.templatesource ?? "email-builder";
+  } else {
+    base.html = a.html ?? "";
+    base.htmlDefaults = a.htmlDefaults ?? {};
+  }
+  return base;
+}
+function typeFor(node) {
+  if (node.kind === "wait") return "wait";
+  if (node.type === "create_opportunity") return "internal_create_opportunity";
+  if (node.type === "update_opportunity") return "internal_update_opportunity";
+  return node.type;
+}
+function withStepDisabled(node, template, ctx) {
+  let out = template;
+  if (Array.isArray(node.notes) && node.notes.length) out = { ...out, comments: stepNotesToComments(node.notes, ctx ?? {}) };
+  if (node.disabled !== true) return out;
+  return {
+    ...out,
+    advanceCanvasMeta: {
+      ...node.advanceCanvasMeta ?? {},
+      ...out.advanceCanvasMeta ?? {},
+      isDisabled: true
+    }
+  };
+}
+function idForRef(refMap, ctx, ref) {
+  if (ref === void 0 || ref === null) return ctx.idGen();
+  if (!refMap.has(ref)) refMap.set(ref, ctx.idGen());
+  return refMap.get(ref);
+}
+var IFELSE_NESTED_DROPDOWN_TYPES = [
+  "inboundWebhookRequest",
+  "sheet",
+  "datetime_formatter",
+  "custom_webhook",
+  "array_functions",
+  "ivr_gather",
+  "ivr_connect_call",
+  "custom_code",
+  "ai_agent",
+  "task-notification"
+];
+var IFELSE_ALLOW_IS_OPERATOR_TYPES = [
+  "contact_reply",
+  "inboundWebhookRequest",
+  "custom_webhook",
+  "custom_code",
+  "ai_agent",
+  "contact_detail",
+  "array_functions",
+  "appointment",
+  "service_booking",
+  "rental_booking"
+];
+var CONDITION_INTENT_KEYS = /* @__PURE__ */ new Set([
+  "tag",
+  "stage",
+  "not",
+  "trigger",
+  "conditionType",
+  "conditionSubType",
+  "conditionOperator",
+  "conditionValue"
+]);
+function conditionExtras(c) {
+  const out = {};
+  for (const k of Object.keys(c)) if (!CONDITION_INTENT_KEYS.has(k)) out[k] = c[k];
+  return out;
+}
+function normalizeCondition(rawC) {
+  const c = canonicalizeOppStageCondition(rawC);
+  const extras = conditionExtras(c);
+  const type = c.conditionType;
+  const tagIntent = c.tag !== void 0 || c.conditionSubType === "tags" || c.conditionSubType === "tag";
+  if (type === "contact_detail" && tagIntent) {
+    const raw = c.tag ?? c.conditionValue;
+    const negate = c.not === true || c.conditionOperator === "index-of-false" || c.conditionOperator === "not-contains";
+    return {
+      ...extras,
+      conditionType: "contact_detail",
+      conditionSubType: "tags",
+      conditionOperator: negate ? "index-of-false" : "index-of-true",
+      conditionValue: raw == null ? [] : Array.isArray(raw) ? raw : [raw]
+    };
+  }
+  const stageIntent = c.stage !== void 0 || c.conditionSubType === OPP_STAGE_SUBTYPE;
+  if (type === OPP_STAGE_TYPE && stageIntent) {
+    const raw = c.conditionValue ?? c.stage;
+    return {
+      ...extras,
+      conditionType: OPP_STAGE_TYPE,
+      conditionSubType: OPP_STAGE_SUBTYPE,
+      conditionOperator: "==",
+      conditionValue: Array.isArray(raw) ? raw[0] : raw
+    };
+  }
+  if (type === "trigger") {
+    return {
+      ...extras,
+      conditionType: "trigger",
+      conditionSubType: c.conditionSubType,
+      conditionOperator: "==",
+      conditionValue: c.conditionValue ?? c.trigger
+    };
+  }
+  if (type === "contact_detail") {
+    const op = c.conditionOperator ?? "contain";
+    let val = c.conditionValue;
+    if (op === "contain" && typeof val === "string") val = val.toLowerCase();
+    return { ...extras, conditionType: "contact_detail", conditionSubType: c.conditionSubType, conditionOperator: op, conditionValue: val };
+  }
+  return {
+    ...extras,
+    conditionType: type,
+    conditionSubType: c.conditionSubType,
+    conditionOperator: c.conditionOperator ?? "==",
+    conditionValue: c.conditionValue
+  };
+}
+function expandCondition(c, ctx) {
+  const n = lintConditionShape(normalizeCondition(c));
+  const out = {
+    conditionType: n.conditionType,
+    conditionSubType: n.conditionSubType,
+    conditionOperator: n.conditionOperator,
+    conditionValue: n.conditionValue,
+    __conditionId: n.__conditionId ?? ctx.idGen(),
+    ifElseNodeId: n.ifElseNodeId ?? "",
+    isWait: n.isWait ?? false,
+    nestedDropdownTypes: n.nestedDropdownTypes ?? IFELSE_NESTED_DROPDOWN_TYPES,
+    allowIsOperatorTypes: n.allowIsOperatorTypes ?? IFELSE_ALLOW_IS_OPERATOR_TYPES
+  };
+  if (n.conditionType === "contact_detail" || n.conditionType === "appointment")
+    out.__customFieldType__ = n.__customFieldType__ ?? "standard";
+  for (const k of Object.keys(n)) if (!(k in out)) out[k] = n[k];
+  return out;
+}
+function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
+  const templates = [];
+  const ids = nodes.map((n) => idForRef(refMap, ctx, n.ref));
+  nodes.forEach((n, i) => {
+    ctx.__visited?.add(n);
+    const id = ids[i];
+    const next = i < nodes.length - 1 ? ids[i + 1] : null;
+    const parentKey = i > 0 ? ids[i - 1] : parentScopeId ?? null;
+    if (n.kind === "if_else") {
+      const conditioned = n.branches.filter((b) => b.else !== true);
+      const elseBranch = n.branches.find((b) => b.else === true);
+      const conditionedIds = conditioned.map((b) => idForRef(refMap, ctx, b.ref));
+      const noneId = elseBranch ? idForRef(refMap, ctx, elseBranch.ref) : ctx.idGen();
+      const allBranchIds = [...conditionedIds, noneId];
+      const noneName = elseBranch?.name ?? "None";
+      const ifElseContainer = {
+        id,
+        type: "if_else",
+        name: n.name,
+        order: i,
+        parentKey,
+        next: allBranchIds,
+        nodeType: "condition-node",
+        cat: "conditions",
+        comments: [],
+        attributes: {
+          currentRecipeType: "CUSTOM",
+          branches: conditioned.map((b, bi) => ({
+            id: conditionedIds[bi],
+            name: b.name,
+            segments: b.conditions && b.conditions.length ? [{ __segmentId: ctx.idGen(), operator: "and", conditions: b.conditions.map((c) => expandCondition(c, ctx)) }] : [],
+            operator: "and",
+            showErrors: false,
+            branchNameError: "Branch name cannot be empty!"
+          })),
+          operator: "and",
+          if: true,
+          conditionName: n.name,
+          // <- the builder's container display label
+          version: 2,
+          noneBranchName: noneName
+        }
+      };
+      if (parentScopeId !== null) ifElseContainer.parent = parentScopeId;
+      templates.push(withStepDisabled(n, ifElseContainer, ctx));
+      conditioned.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, conditionedIds[bi]);
+        templates.push({
+          id: conditionedIds[bi],
+          type: "if_else",
+          name: b.name,
+          order: bi,
+          parent: id,
+          parentKey: id,
+          cat: "conditions",
+          comments: [],
+          sibling: allBranchIds.filter((x) => x !== conditionedIds[bi]),
+          nodeType: "branch-yes",
+          attributes: { if: false, conditionName: "Condition", operator: "and", branches: [] },
+          next: child.entryId
+        });
+        templates.push(...child.templates);
+      });
+      const noneChild = flattenGraph(elseBranch?.then ?? [], ctx, refMap, noneId);
+      templates.push({
+        id: noneId,
+        type: "if_else",
+        name: noneName,
+        order: conditioned.length,
+        parent: id,
+        parentKey: id,
+        cat: "conditions",
+        comments: [],
+        sibling: allBranchIds.filter((x) => x !== noneId),
+        nodeType: "branch-no",
+        attributes: { else: true },
+        next: noneChild.entryId
+      });
+      templates.push(...noneChild.templates);
+      return;
+    }
+    if (n.type === "conversationai_book_appointment") {
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const container = {
+        id,
+        type: "conversationai_book_appointment",
+        name: n.name ?? "Book appointment",
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        workflowsActionType: "INTERNAL",
+        next: [t1, t2],
+        attributes: {
+          promptInstructions: attrs.promptInstructions ?? "Get the customer to book an appointment",
+          calendarId: attrs.calendarId,
+          type: "conversationai_book_appointment",
+          __customInputs__: {},
+          cat: "multi-path",
+          convertToMultipath: true,
+          transitions: [
+            { id: t1, name: "Appointment Booked", fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
+            { id: t2, name: "Appointment Not booked", fields: { appointmentNotBooked: true }, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" }
+          ],
+          __name__: n.name ?? "Book appointment"
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const booked = flattenGraph(n.onBooked ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: "transition", name: "Appointment Booked", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: booked.entryId });
+      templates.push(...booked.templates);
+      const notb = flattenGraph(n.onNotBooked ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: "transition", name: "Appointment Not booked", cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, next: notb.entryId });
+      templates.push(...notb.templates);
+      return;
+    }
+    if (n.type === "conversationai_ai_splitter") {
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
+      const authorBranches = n.branches ?? [];
+      const noneId = ctx.idGen();
+      const branchIds = authorBranches.map(() => ctx.idGen());
+      const container = {
+        id,
+        type: "conversationai_ai_splitter",
+        name: n.name ?? "AI splitter",
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        workflowsActionType: "INTERNAL",
+        next: [noneId, ...branchIds],
+        attributes: {
+          description: attrs.description ?? "",
+          type: "conversationai_ai_splitter",
+          __customInputs__: {},
+          cat: "multi-path",
+          convertToMultipath: true,
+          transitions: [
+            { id: noneId, name: "No condition met", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
+            ...authorBranches.map((b, bi) => ({ id: branchIds[bi], name: b.name, fields: b.fields ?? {}, meta: {}, conditionType: "user-defined" }))
+          ],
+          __name__: n.name ?? "AI splitter"
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const none = flattenGraph(n.default ?? [], ctx, refMap, noneId);
+      templates.push({ id: noneId, type: "transition", name: "No condition met", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: none.entryId });
+      templates.push(...none.templates);
+      authorBranches.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
+        templates.push({ id: branchIds[bi], type: "transition", name: b.name, cat: "transition", parentKey: id, parent: id, order: bi + 1, attributes: {}, next: child.entryId });
+        templates.push(...child.templates);
+      });
+      return;
+    }
+    if (n.kind === "wait" && (n.onEvent || n.onTimeout)) {
+      const wt = n.waitType ?? "reply";
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const eventDesc = n.reply?.labels?.length ? `What will happen when a contact replies on ${n.reply.labels.join(", ")}` : "What will happen when the event fires";
+      const timeoutDesc = n.timeout ? `What will happen after ${n.timeout.value} ${n.timeout.unit}` : "What will happen on timeout";
+      const startAfter = n.timeout ? { type: n.timeout.unit, value: n.timeout.value, when: n.timeout.when ?? "after" } : void 0;
+      let subtype = {};
+      if (wt === "reply") {
+        const replyIds = (n.reply?.steps ?? []).map((r) => idForRef(refMap, ctx, r));
+        subtype = { reply: replyIds, replyLabel: n.reply?.labels ?? [] };
+      } else {
+        subtype = { ...n.attributes ?? {} };
+      }
+      const mkTrans = (tid, name, cond, primary, desc) => ({ id: tid, name, condition: cond, conditionType: "user-defined", isPrimaryBranch: primary, description: "", attributes: { type: primary ? `wait_${wt}` : "wait_timeout", description: desc } });
+      const container = {
+        id,
+        type: "wait",
+        name: n.name,
+        order: i,
+        parentKey,
+        next: [t1, t2],
+        cat: "multi-path",
+        attributes: {
+          type: wt,
+          ...startAfter ? { startAfter } : {},
+          ...subtype,
+          name: n.name,
+          cat: "multi-path",
+          timePeriodInputMode: "standard",
+          unitInputMode: "standard",
+          isHybridAction: true,
+          hybridActionType: "wait",
+          convertToMultipath: true,
+          transitions: [mkTrans(t1, "wait", "primary", true, eventDesc), mkTrans(t2, "timeout", "timeout", false, timeoutDesc)]
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const prim = flattenGraph(n.onEvent ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, parentKey: id, parent: id, type: "transition", name: "wait", attributes: { type: `wait_${wt}`, description: eventDesc }, order: 0, cat: "transition", next: prim.entryId });
+      templates.push(...prim.templates);
+      const tout = flattenGraph(n.onTimeout ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, parentKey: id, parent: id, type: "transition", name: "timeout", attributes: { type: "wait_timeout", description: timeoutDesc }, order: 1, cat: "transition", next: tout.entryId });
+      templates.push(...tout.templates);
+      return;
+    }
+    if (n.type === "find_opportunity" && (n.onFound || n.onNotFound)) {
+      if (n.attributes?.__customInputFields__ !== void 0)
+        throw new IRError(
+          "FIND_FILTERS_MISPLACED",
+          `find_opportunity '${n.ref ?? n.name}' authors attributes.__customInputFields__, which this step IGNORES \u2014 that is the emitted shape, not the author shape. Move it to the node-level find.filters: [{ field: 'pipeline_id', operator: 'eq', value: '<pipelineId>' }]. Left as authored, the finder compiles with NO filters and matches an arbitrary opportunity.`
+        );
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const fields = (n.find?.filters ?? []).map((f) => ({ __customInputs__: {}, filterField: f.field, value: f.operator ?? "eq", secondValue: f.value }));
+      const container = {
+        id,
+        type: "find_opportunity",
+        name: n.name,
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        workflowsActionType: "INTERNAL",
+        next: [t1, t2],
+        attributes: {
+          sorting: n.find?.sorting ?? "latest",
+          type: "find_opportunity",
+          __customInputFields__: fields,
+          __customInputs__: {},
+          cat: "multi-path",
+          convertToMultipath: true,
+          transitions: [
+            { id: t1, name: "Opportunity Found", fields: [], meta: { __branchKey__: "predefined_Opportunity Found" }, conditionType: "pre-defined" },
+            { id: t2, name: "Opportunity Not Found", fields: [], meta: { __branchKey__: "predefined_Opportunity Not Found" }, conditionType: "pre-defined" }
+          ],
+          __name__: n.name
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: "transition", name: "Opportunity Found", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
+      templates.push(...found.templates);
+      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: "transition", name: "Opportunity Not Found", cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, next: notf.entryId });
+      templates.push(...notf.templates);
+      return;
+    }
+    if (n.kind === "goto") {
+      if (!refMap.has(n.target)) refMap.set(n.target, ctx.idGen());
+      const gotoTarget = refMap.get(n.target);
+      if (!gotoTarget)
+        throw new IRError(
+          "REF_DANGLING",
+          `REF_DANGLING: goto '${n.ref}' targets ref '${n.target}', which does not exist in this IR. GHL would save this with a green "0 Errors" panel and a broken-link icon; the runtime would have nowhere to send the contact. Point \`target\` at a real node ref.`
+        );
+      const tmpl2 = {
+        id,
+        type: "goto",
+        name: n.name ?? "Go To",
+        order: i,
+        attributes: { targetNodeId: gotoTarget, type: "goto" },
+        next: null,
+        parentKey
+      };
+      if (parentScopeId !== null) tmpl2.parent = parentScopeId;
+      templates.push(withStepDisabled(n, tmpl2, ctx));
+      return;
+    }
+    if (n.kind === "split") {
+      const pathIds = n.paths.map(() => ctx.idGen());
+      const weighted = n.mode === "weighted" || n.mode === "random";
+      const even = Math.round(100 / n.paths.length);
+      const weightDistribution = {};
+      n.paths.forEach((p, pi) => {
+        weightDistribution[pathIds[pi]] = weighted ? p.weight ?? even : even;
+      });
+      const container = {
+        id,
+        type: "workflow_split",
+        name: n.name ?? "Split",
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        next: pathIds,
+        attributes: {
+          name: n.name ?? "Split",
+          cat: "multi-path",
+          type: "workflow_split",
+          transitions: n.paths.map((p, pi) => ({
+            id: pathIds[pi],
+            name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+            condition: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+            conditionType: "default",
+            isPrimaryBranch: false,
+            description: "",
+            attributes: {}
+          })),
+          paths: n.paths.map((p, pi) => ({ name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`, id: pathIds[pi] })),
+          condition: n.condition ?? "random-split",
+          extras: { weightDistribution }
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      n.paths.forEach((p, pi) => {
+        const child = flattenGraph(p.then ?? [], ctx, refMap, pathIds[pi]);
+        templates.push({
+          id: pathIds[pi],
+          type: "transition",
+          name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+          cat: "transition",
+          parentKey: id,
+          parent: id,
+          order: pi,
+          attributes: {},
+          next: child.entryId
+        });
+        templates.push(...child.templates);
+      });
+      return;
+    }
+    if ((n.type === "find_contact" || n.type === "lc_merge_contact") && (n.onFound || n.onNotFound)) {
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const isFC = n.type === "find_contact";
+      const container = {
+        id,
+        type: n.type,
+        name: n.name ?? (isFC ? "Find Contact" : "Merge Contact"),
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        next: [t1, t2],
+        attributes: isFC ? {
+          type: "find_contact",
+          fields: n.find?.fields ?? [],
+          convertToMultipath: true,
+          name: n.name ?? "Find Contact",
+          cat: "multi-path",
+          isHybridAction: true,
+          hybridActionType: "find_contact",
+          transitions: [
+            { id: t1, name: "Contact Found", condition: "contact_found", conditionType: "user-defined", isPrimaryBranch: true, description: "", attributes: { type: "contact_found", description: "Contact Found", cat: "multi-path" } },
+            { id: t2, name: "Contact Not Found", condition: "contact_not_found", conditionType: "user-defined", isPrimaryBranch: false, description: "", attributes: { type: "contact_not_found", description: "Contact Not Found" } }
+          ]
+        } : {
+          match_by: n.match_by ?? "email",
+          type: "lc_merge_contact",
+          __customInputs__: {},
+          cat: "multi-path",
+          convertToMultipath: true,
+          transitions: [
+            { id: t1, name: "Duplicate Contact Found", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
+            { id: t2, name: "Duplicate Contact Not Found", fields: {}, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" }
+          ],
+          __name__: n.name ?? `Merge Contact by ${n.match_by ?? "email"}`
+        }
+      };
+      if (!isFC) container.workflowsActionType = "INTERNAL";
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const found = flattenGraph(n.onFound ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: "transition", name: container.attributes.transitions[0].name, cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: found.entryId });
+      templates.push(...found.templates);
+      const notf = flattenGraph(n.onNotFound ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: "transition", name: container.attributes.transitions[1].name, cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, next: notf.entryId });
+      templates.push(...notf.templates);
+      return;
+    }
+    if (n.kind === "ai_decision") {
+      const type = n.type ?? "workflow_ai_decision_maker";
+      const defId = ctx.idGen();
+      const branchIds = n.branches.map(() => ctx.idGen());
+      const transitions = [
+        { id: defId, name: "Default Branch", fields: { description: "Go in this branch if none of the other branches make sense.", branchKey: "none" }, meta: { __branchKey__: "predefined_Default Branch" }, conditionType: "pre-defined" },
+        ...n.branches.map((b, bi) => ({
+          id: branchIds[bi],
+          name: b.name,
+          fields: { description: b.description ?? "", branchKey: b.branchKey ?? `branch_${bi}` },
+          meta: { __branchKey__: ctx.idGen() },
+          conditionType: "user-defined"
+        }))
+      ];
+      const container = {
+        id,
+        type,
+        name: n.name ?? "Workflow AI - Decision Maker",
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        workflowsActionType: "INTERNAL",
+        next: [defId, ...branchIds],
+        attributes: {
+          instructions: n.instructions ?? "",
+          information: n.information ?? "",
+          type,
+          __customInputs__: {},
+          cat: "multi-path",
+          convertToMultipath: true,
+          transitions,
+          __name__: n.name ?? "Workflow AI - Decision Maker"
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const def = flattenGraph(n.default ?? [], ctx, refMap, defId);
+      templates.push({ id: defId, type: "transition", name: "Default Branch", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: def.entryId });
+      templates.push(...def.templates);
+      n.branches.forEach((b, bi) => {
+        const child = flattenGraph(b.then ?? [], ctx, refMap, branchIds[bi]);
+        templates.push({ id: branchIds[bi], type: "transition", name: b.name, cat: "transition", parentKey: id, parent: id, order: bi + 1, attributes: {}, next: child.entryId });
+        templates.push(...child.templates);
+      });
+      return;
+    }
+    const tmpl = { id, type: typeFor(n), name: n.name, order: i, attributes: attributesFor(n, ctx), next, parentKey };
+    if (n.marketplace === true) tmpl.isMarketplaceAction = true;
+    if (parentScopeId !== null) tmpl.parent = parentScopeId;
+    templates.push(withStepDisabled(n, tmpl, ctx));
+  });
+  for (const t of templates) if (t.parentKey === null) delete t.parentKey;
+  return { templates, entryId: ids[0] ?? null };
+}
+function casingLint({ triggerBodies, autoSaveBody }) {
+  for (const tb of triggerBodies ?? []) {
+    if ("workflow_id" in tb) throw new IRError("CASING", "trigger root must use camelCase workflowId, not workflow_id");
+    if (!("workflowId" in tb)) throw new IRError("CASING", "trigger missing camelCase workflowId");
+    for (const k of ["location_id", "company_id"]) if (!(k in tb)) throw new IRError("CASING", `trigger missing snake ${k}`);
+  }
+  if (autoSaveBody && ("location_id" in autoSaveBody || "company_id" in autoSaveBody))
+    throw new IRError("CASING", "workflow body must use camelCase locationId/companyId");
+}
+var MARKETPLACE_OPERATORS = /* @__PURE__ */ new Set(["string-contains-any-of", "is-not-empty"]);
+function checkMarketplaceFilters(triggers, ctx) {
+  const values = [];
+  for (const t of triggers) {
+    if (t.marketplace !== true) continue;
+    for (const f of t.filters ?? []) {
+      if (!f.operator)
+        throw new IRError(
+          "MARKETPLACE_FILTER_OPERATOR",
+          `trigger '${t.name ?? t.type}' filters '${f.field}' with no operator. A marketplace filter requires one \u2014 GHL's marketplace filter component offers only ${[...MARKETPLACE_OPERATORS].join(" and ")}. A condition saved without an operator saves clean and never matches.`
+        );
+      if (!MARKETPLACE_OPERATORS.has(f.operator))
+        throw new IRError(
+          "MARKETPLACE_FILTER_OPERATOR",
+          `trigger '${t.name ?? t.type}' filters '${f.field}' with operator '${f.operator}', which GHL's marketplace filter component does not offer. The only operators are ${[...MARKETPLACE_OPERATORS].join(" and ")}. An unsupported operator saves and never matches.`
+        );
+      for (const v of [].concat(f.value ?? [])) if (typeof v === "string" && v) values.push(v);
+    }
+  }
+  for (const a of values) {
+    for (const b of values) {
+      if (a !== b && b.includes(a))
+        ctx?.warn?.(`marketplace trigger filter values overlap: '${a}' is a substring of '${b}'. Marketplace filters match by substring only, so anything matching '${b}' also fires '${a}'.`);
+    }
+  }
+}
+var ARRAY_OPS = /* @__PURE__ */ new Set([
+  "is-any-of",
+  "is-in-array",
+  "contains-any",
+  "contains-none",
+  "string-contains-any-of",
+  "string-matches-any-of"
+]);
+var SCALAR_OPS = /* @__PURE__ */ new Set(["index-of-true", "index-of-false"]);
+function defaultOp(type) {
+  if (type === "number" || type === "date") return "==";
+  if (type === "string" || type === "input") return "is-any-of";
+  return "==";
+}
+function expandFilter(f, rows) {
+  if (f.field && f.operator && f.title && f.type) {
+    return SCALAR_OPS.has(f.operator) && Array.isArray(f.value) && f.value.length === 1 ? { ...f, value: f.value[0] } : f;
+  }
+  const key = f.on ?? f.field ?? f.id;
+  const norm2 = (s) => String(s ?? "").toLowerCase().replace(/[\s_-]+/g, "");
+  const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm2(r.label) === norm2(key) || norm2(r.value) === norm2(key));
+  if (!row) return f;
+  const type = f.type ?? row.type ?? "select";
+  let operator = f.operator ?? row.operator ?? defaultOp(type);
+  let value = f.value;
+  if (Array.isArray(value) && operator === "==") operator = "is-any-of";
+  if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
+  if (SCALAR_OPS.has(operator) && Array.isArray(value)) {
+    if (value.length > 1) {
+      throw new IRError(
+        "FILTER_VALUE",
+        `trigger filter '${row.value}' (${operator}) takes a single tag, got ${value.length}; use one filter row per tag`
+      );
+    }
+    value = value[0];
+  }
+  const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
+  if (row.id) cond.id = row.id;
+  return cond;
+}
+function buildTrigger(t, ctx, wid) {
+  const meta3 = ctx.catalog.trigger(t.type);
+  const rows = meta3?.filterRows ?? [];
+  let conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
+  if (ctx?.skipTriggerSeeds !== true) {
+    const seedRows = (ctx?.catalog?.trigger?.(t.type)?.seededFilters?.rows ?? []).filter((r) => r.verdict === "seed-confirmed" && r.seedRow?.field);
+    for (const r of seedRows.reverse()) {
+      if (conditions.some((c) => c?.field === r.seedRow.field)) continue;
+      const { field, operator, type, title, value } = r.seedRow;
+      conditions.unshift({ operator, field, ...value !== null && value !== void 0 ? { value } : {}, ...title ? { title } : {}, ...type ? { type } : {} });
+    }
+  }
+  let marketplaceFields = {};
+  if (t.marketplace === true) {
+    const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
+    marketplaceFields = { version: entry.version, templateId: entry.templateId };
+    conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
+  }
+  for (const r of meta3?.filterChecks?.shapeRules ?? []) {
+    const row = conditions.find((c) => c.field === r.field);
+    const empty2 = !row || row.value == null || row.value === "" || Array.isArray(row.value) && !row.value.length;
+    const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` \u2014 GHL: "${ctx.catalog.i18n[r.i18n]}"` : "";
+    if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}${ghlText}`);
+  }
+  return {
+    status: "draft",
+    workflowId: wid,
+    schedule_config: {},
+    conditions,
+    type: t.type,
+    masterType: t.marketplace === true ? "marketplace" : t.masterType ?? meta3?.masterType ?? "highlevel",
+    ...marketplaceFields,
+    name: t.name,
+    actions: [{ workflow_id: wid, type: "add_to_workflow" }],
+    // Marketplace triggers carry their schema flavour on the stored document. The builder
+    // sends it (captured live 2026-07-27 from its own POST) and GHL persists it, so mirror
+    // it wherever the catalog records one — and never invent it where it does not.
+    ...meta3?.workflowsTriggerType ? { workflowsTriggerType: meta3.workflowsTriggerType } : {},
+    active: t.active !== false,
+    triggersChanged: true,
+    location_id: ctx.loc,
+    company_id: ctx.cid,
+    company_age: ctx.companyAge,
+    // conv_ai_trigger binds a FLOW_BUILDER_BOT flow workflow to its agent — without
+    // convTriggerBotId the flow builder never opens the workflow as that agent's canvas
+    // (the agent→workflow half is set separately via the /ai-employees link PUT).
+    ...t.convTriggerBotId ? { convTriggerBotId: t.convTriggerBotId } : {}
+  };
+}
+function compile(ir, ctx) {
+  const norm2 = parseIR(ir);
+  checkMarketplaceFilters(norm2.triggers, ctx);
+  const oppTriggerTypes = new Set(
+    ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === "opportunities")
+  );
+  checkOpportunityAssociation(norm2, oppTriggerTypes);
+  const refMap = /* @__PURE__ */ new Map();
+  const visited = /* @__PURE__ */ new Set();
+  const { templates } = flattenGraph(norm2.graph, { ...ctx, __visited: visited }, refMap, null);
+  const missing = [];
+  let authored = 0;
+  walkNodes(norm2.graph, (n) => {
+    authored += 1;
+    if (!visited.has(n)) missing.push(n.ref ?? `<${n.type ?? n.kind} "${n.name ?? "?"}">`);
+  });
+  if (missing.length)
+    throw new IRError(
+      "NODE_DROPPED",
+      `${missing.length} authored node(s) never reached the built payload: ${missing.join(", ")}. They were silently discarded \u2014 without this check the build would have reported a clean round-trip for an incomplete workflow. Usually this means a node carries a child scope (onFound/onEvent/\u2026) that its type has no container handler for.`
+    );
+  if (!ctx.allowUnknownStepTypes) {
+    const unknown2 = [...new Set(templates.filter((t) => t.isMarketplaceAction !== true && !ctx.catalog.step(t.type)).map((t) => t.type))];
+    if (unknown2.length) {
+      const known = ctx.catalog.allSteps();
+      const near = (bad) => known.filter((k) => k.includes(bad) || bad.includes(k)).slice(0, 3);
+      throw new Error(`STEP_TYPE_UNKNOWN: ${unknown2.map((u) => {
+        const suggestions = near(u);
+        return `'${u}'${suggestions.length ? ` \u2014 did you mean ${suggestions.map((s) => `'${s}'`).join(" / ")}?` : ""}`;
+      }).join("; ")}. These types are not in the catalog, so the builder will not recognise them: the step saves, renders without its action icon, and its editor will not open. Search the catalog (node scripts/query-catalog-cli.mjs <term>) for the real slug. If you have verified the type IS real and the catalog is behind, harvest an example and pass allowUnknownStepTypes to override this guard deliberately.`);
+    }
+  }
+  let stepIndex = 0;
+  const marketplaceStepIndexCounter2 = /* @__PURE__ */ new Map();
+  for (const t of templates) {
+    const meta3 = ctx.catalog.step(t.type);
+    if (meta3 && meta3.situational?.includes("workflowsActionType") && !("workflowsActionType" in t))
+      t.workflowsActionType = "INTERNAL";
+    if (meta3?.premium && !("stepIndex" in t)) t.stepIndex = stepIndex;
+    if (t.isMarketplaceAction === true && !("stepIndex" in t)) {
+      const next = (marketplaceStepIndexCounter2.get(t.type) ?? 0) + 1;
+      marketplaceStepIndexCounter2.set(t.type, next);
+      t.stepIndex = next;
+    }
+    stepIndex += 1;
+  }
+  const wid = ctx.idGen();
+  const sessionId = ctx.idGen();
+  const createdSteps = templates.map((t) => t.id);
+  const S = normalizeSettings(norm2.settings, ctx).body;
+  const createBody = {
+    name: norm2.name,
+    status: "draft",
+    parentId: null,
+    updatedBy: ctx.uid,
+    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
+    modifiedSteps: [],
+    deletedSteps: [],
+    createdSteps: [],
+    senderAddress: S.senderAddress,
+    stopOnResponse: S.stopOnResponse,
+    allowMultiple: S.allowMultiple,
+    allowMultipleOpportunity: S.allowMultipleOpportunity,
+    autoMarkAsRead: S.autoMarkAsRead,
+    eventStartDate: S.eventStartDate,
+    timezone: "",
+    workflowData: { templates: [] },
+    triggersChanged: false,
+    company_id: ctx.cid,
+    company_age: ctx.companyAge
+  };
+  const autoSaveBody = {
+    _id: wid,
+    id: wid,
+    locationId: ctx.loc,
+    companyId: ctx.cid,
+    companyAge: ctx.companyAge,
+    name: norm2.name,
+    status: "draft",
+    version: 1,
+    dataVersion: 7,
+    type: "workflow",
+    parentId: null,
+    // A FLOW_BUILDER_BOT's flow workflow persists with workflowType:"agent" (live capture
+    // recon-flow-workflow-full.json). Plain workflows omit it. type stays "workflow".
+    ...norm2.workflowType ? { workflowType: norm2.workflowType } : {},
+    // OBJECT-BASED workflow (G8): the create/save carry the schema key top-level
+    // (utils/create-workflow-blank.ts; isObjectBasedWF tests startsWith('custom_objects.')).
+    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
+    permission: 380,
+    permissionMeta: { canRead: true, canWrite: true },
+    creationSource: "builder",
+    originType: "user",
+    isTriggerBucketMigrated: true,
+    deleted: false,
+    timezone: S.timezone,
+    allowMultiple: S.allowMultiple,
+    allowMultipleOpportunity: S.allowMultipleOpportunity,
+    removeContactFromLastStep: S.removeContactFromLastStep,
+    stopOnResponse: S.stopOnResponse,
+    autoMarkAsRead: S.autoMarkAsRead,
+    scheduledPauseDates: S.scheduledPauseDates,
+    senderAddress: S.senderAddress,
+    eventStartDate: S.eventStartDate,
+    updatedBy: ctx.uid,
+    // Settings-tab keys the engine never carried before 2026-08-22 (live-proven on the UI's
+    // own Save PUT): the time window and the workflow note. null = the UI's "off"/"empty".
+    window: S.window,
+    workflowNote: S.workflowNote,
+    triggersChanged: false,
+    isAutoSave: true,
+    autoSaveSession: { workflowId: wid, id: sessionId, userId: ctx.uid, version: 1 },
+    createdSteps,
+    modifiedSteps: [],
+    deletedSteps: [],
+    workflowData: { templates },
+    // Only present when the workflow actually HAS marketplace steps — a native-only
+    // build must emit exactly the autoSaveBody it emitted before this fix, with no new
+    // `meta` key (existing native-output test asserts this). See marketplaceStepIndexCounter
+    // above for what this map records and why it's per-key.
+    ...marketplaceStepIndexCounter2.size > 0 || S.statsView ? { meta: { ...marketplaceStepIndexCounter2.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
+  };
+  const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
+  applyUiDefaults(templates, ctx?.catalog, ctx);
+  if (typeof ctx?.warn === "function") {
+    for (const t of templates) {
+      if (t?.type !== "custom_code") continue;
+      const out = t.attributes?.output;
+      if (!out || typeof out !== "object" || Array.isArray(out) || !Object.keys(out).length)
+        ctx.warn(`custom_code '${t.name ?? t.id}': attributes.output is ${out === void 0 ? "missing" : "empty"} \u2014 the builder requires a successful "Run test" (POST /custom-code/run-test) and will show an error on this step until one is run in the UI`);
+    }
+  }
+  checkIfElseVocab(templates, ctx?.catalog, ctx);
+  checkMergeTags(templates, ctx?.catalog, ctx);
+  checkStepOutputRefs(templates, ctx);
+  checkGoghlSyntax(templates, ctx);
+  checkWebhookRefs(templates, ctx?.sampleWebhookPayload ?? norm2?.sampleWebhookPayload ?? ir?.sampleWebhookPayload, ctx);
+  if (norm2.customObjectType && ctx?.skipObjectRules !== true) {
+    const OBJECT_ALLOWED = /* @__PURE__ */ new Set([
+      "if_else",
+      "email",
+      "wait",
+      "update_custom_value",
+      "goto",
+      "datetime_formatter",
+      "number_formatter",
+      "text_formatter",
+      "math_operation",
+      "custom_code",
+      "add_to_workflow",
+      "remove_from_workflow",
+      "remove_from_all_workflows",
+      "array_functions",
+      "drip",
+      "add_notes",
+      "transition"
+    ]);
+    const bad = templates.filter((t) => !OBJECT_ALLOWED.has(t.type));
+    if (bad.length)
+      throw new IRError(
+        "OBJECT_STEP",
+        `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm2.customObjectType}): ` + bad.map((t) => `'${t.name ?? t.id}' (${t.type})`).join(", ") + `. The builder's picker offers only: ${[...OBJECT_ALLOWED].filter((x) => x !== "transition").join(", ")}. Remove them, target a contact workflow instead, or pass skipObjectRules: true.`
+      );
+    for (const tb of []) void tb;
+  }
+  enforceTemplates(templates, ctx?.catalog, ctx);
+  checkStepRefs(templates, IRError);
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
+  casingLint(result);
+  return result;
+}
+
+// ../skills/create-ghl-workflow/engine/preflight.mjs
+init_define_TOOL_CATALOG();
+var SMS_TYPES = /* @__PURE__ */ new Set(["sms", "manual-sms"]);
+var IG_TYPES = /* @__PURE__ */ new Set(["instagram-dm", "ig_interactive_messenger"]);
+var IG_TRIGGERS = /* @__PURE__ */ new Set(["ig_comment_on_post", "ig_follower_added"]);
+var FB_TYPES = /* @__PURE__ */ new Set(["messenger", "fb_interactive_messenger"]);
+var FB_TRIGGERS = /* @__PURE__ */ new Set(["facebook_comment_on_post", "facebook_lead_gen"]);
+var isWhatsApp = (t) => /whatsapp/i.test(t ?? "");
+function planReadinessChecks({ templates = [], triggerTypes = [], settings = {}, catalog = null } = {}) {
+  const plan = /* @__PURE__ */ new Map();
+  const need = (key, why) => {
+    const e = plan.get(key) ?? { key, why: [] };
+    if (!e.why.includes(why)) e.why.push(why);
+    plan.set(key, e);
+  };
+  for (const t of templates) {
+    const ty = t?.type;
+    if (!ty) continue;
+    if (SMS_TYPES.has(ty)) need("sms_number", `step '${t.name ?? t.id}' (${ty})`);
+    if (isWhatsApp(ty)) need("whatsapp", `step '${t.name ?? t.id}' (${ty})`);
+    if (IG_TYPES.has(ty)) need("instagram", `step '${t.name ?? t.id}' (${ty})`);
+    if (FB_TYPES.has(ty)) need("facebook", `step '${t.name ?? t.id}' (${ty})`);
+    if (ty === "email") need("email_provider", `step '${t.name ?? t.id}' (email)`);
+    const entry = catalog?.steps?.[ty] ?? (typeof catalog?.step === "function" ? catalog.step(ty) : null);
+    if (entry?.gate) need("gated_type", `step '${t.name ?? t.id}' (${ty} is availability-gated: ${entry.gate.kind ?? "allowlist"})`);
+    if (entry?.premium) need("premium", `${ty}`);
+  }
+  for (const ty of triggerTypes) {
+    if (IG_TRIGGERS.has(ty)) need("instagram", `trigger ${ty}`);
+    if (FB_TRIGGERS.has(ty)) need("facebook", `trigger ${ty}`);
+  }
+  if (settings?.senderAddress?.from_number) need("sms_number", "settings.senderAddress.from_number");
+  if (settings?.senderAddress?.from_email) need("email_provider", "settings.senderAddress.from_email");
+  return [...plan.values()];
+}
+async function runReadinessChecks(plan, { call, loc }) {
+  const g = async (p) => {
+    try {
+      const r = await call("GET", p);
+      return r?.ok ? r.json : null;
+    } catch {
+      return null;
+    }
+  };
+  const lq = new URLSearchParams({ locationId: String(loc) });
+  const lp = encodeURIComponent(String(loc));
+  const out = [];
+  for (const { key, why } of plan) {
+    if (key === "sms_number") {
+      const j = await g(`/phone-system/numbers?${lq}`);
+      const nums = Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
+      out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} number(s): ${nums.map((n) => n.title ?? n.value).join(", ")}` : "NO SMS number provisioned on this location \u2014 SMS steps will not send" });
+    } else if (key === "whatsapp") {
+      const j = await g(`/phone-system/whatsapp/location/${lp}/phone-numbers`);
+      const nums = Array.isArray(j) ? j : Array.isArray(j?.phoneNumbers) ? j.phoneNumbers : [];
+      const verified = nums.filter((n) => n.codeVerificationStatus === "VERIFIED");
+      out.push({ key, why, checked: j != null, ok: nums.length > 0, detail: nums.length ? `${nums.length} WhatsApp number(s); verification: ${nums.map((n) => `${n.displayPhoneNumber ?? "?"}=${n.codeVerificationStatus ?? "?"}`).join(", ")}${verified.length ? "" : " \u2014 none VERIFIED yet"}` : "no WhatsApp number connected" });
+    } else if (key === "instagram") {
+      const j = await g(`/workflow/${lp}/instagram/connected-accounts?unique=true`);
+      const pages = Array.isArray(j?.pages) ? j.pages : [];
+      out.push({ key, why, checked: j != null, ok: pages.length > 0, detail: pages.length ? `${pages.length} connected IG account(s)` : "no Instagram account connected \u2014 IG steps/triggers will not fire" });
+    } else if (key === "email_provider") {
+      const j = await g(`/workflow/${lp}/email/location-email-provider`);
+      const w = j?.warmupInfo ?? j?.provider?.warmupInfo ?? null;
+      out.push({ key, why, checked: j != null, ok: j != null, detail: j ? `provider ${j.type ?? "?"}${j.provider?.domain ? ` (${j.provider.domain})` : ""}${w ? `; warmup ${w.warmupStatus ?? "?"} (stage ${w.warmupStage ?? "?"}, ${w.warmupMode ?? "?"})` : ""}` : "email provider config not readable" });
+    } else if (key === "gated_type") {
+      out.push({ key, why, checked: false, ok: null, detail: "this type is availability-gated per location (e.g. loop allowlist) \u2014 the build may save but the type can be non-functional here; the gate list is not readable from this rail" });
+    } else if (key === "premium") {
+      out.push({ key, why: [`premium step type(s): ${why.join(", ")}`], checked: false, ok: null, detail: "premium (credit-billed) steps \u2014 wallet/rebilling state is the SaaS plane and not verifiable from this rail; confirm credits or rebilling are enabled for this location" });
+    } else if (key === "facebook") {
+      out.push({ key, why, checked: false, ok: null, detail: "Facebook page linkage has no discovery route on this rail \u2014 verify the page connection in Integrations before relying on FB steps/triggers" });
+    } else {
+      out.push({ key, why, checked: false, ok: null, detail: "no signal known for this check" });
+    }
+  }
+  return out;
+}
+
+// ../skills/create-ghl-workflow/engine/sticky-notes.mjs
+init_define_TOOL_CATALOG();
+var STICKY_COLORS = ["yellow", "blue", "green", "orange", "cyan", "gray", "teal", "purple", "fuchsia", "rose"];
+var STICKY_DEFAULTS = Object.freeze({ color: "yellow", width: 400, height: 400, x: 320, y: 180 });
+var STICKY_MIN = Object.freeze({ width: 150, height: 80 });
+var STICKY_MAX_CONTENT = 5e3;
+var NOTE_KEYS2 = /* @__PURE__ */ new Set(["content", "color", "x", "y", "width", "height", "positionX", "positionY", "ref"]);
+var escapeHtml = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+var looksLikeHtml = (t) => /^\s*<[a-z!]/i.test(t);
+function normalizeStickyNote(note, { partial: partial2 = false, skipStickyCheck = false } = {}) {
+  const refuse = (msg) => {
+    if (!skipStickyCheck) throw new IRError("STICKY_NOTE", msg);
+  };
+  if (!note || typeof note !== "object" || Array.isArray(note)) {
+    refuse(`a sticky note must be an object {content, color?, x?, y?, width?, height?}`);
+    return {};
+  }
+  const unknown2 = Object.keys(note).filter((k) => !NOTE_KEYS2.has(k));
+  if (unknown2.length) refuse(`sticky note has unknown key(s) [${unknown2.join(", ")}] \u2014 known: content, color, x, y, width, height`);
+  const out = {};
+  if (note.content !== void 0 || !partial2) {
+    if (typeof note.content !== "string") refuse(`sticky note 'content' must be a string (plain text is wrapped in <p>\u2026</p>; HTML is kept as-is)`);
+    const raw = typeof note.content === "string" ? note.content : "";
+    out.content = raw === "" ? "" : looksLikeHtml(raw) ? raw : `<p>${escapeHtml(raw)}</p>`;
+    if (out.content.length > STICKY_MAX_CONTENT) refuse(`sticky note content is ${out.content.length} chars; the editor caps it at ${STICKY_MAX_CONTENT}`);
+  }
+  if (note.color !== void 0 || !partial2) {
+    const c = note.color ?? STICKY_DEFAULTS.color;
+    if (!STICKY_COLORS.includes(c)) refuse(`sticky note color '${c}' is not one of the 10 swatches: ${STICKY_COLORS.join(", ")}`);
+    out.color = STICKY_COLORS.includes(c) ? c : STICKY_DEFAULTS.color;
+  }
+  const num = (k, def, min) => {
+    const v = note[k] ?? (k === "x" ? note.positionX : k === "y" ? note.positionY : void 0);
+    if (v === void 0) return partial2 ? void 0 : def;
+    if (!Number.isFinite(v)) {
+      refuse(`sticky note '${k}' must be a number (got ${JSON.stringify(v)})`);
+      return def;
+    }
+    if (min !== void 0 && v < min) refuse(`sticky note '${k}' ${v} is below the UI minimum ${min}`);
+    return Math.round(v);
+  };
+  const x = num("x", STICKY_DEFAULTS.x), y = num("y", STICKY_DEFAULTS.y);
+  const width = num("width", STICKY_DEFAULTS.width, STICKY_MIN.width), height = num("height", STICKY_DEFAULTS.height, STICKY_MIN.height);
+  if (x !== void 0) out.positionX = x;
+  if (y !== void 0) out.positionY = y;
+  if (width !== void 0) out.width = width;
+  if (height !== void 0) out.height = height;
+  return out;
+}
+function planStickyNotes(notes, { loc, wid, skipStickyCheck } = {}) {
+  if (notes === void 0 || notes === null) return [];
+  if (!Array.isArray(notes)) throw new IRError("STICKY_NOTE", `stickyNotes must be an array of {content, color?, x?, y?, width?, height?}`);
+  return notes.map((n, i) => {
+    const body = normalizeStickyNote({ ...n, x: n?.x ?? n?.positionX ?? STICKY_DEFAULTS.x + i * 40, y: n?.y ?? n?.positionY ?? STICKY_DEFAULTS.y + i * 40 }, { skipStickyCheck });
+    return { method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc }, ref: n?.ref ?? null };
+  });
+}
+function planStickyNoteOp(op, { loc, wid, skipStickyCheck } = {}) {
+  if (op.op === "addStickyNote") {
+    const body = normalizeStickyNote(op.note, { skipStickyCheck });
+    return { op: op.op, method: "POST", path: `/workflows/sticky-note?${new URLSearchParams({ locationId: loc })}`, body: { ...body, workflowId: wid, locationId: loc } };
+  }
+  if (op.op === "updateStickyNote") {
+    if (!op.noteId || typeof op.noteId !== "string") throw new IRError("STICKY_NOTE", `updateStickyNote needs 'noteId' (the note's _id from export_workflow / sticky-notes-all)`);
+    const body = normalizeStickyNote(op.note ?? {}, { partial: true, skipStickyCheck });
+    if (!Object.keys(body).length) throw new IRError("STICKY_NOTE", `updateStickyNote: 'note' carries nothing to change (content, color, x, y, width, height)`);
+    return { op: op.op, method: "PATCH", path: `/workflows/sticky-note?${new URLSearchParams({ _id: op.noteId, locationId: loc })}`, body };
+  }
+  throw new IRError("STICKY_NOTE", `unknown sticky-note op ${JSON.stringify(op.op)}`);
+}
+var STICKY_OPS = /* @__PURE__ */ new Set(["addStickyNote", "updateStickyNote"]);
+
+// ../skills/create-ghl-workflow/engine/idgen.mjs
+init_define_TOOL_CATALOG();
+import { createHash as createHash3, randomUUID } from "node:crypto";
+function makeUuidV4() {
+  return randomUUID();
+}
+function makeDeterministicIdGen(seed) {
+  let n = 0;
+  return () => {
+    n += 1;
+    const bytes = createHash3("sha256").update(String(seed)).update("\0").update(String(n)).digest().subarray(0, 16);
+    bytes[6] = bytes[6] & 15 | 64;
+    bytes[8] = bytes[8] & 63 | 128;
+    const hex3 = bytes.toString("hex");
+    return `${hex3.slice(0, 8)}-${hex3.slice(8, 12)}-${hex3.slice(12, 16)}-${hex3.slice(16, 20)}-${hex3.slice(20)}`;
+  };
+}
+
 // ../skills/create-ghl-workflow/engine/catalog.mjs
+init_define_TOOL_CATALOG();
 function data() {
   return catalog_data_default;
 }
