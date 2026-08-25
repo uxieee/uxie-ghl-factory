@@ -261,5 +261,9 @@ test('raw_request default host stays on the workflow backend and Bearer rail', a
   };
   await rawRequestTool().handler({ locationId: 'LOC', method: 'GET', path: '/workflow/LOC/list' }, deps);
   assert.equal(seen.railArg, undefined, 'default must not force a rail (gateway default = jwt)');
-  assert.equal(seen.callOpts, undefined, 'default must not pass a base override');
+  // The invariant is that the DEFAULT rail gets no base override -- not that callOpts is absent.
+  // raw_request now always passes headers (sourceid), which the memberships surface requires on
+  // every request; asserting `undefined` was pinning the implementation, not the guarantee.
+  assert.equal(seen.callOpts?.base, undefined, 'default must not pass a base override');
+  assert.equal(seen.callOpts?.headers?.sourceid, 'LOC', 'sourceid must carry the locationId');
 });

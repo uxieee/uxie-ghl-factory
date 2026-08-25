@@ -50,7 +50,15 @@ for (const row of manifest) {
 // single call. Counting them as "extra" marked 106 perfectly callable rows unreachable on the
 // first run of this script. What actually blocks raw_request is a header it has no way to set --
 // developer_version, x-workflow-id, sourceid.
-const GATEWAY_SENDS = new Set(['channel', 'source', 'version']);
+// What the gateway puts on every raw_request. `sourceid` joined the list once raw_request started
+// sending it (it is the locationId, which the tool already requires).
+//
+// AND A CORRECTION WORTH KEEPING: extraHeaders records what the FRONT-END PINS, which is not the
+// same as what the SERVER REQUIRES. Treating the two as one marked all 160 memberships rows
+// unreachable. Live-proven 2026-08-25 on the designated test sub-account:
+// GET /membership/locations/{loc}/products returns 200 WITHOUT sourceid, on both the backend and
+// services origins. A pinned header is a hint about the caller, not a requirement of the callee.
+const GATEWAY_SENDS = new Set(['channel', 'source', 'version', 'sourceid']);
 const rawCallable = (row) => row.transport === 'json'
   && (row.responseMode === 'json' || row.responseMode === 'text')
   && (row.extraHeaders ?? []).every((h) => GATEWAY_SENDS.has(String(h).toLowerCase()));
