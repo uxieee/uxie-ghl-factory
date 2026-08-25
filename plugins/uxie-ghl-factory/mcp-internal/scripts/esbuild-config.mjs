@@ -30,7 +30,7 @@ function optionsFor(entry, extra = {}) {
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const catalog = readFileSync(resolve(ROOT, 'tool-descriptions.json'), 'utf8');
   const endpoints = readFileSync(resolve(ROOT, 'catalog/internal-endpoints.json'), 'utf8');
-  const kinds = readFileSync(resolve(ROOT, 'catalog/endpoint-kinds.json'), 'utf8');
+  const overlay = readFileSync(resolve(ROOT, 'catalog/endpoint-overlay.json'), 'utf8');
   return {
     entryPoints: [resolve(ROOT, entry)],
     bundle: true,
@@ -42,7 +42,7 @@ function optionsFor(entry, extra = {}) {
       __TOOL_CATALOG__: catalog,
       __HAS_ENDPOINTS__: 'true',
       __ENDPOINT_CATALOG__: endpoints,
-      __ENDPOINT_KINDS__: kinds,
+      __ENDPOINT_OVERLAY__: overlay,
     },
     logLevel: 'warning',
     ...extra,

@@ -37,10 +37,27 @@ test('a curated destructive row never surfaces unless the caller names the act',
   const writes = (rows.data.results ?? []).filter((r) => r.method !== 'GET' && r.path.includes('blacklist'));
   assert.equal(writes.length, 0, `blacklist write surfaced: ${writes.map((r) => `${r.method} ${r.path}`).join(', ')}`);
 
-  // But a caller who asks for it by name still reaches it.
-  const named = await search.handler({ intent: 'blacklist a workflow so it stops', limit: 10 }, {});
-  assert.ok((named.data.results ?? []).some((r) => r.method !== 'GET' && r.path.includes('blacklist')),
+  // But a caller who names the act still reaches it. Tested on remove-stuck-statuses rather than
+  // flowguard, because flowguard is separately marked reach:'refused' and demoted for that -- which
+  // would make this pass or fail for the wrong reason.
+  const named = await search.handler({ intent: 'remove stuck statuses for a step', limit: 10 }, {});
+  assert.ok((named.data.results ?? []).some((r) => r.path.includes('remove-stuck-statuses')),
     'naming the destructive act must still reach it');
+});
+
+test('a surface proven unreachable from this rail is demoted', async () => {
+  // Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. Before this,
+  // GET /flowguard/blacklist/step ranked FIRST for "why did a premium step not run" -- a guaranteed
+  // wasted turn, because the path matches strongly and the credential never gets through.
+  const res = await search.handler({ intent: 'why did a premium step not run on this account', limit: 5 }, {});
+  const rows = res.data.results ?? [];
+  assert.ok(!rows.slice(0, 3).some((r) => r.path.includes('flowguard')),
+    `flowguard in top 3: ${rows.map((r) => r.path).join(', ')}`);
+  // Demoted, not hidden -- the path is real and a higher credential class may reach it.
+  const fg = await search.handler({ intent: 'flowguard blacklist', limit: 10 }, {});
+  const hit = (fg.data.results ?? []).find((r) => r.path.includes('flowguard'));
+  assert.ok(hit, 'flowguard must still be findable when asked for by name');
+  assert.equal(hit.reach, 'refused', 'and it must say so in the stub');
 });
 
 test('write pressure on read-shaped intents is below the recorded baseline', async () => {
