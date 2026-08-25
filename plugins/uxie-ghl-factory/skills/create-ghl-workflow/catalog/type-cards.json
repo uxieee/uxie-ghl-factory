@@ -1,6 +1,6 @@
 {
  "generated": "knowledge/scripts/build-type-catalog.mjs",
- "count": 284,
+ "count": 285,
  "cards": [
   {
    "type": "abandoned_checkout",
@@ -14882,6 +14882,16 @@
    "validator": "`paymentReceivedValidator` checks the following fields (warning-level results) per `sniffs/bundle/trigger-validators-summary.json::paymentReceivedValidator`:",
    "notes": "- `paymentReceivedValidator` warns on missing `payment.calendar.id`, `payment.form.id`, or `payment.global_product_ids`. The validator inspects the union — it does not require all three to be present; warnings fire on whichever ID is referenced but resolves to nothing.",
    "hasCanonicalExample": false
+  },
+  {
+   "type": "picker-taxonomy",
+   "family": ".",
+   "title": "The action picker's own taxonomy, and where ours differs",
+   "status": "proven-live",
+   "lastVerified": "2026-08-25",
+   "summary": "Captured from the builder's Add-action panel. Useful because the engine's catalogue carries a `section` per step type, and until now nothing had checked it against the categories GHL itself groups actions under.",
+   "hasCanonicalExample": false,
+   "configSurface": "none"
   },
   {
    "type": "pipeline_stage_updated",
