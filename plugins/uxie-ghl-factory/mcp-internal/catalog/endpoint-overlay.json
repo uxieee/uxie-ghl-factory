@@ -73,9 +73,39 @@
     "GET /workflows/trigger/logs/top-failed-reasons": {
       "note": "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope."
     },
+    "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
+      "kind": "destructive",
+      "note": "Sends a real email to the agency admin."
+    },
     "POST /contacts/search/2": {
       "note": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
       "summary": "Contact search. Treat its results as unverified — see the note."
+    },
+    "POST /conversations/providers/tiktok/posts": {
+      "kind": "read"
+    },
+    "POST /conversations/providers/tiktok/posts/{id}": {
+      "kind": "read"
+    },
+    "POST /emails/tracking/links": {
+      "kind": "read"
+    },
+    "POST /marketplace/billing/usage/meters/public": {
+      "kind": "read",
+      "summary": "Premium-action and AI billing usage meters for the account."
+    },
+    "POST /marketplace/core/apps/connection-status/bulk": {
+      "kind": "read"
+    },
+    "POST /objects/{objectKey}/records/search": {
+      "kind": "read",
+      "summary": "Search records of a custom object by filter."
+    },
+    "POST /templates/list": {
+      "kind": "read"
+    },
+    "POST /templates/template/load": {
+      "kind": "read"
     },
     "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
       "kind": "destructive"
@@ -89,8 +119,18 @@
     "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
       "kind": "destructive"
     },
+    "POST /workflow/{locationId}/adwords": {
+      "kind": "read"
+    },
+    "POST /workflow/{locationId}/drip-schedule/preview": {
+      "kind": "read"
+    },
     "POST /workflow/{locationId}/email/send-test-email": {
       "kind": "destructive"
+    },
+    "POST /workflow/{locationId}/run-single-action": {
+      "kind": "destructive",
+      "note": "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
     },
     "POST /workflow/{locationId}/sms/send-test-sms": {
       "kind": "destructive"
@@ -119,19 +159,84 @@
       "reach": "refused",
       "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
     },
+    "POST /workflow/ivr/get-mappings-by-phones": {
+      "kind": "read"
+    },
+    "POST /workflow/oauth2/save-token": {
+      "kind": "destructive",
+      "note": "Writes to the OAuth credential rail."
+    },
+    "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
+      "kind": "read"
+    },
+    "POST /workflows-marketplace/actions/{actionType}/branches": {
+      "kind": "read"
+    },
+    "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
+      "kind": "read"
+    },
+    "POST /workflows-marketplace/actions/published/{actionType}/dynamic-fields": {
+      "kind": "read"
+    },
+    "POST /workflows-marketplace/integration-apps/reset-token/{appId}": {
+      "kind": "destructive",
+      "note": "Invalidates the live credential for an installed marketplace app. Anything using it breaks until reconnected."
+    },
+    "POST /workflows-marketplace/integration/{appId}/install": {
+      "kind": "destructive",
+      "note": "Installs a marketplace app INTO an account. Check the locationId query param — it decides which account gets it."
+    },
+    "POST /workflows-marketplace/internal-triggers/integration/webhook-operation": {
+      "kind": "read"
+    },
+    "POST /workflows-marketplace/triggers/dynamic-source-details/{key}": {
+      "kind": "read"
+    },
+    "POST /workflows-marketplace/triggers/published/{triggerType}/dynamic-fields": {
+      "kind": "read"
+    },
+    "POST /workflows/es/search": {
+      "kind": "read",
+      "summary": "Query workflows server-side by trigger type, action type, status, tags or name — the smart-list search.",
+      "note": "Answers \"which workflows contain step type X\" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account."
+    },
     "POST /workflows/trigger/logs/count": {
       "summary": "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
       "note": "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
     },
+    "PUT /saas-billing-v2/billing-config/{locationId}": {
+      "kind": "destructive",
+      "note": "Changes the sub-account BILLING PLAN. Money."
+    },
+    "PUT /workflow/{companyId}/workflow-company-setting/bulk-location-settings": {
+      "kind": "destructive",
+      "note": "COMPANY-scope bulk write across sub-accounts, not one location."
+    },
     "PUT /workflow/{locationId}/change-status": {
       "kind": "destructive"
+    },
+    "PUT /workflow/{locationId}/change-status/{workflowId}": {
+      "kind": "destructive",
+      "note": "Publishes or unpublishes a workflow. A live automation stops or starts."
+    },
+    "PUT /workflow/{locationId}/move": {
+      "kind": "destructive",
+      "note": "Bulk move across workflows. Moving a PUBLISHED workflow is how a live automation ends up filed in a staging folder."
     },
     "PUT /workflow/{locationId}/move-directory/{workflowId}": {
       "summary": "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
       "note": "The BATCH move cannot reach root -- null, \"\" and \"root\" all 404. Use this per-workflow route instead."
     },
+    "PUT /workflow/{locationId}/permission/{workflowId}": {
+      "kind": "destructive",
+      "note": "Changes who can see or edit a workflow."
+    },
     "PUT /workflow/{locationId}/permissions": {
       "kind": "destructive"
+    },
+    "PUT /workflow/oauth2/update-token": {
+      "kind": "destructive",
+      "note": "Writes to the OAuth credential rail."
     }
   }
 }
