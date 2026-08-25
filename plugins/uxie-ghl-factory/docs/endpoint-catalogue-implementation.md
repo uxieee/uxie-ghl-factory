@@ -80,6 +80,38 @@ gate.** Gates are structural predicates ("zero rows matching X"), never "26 → 
 
 ---
 
+## 0.6 Status — 2026-08-25
+
+| track | state |
+|---|---|
+| **A** consumer fixes | **DONE** — A0 baseline frozen, A1 shadowing, A2 instructions on both profiles, A3 ranking, A4 count, A5 header advice |
+| **P** packaging | **DONE** — P1 catalogue inlined in both bundles, P2 manifest freshness, P3 gates in `npm test` |
+| **B** overlays | **DONE** — consolidated into one `catalog/endpoint-overlay.json` (kind · summary · note · reach), merged at read time, indexed by the ranker |
+| **C** extractor | not started — the long pole |
+| **D** gates | not started (G11/G12 landed early with P1/P2) |
+| **E** consumer on real data | not started |
+| **F** live proof | not started — needs a fresh JWT |
+
+**Deviation from the plan, recorded:** B specified four overlay files keyed the same way. They are
+one file with four fields per key, because four parallel files keyed identically are four chances
+to disagree and four things to inline into the bundle. The `pending` block holds traps for
+endpoints the catalogue does not contain yet.
+
+**Measured so far**, against the frozen A0 baseline (ten read-shaped intents):
+
+| | baseline | now |
+|---|---|---|
+| write slots in top 3 | 18 / 30 | 5 / 30 |
+| clean read-only top 3 | 1 / 10 | 8 / 10 |
+| DELETEs in top 3 | — | 0 |
+| flowguard dead-ends in top 3 | 5 | 0 |
+| correct row at #1 for the three checked by hand | 0 / 3 | 3 / 3 |
+
+The remaining five write slots are correct: three belong to *"register a test webhook"*, which is a
+mutating intent.
+
+---
+
 ## 1. Dependency graph **[r2]**
 
 ```
