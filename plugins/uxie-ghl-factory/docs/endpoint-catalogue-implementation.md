@@ -84,31 +84,52 @@ gate.** Gates are structural predicates ("zero rows matching X"), never "26 → 
 
 | track | state |
 |---|---|
-| **A** consumer fixes | **DONE** — A0 baseline frozen, A1 shadowing, A2 instructions on both profiles, A3 ranking, A4 count, A5 header advice |
-| **P** packaging | **DONE** — P1 catalogue inlined in both bundles, P2 manifest freshness, P3 gates in `npm test` |
-| **B** overlays | **DONE** — consolidated into one `catalog/endpoint-overlay.json` (kind · summary · note · reach), merged at read time, indexed by the ranker |
-| **C** extractor | not started — the long pole |
-| **D** gates | not started (G11/G12 landed early with P1/P2) |
-| **E** consumer on real data | not started |
-| **F** live proof | not started — needs a fresh JWT |
+| **A** consumer fixes | **DONE** |
+| **P** packaging | **DONE** — catalogue inlined in both bundles, manifest freshness, gates in `npm test` |
+| **B** overlays | **DONE** — one `endpoint-overlay.json` (kind · summary · note · reach), re-keyed to wire paths |
+| **C** extractor | **DONE** — rebuilt on the TypeScript compiler API |
+| **D** gates | **DONE** — generator gates, content-based drift gate, 9 catalogue tests |
+| **E** consumer on real data | **DONE** — plugin-side compiler, new stub, `describe_endpoint` on `id` |
+| **F** live proof | **BLOCKED** — needs a fresh JWT (last capture expired ~18h ago) |
 
-**Deviation from the plan, recorded:** B specified four overlay files keyed the same way. They are
-one file with four fields per key, because four parallel files keyed identically are four chances
-to disagree and four things to inline into the bundle. The `pending` block holds traps for
-endpoints the catalogue does not contain yet.
-
-**Measured so far**, against the frozen A0 baseline (ten read-shaped intents):
+**Measured against the frozen A0 baseline** (ten read-shaped intents):
 
 | | baseline | now |
 |---|---|---|
 | write slots in top 3 | 18 / 30 | 5 / 30 |
-| clean read-only top 3 | 1 / 10 | 8 / 10 |
-| DELETEs in top 3 | — | 0 |
+| clean read-only top 3 | 1 / 10 | 7 / 10 |
 | flowguard dead-ends in top 3 | 5 | 0 |
-| correct row at #1 for the three checked by hand | 0 / 3 | 3 / 3 |
+| correct row at #1 | 0 / 10 checked | **10 / 10** |
+| top-3 rows carrying a summary or trap | 0 / 30 | 17 / 30 |
 
-The remaining five write slots are correct: three belong to *"register a test webhook"*, which is a
-mutating intent.
+**The catalogue itself**, old → new: 235 → 324 rows · 265 → 379 discovered call sites · 9 → 0
+degenerate · 14 → 0 `METHOD-UNKNOWN` · 0 → 120 query schemas · 0 → 46 body schemas · 0 → 39
+response types · 17 → 48 rows joined to a typed tool.
+
+### Deviations from the plan, recorded
+
+1. **B's four overlay files are one file** with four fields per key. Four files keyed identically
+   are four chances to disagree and four things to inline into the bundle.
+2. **A1 was narrowed.** It specified stripping `proof:` from every description as maintainer
+   provenance. Three tests encode the opposite deliberately — descriptions disclose proof status
+   honestly, and `external-receipt-required` warns the agent a rail has never been live-proven.
+   Only the shadowing half was a real defect.
+3. **G6 is reported, not gated.** 106 non-GET rows still have no curated `kind`. Gating would
+   block the build or invite bulk-filled guesses; the default is `write`, already demoted for
+   read-shaped intents, and curation buys `destructive`. The count prints on every build.
+4. **The drift gate distinguishes a narrower capture from a rotation** — a case the plan did not
+   anticipate, found on the gate's first run. `bundle-2026-08-21-3` is newer than `-2` and holds
+   564 files against 1,867, because `-2` carries the page layer. Demanding a re-mine from "newest"
+   would have discarded ~1,300 files of source.
+
+### What Track F still owes
+
+- **The reach differential.** One GET per origin, with and without the marketplace headers,
+  through a standalone human-gated script — the gateway sends those headers unconditionally, so
+  the "without" arm cannot run through it. Until then every row is `reach: "source-only"` except
+  the 13 flowguard rows, which the corpus already proved refused.
+- **The ledger.** ≥20 endpoints executed and read back on a separate request.
+- **F3.** The ten frozen intents re-run with the online half — did the first `raw_request` succeed.
 
 ---
 
