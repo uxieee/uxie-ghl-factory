@@ -46,2168 +46,16120 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "build-endpoint-catalog.mjs",
+      generated: "2026-08-25",
       source: "sniffs/bundle-2026-08-21-2/recovered-source/src",
-      note: "Relative axios URLs carry the /workflow prefix (main.ts:44). Query strings are stripped \u2014 they belong to the calling tool, not the endpoint identity.",
-      count: 235,
+      note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
+      count: 324,
       endpoints: [
         {
+          id: "facebook-service--get-ad-account-by-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/",
-          sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:17"
+          url: "https://backend.leadconnectorhq.com/ad-publishing/facebook/ad-accounts/{accountId}",
+          path: "/ad-publishing/facebook/ad-accounts/{accountId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAdAccountById",
+          service: "FacebookService",
+          pathParams: [
+            {
+              name: "accountId"
+            }
           ],
-          callSites: 1
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "{ id: string; name: string; }",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "name",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/FacebookService.ts:78"
+          ]
         },
         {
+          id: "facebook-service--get-custom-audience-ids",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/:id",
-          sources: [
-            "services/marketplaceServices/LocationsService.ts:11"
+          url: "https://backend.leadconnectorhq.com/ad-publishing/facebook/custom-audience",
+          path: "/ad-publishing/facebook/custom-audience",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getCustomAudienceIds",
+          service: "FacebookService",
+          pathParams: [],
+          query: [
+            {
+              name: "adAccountId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: '"all"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "source",
+              type: '"integration"',
+              required: true,
+              source: "params"
+            }
           ],
-          callSites: 1
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/FacebookService.ts:94"
+          ]
         },
         {
+          id: "ad-publishing-service--get-all-instagram-accounts",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/:objectKey",
-          sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:29"
+          url: "https://backend.leadconnectorhq.com/ad-publishing/facebook/page/{pageId}/instagram",
+          path: "/ad-publishing/facebook/page/{pageId}/instagram",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/:objectKey/records/search",
-          sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:41"
+          operation: "getAllInstagramAccounts",
+          service: "AdPublishingService",
+          pathParams: [
+            {
+              name: "pageId"
+            }
           ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/ad-publishing",
-          path: "/facebook/page/:pageId/instagram",
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/AdPublishing.ts:64"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "ad-publishing-service--get-all-facebook-pages",
           method: "GET",
-          base: "backend.leadconnectorhq.com/ad-publishing",
-          path: "/facebook/pages",
+          url: "https://backend.leadconnectorhq.com/ad-publishing/facebook/pages",
+          path: "/ad-publishing/facebook/pages",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getAllFacebookPages",
+          service: "AdPublishingService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "fetchExisting",
+              type: "1",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/AdPublishing.ts:49"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "ad-publishing-service--get-all-facebook-pixels",
           method: "GET",
-          base: "backend.leadconnectorhq.com/ad-publishing",
-          path: "/facebook/pixels",
+          url: "https://backend.leadconnectorhq.com/ad-publishing/facebook/pixels",
+          path: "/ad-publishing/facebook/pixels",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getAllFacebookPixels",
+          service: "AdPublishingService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "number",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/AdPublishing.ts:20",
             "services/marketplaceServices/AdPublishing.ts:42"
-          ],
-          callSites: 2
+          ]
         },
         {
+          id: "affiliate-service--get-affiliate-by-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com/affiliate-manager",
-          path: "/:locationId/affiliates/:id",
+          url: "https://backend.leadconnectorhq.com/affiliate-manager/{locationId}/affiliates/{id}",
+          path: "/affiliate-manager/{locationId}/affiliates/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getAffiliateById",
+          service: "AffiliateService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/AffiliateService.ts:36"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "affiliate-service--get-affiliate-campaigns",
           method: "GET",
-          base: "backend.leadconnectorhq.com/affiliate-manager",
-          path: "/:locationId/campaigns",
+          url: "https://backend.leadconnectorhq.com/affiliate-manager/{locationId}/campaigns",
+          path: "/affiliate-manager/{locationId}/campaigns",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getAffiliateCampaigns",
+          service: "AffiliateService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "limit",
+              type: "1000",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/AffiliateService.ts:19"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "affiliate-service--get-affiliates",
           method: "GET",
-          base: "backend.leadconnectorhq.com/affiliate-manager",
-          path: "/affiliates/workflow-filters",
+          url: "https://backend.leadconnectorhq.com/affiliate-manager/affiliates/workflow-filters",
+          path: "/affiliate-manager/affiliates/workflow-filters",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getAffiliates",
+          service: "AffiliateService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/AffiliateService.ts:32"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "aiemployee-service--is-beta-enabled",
           method: "GET",
-          base: "backend.leadconnectorhq.com/appengine",
-          path: "/dialogflow/eliza-location-status/:locationId",
+          url: "https://backend.leadconnectorhq.com/ai-employees/beta/{locationId}",
+          path: "/ai-employees/beta/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "isBetaEnabled",
+          service: "AIEmployeeService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "feature",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/AIEmployeeService.ts:31"
+          ]
+        },
+        {
+          id: "aiemployee-service--get-employee-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/ai-employees/employees/{botId}",
+          path: "/ai-employees/employees/{botId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "create_convai_agent",
+            "get_ai_configuration_bundle"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getEmployeeById",
+          service: "AIEmployeeService",
+          pathParams: [
+            {
+              name: "botId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/AIEmployeeService.ts:81"
+          ]
+        },
+        {
+          id: "aiemployee-service--update-employee",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/ai-employees/employees/{botId}",
+          path: "/ai-employees/employees/{botId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "updateEmployee",
+          service: "AIEmployeeService",
+          pathParams: [
+            {
+              name: "botId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ locationId: string; isObjectiveBuilderEnabled: boolean; objectiveBuilderWorkflowId: string; }",
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "isObjectiveBuilderEnabled",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "objectiveBuilderWorkflowId",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/AIEmployeeService.ts:67"
+          ]
+        },
+        {
+          id: "aiemployee-service--get-employees-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/ai-employees/employees/list",
+          path: "/ai-employees/employees/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getEmployeesList",
+          service: "AIEmployeeService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: '"conv_ai_trigger"',
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/AIEmployeeService.ts:46"
+          ]
+        },
+        {
+          id: "eliza-service--get-eliza-info",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/appengine/dialogflow/eliza-location-status/{locationId}",
+          path: "/appengine/dialogflow/eliza-location-status/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getElizaInfo",
+          service: "ElizaService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/ElizaService.ts:18"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "shopify-service--update-shopify-webhooks",
           method: "POST",
-          base: "backend.leadconnectorhq.com/appengine",
-          path: "/shopify/update_shopify_webhooks",
+          url: "https://backend.leadconnectorhq.com/appengine/shopify/update_shopify_webhooks",
+          path: "/appengine/shopify/update_shopify_webhooks",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateShopifyWebhooks",
+          service: "ShopifyService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/ShopifyService.ts:12"
-          ],
-          callSites: 1
+          ]
         },
         {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/campaign",
-          sources: [
-            "services/marketplaceServices/CampaignService.ts:11"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/configuration/company/:companyId/:PRODUCT_ID",
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:45"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/configuration/location/:locationId",
-          sources: [
-            "services/marketplaceServices/CalendarService.ts:11"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/configuration/location/:locationId/:BLACK_FRIDAY_PRODUCT_ID",
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:55"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/configuration/location/:locationId/:PRODUCT_ID",
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:61"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/conversations-reporting/emails",
-          sources: [
-            "services/api/email-stats-service.ts:14",
-            "services/marketplaceServices/EmailStatsReportService.ts:10"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/conversations-reporting/emails/aggregate",
-          sources: [
-            "services/api/email-stats-service.ts:9",
-            "services/marketplaceServices/EmailStatsReportService.ts:14",
-            "services/marketplaceServices/WorkflowStatsService.ts:28"
-          ],
-          callSites: 3
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/conversations-reporting/messages",
-          sources: [
-            "services/api/sms-stats-service.ts:13",
-            "services/marketplaceServices/SmsStatsReportService.ts:12"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/conversations-reporting/messages/aggregate",
-          sources: [
-            "services/api/sms-stats-service.ts:8",
-            "services/marketplaceServices/SmsStatsReportService.ts:8",
-            "services/marketplaceServices/WorkflowStatsService.ts:37"
-          ],
-          callSites: 3
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/conversations",
-          path: "/messages/:messageId",
-          sources: [
-            "services/marketplaceServices/ConversationMessageService.ts:10"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/conversations/preferences/custom-subtypes",
-          sources: [
-            "services/EmailService.ts:234"
-          ],
-          callSites: 1
-        },
-        {
+          id: "backend--setup",
           method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/conversations/providers/tiktok/posts",
-          sources: [
-            "services/marketplaceServices/TikTokService.ts:19"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/conversations/providers/tiktok/posts/:id",
-          sources: [
-            "services/marketplaceServices/TikTokService.ts:25"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/custom-data/conversations",
-          sources: [
-            "services/marketplaceServices/CustomDataService.ts:37"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/emails/builder/custom-value-defaults/track",
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:688"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/emails/builder/meta/:locationId/:id",
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:217"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com",
-          path: "/emails/trigger/:locationId/:triggerId",
-          sources: [
-            "services/EmailService.ts:183"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/facebook/:locationId/pages",
-          sources: [
-            "services/marketplaceServices/FacebookService.ts:39"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/facebook/posts",
-          sources: [
-            "services/marketplaceServices/FacebookService.ts:65",
-            "services/marketplaceServices/FacebookService.ts:123"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/files",
-          sources: [
-            "services/marketplaceServices/MediaService.ts:11"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/forms",
-          path: "/",
-          sources: [
-            "services/api/workflow-overview.service.ts:224",
-            "services/marketplaceServices/FormsService.ts:21"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/forms",
-          path: "/forms-list",
-          sources: [
-            "services/marketplaceServices/FormsService.ts:25"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/funnels",
-          path: "/funnel/fetch/:id",
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:21"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/funnels",
-          path: "/funnel/list",
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:11"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/funnels",
-          path: "/page",
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:25"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/funnels",
-          path: "/page/:id",
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:35"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/funnels",
-          path: "/page/product",
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:39"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/funnels",
-          path: "/page/product/:id",
-          sources: [
-            "services/marketplaceServices/FunnelsService.ts:49"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/id/:linkId",
-          sources: [
-            "services/marketplaceServices/LinksService.ts:29"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/instagram/posts",
-          sources: [
-            "services/marketplaceServices/FacebookService.ts:94",
-            "services/marketplaceServices/FacebookService.ts:137"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/integrations",
-          path: "/google/oauth/start",
-          sources: [
-            "services/GoogleSheetsService.ts:14"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/integrations/public/:appId",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:414"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/integrations/public/:appId/payment-plans",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:442"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/intents/:locationId",
-          sources: [
-            "services/marketplaceServices/ConversationAIService.ts:18"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/locations/:locationId/customFields",
-          sources: [
-            "services/marketplaceServices/OpportunityCustomFieldService.ts:9"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/locations/:locationId/tags",
-          sources: [
-            "services/EmailService.ts:218"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/locations/:locationId/templates",
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:282"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/locations/:locationId/templates/:id",
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:240"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/locations/search",
-          sources: [
-            "services/marketplaceServices/SubLocationsService.ts:14"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/logs",
-          path: "/metric",
-          sources: [
-            "services/marketplaceServices/LogsService.ts:11"
-          ],
-          callSites: 1
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/marketplace",
-          via: "url-literal",
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:62"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/marketplace/app/:appId/versions/latest",
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:64",
-            "services/api/slack-marketplace-install-service.ts:71"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/marketplace/app/installationDetails",
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:99"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/marketplace/billing/usage/meters/public",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:455"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/marketplace/collections",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:318"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/marketplace/core/search/module",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:377"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/numbers/location/:locationId",
-          sources: [
-            "services/marketplaceServices/PhoneSystemService.ts:15"
-          ],
-          callSites: 1
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth",
-          via: "url-literal",
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:119"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth/2/login/signin/refresh",
-          sources: [
-            "states/app.ts:854"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth/authorize:",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:492"
-          ],
-          callSites: 1
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth/clients/:appId/authentication/location/:locationId",
-          via: "url-literal",
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:510"
-          ],
-          callSites: 1
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth/clients/:appId/authentication/locations/:locationId/accounts",
-          via: "url-literal",
-          sources: [
-            "services/api/slack-marketplace-install-service.ts:219",
-            "services/api/slack-marketplace-install-service.ts:236",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:417",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:674"
-          ],
-          callSites: 5
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth/clients/:appId/authentication/locations/:locationId/accounts/:accountId",
-          via: "url-literal",
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:424",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:694"
-          ],
-          callSites: 2
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth/clients/:appId/authentication/oauth2/location/:locationId/url",
-          via: "url-literal",
-          sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:491"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/oauth/whitelabel/:id",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:430"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/objectKey/:objectKey",
-          sources: [
-            "services/marketplaceServices/AssociationsService.ts:17"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/opportunities/lost-reason",
-          sources: [
-            "services/marketplaceServices/OpportunityCustomFieldService.ts:19"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/phone-system/location/:locationId/recordings/:recordingSid",
-          sources: [
-            "services/IVRService.ts:38"
-          ],
-          callSites: 1
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/phone-system/numbers/location/:locationId",
-          via: "url-literal",
-          sources: [
-            "services/SaasTwilioService.ts:21"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/phone-system/whatsapp/location/:locationId/template",
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:374"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/product",
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:36"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/reputation/integrations/review-link-list",
-          sources: [
-            "services/ReputationService.ts:22"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/saas_service/isv-mode/status/:locationId",
-          sources: [
-            "services/SaasTwilioService.ts:7"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/saas-billing-v2/billing-config/:entityType/:entityId/:product",
-          sources: [
-            "services/marketplaceServices/SaasService.ts:12"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com",
-          path: "/saas-billing-v2/billing-config/:locationId",
-          sources: [
-            "services/marketplaceServices/SaasService.ts:20"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/saas-billing-v2/billing-config/COMPANY/:companyId/:product",
-          sources: [
-            "services/marketplaceServices/SaasService.ts:16"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/saas-billing-v2/billing-config/LOCATION/:locationId/conversation_AI",
-          sources: [
-            "services/marketplaceServices/SaasService.ts:29"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/search",
-          sources: [
-            "services/marketplaceServices/LinksService.ts:64",
-            "services/marketplaceServices/LocationsService.ts:15"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/snippets/:locationId",
-          sources: [
-            "services/marketplaceServices/TemplateService.ts:330"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/subscription/company/:companyId",
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:80"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/subscription/location/:locationId",
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:70"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com",
-          path: "/subscription/location/:locationId/:subscriptionId",
-          sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:89"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/surveys",
-          sources: [
-            "services/api/workflow-overview.service.ts:245",
-            "services/marketplaceServices/SurveysService.ts:11"
-          ],
-          callSites: 2
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/surveys/:id",
-          sources: [
-            "services/marketplaceServices/SurveysService.ts:20"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/twilio-accounts",
-          sources: [
-            "services/marketplaceServices/PhoneSystemService.ts:36"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
-          path: "/voice-call/voicemail-drop/file-validation",
-          sources: [
-            "services/marketplaceServices/PhoneSystemService.ts:25"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:adPublishingURL/facebook/custom-audience",
-          sources: [
-            "services/FacebookService.ts:94"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:appEngineURL/workflow/sendElizaMailToAgencyAdmin",
+          url: "https://backend.leadconnectorhq.com/appengine/workflow/sendElizaMailToAgencyAdmin",
+          path: "/appengine/workflow/sendElizaMailToAgencyAdmin",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "setup",
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "elizaAgentPlatform",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "components/actions/AddAIAppointmentBot.vue:344",
             "components/actions/crm/SendToEliza.vue:230"
-          ],
-          callSites: 2
+          ]
         },
         {
+          id: "associations-service--fetch-associations-for-object",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:base/events-management/events/options",
-          sources: [
-            "models/Triggers/events-options.ts:58"
+          url: "https://backend.leadconnectorhq.com/associations/objectKey/{objectKey}",
+          path: "/associations/objectKey/{objectKey}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "fetchAssociationsForObject",
+          service: "AssociationsService",
+          pathParams: [
+            {
+              name: "objectKey"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/AssociationsService.ts:17"
+          ]
         },
         {
+          id: "calendar-service--get-calendar-configuration",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:integrationsURL/facebook/:locationId/connection",
-          sources: [
-            "services/FacebookService.ts:49"
+          url: "https://backend.leadconnectorhq.com/calendars/configuration/location/{locationId}",
+          path: "/calendars/configuration/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getCalendarConfiguration",
+          service: "CalendarService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/CalendarService.ts:11"
+          ]
         },
         {
+          id: "backend--get-chat",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:listEndpoint",
+          url: "https://backend.leadconnectorhq.com/chat-widget/list",
+          path: "/chat-widget/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getChat",
+          service: null,
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetChatWidgetResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
           sources: [
-            "services/WorkflowService.ts:76",
-            "services/WorkflowService.ts:117"
-          ],
-          callSites: 2
+            "services/api/chat-widget-service.ts:35"
+          ]
         },
         {
+          id: "backend--2",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId",
+          url: "https://backend.leadconnectorhq.com/contacts/search/2",
+          path: "/contacts/search/2",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          summary: "Contact search. Treat its results as unverified \u2014 see the note.",
+          note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "SearchContactsBody",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "ContactSearchResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "erased"
+          },
           sources: [
-            "services/BaseService.ts:36"
-          ],
-          callSites: 1
+            "services/api/contact-service.ts:36"
+          ]
         },
         {
+          id: "conversation-aiservice--get-default-bot-config",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations-ai/intents/{locationId}",
+          path: "/conversations-ai/intents/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getDefaultBotConfig",
+          service: "ConversationAIService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/ConversationAIService.ts:18"
+          ]
+        },
+        {
+          id: "email-stats-report-service--get-new-email-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations-reporting/emails",
+          path: "/conversations-reporting/emails",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getNewEmailStats",
+          service: "EmailStatsReportService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/EmailStatsReportService.ts:10",
+            "services/api/email-stats-service.ts:14"
+          ]
+        },
+        {
+          id: "email-stats-report-service--get-aggregate-stats-new",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations-reporting/emails/aggregate",
+          path: "/conversations-reporting/emails/aggregate",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_stats"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getAggregateStatsNew",
+          service: "EmailStatsReportService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/EmailStatsReportService.ts:14",
+            "services/api/email-stats-service.ts:9",
+            "services/marketplaceServices/WorkflowStatsService.ts:28"
+          ]
+        },
+        {
+          id: "sms-stats-report-service--get-sms-stats-with-contacts",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations-reporting/messages",
+          path: "/conversations-reporting/messages",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSmsStatsWithContacts",
+          service: "SmsStatsReportService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SmsStatsReportService.ts:12",
+            "services/api/sms-stats-service.ts:13"
+          ]
+        },
+        {
+          id: "sms-stats-report-service--get-sms-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations-reporting/messages/aggregate",
+          path: "/conversations-reporting/messages/aggregate",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_stats"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSmsStats",
+          service: "SmsStatsReportService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SmsStatsReportService.ts:8",
+            "services/api/sms-stats-service.ts:8",
+            "services/marketplaceServices/WorkflowStatsService.ts:37"
+          ]
+        },
+        {
+          id: "conversation-message-service--get-message-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations/messages/{messageId}",
+          path: "/conversations/messages/{messageId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getMessageById",
+          service: "ConversationMessageService",
+          pathParams: [
+            {
+              name: "messageId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/ConversationMessageService.ts:10"
+          ]
+        },
+        {
+          id: "email-service--get-preference-sub-types",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/conversations/preferences/custom-subtypes",
+          path: "/conversations/preferences/custom-subtypes",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "internal-channel",
+            "location-id"
+          ],
+          operation: "getPreferenceSubTypes",
+          service: "EmailService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/EmailService.ts:234"
+          ]
+        },
+        {
+          id: "tik-tok-service--get-tik-tok-posts",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/conversations/providers/tiktok/posts",
+          path: "/conversations/providers/tiktok/posts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getTikTokPosts",
+          service: "TikTokService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{ 'tiktok.pageId': string; }",
+            properties: [
+              {
+                name: "tiktok.pageId",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TikTokService.ts:19"
+          ]
+        },
+        {
+          id: "tik-tok-service--get-tik-tok-post-by-id",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/conversations/providers/tiktok/posts/{id}",
+          path: "/conversations/providers/tiktok/posts/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getTikTokPostById",
+          service: "TikTokService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{ 'tiktok.pageId': string; }",
+            properties: [
+              {
+                name: "tiktok.pageId",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TikTokService.ts:25"
+          ]
+        },
+        {
+          id: "custom-data-service--get-custom-values",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/custom-data/conversations",
+          path: "/custom-data/conversations",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getCustomValues",
+          service: "CustomDataService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "types",
+              type: '"custom-values"',
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/CustomDataService.ts:37"
+          ]
+        },
+        {
+          id: "template-service--get-email-builder-templates-paginated",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/emails/builder",
+          path: "/emails/builder",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getEmailBuilderTemplatesPaginated",
+          service: "TemplateService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "offset",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "sortByDate",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "archived",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "deleted",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "name",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "templatesOnly",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "templatesMeta",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "source",
+              type: '"WORKFLOW"',
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:415"
+          ]
+        },
+        {
+          id: "template-service--create-hidden-email-template",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/emails/builder",
+          path: "/emails/builder",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "createHiddenEmailTemplate",
+          service: "TemplateService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "{ locationId: string; type: string; title: string; isPlainText: boolean; updatedBy: string; isHidden: boolean; }",
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "type",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "title",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "isPlainText",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "updatedBy",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "isHidden",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:633"
+          ]
+        },
+        {
+          id: "template-service--get-email-builder-templates",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/emails/builder/all",
+          path: "/emails/builder/all",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getEmailBuilderTemplates",
+          service: "TemplateService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "deleted",
+              type: "false",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "fields",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:474"
+          ]
+        },
+        {
+          id: "template-service--track-default-value-event",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/emails/builder/custom-value-defaults/track",
+          path: "/emails/builder/custom-value-defaults/track",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "trackDefaultValueEvent",
+          service: "TemplateService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: '{ locationId: string; variable: string; action: "SAVED" | "DELETED"; source: "workflow"; sourceId: string; fieldType: "html-content" | "input-field"; fieldName?: string; defaultValue?: string; isUpdate?: boolean; }',
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "variable",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "action",
+                type: '"SAVED" | "DELETED"',
+                optional: false
+              },
+              {
+                name: "source",
+                type: '"workflow"',
+                optional: false
+              },
+              {
+                name: "sourceId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "fieldType",
+                type: '"html-content" | "input-field"',
+                optional: false
+              },
+              {
+                name: "fieldName",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "defaultValue",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "isUpdate",
+                type: "boolean",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:688"
+          ]
+        },
+        {
+          id: "template-service--get-template-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/emails/builder/meta/{locationId}/{id}",
+          path: "/emails/builder/meta/{locationId}/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getTemplateById",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:217"
+          ]
+        },
+        {
+          id: "template-service--get-email-builder-settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/emails/builder/settings/{locationId}",
+          path: "/emails/builder/settings/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getEmailBuilderSettings",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:668"
+          ]
+        },
+        {
+          id: "template-service--update-template-from-source",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/emails/builder/update-from-source",
+          path: "/emails/builder/update-from-source",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "updateTemplateFromSource",
+          service: "TemplateService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "{ locationId: string; sourceTemplateId: string; targetTemplateId: string; }",
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "sourceTemplateId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "targetTemplateId",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:596"
+          ]
+        },
+        {
+          id: "template-service--get-workflow-template",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/emails/campaigns/{locationId}/template",
+          path: "/emails/campaigns/{locationId}/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getWorkflowTemplate",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "workflowId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "actionId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "templateId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:519"
+          ]
+        },
+        {
+          id: "template-service--update-workflow-template",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/emails/campaigns/{locationId}/template",
+          path: "/emails/campaigns/{locationId}/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "updateWorkflowTemplate",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ locationId: string; workflowId: string; actionId: string; templateId: string; }",
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "workflowId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "actionId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "templateId",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:546"
+          ]
+        },
+        {
+          id: "template-service--get-links-from-html",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/emails/tracking/links",
+          path: "/emails/tracking/links",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLinksFromHtml",
+          service: "TemplateService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "{ htmlContent?: string; downloadUrl?: string; locationId: string; }",
+            properties: [
+              {
+                name: "htmlContent",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "downloadUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:652"
+          ]
+        },
+        {
+          id: "email-service--delete-trigger",
           method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:id",
-          sources: [
-            "services/BaseService.ts:54"
+          url: "https://backend.leadconnectorhq.com/emails/trigger/{locationId}/{triggerId}",
+          path: "/emails/trigger/{locationId}/{triggerId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "internal-channel",
+            "location-id"
           ],
-          callSites: 1
+          operation: "deleteTrigger",
+          service: "EmailService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "triggerId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/EmailService.ts:183"
+          ]
         },
         {
+          id: "email-service--get-triggers",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:id",
-          sources: [
-            "services/BaseService.ts:30"
+          url: "https://backend.leadconnectorhq.com/emails/trigger/campaign/{locationId}/{sourceId}",
+          path: "/emails/trigger/campaign/{locationId}/{sourceId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "internal-channel",
+            "location-id"
           ],
-          callSites: 1
+          operation: "getTriggers",
+          service: "EmailService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "sourceId"
+            }
+          ],
+          query: [
+            {
+              name: "showCount",
+              type: "boolean",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "TriggerResponse",
+            properties: [
+              {
+                name: "triggers",
+                type: "ITagItem[]",
+                optional: false
+              },
+              {
+                name: "total",
+                type: "number",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/EmailService.ts:141"
+          ]
         },
         {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:id",
-          sources: [
-            "services/BaseService.ts:46"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:id/auto-save",
-          sources: [
-            "services/BaseService.ts:42"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:id/recover",
-          sources: [
-            "services/BaseService.ts:58"
-          ],
-          callSites: 1
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/commit-auto-save",
-          via: "url-literal",
-          sources: [
-            "states/workflow.ts:233",
-            "states/workflow.ts:252"
-          ],
-          callSites: 2
-        },
-        {
+          id: "email-service--update-triggers",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/copy-workflow",
-          sources: [
-            "services/WorkflowService.ts:568"
+          url: "https://backend.leadconnectorhq.com/emails/trigger/campaign/{locationId}/{sourceId}",
+          path: "/emails/trigger/campaign/{locationId}/{sourceId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateTriggers",
+          service: "EmailService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "sourceId"
+            }
           ],
-          callSites: 1
+          query: [],
+          body: {
+            typeName: "{ triggers: ITagItem[]; }",
+            properties: [
+              {
+                name: "triggers",
+                type: "ITagItem[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "TriggerResponse",
+            properties: [
+              {
+                name: "triggers",
+                type: "ITagItem[]",
+                optional: false
+              },
+              {
+                name: "total",
+                type: "number",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/EmailService.ts:163"
+          ]
         },
         {
+          id: "forms-service--get-forms",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/download",
-          sources: [
-            "states/app.ts:577"
+          url: "https://backend.leadconnectorhq.com/forms",
+          path: "/forms",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "list_account_entities"
           ],
-          callSites: 1
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getForms",
+          service: "FormsService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FormsService.ts:21",
+            "services/api/workflow-overview.service.ts:224"
+          ]
         },
         {
+          id: "forms-service--get-form-by-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/logs",
-          sources: [
-            "services/WorkflowService.ts:229"
+          url: "https://backend.leadconnectorhq.com/forms/forms-list",
+          path: "/forms/forms-list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getFormById",
+          service: "FormsService",
+          pathParams: [],
+          query: [
+            {
+              name: "formIds",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FormsService.ts:25"
+          ]
         },
         {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/remove-stuck-statuses/:stepId",
-          sources: [
-            "services/WorkflowService.ts:425",
-            "services/WorkflowService.ts:449"
-          ],
-          callSites: 2
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/requeue-stuck-statuses/:stepId",
-          sources: [
-            "services/WorkflowService.ts:407",
-            "services/WorkflowService.ts:413"
-          ],
-          callSites: 2
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/start-workflow",
-          sources: [
-            "services/WorkflowService.ts:462"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowId/upload",
-          sources: [
-            "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
-            "components/sticky-notes/v2/StickyNoteImageUpload.vue:45",
-            "states/app.ts:566"
-          ],
-          callSites: 3
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowStatusId/force-resume",
-          sources: [
-            "services/WorkflowService.ts:385"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/:workflowStatusId/stop-execution",
-          sources: [
-            "services/WorkflowService.ts:368"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/adwords",
-          sources: [
-            "services/WorkflowService.ts:690"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/ai/assistant",
-          sources: [
-            "workflow-ai/service/index.ts:14"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/ai/custom-code-ai",
-          sources: [
-            "workflow-ai/service/custom-code-ai.ts:23"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/ai/email-ai",
-          sources: [
-            "workflow-ai/service/email-ai.ts:18"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/ai/feedback",
-          sources: [
-            "workflow-ai/service/feedback.ts:14"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/ai/sms-ai",
-          sources: [
-            "workflow-ai/service/sms-ai.ts:14"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/change-status",
-          sources: [
-            "services/WorkflowService.ts:603"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/change-status/:workflowId",
-          sources: [
-            "services/WorkflowService.ts:596"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/delete",
-          sources: [
-            "services/WorkflowService.ts:653"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/directory",
-          sources: [
-            "services/WorkflowService.ts:149"
-          ],
-          callSites: 1
-        },
-        {
+          id: "funnels-service--get-funnel-by-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/eliza-users",
-          sources: [
-            "services/WorkflowService.ts:612"
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/fetch/{id}",
+          path: "/funnels/funnel/fetch/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getFunnelById",
+          service: "FunnelsService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:21"
+          ]
         },
         {
+          id: "funnels-service--get-funnels",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/email/location-email-provider",
-          sources: [
-            "services/api/workflow-overview.service.ts:260"
+          url: "https://backend.leadconnectorhq.com/funnels/funnel/list",
+          path: "/funnels/funnel/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getFunnels",
+          service: "FunnelsService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "name",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:11"
+          ]
         },
         {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/email/send-test-email",
-          sources: [
-            "services/EmailService.ts:132"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/error-notification/:workflowId",
-          sources: [
-            "services/ErrorNotificationService.ts:63"
-          ],
-          callSites: 1
-        },
-        {
+          id: "funnels-service--get-pages-by-funnel-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/error-notification/:workflowId",
-          sources: [
-            "services/ErrorNotificationService.ts:54"
+          url: "https://backend.leadconnectorhq.com/funnels/page",
+          path: "/funnels/page",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getPagesByFunnelId",
+          service: "FunnelsService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "name",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:25"
+          ]
         },
         {
+          id: "funnels-service--get-page-by-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/error-notification/count",
-          sources: [
-            "services/ErrorNotificationService.ts:33"
+          url: "https://backend.leadconnectorhq.com/funnels/page/{id}",
+          path: "/funnels/page/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getPageById",
+          service: "FunnelsService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:35"
+          ]
         },
         {
+          id: "funnels-service--get-products-by-funnel-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/error-notification/list",
-          sources: [
-            "services/ErrorNotificationService.ts:43",
-            "services/api/workflow-overview.service.ts:166"
+          url: "https://backend.leadconnectorhq.com/funnels/page/product",
+          path: "/funnels/page/product",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 2
+          operation: "getProductsByFunnelId",
+          service: "FunnelsService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "name",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:39"
+          ]
         },
         {
+          id: "funnels-service--get-product-by-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/error-notification/settings",
-          sources: [
-            "services/ErrorNotificationService.ts:72"
+          url: "https://backend.leadconnectorhq.com/funnels/page/product/{id}",
+          path: "/funnels/page/product/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getProductById",
+          service: "FunnelsService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FunnelsService.ts:49"
+          ]
         },
         {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/error-notification/settings/is-active",
-          sources: [
-            "services/ErrorNotificationService.ts:81"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/error-notification/settings/users",
-          sources: [
-            "services/ErrorNotificationService.ts:90"
-          ],
-          callSites: 1
-        },
-        {
+          id: "facebook-service--get-account-ids",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/list",
-          sources: [
-            "services/ScheduledPauseService.ts:52",
-            "services/api/workflow-overview.service.ts:203"
+          url: "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/allAdAccounts",
+          path: "/integrations/facebook/{locationId}/allAdAccounts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAccountIds",
+          service: "FacebookService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
           ],
-          callSites: 2
+          query: [
+            {
+              name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "after",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "IFacebookAdAccountsResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/FacebookService.ts:56"
+          ]
         },
         {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/move",
-          sources: [
-            "services/WorkflowService.ts:639"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/move-directory/:workflowId",
-          sources: [
-            "services/WorkflowService.ts:201"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/only-triggers/:id",
-          sources: [
-            "services/BaseService.ts:50"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/permission/:workflowId",
-          sources: [
-            "services/WorkflowService.ts:211"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/permissions",
-          sources: [
-            "services/WorkflowService.ts:668"
-          ],
-          callSites: 1
-        },
-        {
+          id: "facebook-service--check-connection",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/phone-numbers",
-          sources: [
-            "services/FilterService.ts:179"
+          url: "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/connection",
+          path: "/integrations/facebook/{locationId}/connection",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "checkConnection",
+          service: "FacebookService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
           ],
-          callSites: 1
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/FacebookService.ts:49",
+            "services/marketplaceServices/FacebookService.ts:30"
+          ]
         },
         {
+          id: "facebook-service--get-pages",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/premium-tier-usage/:tier",
-          sources: [
-            "services/PremiumTierUsageService.ts:21"
+          url: "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/pages",
+          path: "/integrations/facebook/{locationId}/pages",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "getPages",
+          service: "FacebookService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "getAll",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FacebookService.ts:39"
+          ]
         },
         {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/remove-directory/:folderId",
-          sources: [
-            "services/WorkflowService.ts:192"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/rename-directory/:folderId",
-          sources: [
-            "services/WorkflowService.ts:166"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/rename-workflow/:workflowId",
-          sources: [
-            "services/WorkflowService.ts:178"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/restore",
-          sources: [
-            "services/WorkflowService.ts:628"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/run-single-action",
-          sources: [
-            "services/CustomWebhookService.ts:44"
-          ],
-          callSites: 1
-        },
-        {
+          id: "facebook-service--get-lead-gen-froms",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/scheduled-pause/config",
-          sources: [
-            "services/ScheduledPauseService.ts:64"
+          url: "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/trigger/forms",
+          path: "/integrations/facebook/{locationId}/trigger/forms",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getLeadGenFroms",
+          service: "FacebookService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
           ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/scheduled-pause/config",
-          sources: [
-            "services/ScheduledPauseService.ts:74"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/scheduled-pause/config/:recordId",
-          sources: [
-            "services/ScheduledPauseService.ts:102"
-          ],
-          callSites: 1
-        },
-        {
-          method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/scheduled-pause/config/:recordId",
-          sources: [
-            "services/ScheduledPauseService.ts:92"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/secret-manager",
-          sources: [
-            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/secret-manager/:secretId",
-          sources: [
-            "services/SecretManagerService.ts:33"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/secret-manager/:value",
-          sources: [
-            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/sms/send-test-sms",
-          sources: [
-            "services/SmsService.ts:20"
-          ],
-          callSites: 1
-        },
-        {
-          method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/split",
-          sources: [
-            "services/SplitService.ts:47"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/split/isExecuted",
-          sources: [
-            "services/SplitService.ts:33"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/split/stats",
-          sources: [
-            "services/SplitService.ts:18"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/tags/create",
-          sources: [
-            "services/TagService.ts:10"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/v2/ai/assistant",
-          sources: [
-            "workflow-ai/service/assistant-v2.ts:53"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/v2/ai/build-sub-tree",
-          sources: [
-            "components/workflow-canvas/WorkflowAI.vue:135"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/v2/ai/build-workflow",
-          sources: [
-            "workflow-ai/service/ai-builder.ts:15"
-          ],
-          callSites: 1
-        },
-        {
-          method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/v2/ai/learn-ai",
-          sources: [
-            "workflow-ai/helpers/learn-ai/index.ts:57"
-          ],
-          callSites: 1
-        },
-        {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/v3/ai/wait",
-          via: "url-literal",
-          sources: [
-            "workflow-ai/v3/hooks/use-wait-ai.ts:243"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:locationId/workflow-templates",
-          sources: [
-            "services/WorkflowService.ts:558"
-          ],
-          callSites: 1
-        },
-        {
-          method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/forms",
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FacebookService.ts:122"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "facebook-service--get-lead-gen-pages",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/pages",
+          url: "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/trigger/pages",
+          path: "/integrations/facebook/{locationId}/trigger/pages",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getLeadGenPages",
+          service: "FacebookService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FacebookService.ts:148"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "facebook-service--get-posts",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:marketPlaceBackendURL/locations/:locationId/customFields/search",
+          url: "https://backend.leadconnectorhq.com/integrations/facebook/posts",
+          path: "/integrations/facebook/posts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getPosts",
+          service: "FacebookService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "pageId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "currentPage",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "postId",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FacebookService.ts:65",
+            "services/marketplaceServices/FacebookService.ts:123"
+          ]
+        },
+        {
+          id: "backend--fetch-google-connections",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integrations/google/connections",
+          path: "/integrations/google/connections",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchGoogleConnections",
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "GoogleConnectionsApiResponse",
+            properties: [
+              {
+                name: "data",
+                type: "GoogleConnectionApiItem[]",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-connections-service.ts:41"
+          ]
+        },
+        {
+          id: "google-sheets-service--get-google-oauth-start-url",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integrations/google/oauth/start",
+          path: "/integrations/google/oauth/start",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Authorization",
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getGoogleOAuthStartUrl",
+          service: "GoogleSheetsService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "userId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/GoogleSheetsService.ts:14"
+          ]
+        },
+        {
+          id: "facebook-service--get-ig-posts",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integrations/instagram/posts",
+          path: "/integrations/instagram/posts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getIgPosts",
+          service: "FacebookService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "pageId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "currentPage",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "postId",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/FacebookService.ts:94",
+            "services/marketplaceServices/FacebookService.ts:137"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--fetch-single-app-details",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integrations/public/{appId}",
+          path: "/integrations/public/{appId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSingleAppDetails",
+          service: "WorkflowMarketplaceService",
+          pathParams: [
+            {
+              name: "appId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:414"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--fetch-payment-plans",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integrations/public/{appId}/payment-plans",
+          path: "/integrations/public/{appId}/payment-plans",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchPaymentPlans",
+          service: "WorkflowMarketplaceService",
+          pathParams: [
+            {
+              name: "appId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:442"
+          ]
+        },
+        {
+          id: "backend--get-tik-tok-forms",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integrations/tiktok",
+          path: "/integrations/tiktok",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getTikTokForms",
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "GetTikTokIntegrationResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "models/Triggers/FilterState.ts:1487"
+          ]
+        },
+        {
+          id: "backend--get-tik-tok-forms--get-id-mapped-pages",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integrations/tiktok/{id}/mapped-pages",
+          path: "/integrations/tiktok/{id}/mapped-pages",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getTikTokForms",
+          service: null,
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetTikTokFormsResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "models/Triggers/FilterState.ts:1494"
+          ]
+        },
+        {
+          id: "links-service--get-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/links/id/{linkId}",
+          path: "/links/id/{linkId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getById",
+          service: "LinksService",
+          pathParams: [
+            {
+              name: "linkId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/LinksService.ts:29"
+          ]
+        },
+        {
+          id: "links-service--get-links",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/links/search",
+          path: "/links/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLinks",
+          service: "LinksService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/LinksService.ts:64"
+          ]
+        },
+        {
+          id: "smart-list-service--get-smart-lists",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic",
+          path: "/lists/dynamic",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSmartLists",
+          service: "SmartListService",
+          pathParams: [],
+          query: [
+            {
+              name: "objectKey",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "startAfter",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "20",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "unknown",
+            properties: null,
+            confidence: "primitive"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "primitive"
+          },
+          sources: [
+            "components/smart-lists/services/smart-list-service.ts:16"
+          ]
+        },
+        {
+          id: "smart-list-service--create-smart-list",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic",
+          path: "/lists/dynamic",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "createSmartList",
+          service: "SmartListService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "ISmartListView",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "ISmartListView",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "erased"
+          },
+          sources: [
+            "components/smart-lists/services/smart-list-service.ts:40"
+          ]
+        },
+        {
+          id: "smart-list-service--delete-smart-list",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{smartListId}",
+          path: "/lists/dynamic/{smartListId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "deleteSmartList",
+          service: "SmartListService",
+          pathParams: [
+            {
+              name: "smartListId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "components/smart-lists/services/smart-list-service.ts:55"
+          ]
+        },
+        {
+          id: "smart-list-service--get-smart-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{smartListId}",
+          path: "/lists/dynamic/{smartListId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSmartList",
+          service: "SmartListService",
+          pathParams: [
+            {
+              name: "smartListId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "ISmartListView",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "components/smart-lists/services/smart-list-service.ts:34"
+          ]
+        },
+        {
+          id: "smart-list-service--update-smart-list",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{smartListId}",
+          path: "/lists/dynamic/{smartListId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "updateSmartList",
+          service: "SmartListService",
+          pathParams: [
+            {
+              name: "smartListId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: 'Omit<ISmartListView, "id" | "objectKey">',
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: 'Omit<ISmartListView, "id" | "objectKey">',
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "erased"
+          },
+          sources: [
+            "components/smart-lists/services/smart-list-service.ts:46"
+          ]
+        },
+        {
+          id: "locations-service--get-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{id}",
+          path: "/locations/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getById",
+          service: "LocationsService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/LocationsService.ts:11"
+          ]
+        },
+        {
+          id: "opportunity-custom-field-service--get-custom-fields",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields",
+          path: "/locations/{locationId}/customFields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getCustomFields",
+          service: "OpportunityCustomFieldService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/OpportunityCustomFieldService.ts:9"
+          ]
+        },
+        {
+          id: "custom-field-service--get-contact-custom-fields",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/search",
+          path: "/locations/{locationId}/customFields/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "create_custom_field_folder",
+            "edit_workflow",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getContactCustomFields",
+          service: "CustomFieldService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "limit",
+              type: "10000",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "documentType",
+              type: '"field"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "includeStandards",
+              type: "boolean",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "model",
+              type: '"contact"',
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomFieldService.ts:14",
             "services/CustomFieldService.ts:32"
-          ],
-          callSites: 2
+          ]
         },
         {
+          id: "backend--custom-values",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:marketPlaceBackendURL/locations/:locationId/tags/search:",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customValues",
+          path: "/locations/{locationId}/customValues",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetAllCustomValueResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/custom-value.ts:21"
+          ]
+        },
+        {
+          id: "email-service--create-tag-marketplace",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/tags",
+          path: "/locations/{locationId}/tags",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createTagMarketplace",
+          service: "EmailService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ name: string; }",
+            properties: [
+              {
+                name: "name",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/EmailService.ts:218"
+          ]
+        },
+        {
+          id: "email-service--fetch-tags",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/tags/search",
+          path: "/locations/{locationId}/tags/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "internal-channel",
+            "location-id"
+          ],
+          operation: "fetchTags",
+          service: "EmailService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "getCount",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "FetchTagsResponse",
+            properties: [
+              {
+                name: "tags",
+                type: "{ id: string; name: string; }[]",
+                optional: false
+              },
+              {
+                name: "total",
+                type: "number",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/EmailService.ts:201"
+          ]
+        },
+        {
+          id: "filter-service--search-tags",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/tags/search{}",
+          path: "/locations/{locationId}/tags/search{}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "searchTags",
+          service: "FilterService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FilterService.ts:188"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "template-service--get-templates",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/templates",
+          path: "/locations/{locationId}/templates",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getTemplates",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:282"
+          ]
+        },
+        {
+          id: "template-service--get-snippet-template-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/templates/{id}",
+          path: "/locations/{locationId}/templates/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSnippetTemplateById",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:240"
+          ]
+        },
+        {
+          id: "locations-service--search-locations",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/search",
+          path: "/locations/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "searchLocations",
+          service: "LocationsService",
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "deleted",
+              type: "false",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/LocationsService.ts:15",
+            "services/marketplaceServices/SubLocationsService.ts:14"
+          ]
+        },
+        {
+          id: "logs-service--dump",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:marketplaceBaseUrl/marketplace/core/apps/connection-status/bulk",
+          url: "https://backend.leadconnectorhq.com/logs/metric",
+          path: "/logs/metric",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "dump",
+          service: "LogsService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "{ index: string; body: { [key: string]: any; }; }",
+            properties: [
+              {
+                name: "index",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "body",
+                type: "{ [key: string]: any; }",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/LogsService.ts:11"
+          ]
+        },
+        {
+          id: "backend--fetch-live-version-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/marketplace/app/{appId}/versions/latest",
+          path: "/marketplace/app/{appId}/versions/latest",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchLiveVersionId",
+          service: null,
+          pathParams: [
+            {
+              name: "appId"
+            }
+          ],
+          query: [
+            {
+              name: "isLive",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:64",
+            "services/api/slack-marketplace-install-service.ts:71"
+          ]
+        },
+        {
+          id: "backend--fetch-integration-details",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/marketplace/app/installationDetails",
+          path: "/marketplace/app/installationDetails",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchIntegrationDetails",
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "appId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "versionId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:99"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--fetch-billing-usage",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/marketplace/billing/usage/meters/public",
+          path: "/marketplace/billing/usage/meters/public",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchBillingUsage",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:455"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--get-all-categories-marketplace-apps",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/marketplace/collections",
+          path: "/marketplace/collections",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAllCategoriesMarketplaceApps",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [
+            {
+              name: "userType",
+              type: '"Location"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "companyId",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:318"
+          ]
+        },
+        {
+          id: "mcp-connection-service--list-marketplace-oauth-apps",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/marketplace/core/apps/connection-status/bulk",
+          path: "/marketplace/core/apps/connection-status/bulk",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "listMarketplaceOauthApps",
+          service: "McpConnectionService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/McpConnectionService.ts:170"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflow-marketplace-service--get-marketplace-apps",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/:marketplaceBaseUrl/workflows-marketplace/integration-apps",
-          sources: [
-            "services/McpConnectionService.ts:154"
+          url: "https://backend.leadconnectorhq.com/marketplace/core/search/module",
+          path: "/marketplace/core/search/module",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow",
+            "list_marketplace_apps"
           ],
-          callSites: 1
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getMarketplaceApps",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:377"
+          ]
         },
         {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/agent/:locationId/feedback",
-          via: "url-literal",
-          sources: [
-            "services/AgentTraceService.ts:399"
+          id: "media-service--search-videos",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/medias/files",
+          path: "/medias/files",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
           ],
-          callSites: 1
+          operation: "searchVideos",
+          service: "MediaService",
+          pathParams: [],
+          query: [
+            {
+              name: "altType",
+              type: '"location"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "altId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: '"5000"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "offset",
+              type: '"0"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "sortBy",
+              type: '"updatedAt"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "sortOrder",
+              type: '"desc"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: '"file"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "contentType",
+              type: '"video"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "mode",
+              type: '"public"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "fetchAll",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/MediaService.ts:11"
+          ]
         },
         {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/agent/:locationId/feedback/:threadId",
-          via: "url-literal",
-          sources: [
-            "services/AgentTraceService.ts:429"
+          id: "location-membership--fetch-categories",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/smart-list/categories",
+          path: "/membership/smart-list/categories",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchCategories",
+          service: "LocationMembership",
+          pathParams: [],
+          query: [
+            {
+              name: "product_id",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
           ],
-          callSites: 1
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "models/Filters/membership.ts:82"
+          ]
         },
         {
+          id: "location-membership--fetch-lessons",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/smart-list/category/{category_id}/lessons",
+          path: "/membership/smart-list/category/{category_id}/lessons",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchLessons",
+          service: "LocationMembership",
+          pathParams: [
+            {
+              name: "category_id"
+            }
+          ],
+          query: [
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "models/Filters/membership.ts:96"
+          ]
+        },
+        {
+          id: "location-membership--fetch-all-categories",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/smart-list/location/{locationId}/workflow",
+          path: "/membership/smart-list/location/{locationId}/workflow",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchAllCategories",
+          service: "LocationMembership",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "models/Filters/membership.ts:111",
+            "models/Filters/membership.ts:126"
+          ]
+        },
+        {
+          id: "location-membership--fetch-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/smart-list/offers-products/{locationId}",
+          path: "/membership/smart-list/offers-products/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchData",
+          service: "LocationMembership",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "models/Filters/membership.ts:66"
+          ]
+        },
+        {
+          id: "backend--set-firebase-auth",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/oauth/2/login/signin/refresh",
+          path: "/oauth/2/login/signin/refresh",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "setFirebaseAuth",
+          service: null,
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "states/app.ts:854"
+          ]
+        },
+        {
+          id: "backend--post-oauth-authorize",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/oauth/authorize",
+          path: "/oauth/authorize",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "postOAuthAuthorize",
+          service: null,
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "AuthorizeResponse",
+            properties: [
+              {
+                name: "redirectUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "success",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:129"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--authorize",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/oauth/authorize{}",
+          path: "/oauth/authorize{}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "authorize",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:492"
+          ]
+        },
+        {
+          id: "workflows-marketplace-platform-service--update-basic-authentication",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/oauth/clients/{appId}/authentication/location/{locationId}",
+          path: "/oauth/clients/{appId}/authentication/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateBasicAuthentication",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "appId"
+            },
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:511"
+          ]
+        },
+        {
+          id: "backend--list-external-accounts",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/oauth/clients/{appId}/authentication/locations/{locationId}/accounts",
+          path: "/oauth/clients/{appId}/authentication/locations/{locationId}/accounts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "listExternalAccounts",
+          service: null,
+          pathParams: [
+            {
+              name: "appId"
+            },
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "page",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:237",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:418",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:676"
+          ]
+        },
+        {
+          id: "backend--create-external-account",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/oauth/clients/{appId}/authentication/locations/{locationId}/accounts",
+          path: "/oauth/clients/{appId}/authentication/locations/{locationId}/accounts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createExternalAccount",
+          service: null,
+          pathParams: [
+            {
+              name: "appId"
+            },
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "CreateExternalAccountResponse",
+            properties: [
+              {
+                name: "authUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "redirectUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "url",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "data",
+                type: "{ authUrl?: string; redirectUrl?: string; url?: string; }",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-marketplace-install-service.ts:220",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:742"
+          ]
+        },
+        {
+          id: "workflows-marketplace-platform-service--delete-location-account",
           method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/agent/:locationId/mcp-connections/:id",
+          url: "https://backend.leadconnectorhq.com/oauth/clients/{appId}/authentication/locations/{locationId}/accounts/{accountId}",
+          path: "/oauth/clients/{appId}/authentication/locations/{locationId}/accounts/{accountId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteLocationAccount",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "appId"
+            },
+            {
+              name: "locationId"
+            },
+            {
+              name: "accountId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:425",
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:696"
+          ]
+        },
+        {
+          id: "workflows-marketplace-platform-service--fetch-oauth-url",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/oauth/clients/{appId}/authentication/oauth2/location/{locationId}/url",
+          path: "/oauth/clients/{appId}/authentication/oauth2/location/{locationId}/url",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchOAuthUrl",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "appId"
+            },
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:493"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--fetch-white-label-config",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/oauth/whitelabel/{id}",
+          path: "/oauth/whitelabel/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchWhiteLabelConfig",
+          service: "WorkflowMarketplaceService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:430"
+          ]
+        },
+        {
+          id: "custom-objects-service--fetch-custom-objects-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/objects",
+          path: "/objects",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchCustomObjectsList",
+          service: "CustomObjectsService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "type",
+              type: '"USER_DEFINED"',
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/CustomObjectsService.ts:17"
+          ]
+        },
+        {
+          id: "custom-objects-service--fetch-custom-object-fields",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/objects/{objectKey}",
+          path: "/objects/{objectKey}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchCustomObjectFields",
+          service: "CustomObjectsService",
+          pathParams: [
+            {
+              name: "objectKey"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "fetchProperties",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/CustomObjectsService.ts:29"
+          ]
+        },
+        {
+          id: "custom-objects-service--fetch-records-by-filter",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/objects/{objectKey}/records/search",
+          path: "/objects/{objectKey}/records/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchRecordsByFilter",
+          service: "CustomObjectsService",
+          pathParams: [
+            {
+              name: "objectKey"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "any",
+            properties: null,
+            confidence: "primitive"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "primitive",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/CustomObjectsService.ts:41"
+          ]
+        },
+        {
+          id: "opportunity-custom-field-service--get-lost-reason-custom-field-options",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/opportunities/lost-reason",
+          path: "/opportunities/lost-reason",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLostReasonCustomFieldOptions",
+          service: "OpportunityCustomFieldService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/OpportunityCustomFieldService.ts:19"
+          ]
+        },
+        {
+          id: "ivrservice--get-recording",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/location/{locationId}/recordings/{recordingSid}",
+          path: "/phone-system/location/{locationId}/recordings/{recordingSid}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "blob",
+          extraHeaders: [],
+          operation: "getRecording",
+          service: "IVRService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "recordingSid"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/IVRService.ts:38"
+          ]
+        },
+        {
+          id: "saas-twilio-service--get-phone-numbers-without-number-pool",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/numbers/location/{locationId}",
+          path: "/phone-system/numbers/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getPhoneNumbersWithoutNumberPool",
+          service: "SaasTwilioService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SaasTwilioService.ts:22",
+            "services/marketplaceServices/PhoneSystemService.ts:15"
+          ]
+        },
+        {
+          id: "phone-system-service--get-location-transcription-status",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/twilio-accounts",
+          path: "/phone-system/twilio-accounts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLocationTranscriptionStatus",
+          service: "PhoneSystemService",
+          pathParams: [],
+          query: [
+            {
+              name: "entityId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "entityType",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/PhoneSystemService.ts:36"
+          ]
+        },
+        {
+          id: "phone-system-service--validate-transcription",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/phone-system/voice-call/voicemail-drop/file-validation",
+          path: "/phone-system/voice-call/voicemail-drop/file-validation",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "multipart",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "validateTranscription",
+          service: "PhoneSystemService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "FormData",
+            properties: [
+              {
+                name: "append",
+                type: "{ (name: string, value: string | Blob): void; (name: string, value: string): ...",
+                optional: false,
+                doc: "The **`append()`** method of the FormData interface appends a new value onto an existing key inside a `FormData` object, or adds the key if it does not already exist.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/append)"
+              },
+              {
+                name: "delete",
+                type: "(name: string) => void",
+                optional: false,
+                doc: "The **`delete()`** method of the FormData interface deletes a key and its value(s) from a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/delete)"
+              },
+              {
+                name: "get",
+                type: "(name: string) => FormDataEntryValue",
+                optional: false,
+                doc: "The **`get()`** method of the FormData interface returns the first value associated with a given key from within a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/get)"
+              },
+              {
+                name: "getAll",
+                type: "(name: string) => FormDataEntryValue[]",
+                optional: false,
+                doc: "The **`getAll()`** method of the FormData interface returns all the values associated with a given key from within a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/getAll)"
+              },
+              {
+                name: "has",
+                type: "(name: string) => boolean",
+                optional: false,
+                doc: "The **`has()`** method of the FormData interface returns whether a `FormData` object contains a certain key.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/has)"
+              },
+              {
+                name: "set",
+                type: "{ (name: string, value: string | Blob): void; (name: string, value: string): ...",
+                optional: false,
+                doc: "The **`set()`** method of the FormData interface sets a new value for an existing key inside a `FormData` object, or adds the key/value if it does not already exist.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/set)"
+              },
+              {
+                name: "forEach",
+                type: "(callbackfn: (value: FormDataEntryValue, key: string, parent: FormData) => vo...",
+                optional: false
+              },
+              {
+                name: "entries",
+                type: "() => FormDataIterator<[string, FormDataEntryValue]>",
+                optional: false,
+                doc: "Returns an array of key, value pairs for every entry in the list."
+              },
+              {
+                name: "keys",
+                type: "() => FormDataIterator<string>",
+                optional: false,
+                doc: "Returns a list of keys in the list."
+              },
+              {
+                name: "values",
+                type: "() => FormDataIterator<FormDataEntryValue>",
+                optional: false,
+                doc: "Returns a list of values in the list."
+              },
+              {
+                name: "__@iterator@229",
+                type: "() => FormDataIterator<[string, FormDataEntryValue]>",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/PhoneSystemService.ts:25"
+          ]
+        },
+        {
+          id: "template-service--get-all-whats-app-templates",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/whatsapp/location/{locationId}/template",
+          path: "/phone-system/whatsapp/location/{locationId}/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getAllWhatsAppTemplates",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "skip",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:374"
+          ]
+        },
+        {
+          id: "reputation-service--get-review-link-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reputation/integrations/review-link-list",
+          path: "/reputation/integrations/review-link-list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getReviewLinkList",
+          service: "ReputationService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ReputationService.ts:22"
+          ]
+        },
+        {
+          id: "workflows-reselling-service--get-company-reselling-config",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reselling/configuration/company/{companyId}/starter_plus_workflow_premium_actions_triggers",
+          path: "/reselling/configuration/company/{companyId}/starter_plus_workflow_premium_actions_triggers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getCompanyResellingConfig",
+          service: "WorkflowsResellingService",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:45"
+          ]
+        },
+        {
+          id: "workflows-reselling-service--get-location-config--get-location-id-starter-plus-workflow-premium-actions-triggers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reselling/configuration/location/{locationId}/starter_plus_workflow_premium_actions_triggers",
+          path: "/reselling/configuration/location/{locationId}/starter_plus_workflow_premium_actions_triggers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLocationConfig",
+          service: "WorkflowsResellingService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:61"
+          ]
+        },
+        {
+          id: "workflows-reselling-service--get-location-config",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reselling/configuration/location/{locationId}/workflow_pro_black_friday",
+          path: "/reselling/configuration/location/{locationId}/workflow_pro_black_friday",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLocationConfig",
+          service: "WorkflowsResellingService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:55"
+          ]
+        },
+        {
+          id: "workflows-reselling-service--get-product-configuration",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reselling/product",
+          path: "/reselling/product",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getProductConfiguration",
+          service: "WorkflowsResellingService",
+          pathParams: [],
+          query: [
+            {
+              name: "productCode",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:36"
+          ]
+        },
+        {
+          id: "workflows-reselling-service--get-company-subscriptions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reselling/subscription/company/{companyId}",
+          path: "/reselling/subscription/company/{companyId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getCompanySubscriptions",
+          service: "WorkflowsResellingService",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:80"
+          ]
+        },
+        {
+          id: "workflows-reselling-service--get-location-subscriptions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/reselling/subscription/location/{locationId}",
+          path: "/reselling/subscription/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLocationSubscriptions",
+          service: "WorkflowsResellingService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "paymentStatus",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "productCode",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:70"
+          ]
+        },
+        {
+          id: "workflows-reselling-service--cancel-location-subscription",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/reselling/subscription/location/{locationId}/{subscriptionId}",
+          path: "/reselling/subscription/location/{locationId}/{subscriptionId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "cancelLocationSubscription",
+          service: "WorkflowsResellingService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "subscriptionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowResellerService.ts:89"
+          ]
+        },
+        {
+          id: "saas-twilio-service--check-for-lcaccount",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas_service/isv-mode/status/{locationId}",
+          path: "/saas_service/isv-mode/status/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "checkForLCAccount",
+          service: "SaasTwilioService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SaasTwilioService.ts:7"
+          ]
+        },
+        {
+          id: "saas-service--check-for-workflow-billing-plan",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}",
+          path: "/saas-billing-v2/billing-config/{entityType}/{entityId}/{product}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "checkForWorkflowBillingPlan",
+          service: "SaasService",
+          pathParams: [
+            {
+              name: "entityType"
+            },
+            {
+              name: "entityId"
+            },
+            {
+              name: "product"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "optIn",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SaasService.ts:12"
+          ]
+        },
+        {
+          id: "saas-service--upgrade-plan",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/{locationId}",
+          path: "/saas-billing-v2/billing-config/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "upgradePlan",
+          service: "SaasService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SaasService.ts:20"
+          ]
+        },
+        {
+          id: "saas-service--fetch-agency-billing-config",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
+          path: "/saas-billing-v2/billing-config/COMPANY/{companyId}/{product}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchAgencyBillingConfig",
+          service: "SaasService",
+          pathParams: [
+            {
+              name: "companyId"
+            },
+            {
+              name: "product"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SaasService.ts:16"
+          ]
+        },
+        {
+          id: "saas-service--check-conversation-aieligibility",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+          path: "/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "checkConversationAIEligibility",
+          service: "SaasService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "optIn",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SaasService.ts:29"
+          ]
+        },
+        {
+          id: "template-service--get-email-snippets-paginated",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/snippets/{locationId}",
+          path: "/snippets/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getEmailSnippetsPaginated",
+          service: "TemplateService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/TemplateService.ts:330",
+            "services/api/sms-template-service.ts:66"
+          ]
+        },
+        {
+          id: "surveys-service--get-surveys",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/surveys",
+          path: "/surveys",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSurveys",
+          service: "SurveysService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "query",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SurveysService.ts:11",
+            "services/api/workflow-overview.service.ts:245"
+          ]
+        },
+        {
+          id: "surveys-service--get-survey-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/surveys/{id}",
+          path: "/surveys/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSurveyById",
+          service: "SurveysService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/SurveysService.ts:20"
+          ]
+        },
+        {
+          id: "backend--fetch-users-page",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/users/search",
+          path: "/users/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchUsersPage",
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "companyId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "skip",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "SearchResponse",
+            properties: [
+              {
+                name: "users",
+                type: "User[]",
+                optional: true
+              },
+              {
+                name: "count",
+                type: "number",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/fetch-users.ts:15"
+          ]
+        },
+        {
+          id: "backend--fetch-events-options",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{base}/events-management/events/options",
+          path: "/workflow/{base}/events-management/events/options",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Version",
+            "Authorization",
+            "channel",
+            "source"
+          ],
+          operation: "fetchEventsOptions",
+          service: null,
+          pathParams: [
+            {
+              name: "base"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "models/Triggers/events-options.ts:58"
+          ]
+        },
+        {
+          id: "backend--bulk-location-settings",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{companyId}/workflow-company-setting/bulk-location-settings",
+          path: "/workflow/{companyId}/workflow-company-setting/bulk-location-settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "BulkLocationSettingsPayload",
+            properties: [
+              {
+                name: "settings",
+                type: "BulkLocationSettingInput[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "BulkLocationSettingsResponse",
+            properties: [
+              {
+                name: "updatedCount",
+                type: "number",
+                optional: false
+              },
+              {
+                name: "locationIds",
+                type: "string[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-settings.ts:52"
+          ]
+        },
+        {
+          id: "backend--location-settings-query",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{companyId}/workflow-company-setting/location-settings{query}",
+          path: "/workflow/{companyId}/workflow-company-setting/location-settings{query}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "companyId"
+            },
+            {
+              name: "query"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "AgencyLocationWorkflowSettingsResponse",
+            properties: [
+              {
+                name: "locations",
+                type: "{ id: string; name: string; settings: WorkflowFeatureSetting[]; updatedAt: st...",
+                optional: false
+              },
+              {
+                name: "pagination",
+                type: "{ page: number; limit: number; total: number; hasMore: boolean; }",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-settings.ts:44"
+          ]
+        },
+        {
+          id: "backend--settings--get-workflow-company-setting-settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{companyId}/workflow-company-setting/settings",
+          path: "/workflow/{companyId}/workflow-company-setting/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "AgencyWorkflowSettingsResponse",
+            properties: [
+              {
+                name: "companyId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "__v",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "features",
+                type: "Feature[]",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-settings.ts:23"
+          ]
+        },
+        {
+          id: "backend--settings--put-workflow-company-setting-settings",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{companyId}/workflow-company-setting/settings",
+          path: "/workflow/{companyId}/workflow-company-setting/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "AgencyWorkflowSettingsResponse",
+            properties: [
+              {
+                name: "companyId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "__v",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "features",
+                type: "Feature[]",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-settings.ts:28"
+          ]
+        },
+        {
+          id: "workflow-service--find-all",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}",
+          path: "/workflow/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "findAll",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:17"
+          ]
+        },
+        {
+          id: "workflow-service--create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}",
+          path: "/workflow/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "duplicate_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "create",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:36",
+            "services/WorkflowService.ts:578"
+          ]
+        },
+        {
+          id: "workflow-service--delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}",
+          path: "/workflow/{locationId}/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "delete",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "userId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:54"
+          ]
+        },
+        {
+          id: "workflow-service--find-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}",
+          path: "/workflow/{locationId}/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "check_workflow",
+            "duplicate_workflow",
+            "edit_workflow",
+            "export_workflow",
+            "get_workflow",
+            "get_workflow_runtime_window",
+            "get_workflow_stats",
+            "move_workflows",
+            "publish_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "findById",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:30"
+          ]
+        },
+        {
+          id: "workflow-service--update",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}",
+          path: "/workflow/{locationId}/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow",
+            "publish_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "update",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:46"
+          ]
+        },
+        {
+          id: "workflow-service--update-auto-save",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}/auto-save",
+          path: "/workflow/{locationId}/{id}/auto-save",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateAutoSave",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:42"
+          ]
+        },
+        {
+          id: "workflow-service--restore",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{id}/recover",
+          path: "/workflow/{locationId}/{id}/recover",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "restore",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:58"
+          ]
+        },
+        {
+          id: "backend--commit-auto-saved-changes-via-axios",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/commit-auto-save",
+          path: "/workflow/{locationId}/{workflowId}/commit-auto-save",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "commitAutoSavedChangesViaAxios",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ userId: any; workflowId: any; locationId: any; version: any; autoSaveSessionId: any; }",
+            properties: [
+              {
+                name: "userId",
+                type: "any",
+                optional: false
+              },
+              {
+                name: "workflowId",
+                type: "any",
+                optional: false
+              },
+              {
+                name: "locationId",
+                type: "any",
+                optional: false
+              },
+              {
+                name: "version",
+                type: "any",
+                optional: false
+              },
+              {
+                name: "autoSaveSessionId",
+                type: "any",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "states/workflow.ts:260"
+          ]
+        },
+        {
+          id: "workflow-service--copy-to-sub-account",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/copy-workflow",
+          path: "/workflow/{locationId}/{workflowId}/copy-workflow",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "copyToSubAccount",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "unknown",
+            properties: null,
+            confidence: "primitive"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "primitive",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:568"
+          ]
+        },
+        {
+          id: "backend--download-file",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/download",
+          path: "/workflow/{locationId}/{workflowId}/download",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "blob",
+          extraHeaders: [],
+          operation: "downloadFile",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [
+            {
+              name: "url",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "states/app.ts:577"
+          ]
+        },
+        {
+          id: "workflow-service--get-all-versions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history",
+          path: "/workflow/{locationId}/{workflowId}/history",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "list_workflow_versions"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAllVersions",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:507"
+          ]
+        },
+        {
+          id: "workflow-service--get-version-by-number-and-workflow-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history-by-number/{versionNumber}",
+          path: "/workflow/{locationId}/{workflowId}/history-by-number/{versionNumber}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_version"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getVersionByNumberAndWorkflowId",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            },
+            {
+              name: "versionNumber"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:548"
+          ]
+        },
+        {
+          id: "workflow-service--get-version-by-id-and-workflow-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history/{versionId}",
+          path: "/workflow/{locationId}/{workflowId}/history/{versionId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_version"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getVersionByIdAndWorkflowId",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            },
+            {
+              name: "versionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:536"
+          ]
+        },
+        {
+          id: "workflow-service--get-history-v2",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/history/v2",
+          path: "/workflow/{locationId}/{workflowId}/history/v2",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "list_workflow_versions"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getHistoryV2",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:522"
+          ]
+        },
+        {
+          id: "workflow-service--get-logs-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/logs",
+          path: "/workflow/{locationId}/{workflowId}/logs",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getLogsById",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [
+            {
+              name: "page",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "action",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "executionId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "contactId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "allWorkflowsForContactId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:229",
+            "services/WorkflowService.ts:273",
+            "services/WorkflowService.ts:298",
+            "services/WorkflowService.ts:323"
+          ]
+        },
+        {
+          id: "workflow-service--remove-stuck-records",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}",
+          path: "/workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "removeStuckRecords",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            },
+            {
+              name: "stepId"
+            }
+          ],
+          query: [
+            {
+              name: "userId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:425",
+            "services/WorkflowService.ts:449"
+          ]
+        },
+        {
+          id: "workflow-service--requeue-selected-stuck-contacts",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}",
+          path: "/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [
+            "fast_forward_contacts"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "requeueSelectedStuckContacts",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            },
+            {
+              name: "stepId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ actionFrom: IActionFrom; statusIds?: string[]; }",
+            properties: [
+              {
+                name: "actionFrom",
+                type: "IActionFrom",
+                optional: false
+              },
+              {
+                name: "statusIds",
+                type: "string[]",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:407"
+          ]
+        },
+        {
+          id: "workflow-service--requeue-stuck-records",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}{retrySteptrue}",
+          path: "/workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}{retrySteptrue}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "requeueStuckRecords",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            },
+            {
+              name: "stepId"
+            },
+            {
+              name: "retrySteptrue"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:413"
+          ]
+        },
+        {
+          id: "workflow-service--test-workflow-for-object-records",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/start-workflow",
+          path: "/workflow/{locationId}/{workflowId}/start-workflow",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "testWorkflowForObjectRecords",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "any",
+            properties: null,
+            confidence: "primitive"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "primitive",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:462"
+          ]
+        },
+        {
+          id: "backend--upload-files",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/upload",
+          path: "/workflow/{locationId}/{workflowId}/upload",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "multipart",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "uploadFiles",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "FormData",
+            properties: [
+              {
+                name: "append",
+                type: "{ (name: string, value: string | Blob): void; (name: string, value: string): ...",
+                optional: false,
+                doc: "The **`append()`** method of the FormData interface appends a new value onto an existing key inside a `FormData` object, or adds the key if it does not already exist.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/append)"
+              },
+              {
+                name: "delete",
+                type: "(name: string) => void",
+                optional: false,
+                doc: "The **`delete()`** method of the FormData interface deletes a key and its value(s) from a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/delete)"
+              },
+              {
+                name: "get",
+                type: "(name: string) => FormDataEntryValue",
+                optional: false,
+                doc: "The **`get()`** method of the FormData interface returns the first value associated with a given key from within a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/get)"
+              },
+              {
+                name: "getAll",
+                type: "(name: string) => FormDataEntryValue[]",
+                optional: false,
+                doc: "The **`getAll()`** method of the FormData interface returns all the values associated with a given key from within a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/getAll)"
+              },
+              {
+                name: "has",
+                type: "(name: string) => boolean",
+                optional: false,
+                doc: "The **`has()`** method of the FormData interface returns whether a `FormData` object contains a certain key.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/has)"
+              },
+              {
+                name: "set",
+                type: "{ (name: string, value: string | Blob): void; (name: string, value: string): ...",
+                optional: false,
+                doc: "The **`set()`** method of the FormData interface sets a new value for an existing key inside a `FormData` object, or adds the key/value if it does not already exist.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/set)"
+              },
+              {
+                name: "forEach",
+                type: "(callbackfn: (value: FormDataEntryValue, key: string, parent: FormData) => vo...",
+                optional: false
+              },
+              {
+                name: "entries",
+                type: "() => FormDataIterator<[string, FormDataEntryValue]>",
+                optional: false,
+                doc: "Returns an array of key, value pairs for every entry in the list."
+              },
+              {
+                name: "keys",
+                type: "() => FormDataIterator<string>",
+                optional: false,
+                doc: "Returns a list of keys in the list."
+              },
+              {
+                name: "values",
+                type: "() => FormDataIterator<FormDataEntryValue>",
+                optional: false,
+                doc: "Returns a list of values in the list."
+              },
+              {
+                name: "__@iterator@229",
+                type: "() => FormDataIterator<[string, FormDataEntryValue]>",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "states/app.ts:566",
+            "components/advanced-workflow-canvas/components/canvas/components/sticky-note/StickyNoteImageUpload.vue:38",
+            "components/sticky-notes/v2/StickyNoteImageUpload.vue:45"
+          ]
+        },
+        {
+          id: "workflow-service--resume-workflow-execution-manually",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowStatusId}/force-resume",
+          path: "/workflow/{locationId}/{workflowStatusId}/force-resume",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "resumeWorkflowExecutionManually",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowStatusId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ actionFrom: { userId: any; channel: string; source: string; }; }",
+            properties: [
+              {
+                name: "actionFrom",
+                type: "{ userId: any; channel: string; source: string; }",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:385"
+          ]
+        },
+        {
+          id: "workflow-service--stop-workflow-execution-manually",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowStatusId}/stop-execution",
+          path: "/workflow/{locationId}/{workflowStatusId}/stop-execution",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "stopWorkflowExecutionManually",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowStatusId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ removedFrom: { userId: any; channel: string; source: string; }; }",
+            properties: [
+              {
+                name: "removedFrom",
+                type: "{ userId: any; channel: string; source: string; }",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:368"
+          ]
+        },
+        {
+          id: "workflow-service--get-ad-words",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/adwords",
+          path: "/workflow/{locationId}/adwords",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAdWords",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:690"
+          ]
+        },
+        {
+          id: "aiassistant-service--send-messages",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/ai/assistant",
+          path: "/workflow/{locationId}/ai/assistant",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendMessages",
+          service: "AIAssistantService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "AIAssistantPayload",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "erased",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/index.ts:14"
+          ]
+        },
+        {
+          id: "custom-code-aiservice--send-custom-code-request",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/ai/custom-code-ai",
+          path: "/workflow/{locationId}/ai/custom-code-ai",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendCustomCodeRequest",
+          service: "CustomCodeAIService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{ messages: OpenAIMessage[]; attributes: { [key: string]: string; }; sessionId: string; language?: CustomCodeLanguage; }",
+            properties: [
+              {
+                name: "messages",
+                type: "OpenAIMessage[]",
+                optional: false
+              },
+              {
+                name: "attributes",
+                type: "{ [key: string]: string; }",
+                optional: false
+              },
+              {
+                name: "sessionId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "language",
+                type: "CustomCodeLanguage",
+                optional: true,
+                doc: "Active language of the Custom Code action. The backend swaps in a\nPython-specific system prompt when this is `'python'`; callers that\nomit the field get the historical JavaScript prompt for back-compat."
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/custom-code-ai.ts:23"
+          ]
+        },
+        {
+          id: "email-ai-service--send-email-request",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/ai/email-ai",
+          path: "/workflow/{locationId}/ai/email-ai",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendEmailRequest",
+          service: "EmailAiService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{ messages: OpenAIMessage[]; sessionId: string; tone: string; }",
+            properties: [
+              {
+                name: "messages",
+                type: "OpenAIMessage[]",
+                optional: false
+              },
+              {
+                name: "sessionId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "tone",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/email-ai.ts:18"
+          ]
+        },
+        {
+          id: "aifeedback-service--send-feedback",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/ai/feedback",
+          path: "/workflow/{locationId}/ai/feedback",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendFeedback",
+          service: "AIFeedbackService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "AIFeedbackPayload",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "erased",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/feedback.ts:14"
+          ]
+        },
+        {
+          id: "smsai-service--send-smsrequest",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/ai/sms-ai",
+          path: "/workflow/{locationId}/ai/sms-ai",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendSMSRequest",
+          service: "SMSAiService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{ messages: OpenAIMessage[]; sessionId: string; tone: string; }",
+            properties: [
+              {
+                name: "messages",
+                type: "OpenAIMessage[]",
+                optional: false
+              },
+              {
+                name: "sessionId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "tone",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/sms-ai.ts:14"
+          ]
+        },
+        {
+          id: "auto-save-settings-service--get-auto-save-settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/auto-save/settings",
+          path: "/workflow/{locationId}/auto-save/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAutoSaveSettings",
+          service: "AutoSaveSettingsService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/AutoSaveSettingsService.ts:27"
+          ]
+        },
+        {
+          id: "auto-save-settings-service--update-auto-save-settings",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/auto-save/settings",
+          path: "/workflow/{locationId}/auto-save/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateAutoSaveSettings",
+          service: "AutoSaveSettingsService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/AutoSaveSettingsService.ts:37"
+          ]
+        },
+        {
+          id: "workflow-service--bulk-update-status",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/change-status",
+          path: "/workflow/{locationId}/change-status",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "bulkUpdateStatus",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:603"
+          ]
+        },
+        {
+          id: "workflow-service--update-status",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/change-status/{workflowId}",
+          path: "/workflow/{locationId}/change-status/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateStatus",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:596"
+          ]
+        },
+        {
+          id: "workflow-service--bulk-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/delete",
+          path: "/workflow/{locationId}/delete",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "bulkDelete",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: '{ type: "directory" | "workflow"; workflowIds: string[]; updatedBy: any; }',
+            properties: [
+              {
+                name: "type",
+                type: '"directory" | "workflow"',
+                optional: false
+              },
+              {
+                name: "workflowIds",
+                type: "string[]",
+                optional: false
+              },
+              {
+                name: "updatedBy",
+                type: "any",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:653"
+          ]
+        },
+        {
+          id: "workflow-service--create-folder",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/directory",
+          path: "/workflow/{locationId}/directory",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "create_workflow_folder"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createFolder",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:149"
+          ]
+        },
+        {
+          id: "drip-schedule-service--get-contacts",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts",
+          path: "/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/contacts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getContacts",
+          service: "DripScheduleService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            },
+            {
+              name: "stepId"
+            }
+          ],
+          query: [
+            {
+              name: "page",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "IDripContactsResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/DripScheduleService.ts:28"
+          ]
+        },
+        {
+          id: "drip-schedule-service--get-step-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats",
+          path: "/workflow/{locationId}/drip-schedule/{workflowId}/step/{stepId}/stats",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getStepStats",
+          service: "DripScheduleService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            },
+            {
+              name: "stepId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "IDripStepStats",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/DripScheduleService.ts:23"
+          ]
+        },
+        {
+          id: "drip-schedule-service--get-preview",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/drip-schedule/preview",
+          path: "/workflow/{locationId}/drip-schedule/preview",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getPreview",
+          service: "DripScheduleService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "IDripPreviewRequest",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "IDripPreviewResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "erased"
+          },
+          sources: [
+            "services/DripScheduleService.ts:18"
+          ]
+        },
+        {
+          id: "workflow-service--get-eliza-users",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/eliza-users",
+          path: "/workflow/{locationId}/eliza-users",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getElizaUsers",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:612"
+          ]
+        },
+        {
+          id: "backend--location-email-provider",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/email/location-email-provider",
+          path: "/workflow/{locationId}/email/location-email-provider",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "The sending domain, warm-up state and rate limit behind this account's email steps.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/api/workflow-overview.service.ts:260"
+          ]
+        },
+        {
+          id: "email-service--send-test-email",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/email/send-test-email",
+          path: "/workflow/{locationId}/email/send-test-email",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendTestEmail",
+          service: "EmailService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "SendTestEmailPayload",
+            properties: [
+              {
+                name: "location_id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "user_id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "email",
+                type: "IEmail",
+                optional: false
+              },
+              {
+                name: "senderAddress",
+                type: "{ from_name?: string; from_email?: string; }",
+                optional: false
+              },
+              {
+                name: "workflowId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "workflowName",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "actionId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "actionName",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "workflowUpdatedAt",
+                type: "string | Date",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/EmailService.ts:132"
+          ]
+        },
+        {
+          id: "error-notification-service--delete-workflow-error-notification-doc",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/{workflowId}",
+          path: "/workflow/{locationId}/error-notification/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteWorkflowErrorNotificationDoc",
+          service: "ErrorNotificationService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ErrorNotificationService.ts:63"
+          ]
+        },
+        {
+          id: "error-notification-service--get-workflow-error-notification-doc",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/{workflowId}",
+          path: "/workflow/{locationId}/error-notification/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getWorkflowErrorNotificationDoc",
+          service: "ErrorNotificationService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ErrorNotificationService.ts:54"
+          ]
+        },
+        {
+          id: "error-notification-service--get-error-workflows-count",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/count",
+          path: "/workflow/{locationId}/error-notification/count",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_account_workflow_overview"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getErrorWorkflowsCount",
+          service: "ErrorNotificationService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ErrorNotificationService.ts:33"
+          ]
+        },
+        {
+          id: "backend--list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/list",
+          path: "/workflow/{locationId}/error-notification/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Workflows in this account that are currently erroring, and who is notified.",
+          reach: "source-only",
+          coveredBy: [
+            "get_account_workflow_overview"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "skip",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/api/workflow-overview.service.ts:166",
+            "services/ErrorNotificationService.ts:43"
+          ]
+        },
+        {
+          id: "error-notification-service--get-location-error-notification-setting",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/settings",
+          path: "/workflow/{locationId}/error-notification/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_account_workflow_overview"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getLocationErrorNotificationSetting",
+          service: "ErrorNotificationService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ErrorNotificationService.ts:72"
+          ]
+        },
+        {
+          id: "error-notification-service--update-location-error-notification-setting-is-active",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/settings/is-active",
+          path: "/workflow/{locationId}/error-notification/settings/is-active",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateLocationErrorNotificationSettingIsActive",
+          service: "ErrorNotificationService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ErrorNotificationService.ts:81"
+          ]
+        },
+        {
+          id: "error-notification-service--update-location-error-notification-setting-users",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/error-notification/settings/users",
+          path: "/workflow/{locationId}/error-notification/settings/users",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateLocationErrorNotificationSettingUsers",
+          service: "ErrorNotificationService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ErrorNotificationService.ts:90"
+          ]
+        },
+        {
+          id: "workflow-service--get-folders-and-workflows",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/list",
+          path: "/workflow/{locationId}/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
+          note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
+          reach: "source-only",
+          coveredBy: [
+            "create_workflow_folder",
+            "list_workflow_folders",
+            "list_workflows",
+            "list_workflows_complete",
+            "move_workflows"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getFoldersAndWorkflows",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: '"directory" | "workflow"',
+              required: true,
+              source: "params"
+            },
+            {
+              name: "parentId",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "search",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "limit",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "offset",
+              type: "number",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "status",
+              type: "WorkflowStatus",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "sortBy",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "sortOrder",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "includeCustomObjects",
+              type: "true",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "includeObjectiveBuilder",
+              type: "true",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:76",
+            "services/WorkflowService.ts:117",
+            "services/api/workflow-overview.service.ts:203",
+            "services/ScheduledPauseService.ts:52"
+          ]
+        },
+        {
+          id: "workflow-service--bulk-move",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/move",
+          path: "/workflow/{locationId}/move",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "move_workflows"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "bulkMove",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:639"
+          ]
+        },
+        {
+          id: "workflow-service--move-to-folder",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/move-directory/{workflowId}",
+          path: "/workflow/{locationId}/move-directory/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          summary: "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
+          note: 'The BATCH move cannot reach root -- null, "" and "root" all 404. Use this per-workflow route instead.',
+          reach: "source-only",
+          coveredBy: [
+            "move_workflows"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "moveToFolder",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:201"
+          ]
+        },
+        {
+          id: "workflow-service--update-only-triggers",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/only-triggers/{id}",
+          path: "/workflow/{locationId}/only-triggers/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateOnlyTriggers",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:50"
+          ]
+        },
+        {
+          id: "workflow-service--update-permission",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/permission/{workflowId}",
+          path: "/workflow/{locationId}/permission/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updatePermission",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:211"
+          ]
+        },
+        {
+          id: "workflow-service--bulk-update-directory-permissions",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/permissions",
+          path: "/workflow/{locationId}/permissions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "bulkUpdateDirectoryPermissions",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:668"
+          ]
+        },
+        {
+          id: "filter-service--get-phone-numbers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/phone-numbers",
+          path: "/workflow/{locationId}/phone-numbers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getPhoneNumbers",
+          service: "FilterService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/FilterService.ts:179"
+          ]
+        },
+        {
+          id: "premium-tier-usage-service--get-premium-tier-usage",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/premium-tier-usage/{tier}",
+          path: "/workflow/{locationId}/premium-tier-usage/{tier}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
+          note: 'Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer "why did a premium step not run".',
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getPremiumTierUsage",
+          service: "PremiumTierUsageService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "tier"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/PremiumTierUsageService.ts:21"
+          ]
+        },
+        {
+          id: "workflow-service--delete-folder",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/remove-directory/{folderId}",
+          path: "/workflow/{locationId}/remove-directory/{folderId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteFolder",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:192"
+          ]
+        },
+        {
+          id: "workflow-service--rename-folder",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/rename-directory/{folderId}",
+          path: "/workflow/{locationId}/rename-directory/{folderId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "renameFolder",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:166"
+          ]
+        },
+        {
+          id: "workflow-service--rename-workflow",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/rename-workflow/{workflowId}",
+          path: "/workflow/{locationId}/rename-workflow/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "renameWorkflow",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:178"
+          ]
+        },
+        {
+          id: "workflow-service--restore-workflow",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/restore",
+          path: "/workflow/{locationId}/restore",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "restoreWorkflow",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "userId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:628"
+          ]
+        },
+        {
+          id: "custom-webhook-service--get-sample-response",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/run-single-action",
+          path: "/workflow/{locationId}/run-single-action",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getSampleResponse",
+          service: "CustomWebhookService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "RequestObjectType",
+            properties: [
+              {
+                name: "type",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "contactId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "recordId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "recordType",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "attributes",
+                type: "ICustomWebhook",
+                optional: false
+              },
+              {
+                name: "contactLess",
+                type: "boolean",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/CustomWebhookService.ts:44"
+          ]
+        },
+        {
+          id: "scheduled-pause-service--get-scheduled-pause-settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/scheduled-pause/config",
+          path: "/workflow/{locationId}/scheduled-pause/config",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Whether this workflow is paused on a schedule, and the window if so.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getScheduledPauseSettings",
+          service: "ScheduledPauseService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ScheduledPauseService.ts:64"
+          ]
+        },
+        {
+          id: "scheduled-pause-service--create-scheduled-pause-settings",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/scheduled-pause/config",
+          path: "/workflow/{locationId}/scheduled-pause/config",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createScheduledPauseSettings",
+          service: "ScheduledPauseService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "IWorkflowPauseConfig",
+            properties: [
+              {
+                name: "pauseStartTime",
+                type: "number",
+                optional: false
+              },
+              {
+                name: "pauseEndTime",
+                type: "number",
+                optional: false
+              },
+              {
+                name: "isAnnual",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "workflowIds",
+                type: "string[]",
+                optional: false
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "isUpdated",
+                type: "boolean",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ScheduledPauseService.ts:74"
+          ]
+        },
+        {
+          id: "scheduled-pause-service--delete-scheduled-pause-settings",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/scheduled-pause/config/{recordId}",
+          path: "/workflow/{locationId}/scheduled-pause/config/{recordId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteScheduledPauseSettings",
+          service: "ScheduledPauseService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "recordId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/ScheduledPauseService.ts:102"
+          ]
+        },
+        {
+          id: "backend--preview",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/scheduler-trigger/preview",
+          path: "/workflow/{locationId}/scheduler-trigger/preview",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "SchedulerPreviewRequest",
+            properties: [
+              {
+                name: "timezone",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "conditions",
+                type: "{ field: string; value: string | number | boolean; }[]",
+                optional: false
+              },
+              {
+                name: "scheduleConfig",
+                type: "{ stop_at?: string | number; skip_weekends?: boolean; }",
+                optional: false
+              },
+              {
+                name: "triggerId",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "SchedulerPreviewResponse",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "executions",
+                type: "string[]",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "hooks/api/use-scheduler-preview.ts:26"
+          ]
+        },
+        {
+          id: "secret-manager-service--list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/secret-manager",
+          path: "/workflow/{locationId}/secret-manager",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "list",
+          service: "SecretManagerService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "{ data: ISecret[]; }",
+            properties: [
+              {
+                name: "data",
+                type: "ISecret[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/SecretManagerService.ts:21",
+            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:510"
+          ]
+        },
+        {
+          id: "secret-manager-service--create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/secret-manager",
+          path: "/workflow/{locationId}/secret-manager",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "create",
+          service: "SecretManagerService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SecretManagerService.ts:29",
+            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:570"
+          ]
+        },
+        {
+          id: "secret-manager-service--remove",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/secret-manager/{secretId}",
+          path: "/workflow/{locationId}/secret-manager/{secretId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "remove",
+          service: "SecretManagerService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "secretId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SecretManagerService.ts:33"
+          ]
+        },
+        {
+          id: "backend--delete-secret",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/secret-manager/{value}",
+          path: "/workflow/{locationId}/secret-manager/{value}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Authorization"
+          ],
+          operation: "deleteSecret",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "value"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "components/actions/premium-actions/custom-webhook-components/CustomWebhookAuthorization.vue:628"
+          ]
+        },
+        {
+          id: "sms-service--send-test-sms",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/sms/send-test-sms",
+          path: "/workflow/{locationId}/sms/send-test-sms",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendTestSMS",
+          service: "SmsService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SmsService.ts:20"
+          ]
+        },
+        {
+          id: "split-service--delete-split-step-executions",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/split",
+          path: "/workflow/{locationId}/split",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteSplitStepExecutions",
+          service: "SplitService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "workflowId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "stepId",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SplitService.ts:47"
+          ]
+        },
+        {
+          id: "split-service--is-step-executed",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/split/isExecuted",
+          path: "/workflow/{locationId}/split/isExecuted",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "isStepExecuted",
+          service: "SplitService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "workflowId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "stepId",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SplitService.ts:33"
+          ]
+        },
+        {
+          id: "split-service--get-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/split/stats",
+          path: "/workflow/{locationId}/split/stats",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Per-branch results for an A/B split step.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getStats",
+          service: "SplitService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "workflowId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "stepId",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "pathIds",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/SplitService.ts:18",
+            "services/api/split-stats.ts:5"
+          ]
+        },
+        {
+          id: "tag-service--create-tag",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/tags/create",
+          path: "/workflow/{locationId}/tags/create",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createTag",
+          service: "TagService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/TagService.ts:10"
+          ]
+        },
+        {
+          id: "trigger-service--find-all",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger",
+          path: "/workflow/{locationId}/trigger",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "check_workflow",
+            "duplicate_workflow",
+            "edit_workflow",
+            "export_workflow",
+            "get_trigger_logs",
+            "get_workflow_runtime_window",
+            "get_workflow_stats",
+            "publish_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "findAll",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:17"
+          ]
+        },
+        {
+          id: "trigger-service--create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger",
+          path: "/workflow/{locationId}/trigger",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "create",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:36"
+          ]
+        },
+        {
+          id: "trigger-service--delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger/{id}",
+          path: "/workflow/{locationId}/trigger/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "delete",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "userId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:54"
+          ]
+        },
+        {
+          id: "trigger-service--find-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger/{id}",
+          path: "/workflow/{locationId}/trigger/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "findById",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:30"
+          ]
+        },
+        {
+          id: "trigger-service--update",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger/{id}",
+          path: "/workflow/{locationId}/trigger/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "update",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:46"
+          ]
+        },
+        {
+          id: "trigger-service--update-auto-save",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger/{id}/auto-save",
+          path: "/workflow/{locationId}/trigger/{id}/auto-save",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateAutoSave",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:42"
+          ]
+        },
+        {
+          id: "trigger-service--restore",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger/{id}/recover",
+          path: "/workflow/{locationId}/trigger/{id}/recover",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "restore",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:58"
+          ]
+        },
+        {
+          id: "trigger-service--update-only-triggers",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/trigger/only-triggers/{id}",
+          path: "/workflow/{locationId}/trigger/only-triggers/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateOnlyTriggers",
+          service: "TriggerService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: any; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/BaseService.ts:50"
+          ]
+        },
+        {
+          id: "aiassistant-service-v2--send-messages-v2",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v2/ai/assistant",
+          path: "/workflow/{locationId}/v2/ai/assistant",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "sendMessagesV2",
+          service: "AIAssistantServiceV2",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/assistant-v2.ts:53"
+          ]
+        },
+        {
+          id: "backend--setup--post-ai-build-sub-tree",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v2/ai/build-sub-tree",
+          path: "/workflow/{locationId}/v2/ai/build-sub-tree",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "setup",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "components/workflow-canvas/WorkflowAI.vue:135"
+          ]
+        },
+        {
+          id: "aibuilder-service--build-workflow",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v2/ai/build-workflow",
+          path: "/workflow/{locationId}/v2/ai/build-workflow",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "buildWorkflow",
+          service: "AIBuilderService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "AIBuilderPayload",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "erased",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/ai-builder.ts:15"
+          ]
+        },
+        {
+          id: "backend--handle-request",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v2/ai/learn-ai",
+          path: "/workflow/{locationId}/v2/ai/learn-ai",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "handleRequest",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/helpers/learn-ai/index.ts:57"
+          ]
+        },
+        {
+          id: "aiassistant-service-v2--transcribe-audio",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v2/ai/transcribe",
+          path: "/workflow/{locationId}/v2/ai/transcribe",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "multipart",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "transcribeAudio",
+          service: "AIAssistantServiceV2",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "FormData",
+            properties: [
+              {
+                name: "append",
+                type: "{ (name: string, value: string | Blob): void; (name: string, value: string): ...",
+                optional: false,
+                doc: "The **`append()`** method of the FormData interface appends a new value onto an existing key inside a `FormData` object, or adds the key if it does not already exist.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/append)"
+              },
+              {
+                name: "delete",
+                type: "(name: string) => void",
+                optional: false,
+                doc: "The **`delete()`** method of the FormData interface deletes a key and its value(s) from a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/delete)"
+              },
+              {
+                name: "get",
+                type: "(name: string) => FormDataEntryValue",
+                optional: false,
+                doc: "The **`get()`** method of the FormData interface returns the first value associated with a given key from within a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/get)"
+              },
+              {
+                name: "getAll",
+                type: "(name: string) => FormDataEntryValue[]",
+                optional: false,
+                doc: "The **`getAll()`** method of the FormData interface returns all the values associated with a given key from within a `FormData` object.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/getAll)"
+              },
+              {
+                name: "has",
+                type: "(name: string) => boolean",
+                optional: false,
+                doc: "The **`has()`** method of the FormData interface returns whether a `FormData` object contains a certain key.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/has)"
+              },
+              {
+                name: "set",
+                type: "{ (name: string, value: string | Blob): void; (name: string, value: string): ...",
+                optional: false,
+                doc: "The **`set()`** method of the FormData interface sets a new value for an existing key inside a `FormData` object, or adds the key/value if it does not already exist.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/API/FormData/set)"
+              },
+              {
+                name: "forEach",
+                type: "(callbackfn: (value: FormDataEntryValue, key: string, parent: FormData) => vo...",
+                optional: false
+              },
+              {
+                name: "entries",
+                type: "() => FormDataIterator<[string, FormDataEntryValue]>",
+                optional: false,
+                doc: "Returns an array of key, value pairs for every entry in the list."
+              },
+              {
+                name: "keys",
+                type: "() => FormDataIterator<string>",
+                optional: false,
+                doc: "Returns a list of keys in the list."
+              },
+              {
+                name: "values",
+                type: "() => FormDataIterator<FormDataEntryValue>",
+                optional: false,
+                doc: "Returns a list of values in the list."
+              },
+              {
+                name: "__@iterator@229",
+                type: "() => FormDataIterator<[string, FormDataEntryValue]>",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/service/assistant-v2.ts:114"
+          ]
+        },
+        {
+          id: "backend--send",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v3/ai/wait",
+          path: "/workflow/{locationId}/v3/ai/wait",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "send",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "workflow-ai/v3/hooks/use-wait-ai.ts:252"
+          ]
+        },
+        {
+          id: "backend--validate-assets",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/validate-assets",
+          path: "/workflow/{locationId}/validate-assets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "ValidateAssetsPayload",
+            properties: [
+              {
+                name: "templates",
+                type: "unknown[]",
+                optional: false
+              },
+              {
+                name: "triggers",
+                type: "unknown[]",
+                optional: false
+              },
+              {
+                name: "companyId",
+                type: "string",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "AssetValidationResponse",
+            properties: [
+              {
+                name: "errors",
+                type: "AssetValidationIssue[]",
+                optional: false
+              },
+              {
+                name: "warnings",
+                type: "AssetValidationIssue[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-asset-validation.ts:33"
+          ]
+        },
+        {
+          id: "workflow-aisettings-service--get-settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/workflow-ai/settings",
+          path: "/workflow/{locationId}/workflow-ai/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getSettings",
+          service: "WorkflowAISettingsService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowAISettingsService.ts:19"
+          ]
+        },
+        {
+          id: "workflow-aisettings-service--update-settings",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/workflow-ai/settings",
+          path: "/workflow/{locationId}/workflow-ai/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateSettings",
+          service: "WorkflowAISettingsService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowAISettingsService.ts:37"
+          ]
+        },
+        {
+          id: "backend--settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/workflow-location-setting/settings",
+          path: "/workflow/{locationId}/workflow-location-setting/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "WorkflowSettingsResponse",
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "__v",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "features",
+                type: "Feature[]",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-settings.ts:13",
+            "services/api/workflow-settings.ts:57"
+          ]
+        },
+        {
+          id: "backend--settings--put-workflow-location-setting-settings",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/workflow-location-setting/settings",
+          path: "/workflow/{locationId}/workflow-location-setting/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "WorkflowSettingsResponse",
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "__v",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "features",
+                type: "Feature[]",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/workflow-settings.ts:18"
+          ]
+        },
+        {
+          id: "workflow-service--get-all-templates",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/workflow-templates",
+          path: "/workflow/{locationId}/workflow-templates",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAllTemplates",
+          service: "WorkflowService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/WorkflowService.ts:558"
+          ]
+        },
+        {
+          id: "backend--fetch-drives",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/drives",
+          path: "/workflow/{root}/drives",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchDrives",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "pageToken",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<DriveItem>",
+            properties: [
+              {
+                name: "data",
+                type: "DriveItem[]",
+                optional: false
+              },
+              {
+                name: "nextPageToken",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:54"
+          ]
+        },
+        {
+          id: "backend--fetch-slack-integrations",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/integrations",
+          path: "/workflow/{root}/integrations",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackIntegrations",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "ListResponse<SlackIntegrationItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackIntegrationItem[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:90"
+          ]
+        },
+        {
+          id: "backend--fetch-slack-private-channels",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/private-channels",
+          path: "/workflow/{root}/private-channels",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackPrivateChannels",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "cursor",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SlackChannelItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackChannelItem[]",
+                optional: false
+              },
+              {
+                name: "nextCursor",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:120"
+          ]
+        },
+        {
+          id: "backend--fetch-slack-public-channels",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/public-channels",
+          path: "/workflow/{root}/public-channels",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackPublicChannels",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "cursor",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SlackChannelItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackChannelItem[]",
+                optional: false
+              },
+              {
+                name: "nextCursor",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:103"
+          ]
+        },
+        {
+          id: "backend--fetch-spreadsheets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/spreadsheets",
+          path: "/workflow/{root}/spreadsheets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSpreadsheets",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "driveId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "pageToken",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "searchTerm",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SpreadsheetItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SpreadsheetItem[]",
+                optional: false
+              },
+              {
+                name: "nextPageToken",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:73"
+          ]
+        },
+        {
+          id: "backend--fetch-sheets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/spreadsheets/{spreadsheetId}/sheets",
+          path: "/workflow/{root}/spreadsheets/{spreadsheetId}/sheets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSheets",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            },
+            {
+              name: "spreadsheetId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "ListResponse<SheetProperties>",
+            properties: [
+              {
+                name: "data",
+                type: "SheetProperties[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:90"
+          ]
+        },
+        {
+          id: "backend--fetch-sheet-headers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/spreadsheets/{spreadsheetId}/sheets/{sheetName}/headers",
+          path: "/workflow/{root}/spreadsheets/{spreadsheetId}/sheets/{sheetName}/headers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSheetHeaders",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            },
+            {
+              name: "spreadsheetId"
+            },
+            {
+              name: "sheetName"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "ListResponse<string>",
+            properties: [
+              {
+                name: "data",
+                type: "string[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/google-sheets-workflows-service.ts:111"
+          ]
+        },
+        {
+          id: "backend--fetch-slack-users",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{root}/users",
+          path: "/workflow/{root}/users",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchSlackUsers",
+          service: null,
+          pathParams: [
+            {
+              name: "root"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "oAuthId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "cursor",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "PaginatedResponse<SlackMemberItem>",
+            properties: [
+              {
+                name: "data",
+                type: "SlackMemberItem[]",
+                optional: false
+              },
+              {
+                name: "nextCursor",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/slack-workflows-service.ts:133"
+          ]
+        },
+        {
+          id: "agent-trace-service--submit-feedback",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/feedback",
+          path: "/workflow/agent/{locationId}/feedback",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "submitFeedback",
+          service: "AgentTraceService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: '{ threadId: string; rating: "positive" | "negative"; whatWentWrong?: string; whatShouldHaveDone?: string; workflowId?: string; contactId?: string; workflowStepId?: string; }',
+            properties: [
+              {
+                name: "threadId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "rating",
+                type: '"positive" | "negative"',
+                optional: false
+              },
+              {
+                name: "whatWentWrong",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "whatShouldHaveDone",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "workflowId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "contactId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "workflowStepId",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "SubmitFeedbackResponse",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/AgentTraceService.ts:401"
+          ]
+        },
+        {
+          id: "agent-trace-service--get-feedback",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/feedback/{threadId}",
+          path: "/workflow/agent/{locationId}/feedback/{threadId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getFeedback",
+          service: "AgentTraceService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "threadId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetFeedbackResponse",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "AgentFeedbackState",
+                optional: true
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/AgentTraceService.ts:431"
+          ]
+        },
+        {
+          id: "mcp-connection-service--list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/mcp-connections",
+          path: "/workflow/agent/{locationId}/mcp-connections",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "list",
+          service: "McpConnectionService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "{ success: boolean; data: IMcpConnection[]; }",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "IMcpConnection[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/McpConnectionService.ts:85"
+          ]
+        },
+        {
+          id: "mcp-connection-service--create",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/mcp-connections",
+          path: "/workflow/agent/{locationId}/mcp-connections",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "create",
+          service: "McpConnectionService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "IMcpConnectionCreatePayload",
+            properties: [
+              {
+                name: "name",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "serverUrl",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "transportType",
+                type: '"streamable-http" | "sse"',
+                optional: false
+              },
+              {
+                name: "authType",
+                type: '"none" | "bearer_token" | "oauth2" | "api_key" | "custom_header"',
+                optional: false
+              },
+              {
+                name: "bearerTokenRef",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "oauth2TokenId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "oauth2Source",
+                type: '"marketplace" | "custom_webhook"',
+                optional: true
+              },
+              {
+                name: "marketplaceAppId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyName",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyRef",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyPassBy",
+                type: '"headers" | "parameters"',
+                optional: true
+              },
+              {
+                name: "customHeaders",
+                type: "{ key: string; value: string; }[]",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "{ success: boolean; data: IMcpConnection; }",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "IMcpConnection",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/McpConnectionService.ts:94"
+          ]
+        },
+        {
+          id: "mcp-connection-service--remove",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/mcp-connections/{id}",
+          path: "/workflow/agent/{locationId}/mcp-connections/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "remove",
+          service: "McpConnectionService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/McpConnectionService.ts:120"
-          ],
-          callSites: 1
+          ]
         },
         {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/agent/:locationId/models",
-          via: "url-literal",
+          id: "mcp-connection-service--update",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/mcp-connections/{id}",
+          path: "/workflow/agent/{locationId}/mcp-connections/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "update",
+          service: "McpConnectionService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "Partial<IMcpConnectionCreatePayload>",
+            properties: [
+              {
+                name: "name",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "serverUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "transportType",
+                type: '"streamable-http" | "sse"',
+                optional: true
+              },
+              {
+                name: "authType",
+                type: '"none" | "bearer_token" | "oauth2" | "api_key" | "custom_header"',
+                optional: true
+              },
+              {
+                name: "bearerTokenRef",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "oauth2TokenId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "oauth2Source",
+                type: '"marketplace" | "custom_webhook"',
+                optional: true
+              },
+              {
+                name: "marketplaceAppId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyName",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyRef",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyPassBy",
+                type: '"headers" | "parameters"',
+                optional: true
+              },
+              {
+                name: "customHeaders",
+                type: "{ key: string; value: string; }[]",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "{ success: boolean; data: IMcpConnection; }",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "IMcpConnection",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
           sources: [
-            "services/AgentTraceService.ts:455"
-          ],
-          callSites: 1
+            "services/McpConnectionService.ts:103"
+          ]
         },
         {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/agent/:locationId/trace/:threadId",
-          via: "url-literal",
+          id: "mcp-connection-service--list-oauth2-tokens",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/mcp-connections/oauth2-tokens",
+          path: "/workflow/agent/{locationId}/mcp-connections/oauth2-tokens",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "listOauth2Tokens",
+          service: "McpConnectionService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "{ success: boolean; data: IOauth2Token[]; }",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "IOauth2Token[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
           sources: [
-            "services/AgentTraceService.ts:340"
-          ],
-          callSites: 1
+            "services/McpConnectionService.ts:141"
+          ]
         },
         {
+          id: "mcp-connection-service--test-connection",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/custom-code/run-test",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/mcp-connections/test",
+          path: "/workflow/agent/{locationId}/mcp-connections/test",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "testConnection",
+          service: "McpConnectionService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "IMcpTestPayload",
+            properties: [
+              {
+                name: "name",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "serverUrl",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "transportType",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "authType",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "bearerTokenRef",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "oauth2TokenId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "oauth2Source",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "marketplaceAppId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyName",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyRef",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "apiKeyPassBy",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "customHeaders",
+                type: "{ key: string; value: string; }[]",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: {
+            typeName: "IMcpTestResult",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "{ tools: { name: string; description?: string; }[]; toolCount: number; }",
+                optional: true
+              },
+              {
+                name: "error",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "resolved"
+          },
+          sources: [
+            "services/McpConnectionService.ts:125"
+          ]
+        },
+        {
+          id: "agent-trace-service--get-models",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/models",
+          path: "/workflow/agent/{locationId}/models",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getModels",
+          service: "AgentTraceService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetModelsApiResponse",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              },
+              {
+                name: "data",
+                type: "PublicAgentModelsResponse",
+                optional: true
+              },
+              {
+                name: "message",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/AgentTraceService.ts:457"
+          ]
+        },
+        {
+          id: "agent-trace-service--get-trace",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/agent/{locationId}/trace/{threadId}",
+          path: "/workflow/agent/{locationId}/trace/{threadId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getTrace",
+          service: "AgentTraceService",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "threadId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetTraceResponse",
+            properties: [
+              {
+                name: "success",
+                type: "boolean",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/AgentTraceService.ts:342"
+          ]
+        },
+        {
+          id: "campaign-service--get-campaigns",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/campaign",
+          path: "/workflow/campaign",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getCampaigns",
+          service: "CampaignService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/CampaignService.ts:11"
+          ]
+        },
+        {
+          id: "backend--test-custom-code",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/custom-code/run-test",
+          path: "/workflow/custom-code/run-test",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "test_custom_code"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "testCustomCode",
+          service: null,
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "CustomCodeTestRunPayload",
+            properties: [
+              {
+                name: "location_id",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "attributes",
+                type: "{ language: CustomCodeLanguage; code: string; inputData: Record<string, unkno...",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "components/actions/premium-actions/custom-code-components/CustomCodeTest.vue:149"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--get-auth-config",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/auth",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/auth",
+          path: "/workflow/flowguard/auth",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getAuthConfig",
+          service: "FlowGuardService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:86"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--remove-from-blacklist",
           method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/blacklist/:type/:id",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/blacklist/{type}/{id}",
+          path: "/workflow/flowguard/blacklist/{type}/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "removeFromBlacklist",
+          service: "FlowGuardService",
+          pathParams: [
+            {
+              name: "type"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ params: { location_id: any; }; }",
+            properties: [
+              {
+                name: "params",
+                type: "{ location_id: any; }",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:197"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--get-contact-blacklist",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/blacklist/contact",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/blacklist/contact",
+          path: "/workflow/flowguard/blacklist/contact",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getContactBlacklist",
+          service: "FlowGuardService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:119"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--add-contact-to-blacklist",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/blacklist/contact/:contactId",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/blacklist/contact/{contactId}",
+          path: "/workflow/flowguard/blacklist/contact/{contactId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "addContactToBlacklist",
+          service: "FlowGuardService",
+          pathParams: [
+            {
+              name: "contactId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:160"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--get-step-blacklist",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/blacklist/step",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/blacklist/step",
+          path: "/workflow/flowguard/blacklist/step",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getStepBlacklist",
+          service: "FlowGuardService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:129"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--add-step-to-blacklist",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/blacklist/step/:stepId",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/blacklist/step/{stepId}",
+          path: "/workflow/flowguard/blacklist/step/{stepId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "addStepToBlacklist",
+          service: "FlowGuardService",
+          pathParams: [
+            {
+              name: "stepId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:176"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--get-workflow-blacklist",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/blacklist/workflow",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow",
+          path: "/workflow/flowguard/blacklist/workflow",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getWorkflowBlacklist",
+          service: "FlowGuardService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:109"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--add-workflow-to-blacklist",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/blacklist/workflow/:workflowId",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow/{workflowId}",
+          path: "/workflow/flowguard/blacklist/workflow/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "addWorkflowToBlacklist",
+          service: "FlowGuardService",
+          pathParams: [
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:144"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--add-loop-lock",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/loop-lock/:workflowId",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/loop-lock/{workflowId}",
+          path: "/workflow/flowguard/loop-lock/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "addLoopLock",
+          service: "FlowGuardService",
+          pathParams: [
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:271"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--get-rate-limit-bypass-info",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/rate-limiting/bypass",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/rate-limiting/bypass",
+          path: "/workflow/flowguard/rate-limiting/bypass",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getRateLimitBypassInfo",
+          service: "FlowGuardService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:208"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--create-rate-limit-bypass",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/rate-limiting/bypass",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/rate-limiting/bypass",
+          path: "/workflow/flowguard/rate-limiting/bypass",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "createRateLimitBypass",
+          service: "FlowGuardService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: 'Omit<IRateLimitBypass, "id" | "createdAt" | "createdBy" | "isActive">',
+            properties: null,
+            confidence: "erased"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "erased",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:230"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--delete-rate-limit-bypass",
           method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/rate-limiting/bypass/:id",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/rate-limiting/bypass/{id}",
+          path: "/workflow/flowguard/rate-limiting/bypass/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "deleteRateLimitBypass",
+          service: "FlowGuardService",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ params: { location_id: any; }; }",
+            properties: [
+              {
+                name: "params",
+                type: "{ location_id: any; }",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:255"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "flow-guard-service--get-workflow-details",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/flowguard/workflow-rendering/:workflowId",
+          url: "https://backend.leadconnectorhq.com/workflow/flowguard/workflow-rendering/{workflowId}",
+          path: "/workflow/flowguard/workflow-rendering/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class.",
+          reach: "refused",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getWorkflowDetails",
+          service: "FlowGuardService",
+          pathParams: [
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/FlowGuardService.ts:289"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--fetch-brand-board-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-boards/{brandBoardId}",
+          path: "/workflow/generate-image-ai/{locationId}/brand-boards/{brandBoardId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchBrandBoardById",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "brandBoardId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "BrandBoardsApiItem",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "name",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "isDefault",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "default",
+                type: "boolean",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/brand-boards-service.ts:107"
+          ]
+        },
+        {
+          id: "backend--fetch-brand-voice-by-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-voices/{brandVoiceId}",
+          path: "/workflow/generate-image-ai/{locationId}/brand-voices/{brandVoiceId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchBrandVoiceById",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "brandVoiceId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "BrandVoicesApiItem",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "_id",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "name",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "isDefault",
+                type: "boolean",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/brand-boards-service.ts:117"
+          ]
+        },
+        {
+          id: "ivrservice--get-numbers-mapping",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/ivr/get-mappings-by-phones",
+          url: "https://backend.leadconnectorhq.com/workflow/ivr/get-mappings-by-phones",
+          path: "/workflow/ivr/get-mappings-by-phones",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getNumbersMapping",
+          service: "IVRService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/IVRService.ts:25"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "custom-webhook-service--delete-token",
           method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/oauth2/delete-token",
+          url: "https://backend.leadconnectorhq.com/workflow/oauth2/delete-token",
+          path: "/workflow/oauth2/delete-token",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Authorization"
+          ],
+          operation: "deleteToken",
+          service: "CustomWebhookService",
+          pathParams: [],
+          query: [
+            {
+              name: "id",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "location_id",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomWebhookService.ts:131"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "custom-webhook-service--delete-token-by-state",
           method: "DELETE",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/oauth2/delete-token-by-state",
+          url: "https://backend.leadconnectorhq.com/workflow/oauth2/delete-token-by-state",
+          path: "/workflow/oauth2/delete-token-by-state",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Authorization"
+          ],
+          operation: "deleteTokenByState",
+          service: "CustomWebhookService",
+          pathParams: [],
+          query: [
+            {
+              name: "state",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "location_id",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomWebhookService.ts:83"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "custom-webhook-service--get-all-tokens",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/oauth2/get-all-tokens",
+          url: "https://backend.leadconnectorhq.com/workflow/oauth2/get-all-tokens",
+          path: "/workflow/oauth2/get-all-tokens",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Authorization"
+          ],
+          operation: "getAllTokens",
+          service: "CustomWebhookService",
+          pathParams: [],
+          query: [
+            {
+              name: "location_id",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomWebhookService.ts:99"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "custom-webhook-service--ping-to-get-token",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/oauth2/ping-to-get-token",
+          url: "https://backend.leadconnectorhq.com/workflow/oauth2/ping-to-get-token",
+          path: "/workflow/oauth2/ping-to-get-token",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Authorization"
+          ],
+          operation: "pingToGetToken",
+          service: "CustomWebhookService",
+          pathParams: [],
+          query: [
+            {
+              name: "location_id",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "state",
+              type: "string",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomWebhookService.ts:114"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "custom-webhook-service--refresh-token",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/oauth2/refresh-token",
+          url: "https://backend.leadconnectorhq.com/workflow/oauth2/refresh-token",
+          path: "/workflow/oauth2/refresh-token",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "refreshToken",
+          service: "CustomWebhookService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomWebhookService.ts:147"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "custom-webhook-service--save-token",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/oauth2/save-token",
+          url: "https://backend.leadconnectorhq.com/workflow/oauth2/save-token",
+          path: "/workflow/oauth2/save-token",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "saveToken",
+          service: "CustomWebhookService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "Token",
+            properties: [
+              {
+                name: "name",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "accessToken",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "expiresIn",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "refreshToken",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "callbackUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "authorizationUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "accessTokenUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "clientId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "clientSecret",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "scope",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "state",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "clientAuthentication",
+                type: '"credentials_in_body" | "basic_auth_header"',
+                optional: true
+              },
+              {
+                name: "refreshTokenUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "Date",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "Date",
+                optional: true
+              },
+              {
+                name: "validToken",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "invalidReason",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomWebhookService.ts:52"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "custom-webhook-service--update-token",
           method: "PUT",
-          base: "backend.leadconnectorhq.com/workflow",
-          path: "/oauth2/update-token",
+          url: "https://backend.leadconnectorhq.com/workflow/oauth2/update-token",
+          path: "/workflow/oauth2/update-token",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "updateToken",
+          service: "CustomWebhookService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "Token",
+            properties: [
+              {
+                name: "name",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "accessToken",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "expiresIn",
+                type: "number",
+                optional: true
+              },
+              {
+                name: "refreshToken",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "callbackUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "authorizationUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "accessTokenUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "clientId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "clientSecret",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "scope",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "state",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "clientAuthentication",
+                type: '"credentials_in_body" | "basic_auth_header"',
+                optional: true
+              },
+              {
+                name: "refreshTokenUrl",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "createdAt",
+                type: "Date",
+                optional: true
+              },
+              {
+                name: "updatedAt",
+                type: "Date",
+                optional: true
+              },
+              {
+                name: "validToken",
+                type: "boolean",
+                optional: true
+              },
+              {
+                name: "invalidReason",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/CustomWebhookService.ts:67"
-          ],
-          callSites: 1
+          ]
         },
         {
-          method: "METHOD-UNKNOWN",
-          base: "backend.leadconnectorhq.com",
-          path: "/workflows",
-          via: "url-literal",
-          sources: [
-            "services/api/sticky-notes.ts:6",
-            "services/api/workflow-overview.service.ts:5"
-          ],
-          callSites: 2
-        },
-        {
+          id: "workflows-marketplace-platform-service--fetch-dynamic-source-options",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/:assetType/dynamic-source/:key",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/{assetType}/dynamic-source/{key}",
+          path: "/workflows-marketplace/{assetType}/dynamic-source/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchDynamicSourceOptions",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "assetType"
+            },
+            {
+              name: "key"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: unknown; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:279"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--get-action-branches-fields",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/:actionType/branches",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/{actionType}/branches",
+          path: "/workflows-marketplace/actions/{actionType}/branches",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getActionBranchesFields",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "actionType"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "any",
+            properties: null,
+            confidence: "primitive"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "primitive",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:171"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--get-custom-input-field-data",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/:actionType/custom-input-fields",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/{actionType}/custom-input-fields",
+          path: "/workflows-marketplace/actions/{actionType}/custom-input-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getCustomInputFieldData",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "actionType"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:623"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-action-dynamic-source-details",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/dynamic-source-details/:key",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/dynamic-source-details/{key}",
+          path: "/workflows-marketplace/actions/dynamic-source-details/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchActionDynamicSourceDetails",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: unknown; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:568"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-action-input-all-options",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/options/:key",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/{key}",
+          path: "/workflows-marketplace/actions/options/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchActionInputAllOptions",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "optionType",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:210"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-action-input-list-options",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/options/:key/:fieldName",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/{key}/{fieldName}",
+          path: "/workflows-marketplace/actions/options/{key}/{fieldName}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchActionInputListOptions",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "key"
+            },
+            {
+              name: "fieldName"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "optionType",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:194"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--get-action-dynamic-fields",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/published/:actionType/dynamic-fields",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/published/{actionType}/dynamic-fields",
+          path: "/workflows-marketplace/actions/published/{actionType}/dynamic-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getActionDynamicFields",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "actionType"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "any",
+            properties: null,
+            confidence: "primitive"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "primitive",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:155"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--get-action-by-key",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/published/:key",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/published/{key}",
+          path: "/workflows-marketplace/actions/published/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getActionByKey",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:138"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--get-action-stats",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/actions/stats/:actionKey",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/stats/{actionKey}",
+          path: "/workflows-marketplace/actions/stats/{actionKey}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getActionStats",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "actionKey"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:321"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--stats",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
-          path: "/workflows-marketplace/integration-apps",
-          sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651"
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/stats/{key}",
+          path: "/workflows-marketplace/actions/stats/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "key"
+            }
           ],
-          callSites: 2
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetMarketPlaceStatsResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/marketplace-stats-service.ts:7"
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-integration-apps",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration-apps",
+          path: "/workflows-marketplace/integration-apps",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchIntegrationApps",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651",
+            "services/McpConnectionService.ts:154",
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:392"
+          ]
+        },
+        {
+          id: "workflows-marketplace-platform-service--reset-integration-token",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/integration-apps/reset-token/:appId",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration-apps/reset-token/{appId}",
+          path: "/workflows-marketplace/integration-apps/reset-token/{appId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "resetIntegrationToken",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "appId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{}",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "erased",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:639"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--initiate-oauth-authorization",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/integration/:appId/install",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/{appId}/install",
+          path: "/workflows-marketplace/integration/{appId}/install",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "initiateOAuthAuthorization",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "appId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "{ clientId: string; companyId: any; }",
+            properties: [
+              {
+                name: "clientId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "companyId",
+                type: "any",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:471"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-integration-oauth-token",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/integration/:appId/oauth",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/{appId}/oauth",
+          path: "/workflows-marketplace/integration/{appId}/oauth",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchIntegrationOauthToken",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "appId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "assetKey",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "assetType",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:407"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "slack-service--get-slack-oauth-start-url",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/integration/slack/oauth/start",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/integration/slack/oauth/start",
+          path: "/workflows-marketplace/integration/slack/oauth/start",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: false,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Authorization",
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getSlackOAuthStartUrl",
+          service: "SlackService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "userId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/SlackService.ts:32"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--test-action",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/internal-actions/test-action",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/internal-actions/test-action",
+          path: "/workflows-marketplace/internal-actions/test-action",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "testAction",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "{ actionKey: string; actionValues: Record<string, unknown>; testRecordId?: string; workflowType?: string; }",
+            properties: [
+              {
+                name: "actionKey",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "actionValues",
+                type: "Record<string, unknown>",
+                optional: false
+              },
+              {
+                name: "testRecordId",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "workflowType",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:390"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--deregister-test-webhook",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/internal-triggers/deregister-test-webhook",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/deregister-test-webhook",
+          path: "/workflows-marketplace/internal-triggers/deregister-test-webhook",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "deregisterTestWebhook",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "DeregisterWebhookParams",
+            properties: [
+              {
+                name: "triggerKey",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "triggerValues",
+                type: "{ [key: string]: any; }",
+                optional: false
+              },
+              {
+                name: "filters",
+                type: "{ field: string; operator?: string; value: any; }[]",
+                optional: true
+              },
+              {
+                name: "webhookEventId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "integrationEventId",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:350"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-webhook-status",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/internal-triggers/integration/webhook-operation",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/integration/webhook-operation",
+          path: "/workflows-marketplace/internal-triggers/integration/webhook-operation",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchWebhookStatus",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "WebhookStatusParams",
+            properties: [
+              {
+                name: "triggerKey",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "firestoreTriggerId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "operation",
+                type: '"status"',
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:606"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--register-test-polling",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/internal-triggers/register-test-polling",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/register-test-polling",
+          path: "/workflows-marketplace/internal-triggers/register-test-polling",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "registerTestPolling",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "TestTriggerParams",
+            properties: [
+              {
+                name: "triggerKey",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "triggerValues",
+                type: "{ [key: string]: any; }",
+                optional: false
+              },
+              {
+                name: "filters",
+                type: "{ field: string; operator?: string; value: any; }[]",
+                optional: true
+              },
+              {
+                name: "lastProcessedValue",
+                type: "any",
+                optional: true,
+                doc: "Used for polling-type triggers to fetch the next page/batch.\nBackend returns `newLastProcessedValue` which should be sent back here."
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:340"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--register-test-webhook",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/internal-triggers/register-test-webhook",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/register-test-webhook",
+          path: "/workflows-marketplace/internal-triggers/register-test-webhook",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "registerTestWebhook",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "TestTriggerParams",
+            properties: [
+              {
+                name: "triggerKey",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "triggerValues",
+                type: "{ [key: string]: any; }",
+                optional: false
+              },
+              {
+                name: "filters",
+                type: "{ field: string; operator?: string; value: any; }[]",
+                optional: true
+              },
+              {
+                name: "lastProcessedValue",
+                type: "any",
+                optional: true,
+                doc: "Used for polling-type triggers to fetch the next page/batch.\nBackend returns `newLastProcessedValue` which should be sent back here."
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:330"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--test-trigger",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/internal-triggers/test-trigger",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/test-trigger",
+          path: "/workflows-marketplace/internal-triggers/test-trigger",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "testTrigger",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "TestTriggerParams",
+            properties: [
+              {
+                name: "triggerKey",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "triggerValues",
+                type: "{ [key: string]: any; }",
+                optional: false
+              },
+              {
+                name: "filters",
+                type: "{ field: string; operator?: string; value: any; }[]",
+                optional: true
+              },
+              {
+                name: "lastProcessedValue",
+                type: "any",
+                optional: true,
+                doc: "Used for polling-type triggers to fetch the next page/batch.\nBackend returns `newLastProcessedValue` which should be sent back here."
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:362"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--get-actions-and-triggers",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/location/:locationId/assets",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/location/{locationId}/assets",
+          path: "/workflows-marketplace/location/{locationId}/assets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "check_workflow",
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getActionsAndTriggers",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "workflowTypes",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:124"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-trigger-dynamic-source-details",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/triggers/dynamic-source-details/:key",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/triggers/dynamic-source-details/{key}",
+          path: "/workflows-marketplace/triggers/dynamic-source-details/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchTriggerDynamicSourceDetails",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ [key: string]: unknown; }",
+            properties: null,
+            confidence: "open-map"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "open-map",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:596"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflows-marketplace-platform-service--fetch-trigger-filter-list-options",
           method: "GET",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/triggers/options/:key/:fieldName",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/triggers/options/{key}/{fieldName}",
+          path: "/workflows-marketplace/triggers/options/{key}/{fieldName}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "fetchTriggerFilterListOptions",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "key"
+            },
+            {
+              name: "fieldName"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "optionType",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:294"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--document-created-by-template-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId",
+          path: "/workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "optionType",
+              type: '"default"',
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "DocumentTemplateResponse",
+            properties: [
+              {
+                name: "options",
+                type: "DocumentTemplateOption[]",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/api/document-template-service.ts:17"
+          ]
+        },
+        {
+          id: "workflows-marketplace-platform-service--get-trigger-dynamic-fields",
           method: "POST",
-          base: "backend.leadconnectorhq.com/workflows-marketplace",
-          path: "/triggers/published/:triggerType/dynamic-fields",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/triggers/published/{triggerType}/dynamic-fields",
+          path: "/workflows-marketplace/triggers/published/{triggerType}/dynamic-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getTriggerDynamicFields",
+          service: "WorkflowsMarketplacePlatformService",
+          pathParams: [
+            {
+              name: "triggerType"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "any",
+            properties: null,
+            confidence: "primitive"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "primitive",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:312"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflow-copy-logs-service--get-detail-logs-list",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/copyWorkflow/internalLogList",
           path: "/workflows/copyWorkflow/internalLogList",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getDetailLogsList",
+          service: "WorkflowCopyLogsService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowCopyLogsService.ts:20"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflow-copy-logs-service--get-logs-list",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/copyWorkflow/logList",
           path: "/workflows/copyWorkflow/logList",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getLogsList",
+          service: "WorkflowCopyLogsService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowCopyLogsService.ts:29"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflow-copy-logs-service--get-status-list",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/copyWorkflow/statusList",
           path: "/workflows/copyWorkflow/statusList",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getStatusList",
+          service: "WorkflowCopyLogsService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowCopyLogsService.ts:10"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflow-marketplace-service--get-workflows-from-es",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows/es/search",
+          path: "/workflows/es/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getWorkflowsFromEs",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:138"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--get-logs",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/logs/v2",
+          path: "/workflows/logs/v2",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Execution log rows for one workflow; executionId returns one run's full step trace.",
+          note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history.",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_logs",
+            "get_workflow_runtime_window"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getLogs",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "open-map",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:166"
+          ]
+        },
+        {
+          id: "backend--weekly-enrollment-data",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/logs/weekly-enrollment-data",
           path: "/workflows/logs/weekly-enrollment-data",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
+          reach: "source-only",
+          coveredBy: [
+            "get_account_workflow_overview"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/api/workflow-overview.service.ts:149"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--statistics",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/statistics",
           path: "/workflows/statistics",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
+          reach: "source-only",
+          coveredBy: [
+            "get_account_workflow_overview"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/api/workflow-overview.service.ts:157"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflow-marketplace-service--get-enrollment-stats-single",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/status/enroll-stats",
           path: "/workflows/status/enroll-stats",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Total and active enrolled counts. A workflow with a large total and zero active has finished with everyone.",
+          note: "Batched: ask for the workflows you want in one call rather than looping per workflow.",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_logs",
+            "get_workflow_runtime_window"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getEnrollmentStatsSingle",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "open-map",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:237"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "workflow-marketplace-service--get-contact-count-per-step",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/status/search/count-per-step",
           path: "/workflows/status/search/count-per-step",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "How many contacts are sitting at each step right now.",
+          reach: "source-only",
+          coveredBy: [
+            "fast_forward_contacts",
+            "get_workflow_logs",
+            "get_workflow_runtime_window",
+            "get_workflow_stats"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getContactCountPerStep",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "open-map",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:181"
-          ],
-          callSites: 1
+          ]
         },
         {
-          method: "POST",
-          base: "backend.leadconnectorhq.com",
+          id: "workflow-marketplace-service--get-contact-details-per-step",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/status/search/details-by-step",
+          path: "/workflows/status/search/details-by-step",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "fast_forward_contacts",
+            "get_contacts_at_step",
+            "get_workflow_runtime_window"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getContactDetailsPerStep",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "open-map",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:296"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--get-enrollment-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/status/search/enroll-stats",
+          path: "/workflows/status/search/enroll-stats",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_account_workflow_overview"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getEnrollmentStats",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [
+            {
+              name: "workflowIds",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "EnrollStat[]",
+            properties: [
+              {
+                name: "length",
+                type: "number",
+                optional: false,
+                doc: "Gets or sets the length of the array. This is a number one higher than the highest index in the array."
+              },
+              {
+                name: "toString",
+                type: "() => string",
+                optional: false,
+                doc: "Returns a string representation of an array."
+              },
+              {
+                name: "toLocaleString",
+                type: "{ (): string; (locales: string | string[], options?: NumberFormatOptions & Da...",
+                optional: false,
+                doc: "Returns a string representation of an array. The elements are converted to string using their toLocaleString methods."
+              },
+              {
+                name: "pop",
+                type: "() => EnrollStat",
+                optional: false,
+                doc: "Removes the last element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "push",
+                type: "(...items: EnrollStat[]) => number",
+                optional: false,
+                doc: "Appends new elements to the end of an array, and returns the new length of the array."
+              },
+              {
+                name: "concat",
+                type: "{ (...items: ConcatArray<EnrollStat>[]): EnrollStat[]; (...items: (EnrollStat...",
+                optional: false,
+                doc: "Combines two or more arrays.\nThis method returns a new array without modifying any existing arrays."
+              },
+              {
+                name: "join",
+                type: "(separator?: string) => string",
+                optional: false,
+                doc: "Adds all the elements of an array into a string, separated by the specified separator string."
+              },
+              {
+                name: "reverse",
+                type: "() => EnrollStat[]",
+                optional: false,
+                doc: "Reverses the elements in an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "shift",
+                type: "() => EnrollStat",
+                optional: false,
+                doc: "Removes the first element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "slice",
+                type: "(start?: number, end?: number) => EnrollStat[]",
+                optional: false,
+                doc: "Returns a copy of a section of an array.\nFor both start and end, a negative index can be used to indicate an offset from the end of the array.\nFor example, -2 refers to the second to last element of the array."
+              },
+              {
+                name: "sort",
+                type: "(compareFn?: (a: EnrollStat, b: EnrollStat) => number) => EnrollStat[]",
+                optional: false,
+                doc: "Sorts an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "splice",
+                type: "{ (start: number, deleteCount?: number): EnrollStat[]; (start: number, delete...",
+                optional: false,
+                doc: "Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements."
+              },
+              {
+                name: "unshift",
+                type: "(...items: EnrollStat[]) => number",
+                optional: false,
+                doc: "Inserts new elements at the start of an array, and returns the new length of the array."
+              },
+              {
+                name: "indexOf",
+                type: "(searchElement: EnrollStat, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the first occurrence of a value in an array, or -1 if it is not present."
+              },
+              {
+                name: "lastIndexOf",
+                type: "(searchElement: EnrollStat, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the last occurrence of a specified value in an array, or -1 if it is not present."
+              },
+              {
+                name: "every",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, array:...",
+                optional: false,
+                doc: "Determines whether all the members of an array satisfy the specified test."
+              },
+              {
+                name: "some",
+                type: "(predicate: (value: EnrollStat, index: number, array: EnrollStat[]) => unknow...",
+                optional: false,
+                doc: "Determines whether the specified callback function returns true for any element of an array."
+              },
+              {
+                name: "forEach",
+                type: "(callbackfn: (value: EnrollStat, index: number, array: EnrollStat[]) => void,...",
+                optional: false,
+                doc: "Performs the specified action for each element in an array."
+              },
+              {
+                name: "map",
+                type: "<U>(callbackfn: (value: EnrollStat, index: number, array: EnrollStat[]) => U,...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array, and returns an array that contains the results."
+              },
+              {
+                name: "filter",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, array:...",
+                optional: false,
+                doc: "Returns the elements of an array that meet the condition specified in a callback function."
+              },
+              {
+                name: "reduce",
+                type: "{ (callbackfn: (previousValue: EnrollStat, currentValue: EnrollStat, currentI...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "reduceRight",
+                type: "{ (callbackfn: (previousValue: EnrollStat, currentValue: EnrollStat, currentI...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "find",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, obj: E...",
+                optional: false,
+                doc: "Returns the value of the first element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findIndex",
+                type: "(predicate: (value: EnrollStat, index: number, obj: EnrollStat[]) => unknown,...",
+                optional: false,
+                doc: "Returns the index of the first element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "fill",
+                type: "(value: EnrollStat, start?: number, end?: number) => EnrollStat[]",
+                optional: false,
+                doc: "Changes all array elements from `start` to `end` index to a static `value` and returns the modified array"
+              },
+              {
+                name: "copyWithin",
+                type: "(target: number, start: number, end?: number) => EnrollStat[]",
+                optional: false,
+                doc: "Returns the this object after copying a section of the array identified by start and end\nto the same array starting at position target"
+              },
+              {
+                name: "entries",
+                type: "() => ArrayIterator<[number, EnrollStat]>",
+                optional: false,
+                doc: "Returns an iterable of key, value pairs for every entry in the array"
+              },
+              {
+                name: "keys",
+                type: "() => ArrayIterator<number>",
+                optional: false,
+                doc: "Returns an iterable of keys in the array"
+              },
+              {
+                name: "values",
+                type: "() => ArrayIterator<EnrollStat>",
+                optional: false,
+                doc: "Returns an iterable of values in the array"
+              },
+              {
+                name: "includes",
+                type: "(searchElement: EnrollStat, fromIndex?: number) => boolean",
+                optional: false,
+                doc: "Determines whether an array includes a certain element, returning true or false as appropriate."
+              },
+              {
+                name: "flatMap",
+                type: "<U, This = undefined>(callback: (this: This, value: EnrollStat, index: number...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array. Then, flattens the result into\na new array.\nThis is identical to a map followed by flat with depth 1."
+              },
+              {
+                name: "flat",
+                type: "<A, D extends number = 1>(this: A, depth?: D) => FlatArray<A, D>[]",
+                optional: false,
+                doc: "Returns a new array with all sub-array elements concatenated into it recursively up to the\nspecified depth."
+              },
+              {
+                name: "at",
+                type: "(index: number) => EnrollStat",
+                optional: false,
+                doc: "Returns the item located at the specified index."
+              },
+              {
+                name: "findLast",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, array:...",
+                optional: false,
+                doc: "Returns the value of the last element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findLastIndex",
+                type: "(predicate: (value: EnrollStat, index: number, array: EnrollStat[]) => unknow...",
+                optional: false,
+                doc: "Returns the index of the last element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "toReversed",
+                type: "() => EnrollStat[]",
+                optional: false,
+                doc: "Returns a copy of an array with its elements reversed."
+              },
+              {
+                name: "toSorted",
+                type: "(compareFn?: (a: EnrollStat, b: EnrollStat) => number) => EnrollStat[]",
+                optional: false,
+                doc: "Returns a copy of an array with its elements sorted."
+              },
+              {
+                name: "toSpliced",
+                type: "{ (start: number, deleteCount: number, ...items: EnrollStat[]): EnrollStat[];...",
+                optional: false,
+                doc: "Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."
+              },
+              {
+                name: "with",
+                type: "(index: number, value: EnrollStat) => EnrollStat[]",
+                optional: false,
+                doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
+              },
+              {
+                name: "__@iterator@229",
+                type: "() => ArrayIterator<EnrollStat>",
+                optional: false,
+                doc: "Iterator"
+              },
+              {
+                name: "__@unscopables@231",
+                type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
+                optional: false,
+                doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:203"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--get-enrollment-stats--get-search-enroll-stats-cache",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/status/search/enroll-stats-cache",
+          path: "/workflows/status/search/enroll-stats-cache",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_account_workflow_overview",
+            "get_workflow_logs",
+            "get_workflow_runtime_window"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getEnrollmentStats",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [
+            {
+              name: "workflowIds",
+              type: "any",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "locationId",
+              type: "unknown",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "EnrollStat[]",
+            properties: [
+              {
+                name: "length",
+                type: "number",
+                optional: false,
+                doc: "Gets or sets the length of the array. This is a number one higher than the highest index in the array."
+              },
+              {
+                name: "toString",
+                type: "() => string",
+                optional: false,
+                doc: "Returns a string representation of an array."
+              },
+              {
+                name: "toLocaleString",
+                type: "{ (): string; (locales: string | string[], options?: NumberFormatOptions & Da...",
+                optional: false,
+                doc: "Returns a string representation of an array. The elements are converted to string using their toLocaleString methods."
+              },
+              {
+                name: "pop",
+                type: "() => EnrollStat",
+                optional: false,
+                doc: "Removes the last element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "push",
+                type: "(...items: EnrollStat[]) => number",
+                optional: false,
+                doc: "Appends new elements to the end of an array, and returns the new length of the array."
+              },
+              {
+                name: "concat",
+                type: "{ (...items: ConcatArray<EnrollStat>[]): EnrollStat[]; (...items: (EnrollStat...",
+                optional: false,
+                doc: "Combines two or more arrays.\nThis method returns a new array without modifying any existing arrays."
+              },
+              {
+                name: "join",
+                type: "(separator?: string) => string",
+                optional: false,
+                doc: "Adds all the elements of an array into a string, separated by the specified separator string."
+              },
+              {
+                name: "reverse",
+                type: "() => EnrollStat[]",
+                optional: false,
+                doc: "Reverses the elements in an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "shift",
+                type: "() => EnrollStat",
+                optional: false,
+                doc: "Removes the first element from an array and returns it.\nIf the array is empty, undefined is returned and the array is not modified."
+              },
+              {
+                name: "slice",
+                type: "(start?: number, end?: number) => EnrollStat[]",
+                optional: false,
+                doc: "Returns a copy of a section of an array.\nFor both start and end, a negative index can be used to indicate an offset from the end of the array.\nFor example, -2 refers to the second to last element of the array."
+              },
+              {
+                name: "sort",
+                type: "(compareFn?: (a: EnrollStat, b: EnrollStat) => number) => EnrollStat[]",
+                optional: false,
+                doc: "Sorts an array in place.\nThis method mutates the array and returns a reference to the same array."
+              },
+              {
+                name: "splice",
+                type: "{ (start: number, deleteCount?: number): EnrollStat[]; (start: number, delete...",
+                optional: false,
+                doc: "Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements."
+              },
+              {
+                name: "unshift",
+                type: "(...items: EnrollStat[]) => number",
+                optional: false,
+                doc: "Inserts new elements at the start of an array, and returns the new length of the array."
+              },
+              {
+                name: "indexOf",
+                type: "(searchElement: EnrollStat, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the first occurrence of a value in an array, or -1 if it is not present."
+              },
+              {
+                name: "lastIndexOf",
+                type: "(searchElement: EnrollStat, fromIndex?: number) => number",
+                optional: false,
+                doc: "Returns the index of the last occurrence of a specified value in an array, or -1 if it is not present."
+              },
+              {
+                name: "every",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, array:...",
+                optional: false,
+                doc: "Determines whether all the members of an array satisfy the specified test."
+              },
+              {
+                name: "some",
+                type: "(predicate: (value: EnrollStat, index: number, array: EnrollStat[]) => unknow...",
+                optional: false,
+                doc: "Determines whether the specified callback function returns true for any element of an array."
+              },
+              {
+                name: "forEach",
+                type: "(callbackfn: (value: EnrollStat, index: number, array: EnrollStat[]) => void,...",
+                optional: false,
+                doc: "Performs the specified action for each element in an array."
+              },
+              {
+                name: "map",
+                type: "<U>(callbackfn: (value: EnrollStat, index: number, array: EnrollStat[]) => U,...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array, and returns an array that contains the results."
+              },
+              {
+                name: "filter",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, array:...",
+                optional: false,
+                doc: "Returns the elements of an array that meet the condition specified in a callback function."
+              },
+              {
+                name: "reduce",
+                type: "{ (callbackfn: (previousValue: EnrollStat, currentValue: EnrollStat, currentI...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "reduceRight",
+                type: "{ (callbackfn: (previousValue: EnrollStat, currentValue: EnrollStat, currentI...",
+                optional: false,
+                doc: "Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function."
+              },
+              {
+                name: "find",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, obj: E...",
+                optional: false,
+                doc: "Returns the value of the first element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findIndex",
+                type: "(predicate: (value: EnrollStat, index: number, obj: EnrollStat[]) => unknown,...",
+                optional: false,
+                doc: "Returns the index of the first element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "fill",
+                type: "(value: EnrollStat, start?: number, end?: number) => EnrollStat[]",
+                optional: false,
+                doc: "Changes all array elements from `start` to `end` index to a static `value` and returns the modified array"
+              },
+              {
+                name: "copyWithin",
+                type: "(target: number, start: number, end?: number) => EnrollStat[]",
+                optional: false,
+                doc: "Returns the this object after copying a section of the array identified by start and end\nto the same array starting at position target"
+              },
+              {
+                name: "entries",
+                type: "() => ArrayIterator<[number, EnrollStat]>",
+                optional: false,
+                doc: "Returns an iterable of key, value pairs for every entry in the array"
+              },
+              {
+                name: "keys",
+                type: "() => ArrayIterator<number>",
+                optional: false,
+                doc: "Returns an iterable of keys in the array"
+              },
+              {
+                name: "values",
+                type: "() => ArrayIterator<EnrollStat>",
+                optional: false,
+                doc: "Returns an iterable of values in the array"
+              },
+              {
+                name: "includes",
+                type: "(searchElement: EnrollStat, fromIndex?: number) => boolean",
+                optional: false,
+                doc: "Determines whether an array includes a certain element, returning true or false as appropriate."
+              },
+              {
+                name: "flatMap",
+                type: "<U, This = undefined>(callback: (this: This, value: EnrollStat, index: number...",
+                optional: false,
+                doc: "Calls a defined callback function on each element of an array. Then, flattens the result into\na new array.\nThis is identical to a map followed by flat with depth 1."
+              },
+              {
+                name: "flat",
+                type: "<A, D extends number = 1>(this: A, depth?: D) => FlatArray<A, D>[]",
+                optional: false,
+                doc: "Returns a new array with all sub-array elements concatenated into it recursively up to the\nspecified depth."
+              },
+              {
+                name: "at",
+                type: "(index: number) => EnrollStat",
+                optional: false,
+                doc: "Returns the item located at the specified index."
+              },
+              {
+                name: "findLast",
+                type: "{ <S extends EnrollStat>(predicate: (value: EnrollStat, index: number, array:...",
+                optional: false,
+                doc: "Returns the value of the last element in the array where predicate is true, and undefined\notherwise."
+              },
+              {
+                name: "findLastIndex",
+                type: "(predicate: (value: EnrollStat, index: number, array: EnrollStat[]) => unknow...",
+                optional: false,
+                doc: "Returns the index of the last element in the array where predicate is true, and -1\notherwise."
+              },
+              {
+                name: "toReversed",
+                type: "() => EnrollStat[]",
+                optional: false,
+                doc: "Returns a copy of an array with its elements reversed."
+              },
+              {
+                name: "toSorted",
+                type: "(compareFn?: (a: EnrollStat, b: EnrollStat) => number) => EnrollStat[]",
+                optional: false,
+                doc: "Returns a copy of an array with its elements sorted."
+              },
+              {
+                name: "toSpliced",
+                type: "{ (start: number, deleteCount: number, ...items: EnrollStat[]): EnrollStat[];...",
+                optional: false,
+                doc: "Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\nCopies an array and removes elements while returning the remaining elements."
+              },
+              {
+                name: "with",
+                type: "(index: number, value: EnrollStat) => EnrollStat[]",
+                optional: false,
+                doc: "Copies an array, then overwrites the value at the provided index with the\ngiven value. If the index is negative, then it replaces from the end\nof the array."
+              },
+              {
+                name: "__@iterator@229",
+                type: "() => ArrayIterator<EnrollStat>",
+                optional: false,
+                doc: "Iterator"
+              },
+              {
+                name: "__@unscopables@231",
+                type: "{ [x: number]: boolean; length?: boolean; toString?: boolean; toLocaleString?...",
+                optional: false,
+                doc: "Is an object whose properties have the value 'true'\nwhen they will be absent when used in a 'with' statement."
+              }
+            ],
+            confidence: "resolved"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "resolved"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:212"
+          ]
+        },
+        {
+          id: "workflow-marketplace-service--get-statuses",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/status/search/workflow-with-filter",
+          path: "/workflows/status/search/workflow-with-filter",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_logs",
+            "get_workflow_runtime_window"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getStatuses",
+          service: "WorkflowMarketplaceService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "open-map",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:260"
+          ]
+        },
+        {
+          id: "backend--sticky-note--delete-workflows-sticky-note",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/workflows/sticky-note",
           path: "/workflows/sticky-note",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "_id",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "StickyNote",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/sticky-notes.ts:38"
+          ]
+        },
+        {
+          id: "backend--sticky-note--get-workflows-sticky-note",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/sticky-note",
+          path: "/workflows/sticky-note",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "_id",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "StickyNote",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/sticky-notes.ts:18"
+          ]
+        },
+        {
+          id: "backend--sticky-note--patch-workflows-sticky-note",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/workflows/sticky-note",
+          path: "/workflows/sticky-note",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "_id",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: {
+            typeName: "StickyNote",
+            properties: null,
+            confidence: "erased"
+          },
+          returns: {
+            typeName: "StickyNote",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "erased",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/sticky-notes.ts:31"
+          ]
+        },
+        {
+          id: "backend--sticky-note",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflows/sticky-note",
+          path: "/workflows/sticky-note",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/api/sticky-notes.ts:9"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--sticky-notes-all",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows/sticky-notes-all",
+          path: "/workflows/sticky-notes-all",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "export_workflow",
+            "get_workflow_runtime_window"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [
+            {
+              name: "workflowId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "url-literal"
+            }
+          ],
+          body: null,
+          returns: {
+            typeName: "GetAllStickyNotesResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/sticky-notes.ts:23"
+          ]
+        },
+        {
+          id: "backend--count",
           method: "POST",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/trigger/logs/count",
           path: "/workflows/trigger/logs/count",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
+          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [],
+          body: {
+            typeName: "TriggerLogsCountRequest",
+            properties: [
+              {
+                name: "locationId",
+                type: "string",
+                optional: false
+              },
+              {
+                name: "triggerType",
+                type: "string[]",
+                optional: true
+              },
+              {
+                name: "recordId",
+                type: "string[]",
+                optional: true
+              },
+              {
+                name: "entityId",
+                type: "string[]",
+                optional: true
+              },
+              {
+                name: "workflowId",
+                type: "string[]",
+                optional: true
+              },
+              {
+                name: "dateType",
+                type: '"custom"',
+                optional: true
+              },
+              {
+                name: "fromDate",
+                type: "string",
+                optional: true
+              },
+              {
+                name: "toDate",
+                type: "string",
+                optional: true
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/api/workflow-overview.service.ts:142"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--count-by-trigger-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/trigger/logs/count-by-triggerId",
           path: "/workflows/trigger/logs/count-by-triggerId",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_trigger_logs",
+            "get_workflow_stats"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/api/trigger-stats-service.ts:15"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--top-failed-reasons",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/trigger/logs/top-failed-reasons",
           path: "/workflows/trigger/logs/top-failed-reasons",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope.",
+          reach: "source-only",
+          coveredBy: [
+            "get_trigger_logs"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/api/trigger-stats-service.ts:25"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "backend--trigger-id",
           method: "GET",
-          base: "backend.leadconnectorhq.com",
+          url: "https://backend.leadconnectorhq.com/workflows/trigger/logs/triggerId",
           path: "/workflows/trigger/logs/triggerId",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_trigger_logs"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/api/trigger-stats-service.ts:20"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "filter-service--fetch-data",
           method: "GET",
-          base: "services.leadconnectorhq.com/hooks",
-          path: "/inbound-webhook-request/reference/:triggerId",
+          url: "https://rest.gohighlevel.com/v1/{basePath}",
+          path: "/v1/{basePath}",
+          origin: "https://rest.gohighlevel.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchData",
+          service: "FilterService",
+          pathParams: [
+            {
+              name: "basePath"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
+          sources: [
+            "services/FilterService.ts:111",
+            "services/FilterService.ts:162"
+          ]
+        },
+        {
+          id: "inbound-webhook-request-service--get-reference-by-id",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/hooks/inbound-webhook-request/reference/{triggerId}",
+          path: "/hooks/inbound-webhook-request/reference/{triggerId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "pin_webhook_sample"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getReferenceById",
+          service: "InboundWebhookRequestService",
+          pathParams: [
+            {
+              name: "triggerId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:20"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "inbound-webhook-request-service--save-reference",
           method: "PUT",
-          base: "services.leadconnectorhq.com/hooks",
-          path: "/inbound-webhook-request/set-as-reference/:requestId",
+          url: "https://services.leadconnectorhq.com/hooks/inbound-webhook-request/set-as-reference/{requestId}",
+          path: "/hooks/inbound-webhook-request/set-as-reference/{requestId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "pin_webhook_sample"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "saveReference",
+          service: "InboundWebhookRequestService",
+          pathParams: [
+            {
+              name: "requestId"
+            }
+          ],
+          query: [],
+          body: {
+            typeName: "{ locationId: any; }",
+            properties: [
+              {
+                name: "locationId",
+                type: "any",
+                optional: false
+              }
+            ],
+            confidence: "resolved"
+          },
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "resolved",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:26"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "inbound-webhook-request-service--get-requests-by-trigger-id",
           method: "GET",
-          base: "services.leadconnectorhq.com/hooks",
-          path: "/inbound-webhook-request/trigger/:triggerId",
+          url: "https://services.leadconnectorhq.com/hooks/inbound-webhook-request/trigger/{triggerId}",
+          path: "/hooks/inbound-webhook-request/trigger/{triggerId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "build_workflow",
+            "pin_webhook_sample"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [
+            "Channel",
+            "Source",
+            "Version"
+          ],
+          operation: "getRequestsByTriggerId",
+          service: "InboundWebhookRequestService",
+          pathParams: [
+            {
+              name: "triggerId"
+            }
+          ],
+          query: [
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "params"
+            },
+            {
+              name: "locationId",
+              type: "any",
+              required: true,
+              source: "params"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "resolved",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/marketplaceServices/InboundWebhookRequestService.ts:13"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "services--search",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/locations/{locationId}/customValues/search",
+          path: "/locations/{locationId}/customValues/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: {
+            typeName: "GetCustomValueQueryResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/custom-value.ts:13",
+            "services/api/custom-value.ts:28"
+          ]
+        },
+        {
+          id: "template-library-service--fetch-templates-via-category",
           method: "POST",
-          base: "services.leadconnectorhq.com",
+          url: "https://services.leadconnectorhq.com/templates/list",
           path: "/templates/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "fetchTemplatesViaCategory",
+          service: "TemplateLibraryService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/TemplateLibraryService.ts:18"
-          ],
-          callSites: 1
+          ]
         },
         {
+          id: "template-library-service--load-workflow-via-template-id",
           method: "POST",
-          base: "services.leadconnectorhq.com",
+          url: "https://services.leadconnectorhq.com/templates/template/load",
           path: "/templates/template/load",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "loadWorkflowViaTemplateId",
+          service: "TemplateLibraryService",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "none-observed"
+          },
           sources: [
             "services/TemplateLibraryService.ts:43"
+          ]
+        },
+        {
+          id: "services--get-instagram-connected-accounts",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/workflow/{locationId}/instagram/connected-accounts",
+          path: "/workflow/{locationId}/instagram/connected-accounts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: "getInstagramConnectedAccounts",
+          service: null,
+          pathParams: [
+            {
+              name: "locationId"
+            }
           ],
-          callSites: 1
+          query: [],
+          body: null,
+          returns: {
+            typeName: "InstagramConnectedAccountsResponse",
+            properties: null,
+            confidence: "erased"
+          },
+          confidence: {
+            path: "resolved",
+            query: "none-observed",
+            body: "none-observed",
+            returns: "erased"
+          },
+          sources: [
+            "services/api/instagram-connected-accounts.ts:25"
+          ]
         }
       ]
     };
@@ -2219,120 +16171,69 @@ var define_ENDPOINT_OVERLAY_default;
 var init_define_ENDPOINT_OVERLAY = __esm({
   "<define:__ENDPOINT_OVERLAY__>"() {
     define_ENDPOINT_OVERLAY_default = {
-      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.",
-      pending: {
-        "GET /workflows/logs/v2": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history.",
-        "POST /contacts/search/2": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead."
-      },
-      _pendingNote: "Traps for endpoints the catalogue does not contain YET. Both are among the most expensive things this project has learned, and both are on paths the current generator drops, so they have nowhere to attach. Recorded here rather than lost; they move into `rows` when the extractor emits their rows, and the orphan gate must not count them.",
+      _note: "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.",
       rows: {
-        "PUT /:locationId/change-status": {
-          kind: "destructive"
-        },
-        "PUT /:locationId/permissions": {
-          kind: "destructive"
-        },
-        "POST /:locationId/:workflowId/start-workflow": {
-          kind: "destructive"
-        },
-        "POST /:locationId/:workflowId/remove-stuck-statuses/:stepId": {
-          kind: "destructive"
-        },
-        "POST /:locationId/:workflowId/requeue-stuck-statuses/:stepId": {
-          kind: "destructive"
-        },
-        "POST /:locationId/:workflowId/stop-execution": {
-          kind: "destructive"
-        },
-        "POST /flowguard/rate-limiting/bypass": {
-          kind: "destructive",
+        "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
           reach: "refused",
           note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
         },
-        "POST /flowguard/blacklist/workflow/:workflowId": {
-          kind: "destructive",
+        "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
           reach: "refused",
           note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
         },
-        "POST /flowguard/blacklist/step/:stepId": {
-          kind: "destructive",
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        "GET /workflow/{locationId}/email/location-email-provider": {
+          summary: "The sending domain, warm-up state and rate limit behind this account's email steps."
         },
-        "POST /flowguard/blacklist/contact/:contactId": {
-          kind: "destructive",
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        "GET /workflow/{locationId}/error-notification/list": {
+          summary: "Workflows in this account that are currently erroring, and who is notified."
         },
-        "POST /:locationId/email/send-test-email": {
-          kind: "destructive"
-        },
-        "POST /:locationId/sms/send-test-sms": {
-          kind: "destructive"
-        },
-        "GET /flowguard/auth": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "DELETE /flowguard/blacklist/:type/:id": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "GET /flowguard/blacklist/contact": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "GET /flowguard/blacklist/step": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "GET /flowguard/blacklist/workflow": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "POST /flowguard/loop-lock/:workflowId": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "GET /flowguard/rate-limiting/bypass": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "DELETE /flowguard/rate-limiting/bypass/:id": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "GET /flowguard/workflow-rendering/:workflowId": {
-          reach: "refused",
-          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-        },
-        "PUT /:locationId/move-directory/:workflowId": {
-          summary: "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
-          note: 'The BATCH move cannot reach root -- null, "" and "root" all 404. Use this per-workflow route instead.'
-        },
-        "GET /:locationId/list": {
+        "GET /workflow/{locationId}/list": {
           summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
           note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".'
         },
-        "GET /:locationId/premium-tier-usage/:tier": {
+        "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
           summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
           note: 'Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer "why did a premium step not run".'
         },
-        "GET /:locationId/email/location-email-provider": {
-          summary: "The sending domain, warm-up state and rate limit behind this account's email steps."
+        "GET /workflow/{locationId}/scheduled-pause/config": {
+          summary: "Whether this workflow is paused on a schedule, and the window if so."
         },
-        "GET /workflows/statistics": {
-          summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments."
+        "GET /workflow/{locationId}/split/stats": {
+          summary: "Per-branch results for an A/B split step."
+        },
+        "GET /workflow/flowguard/auth": {
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "GET /workflow/flowguard/blacklist/contact": {
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "GET /workflow/flowguard/blacklist/step": {
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "GET /workflow/flowguard/blacklist/workflow": {
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "GET /workflow/flowguard/rate-limiting/bypass": {
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "GET /workflows/logs/v2": {
+          note: "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history.",
+          summary: "Execution log rows for one workflow; executionId returns one run's full step trace."
         },
         "GET /workflows/logs/weekly-enrollment-data": {
           summary: "Enrollment counts for the last 7 weeks, for the Automation Overview chart."
         },
-        "POST /workflows/trigger/logs/count": {
-          summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
-          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
-        },
-        "GET /workflows/trigger/logs/top-failed-reasons": {
-          note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope."
+        "GET /workflows/statistics": {
+          summary: "Account-level automation KPIs: total workflows, published workflows, total enrollments."
         },
         "GET /workflows/status/enroll-stats": {
           summary: "Total and active enrolled counts. A workflow with a large total and zero active has finished with everyone.",
@@ -2341,14 +16242,68 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /workflows/status/search/count-per-step": {
           summary: "How many contacts are sitting at each step right now."
         },
-        "GET /:locationId/split/stats": {
-          summary: "Per-branch results for an A/B split step."
+        "GET /workflows/trigger/logs/top-failed-reasons": {
+          note: "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope."
         },
-        "GET /:locationId/scheduled-pause/config": {
-          summary: "Whether this workflow is paused on a schedule, and the window if so."
+        "POST /contacts/search/2": {
+          note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
+          summary: "Contact search. Treat its results as unverified \u2014 see the note."
         },
-        "GET /:locationId/error-notification/list": {
-          summary: "Workflows in this account that are currently erroring, and who is notified."
+        "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/{workflowId}/start-workflow": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/email/send-test-email": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/sms/send-test-sms": {
+          kind: "destructive"
+        },
+        "POST /workflow/flowguard/blacklist/contact/{contactId}": {
+          kind: "destructive",
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "POST /workflow/flowguard/blacklist/step/{stepId}": {
+          kind: "destructive",
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "POST /workflow/flowguard/blacklist/workflow/{workflowId}": {
+          kind: "destructive",
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "POST /workflow/flowguard/loop-lock/{workflowId}": {
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "POST /workflow/flowguard/rate-limiting/bypass": {
+          kind: "destructive",
+          reach: "refused",
+          note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "POST /workflows/trigger/logs/count": {
+          summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
+          note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
+        },
+        "PUT /workflow/{locationId}/change-status": {
+          kind: "destructive"
+        },
+        "PUT /workflow/{locationId}/move-directory/{workflowId}": {
+          summary: "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
+          note: 'The BATCH move cannot reach root -- null, "" and "root" all 404. Use this per-workflow route instead.'
+        },
+        "PUT /workflow/{locationId}/permissions": {
+          kind: "destructive"
         }
       }
     };
@@ -108098,7 +122053,12 @@ var overlay = () => {
   return OVERLAY;
 };
 var overlayFor = (e) => overlay()[`${e.method} ${e.path}`] ?? {};
-var endpointKind = (e) => overlayFor(e).kind ?? (e.method === "GET" ? "read" : e.method === "DELETE" ? "destructive" : "write");
+var endpointKind = (e) => e.kind ?? overlayFor(e).kind ?? (e.method === "GET" ? "read" : e.method === "DELETE" ? "destructive" : "write");
+var endpointWords = (e) => ({
+  summary: e.summary ?? overlayFor(e).summary,
+  note: e.note ?? overlayFor(e).note,
+  reach: e.reach ?? overlayFor(e).reach
+});
 var MUTATION_VERBS = /* @__PURE__ */ new Set([
   "create",
   "make",
@@ -108153,8 +122113,8 @@ var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   if (!terms.length) return 0;
   const path = String(e.path || "").toLowerCase();
   const segs = new Set(path.split(/[^a-z0-9]+/).filter(Boolean));
-  const words = overlayFor(e);
-  const hay = `${e.method} ${e.base} ${e.path} ${(e.sources || []).join(" ")} ${words.summary ?? ""} ${words.note ?? ""}`.toLowerCase();
+  const words = endpointWords(e);
+  const hay = `${e.method} ${e.origin ?? e.base ?? ""} ${e.path} ${e.service ?? ""} ${words.summary ?? ""} ${words.note ?? ""}`.toLowerCase();
   let score = 0, segHits = 0;
   for (const t of terms) {
     const stem = t.length > 4 ? t.replace(/(ing|ed|es|s)$/, "") : t;
@@ -108174,23 +122134,25 @@ var scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   }
   score += segHits * segHits * 8;
   score -= (path.match(/:/g) ?? []).length;
-  if (e.base.endsWith("/workflow")) score += 5;
+  if (String(e.origin ?? e.base ?? "").includes("backend.") && e.path.startsWith("/workflow")) score += 5;
   const kind = endpointKind(e);
   if (kind === "destructive" && !verbs.destructive) return 0;
   if (kind === "write" && !verbs.mutating) score -= 40;
-  if (overlayFor(e).reach === "refused") score -= 60;
+  if (endpointWords(e).reach === "refused") score -= 60;
   return score;
 };
 var endpointStub = (e) => {
-  const extra = overlayFor(e);
+  const w = endpointWords(e);
   return {
+    id: e.id,
     method: e.method,
     path: e.path,
-    base: e.base,
     kind: endpointKind(e),
-    ...extra.summary ? { summary: extra.summary } : {},
-    ...extra.note ? { note: extra.note } : {},
-    ...extra.reach ? { reach: extra.reach } : {}
+    ...w.summary ? { summary: w.summary } : {},
+    ...e.coveredBy?.length ? { coveredBy: e.coveredBy } : {},
+    ...w.note ? { note: w.note } : {},
+    ...w.reach && w.reach !== "source-only" ? { reach: w.reach } : {},
+    ...e.rawCallable === false ? { rawCallable: false } : {}
   };
 };
 var CARD_STOP = /* @__PURE__ */ new Set(["a", "an", "the", "to", "of", "for", "and", "or", "in", "on", "with", "my", "me", "i", "it", "is", "that", "this", "when", "how", "do", "does", "add", "set", "use"]);
@@ -111571,32 +125533,58 @@ var TOOLS2 = [
     name: "describe_endpoint",
     description: `${describe3("describe_endpoint", "Detail for one internal endpoint \u2014 risk: read")}. Full record for ONE endpoint from search_endpoints: method, path with its :params, base host, how many places the builder calls it, and the source files that do. Reads no account data.`,
     inputSchema: schema({
-      method: external_exports.string().trim().describe("HTTP method, e.g. GET"),
-      path: external_exports.string().describe("the catalogued path, e.g. /:locationId/error-notification/list")
+      id: external_exports.string().trim().optional().describe("the endpoint id from search_endpoints \u2014 the preferred key"),
+      method: external_exports.string().trim().optional().describe("HTTP method, if addressing by method+path"),
+      path: external_exports.string().optional().describe("the full wire path, if addressing by method+path")
     }),
     capabilities: [],
     handler: async (args) => guard(async () => {
-      const want = String(args.method).toUpperCase();
       const pool = endpoints();
-      const hit = pool.find((e) => e.method === want && e.path === args.path) ?? pool.find((e) => e.method === want && e.path.replace(/:\w+/g, ":x") === String(args.path).replace(/:\w+/g, ":x"));
+      let hit = args.id ? pool.find((e) => e.id === args.id) : null;
+      if (!hit && args.method && args.path) {
+        const want = String(args.method).toUpperCase();
+        const norm2 = (p) => String(p).replace(/\{[A-Za-z0-9_]+\}/g, "{p}");
+        hit = pool.find((e) => e.method === want && e.path === args.path) ?? pool.find((e) => e.method === want && norm2(e.path) === norm2(args.path));
+      }
       if (!hit) {
         return fail(
           CODES.VALIDATION_FAILED,
-          `no catalogued endpoint matches ${want} ${args.path}`,
-          "Run search_endpoints first and copy the method and path from a result."
+          `no catalogued endpoint matches ${args.id ?? `${args.method} ${args.path}`}`,
+          "Run search_endpoints first and copy the id from a result."
         );
       }
+      const w = endpointWords(hit);
+      const query = (hit.query ?? []).filter((q) => q.name !== "\u2026spread");
+      const qs = query.length ? `?${query.map((q) => `${q.name}=<${q.name}>`).join("&")}` : "";
       return { ok: true, data: {
-        ...hit,
+        id: hit.id,
+        method: hit.method,
+        url: hit.url ?? `${hit.origin ?? ""}${hit.path}`,
+        path: hit.path,
+        kind: endpointKind(hit),
+        ...w.summary ? { summary: w.summary } : {},
+        ...w.note ? { note: w.note } : {},
+        reach: w.reach ?? "source-only",
         status: "source-derived",
         meaning: "The GHL builder calls this path. That is NOT proof your token reaches it, nor that calling it is safe \u2014 some rows are permission-gated.",
-        // A5: this used to tell the caller to send Channel/Source/Version: 2021-04-15. Two things
-        // were wrong with that. The gateway already sends channel/source/version on EVERY call
-        // (core/gateway.mjs), so the advice describes a solved problem -- and it named 2021-04-15
-        // while the gateway sends 2021-07-28. raw_request also exposes no header parameter, so the
-        // instruction was unactionable through the very tool this field points at.
-        headers: "Auth and the marketplace headers are added for you on every call. Do not set them.",
-        next: hit.method === "GET" ? "Call it with raw_request (GET needs no confirm). Read the result back before trusting it." : "This is a WRITE. Prefer a typed tool if one covers it \u2014 those carry the compiler and the verification. raw_request needs confirm:true and does neither."
+        pathParams: hit.pathParams ?? [],
+        query,
+        body: hit.body ?? null,
+        returns: hit.returns ?? null,
+        confidence: hit.confidence ?? null,
+        // A typed tool carries the compiler, the required query switches, the cursor walk and the
+        // read-back. raw_request carries none of them, so when something covers this row it is
+        // named FIRST and by name.
+        ...hit.coveredBy?.length ? { coveredBy: { tools: hit.coveredBy, why: "Prefer these: they carry the required query switches, the cursor walk and the read-back verification. raw_request does none of that." } } : {},
+        // Absent, not empty, when raw_request cannot make the call — an instruction that cannot
+        // work is worse than silence. 17 rows are multipart, blob, or need a header raw_request
+        // has no way to set.
+        ...hit.rawCallable === false ? { notRawCallable: `raw_request cannot make this call: transport=${hit.transport}, response=${hit.responseMode}${(hit.extraHeaders ?? []).length ? `, needs headers ${hit.extraHeaders.join(", ")}` : ""}.` } : { callWith: {
+          tool: "raw_request",
+          host: hit.rail ?? "workflow",
+          path: `${hit.path}${qs}`,
+          note: "path is the FULL wire path. Auth and the marketplace headers are added for you \u2014 do not set them."
+        } }
       } };
     })
   }
