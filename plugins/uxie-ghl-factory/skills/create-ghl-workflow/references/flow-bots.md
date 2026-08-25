@@ -132,6 +132,20 @@ A Custom trigger separately raised `trigger-condition-invalid` and blocked the s
 client's rule table enumerates 28 ids and includes **neither** that one nor any of the nine — it is
 a dedup convenience, not the server's catalogue.
 
+**The server does NOT check graph shape.** Probed 2026-08-26: dangling `next`, duplicate node ids,
+orphan `parentKey`, a step wired after a terminal `end`, a multipath container with no transitions,
+an orphaned `transition`, and a two-node cycle — **all seven accepted**. The engine's `REF_DANGLING`
+throw and parent-key repair are not redundant with a server check; there is no server check.
+
+It type-checks values but nothing more: `waitForReply: "yes"` is a 400
+(`Expected boolean, received string`), while a bad `sleepUnit` enum, a negative `sleepDuration`,
+and a `calendarId` that names nothing all save clean. Referential existence is checked separately
+by `POST validate-assets`, not by the save.
+
+Two traps if you ever hand-roll the PUT: `next: null` is rejected (omit the key — that is how the
+server stores it), and a successful PUT bumps `version`, so re-read before every write or the next
+one 422s.
+
 Details: `knowledge/corpus/workflows/40-rules/server-side-validation.md`.
 
 ## Known unknowns
