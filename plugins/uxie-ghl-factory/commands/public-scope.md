@@ -2,7 +2,7 @@
 description: Point this folder at one client's sub-accounts by name, so the ghl MCP server here sees that client and no others
 ---
 
-# /uxie-ghl-factory:scope
+# /uxie-ghl-factory:public-scope
 
 Use the **`ghl-public-mcp-setup`** skill and follow its *Point a folder at one client* section,
 then its *Verify from the server, not the file* section. The reasoning for why this is done by

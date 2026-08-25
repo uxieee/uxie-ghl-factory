@@ -65,5 +65,5 @@ sees the wrong client entirely, someone wrote an id by hand. Re-run `scope` with
 `doctor --json` marks it `ok: false` with GHL's reason. PITs do not expire on a timer — a
 `401` means it was revoked in the GHL UI, so a new one has to be created. That is different
 from the **internal** rail, whose JWT expires roughly hourly and is re-captured by
-`/uxie-ghl-factory:connect`. Do not confuse the two: a PIT that stops working is a deliberate
+`/uxie-ghl-factory:internal-connect`. Do not confuse the two: a PIT that stops working is a deliberate
 act by someone, and worth mentioning to the user rather than silently replacing.

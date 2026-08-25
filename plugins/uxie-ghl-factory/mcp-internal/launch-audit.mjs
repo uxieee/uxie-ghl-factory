@@ -48,7 +48,7 @@ if (!server) {
   process.stderr.write(
     `uxie-ghl-internal-mcp (audit): no installed plugin build carries mcp-internal/dist/audit-server.mjs under ${CACHE}. ` +
     `Installed versions: ${installed}. ` +
-    `Update the uxie-ghl-factory plugin to a build that ships the audit profile, then re-run /uxie-ghl-factory:connect. ` +
+    `Update the uxie-ghl-factory plugin to a build that ships the audit profile, then re-run /uxie-ghl-factory:internal-connect. ` +
     `This launcher will NOT fall back to the full read-write server.\n`,
   );
   process.exit(1);

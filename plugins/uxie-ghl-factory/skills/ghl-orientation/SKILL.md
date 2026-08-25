@@ -15,7 +15,7 @@ Ground rules for agents working GHL:
 2. Respect the two-API boundary: prefer public; internal only via this
    plugin's capability skills with their gates. Setting up, scoping or
    repairing the public rail is `ghl-public-mcp-setup`; the internal rail
-   is /uxie-ghl-factory:connect.
+   is /uxie-ghl-factory:internal-connect.
 3. Per-client state lives in .ghl/<locationId>/ (brief.md = client context).
 
 ## Specialists
