@@ -446,3 +446,58 @@ test('a wait compiled end-to-end is refused when its jump target is missing', as
         appointmentStartAfter: { when: 'before', type: 'hours', value: 24, distributed: {} } } }],
   }, ctx), (e) => /appointmentSpecificStep/.test(e.message));
 });
+
+// ── text-content rules ────────────────────────────────────────────────────────────────
+// Two of GHL's three text checks are mirrored EXACTLY. The third — the Handlebars parse in
+// isValidHandleBar — is deliberately not, because reimplementing a template parser with regexes
+// would disagree with GHL at the edges, and an edge-wrong validator is worse than none.
+
+test('handlebars: a bracket inside a bracket segment is refused', () => {
+  assert.throws(() => run('sms', { body: 'hi {{contact.[a[0]].name}}' }),
+    (e) => e.code === 'REQUIRED_FIELD' && /nested bracket/.test(e.message));
+});
+
+test('handlebars: the two forms GHL calls VALID still pass', () => {
+  assert.doesNotThrow(() => run('sms', { body: 'hi {{prefix.[key with spaces].id}}' }));
+  assert.doesNotThrow(() => run('sms', { body: 'hi {{prefix.[0].name}}' }));
+});
+
+test('handlebars: block helpers are skipped, not scanned as paths', () => {
+  assert.doesNotThrow(() => run('sms', { body: '{{#each items}}x{{/each}}' }));
+});
+
+test('handlebars: plain text and an empty body are untouched', () => {
+  assert.doesNotThrow(() => run('sms', { body: 'no handlebars here at all' }));
+  assert.doesNotThrow(() => run('chatgpt', { promptText: '' }));
+});
+
+test('handlebars: the rule reaches every field GHL runs it over', () => {
+  const bad = '{{a.[x[0]].b}}';
+  assert.throws(() => run('chatgpt', { promptText: bad }), (e) => /promptText/.test(e.message));
+  assert.throws(() => run('workflow_ai_generate_image', { prompt: bad }), (e) => /prompt/.test(e.message));
+  assert.throws(() => run('event_start_date', { value: bad }), (e) => /value/.test(e.message));
+  assert.throws(() => run('add_appointment_booking_ai_bot', { first_message: bad }),
+    (e) => /first_message/.test(e.message));
+});
+
+test('sms spam words: a blocked word is refused and named', () => {
+  assert.throws(() => run('sms', { body: 'try our new CBD range' }),
+    (e) => e.code === 'REQUIRED_FIELD' && /cbd/.test(e.message));
+});
+
+test('sms spam words: GHL\'s list is blunt, and we mirror it rather than soften it', () => {
+  // 'joint' is on GHL's list, so this innocent sentence genuinely cannot be saved in GHL.
+  assert.throws(() => run('sms', { body: "let's discuss the joint venture" }),
+    (e) => /joint/.test(e.message));
+});
+
+test('sms spam words: matching is whole-word, so a substring does not trip it', () => {
+  assert.doesNotThrow(() => run('sms', { body: 'your appointment is confirmed' }));  // contains "pot"? no
+  assert.doesNotThrow(() => run('sms', { body: 'we will call you shortly' }));
+});
+
+test('sms spam words: the gate is scoped to sms — messenger and instagram-dm are untouched', () => {
+  // WorkflowValidator.ts:227 filters on type === 'sms' only.
+  assert.doesNotThrow(() => run('messenger', { body: 'our CBD range is here' }));
+  assert.doesNotThrow(() => run('instagram-dm', { body: 'our CBD range is here' }));
+});
