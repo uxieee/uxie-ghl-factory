@@ -98417,6 +98417,68 @@ var COUPLED_FIELDS = {
     },
     why: "GHL throws SpamSmsBodyError and ABORTS THE SAVE on these \u2014 it is not advisory. The list is GHL's and it is blunt (it contains 'pot', 'joint', 'pipe', 'dab'), so an innocent sentence can trip it. Reword the body or the save will fail in GHL anyway."
   }],
+  // ── numeric guards on values that SPEND MONEY ────────────────────────────────────────
+  // Both are result:'warning' in GHL, so both warn here. Both exempt a merge tag: a value
+  // starting `{{` is resolved at runtime and cannot be judged now — GHL checks for that prefix
+  // before parsing, and so do we.
+  stripe_one_time_charge: [{
+    when: (a) => typeof a.amount === "string" && a.amount && !a.amount.startsWith("{{"),
+    check: (a) => {
+      const n = parseFloat(a.amount);
+      return Number.isNaN(n) || n <= 0 ? `has a non-positive charge amount: ${JSON.stringify(a.amount)}` : null;
+    },
+    severity: "warn",
+    why: 'GHL requires a positive amount (other-action-validators.ts:47-59). This step charges a real card, so "abc" or "-5" reaching it is worth stopping to look at.'
+  }],
+  google_adword: [{
+    when: (a) => typeof a.conversion_value === "string" && a.conversion_value && !a.conversion_value.startsWith("{{"),
+    check: (a) => {
+      const n = parseFloat(a.conversion_value);
+      return Number.isNaN(n) || n <= 0 ? `has a non-positive conversion value: ${JSON.stringify(a.conversion_value)}` : null;
+    },
+    severity: "warn",
+    why: "GHL requires a positive conversion value (other-action-validators.ts:102-113). A corrupt value here poisons ad optimisation quietly \u2014 the campaign keeps running on bad numbers."
+  }],
+  // additional-action-validators.ts:396-403. `op.value === 0` exactly, matching GHL — a string
+  // "0" is a different case and GHL does not catch it either.
+  math_operation: [{
+    when: (a) => Array.isArray(a.operators),
+    check: (a) => a.operators.some((op) => op?.operator === "div" && op?.value === 0) ? "divides by zero" : null,
+    severity: "warn",
+    why: "A div operator with value 0 fails at runtime, mid-workflow, on whatever contact happens to reach it."
+  }],
+  // additional-action-validators.ts:1128-1146. The bound is on the SUM of both lists, which is
+  // why neither alone tells you whether the step is valid.
+  ivr_connect_call: [{
+    when: () => true,
+    check: (a) => {
+      const total = (a.users?.length ?? 0) + (a.customNumbers?.length ?? 0);
+      if (total === 0) return "rings nobody \u2014 it has no users and no custom numbers";
+      if (total > 10) return `dials ${total} numbers, over GHL's cap of 10`;
+      return null;
+    },
+    severity: "warn",
+    why: "GHL requires between 1 and 10 destinations across users + customNumbers combined."
+  }],
+  // webhook-validators.ts:104-133. Two content types, two different shapes, both warn.
+  custom_webhook: [{
+    when: (a) => a.body?.contentType === "application/json" && typeof a.body?.rawData === "string" && a.body.rawData.trim(),
+    check: (a) => {
+      try {
+        JSON.parse(a.body.rawData);
+        return null;
+      } catch {
+        return "declares application/json but its body is not parseable JSON";
+      }
+    },
+    severity: "warn",
+    why: 'The remote endpoint 400s at runtime rather than at build time, so this surfaces days later as "the webhook stopped working".'
+  }, {
+    when: (a) => a.body?.contentType === "application/x-www-form-urlencoded" && Array.isArray(a.body?.keyValueData),
+    check: (a) => a.body.keyValueData.some((r) => !r?.key?.trim() || r?.value === void 0 || r?.value === null) ? "has form-encoded body rows with an empty key or a null value" : null,
+    severity: "warn",
+    why: "GHL checks the body rows as well as the header and parameter rows; the engine warned on the latter two and not on the body, which was inconsistent with its own siblings."
+  }],
   chatgpt: handlebarRules(HANDLEBAR_FIELDS.chatgpt),
   workflow_ai_generate_image: handlebarRules(HANDLEBAR_FIELDS.workflow_ai_generate_image),
   event_start_date: handlebarRules(HANDLEBAR_FIELDS.event_start_date),
@@ -98459,6 +98521,25 @@ var COUPLED_FIELDS = {
     when: (a) => a.type === "time" && a.window?.condition === "exact",
     check: (a) => a.window?.start ? null : 'sets window.condition:"exact" without window.start',
     why: "An exact-time window has to say WHICH time. Without a start the backend has nothing to snap the wait to."
+  }, {
+    // validateTimeout, wait-validator.ts:368-384. TWO generated rules are wrong about this one
+    // and both are left in place because catalog.data.json is regenerated wholesale:
+    //
+    //   the catalog scopes it to variant `recurring_schedule` at severity 'warn'. GHL scopes it
+    //   at the CALL SITE to `convertToMultipath && startAfter` (:97) with no type restriction,
+    //   and the inner guard is result:'ERROR'. So the shipped rule fires on a variant that
+    //   cannot reach it, at the wrong tier — i.e. never, and wrongly if it did.
+    //
+    //   the catalog also carries `{field:'type', variant:'recurring_schedule', guard:'!waitType'}`,
+    //   which is UNSATISFIABLE: its outer requires type === 'recurring_schedule' while its guard
+    //   requires !type. The extractor attached the switch's `default:` branch to the last `case`
+    //   label. Its own `support` admits "corpus no sample in variant recurring_schedule".
+    //
+    // This rule is the correct translation. The dead ones stay until gen-catalog is fixed
+    // upstream; they cost nothing but a reader's time, and this comment is that fix.
+    when: (a) => Boolean(a.convertToMultipath && a.startAfter),
+    check: (a) => a.startAfter?.value === 0 ? "has a branching timeout of 0 \u2014 the branch fires immediately instead of waiting" : null,
+    why: "A hybrid wait converts to a multipath on timeout. A timeout of 0 means every contact takes the timeout branch at once, so the wait does nothing and the reply branch is dead."
   }, {
     // validateConditionWait, wait-validator.ts:195-215, result:'error'. Reached through a
     // `switch` on attributes.type, which the guard-AST extractor does not follow — so the whole
