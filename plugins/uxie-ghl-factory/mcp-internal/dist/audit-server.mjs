@@ -99126,16 +99126,22 @@ function checkMergeTags(templates, catalog, ctx) {
 }
 
 // ../skills/create-ghl-workflow/engine/compiler.mjs
+var DEDICATED_ATTRIBUTES = [
+  [(n) => n.marketplace === true, (n, ctx) => marketplaceAttributes(n, ctx)],
+  [(n) => n.kind === "wait", (n) => waitAttributes(n)],
+  [(n) => n.type === "email", (n, ctx) => emailAttributes(n, ctx)],
+  [(n) => n.type === "custom_webhook", (n) => webhookAttributes(n.attributes ?? {}, n.ref)],
+  [(n) => n.type === "custom_code", (n) => codeAttributes(n.attributes ?? {}, n.ref)],
+  [(n) => n.type === "voice_ai_outbound_call", (n) => voiceAiOutboundCallAttributes(n.attributes ?? {})],
+  [(n) => n.type === "internal_notification", (n, ctx) => internalNotificationAttributes(n.attributes ?? {}, ctx)],
+  [(n) => n.type === "create_opportunity", (n, ctx) => createOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)],
+  [(n) => n.type === "update_opportunity", (n, ctx) => updateOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)]
+];
 function attributesFor(node, ctx) {
-  if (node.marketplace === true) return marketplaceAttributes(node, ctx);
-  if (node.kind === "wait") return enforceRequiredFields({ ...node, type: "wait" }, waitAttributes(node), ctx);
-  if (node.type === "email") return emailAttributes(node, ctx);
-  if (node.type === "custom_webhook") return webhookAttributes(node.attributes ?? {}, node.ref);
-  if (node.type === "custom_code") return codeAttributes(node.attributes ?? {}, node.ref);
-  if (node.type === "voice_ai_outbound_call") return voiceAiOutboundCallAttributes(node.attributes ?? {});
-  if (node.type === "internal_notification") return internalNotificationAttributes(node.attributes ?? {}, ctx);
-  if (node.type === "create_opportunity") return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
-  if (node.type === "update_opportunity") return updateOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
+  for (const [matches, build] of DEDICATED_ATTRIBUTES) {
+    if (!matches(node)) continue;
+    return enforceRequiredFields({ ...node, type: typeFor(node) }, build(node, ctx), ctx);
+  }
   const out = normalizeAttrs(node, node.attributes ?? {}, ctx);
   if (node.type === "update_contact_field")
     checkContactFieldShape(out, { ref: node.ref ?? node.name ?? "?", warn: ctx?.warn });

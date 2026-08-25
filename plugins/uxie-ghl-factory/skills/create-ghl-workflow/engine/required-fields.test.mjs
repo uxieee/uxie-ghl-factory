@@ -589,3 +589,60 @@ test('workflow_goal stepIds are covered by the dangling-ref registry, not by enf
   const paths = STEP_REF_FIELDS.filter(([t]) => t === 'workflow_goal').map(([, p]) => p);
   assert.ok(paths.includes('segments[].conditions[].extras.stepIds'), 'goal stepIds must stay ref-checked');
 });
+
+// ── the invariant that broke twice ────────────────────────────────────────────────────
+// Nine step types take a DEDICATED attribute builder; enforceRequiredFields is wired into the
+// generic path. Every dedicated type therefore reached GHL having run none of its rules.
+//
+// Found first on `wait` and patched per-branch — which fixed one symptom and left `email` and
+// `custom_webhook` dead, including email.html, the rule that stops a step SENDING A BLANK EMAIL.
+// It shipped in v0.30.0 doing nothing. 866 unit tests could not see it, because they call
+// enforceRequiredFields directly and so never exercise the dispatch.
+//
+// This test asserts the INVARIANT rather than the three instances: any type that has both a
+// dedicated builder and a coupled rule must enforce that rule through compile(). A tenth builder
+// added without wiring will fail here.
+
+test('every dedicated-builder type with a coupled rule enforces it through compile()', async () => {
+  const { DEDICATED_ATTRIBUTES, compile } = await import('./compiler.mjs');
+  const { COUPLED_FIELDS } = await import('./required-fields.mjs');
+  const { loadCatalog } = await import('./catalog.mjs');
+  const { makeSeededIdGen } = await import('./idgen.mjs');
+
+  assert.equal(DEDICATED_ATTRIBUTES.length, 9, 'a builder was added or removed — wire it and update this');
+
+  // One input per dedicated type that owns a coupled rule, chosen to trip that rule.
+  const TRIPS = {
+    email: { node: { type: 'email', attributes: { subject: 'Hi' } }, expect: /html/ },
+    custom_webhook: {
+      node: { type: 'custom_webhook', attributes: { url: 'https://example.com/h', method: 'POST',
+        body: { contentType: 'application/json', rawData: '{not json' } } },
+      warns: /parseable JSON/,
+    },
+    wait: { node: { kind: 'wait', attributes: { type: 'appointment', appointmentCondition: 'specific-step',
+      appointmentStartAfter: { when: 'before', type: 'hours', value: 1, distributed: {} } } },
+      expect: /appointmentSpecificStep/ },
+  };
+
+  const dedicatedWithRules = Object.keys(TRIPS);
+  for (const key of dedicatedWithRules) {
+    assert.ok(COUPLED_FIELDS[key], `${key} must still own a coupled rule for this test to mean anything`);
+  }
+
+  for (const [type, spec] of Object.entries(TRIPS)) {
+    const warnings = [];
+    const ctx = { loc: 'L', cid: 'C', uid: 'U', companyAge: 1, catalog: loadCatalog(),
+      idGen: makeSeededIdGen('ded' + type), warn: (m) => warnings.push(m) };
+    const ir = { name: 'T', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+      graph: [{ ref: 's', name: 'S', kind: spec.node.kind ?? 'action', ...spec.node }] };
+
+    if (spec.expect) {
+      assert.throws(() => compile(ir, ctx), (e) => spec.expect.test(e.message),
+        `${type}: its coupled rule did not fire through compile() — the seam is bypassed again`);
+    } else {
+      assert.doesNotThrow(() => compile(ir, ctx));
+      assert.ok(warnings.some((w) => spec.warns.test(w)),
+        `${type}: its warn-tier rule did not fire through compile()`);
+    }
+  }
+});

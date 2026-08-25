@@ -346,7 +346,7 @@ const handlebarRules = (fields) => [{
      + 'Use {{prefix.[key with spaces].id}}, never a bracket inside a bracket.',
 }];
 
-const COUPLED_FIELDS = {
+export const COUPLED_FIELDS = {
   // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
   // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
   conversationai_end: [{

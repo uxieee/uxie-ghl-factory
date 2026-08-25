@@ -17,21 +17,39 @@ import { applyUiDefaults } from './ui-defaults.mjs';
 import { checkIfElseVocab } from './ifelse-vocab.mjs';
 import { checkMergeTags } from './merge-tags.mjs';
 
+// NINE step types take a DEDICATED attribute builder instead of the generic normalizeAttrs path,
+// and normalizeAttrs is where enforceRequiredFields is wired. So every one of them reached GHL
+// having run none of the conditional defaults or coupled-field rules.
+//
+// This was first found on `wait` and patched there, per-branch. That was treating the symptom:
+// live-fire then showed `email` and `custom_webhook` were dead the same way — including
+// `email.html`, the rule that stops a step sending a BLANK email, which is the highest-value
+// refusal in the engine. Unit tests could not see any of it, because they call
+// enforceRequiredFields directly and so never exercise this dispatch.
+//
+// The seam now wraps the whole dedicated-builder set, so adding a tenth builder cannot silently
+// disarm its rules. The generic path is untouched: normalizeAttrs still calls enforceRequiredFields
+// itself, deliberately BEFORE its ATTR_KEY check, and double-enforcing there would be wasteful and
+// would double any warning.
+export const DEDICATED_ATTRIBUTES = [
+  [(n) => n.marketplace === true, (n, ctx) => marketplaceAttributes(n, ctx)],
+  [(n) => n.kind === 'wait', (n) => waitAttributes(n)],
+  [(n) => n.type === 'email', (n, ctx) => emailAttributes(n, ctx)],
+  [(n) => n.type === 'custom_webhook', (n) => webhookAttributes(n.attributes ?? {}, n.ref)],
+  [(n) => n.type === 'custom_code', (n) => codeAttributes(n.attributes ?? {}, n.ref)],
+  [(n) => n.type === 'voice_ai_outbound_call', (n) => voiceAiOutboundCallAttributes(n.attributes ?? {})],
+  [(n) => n.type === 'internal_notification', (n, ctx) => internalNotificationAttributes(n.attributes ?? {}, ctx)],
+  [(n) => n.type === 'create_opportunity', (n, ctx) => createOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)],
+  [(n) => n.type === 'update_opportunity', (n, ctx) => updateOpportunityAttributes(n.attributes ?? {}, n.ref, ctx)],
+];
+
 function attributesFor(node, ctx) {
-  if (node.marketplace === true) return marketplaceAttributes(node, ctx);
-  // A wait is authored as `kind:'wait'` with no `type`, and it takes this dedicated builder
-  // instead of the generic normalizeAttrs path — which is where enforceRequiredFields is wired.
-  // So waits used to reach GHL having run NONE of the conditional defaults or coupled-field
-  // rules; the unit tests missed it because they call enforceRequiredFields directly.
-  // The synthetic `type:'wait'` is what lets those rules key off it, exactly as typeFor() does.
-  if (node.kind === 'wait') return enforceRequiredFields({ ...node, type: 'wait' }, waitAttributes(node), ctx);
-  if (node.type === 'email') return emailAttributes(node, ctx);
-  if (node.type === 'custom_webhook') return webhookAttributes(node.attributes ?? {}, node.ref);
-  if (node.type === 'custom_code') return codeAttributes(node.attributes ?? {}, node.ref);
-  if (node.type === 'voice_ai_outbound_call') return voiceAiOutboundCallAttributes(node.attributes ?? {});
-  if (node.type === 'internal_notification') return internalNotificationAttributes(node.attributes ?? {}, ctx);
-  if (node.type === 'create_opportunity') return createOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
-  if (node.type === 'update_opportunity') return updateOpportunityAttributes(node.attributes ?? {}, node.ref, ctx);
+  for (const [matches, build] of DEDICATED_ATTRIBUTES) {
+    if (!matches(node)) continue;
+    // typeFor() is what the emitted template will carry, and it is what the rules key off —
+    // a wait has kind:'wait' and no `type` at all, so passing the node unchanged finds nothing.
+    return enforceRequiredFields({ ...node, type: typeFor(node) }, build(node, ctx), ctx);
+  }
   // Generic path: the author supplies intent attributes; the compiler fills the
   // two structural fields the corpus shows on this type but a human never hand-writes:
   //   - attributes.type  (mirrors the step type — present on ~all linear action types)
