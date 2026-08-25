@@ -43,9 +43,17 @@ test('paths are full wire paths and origins carry no path', () => {
   }
 });
 
-test('the compiled catalogue matches the source artefact row for row', () => {
-  assert.equal(catalog.endpoints.length, source.endpoints.length,
+test('the compiled catalogue is the source artefact plus adopted typed-tool rows', () => {
+  // The compiler ADOPTS endpoints our own typed tools call that no source tree produced a row for
+  // — their front-end has no mineable bundle. So the compiled count is source + adopted, and the
+  // delta must be exactly those rows rather than drift.
+  const adopted = catalog.endpoints.filter((e) => e.tree === 'typed-tool');
+  assert.equal(catalog.endpoints.length, source.endpoints.length + adopted.length,
     'compiled catalogue is stale — run `node scripts/build-endpoint-catalog.mjs`');
+  for (const e of adopted) {
+    assert.ok(e.coveredBy.length, `${e.id} was adopted from a tool but names none`);
+    assert.equal(e.reach, 'proven', `${e.id} is called by a shipped tool, so it is proven`);
+  }
 });
 
 test('every overlay key resolves to a row', () => {

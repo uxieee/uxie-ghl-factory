@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-08-25",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 484,
+      count: 620,
       endpoints: [
         {
           id: "facebook-service--get-ad-account-by-id",
@@ -66,6 +66,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAdAccountById",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "accountId"
@@ -123,6 +124,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getCustomAudienceIds",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -182,6 +184,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAllInstagramAccounts",
           service: "AdPublishingService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "pageId"
@@ -233,6 +236,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAllFacebookPages",
           service: "AdPublishingService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -280,6 +284,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAllFacebookPixels",
           service: "AdPublishingService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -340,6 +345,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAffiliateById",
           service: "AffiliateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -381,6 +387,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAffiliateCampaigns",
           service: "AffiliateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -427,6 +434,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAffiliates",
           service: "AffiliateService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -449,6 +457,180 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--get_ai_configuration_bundle--agents-agents-with-folders",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agent-studio/agents/agents-with-folders",
+          path: "/agent-studio/agents/agents-with-folders",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "get_ai_configuration_bundle"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "get_ai_configuration_bundle",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (get_ai_configuration_bundle)"
+          ]
+        },
+        {
+          id: "typed--create_studio_agent--super-agent-agents-2",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/agent-studio/super-agent/agents/{agentId}",
+          path: "/agent-studio/super-agent/agents/{agentId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "create_studio_agent",
+            "get_ai_configuration_bundle"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_studio_agent",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_studio_agent, get_ai_configuration_bundle)"
+          ]
+        },
+        {
+          id: "typed--create_studio_agent--super-agent-agents",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/agent-studio/super-agent/agents/{agentId}",
+          path: "/agent-studio/super-agent/agents/{agentId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_studio_agent"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_studio_agent",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_studio_agent)"
+          ]
+        },
+        {
+          id: "typed--create_studio_agent--super-agents-build",
+          method: "SSE",
+          url: "https://backend.leadconnectorhq.com/agent-studio/super-agents/build",
+          path: "/agent-studio/super-agents/build",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_studio_agent"
+          ],
+          rawCallable: false,
+          transport: "sse",
+          responseMode: "sse",
+          extraHeaders: [],
+          operation: null,
+          service: "create_studio_agent",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_studio_agent)"
+          ]
+        },
+        {
+          id: "typed--create_convai_agent--ai-employees-actions",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/ai-employees/actions",
+          path: "/ai-employees/actions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_convai_agent"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_convai_agent",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_convai_agent)"
+          ]
+        },
+        {
           id: "aiemployee-service--is-beta-enabled",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/ai-employees/beta/{locationId}",
@@ -468,6 +650,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "isBetaEnabled",
           service: "AIEmployeeService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -494,6 +677,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--create_convai_agent--ai-employees-employees",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/ai-employees/employees",
+          path: "/ai-employees/employees",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_convai_agent"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_convai_agent",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_convai_agent)"
+          ]
+        },
+        {
           id: "aiemployee-service--get-employee-by-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/ai-employees/employees/{botId}",
@@ -516,6 +732,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getEmployeeById",
           service: "AIEmployeeService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "botId"
@@ -554,6 +771,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "updateEmployee",
           service: "AIEmployeeService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "botId"
@@ -612,6 +830,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getEmployeesList",
           service: "AIEmployeeService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -640,6 +859,72 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--get_ai_configuration_bundle--employees-search",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/ai-employees/employees/search",
+          path: "/ai-employees/employees/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow",
+            "get_ai_configuration_bundle",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "get_ai_configuration_bundle",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (get_ai_configuration_bundle, list_account_entities, build_workflow)"
+          ]
+        },
+        {
+          id: "ai-agents--all",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/all",
+          path: "/all",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:46"
+          ]
+        },
+        {
           id: "eliza-service--get-eliza-info",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/appengine/dialogflow/eliza-location-status/{locationId}",
@@ -655,6 +940,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getElizaInfo",
           service: "ElizaService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -689,6 +975,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateShopifyWebhooks",
           service: "ShopifyService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -720,6 +1007,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "setup",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -743,6 +1031,103 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--build_course--assets-drm-assets",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/assets-drm/assets",
+          path: "/assets-drm/assets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "typed--build_course--signed-url-upload",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/assets-drm/assets/signed-url/upload",
+          path: "/assets-drm/assets/signed-url/upload",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "ai-agents--associated-entities",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/associated-entities",
+          path: "/associated-entities",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:51"
+          ]
+        },
+        {
           id: "associations-service--fetch-associations-for-object",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/associations/objectKey/{objectKey}",
@@ -763,6 +1148,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchAssociationsForObject",
           service: "AssociationsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "objectKey"
@@ -789,6 +1175,40 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--list_account_entities--calendars",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/",
+          path: "/calendars/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_account_entities",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_account_entities, build_workflow)"
+          ]
+        },
+        {
           id: "calendar-service--get-calendar-configuration",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/calendars/configuration/location/{locationId}",
@@ -808,6 +1228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCalendarConfiguration",
           service: "CalendarService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -843,6 +1264,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getChat",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -886,6 +1308,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -928,6 +1351,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getDefaultBotConfig",
           service: "ConversationAIService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -967,6 +1391,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getNewEmailStats",
           service: "EmailStatsReportService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -974,6 +1399,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "live-probe"
+            },
+            {
+              name: "source",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "sourceId",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -986,7 +1423,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/EmailStatsReportService.ts:10",
-            "services/api/email-stats-service.ts:14"
+            "services/api/email-stats-service.ts:14",
+            "workflows/70-research/STATS-RAILS.md:38"
           ]
         },
         {
@@ -1012,6 +1450,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAggregateStatsNew",
           service: "EmailStatsReportService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1019,6 +1458,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "live-probe"
+            },
+            {
+              name: "sourceId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "source",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -1032,7 +1483,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/EmailStatsReportService.ts:14",
             "services/api/email-stats-service.ts:9",
-            "services/marketplaceServices/WorkflowStatsService.ts:28"
+            "services/marketplaceServices/WorkflowStatsService.ts:28",
+            "workflows/70-research/STATS-RAILS.md:25"
           ]
         },
         {
@@ -1056,6 +1508,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSmsStatsWithContacts",
           service: "SmsStatsReportService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1101,6 +1554,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSmsStats",
           service: "SmsStatsReportService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1108,6 +1562,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: true,
               source: "live-probe"
+            },
+            {
+              name: "sourceId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "source",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -1121,7 +1587,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/SmsStatsReportService.ts:8",
             "services/api/sms-stats-service.ts:8",
-            "services/marketplaceServices/WorkflowStatsService.ts:37"
+            "services/marketplaceServices/WorkflowStatsService.ts:37",
+            "workflows/50-runtime/observed-query-shapes.md:75",
+            "workflows/70-research/STATS-RAILS.md:26"
           ]
         },
         {
@@ -1144,6 +1612,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getMessageById",
           service: "ConversationMessageService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "messageId"
@@ -1181,6 +1650,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getPreferenceSubTypes",
           service: "EmailService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1222,6 +1692,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getTikTokPosts",
           service: "TikTokService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1285,6 +1756,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getTikTokPostById",
           service: "TikTokService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -1321,6 +1793,163 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--build_course--locations-product-themes",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/courses/locations/{locationId}/product-themes/{productId}/",
+          path: "/courses/locations/{locationId}/product-themes/{productId}/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "typed--build_course--product-themes-theme",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/courses/locations/{locationId}/product-themes/{productId}/theme/{themeId}",
+          path: "/courses/locations/{locationId}/product-themes/{productId}/theme/{themeId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            },
+            {
+              name: "themeId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "typed--build_course--product-themes-theme-2",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/courses/locations/{locationId}/product-themes/{productId}/theme/{themeId}",
+          path: "/courses/locations/{locationId}/product-themes/{productId}/theme/{themeId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            },
+            {
+              name: "themeId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "ai-agents--operations-cancel",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/crawler/operations/cancel",
+          path: "/crawler/operations/cancel",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:67"
+          ]
+        },
+        {
           id: "custom-data-service--get-custom-values",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/custom-data/conversations",
@@ -1336,6 +1965,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getCustomValues",
           service: "CustomDataService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1364,6 +1994,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--default",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/default",
+          path: "/default",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:50"
+          ]
+        },
+        {
           id: "template-service--get-email-builder-templates-paginated",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/emails/builder",
@@ -1383,6 +2044,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getEmailBuilderTemplatesPaginated",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1480,6 +2142,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "createHiddenEmailTemplate",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -1549,6 +2212,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getEmailBuilderTemplates",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -1602,6 +2266,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "trackDefaultValueEvent",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -1667,6 +2332,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--build_workflow--builder-data",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/emails/builder/data",
+          path: "/emails/builder/data",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_workflow",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_workflow)"
+          ]
+        },
+        {
           id: "template-service--get-template-by-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/emails/builder/meta/{locationId}/{id}",
@@ -1686,6 +2384,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getTemplateById",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -1727,6 +2426,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getEmailBuilderSettings",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -1765,6 +2465,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "updateTemplateFromSource",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -1819,6 +2520,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getWorkflowTemplate",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -1882,6 +2584,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "updateWorkflowTemplate",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -1945,6 +2648,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLinksFromHtml",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -1998,6 +2702,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deleteTrigger",
           service: "EmailService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2038,6 +2743,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getTriggers",
           service: "EmailService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2097,6 +2803,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateTriggers",
           service: "EmailService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2144,6 +2851,246 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "events--events-management-event",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/events-management/event/{eventId}",
+          path: "/events-management/event/{eventId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "eventId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:92"
+          ]
+        },
+        {
+          id: "events--event-publish",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/events-management/event/{eventId}/publish",
+          path: "/events-management/event/{eventId}/publish",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "eventId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:91"
+          ]
+        },
+        {
+          id: "ai-agents--faqs",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/faqs",
+          path: "/faqs",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:55"
+          ]
+        },
+        {
+          id: "ai-agents--faqs-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/faqs/{faqId}",
+          path: "/faqs/{faqId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "faqId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:57"
+          ]
+        },
+        {
+          id: "ai-agents--faqs-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/faqs/{faqId}",
+          path: "/faqs/{faqId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "faqId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:56"
+          ]
+        },
+        {
+          id: "ai-agents--faqs-bulk-delete",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/faqs/bulk-delete",
+          path: "/faqs/bulk-delete",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:58"
+          ]
+        },
+        {
+          id: "ai-agents--faqs-params",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/faqs<params>",
+          path: "/faqs<params>",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:54"
+          ]
+        },
+        {
           id: "forms-service--get-forms",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms",
@@ -2166,6 +3113,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getForms",
           service: "FormsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -2202,6 +3150,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getFormById",
           service: "FormsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2249,6 +3198,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getFunnelById",
           service: "FunnelsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -2287,6 +3237,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getFunnels",
           service: "FunnelsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2352,6 +3303,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getPagesByFunnelId",
           service: "FunnelsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2411,6 +3363,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getPageById",
           service: "FunnelsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -2449,6 +3402,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getProductsByFunnelId",
           service: "FunnelsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2508,6 +3462,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getProductById",
           service: "FunnelsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -2527,6 +3482,85 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--gaps-counts",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/gaps/counts",
+          path: "/gaps/counts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "knowledgeBaseIds",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:52"
+          ]
+        },
+        {
+          id: "typed--build_workflow--hooks-webhook-trigger",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/hooks/{locationId}/webhook-trigger/{triggerId}",
+          path: "/hooks/{locationId}/webhook-trigger/{triggerId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow",
+            "pin_webhook_sample"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_workflow",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "triggerId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_workflow, pin_webhook_sample)"
+          ]
+        },
+        {
           id: "facebook-service--get-account-ids",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/integrations/facebook/{locationId}/allAdAccounts",
@@ -2542,6 +3576,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAccountIds",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2599,6 +3634,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "checkConnection",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2638,6 +3674,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getPages",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2679,6 +3716,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getLeadGenFroms",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2713,6 +3751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getLeadGenPages",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -2751,6 +3790,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getPosts",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2819,6 +3859,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchGoogleConnections",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2871,6 +3912,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getGoogleOAuthStartUrl",
           service: "GoogleSheetsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2918,6 +3960,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getIgPosts",
           service: "FacebookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -2986,6 +4029,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSingleAppDetails",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -3020,6 +4064,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchPaymentPlans",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -3061,6 +4106,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getTikTokForms",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -3102,6 +4148,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getTikTokForms",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -3125,6 +4172,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--ivr-get-mappings-by-phones",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/ivr/get-mappings-by-phones",
+          path: "/ivr/get-mappings-by-phones",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:215"
+          ]
+        },
+        {
           id: "links-service--get-by-id",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/links/id/{linkId}",
@@ -3144,6 +4222,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getById",
           service: "LinksService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "linkId"
@@ -3190,6 +4269,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLinks",
           service: "LinksService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -3231,6 +4311,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSmartLists",
           service: "SmartListService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -3294,6 +4375,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "createSmartList",
           service: "SmartListService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -3317,6 +4399,215 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--lists-dynamic",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}",
+          path: "/lists/dynamic/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "objectKey",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "startAfter",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/smart-lists.md:69"
+          ]
+        },
+        {
+          id: "workflows--lists-dynamic-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}",
+          path: "/lists/dynamic/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/smart-lists.md:71"
+          ]
+        },
+        {
+          id: "workflows--lists-dynamic-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
+          path: "/lists/dynamic/{locationId}/{smartListId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "smartListId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/smart-lists.md:73"
+          ]
+        },
+        {
+          id: "workflows--lists-dynamic-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
+          path: "/lists/dynamic/{locationId}/{smartListId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "smartListId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/smart-lists.md:70"
+          ]
+        },
+        {
+          id: "workflows--lists-dynamic-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{smartListId}",
+          path: "/lists/dynamic/{locationId}/{smartListId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "smartListId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/smart-lists.md:72"
+          ]
+        },
+        {
           id: "smart-list-service--delete-smart-list",
           method: "DELETE",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{smartListId}",
@@ -3336,6 +4627,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deleteSmartList",
           service: "SmartListService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "smartListId"
@@ -3374,6 +4666,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSmartList",
           service: "SmartListService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "smartListId"
@@ -3416,6 +4709,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "updateSmartList",
           service: "SmartListService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "smartListId"
@@ -3462,6 +4756,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getById",
           service: "LocationsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -3478,6 +4773,130 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/LocationsService.ts:11"
+          ]
+        },
+        {
+          id: "memberships-courses--categories-check-valid-drip-config",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/categories/check-valid-drip-config/{categoryId}",
+          path: "/locations/{locationId}/categories/check-valid-drip-config/{categoryId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "categoryId"
+            }
+          ],
+          query: [
+            {
+              name: "days",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "date",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:134"
+          ]
+        },
+        {
+          id: "memberships-courses--categories-get-drip-days-range",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/categories/get-drip-days-range/{categoryId}",
+          path: "/locations/{locationId}/categories/get-drip-days-range/{categoryId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "categoryId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:133"
+          ]
+        },
+        {
+          id: "memberships-courses--categories-sequence",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/categories/sequence",
+          path: "/locations/{locationId}/categories/sequence",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:144"
           ]
         },
         {
@@ -3500,6 +4919,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCustomFields",
           service: "OpportunityCustomFieldService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3516,6 +4936,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/OpportunityCustomFieldService.ts:9"
+          ]
+        },
+        {
+          id: "typed--create_custom_field_folder--locations-customFields",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields",
+          path: "/locations/{locationId}/customFields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_custom_field_folder"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_custom_field_folder",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_custom_field_folder)"
           ]
         },
         {
@@ -3539,6 +4996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getContactCustomFields",
           service: "CustomFieldService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3599,6 +5057,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3622,6 +5081,346 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "memberships-courses--permission-category",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/posts/bulk/permission/category/{categoryId}",
+          path: "/locations/{locationId}/posts/bulk/permission/category/{categoryId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "categoryId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:143"
+          ]
+        },
+        {
+          id: "memberships-courses--locations-products",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/{productId}",
+          path: "/locations/{locationId}/products/{productId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:33"
+          ]
+        },
+        {
+          id: "memberships-courses--products-apply-theme",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/apply-theme/{productId}",
+          path: "/locations/{locationId}/products/apply-theme/{productId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [
+            {
+              name: "template_id",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:94"
+          ]
+        },
+        {
+          id: "memberships-courses--products-clone",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/clone/{productId}",
+          path: "/locations/{locationId}/products/clone/{productId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:146"
+          ]
+        },
+        {
+          id: "memberships-courses--products-customizations",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/customizations",
+          path: "/locations/{locationId}/products/customizations",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:54"
+          ]
+        },
+        {
+          id: "memberships-courses--products-customizations-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/customizations/{id}",
+          path: "/locations/{locationId}/products/customizations/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:55"
+          ]
+        },
+        {
+          id: "memberships-courses--products-library-order",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/library-order",
+          path: "/locations/{locationId}/products/library-order",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:145"
+          ]
+        },
+        {
+          id: "memberships-courses--products-location-themes",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/products/location-themes",
+          path: "/locations/{locationId}/products/location-themes",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/theming-and-custom-code.md:93"
+          ]
+        },
+        {
+          id: "typed--build_workflow--locations-tags",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/tags",
+          path: "/locations/{locationId}/tags",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow",
+            "edit_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_workflow",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_workflow, edit_workflow)"
+          ]
+        },
+        {
           id: "email-service--create-tag-marketplace",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/tags",
@@ -3640,6 +5439,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "createTagMarketplace",
           service: "EmailService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3687,6 +5487,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchTags",
           service: "EmailService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3743,6 +5544,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "searchTags",
           service: "FilterService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3781,6 +5583,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getTemplates",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3838,6 +5641,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSnippetTemplateById",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -3880,6 +5684,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "searchLocations",
           service: "LocationsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -3946,6 +5751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "dump",
           service: "LogsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -3991,6 +5797,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchLiveVersionId",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -4033,6 +5840,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchIntegrationDetails",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -4077,6 +5885,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchBillingUsage",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -4107,6 +5916,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAllCategoriesMarketplaceApps",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -4150,6 +5960,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "listMarketplaceOauthApps",
           service: "McpConnectionService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -4184,6 +5995,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getMarketplaceApps",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -4226,6 +6038,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "searchVideos",
           service: "MediaService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -4314,6 +6127,270 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--list_courses--locations-categories",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/categories",
+          path: "/membership/locations/{locationId}/categories",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "list_courses"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_courses",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_courses)"
+          ]
+        },
+        {
+          id: "memberships-courses--locations-certificate-attachments",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/certificate-attachments",
+          path: "/membership/locations/{locationId}/certificate-attachments",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/build-api.md:301"
+          ]
+        },
+        {
+          id: "typed--build_course--certificate-attachments-products",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/certificate-attachments/products/{productId}",
+          path: "/membership/locations/{locationId}/certificate-attachments/products/{productId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "typed--list_courses--locations-products",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/products",
+          path: "/membership/locations/{locationId}/products",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "list_courses"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_courses",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_courses)"
+          ]
+        },
+        {
+          id: "typed--build_course--products-apply-theme",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/products/apply-theme/{productId}",
+          path: "/membership/locations/{locationId}/products/apply-theme/{productId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "typed--build_course--products-user-progress",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/locations/{locationId}/products/user-progress/{productId}",
+          path: "/membership/locations/{locationId}/products/user-progress/{productId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "productId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
+          id: "typed--build_course--smart-list-attach-offer-user",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/membership/smart-list/attach-offer-user",
+          path: "/membership/smart-list/attach-offer-user",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "build_course"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "build_course",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (build_course)"
+          ]
+        },
+        {
           id: "location-membership--fetch-categories",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/membership/smart-list/categories",
@@ -4330,6 +6407,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchCategories",
           service: "LocationMembership",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -4367,6 +6445,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchLessons",
           service: "LocationMembership",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "category_id"
@@ -4408,6 +6487,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchAllCategories",
           service: "LocationMembership",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -4456,6 +6536,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchData",
           service: "LocationMembership",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -4490,8 +6571,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "setFirebaseAuth",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "location_id",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "version",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -4501,7 +6596,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "states/app.ts:854"
+            "states/app.ts:854",
+            "workflows/20-api/version-history.md:76"
           ]
         },
         {
@@ -4520,6 +6616,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "postOAuthAuthorize",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -4570,6 +6667,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "authorize",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -4600,6 +6698,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateBasicAuthentication",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -4637,6 +6736,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "listExternalAccounts",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -4689,6 +6789,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "createExternalAccount",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -4752,6 +6853,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "deleteLocationAccount",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -4793,6 +6895,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchOAuthUrl",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -4831,6 +6934,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchWhiteLabelConfig",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -4869,6 +6973,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchCustomObjectsList",
           service: "CustomObjectsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -4916,6 +7021,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchCustomObjectFields",
           service: "CustomObjectsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "objectKey"
@@ -4968,6 +7074,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchRecordsByFilter",
           service: "CustomObjectsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "objectKey"
@@ -5011,6 +7118,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLostReasonCustomFieldOptions",
           service: "OpportunityCustomFieldService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -5033,6 +7141,108 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--list_account_entities--opportunities-pipelines",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/opportunities/pipelines",
+          path: "/opportunities/pipelines",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_account_entities",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_account_entities, build_workflow)"
+          ]
+        },
+        {
+          id: "events--coupon-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payments/coupon/list",
+          path: "/payments/coupon/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "events",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "altType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "search",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "priceIds",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "events/20-api/events-management-api.md:143"
+          ]
+        },
+        {
           id: "ivrservice--get-recording",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/location/{locationId}/recordings/{recordingSid}",
@@ -5048,6 +7258,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getRecording",
           service: "IVRService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5089,6 +7300,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getPhoneNumbersWithoutNumberPool",
           service: "SaasTwilioService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5129,6 +7341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLocationTranscriptionStatus",
           service: "PhoneSystemService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -5176,6 +7389,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "validateTranscription",
           service: "PhoneSystemService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -5292,6 +7506,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAllWhatsAppTemplates",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5340,6 +7555,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getReviewLinkList",
           service: "ReputationService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -5381,6 +7597,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCompanyResellingConfig",
           service: "WorkflowsResellingService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "companyId"
@@ -5419,6 +7636,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLocationConfig",
           service: "WorkflowsResellingService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5457,6 +7675,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLocationConfig",
           service: "WorkflowsResellingService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5495,6 +7714,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getProductConfiguration",
           service: "WorkflowsResellingService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -5536,6 +7756,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCompanySubscriptions",
           service: "WorkflowsResellingService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "companyId"
@@ -5574,6 +7795,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLocationSubscriptions",
           service: "WorkflowsResellingService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5625,6 +7847,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "cancelLocationSubscription",
           service: "WorkflowsResellingService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5662,6 +7885,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "checkForLCAccount",
           service: "SaasTwilioService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5700,6 +7924,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "checkForWorkflowBillingPlan",
           service: "SaasService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "entityType"
@@ -5758,6 +7983,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "upgradePlan",
           service: "SaasService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5807,6 +8033,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchAgencyBillingConfig",
           service: "SaasService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "companyId"
@@ -5829,6 +8056,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--company-workflow-premium-actions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
+          path: "/saas-billing-v2/billing-config/COMPANY/{companyId}/workflow_premium_actions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/agency-premium-features.md:48"
+          ]
+        },
+        {
           id: "saas-service--check-conversation-aieligibility",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI",
@@ -5848,6 +8110,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "checkConversationAIEligibility",
           service: "SaasService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5874,6 +8137,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--locations-workflow-ai",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/locations/workflow_ai",
+          path: "/saas-billing-v2/billing-config/locations/workflow_ai",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/agency-premium-features.md:82"
+          ]
+        },
+        {
+          id: "workflows--locations-workflow-premium-actions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/locations/workflow_premium_actions",
+          path: "/saas-billing-v2/billing-config/locations/workflow_premium_actions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/agency-premium-features.md:51"
+          ]
+        },
+        {
           id: "template-service--get-email-snippets-paginated",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/snippets/{locationId}",
@@ -5893,6 +8218,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getEmailSnippetsPaginated",
           service: "TemplateService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -5932,6 +8258,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSurveys",
           service: "SurveysService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -5992,6 +8319,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSurveyById",
           service: "SurveysService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -6011,6 +8339,71 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--trained-urls-params",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/trained-urls<params>",
+          path: "/trained-urls<params>",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:53"
+          ]
+        },
+        {
+          id: "typed--list_account_entities--users",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/users/",
+          path: "/users/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_account_entities",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_account_entities, build_workflow)"
+          ]
+        },
+        {
           id: "backend--fetch-users-page",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/users/search",
@@ -6027,6 +8420,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchUsersPage",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -6082,6 +8476,349 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--create_voiceai_agent--voice-ai-actions",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/voice-ai/actions",
+          path: "/voice-ai/actions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_voiceai_agent"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_voiceai_agent",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_voiceai_agent)"
+          ]
+        },
+        {
+          id: "typed--list_account_entities--voice-ai-agents",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/voice-ai/agents",
+          path: "/voice-ai/agents",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [
+            "build_workflow",
+            "list_account_entities"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "list_account_entities",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (list_account_entities, build_workflow)"
+          ]
+        },
+        {
+          id: "typed--create_voiceai_agent--voice-ai-agents",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/voice-ai/agents",
+          path: "/voice-ai/agents",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_voiceai_agent"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_voiceai_agent",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_voiceai_agent)"
+          ]
+        },
+        {
+          id: "typed--create_voiceai_agent--voice-ai-agents-2",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/voice-ai/agents/{agentId}",
+          path: "/voice-ai/agents/{agentId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "create_voiceai_agent"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "create_voiceai_agent",
+          tree: "typed-tool",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (create_voiceai_agent)"
+          ]
+        },
+        {
+          id: "ai-agents--web-search",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/web-search",
+          path: "/web-search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:63"
+          ]
+        },
+        {
+          id: "ai-agents--web-search-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/web-search/{id}",
+          path: "/web-search/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:66"
+          ]
+        },
+        {
+          id: "ai-agents--web-search-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/web-search/{id}",
+          path: "/web-search/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:61"
+          ]
+        },
+        {
+          id: "ai-agents--web-search-patch",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/web-search/{id}",
+          path: "/web-search/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:65"
+          ]
+        },
+        {
+          id: "ai-agents--web-search-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/web-search/{id}",
+          path: "/web-search/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:64"
+          ]
+        },
+        {
+          id: "ai-agents--web-search-kb",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/web-search/kb/{knowledgeBaseId}",
+          path: "/web-search/kb/{knowledgeBaseId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:62"
+          ]
+        },
+        {
           id: "backend--fetch-events-options",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{base}/events-management/events/options",
@@ -6102,6 +8839,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchEventsOptions",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "base"
@@ -6144,6 +8882,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "companyId"
@@ -6203,6 +8942,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "companyId"
@@ -6255,6 +8995,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "companyId"
@@ -6329,6 +9070,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "companyId"
@@ -6403,6 +9145,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "findAll",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6440,6 +9183,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "create",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6479,6 +9223,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "delete",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6534,6 +9279,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "findById",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6574,6 +9320,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "update",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6617,6 +9364,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateAutoSave",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6658,6 +9406,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "restore",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6684,6 +9433,263 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--workflow-history",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history",
+          path: "/workflow/{locationId}/{wid}/history",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "list_workflow_versions"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/version-history.md:20"
+          ]
+        },
+        {
+          id: "workflows--workflow-history-by-number",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history-by-number/{n}",
+          path: "/workflow/{locationId}/{wid}/history-by-number/{n}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_version"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            },
+            {
+              name: "n"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/version-history.md:18"
+          ]
+        },
+        {
+          id: "workflows--workflow-history-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history/{versionId}",
+          path: "/workflow/{locationId}/{wid}/history/{versionId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_workflow_version"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            },
+            {
+              name: "versionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/version-history.md:19"
+          ]
+        },
+        {
+          id: "workflows--history-v2",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/history/v2",
+          path: "/workflow/{locationId}/{wid}/history/v2",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "list_workflow_versions"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/version-history.md:17"
+          ]
+        },
+        {
+          id: "workflows--workflow-remove-stuck-statuses",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/remove-stuck-statuses/{stepId}",
+          path: "/workflow/{locationId}/{wid}/remove-stuck-statuses/{stepId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            },
+            {
+              name: "stepId"
+            }
+          ],
+          query: [
+            {
+              name: "userId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/50-runtime/forcing-and-removing-contacts.md:22"
+          ]
+        },
+        {
+          id: "workflows--workflow-requeue-stuck-statuses",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{wid}/requeue-stuck-statuses/{stepId}",
+          path: "/workflow/{locationId}/{wid}/requeue-stuck-statuses/{stepId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "fast_forward_contacts"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "wid"
+            },
+            {
+              name: "stepId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/50-runtime/forcing-and-removing-contacts.md:18"
+          ]
+        },
+        {
           id: "backend--commit-auto-saved-changes-via-axios",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}/commit-auto-save",
@@ -6699,6 +9705,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "commitAutoSavedChangesViaAxios",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6766,6 +9773,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "copyToSubAccount",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6807,6 +9815,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "downloadFile",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6853,6 +9862,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAllVersions",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6892,6 +9902,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getVersionByNumberAndWorkflowId",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6934,6 +9945,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getVersionByIdAndWorkflowId",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -6976,6 +9988,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getHistoryV2",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7013,6 +10026,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getLogsById",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7090,6 +10104,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "removeStuckRecords",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7140,6 +10155,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "requeueSelectedStuckContacts",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7195,6 +10211,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "requeueStuckRecords",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7238,6 +10255,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "testWorkflowForObjectRecords",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7279,6 +10297,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "uploadFiles",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7387,6 +10406,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "resumeWorkflowExecutionManually",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7434,6 +10454,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "stopWorkflowExecutionManually",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7481,6 +10502,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAdWords",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7515,6 +10537,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendMessages",
           service: "AIAssistantService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7566,6 +10589,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendCustomCodeRequest",
           service: "CustomCodeAIService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7639,6 +10663,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendEmailRequest",
           service: "EmailAiService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7706,6 +10731,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendFeedback",
           service: "AIFeedbackService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7757,6 +10783,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendSMSRequest",
           service: "SMSAiService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7824,6 +10851,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAutoSaveSettings",
           service: "AutoSaveSettingsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7839,7 +10867,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/AutoSaveSettingsService.ts:27"
+            "services/AutoSaveSettingsService.ts:27",
+            "workflows/20-api/version-history.md:75"
           ]
         },
         {
@@ -7858,6 +10887,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateAutoSaveSettings",
           service: "AutoSaveSettingsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7892,6 +10922,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "bulkUpdateStatus",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7927,6 +10958,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateStatus",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -7964,6 +10996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "bulkDelete",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8020,6 +11053,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "createFolder",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8054,6 +11088,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getContacts",
           service: "DripScheduleService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8111,6 +11146,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getStepStats",
           service: "DripScheduleService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8155,6 +11191,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getPreview",
           service: "DripScheduleService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8197,6 +11234,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getElizaUsers",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8232,6 +11270,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8266,6 +11305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendTestEmail",
           service: "EmailService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8350,6 +11390,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "deleteWorkflowErrorNotificationDoc",
           service: "ErrorNotificationService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8368,7 +11409,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/ErrorNotificationService.ts:63"
+            "services/ErrorNotificationService.ts:63",
+            "workflows/50-runtime/error-notifications.md:37"
           ]
         },
         {
@@ -8387,6 +11429,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getWorkflowErrorNotificationDoc",
           service: "ErrorNotificationService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8405,7 +11448,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/ErrorNotificationService.ts:54"
+            "services/ErrorNotificationService.ts:54",
+            "workflows/50-runtime/error-notifications.md:36"
           ]
         },
         {
@@ -8426,6 +11470,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getErrorWorkflowsCount",
           service: "ErrorNotificationService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8441,7 +11486,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/ErrorNotificationService.ts:33"
+            "services/ErrorNotificationService.ts:33",
+            "workflows/50-runtime/error-notifications.md:34",
+            "workflows/50-runtime/error-notifications.md:47",
+            "workflows/50-runtime/error-notifications.md:49"
           ]
         },
         {
@@ -8463,6 +11511,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8492,7 +11541,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/workflow-overview.service.ts:166",
-            "services/ErrorNotificationService.ts:43"
+            "services/ErrorNotificationService.ts:43",
+            "workflows/50-runtime/error-notifications.md:35",
+            "workflows/50-runtime/error-notifications.md:48"
           ]
         },
         {
@@ -8513,6 +11564,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getLocationErrorNotificationSetting",
           service: "ErrorNotificationService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8528,7 +11580,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/ErrorNotificationService.ts:72"
+            "services/ErrorNotificationService.ts:72",
+            "workflows/50-runtime/error-notifications.md:39"
           ]
         },
         {
@@ -8547,6 +11600,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateLocationErrorNotificationSettingIsActive",
           service: "ErrorNotificationService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8562,7 +11616,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/ErrorNotificationService.ts:81"
+            "services/ErrorNotificationService.ts:81",
+            "workflows/50-runtime/error-notifications.md:40"
           ]
         },
         {
@@ -8581,6 +11636,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateLocationErrorNotificationSettingUsers",
           service: "ErrorNotificationService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8596,7 +11652,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/ErrorNotificationService.ts:90"
+            "services/ErrorNotificationService.ts:90",
+            "workflows/50-runtime/error-notifications.md:41"
           ]
         },
         {
@@ -8623,6 +11680,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getFoldersAndWorkflows",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8724,6 +11782,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "bulkMove",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8762,6 +11821,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "moveToFolder",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8799,6 +11859,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateOnlyTriggers",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8841,6 +11902,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updatePermission",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8878,6 +11940,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "bulkUpdateDirectoryPermissions",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8912,6 +11975,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getPhoneNumbers",
           service: "FilterService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8948,6 +12012,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getPremiumTierUsage",
           service: "PremiumTierUsageService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -8985,6 +12050,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "deleteFolder",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9022,6 +12088,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "renameFolder",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9059,6 +12126,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "renameWorkflow",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9096,6 +12164,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "restoreWorkflow",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9138,6 +12207,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getSampleResponse",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9213,6 +12283,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getScheduledPauseSettings",
           service: "ScheduledPauseService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9247,6 +12318,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "createScheduledPauseSettings",
           service: "ScheduledPauseService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9316,6 +12388,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "deleteScheduledPauseSettings",
           service: "ScheduledPauseService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9353,6 +12426,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9427,6 +12501,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "list",
           service: "SecretManagerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9479,6 +12554,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "create",
           service: "SecretManagerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9514,6 +12590,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "remove",
           service: "SecretManagerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9553,6 +12630,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deleteSecret",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9590,6 +12668,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendTestSMS",
           service: "SmsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9624,6 +12703,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "deleteSplitStepExecutions",
           service: "SplitService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9671,6 +12751,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "isStepExecuted",
           service: "SplitService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9719,6 +12800,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getStats",
           service: "SplitService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9773,6 +12855,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "createTag",
           service: "TagService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9816,12 +12899,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "findAll",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
             }
           ],
-          query: [],
+          query: [
+            {
+              name: "workflowId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -9831,7 +12922,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:17"
+            "services/BaseService.ts:17",
+            "_shared/schema-harvest.md:72",
+            "workflows/10-anatomy/workflow-json-schema.md:281",
+            "workflows/20-api/trigger-create.md:72"
           ]
         },
         {
@@ -9853,6 +12947,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "create",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9893,6 +12988,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "delete",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9937,6 +13033,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "findById",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -9976,6 +13073,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "update",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10017,6 +13115,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateAutoSave",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10058,6 +13157,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "restore",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10099,6 +13199,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateOnlyTriggers",
           service: "TriggerService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10140,6 +13241,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "sendMessagesV2",
           service: "AIAssistantServiceV2",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10187,6 +13289,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "setup",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10234,6 +13337,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "buildWorkflow",
           service: "AIBuilderService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10285,6 +13389,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "handleRequest",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10319,6 +13424,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "transcribeAudio",
           service: "AIAssistantServiceV2",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10420,6 +13526,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--ai-message",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v3/ai/message",
+          path: "/workflow/{locationId}/v3/ai/message",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/20-api/workflow-ai.md:28"
+          ]
+        },
+        {
           id: "backend--send",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/v3/ai/wait",
@@ -10435,6 +13576,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "send",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10482,6 +13624,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10551,6 +13694,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getSettings",
           service: "WorkflowAISettingsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10585,6 +13729,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateSettings",
           service: "WorkflowAISettingsService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10619,6 +13764,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10689,6 +13835,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10758,6 +13905,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAllTemplates",
           service: "WorkflowService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -10792,6 +13940,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchDrives",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -10860,6 +14009,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSlackIntegrations",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -10911,6 +14061,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSlackPrivateChannels",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -10979,6 +14130,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSlackPublicChannels",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -11047,6 +14199,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSpreadsheets",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -11127,6 +14280,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSheets",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -11187,6 +14341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSheetHeaders",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -11250,6 +14405,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchSlackUsers",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "root"
@@ -11318,6 +14474,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "submitFeedback",
           service: "AgentTraceService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11407,6 +14564,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getFeedback",
           service: "AgentTraceService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11464,6 +14622,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "list",
           service: "McpConnectionService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11513,6 +14672,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "create",
           service: "McpConnectionService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11627,6 +14787,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "remove",
           service: "McpConnectionService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11664,6 +14825,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "update",
           service: "McpConnectionService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11781,6 +14943,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "listOauth2Tokens",
           service: "McpConnectionService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11830,6 +14993,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "testConnection",
           service: "McpConnectionService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -11949,6 +15113,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getModels",
           service: "AgentTraceService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -12003,6 +15168,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getTrace",
           service: "AgentTraceService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -12055,6 +15221,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCampaigns",
           service: "CampaignService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -12095,6 +15262,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "testCustomCode",
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -12141,6 +15309,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getAuthConfig",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -12172,6 +15341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "removeFromBlacklist",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "type"
@@ -12220,6 +15390,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getContactBlacklist",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -12251,6 +15422,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "addContactToBlacklist",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "contactId"
@@ -12286,6 +15458,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getStepBlacklist",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -12317,6 +15490,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "addStepToBlacklist",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "stepId"
@@ -12352,6 +15526,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getWorkflowBlacklist",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -12383,6 +15558,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "addWorkflowToBlacklist",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "workflowId"
@@ -12418,6 +15594,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "addLoopLock",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "workflowId"
@@ -12453,6 +15630,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getRateLimitBypassInfo",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -12484,6 +15662,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "createRateLimitBypass",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -12519,6 +15698,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "deleteRateLimitBypass",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "id"
@@ -12564,6 +15744,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getWorkflowDetails",
           service: "FlowGuardService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "workflowId"
@@ -12598,6 +15779,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchBrandBoardById",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -12665,6 +15847,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchBrandVoiceById",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -12727,6 +15910,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getNumbersMapping",
           service: "IVRService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -12759,6 +15943,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deleteToken",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -12804,6 +15989,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deleteTokenByState",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -12849,6 +16035,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getAllTokens",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -12888,6 +16075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "pingToGetToken",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -12931,6 +16119,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "refreshToken",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -12962,6 +16151,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "saveToken",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -13088,6 +16278,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "updateToken",
           service: "CustomWebhookService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -13217,6 +16408,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchDynamicSourceOptions",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "assetType"
@@ -13262,6 +16454,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getActionBranchesFields",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "actionType"
@@ -13317,6 +16510,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCustomInputFieldData",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "actionType"
@@ -13355,6 +16549,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchActionDynamicSourceDetails",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "key"
@@ -13397,6 +16592,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchActionInputAllOptions",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "key"
@@ -13454,6 +16650,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchActionInputListOptions",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "key"
@@ -13514,6 +16711,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getActionDynamicFields",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "actionType"
@@ -13556,6 +16754,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getActionByKey",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "key"
@@ -13601,6 +16800,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getActionStats",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "actionKey"
@@ -13635,6 +16835,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "key"
@@ -13678,6 +16879,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchIntegrationApps",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -13722,6 +16924,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "resetIntegrationToken",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -13772,6 +16975,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "initiateOAuthAuthorization",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -13832,6 +17036,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchIntegrationOauthToken",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "appId"
@@ -13890,6 +17095,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getSlackOAuthStartUrl",
           service: "SlackService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -13937,6 +17143,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "testAction",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -13996,6 +17203,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deregisterTestWebhook",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14067,6 +17275,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchWebhookStatus",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14133,6 +17342,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "registerTestPolling",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14200,6 +17410,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "registerTestWebhook",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14267,6 +17478,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "testTrigger",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14337,6 +17549,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getActionsAndTriggers",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -14382,6 +17595,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchTriggerDynamicSourceDetails",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "key"
@@ -14424,6 +17638,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchTriggerFilterListOptions",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "key"
@@ -14474,6 +17689,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14531,6 +17747,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getTriggerDynamicFields",
           service: "WorkflowsMarketplacePlatformService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "triggerType"
@@ -14574,6 +17791,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getDetailLogsList",
           service: "WorkflowCopyLogsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14616,6 +17834,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getLogsList",
           service: "WorkflowCopyLogsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14658,6 +17877,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getStatusList",
           service: "WorkflowCopyLogsService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14697,6 +17917,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getWorkflowsFromEs",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -14708,7 +17929,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:138"
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
+            "workflows/20-api/smart-lists.md:75"
           ]
         },
         {
@@ -14732,13 +17954,26 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getLogs",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
+              name: "workflowId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
               name: "locationId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -14750,7 +17985,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:166"
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
+            "workflows/50-runtime/11-runtime-logs.md:35",
+            "workflows/50-runtime/observed-query-shapes.md:19"
           ]
         },
         {
@@ -14772,6 +18009,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14790,7 +18028,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/api/workflow-overview.service.ts:149"
+            "services/api/workflow-overview.service.ts:149",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:19"
           ]
         },
         {
@@ -14812,6 +18051,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -14830,7 +18070,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/api/workflow-overview.service.ts:157"
+            "services/api/workflow-overview.service.ts:157",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:18"
           ]
         },
         {
@@ -14854,6 +18095,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getEnrollmentStatsSingle",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -14891,19 +18133,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getContactCountPerStep",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
-              name: "locationId",
-              type: "string",
-              required: true,
-              source: "live-probe"
-            },
-            {
               name: "workflowId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -14915,7 +18158,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:181"
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
+            "workflows/50-runtime/11-runtime-logs.md:113"
           ]
         },
         {
@@ -14939,13 +18183,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getContactDetailsPerStep",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
+              name: "workflowId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "currentStepId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
               name: "locationId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "showTotalCount",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -14958,7 +18233,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:296"
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
+            "workflows/50-runtime/11-runtime-logs.md:171"
           ]
         },
         {
@@ -14980,6 +18256,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getEnrollmentStats",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15284,6 +18561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getEnrollmentStats",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15559,7 +18837,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:212"
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
+            "workflows/50-runtime/observed-query-shapes.md:60"
           ]
         },
         {
@@ -15582,13 +18861,32 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getStatuses",
           service: "WorkflowMarketplaceService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
+              name: "workflowId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
               name: "locationId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "action",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -15600,7 +18898,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowMarketplaceService.ts:260"
+            "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
+            "workflows/50-runtime/11-runtime-logs.md:127",
+            "workflows/50-runtime/observed-query-shapes.md:43"
           ]
         },
         {
@@ -15619,6 +18919,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15666,6 +18967,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15715,6 +19017,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15768,6 +19071,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15808,6 +19112,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15857,6 +19162,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: {
@@ -15913,7 +19219,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/api/workflow-overview.service.ts:142"
+            "services/api/workflow-overview.service.ts:142",
+            "workflows/50-runtime/overview-and-trigger-analysis.md:20"
           ]
         },
         {
@@ -15936,6 +19243,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -15976,6 +19284,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -16016,6 +19325,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [],
           query: [
             {
@@ -16053,6 +19363,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchData",
           service: "FilterService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "basePath"
@@ -16070,6 +19381,340 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/FilterService.ts:111",
             "services/FilterService.ts:162"
+          ]
+        },
+        {
+          id: "ai-agents--ai-employees-beta",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/beta/{locationId}",
+          path: "/ai-employees/beta/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "feature",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:77"
+          ]
+        },
+        {
+          id: "ai-agents--employees-conversation-logs",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/{locationId}/conversation-logs",
+          path: "/ai-employees/employees/{locationId}/conversation-logs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:78",
+            "ai-agents/20-api/logs-deployment-email.md:42"
+          ]
+        },
+        {
+          id: "ai-agents--employees-fetch-dashboard-data",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/{locationId}/fetch-dashboard-data",
+          path: "/ai-employees/employees/{locationId}/fetch-dashboard-data",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:45"
+          ]
+        },
+        {
+          id: "ai-agents--dashboard-search",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/dashboard/search",
+          path: "/ai-employees/employees/dashboard/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:44"
+          ]
+        },
+        {
+          id: "ai-agents--employees-models",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/employees/models",
+          path: "/ai-employees/employees/models",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:76"
+          ]
+        },
+        {
+          id: "ai-agents--interactions-response-details",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-employees/interactions/responseDetails",
+          path: "/ai-employees/interactions/responseDetails",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:46"
+          ]
+        },
+        {
+          id: "ai-agents--interactions-suggestions",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/ai-employees/interactions/suggestions/{responseId}",
+          path: "/ai-employees/interactions/suggestions/{responseId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "responseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:47"
+          ]
+        },
+        {
+          id: "ai-agents--plan-company",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-wrapper/plan/company",
+          path: "/ai-wrapper/plan/company",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:81"
+          ]
+        },
+        {
+          id: "ai-agents--plan-location",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-wrapper/plan/location",
+          path: "/ai-wrapper/plan/location",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:80"
+          ]
+        },
+        {
+          id: "ai-agents--v2-snapshots",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/ai-wrapper/usage/v2/snapshots",
+          path: "/ai-wrapper/usage/v2/snapshots",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:82"
           ]
         },
         {
@@ -16096,6 +19741,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16147,6 +19793,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16193,6 +19840,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16245,6 +19893,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16322,6 +19971,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16377,6 +20027,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [],
           query: [],
           body: {
@@ -16419,6 +20070,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16451,6 +20103,294 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--conversations-ai-employee-configs",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations-ai/employeeConfigs",
+          path: "/conversations-ai/employeeConfigs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_contact_ai_status",
+            "set_contact_ai_status"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "contactId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "conversationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:43",
+            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:120"
+          ]
+        },
+        {
+          id: "ai-agents--conversations-ai-employee-configs-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/conversations-ai/employeeConfigs/{configId}",
+          path: "/conversations-ai/employeeConfigs/{configId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "set_contact_ai_status"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "configId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:75"
+          ]
+        },
+        {
+          id: "ai-agents--conversations-ai-employee-configs-put-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/conversations-ai/employeeConfigs/{id}",
+          path: "/conversations-ai/employeeConfigs/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "set_contact_ai_status"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:121",
+            "ai-agents/20-api/conversation-ai-per-contact-toggle.md:123"
+          ]
+        },
+        {
+          id: "ai-agents--conversations-ai-prompt",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/conversations-ai/prompt",
+          path: "/conversations-ai/prompt",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:88"
+          ]
+        },
+        {
+          id: "ai-agents--conversations-ai-prompt-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/conversations-ai/prompt/{promptId}",
+          path: "/conversations-ai/prompt/{promptId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "promptId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:89"
+          ]
+        },
+        {
+          id: "ai-agents--prompt-default",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations-ai/prompt/default",
+          path: "/conversations-ai/prompt/default",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:87"
+          ]
+        },
+        {
+          id: "ai-agents--prompt-templates",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations-ai/prompt/templates",
+          path: "/conversations-ai/prompt/templates",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:86"
+          ]
+        },
+        {
+          id: "ai-agents--chunk-content",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/conversations-ai/train/chunk/content",
+          path: "/conversations-ai/train/chunk/content",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:85"
+          ]
+        },
+        {
           id: "services--assessment-results",
           method: "GET",
           url: "https://services.leadconnectorhq.com/courses/analytics/locations/{locationId}/export/assessment-results",
@@ -16474,6 +20414,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16523,6 +20464,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -16575,6 +20517,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getReferenceById",
           service: "InboundWebhookRequestService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "triggerId"
@@ -16623,6 +20566,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "saveReference",
           service: "InboundWebhookRequestService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "requestId"
@@ -16674,6 +20618,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getRequestsByTriggerId",
           service: "InboundWebhookRequestService",
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "triggerId"
@@ -16706,6 +20651,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--knowledge-base-default",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/knowledge-base/default",
+          path: "/knowledge-base/default",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/conversation-ai-boundary.md:79"
+          ]
+        },
+        {
           id: "services--search",
           method: "GET",
           url: "https://services.leadconnectorhq.com/locations/{locationId}/customValues/search",
@@ -16721,6 +20697,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: null,
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"
@@ -16769,6 +20746,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [],
           query: [
             {
@@ -16847,6 +20825,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "cnameCheck",
           service: "DomainService",
+          tree: "memberships",
           pathParams: [
             {
               name: "url"
@@ -16886,6 +20865,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "LocationService",
+          tree: "memberships",
           pathParams: [],
           query: [],
           body: null,
@@ -16921,6 +20901,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "LocationService",
+          tree: "memberships",
           pathParams: [
             {
               name: "id"
@@ -16960,6 +20941,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getRevenueByOffers",
           service: "UserPurchaseService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17006,6 +20988,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "AssignmentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17047,6 +21030,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "AssignmentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17091,6 +21075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "AssignmentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17135,6 +21120,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "AssignmentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17177,6 +21163,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "AssignmentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17225,6 +21212,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findByPostId",
           service: "AssignmentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17267,6 +21255,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17308,6 +21297,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17351,6 +21341,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17395,6 +21386,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17437,6 +21429,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17483,6 +21476,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17522,6 +21516,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17566,6 +21561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17608,6 +21604,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17650,6 +21647,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17696,6 +21694,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findByProductId",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17738,6 +21737,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "submitReview",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17784,6 +21784,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findByLocationId",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17842,6 +21843,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findByAssessmentStatusId",
           service: "AssessmentServiceService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17884,6 +21886,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17925,6 +21928,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -17969,6 +21973,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18013,6 +22018,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18055,6 +22061,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18103,6 +22110,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findQuestionsByQuizId",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18145,6 +22153,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deleteQuestionByIds",
           service: "QuizService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18194,6 +22203,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18235,6 +22245,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18278,6 +22289,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18320,6 +22332,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18362,6 +22375,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18408,6 +22422,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "checkValidDripConfig",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18463,6 +22478,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getDripDaysRange",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18505,6 +22521,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchCategoryProgress",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18544,6 +22561,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "bulkUpdateSequenceNo",
           service: "CategoryService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18592,6 +22610,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18638,6 +22657,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18690,6 +22710,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18739,6 +22760,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18791,6 +22813,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18834,6 +22857,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18873,6 +22897,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18917,6 +22942,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "deleteComment",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -18959,6 +22985,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19001,6 +23028,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19043,6 +23071,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19090,6 +23119,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findComments",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19169,6 +23199,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findCommentCountByPostIds",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19208,6 +23239,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "restoreComment",
           service: "CommentService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19250,6 +23282,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "uploadFileOld",
           service: "MediaUploadService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19360,6 +23393,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "generateSignedUrl",
           service: "MediaUploadService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19399,6 +23433,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "OfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19440,6 +23475,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "OfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19483,6 +23519,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "OfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19527,6 +23564,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "OfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19571,6 +23609,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "OfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19617,6 +23656,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "OfferCustomizationService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19656,6 +23696,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "OfferCustomizationService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19699,6 +23740,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "OfferCustomizationService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19741,6 +23783,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "OfferCustomizationService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19783,6 +23826,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "OfferCustomizationService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19829,6 +23873,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "PostService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19870,6 +23915,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "PostService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19913,6 +23959,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "PostService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -19957,6 +24004,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "PostService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20001,6 +24049,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "PostService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20052,6 +24101,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20098,6 +24148,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "bulkUpdateCommentPermission",
           service: "PostService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20150,6 +24201,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "PostMaterialService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20191,6 +24243,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "PostMaterialService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20234,6 +24287,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "PostMaterialService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20276,6 +24330,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "PostMaterialService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20318,6 +24373,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "PostMaterialService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20364,6 +24420,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "bulkUpdateSequenceNo",
           service: "PostMaterialService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20407,6 +24464,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "bulkUpdateSequenceNo",
           service: "PostService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20450,6 +24508,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20491,6 +24550,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20534,6 +24594,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20576,6 +24637,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20618,6 +24680,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20664,6 +24727,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "applyTheme",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20713,6 +24777,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "clone",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20765,6 +24830,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20804,6 +24870,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20847,6 +24914,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20889,6 +24957,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20931,6 +25000,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -20977,6 +25047,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findPostByProductId",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21019,6 +25090,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "updateBulkProductSequence",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21062,6 +25134,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "saveThemeForLocation",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21105,6 +25178,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchProductTitle",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21147,6 +25221,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21186,6 +25261,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21229,6 +25305,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21271,6 +25348,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21313,6 +25391,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21359,6 +25438,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCustomizationSettings",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21401,6 +25481,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "share",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21453,6 +25534,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getUserProgress",
           service: "ProductService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21495,6 +25577,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "BuilderSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21535,6 +25618,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "BuilderSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21578,6 +25662,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "BuilderSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21620,6 +25705,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "BuilderSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21662,6 +25748,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "BuilderSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21708,6 +25795,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "DomainService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21748,6 +25836,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "DomainService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21791,6 +25880,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "DomainService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21833,6 +25923,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "DomainService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21875,6 +25966,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "DomainService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21921,6 +26013,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "domainExist",
           service: "DomainService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -21960,6 +26053,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "EmailSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22000,6 +26094,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "EmailSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22043,6 +26138,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "EmailSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22085,6 +26181,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "EmailSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22127,6 +26224,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "EmailSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22173,6 +26271,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getTemplates",
           service: "EmailSettingsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22212,6 +26311,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "SiteInfoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22252,6 +26352,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "SiteInfoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22295,6 +26396,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "SiteInfoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22337,6 +26439,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "SiteInfoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22379,6 +26482,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "SiteInfoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22425,6 +26529,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "toggleClientPortal",
           service: "SiteInfoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22467,6 +26572,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchDashboardStats",
           service: "StatsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22506,6 +26612,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "fetchOfferDashboardStats",
           service: "StatsService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22545,6 +26652,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "UpsellOfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22584,6 +26692,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "UpsellOfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22627,6 +26736,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "UpsellOfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22669,6 +26779,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "UpsellOfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22711,6 +26822,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "UpsellOfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22757,6 +26869,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getByOfferId",
           service: "UpsellOfferService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22799,6 +26912,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getCategories",
           service: "UserPurchaseService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22838,6 +26952,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getNoOfUsersForOffer",
           service: "UserPurchaseService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22880,6 +26995,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "getNoOfUsersForProduct",
           service: "UserPurchaseService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22922,6 +27038,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findAll",
           service: "VideoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -22963,6 +27080,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "create",
           service: "VideoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -23006,6 +27124,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "delete",
           service: "VideoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -23048,6 +27167,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "findById",
           service: "VideoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -23090,6 +27210,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "update",
           service: "VideoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -23136,6 +27257,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "retranscodeVideo",
           service: "VideoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -23178,6 +27300,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "checkTranscodingError",
           service: "VideoService",
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -23220,6 +27343,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: "isAgencyAdmin",
           service: "UserService",
+          tree: "memberships",
           pathParams: [],
           query: [],
           body: null,
@@ -23258,6 +27382,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "locationId"
@@ -23300,6 +27425,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [],
           query: [],
           body: {
@@ -23363,6 +27489,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "priceId"
@@ -23405,6 +27532,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           operation: null,
           service: null,
+          tree: "memberships",
           pathParams: [
             {
               name: "priceId"
@@ -23443,6 +27571,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "fetchTemplatesViaCategory",
           service: "TemplateLibraryService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -23473,6 +27602,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "loadWorkflowViaTemplateId",
           service: "TemplateLibraryService",
+          tree: "workflow-builder",
           pathParams: [],
           query: [],
           body: null,
@@ -23485,6 +27615,1320 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/TemplateLibraryService.ts:43"
+          ]
+        },
+        {
+          id: "ai-agents--generate-with-ai-ai-description",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/generate-with-ai/ai-description",
+          path: "/voice-ai/actions/generate-with-ai/ai-description",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:152"
+          ]
+        },
+        {
+          id: "ai-agents--ai-description-stream",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/generate-with-ai/ai-description/stream",
+          path: "/voice-ai/actions/generate-with-ai/ai-description/stream",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "calendarIds",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:154"
+          ]
+        },
+        {
+          id: "ai-agents--generate-with-ai-generate-contact-field",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/generate-with-ai/generate-contact-field",
+          path: "/voice-ai/actions/generate-with-ai/generate-contact-field",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:157"
+          ]
+        },
+        {
+          id: "ai-agents--generate-with-ai-generate-contact-field-example",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/generate-with-ai/generate-contact-field-example",
+          path: "/voice-ai/actions/generate-with-ai/generate-contact-field-example",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:158"
+          ]
+        },
+        {
+          id: "ai-agents--generate-with-ai-trigger-prompts",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/generate-with-ai/trigger-prompts",
+          path: "/voice-ai/actions/generate-with-ai/trigger-prompts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:155"
+          ]
+        },
+        {
+          id: "ai-agents--actions-test-webhook",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/actions/test-webhook",
+          path: "/voice-ai/actions/test-webhook",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:161"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-agents",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}",
+          path: "/voice-ai/agents/{agentId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "create_voiceai_agent",
+            "get_ai_configuration_bundle"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:58"
+          ]
+        },
+        {
+          id: "ai-agents--agents-phone-number",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}/phone-number",
+          path: "/voice-ai/agents/{agentId}/phone-number",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:62"
+          ]
+        },
+        {
+          id: "ai-agents--agents-phone-number-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}/phone-number",
+          path: "/voice-ai/agents/{agentId}/phone-number",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:61"
+          ]
+        },
+        {
+          id: "ai-agents--prompts-defaults",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/{agentId}/prompts/defaults",
+          path: "/voice-ai/agents/{agentId}/prompts/defaults",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "agentId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:59"
+          ]
+        },
+        {
+          id: "ai-agents--agents-agents-with-folders",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/agents-with-folders",
+          path: "/voice-ai/agents/agents-with-folders",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:56"
+          ]
+        },
+        {
+          id: "ai-agents--agents-calls",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/calls",
+          path: "/voice-ai/agents/calls",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:85"
+          ]
+        },
+        {
+          id: "ai-agents--agents-simple",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/agents/simple",
+          path: "/voice-ai/agents/simple",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [
+            "get_ai_configuration_bundle"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:57"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-call",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}",
+          path: "/voice-ai/call/{callId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "callId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:26"
+          ]
+        },
+        {
+          id: "ai-agents--call-feedback",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/{callId}/feedback",
+          path: "/voice-ai/call/{callId}/feedback",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "callId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:27"
+          ]
+        },
+        {
+          id: "ai-agents--call-trial",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/trial",
+          path: "/voice-ai/call/trial",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:24",
+            "ai-agents/20-api/voice-ai-boundary.md:67"
+          ]
+        },
+        {
+          id: "ai-agents--call-trial-usage",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/call/trial-usage",
+          path: "/voice-ai/call/trial-usage",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:25",
+            "ai-agents/20-api/voice-ai-boundary.md:68"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-configurations",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/configurations/{KEY}",
+          path: "/voice-ai/configurations/{KEY}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "KEY"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:71"
+          ]
+        },
+        {
+          id: "ai-agents--consent-apply",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/apply",
+          path: "/voice-ai/consent/apply",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:76"
+          ]
+        },
+        {
+          id: "ai-agents--apply-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/apply/{taskId}/status",
+          path: "/voice-ai/consent/apply/{taskId}/status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "taskId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:77"
+          ]
+        },
+        {
+          id: "ai-agents--consent-audit",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/audit",
+          path: "/voice-ai/consent/audit",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:78"
+          ]
+        },
+        {
+          id: "ai-agents--audit-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/audit/{taskId}/status",
+          path: "/voice-ai/consent/audit/{taskId}/status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "taskId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:79"
+          ]
+        },
+        {
+          id: "ai-agents--location-compliant",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/location/{id}/compliant",
+          path: "/voice-ai/consent/location/{id}/compliant",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:80"
+          ]
+        },
+        {
+          id: "ai-agents--location-last-apply-text",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/location/{id}/last-apply-text",
+          path: "/voice-ai/consent/location/{id}/last-apply-text",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:81"
+          ]
+        },
+        {
+          id: "ai-agents--location-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/location/{id}/status",
+          path: "/voice-ai/consent/location/{id}/status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:82"
+          ]
+        },
+        {
+          id: "ai-agents--consent-outbound",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/outbound",
+          path: "/voice-ai/consent/outbound",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:75"
+          ]
+        },
+        {
+          id: "ai-agents--consent-outbound-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/outbound/{locationId}",
+          path: "/voice-ai/consent/outbound/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:74",
+            "ai-agents/20-api/voice-ai-boundary.md:69"
+          ]
+        },
+        {
+          id: "ai-agents--consent-validate-greeting-disclaimer",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/validate-greeting-disclaimer",
+          path: "/voice-ai/consent/validate-greeting-disclaimer",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:84"
+          ]
+        },
+        {
+          id: "ai-agents--consent-validate-text",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/consent/validate-text",
+          path: "/voice-ai/consent/validate-text",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:83"
+          ]
+        },
+        {
+          id: "ai-agents--dashboard-agents",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/dashboard/agents",
+          path: "/voice-ai/dashboard/agents",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:22",
+            "ai-agents/20-api/voice-ai-boundary.md:64"
+          ]
+        },
+        {
+          id: "ai-agents--agents-detailed",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/dashboard/agents/detailed",
+          path: "/voice-ai/dashboard/agents/detailed",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:23",
+            "ai-agents/20-api/voice-ai-boundary.md:65"
+          ]
+        },
+        {
+          id: "ai-agents--dashboard-call-logs",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/dashboard/call-logs",
+          path: "/voice-ai/dashboard/call-logs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:19",
+            "ai-agents/20-api/voice-ai-boundary.md:66"
+          ]
+        },
+        {
+          id: "ai-agents--feature-flags-is-enabled",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/feature-flags/{FLAG}/is-enabled",
+          path: "/voice-ai/feature-flags/{FLAG}/is-enabled",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "FLAG"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:70"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-folders",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/folders",
+          path: "/voice-ai/folders",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:60"
+          ]
+        },
+        {
+          id: "ai-agents--prompt-evaluate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/prompt/evaluate",
+          path: "/voice-ai/prompt/evaluate",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:159"
+          ]
+        },
+        {
+          id: "ai-agents--suggestion-action",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/voice-ai/prompt/suggestion/action",
+          path: "/voice-ai/prompt/suggestion/action",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:160"
+          ]
+        },
+        {
+          id: "ai-agents--voice-ai-translate",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/voice-ai/translate",
+          path: "/voice-ai/translate",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/logs-deployment-email.md:162"
+          ]
+        },
+        {
+          id: "ai-agents--voices-all",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/voices/all",
+          path: "/voice-ai/voices/all",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:61"
+          ]
+        },
+        {
+          id: "ai-agents--voices-feedback",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/voices/feedback",
+          path: "/voice-ai/voices/feedback",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:63"
+          ]
+        },
+        {
+          id: "ai-agents--voices-my-voices",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/voice-ai/voices/my-voices",
+          path: "/voice-ai/voices/my-voices",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/voice-ai-boundary.md:62"
           ]
         },
         {
@@ -23503,6 +28947,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           extraHeaders: [],
           operation: "getInstagramConnectedAccounts",
           service: null,
+          tree: "workflow-builder",
           pathParams: [
             {
               name: "locationId"

@@ -89,6 +89,9 @@ const endpoints = source.endpoints.map((row) => {
     extraHeaders: row.extraHeaders ?? [],
     operation: row.operation,
     service: row.service,
+    // Which front-end this came from, and by what evidence. A caller reading a row should be able
+    // to tell a source-mined path from one transcribed off live traffic.
+    tree: row.tree ?? 'workflow-builder',
     pathParams: [...String(row.path).matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((m) => ({ name: m[1] })),
     // Keys LEARNED FROM THE WIRE. The F2 ledger called the endpoint, it answered 400/422, and GHL
     // named what it wanted. The static extractor cannot reach these: the builder passes them through
@@ -106,6 +109,63 @@ const endpoints = source.endpoints.map((row) => {
     sources: row.sources,
   };
 });
+
+// ADOPT the endpoints our own typed tools call that no tree produced a row for.
+//
+// These are the strongest evidence in the whole catalogue and they were the last thing missing:
+// a capability row means a SHIPPED, LIVE-PROVEN tool calls that path on every run. They are absent
+// only because their front-end has no mineable bundle and no corpus page writes them as a parseable
+// line. Leaving them out meant an agent could not DISCOVER the very endpoints this server is best
+// at calling.
+//
+// Marked tree:'typed-tool' and reach:'proven', with coveredBy naming the tool — so the stub sends
+// the caller to the typed tool rather than to raw_request, which is the correct answer for every
+// one of them.
+const adopted = [];
+for (const [key, tools] of coverage) {
+  if (endpoints.some((e) => `${e.method} ${normalize(e.path)}` === key)) continue;
+  const [method, ...rest] = key.split(' ');
+  const path = rest.join(' ');
+  const row = manifest.find((r) => `${r.method} ${normalize(r.path)}` === key);
+  const raw = String(row?.path ?? path);
+  const wire = raw.replace(/\{loc\}/g, '{locationId}').replace(/\{wid\}/g, '{workflowId}').split('?')[0];
+  adopted.push({
+    id: `typed--${[...tools][0]}--${wire.split('/').filter((x) => x && !x.startsWith('{')).slice(-2).join('-') || 'call'}`,
+    method,
+    url: `https://backend.leadconnectorhq.com${wire}`,
+    path: wire,
+    origin: 'https://backend.leadconnectorhq.com',
+    rail: 'workflow',
+    kind: method === 'GET' ? 'read' : method === 'DELETE' ? 'destructive' : 'write',
+    reach: 'proven',
+    coveredBy: [...tools].sort(),
+    rawCallable: method !== 'SSE',
+    transport: method === 'SSE' ? 'sse' : 'json',
+    responseMode: method === 'SSE' ? 'sse' : 'json',
+    extraHeaders: [],
+    operation: null,
+    service: [...tools][0],
+    tree: 'typed-tool',
+    pathParams: [...wire.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((m) => ({ name: m[1] })),
+    query: [],
+    body: null,
+    returns: null,
+    confidence: { path: 'proven', query: 'none-observed', body: 'unresolved', returns: 'unresolved' },
+    sources: [`capability-manifest.json (${[...tools].join(', ')})`],
+  });
+}
+// Ids must stay unique -- describe_endpoint addresses by them. Two tools covering sibling paths
+// collide on the last-two-segments slug, so disambiguate rather than emit a duplicate.
+const takenIds = new Set(endpoints.map((e) => e.id));
+for (const row of adopted) {
+  let id = row.id;
+  let n = 2;
+  while (takenIds.has(id)) id = `${row.id}-${n++}`;
+  takenIds.add(id);
+  row.id = id;
+}
+endpoints.push(...adopted);
+endpoints.sort((a, b) => (a.origin + a.path).localeCompare(b.origin + b.path) || a.method.localeCompare(b.method));
 
 for (const key of seen) unmatchedOverlay.push(key);
 
@@ -142,6 +202,7 @@ writeFileSync(OUT, `${JSON.stringify({
 }, null, 2)}\n`);
 
 console.log(`endpoints        : ${endpoints.length}`);
+console.log(`adopted from tools: ${adopted.length}`);
 console.log(`with a summary   : ${withSummary}`);
 console.log(`with a trap note : ${withNote}`);
 console.log(`covered by a tool: ${covered}`);
