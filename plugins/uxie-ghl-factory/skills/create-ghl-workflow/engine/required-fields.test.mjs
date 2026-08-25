@@ -501,3 +501,91 @@ test('sms spam words: the gate is scoped to sms — messenger and instagram-dm a
   assert.doesNotThrow(() => run('messenger', { body: 'our CBD range is here' }));
   assert.doesNotThrow(() => run('instagram-dm', { body: 'our CBD range is here' }));
 });
+
+// ── money, bounds and body-shape guards ───────────────────────────────────────────────
+// All of these are result:'warning' in GHL, so all of them warn here. Mirroring the TIER is as
+// much the point as mirroring the rule — promoting one would refuse a document GHL opens.
+
+test('stripe: a non-numeric or negative amount warns, a merge tag does not', () => {
+  run('stripe_one_time_charge', { amount: 'abc' });
+  assert.equal(warnings.length, 1);
+  run('stripe_one_time_charge', { amount: '-5' });
+  assert.equal(warnings.length, 1);
+  run('stripe_one_time_charge', { amount: '{{contact.total}}' });
+  assert.equal(warnings.length, 0, 'a merge tag resolves at runtime and cannot be judged now');
+  run('stripe_one_time_charge', { amount: '19.99' });
+  assert.equal(warnings.length, 0);
+});
+
+test('google_adword: same positive-value rule on conversion_value', () => {
+  run('google_adword', { conversion_value: '0' });
+  assert.equal(warnings.length, 1);
+  run('google_adword', { conversion_value: '{{x}}' });
+  assert.equal(warnings.length, 0);
+});
+
+test('math_operation: division by zero warns; other operators do not', () => {
+  run('math_operation', { operators: [{ operator: 'div', value: 0 }] });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /divides by zero/);
+  run('math_operation', { operators: [{ operator: 'div', value: 2 }, { operator: 'add', value: 0 }] });
+  assert.equal(warnings.length, 0);
+});
+
+test('ivr_connect_call: the bound is on users + customNumbers COMBINED', () => {
+  run('ivr_connect_call', { users: [], customNumbers: [] });
+  assert.match(warnings[0], /rings nobody/);
+  run('ivr_connect_call', { users: ['u1'], customNumbers: [] });
+  assert.equal(warnings.length, 0, 'one destination in either list is enough');
+  run('ivr_connect_call', { users: Array(6).fill('u'), customNumbers: Array(6).fill('n') });
+  assert.match(warnings[0], /dials 12 numbers/);
+});
+
+test('custom_webhook: a json contentType with unparseable body warns', () => {
+  run('custom_webhook', { body: { contentType: 'application/json', rawData: '{not json' } });
+  assert.equal(warnings.length, 1);
+  run('custom_webhook', { body: { contentType: 'application/json', rawData: '{"a":1}' } });
+  assert.equal(warnings.length, 0);
+});
+
+test('custom_webhook: form-encoded rows with an empty key or null value warn', () => {
+  run('custom_webhook', { body: { contentType: 'application/x-www-form-urlencoded',
+    keyValueData: [{ key: 'a', value: '1' }, { key: '  ', value: '2' }] } });
+  assert.equal(warnings.length, 1);
+  run('custom_webhook', { body: { contentType: 'application/x-www-form-urlencoded',
+    keyValueData: [{ key: 'a', value: '1' }] } });
+  assert.equal(warnings.length, 0);
+});
+
+test('every warn-tier rule warns rather than throws', () => {
+  // The tier is the contract. A throw here would refuse a workflow the builder opens happily.
+  for (const [type, attrs] of [
+    ['stripe_one_time_charge', { amount: 'abc' }],
+    ['google_adword', { conversion_value: '0' }],
+    ['math_operation', { operators: [{ operator: 'div', value: 0 }] }],
+    ['ivr_connect_call', { users: [], customNumbers: [] }],
+    ['custom_webhook', { body: { contentType: 'application/json', rawData: 'x' } }],
+  ]) {
+    assert.doesNotThrow(() => run(type, attrs), `${type} must warn, not throw`);
+  }
+});
+
+test('wait: a branching timeout of 0 is refused, and only when branching is on', () => {
+  // GHL guards this at the CALL SITE with convertToMultipath && startAfter, then errors on
+  // value === 0. The generated catalog scoped it to recurring_schedule at warn tier — a variant
+  // it can never reach, at the wrong severity.
+  assert.throws(() => run('wait', { type: 'reply', convertToMultipath: true, startAfter: { value: 0 } }),
+    (e) => e.code === 'REQUIRED_FIELD' && /timeout of 0/.test(e.message));
+  assert.doesNotThrow(() => run('wait', { type: 'reply', convertToMultipath: true, startAfter: { value: 12 } }));
+  // Without branching the timeout guard does not apply at all.
+  assert.doesNotThrow(() => run('wait', { type: 'time', startAfter: { value: 0 } }));
+});
+
+test('workflow_goal stepIds are covered by the dangling-ref registry, not by enforcement', async () => {
+  // GHL's goalActionValidator checks extras.stepIds against the template list. That is a GRAPH
+  // check, not an attribute check, so it belongs in graph-refs — and it is already there. This
+  // test exists so the audit's "workflow_goal has zero coverage" is not acted on twice.
+  const { STEP_REF_FIELDS } = await import('./graph-refs.mjs');
+  const paths = STEP_REF_FIELDS.filter(([t]) => t === 'workflow_goal').map(([, p]) => p);
+  assert.ok(paths.includes('segments[].conditions[].extras.stepIds'), 'goal stepIds must stay ref-checked');
+});
