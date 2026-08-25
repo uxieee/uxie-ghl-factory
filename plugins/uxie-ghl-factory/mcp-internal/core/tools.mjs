@@ -204,9 +204,17 @@ const overlay = () => {
   catch { OVERLAY = {}; }
   return OVERLAY;
 };
+// The overlay is COMPILED INTO the catalogue by scripts/build-endpoint-catalog.mjs, so a row
+// normally carries kind/summary/note/reach itself. The overlay is still consulted as a fallback so
+// an edit to it shows up in a dev tree before the catalogue is rebuilt.
 const overlayFor = (e) => overlay()[`${e.method} ${e.path}`] ?? {};
-const endpointKind = (e) => overlayFor(e).kind
+const endpointKind = (e) => e.kind ?? overlayFor(e).kind
   ?? (e.method === 'GET' ? 'read' : e.method === 'DELETE' ? 'destructive' : 'write');
+const endpointWords = (e) => ({
+  summary: e.summary ?? overlayFor(e).summary,
+  note: e.note ?? overlayFor(e).note,
+  reach: e.reach ?? overlayFor(e).reach,
+});
 
 // Verbs that mean the caller intends to CHANGE something. `add` and `set` are deliberately absent:
 // CARD_STOP strips both before scoring ever sees them, so listing them here would be a rule that
@@ -237,8 +245,8 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   // asks for "workflow folders" -- no path token matches, so the right row lost to copyWorkflow rows
   // that merely share the word "workflow". Indexing the human sentence is the single thing that
   // makes the public rail's search work, and it costs nothing here.
-  const words = overlayFor(e);
-  const hay = `${e.method} ${e.base} ${e.path} ${(e.sources || []).join(' ')} ${words.summary ?? ''} ${words.note ?? ''}`.toLowerCase();
+  const words = endpointWords(e);
+  const hay = `${e.method} ${e.origin ?? e.base ?? ''} ${e.path} ${e.service ?? ''} ${words.summary ?? ''} ${words.note ?? ''}`.toLowerCase();
   let score = 0, segHits = 0;
   for (const t of terms) {
     // Match on a STEM, not the whole word. GHL names the path segment `error-notification` while
@@ -256,7 +264,7 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   // /workflow/:locationId/list should outrank /workflow/:locationId/:workflowId/logs for "list".
   score -= (path.match(/:/g) ?? []).length;
   // Prefer the builder's own service over the resolver endpoints it merely reads from.
-  if (e.base.endsWith('/workflow')) score += 5;
+  if (String(e.origin ?? e.base ?? '').includes('backend.') && e.path.startsWith('/workflow')) score += 5;
 
   // A0 measured what this fixes. Across ten read-shaped intents, 18 of 30 top-3 slots were writes
   // and only one intent had a clean read-only top 3. "which contacts are sitting at step X right
@@ -272,7 +280,7 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
   // those rows were ranking FIRST for several read-shaped questions because their paths carry
   // "workflow", "step" and "contact". Demoted, not hidden: the path is real, and a caller with a
   // higher credential class may still want it.
-  if (overlayFor(e).reach === 'refused') score -= 60;
+  if (endpointWords(e).reach === 'refused') score -= 60;
   return score;
 };
 
@@ -281,15 +289,17 @@ const scoreEndpoint = (e, terms, verbs = intentVerbs(terms)) => {
 // the most budget-sensitive payload on the rail. What replaces it is what a caller actually picks
 // on -- what the endpoint does, what it returns, and the one trap.
 const endpointStub = (e) => {
-  const extra = overlayFor(e);
+  const w = endpointWords(e);
   return {
+    id: e.id,
     method: e.method,
     path: e.path,
-    base: e.base,
     kind: endpointKind(e),
-    ...(extra.summary ? { summary: extra.summary } : {}),
-    ...(extra.note ? { note: extra.note } : {}),
-    ...(extra.reach ? { reach: extra.reach } : {}),
+    ...(w.summary ? { summary: w.summary } : {}),
+    ...(e.coveredBy?.length ? { coveredBy: e.coveredBy } : {}),
+    ...(w.note ? { note: w.note } : {}),
+    ...(w.reach && w.reach !== 'source-only' ? { reach: w.reach } : {}),
+    ...(e.rawCallable === false ? { rawCallable: false } : {}),
   };
 };
 
@@ -4001,35 +4011,65 @@ export const TOOLS = [
       + 'host, how many places the builder calls it, and the source files that do. '
       + 'Reads no account data.',
     inputSchema: schema({
-      method: z.string().trim().describe('HTTP method, e.g. GET'),
-      path: z.string().describe('the catalogued path, e.g. /:locationId/error-notification/list'),
+      id: z.string().trim().optional().describe('the endpoint id from search_endpoints — the preferred key'),
+      method: z.string().trim().optional().describe('HTTP method, if addressing by method+path'),
+      path: z.string().optional().describe('the full wire path, if addressing by method+path'),
     }),
     capabilities: [],
     handler: async (args) => guard(async () => {
-      const want = String(args.method).toUpperCase();
       const pool = endpoints();
-      const hit = pool.find((e) => e.method === want && e.path === args.path)
-        ?? pool.find((e) => e.method === want && e.path.replace(/:\w+/g, ':x') === String(args.path).replace(/:\w+/g, ':x'));
+      // Addressed by id first. method+path was the only key, and it is fragile: a path is what the
+      // miner CORRECTS when it learns something, so anything holding one goes stale by design.
+      let hit = args.id ? pool.find((e) => e.id === args.id) : null;
+      if (!hit && args.method && args.path) {
+        const want = String(args.method).toUpperCase();
+        const norm = (p) => String(p).replace(/\{[A-Za-z0-9_]+\}/g, '{p}');
+        hit = pool.find((e) => e.method === want && e.path === args.path)
+          ?? pool.find((e) => e.method === want && norm(e.path) === norm(args.path));
+      }
       if (!hit) {
         return fail(CODES.VALIDATION_FAILED,
-          `no catalogued endpoint matches ${want} ${args.path}`,
-          'Run search_endpoints first and copy the method and path from a result.');
+          `no catalogued endpoint matches ${args.id ?? `${args.method} ${args.path}`}`,
+          'Run search_endpoints first and copy the id from a result.');
       }
+      const w = endpointWords(hit);
+      const query = (hit.query ?? []).filter((q) => q.name !== '…spread');
+      const qs = query.length ? `?${query.map((q) => `${q.name}=<${q.name}>`).join('&')}` : '';
       return { ok: true, data: {
-        ...hit,
+        id: hit.id,
+        method: hit.method,
+        url: hit.url ?? `${hit.origin ?? ''}${hit.path}`,
+        path: hit.path,
+        kind: endpointKind(hit),
+        ...(w.summary ? { summary: w.summary } : {}),
+        ...(w.note ? { note: w.note } : {}),
+        reach: w.reach ?? 'source-only',
         status: 'source-derived',
         meaning: 'The GHL builder calls this path. That is NOT proof your token reaches it, nor '
                + 'that calling it is safe — some rows are permission-gated.',
-        // A5: this used to tell the caller to send Channel/Source/Version: 2021-04-15. Two things
-        // were wrong with that. The gateway already sends channel/source/version on EVERY call
-        // (core/gateway.mjs), so the advice describes a solved problem -- and it named 2021-04-15
-        // while the gateway sends 2021-07-28. raw_request also exposes no header parameter, so the
-        // instruction was unactionable through the very tool this field points at.
-        headers: 'Auth and the marketplace headers are added for you on every call. Do not set them.',
-        next: hit.method === 'GET'
-          ? 'Call it with raw_request (GET needs no confirm). Read the result back before trusting it.'
-          : 'This is a WRITE. Prefer a typed tool if one covers it — those carry the compiler and '
-            + 'the verification. raw_request needs confirm:true and does neither.',
+        pathParams: hit.pathParams ?? [],
+        query,
+        body: hit.body ?? null,
+        returns: hit.returns ?? null,
+        confidence: hit.confidence ?? null,
+        // A typed tool carries the compiler, the required query switches, the cursor walk and the
+        // read-back. raw_request carries none of them, so when something covers this row it is
+        // named FIRST and by name.
+        ...(hit.coveredBy?.length
+          ? { coveredBy: { tools: hit.coveredBy, why: 'Prefer these: they carry the required query switches, the cursor walk and the read-back verification. raw_request does none of that.' } }
+          : {}),
+        // Absent, not empty, when raw_request cannot make the call — an instruction that cannot
+        // work is worse than silence. 17 rows are multipart, blob, or need a header raw_request
+        // has no way to set.
+        ...(hit.rawCallable === false
+          ? { notRawCallable: `raw_request cannot make this call: transport=${hit.transport}, response=${hit.responseMode}`
+              + `${(hit.extraHeaders ?? []).length ? `, needs headers ${hit.extraHeaders.join(', ')}` : ''}.` }
+          : { callWith: {
+              tool: 'raw_request',
+              host: hit.rail ?? 'workflow',
+              path: `${hit.path}${qs}`,
+              note: 'path is the FULL wire path. Auth and the marketplace headers are added for you — do not set them.',
+            } }),
       } };
     }),
   },
