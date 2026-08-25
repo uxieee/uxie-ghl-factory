@@ -1032,6 +1032,48 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
 
+    // Conversation-AI "Services booking" node — the commerce-service sibling of
+    // book_appointment, and a multi-path container for the SAME reason: the marketplace asset
+    // gives it two pre-defined branches, "Appointment Booked" / "Appointment Not Booked".
+    //
+    // It was emitted as a PLAIN node until 2026-08-26 — the catalogue carried
+    // isMultipathContainer:false (a 2026-07-15 panel read) and the compiler had no case for it,
+    // so an authored node saved with no `cat`, no `transitions[]` and `next: null`: a step that
+    // appears on the canvas and cannot branch.
+    //
+    // Note the branch name casing differs from book_appointment: the asset says "Appointment Not
+    // Booked" here and "Appointment Not booked" there. Copied per-type from the asset rather than
+    // shared, because GHL is not consistent and the name is what the builder matches on.
+    if (n.type === 'conversationai_services_booking') {
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const container = {
+        id, type: 'conversationai_services_booking', name: n.name ?? 'Services booking',
+        order: i, parentKey, cat: 'multi-path', workflowsActionType: 'INTERNAL', next: [t1, t2],
+        attributes: {
+          conversationai_services: attrs.conversationai_services,
+          conversationai_booking_description: attrs.conversationai_booking_description
+            ?? 'Get customer to book a service',
+          type: 'conversationai_services_booking', __customInputs__: {},
+          cat: 'multi-path', convertToMultipath: true,
+          transitions: [
+            { id: t1, name: 'Appointment Booked', fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+            { id: t2, name: 'Appointment Not Booked', fields: { appointmentNotBooked: true }, meta: { __branchKey__: ctx.idGen() }, conditionType: 'pre-defined' },
+          ],
+          __name__: n.name ?? 'Services booking',
+        },
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const booked = flattenGraph(n.onBooked ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: 'transition', name: 'Appointment Booked', cat: 'transition', parentKey: id, parent: id, order: 0, attributes: {}, next: booked.entryId });
+      templates.push(...booked.templates);
+      const notb = flattenGraph(n.onNotBooked ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: 'transition', name: 'Appointment Not Booked', cat: 'transition', parentKey: id, parent: id, order: 1, attributes: {}, next: notb.entryId });
+      templates.push(...notb.templates);
+      return;
+    }
+
     // Conversation-AI "AI splitter" node — an LLM routes the conversation to one of the
     // author-defined branches based on `attributes.description`, else the always-present
     // "No condition met" fallback (whose tail hangs off `default`). Shape mirrors the
@@ -1412,7 +1454,15 @@ function expandFilter(f, rows) {
   return cond;
 }
 
-export function buildTrigger(t, ctx, wid) {
+// Mirrors the builder's own isGotoTriggerType(): the registry entry's isGotoTrigger flag.
+// Falls back to the one known member so an older catalog still behaves.
+function isGotoTriggerType(type, ctx) {
+  const meta = ctx?.catalog?.trigger?.(type);
+  if (meta && 'isGotoTrigger' in meta) return Boolean(meta.isGotoTrigger);
+  return type === 'conv_ai_autonomous_trigger';
+}
+
+export function buildTrigger(t, ctx, wid, refMap) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
@@ -1447,8 +1497,61 @@ export function buildTrigger(t, ctx, wid) {
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` — GHL: "${ctx.catalog.i18n[r.i18n]}"` : '';
     if (empty) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) — GHL requires filter '${r.field}'${r.beDedupeAssetType ? ' (the SERVER blocks the save without it)' : ''}${ghlText}`);
   }
+  // FLOW-BOT BINDING — a FLOW_BUILDER_BOT's flow binds to its agent through a CONDITION ROW,
+  // not through a top-level key.
+  //
+  // LIVE-PROVEN 2026-08-26 on the designated test account. The engine previously emitted
+  // `convTriggerBotId` at the top level (added 2026-07-15 as a "fix" for a binding that was
+  // being dropped). It never worked: a workflow built WITH convTriggerBotId:'<agent>' reads
+  // back with conditions:[] and NO convTriggerBotId key at all -- GHL discards the key outright
+  // rather than storing it verbatim. Every flow workflow the engine built was therefore
+  // UNBOUND, while build reported verify.pass:1 and zero warnings.
+  //
+  // GHL's own client stores (capture 2026-04-20, catalog/trigger-examples/conv_ai_trigger.json):
+  //   conditions: [{ operator: '==', field: 'botId', value: <AGENT_ID>, title: '', type: 'input' }]
+  //
+  // convTriggerBotId IS real -- but only as the BUILDER URL's query parameter
+  // (?triggerType=conv_ai_trigger&convTriggerBotId=<id>), never as a stored field. Reading a
+  // URL and writing it to the document is the same mistake that put `reactivate`,
+  // `transfer_bot.prompt` and `continue.prompt` on this surface before they were corrected.
+  if (t.convTriggerBotId && !conditions.some((c) => c?.field === 'botId')) {
+    conditions = [...conditions,
+      { operator: '==', field: 'botId', value: t.convTriggerBotId, title: '', type: 'input' }];
+  }
+  if (t.type === 'conv_ai_trigger' && !conditions.some((c) => c?.field === 'botId')) {
+    ctx?.warn?.(`FLOW_BINDING: '${t.name ?? t.type}' (conv_ai_trigger) has no botId condition — `
+      + 'the flow will NOT be bound to any agent and the bot will never enter it. '
+      + 'Pass convTriggerBotId on the trigger with the FLOW_BUILDER_BOT\'s agent id.');
+  }
+  // GOTO TRIGGERS — `conv_ai_autonomous_trigger` ("Custom trigger" in the UI) is not an entry
+  // trigger: its registry entry carries isGotoTrigger:true and it JUMPS the contact to a step,
+  // named by `targetActionId`. Authors name the step by REF, exactly as `goto` does, and the ref
+  // is resolved here against the same refMap the graph filled — buildTrigger runs after the
+  // graph is flattened, so every ref is already seated.
+  //
+  // A literal `targetActionId` is also accepted, for the edit path where the caller holds a real
+  // step id from an exported workflow rather than an IR ref.
+  let targetActionId = t.targetActionId;
+  if (t.target) {
+    targetActionId = refMap?.get(t.target);
+    if (!targetActionId) {
+      throw new IRError('REF_DANGLING',
+        `REF_DANGLING: trigger '${t.name ?? t.type}' targets ref '${t.target}', which does not `
+        + 'exist in this IR. A goto trigger with no targetActionId saves and has nowhere to send '
+        + 'the contact. Point `target` at a real node ref.');
+    }
+  }
+  if (targetActionId && !isGotoTriggerType(t.type, ctx)) {
+    ctx?.warn?.(`TRIGGER_TARGET: '${t.name ?? t.type}' (${t.type}) is not a goto trigger, so `
+      + 'targetActionId will be stored and ignored. Only conv_ai_autonomous_trigger jumps.');
+  }
+  if (!targetActionId && isGotoTriggerType(t.type, ctx)) {
+    ctx?.warn?.(`TRIGGER_TARGET: '${t.name ?? t.type}' is a goto trigger with NO target — the `
+      + 'builder flags it as an incomplete trigger. Pass `target: "<step ref>"`.');
+  }
   return {
     status: 'draft', workflowId: wid, schedule_config: {},
+    ...(targetActionId ? { targetActionId } : {}),
     conditions,
     type: t.type,
     masterType: t.marketplace === true ? 'marketplace' : (t.masterType ?? meta?.masterType ?? 'highlevel'),
@@ -1461,10 +1564,8 @@ export function buildTrigger(t, ctx, wid) {
     ...(meta?.workflowsTriggerType ? { workflowsTriggerType: meta.workflowsTriggerType } : {}),
     active: t.active !== false, triggersChanged: true,
     location_id: ctx.loc, company_id: ctx.cid, company_age: ctx.companyAge,
-    // conv_ai_trigger binds a FLOW_BUILDER_BOT flow workflow to its agent — without
-    // convTriggerBotId the flow builder never opens the workflow as that agent's canvas
-    // (the agent→workflow half is set separately via the /ai-employees link PUT).
-    ...(t.convTriggerBotId ? { convTriggerBotId: t.convTriggerBotId } : {}),
+    // NOTE: convTriggerBotId is deliberately NOT emitted here — GHL discards it (see above).
+    // The binding is the botId condition row.
   };
 }
 
@@ -1624,7 +1725,7 @@ export function compile(ir, ctx) {
       : {}),
   };
 
-  const triggerBodies = norm.triggers.map((t) => buildTrigger(t, ctx, wid));
+  const triggerBodies = norm.triggers.map((t) => buildTrigger(t, ctx, wid, refMap));
   // authored/compiled travel with the payload so the caller can report
   // `authored N → compiled M → round-tripped M` instead of a bare step count.
   // Enforcement chokepoint: every emitted node, whatever path built it (linear, wait containers,

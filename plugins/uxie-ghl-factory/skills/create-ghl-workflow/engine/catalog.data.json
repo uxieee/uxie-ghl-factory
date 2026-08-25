@@ -9392,6 +9392,46 @@
    },
    "display_name": "Book Appointment"
   },
+  "conversationai_continue": {
+   "type": "conversationai_continue",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "instructions",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/conversationai_continue.json",
+   "requiredFields": [],
+   "section": "conversation_ai",
+   "note": "committed capture 2026-08-26 (UI-built flow, GROM AU). Optional `instructions` (panel label: ADDITIONAL INSTRUCTIONS) is stored even when empty. TERMINAL: the builder offers no add-action after this node.",
+   "schema": {
+    "app": "Conversation AI",
+    "section": "Conversation AI",
+    "displayName": "Continue Conversation",
+    "description": "The bot will continue to engage with the contact using the Knowledge base and Global prompt ",
+    "requiredFields": [],
+    "fields": [
+     {
+      "field": "instructions",
+      "title": "Additional Instructions",
+      "required": false,
+      "fieldType": "textarea"
+     }
+    ],
+    "requiredTriggers": [
+     "conv_ai_trigger",
+     "conv_ai_autonomous_trigger"
+    ]
+   },
+   "display_name": "Continue Conversation"
+  },
   "conversationai_custom_message": {
    "type": "conversationai_custom_message",
    "kind": "step",
@@ -9440,6 +9480,60 @@
     ]
    },
    "display_name": "Custom Message"
+  },
+  "conversationai_end": {
+   "type": "conversationai_end",
+   "kind": "step",
+   "confidence": "verified-live",
+   "situational": [
+    "workflowsActionType"
+   ],
+   "premium": false,
+   "isMultipathContainer": false,
+   "usesCustomInputs": true,
+   "attrKeys": [
+    "message",
+    "sleepEnabled",
+    "sleepDuration",
+    "sleepUnit",
+    "type",
+    "__customInputs__"
+   ],
+   "example": "catalog/step-examples/conversationai_end.json",
+   "requiredFields": [],
+   "section": "conversation_ai",
+   "note": "committed capture 2026-08-26 (GROM AU). Keys are message / sleepEnabled / sleepDuration / sleepUnit — the panel LABELS say Reactivate*, which is where the old wrong names came from. TERMINAL: cannot be inserted mid-flow (the builder drops it at save).",
+   "schema": {
+    "app": "Conversation AI",
+    "section": "Conversation AI",
+    "displayName": "End Conversation",
+    "description": "End or Stop the conversation with the contact",
+    "requiredFields": [
+     "sleepEnabled"
+    ],
+    "fields": [
+     {
+      "field": "message",
+      "title": "End Custom Message",
+      "required": false,
+      "fieldType": "textarea"
+     },
+     {
+      "field": "sleepEnabled",
+      "title": "Reactivate After bot",
+      "required": true,
+      "fieldType": "checkbox",
+      "default": "true"
+     }
+    ],
+    "requiredTriggers": [
+     "conv_ai_autonomous_trigger",
+     "conv_ai_trigger"
+    ],
+    "dynamicFields": 1,
+    "fieldsIncomplete": true
+   },
+   "display_name": "End Conversation"
   },
   "conversationai_objective": {
    "type": "conversationai_objective",
@@ -29357,101 +29451,6 @@
     ]
    }
   },
-  "conversationai_continue": {
-   "type": "conversationai_continue",
-   "kind": "step",
-   "confidence": "recon-fields",
-   "situational": [
-    "workflowsActionType"
-   ],
-   "premium": false,
-   "beta": false,
-   "isMultipathContainer": false,
-   "usesCustomInputs": true,
-   "section": "conversation_ai",
-   "requiredFields": [],
-   "attrKeys": [
-    "prompt",
-    "type",
-    "__customInputs__"
-   ],
-   "marketplace": true,
-   "note": "recon field-structure only (2026-07-15); minimal prompt panel. Capture a committed template to promote to verified-live.",
-   "schema": {
-    "app": "Conversation AI",
-    "section": "Conversation AI",
-    "displayName": "Continue Conversation",
-    "description": "The bot will continue to engage with the contact using the Knowledge base and Global prompt ",
-    "requiredFields": [],
-    "fields": [
-     {
-      "field": "instructions",
-      "title": "Additional Instructions",
-      "required": false,
-      "fieldType": "textarea"
-     }
-    ],
-    "requiredTriggers": [
-     "conv_ai_trigger",
-     "conv_ai_autonomous_trigger"
-    ]
-   },
-   "display_name": "Continue Conversation"
-  },
-  "conversationai_end": {
-   "type": "conversationai_end",
-   "kind": "step",
-   "confidence": "recon-fields",
-   "situational": [
-    "workflowsActionType"
-   ],
-   "premium": false,
-   "beta": false,
-   "isMultipathContainer": false,
-   "usesCustomInputs": true,
-   "section": "conversation_ai",
-   "requiredFields": [],
-   "attrKeys": [
-    "customMessage",
-    "reactivate",
-    "duration",
-    "type",
-    "__customInputs__"
-   ],
-   "marketplace": true,
-   "note": "recon field-structure only (2026-07-15): optional customMessage, reactivate checkbox (default on) + duration (default 1). Capture a committed template to promote to verified-live.",
-   "schema": {
-    "app": "Conversation AI",
-    "section": "Conversation AI",
-    "displayName": "End Conversation",
-    "description": "End or Stop the conversation with the contact",
-    "requiredFields": [
-     "sleepEnabled"
-    ],
-    "fields": [
-     {
-      "field": "message",
-      "title": "End Custom Message",
-      "required": false,
-      "fieldType": "textarea"
-     },
-     {
-      "field": "sleepEnabled",
-      "title": "Reactivate After bot",
-      "required": true,
-      "fieldType": "checkbox",
-      "default": "true"
-     }
-    ],
-    "requiredTriggers": [
-     "conv_ai_autonomous_trigger",
-     "conv_ai_trigger"
-    ],
-    "dynamicFields": 1,
-    "fieldsIncomplete": true
-   },
-   "display_name": "End Conversation"
-  },
   "conversationai_services_booking": {
    "type": "conversationai_services_booking",
    "kind": "step",
@@ -29461,18 +29460,18 @@
    ],
    "premium": false,
    "beta": false,
-   "isMultipathContainer": false,
+   "isMultipathContainer": true,
    "usesCustomInputs": true,
    "section": "conversation_ai",
    "requiredFields": [],
    "attrKeys": [
-    "services",
-    "description",
+    "conversationai_services",
+    "conversationai_booking_description",
     "type",
     "__customInputs__"
    ],
    "marketplace": true,
-   "note": "recon field-structure only (2026-07-15): services multiselect (requires a configured commerce service) + booking description. Capture a committed template to promote to verified-live.",
+   "note": "field names + 2-branch multipath shape confirmed 2026-08-26 from the marketplace asset and the live options endpoint. Still NOT commit-verified: the designated test account has no configured commerce service, so the builder refuses to save the node (its services list comes back empty).",
    "schema": {
     "app": "Conversation AI",
     "section": "Conversation AI",
@@ -48092,10 +48091,56 @@
    "masterType": "highlevel",
    "category": "events",
    "premium": false,
-   "confidence": "bundle-derived",
+   "confidence": "verified-live",
+   "example": "catalog/trigger-examples/conv_ai_autonomous_trigger.json",
    "filterChecks": {
     "provenZero": "no-ghl-trigger-validator"
-   }
+   },
+   "isGotoTrigger": true,
+   "filterRows": [
+    {
+     "label": "",
+     "labelKey": "choose_custom_trigger",
+     "value": "customTriggerType",
+     "field": "customTriggerType",
+     "operator": "eq",
+     "type": "input",
+     "optionsSource": "static",
+     "options": [
+      "book_appointment"
+     ]
+    },
+    {
+     "label": "",
+     "labelKey": "describe_the_trigger_condition",
+     "value": "customTriggerDescription",
+     "field": "customTriggerDescription",
+     "operator": "eq",
+     "type": "input"
+    },
+    {
+     "label": "",
+     "labelKey": "priority",
+     "value": "customTriggerPriority",
+     "field": "customTriggerPriority",
+     "operator": "eq",
+     "type": "input"
+    },
+    {
+     "label": "",
+     "labelKey": "sensitivity",
+     "value": "customTriggerSensitivity",
+     "field": "customTriggerSensitivity",
+     "operator": "eq",
+     "type": "input",
+     "optionsSource": "static",
+     "options": [
+      "low",
+      "medium",
+      "high"
+     ]
+    }
+   ]
   },
   "form_submission": {
    "type": "form_submission",
@@ -51575,6 +51620,18 @@
    "filterChecks": {
     "provenZero": "no-ghl-trigger-validator"
    },
+   "isGotoTrigger": false,
+   "filterRows": [
+    {
+     "label": "",
+     "labelKey": "select_conversation_ai_bot",
+     "value": "botId",
+     "field": "botId",
+     "operator": "==",
+     "type": "input",
+     "optionsSource": "dynamic"
+    }
+   ],
    "disabledActions": [
     "find_contact",
     "create_update_contact",

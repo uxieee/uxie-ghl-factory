@@ -1,0 +1,28 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2024-11-07T17:12:17.139Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "link.id",
+      "value": "{id3}",
+      "title": "Trigger link",
+      "type": "select"
+    }
+  ],
+  "type": "trigger_link",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Trigger Link Clicked",
+  "belongs_to": "workflow",
+  "date_updated": "2024-11-15T00:59:19.459Z",
+  "active": false
+}

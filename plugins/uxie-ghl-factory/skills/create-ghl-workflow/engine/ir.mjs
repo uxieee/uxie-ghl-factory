@@ -40,7 +40,10 @@ const SCOPE_OWNERS = {
   onEvent: ['wait'], onTimeout: ['wait'],
   onFound: ['find_opportunity', 'find_contact', 'lc_merge_contact'],
   onNotFound: ['find_opportunity', 'find_contact', 'lc_merge_contact'],
-  onBooked: ['conversationai_book_appointment'], onNotBooked: ['conversationai_book_appointment'],
+  // Both Conversation-AI booking containers use these scopes: book_appointment books into a GHL
+  // calendar, services_booking into a commerce service. Same two pre-defined branches.
+  onBooked: ['conversationai_book_appointment', 'conversationai_services_booking'],
+  onNotBooked: ['conversationai_book_appointment', 'conversationai_services_booking'],
   default: ['ai_decision', 'conversationai_ai_splitter', 'split'],
 };
 

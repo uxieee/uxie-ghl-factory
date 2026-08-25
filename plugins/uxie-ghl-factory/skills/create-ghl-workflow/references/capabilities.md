@@ -56,7 +56,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `conversationai_book_appointment` — attrs: `promptInstructions`, `calendarId`, `type`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `conversationai_book_appointment`
 - ✅ `conversationai_continue` — attrs: `instructions`, `type`, `__customInputs__`
 - ✅ `conversationai_end` — attrs: `message`, `sleepEnabled`, `sleepDuration`, `sleepUnit`, `type`, `__customInputs__`
-- ⚑ `conversationai_services_booking` — attrs: `conversationai_services`, `conversationai_booking_description`, `type`, `__customInputs__`
+- ⚑ `conversationai_services_booking` — attrs: `conversationai_services`, `conversationai_booking_description`, `type`, `__customInputs__`; container → IR kind `conversationai_services_booking`
 
 ### customObjects
 - ◐ `clear_custom_object_fields`
@@ -391,8 +391,8 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### events
 - ✅ `call_status` (highlevel) — filters: Call status (`call_status`), Custom disposition (`custom_disposition`), Call direction (`message.direction`), In workflow (`workflow.id`)
-- ◐ `conv_ai_autonomous_trigger` (highlevel)
-- ✅ `conv_ai_trigger` (highlevel)
+- ✅ `conv_ai_autonomous_trigger` (highlevel) — filters:  (`customTriggerType`),  (`customTriggerDescription`),  (`customTriggerPriority`),  (`customTriggerSensitivity`)
+- ✅ `conv_ai_trigger` (highlevel) — filters:  (`botId`)
 - ✅ `customer_reply` (highlevel) — filters: Replied to workflow (`workflow.id`), Reply channel (`message.type`), Message body (`message.body`), Intent type (`message.body`), Has tag (`contact.tags`), Doesn't have tag (`contact.tags`), Has Attachments (`message.hasAttachments`)
 - ▫ `external_tracking` (internal)
 - ✅ `facebook_lead_gen` (highlevel) — filters: Page is (`facebook.pageId`)

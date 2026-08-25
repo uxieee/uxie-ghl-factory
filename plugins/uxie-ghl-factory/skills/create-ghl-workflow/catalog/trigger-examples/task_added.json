@@ -1,0 +1,28 @@
+{
+  "id": "{triggerId}",
+  "date_updated": "2024-11-21T00:13:46.665Z",
+  "date_added": "2024-11-21T00:13:46.665Z",
+  "deleted": false,
+  "active": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "task.assignedTo",
+      "value": "{id3}",
+      "title": "Assigned User",
+      "type": "select"
+    }
+  ],
+  "type": "task_added",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Task Added",
+  "belongs_to": "workflow"
+}

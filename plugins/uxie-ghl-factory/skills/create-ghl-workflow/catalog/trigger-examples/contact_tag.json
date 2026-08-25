@@ -1,0 +1,21 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2026-01-25T21:05:36.601Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [],
+  "type": "contact_tag",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Tag Added - Missed Call",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "date_updated": "2026-02-24T18:55:29.988Z",
+  "active": false
+}

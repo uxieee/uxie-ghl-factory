@@ -1,0 +1,29 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-11-19T20:03:39.813Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "name": "Order Submitted",
+  "type": "order_submission",
+  "conditions": [
+    {
+      "type": "select",
+      "title": "Global Product",
+      "operator": "is-in-array",
+      "value": "{id4}",
+      "field": "order.line_item_global_product_ids"
+    }
+  ],
+  "date_updated": "2025-12-24T13:45:53.779Z",
+  "active": false
+}

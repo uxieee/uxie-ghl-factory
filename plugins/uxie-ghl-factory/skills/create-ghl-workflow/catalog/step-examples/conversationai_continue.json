@@ -1,0 +1,13 @@
+{
+  "id": "<uuid-001>",
+  "order": 1,
+  "attributes": {
+    "instructions": "",
+    "type": "conversationai_continue",
+    "__customInputs__": {}
+  },
+  "name": "Continue conversation",
+  "type": "conversationai_continue",
+  "workflowsActionType": "INTERNAL",
+  "parentKey": "<uuid-002>"
+}

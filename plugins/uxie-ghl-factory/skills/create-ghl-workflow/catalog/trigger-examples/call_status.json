@@ -1,0 +1,31 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2026-05-06T02:09:27.998Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "type": "call_status",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Completed Call",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "active": true,
+  "date_updated": "2026-05-13T20:39:12.180Z",
+  "conditions": [
+    {
+      "operator": "contains-any",
+      "field": "call_status",
+      "value": [
+        "completed"
+      ],
+      "title": "Call Status",
+      "type": "multiselect"
+    }
+  ]
+}

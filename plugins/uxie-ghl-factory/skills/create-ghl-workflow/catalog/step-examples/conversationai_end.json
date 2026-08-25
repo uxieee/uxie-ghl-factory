@@ -1,0 +1,16 @@
+{
+  "id": "<uuid-001>",
+  "order": 0,
+  "attributes": {
+    "message": "PROBE-END-MSG",
+    "sleepEnabled": true,
+    "sleepDuration": 1,
+    "sleepUnit": "hours",
+    "type": "conversationai_end",
+    "__customInputs__": {}
+  },
+  "name": "End conversation",
+  "type": "conversationai_end",
+  "next": null,
+  "workflowsActionType": "INTERNAL"
+}

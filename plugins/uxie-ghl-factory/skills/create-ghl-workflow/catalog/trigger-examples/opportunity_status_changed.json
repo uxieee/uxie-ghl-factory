@@ -1,0 +1,37 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-05-21T13:48:15.622Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "opportunity.oldStatus",
+      "value": "open",
+      "title": "Moved from status",
+      "type": "select",
+      "id": "moved-from-status"
+    },
+    {
+      "operator": "==",
+      "field": "opportunity.status",
+      "value": "lost",
+      "title": "Moved to status",
+      "type": "select",
+      "id": "moved-to-status"
+    }
+  ],
+  "type": "opportunity_status_changed",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Opportunity Status Changed",
+  "belongs_to": "workflow",
+  "date_updated": "2025-11-18T16:47:25.758Z",
+  "active": true
+}

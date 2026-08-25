@@ -129,18 +129,36 @@ test('fields-only conv-ai nodes (end/continue/transfer_bot/services_booking) get
   }
 });
 
-test('FLOW_BUILDER_BOT binding: conv_ai_trigger carries convTriggerBotId + workflow persists workflowType:agent', () => {
+test('FLOW_BUILDER_BOT binding: conv_ai_trigger binds via a botId CONDITION + workflow persists workflowType:agent', () => {
   const out = compile({
     name: 'Flow', workflowType: 'agent',
     triggers: [{ ref: 't', type: 'conv_ai_trigger', name: 'Chat Initiated', filters: [], convTriggerBotId: 'AGENT9' }],
     graph: [{ ref: 'm', kind: 'action', type: 'conversationai_ai_message', name: 'AI message', attributes: { message: 'hi', waitForReply: true } }],
   }, ctx());
-  // the flow binds to its agent (was silently dropped before the 2026-07-15 fix)
-  assert.equal(out.triggerBodies[0].convTriggerBotId, 'AGENT9');
+  // The flow binds to its agent through a CONDITION ROW -- the shape GHL's own client stores
+  // (capture 2026-04-20). This assertion previously pinned `convTriggerBotId` at the top level
+  // and passed for over a month while every flow the engine built was UNBOUND: live read-back
+  // on 2026-08-26 showed GHL discards that key and leaves conditions empty.
+  assert.deepEqual(out.triggerBodies[0].conditions,
+    [{ operator: '==', field: 'botId', value: 'AGENT9', title: '', type: 'input' }]);
   assert.equal(out.triggerBodies[0].type, 'conv_ai_trigger');
+  // and the key GHL throws away is not sent at all
+  assert.equal('convTriggerBotId' in out.triggerBodies[0], false);
   // and persists as an agent-type workflow so the flow builder opens it as the bot canvas
   assert.equal(out.autoSaveBody.workflowType, 'agent');
   assert.equal(out.autoSaveBody.type, 'workflow'); // type stays "workflow"
+});
+
+test('an unbound conv_ai_trigger warns rather than silently building a flow no bot can enter', () => {
+  const warnings = [];
+  const c = { ...ctx(), warn: (m) => warnings.push(m) };
+  compile({
+    name: 'Flow', workflowType: 'agent',
+    triggers: [{ ref: 't', type: 'conv_ai_trigger', name: 'Chat Initiated', filters: [] }],
+    graph: [{ ref: 'm', kind: 'action', type: 'conversationai_ai_message', name: 'AI message', attributes: { message: 'hi', waitForReply: true } }],
+  }, c);
+  assert.ok(warnings.some((w) => w.startsWith('FLOW_BINDING:')),
+    `expected a FLOW_BINDING warning, got ${JSON.stringify(warnings)}`);
 });
 
 test('non-flow workflows omit workflowType and convTriggerBotId', () => {
@@ -158,4 +176,96 @@ test('ai_splitter branch missing name is rejected', () => {
     graph: [{ kind: 'action', type: 'conversationai_ai_splitter', name: 'AI splitter', attributes: { description: 'x' },
       branches: [{ then: [] }] }],
   }), (e) => e.code === 'AI_SPLITTER_BRANCH');
+});
+
+// ── Flow-entry guard (live-proven 2026-08-26: GHL's API refuses NONE of this) ────────────────
+test('edit ops refuse to modify or delete a conv_ai_trigger, and the hatch opens it', async () => {
+  const { planTriggerOps } = await import('./edit-driver.mjs');
+  const existing = [{
+    id: 'TRIG1', type: 'conv_ai_trigger', name: 'Chat Initiated',
+    conditions: [{ operator: '==', field: 'botId', value: 'AGENT9', title: '', type: 'input' }],
+  }];
+  const c = ctx();
+  for (const op of [{ op: 'modifyTrigger', triggerId: 'TRIG1', trigger: { type: 'contact_tag' } },
+    { op: 'deleteTrigger', triggerId: 'TRIG1' }]) {
+    assert.throws(() => planTriggerOps([op], { ctx: c, wid: 'W', uid: 'U', existing }),
+      /FLOW_BUILDER_BOT flow bound to agent AGENT9/, `${op.op} must refuse`);
+  }
+  // an ordinary trigger is untouched by the guard
+  assert.ok(planTriggerOps([{ op: 'deleteTrigger', triggerId: 'T2' }],
+    { ctx: c, wid: 'W', uid: 'U', existing: [{ id: 'T2', type: 'contact_tag', name: 'Tag' }] }).length === 1);
+  // and the hatch lets a caller who means it through
+  assert.ok(planTriggerOps([{ op: 'deleteTrigger', triggerId: 'TRIG1' }],
+    { ctx: { ...c, allowFlowTriggerEdit: true }, wid: 'W', uid: 'U', existing }).length === 1);
+});
+
+// ── services_booking is a CONTAINER (asset: 2 pre-defined branches) ──────────────────────────
+test('conversationai_services_booking compiles as multipath with both branches and their tails', () => {
+  const t = tmpl({
+    name: 'SB', triggers: [flowTrigger],
+    graph: [{ ref: 'sb', kind: 'action', type: 'conversationai_services_booking', name: 'Services booking',
+      attributes: { conversationai_services: ['svc1'], conversationai_booking_description: 'book a facial' },
+      onBooked: [{ kind: 'action', type: 'add_contact_tag', name: 'Booked', attributes: { tags: ['b'] } }],
+      onNotBooked: [{ kind: 'action', type: 'add_contact_tag', name: 'NotBooked', attributes: { tags: ['nb'] } }] }],
+  });
+  const c = t.find((s) => s.type === 'conversationai_services_booking');
+  // It shipped as a PLAIN node until 2026-08-26 — no cat, no transitions, next:null — because the
+  // catalogue carried isMultipathContainer:false from a panel read and the compiler had no case.
+  assert.equal(c.cat, 'multi-path');
+  assert.equal(c.attributes.convertToMultipath, true);
+  assert.equal(c.attributes.transitions.length, 2);
+  assert.deepEqual(c.attributes.transitions.map((x) => x.name), ['Appointment Booked', 'Appointment Not Booked']);
+  assert.equal(c.next.length, 2);
+  // both tails are wired to their own transition node
+  assert.equal(t.find((s) => s.name === 'Booked').parent, c.next[0]);
+  assert.equal(t.find((s) => s.name === 'NotBooked').parent, c.next[1]);
+});
+
+// ── goto trigger ("Custom trigger") ─────────────────────────────────────────────────────────
+test('conv_ai_autonomous_trigger resolves target -> targetActionId and expands its four filters', async () => {
+  const { compile: c2 } = await import('./compiler.mjs');
+  const out = c2({
+    name: 'Flow', workflowType: 'agent',
+    triggers: [
+      { ref: 't1', type: 'conv_ai_trigger', name: 'Chat Initiated', filters: [], convTriggerBotId: 'AGENT9' },
+      { ref: 't2', type: 'conv_ai_autonomous_trigger', name: 'Custom Trigger', target: 'book',
+        filters: [
+          { field: 'customTriggerType', value: 'book_appointment' },
+          { field: 'customTriggerDescription', value: 'The customer wants to book' },
+          { field: 'customTriggerPriority', value: '8' },
+          { field: 'customTriggerSensitivity', value: 'medium' },
+        ] },
+    ],
+    graph: [
+      { ref: 'msg', kind: 'action', type: 'conversationai_ai_message', name: 'Greet', attributes: { message: 'hi', waitForReply: true } },
+      { ref: 'book', kind: 'action', type: 'conversationai_book_appointment', name: 'Book', attributes: { calendarId: 'CAL1' } },
+    ],
+  }, ctx());
+  const bookId = out.autoSaveBody.workflowData.templates.find((s) => s.type === 'conversationai_book_appointment').id;
+  const goto = out.triggerBodies[1];
+  // the jump target is a REAL step id, resolved from the ref — a goto trigger with no
+  // targetActionId saves and has nowhere to send the contact
+  assert.equal(goto.targetActionId, bookId);
+  // and the rows carry the envelope GHL's own builder writes: operator `eq` (NOT `==`), type
+  // `input`, title '' — captured live 2026-08-26
+  assert.deepEqual(goto.conditions, [
+    { field: 'customTriggerType', operator: 'eq', value: 'book_appointment', title: '', type: 'input' },
+    { field: 'customTriggerDescription', operator: 'eq', value: 'The customer wants to book', title: '', type: 'input' },
+    { field: 'customTriggerPriority', operator: 'eq', value: '8', title: '', type: 'input' },
+    { field: 'customTriggerSensitivity', operator: 'eq', value: 'medium', title: '', type: 'input' },
+  ]);
+  // the entry trigger is NOT a goto and carries no target
+  assert.equal('targetActionId' in out.triggerBodies[0], false);
+});
+
+test('a goto trigger pointing at a ref that does not exist is rejected, not silently emitted', async () => {
+  const { compile: c2 } = await import('./compiler.mjs');
+  assert.throws(() => c2({
+    name: 'Flow', workflowType: 'agent',
+    triggers: [
+      { ref: 't1', type: 'conv_ai_trigger', name: 'Chat', filters: [], convTriggerBotId: 'A9' },
+      { ref: 't2', type: 'conv_ai_autonomous_trigger', name: 'Custom', target: 'nope', filters: [] },
+    ],
+    graph: [{ ref: 'msg', kind: 'action', type: 'conversationai_ai_message', name: 'Greet', attributes: { message: 'hi', waitForReply: false } }],
+  }, ctx()), /REF_DANGLING/);
 });

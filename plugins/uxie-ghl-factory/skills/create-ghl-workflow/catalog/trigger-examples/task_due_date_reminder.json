@@ -1,0 +1,33 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2026-03-26T19:44:37.669Z",
+  "deleted": false,
+  "active": true,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "time-diff-now-lte",
+      "field": "task.dueDate",
+      "value": 0,
+      "title": "Before no. of days",
+      "type": "number",
+      "id": "before-days-in-number"
+    }
+  ],
+  "type": "task_due_date_reminder",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Task Due Reminder",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "date_updated": "2026-05-16T15:08:36.778Z",
+  "reminder_trigger_config": {
+    "scheduledTaskName": "projects/highlevel-backend/locations/us-central1/queues/appengine-birthday-reminder-queue/tasks/{id4}"
+  }
+}

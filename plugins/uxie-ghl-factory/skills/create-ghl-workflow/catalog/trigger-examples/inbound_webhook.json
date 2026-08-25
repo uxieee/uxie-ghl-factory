@@ -1,0 +1,20 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2026-04-30T07:12:40.854Z",
+  "deleted": false,
+  "belongs_to": "workflow",
+  "location_id": "{locationId}",
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [],
+  "masterType": "highlevel",
+  "name": "Inbound Webhook",
+  "type": "inbound_webhook",
+  "workflow_id": "{workflowId}",
+  "active": true,
+  "date_updated": "2026-04-30T14:06:32.836Z"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2026-04-20T14:31:37.184Z",
+  "deleted": false,
+  "active": true,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "botId",
+      "value": "{agentId}",
+      "title": "",
+      "type": "input"
+    }
+  ],
+  "type": "conv_ai_trigger",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Chat Initiated",
+  "belongs_to": "workflow",
+  "date_updated": "2026-04-20T14:31:38.944Z"
+}

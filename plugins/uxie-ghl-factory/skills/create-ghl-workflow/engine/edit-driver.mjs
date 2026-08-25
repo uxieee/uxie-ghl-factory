@@ -94,6 +94,34 @@ export function resolveTrigger(op, existing) {
 // Turn trigger ops into ordered { method, path, body } intents. Pure — scripts/edit.mjs
 // does the I/O. `existing` is the live GET /workflow/{loc}/trigger?workflowId= list, used
 // to resolve name/type matchers and to merge on modify.
+// FLOW-BOT ENTRY GUARD — a conv_ai_trigger is the entry of a FLOW_BUILDER_BOT's flow, and it is
+// LOAD-BEARING in a way no other trigger is: the agent points at this workflow
+// (objectiveBuilderWorkflowId) while the workflow points back at the agent (the botId condition).
+// Break one half and the bot is orphaned -- it still lists the flow, but nothing enters it.
+//
+// The GHL UI makes this trigger uneditable and undeletable. THE API DOES NOT. Live-proven
+// 2026-08-26 on the designated test account, one attempt each, each read back separately:
+//   PUT a different botId          -> 200, applied. The flow now belongs to another agent.
+//   PUT type: 'contact_tag'        -> 200, applied. An agent-type workflow whose entry is no
+//                                     longer a chat trigger at all, conditions wiped.
+// Neither was refused, warned about, or reverted. So the engine has to be the one that refuses:
+// there is no server-side guarantee to inherit here.
+//
+// Hatch: ctx.allowFlowTriggerEdit === true, for the caller who genuinely means it.
+const isFlowEntry = (t) => t?.type === 'conv_ai_trigger';
+function guardFlowEntry(op, t, ctx) {
+  if (ctx?.allowFlowTriggerEdit === true) return;
+  if (!isFlowEntry(t)) return;
+  const bot = (t.conditions ?? []).find((c) => c?.field === 'botId')?.value;
+  const who = bot ? `agent ${bot}` : 'its agent';
+  throw new Error(
+    `${op.op}: refusing to touch a conv_ai_trigger — this is the entry of a FLOW_BUILDER_BOT flow `
+    + `bound to ${who}. GHL's API allows this (live-proven 2026-08-26: rebinding and retyping both `
+    + `return 200 and apply) but the flow builder does not, and breaking it orphans the bot: the `
+    + `agent keeps objectiveBuilderWorkflowId while nothing can enter the flow. `
+    + `Edit the flow through the flow builder, or pass ctx.allowFlowTriggerEdit if you mean it.`);
+}
+
 export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
   const loc = ctx.loc;
   return (triggerOps ?? []).flatMap((op) => {
@@ -106,6 +134,7 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
         return { op: op.op, method: 'POST', path: `/workflow/${loc}/trigger`, body: buildTrigger(op.trigger, ctx, wid) };
       case 'deleteTrigger': {
         const t = resolveTrigger(op, existing);
+        guardFlowEntry(op, t, ctx);
         // userId is a REQUIRED query param on the delete (docs/03-endpoints.md §3.5).
         return { op: op.op, method: 'DELETE', path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
       }
@@ -132,6 +161,7 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
       }
       case 'modifyTrigger': {
         const t = resolveTrigger(op, existing);
+        guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
         // The update PUT wants the FULL trigger object with edits, not a patch. Rebuild
         // through buildTrigger so an edited filter gets the same expansion a fresh create

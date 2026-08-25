@@ -16275,7 +16275,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          summary: "Save ONLY a workflow's triggers ({id} spelling of the same route).",
+          note: "Same route as the {wid} row; the miner produced both spellings from different call sites.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -16317,7 +16319,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          summary: "Save ONLY a workflow's triggers, leaving workflowData untouched. What the builder calls when the edit touched triggers and nothing else.",
+          note: "Live-proven 2026-08-25. Matters because the FULL workflow PUT validates triggers and can 400 with INVALID_TRIGGER_CONDITION (ruleId trigger-condition-invalid) on a conv_ai_autonomous_trigger the builder itself created \u2014 this path accepted the same stored conditions. If a flow workflow will not save from the UI, its triggers are the suspect, and this is the endpoint that still works.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -22435,8 +22439,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "Query workflows server-side by trigger type, action type, status, tags or name \u2014 the smart-list search.",
-          note: 'Answers "which workflows contain step type X" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account.',
-          reach: "source-only",
+          note: `Answers "which workflows contain step type X" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account. Live-proven 2026-08-26: the body is JUST {locationId} \u2014 it 422s on triggerTypes/limit/skip ("property X should not exist"), so do not send the obvious paging keys, and it returns 201 for what is a read. The action docs it returns carry the STORED attributes, which is how a marketplace step's real key spelling is discovered.`,
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36507,7 +36511,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /workflows/es/search": {
           kind: "read",
           summary: "Query workflows server-side by trigger type, action type, status, tags or name \u2014 the smart-list search.",
-          note: 'Answers "which workflows contain step type X" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account.'
+          note: `Answers "which workflows contain step type X" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account. Live-proven 2026-08-26: the body is JUST {locationId} \u2014 it 422s on triggerTypes/limit/skip ("property X should not exist"), so do not send the obvious paging keys, and it returns 201 for what is a read. The action docs it returns carry the STORED attributes, which is how a marketplace step's real key spelling is discovered.`,
+          reach: "proven"
         },
         "POST /workflows/trigger/logs/count": {
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
@@ -36546,6 +36551,18 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "PUT /workflow/oauth2/update-token": {
           kind: "destructive",
           note: "Writes to the OAuth credential rail."
+        },
+        "PUT /workflow/{locationId}/only-triggers/{wid}": {
+          kind: "write",
+          reach: "proven",
+          summary: "Save ONLY a workflow's triggers, leaving workflowData untouched. What the builder calls when the edit touched triggers and nothing else.",
+          note: "Live-proven 2026-08-25. Matters because the FULL workflow PUT validates triggers and can 400 with INVALID_TRIGGER_CONDITION (ruleId trigger-condition-invalid) on a conv_ai_autonomous_trigger the builder itself created \u2014 this path accepted the same stored conditions. If a flow workflow will not save from the UI, its triggers are the suspect, and this is the endpoint that still works."
+        },
+        "PUT /workflow/{locationId}/only-triggers/{id}": {
+          kind: "write",
+          reach: "proven",
+          summary: "Save ONLY a workflow's triggers ({id} spelling of the same route).",
+          note: "Same route as the {wid} row; the miner produced both spellings from different call sites."
         }
       }
     };
@@ -72952,8 +72969,10 @@ var SCOPE_OWNERS = {
   onTimeout: ["wait"],
   onFound: ["find_opportunity", "find_contact", "lc_merge_contact"],
   onNotFound: ["find_opportunity", "find_contact", "lc_merge_contact"],
-  onBooked: ["conversationai_book_appointment"],
-  onNotBooked: ["conversationai_book_appointment"],
+  // Both Conversation-AI booking containers use these scopes: book_appointment books into a GHL
+  // calendar, services_booking into a commerce service. Same two pre-defined branches.
+  onBooked: ["conversationai_book_appointment", "conversationai_services_booking"],
+  onNotBooked: ["conversationai_book_appointment", "conversationai_services_booking"],
   default: ["ai_decision", "conversationai_ai_splitter", "split"]
 };
 function checkNodeKeys(n) {
@@ -83207,6 +83226,46 @@ var catalog_data_default = {
       },
       display_name: "Book Appointment"
     },
+    conversationai_continue: {
+      type: "conversationai_continue",
+      kind: "step",
+      confidence: "verified-live",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      attrKeys: [
+        "instructions",
+        "type",
+        "__customInputs__"
+      ],
+      example: "catalog/step-examples/conversationai_continue.json",
+      requiredFields: [],
+      section: "conversation_ai",
+      note: "committed capture 2026-08-26 (UI-built flow, GROM AU). Optional `instructions` (panel label: ADDITIONAL INSTRUCTIONS) is stored even when empty. TERMINAL: the builder offers no add-action after this node.",
+      schema: {
+        app: "Conversation AI",
+        section: "Conversation AI",
+        displayName: "Continue Conversation",
+        description: "The bot will continue to engage with the contact using the Knowledge base and Global prompt ",
+        requiredFields: [],
+        fields: [
+          {
+            field: "instructions",
+            title: "Additional Instructions",
+            required: false,
+            fieldType: "textarea"
+          }
+        ],
+        requiredTriggers: [
+          "conv_ai_trigger",
+          "conv_ai_autonomous_trigger"
+        ]
+      },
+      display_name: "Continue Conversation"
+    },
     conversationai_custom_message: {
       type: "conversationai_custom_message",
       kind: "step",
@@ -83255,6 +83314,60 @@ var catalog_data_default = {
         ]
       },
       display_name: "Custom Message"
+    },
+    conversationai_end: {
+      type: "conversationai_end",
+      kind: "step",
+      confidence: "verified-live",
+      situational: [
+        "workflowsActionType"
+      ],
+      premium: false,
+      isMultipathContainer: false,
+      usesCustomInputs: true,
+      attrKeys: [
+        "message",
+        "sleepEnabled",
+        "sleepDuration",
+        "sleepUnit",
+        "type",
+        "__customInputs__"
+      ],
+      example: "catalog/step-examples/conversationai_end.json",
+      requiredFields: [],
+      section: "conversation_ai",
+      note: "committed capture 2026-08-26 (GROM AU). Keys are message / sleepEnabled / sleepDuration / sleepUnit \u2014 the panel LABELS say Reactivate*, which is where the old wrong names came from. TERMINAL: cannot be inserted mid-flow (the builder drops it at save).",
+      schema: {
+        app: "Conversation AI",
+        section: "Conversation AI",
+        displayName: "End Conversation",
+        description: "End or Stop the conversation with the contact",
+        requiredFields: [
+          "sleepEnabled"
+        ],
+        fields: [
+          {
+            field: "message",
+            title: "End Custom Message",
+            required: false,
+            fieldType: "textarea"
+          },
+          {
+            field: "sleepEnabled",
+            title: "Reactivate After bot",
+            required: true,
+            fieldType: "checkbox",
+            default: "true"
+          }
+        ],
+        requiredTriggers: [
+          "conv_ai_autonomous_trigger",
+          "conv_ai_trigger"
+        ],
+        dynamicFields: 1,
+        fieldsIncomplete: true
+      },
+      display_name: "End Conversation"
     },
     conversationai_objective: {
       type: "conversationai_objective",
@@ -103187,101 +103300,6 @@ Rules to Follow:
         ]
       }
     },
-    conversationai_continue: {
-      type: "conversationai_continue",
-      kind: "step",
-      confidence: "recon-fields",
-      situational: [
-        "workflowsActionType"
-      ],
-      premium: false,
-      beta: false,
-      isMultipathContainer: false,
-      usesCustomInputs: true,
-      section: "conversation_ai",
-      requiredFields: [],
-      attrKeys: [
-        "prompt",
-        "type",
-        "__customInputs__"
-      ],
-      marketplace: true,
-      note: "recon field-structure only (2026-07-15); minimal prompt panel. Capture a committed template to promote to verified-live.",
-      schema: {
-        app: "Conversation AI",
-        section: "Conversation AI",
-        displayName: "Continue Conversation",
-        description: "The bot will continue to engage with the contact using the Knowledge base and Global prompt ",
-        requiredFields: [],
-        fields: [
-          {
-            field: "instructions",
-            title: "Additional Instructions",
-            required: false,
-            fieldType: "textarea"
-          }
-        ],
-        requiredTriggers: [
-          "conv_ai_trigger",
-          "conv_ai_autonomous_trigger"
-        ]
-      },
-      display_name: "Continue Conversation"
-    },
-    conversationai_end: {
-      type: "conversationai_end",
-      kind: "step",
-      confidence: "recon-fields",
-      situational: [
-        "workflowsActionType"
-      ],
-      premium: false,
-      beta: false,
-      isMultipathContainer: false,
-      usesCustomInputs: true,
-      section: "conversation_ai",
-      requiredFields: [],
-      attrKeys: [
-        "customMessage",
-        "reactivate",
-        "duration",
-        "type",
-        "__customInputs__"
-      ],
-      marketplace: true,
-      note: "recon field-structure only (2026-07-15): optional customMessage, reactivate checkbox (default on) + duration (default 1). Capture a committed template to promote to verified-live.",
-      schema: {
-        app: "Conversation AI",
-        section: "Conversation AI",
-        displayName: "End Conversation",
-        description: "End or Stop the conversation with the contact",
-        requiredFields: [
-          "sleepEnabled"
-        ],
-        fields: [
-          {
-            field: "message",
-            title: "End Custom Message",
-            required: false,
-            fieldType: "textarea"
-          },
-          {
-            field: "sleepEnabled",
-            title: "Reactivate After bot",
-            required: true,
-            fieldType: "checkbox",
-            default: "true"
-          }
-        ],
-        requiredTriggers: [
-          "conv_ai_autonomous_trigger",
-          "conv_ai_trigger"
-        ],
-        dynamicFields: 1,
-        fieldsIncomplete: true
-      },
-      display_name: "End Conversation"
-    },
     conversationai_services_booking: {
       type: "conversationai_services_booking",
       kind: "step",
@@ -103291,18 +103309,18 @@ Rules to Follow:
       ],
       premium: false,
       beta: false,
-      isMultipathContainer: false,
+      isMultipathContainer: true,
       usesCustomInputs: true,
       section: "conversation_ai",
       requiredFields: [],
       attrKeys: [
-        "services",
-        "description",
+        "conversationai_services",
+        "conversationai_booking_description",
         "type",
         "__customInputs__"
       ],
       marketplace: true,
-      note: "recon field-structure only (2026-07-15): services multiselect (requires a configured commerce service) + booking description. Capture a committed template to promote to verified-live.",
+      note: "field names + 2-branch multipath shape confirmed 2026-08-26 from the marketplace asset and the live options endpoint. Still NOT commit-verified: the designated test account has no configured commerce service, so the builder refuses to save the node (its services list comes back empty).",
       schema: {
         app: "Conversation AI",
         section: "Conversation AI",
@@ -121922,10 +121940,56 @@ Rules to Follow:
       masterType: "highlevel",
       category: "events",
       premium: false,
-      confidence: "bundle-derived",
+      confidence: "verified-live",
+      example: "catalog/trigger-examples/conv_ai_autonomous_trigger.json",
       filterChecks: {
         provenZero: "no-ghl-trigger-validator"
-      }
+      },
+      isGotoTrigger: true,
+      filterRows: [
+        {
+          label: "",
+          labelKey: "choose_custom_trigger",
+          value: "customTriggerType",
+          field: "customTriggerType",
+          operator: "eq",
+          type: "input",
+          optionsSource: "static",
+          options: [
+            "book_appointment"
+          ]
+        },
+        {
+          label: "",
+          labelKey: "describe_the_trigger_condition",
+          value: "customTriggerDescription",
+          field: "customTriggerDescription",
+          operator: "eq",
+          type: "input"
+        },
+        {
+          label: "",
+          labelKey: "priority",
+          value: "customTriggerPriority",
+          field: "customTriggerPriority",
+          operator: "eq",
+          type: "input"
+        },
+        {
+          label: "",
+          labelKey: "sensitivity",
+          value: "customTriggerSensitivity",
+          field: "customTriggerSensitivity",
+          operator: "eq",
+          type: "input",
+          optionsSource: "static",
+          options: [
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      ]
     },
     form_submission: {
       type: "form_submission",
@@ -125405,6 +125469,18 @@ Rules to Follow:
       filterChecks: {
         provenZero: "no-ghl-trigger-validator"
       },
+      isGotoTrigger: false,
+      filterRows: [
+        {
+          label: "",
+          labelKey: "select_conversation_ai_bot",
+          value: "botId",
+          field: "botId",
+          operator: "==",
+          type: "input",
+          optionsSource: "dynamic"
+        }
+      ],
       disabledActions: [
         "find_contact",
         "create_update_contact",
@@ -136808,6 +136884,42 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       templates.push(...notb.templates);
       return;
     }
+    if (n.type === "conversationai_services_booking") {
+      const attrs = enforceRequiredFields(n, n.attributes ?? {});
+      const t1 = ctx.idGen(), t2 = ctx.idGen();
+      const container = {
+        id,
+        type: "conversationai_services_booking",
+        name: n.name ?? "Services booking",
+        order: i,
+        parentKey,
+        cat: "multi-path",
+        workflowsActionType: "INTERNAL",
+        next: [t1, t2],
+        attributes: {
+          conversationai_services: attrs.conversationai_services,
+          conversationai_booking_description: attrs.conversationai_booking_description ?? "Get customer to book a service",
+          type: "conversationai_services_booking",
+          __customInputs__: {},
+          cat: "multi-path",
+          convertToMultipath: true,
+          transitions: [
+            { id: t1, name: "Appointment Booked", fields: { appointmentBooked: true, appointmentNotBooked: false }, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" },
+            { id: t2, name: "Appointment Not Booked", fields: { appointmentNotBooked: true }, meta: { __branchKey__: ctx.idGen() }, conditionType: "pre-defined" }
+          ],
+          __name__: n.name ?? "Services booking"
+        }
+      };
+      if (parentScopeId !== null) container.parent = parentScopeId;
+      templates.push(withStepDisabled(n, container, ctx));
+      const booked = flattenGraph(n.onBooked ?? [], ctx, refMap, t1);
+      templates.push({ id: t1, type: "transition", name: "Appointment Booked", cat: "transition", parentKey: id, parent: id, order: 0, attributes: {}, next: booked.entryId });
+      templates.push(...booked.templates);
+      const notb = flattenGraph(n.onNotBooked ?? [], ctx, refMap, t2);
+      templates.push({ id: t2, type: "transition", name: "Appointment Not Booked", cat: "transition", parentKey: id, parent: id, order: 1, attributes: {}, next: notb.entryId });
+      templates.push(...notb.templates);
+      return;
+    }
     if (n.type === "conversationai_ai_splitter") {
       const attrs = enforceRequiredFields(n, n.attributes ?? {});
       const authorBranches = n.branches ?? [];
@@ -137184,7 +137296,12 @@ function expandFilter(f, rows) {
   if (row.id) cond.id = row.id;
   return cond;
 }
-function buildTrigger(t, ctx, wid) {
+function isGotoTriggerType(type, ctx) {
+  const meta3 = ctx?.catalog?.trigger?.(type);
+  if (meta3 && "isGotoTrigger" in meta3) return Boolean(meta3.isGotoTrigger);
+  return type === "conv_ai_autonomous_trigger";
+}
+function buildTrigger(t, ctx, wid, refMap) {
   const meta3 = ctx.catalog.trigger(t.type);
   const rows = meta3?.filterRows ?? [];
   let conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
@@ -137208,10 +137325,36 @@ function buildTrigger(t, ctx, wid) {
     const ghlText = r.i18n && ctx?.catalog?.i18n?.[r.i18n] ? ` \u2014 GHL: "${ctx.catalog.i18n[r.i18n]}"` : "";
     if (empty2) ctx?.warn?.(`TRIGGER_FILTER: '${t.name ?? t.type}' (${t.type}) \u2014 GHL requires filter '${r.field}'${r.beDedupeAssetType ? " (the SERVER blocks the save without it)" : ""}${ghlText}`);
   }
+  if (t.convTriggerBotId && !conditions.some((c) => c?.field === "botId")) {
+    conditions = [
+      ...conditions,
+      { operator: "==", field: "botId", value: t.convTriggerBotId, title: "", type: "input" }
+    ];
+  }
+  if (t.type === "conv_ai_trigger" && !conditions.some((c) => c?.field === "botId")) {
+    ctx?.warn?.(`FLOW_BINDING: '${t.name ?? t.type}' (conv_ai_trigger) has no botId condition \u2014 the flow will NOT be bound to any agent and the bot will never enter it. Pass convTriggerBotId on the trigger with the FLOW_BUILDER_BOT's agent id.`);
+  }
+  let targetActionId = t.targetActionId;
+  if (t.target) {
+    targetActionId = refMap?.get(t.target);
+    if (!targetActionId) {
+      throw new IRError(
+        "REF_DANGLING",
+        `REF_DANGLING: trigger '${t.name ?? t.type}' targets ref '${t.target}', which does not exist in this IR. A goto trigger with no targetActionId saves and has nowhere to send the contact. Point \`target\` at a real node ref.`
+      );
+    }
+  }
+  if (targetActionId && !isGotoTriggerType(t.type, ctx)) {
+    ctx?.warn?.(`TRIGGER_TARGET: '${t.name ?? t.type}' (${t.type}) is not a goto trigger, so targetActionId will be stored and ignored. Only conv_ai_autonomous_trigger jumps.`);
+  }
+  if (!targetActionId && isGotoTriggerType(t.type, ctx)) {
+    ctx?.warn?.(`TRIGGER_TARGET: '${t.name ?? t.type}' is a goto trigger with NO target \u2014 the builder flags it as an incomplete trigger. Pass \`target: "<step ref>"\`.`);
+  }
   return {
     status: "draft",
     workflowId: wid,
     schedule_config: {},
+    ...targetActionId ? { targetActionId } : {},
     conditions,
     type: t.type,
     masterType: t.marketplace === true ? "marketplace" : t.masterType ?? meta3?.masterType ?? "highlevel",
@@ -137226,11 +137369,9 @@ function buildTrigger(t, ctx, wid) {
     triggersChanged: true,
     location_id: ctx.loc,
     company_id: ctx.cid,
-    company_age: ctx.companyAge,
-    // conv_ai_trigger binds a FLOW_BUILDER_BOT flow workflow to its agent — without
-    // convTriggerBotId the flow builder never opens the workflow as that agent's canvas
-    // (the agent→workflow half is set separately via the /ai-employees link PUT).
-    ...t.convTriggerBotId ? { convTriggerBotId: t.convTriggerBotId } : {}
+    company_age: ctx.companyAge
+    // NOTE: convTriggerBotId is deliberately NOT emitted here — GHL discards it (see above).
+    // The binding is the botId condition row.
   };
 }
 function compile(ir, ctx) {
@@ -137355,7 +137496,7 @@ function compile(ir, ctx) {
     // above for what this map records and why it's per-key.
     ...marketplaceStepIndexCounter2.size > 0 || S.statsView ? { meta: { ...marketplaceStepIndexCounter2.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
   };
-  const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid));
+  const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid, refMap));
   applyUiDefaults(templates, ctx?.catalog, ctx);
   if (typeof ctx?.warn === "function") {
     for (const t of templates) {
@@ -139627,6 +139768,16 @@ function resolveTrigger(op, existing) {
   if (hits.length > 1) throw new Error(`${op.op}: ${hits.length} triggers match ${what} \u2014 pass an explicit triggerId (${hits.map(idOf3).join(", ")})`);
   return hits[0];
 }
+var isFlowEntry = (t) => t?.type === "conv_ai_trigger";
+function guardFlowEntry(op, t, ctx) {
+  if (ctx?.allowFlowTriggerEdit === true) return;
+  if (!isFlowEntry(t)) return;
+  const bot = (t.conditions ?? []).find((c) => c?.field === "botId")?.value;
+  const who = bot ? `agent ${bot}` : "its agent";
+  throw new Error(
+    `${op.op}: refusing to touch a conv_ai_trigger \u2014 this is the entry of a FLOW_BUILDER_BOT flow bound to ${who}. GHL's API allows this (live-proven 2026-08-26: rebinding and retyping both return 200 and apply) but the flow builder does not, and breaking it orphans the bot: the agent keeps objectiveBuilderWorkflowId while nothing can enter the flow. Edit the flow through the flow builder, or pass ctx.allowFlowTriggerEdit if you mean it.`
+  );
+}
 function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
   const loc = ctx.loc;
   return (triggerOps ?? []).flatMap((op) => {
@@ -139635,6 +139786,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
         return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: buildTrigger(op.trigger, ctx, wid) };
       case "deleteTrigger": {
         const t = resolveTrigger(op, existing);
+        guardFlowEntry(op, t, ctx);
         return { op: op.op, method: "DELETE", path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
       }
       // "Copy Trigger" (trigger ⋯ menu / ⌘V → cloneTriggers, recovered EDIT-RAIL.md): the stored
@@ -139659,6 +139811,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
       }
       case "modifyTrigger": {
         const t = resolveTrigger(op, existing);
+        guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
         const merged = buildTrigger(
           {

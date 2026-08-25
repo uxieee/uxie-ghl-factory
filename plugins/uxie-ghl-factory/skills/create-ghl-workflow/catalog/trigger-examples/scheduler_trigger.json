@@ -1,0 +1,60 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-11-17T07:29:09.813Z",
+  "deleted": false,
+  "active": true,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "scheduler.interval",
+      "value": "weekly",
+      "title": "Interval",
+      "type": "select"
+    },
+    {
+      "operator": "==",
+      "field": "scheduler.weekly.days",
+      "value": [
+        "sunday"
+      ],
+      "title": "On days",
+      "type": "multiselect"
+    },
+    {
+      "operator": "==",
+      "field": "scheduler.weekly.times",
+      "value": [
+        "23:45"
+      ],
+      "title": "At what time",
+      "type": "multiselect"
+    }
+  ],
+  "type": "scheduler_trigger",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Scheduler",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "schedule_runtime": {
+    "metrics": {
+      "fail": 0,
+      "success": 25
+    },
+    "last_run": "2026-05-11T06:45:08.944Z",
+    "next_run": "2026-05-18T06:45:00.000Z",
+    "task_ref": {
+      "name": "trg_{triggerId}_1779086700_1778481908",
+      "queue": "automation-workflows-scheduler-trigger-queue",
+      "type": "EXEC"
+    }
+  },
+  "date_updated": "2026-05-11T06:45:08.971Z"
+}

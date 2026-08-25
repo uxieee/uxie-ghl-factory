@@ -11,6 +11,73 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.34.0] — 2026-08-26
+
+Flow bots become buildable. A `FLOW_BUILDER_BOT`'s logic **is** a workflow, and the engine has
+been able to emit those nodes for a while — but it bound them to the wrong field, could not
+author the trigger that jumps into them, and compiled one of the nine nodes into a step that
+saves and cannot branch. All three are fixed and live-proven.
+
+### Fixed
+
+- 🔴 **Flow workflows were built UNBOUND.** The compiler emitted `convTriggerBotId` as a
+  top-level key on `conv_ai_trigger`. GHL **discards** it — it does not even round-trip as an
+  unknown key. The real binding is a condition row,
+  `{ operator: "==", field: "botId", value: <AGENT_ID>, title: "", type: "input" }`, which is
+  what GHL's own client stores. Every flow built since the key was introduced on 2026-07-15 had
+  an entry trigger bound to nothing, while the build reported `verify.pass: 1` and zero warnings —
+  round-trip verification compared the engine's output to itself, so a field the server dropped
+  was never in the comparison. A/B-proven on the designated test sub-account and confirmed by
+  GHL's own flow builder, which now renders `Bot Id is "<agent>"` on the trigger node.
+  An unbound `conv_ai_trigger` now warns (`FLOW_BINDING:`).
+- 🔴 **`conversationai_services_booking` compiled as a plain node.** The marketplace asset gives
+  it two pre-defined branches (`Appointment Booked` / `Appointment Not Booked`), the same shape as
+  `conversationai_book_appointment`. The catalogue carried `isMultipathContainer: false` from a
+  2026-07-15 panel read and the compiler had no case for it, so an authored node emitted with no
+  `cat`, no `transitions[]` and `next: null`. It now compiles as a container with both branches.
+- **Two more wrong key names were still shipping.** `conversationai_end` carried
+  `customMessage`/`reactivate`/`duration` and `conversationai_continue` carried `prompt` — the
+  exact names the corpus corrected in prose on 2026-07-27, never corrected in the generator. Real
+  keys are `message`/`sleepEnabled`/`sleepDuration`/`sleepUnit` and `instructions`. Both now have
+  committed captures and are `verified-live`.
+
+### Added
+
+- **Custom (goto) triggers are authorable.** `conv_ai_autonomous_trigger` — "Custom trigger" in
+  the UI — does not start a flow, it **jumps the contact to a named step**. Author it with
+  `target: "<step ref>"`, resolved to the real step id exactly as `goto` does; a dangling ref
+  throws `REF_DANGLING` rather than emitting a trigger with nowhere to send the contact. Its four
+  required filters expand to the envelope GHL's builder writes — `operator: "eq"` (not the `==`
+  the `botId` row uses), `type: "input"`, `title: ""`.
+- **`references/flow-bots.md`** — the authoring guide: the binding, workflow-first creation order
+  (the agent 422s without an `objectiveBuilderWorkflowId`), custom triggers, and the
+  terminal/container/label-vs-key rules for the nine Conversation-AI nodes.
+- **The whole flow-bot surface is now in the corpus** — nine step pages where there were none
+  (`describe_step_type` returned nothing for all nine), both trigger pages rewritten with real
+  filter rows, and `40-rules/flow-bot-action-compatibility.md`: a flow is an ordinary workflow
+  minus a **denylist of 59 native action keys**, so third-party marketplace actions ARE permitted
+  (proven with a GoGHL WhatsApp step), while **all 7 native WhatsApp actions are blocked**.
+- **`scripts/check-example-pointers.mjs`** — 28 of the shipped catalogue's `example:` pointers
+  resolved nowhere. The trigger examples now ship, scrubbed of every identifier.
+- Endpoint overlay: `PUT /workflow/{loc}/only-triggers/{wid}` and `POST /workflows/es/search`
+  proven, with the traps that make them worth knowing.
+
+### Changed
+
+- `edit_workflow` **refuses** `modifyTrigger` / `deleteTrigger` on a `conv_ai_trigger`. GHL's API
+  enforces none of the builder's immutability — live-proven: rebinding to another agent and
+  retyping the trigger away from `conv_ai_trigger` both return 200 and apply. Breaking either half
+  orphans the bot. Hatch: `ctx.allowFlowTriggerEdit`.
+
+### Known limits
+
+- **Nothing here is runtime-proven.** No contact has chatted with a flow bot; these are stored
+  shapes and what the builder renders.
+- Flow workflows come back `status: "published"` on creation, engine-built or UI-built. The
+  draft-first guarantee does not hold for `workflowType: "agent"`. Unexplained.
+- `conversationai_services_booking` needs a configured commerce service; the builder refuses to
+  save it without one.
+
 ## [0.33.0] — 2026-08-25
 
 The internal rail gains discovery. Capability used to arrive only through hand-written

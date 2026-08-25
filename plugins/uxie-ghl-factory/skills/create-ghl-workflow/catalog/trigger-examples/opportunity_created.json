@@ -1,0 +1,35 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-05-21T13:45:46.762Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "opportunity.pipelineId",
+      "value": "{id3}",
+      "title": "In pipeline",
+      "type": "select"
+    },
+    {
+      "operator": "==",
+      "field": "opportunity.pipelineStageId",
+      "value": "{id4}",
+      "title": "Pipeline stage",
+      "type": "select"
+    }
+  ],
+  "type": "opportunity_created",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Opportunity Created",
+  "belongs_to": "workflow",
+  "date_updated": "2025-08-07T16:37:44.601Z",
+  "active": false
+}

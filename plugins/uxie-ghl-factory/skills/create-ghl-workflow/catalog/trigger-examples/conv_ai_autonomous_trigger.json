@@ -1,0 +1,50 @@
+{
+  "id": "{triggerId}",
+  "date_updated": "2026-08-25T20:05:39.241Z",
+  "date_added": "2026-08-25T20:05:39.241Z",
+  "deleted": false,
+  "active": true,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "eq",
+      "field": "customTriggerType",
+      "value": "book_appointment",
+      "title": "",
+      "type": "input"
+    },
+    {
+      "operator": "eq",
+      "field": "customTriggerDescription",
+      "value": "The customer wants to book an appointment",
+      "title": "",
+      "type": "input"
+    },
+    {
+      "operator": "eq",
+      "field": "customTriggerPriority",
+      "value": "8",
+      "title": "",
+      "type": "input"
+    },
+    {
+      "operator": "eq",
+      "field": "customTriggerSensitivity",
+      "value": "medium",
+      "title": "",
+      "type": "input"
+    }
+  ],
+  "type": "conv_ai_autonomous_trigger",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Custom Trigger",
+  "belongs_to": "workflow",
+  "targetActionId": "{stepId}"
+}

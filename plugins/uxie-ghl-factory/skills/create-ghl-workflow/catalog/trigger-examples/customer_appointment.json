@@ -1,0 +1,28 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-07-27T14:00:55.294Z",
+  "deleted": false,
+  "active": true,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "calendar.id",
+      "value": "{id3}",
+      "title": "In calendar",
+      "type": "select"
+    }
+  ],
+  "type": "customer_appointment",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Customer Booked Appointment",
+  "belongs_to": "workflow",
+  "date_updated": "2025-07-27T14:00:55.896Z"
+}

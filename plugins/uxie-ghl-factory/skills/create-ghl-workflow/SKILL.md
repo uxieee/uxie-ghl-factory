@@ -101,6 +101,7 @@ catalog rather than improvising a shape.
 | Confirm a build actually took on a live account | `references/canary-verification.md` |
 | Does the builder open this step? | `references/drawer-parity.md` |
 | Find the ids the builder needs | `references/discovery.md` |
+| Build a FLOW BOT: the agent binding, custom (goto) triggers, the nine Conversation-AI nodes, what a flow may contain | `references/flow-bots.md` |
 | GoGHL WhatsApp specifics | `references/goghl-whatsapp.md` |
 
 ## Read the build report — every time

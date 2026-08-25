@@ -1,0 +1,21 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2025-12-12T19:52:43.201Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [],
+  "type": "contact_changed",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Contact Updated Trigger",
+  "belongs_to": "workflow",
+  "schedule_config": {},
+  "active": true,
+  "date_updated": "2025-12-12T20:00:32.424Z"
+}

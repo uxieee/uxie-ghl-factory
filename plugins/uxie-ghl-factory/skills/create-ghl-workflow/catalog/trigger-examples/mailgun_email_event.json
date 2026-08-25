@@ -1,0 +1,28 @@
+{
+  "id": "{triggerId}",
+  "date_added": "2024-10-21T08:34:49.022Z",
+  "deleted": false,
+  "actions": [
+    {
+      "workflow_id": "{workflowId}",
+      "type": "add_to_workflow"
+    }
+  ],
+  "conditions": [
+    {
+      "operator": "==",
+      "field": "mailgun.event",
+      "value": "complained",
+      "title": "Event",
+      "type": "select"
+    }
+  ],
+  "type": "mailgun_email_event",
+  "masterType": "highlevel",
+  "workflow_id": "{workflowId}",
+  "location_id": "{locationId}",
+  "name": "Email Events- Complained SPAM",
+  "belongs_to": "workflow",
+  "date_updated": "2024-11-15T00:59:19.454Z",
+  "active": true
+}
