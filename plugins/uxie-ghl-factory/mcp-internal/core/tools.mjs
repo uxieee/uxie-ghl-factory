@@ -52,7 +52,45 @@ const CATALOG = typeof __HAS_CATALOG__ !== 'undefined'
       try { return JSON.parse(readFileSync(resolve(HERE, '../tool-descriptions.json'), 'utf8')); }
       catch { return {}; }
     })();
-const describe = (tool, fallback) => CATALOG[tool]?.description ?? fallback;
+// A1: a stub catalog entry must never shadow a real sentence.
+//
+// This was `CATALOG[tool]?.description ?? fallback`, so the catalog line won unconditionally. For
+// the 30 catalog entries that are just a title plus a proof clause, that meant the hand-written
+// sentence in this file never shipped: get_workflow_logs advertised "Get workflow logs" while
+// "executionId returns one run's full step trace" -- the sentence that answers a diagnostic
+// question -- sat unused a thousand lines below.
+//
+// What is NOT removed: the `proof: ...; risk: ...` clause. An earlier pass here treated it as
+// maintainer provenance and stripped it. That was wrong, and three tests say so
+// (ai-agent-tools.test.mjs "descriptions disclose proof status honestly", and the two audit
+// composite guards below). The label tells the agent how far to trust the tool --
+// `external-receipt-required` means this rail has never been live-proven -- which is exactly the
+// kind of thing that belongs in front of a caller. Provenance that predicts nothing lives in the
+// proofRows/riskRows arrays, and those already stay out of the description.
+//
+// So: keep the clause and its tail, and take the LEAD from whichever source actually says
+// something. Length is the test for that, and it is deterministic where a hand-maintained
+// precedence list would rot.
+const PROVENANCE = /\s*\u2014\s*proof:[\s\S]*?risk:\s*([a-z-]+)\.?/i;
+
+const describe = (tool, fallback) => {
+  const meta = CATALOG[tool];
+  if (!meta?.description) return fallback;
+  const clause = meta.description.match(PROVENANCE);
+  if (!clause) return meta.description.length >= fallback.length ? meta.description : fallback;
+  const lead = meta.description.slice(0, clause.index).trim();
+  const tail = meta.description.slice(clause.index + clause[0].length).trim();
+  // A hand-written lead sometimes carries its own inline "(proof: engine source)". The catalog's
+  // clause is the authoritative one -- and the two disagree (engine source vs documented) -- so
+  // the inline copy is dropped rather than printed alongside it.
+  const handWritten = fallback
+    .replace(PROVENANCE, '')
+    .replace(/\s*\((?:proof|floor):[^()]*\)/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  const chosen = handWritten.length > lead.length ? handWritten.replace(/\.$/, '') : lead;
+  return [chosen, clause[0].trim(), tail].filter(Boolean).join(' ').replace(/\s{2,}/g, ' ');
+};
 
 const SCHEMA_KEYS = new WeakMap();
 const schema = (shape) => {
@@ -103,9 +141,11 @@ const typeCards = () => {
 };
 
 // ── the internal ENDPOINT catalog ─────────────────────────────────────────────────────────
-// 222 endpoints mined from GHL's own recovered builder source by
-// knowledge/scripts/build-endpoint-catalog.mjs. This exists because the internal rail had no
-// discovery layer: 39 hand-written tools, and everything else reachable only if you already knew
+// Endpoints mined from GHL's own recovered builder source by
+// knowledge/scripts/build-endpoint-catalog.mjs. The COUNT is never written down here: a hardcoded
+// "222" outlived the catalog reaching 235 and shipped stale in two places, with no test to catch
+// it. Read it from the file. This exists because the internal rail had no
+// discovery layer: hand-written tools, and everything else reachable only if you already knew
 // the path. The public rail solved the same problem with search -> describe -> execute over a
 // catalog; this is that, for reads.
 //
@@ -2282,7 +2322,7 @@ export const TOOLS = [
   },
   {
     name: 'build_workflow',
-    description: 'Build and verify a new workflow draft through the canonical dependency-aware orchestrator (proof: engine source). This tool never publishes.',
+    description: describe('build_workflow', 'Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes.'),
     inputSchema: schema({
       locationId: z.string(),
       spec: z.object({}).passthrough(),
@@ -2361,7 +2401,7 @@ export const TOOLS = [
   },
   {
     name: 'edit_workflow',
-    description: 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine (proof: engine source). Confirmed step edits use only the plain workflow PUT and are round-trip verified.',
+    description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -2757,7 +2797,7 @@ export const TOOLS = [
   },
   {
     name: 'publish_workflow',
-    description: 'Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope (proof: engine source). Publishing is round-trip verified but runtime firing still requires logs.',
+    description: describe('publish_workflow', 'Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified but runtime firing still requires logs.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -3833,7 +3873,7 @@ export const TOOLS = [
   {
     name: 'search_endpoints',
     description: `${describe('search_endpoints', 'Search the internal API surface — risk: read')}. `
-      + 'Ranked search over 222 internal endpoints mined from GHL\'s own builder source. Returns '
+      + `Ranked search over ${endpoints().length} internal endpoints mined from GHL's own builder source. Returns `
       + 'compact STUBS — method, path, base. Call describe_endpoint on the one you pick. '
       + 'Use this when no typed tool covers what you need, BEFORE reaching for raw_request. '
       + 'Reads no account data. A hit proves the GHL builder calls that path — NOT that your '
@@ -3898,11 +3938,12 @@ export const TOOLS = [
         status: 'source-derived',
         meaning: 'The GHL builder calls this path. That is NOT proof your token reaches it, nor '
                + 'that calling it is safe — some rows are permission-gated.',
-        headers: hit.base.endsWith('/workflow')
-          ? 'Standard Bearer. The marketplace headers below are tolerated but not required here.'
-          : 'REQUIRES Channel: APP, Source: WEB_USER, Version: 2021-04-15 in addition to the '
-            + 'Bearer. Without them this returns 401 with the body "version header was not found", '
-            + 'which reads like an auth failure and is not one.',
+        // A5: this used to tell the caller to send Channel/Source/Version: 2021-04-15. Two things
+        // were wrong with that. The gateway already sends channel/source/version on EVERY call
+        // (core/gateway.mjs), so the advice describes a solved problem -- and it named 2021-04-15
+        // while the gateway sends 2021-07-28. raw_request also exposes no header parameter, so the
+        // instruction was unactionable through the very tool this field points at.
+        headers: 'Auth and the marketplace headers are added for you on every call. Do not set them.',
         next: hit.method === 'GET'
           ? 'Call it with raw_request (GET needs no confirm). Read the result back before trusting it.'
           : 'This is a WRITE. Prefer a typed tool if one covers it — those carry the compiler and '
