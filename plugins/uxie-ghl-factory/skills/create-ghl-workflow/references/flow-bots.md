@@ -110,6 +110,20 @@ actions all work, and **third-party marketplace actions are permitted** (proven:
 WhatsApp from inside a flow. Full list and reasoning:
 `knowledge/corpus/workflows/40-rules/flow-bot-action-compatibility.md`.
 
+## Validators — there are none for this surface
+
+**No client-side validator exists for any of the nine nodes, or for either trigger.** Checked
+across all 18 of the builder's validator modules. So a flow-bot node's red badge is a
+required-field-presence check, not a validator, and the engine's required-field rules were
+assembled by hand from captures because there was nothing to read them off.
+
+The real gate is **server-side, on save** — five validation types (`action`, `trigger`,
+`structural`, `value`, `asset`) returned in a uniform `errorMetadata` envelope. A Custom trigger
+was seen to raise `trigger-condition-invalid` and block the save entirely. The client's rule table
+enumerates 28 ids and **does not include that one**, so it is not the server's catalogue.
+
+Details: `knowledge/corpus/workflows/40-rules/server-side-validation.md`.
+
 ## Known unknowns
 
 - **Runtime is unproven throughout.** No contact has chatted with a flow bot. Everything above is
