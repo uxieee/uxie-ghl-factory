@@ -265,6 +265,66 @@
     "path": "/workflow/{loc}/{wid}/history/{versionId}"
   },
   {
+    "tool": "get_trigger_logs",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "get_trigger_logs",
+    "method": "GET",
+    "path": "/workflows/trigger/logs/count-by-triggerId"
+  },
+  {
+    "tool": "get_trigger_logs",
+    "method": "GET",
+    "path": "/workflows/trigger/logs/triggerId"
+  },
+  {
+    "tool": "get_trigger_logs",
+    "method": "GET",
+    "path": "/workflows/trigger/logs/top-failed-reasons"
+  },
+  {
+    "tool": "get_account_workflow_overview",
+    "method": "GET",
+    "path": "/workflows/statistics"
+  },
+  {
+    "tool": "get_account_workflow_overview",
+    "method": "GET",
+    "path": "/workflows/logs/weekly-enrollment-data"
+  },
+  {
+    "tool": "get_account_workflow_overview",
+    "method": "GET",
+    "path": "/workflow/{loc}/error-notification/count"
+  },
+  {
+    "tool": "get_account_workflow_overview",
+    "method": "GET",
+    "path": "/workflow/{loc}/error-notification/list"
+  },
+  {
+    "tool": "get_account_workflow_overview",
+    "method": "GET",
+    "path": "/workflow/{loc}/error-notification/settings"
+  },
+  {
+    "tool": "get_account_workflow_overview",
+    "method": "GET",
+    "path": "/workflows/status/search/enroll-stats"
+  },
+  {
+    "tool": "get_account_workflow_overview",
+    "method": "GET",
+    "path": "/workflows/status/search/enroll-stats-cache"
+  },
+  {
+    "tool": "test_custom_code",
+    "method": "POST",
+    "path": "/workflow/custom-code/run-test"
+  },
+  {
     "tool": "list_account_entities",
     "method": "GET",
     "path": "/opportunities/pipelines"
@@ -526,6 +586,31 @@
   },
   {
     "tool": "build_workflow",
+    "method": "POST",
+    "path": "/workflow/custom-code/run-test"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "POST",
+    "path": "/hooks/{loc}/webhook-trigger/{triggerId}"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/hooks/inbound-webhook-request/trigger/{triggerId}"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "PUT",
+    "path": "/hooks/inbound-webhook-request/set-as-reference/{requestId}"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
+    "path": "/hooks/inbound-webhook-request/reference/{triggerId}"
+  },
+  {
+    "tool": "build_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"
   },
@@ -668,6 +753,26 @@
     "tool": "create_custom_field_folder",
     "method": "POST",
     "path": "/locations/{loc}/customFields"
+  },
+  {
+    "tool": "pin_webhook_sample",
+    "method": "POST",
+    "path": "/hooks/{loc}/webhook-trigger/{triggerId}"
+  },
+  {
+    "tool": "pin_webhook_sample",
+    "method": "GET",
+    "path": "/hooks/inbound-webhook-request/trigger/{triggerId}"
+  },
+  {
+    "tool": "pin_webhook_sample",
+    "method": "PUT",
+    "path": "/hooks/inbound-webhook-request/set-as-reference/{requestId}"
+  },
+  {
+    "tool": "pin_webhook_sample",
+    "method": "GET",
+    "path": "/hooks/inbound-webhook-request/reference/{triggerId}"
   },
   {
     "tool": "fast_forward_contacts",

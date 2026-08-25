@@ -165,3 +165,20 @@ test('no audit composite description promises an empty result on failure', () =>
       `${name} must state that a failure is never an empty result — that is the whole contract`);
   }
 });
+
+// P2 — the NORMAL capability manifest had no freshness guard, only the audit one did. It drifted
+// to 137 rows against 158 fresh: 21 real capabilities that tools declare (the whole inbound-webhook
+// rail, trigger logs, the account overview reads) were absent from the shipped artefact, with
+// nothing failing. Nothing had been REMOVED, so this was pure staleness -- which is exactly the
+// kind of gap that stays invisible without a diff.
+test('the COMMITTED capability manifest equals a fresh generation', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { fileURLToPath } = await import('node:url');
+  const { dirname, resolve } = await import('node:path');
+  const { buildCapabilityManifest, MANIFEST_PATH } = await import('../scripts/gen-manifest.mjs');
+  const committed = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
+  assert.deepEqual(
+    committed, buildCapabilityManifest(),
+    'capability-manifest.json is stale — run `npm run manifest` and commit it',
+  );
+});
