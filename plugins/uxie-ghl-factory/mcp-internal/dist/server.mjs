@@ -105186,7 +105186,18 @@ var CATALOG = true ? define_TOOL_CATALOG_default : (() => {
     return {};
   }
 })();
-var describe3 = (tool, fallback) => CATALOG[tool]?.description ?? fallback;
+var PROVENANCE = /\s*\u2014\s*proof:[\s\S]*?risk:\s*([a-z-]+)\.?/i;
+var describe3 = (tool, fallback) => {
+  const meta3 = CATALOG[tool];
+  if (!meta3?.description) return fallback;
+  const clause = meta3.description.match(PROVENANCE);
+  if (!clause) return meta3.description.length >= fallback.length ? meta3.description : fallback;
+  const lead = meta3.description.slice(0, clause.index).trim();
+  const tail = meta3.description.slice(clause.index + clause[0].length).trim();
+  const handWritten = fallback.replace(PROVENANCE, "").replace(/\s*\((?:proof|floor):[^()]*\)/gi, "").replace(/\s{2,}/g, " ").trim();
+  const chosen = handWritten.length > lead.length ? handWritten.replace(/\.$/, "") : lead;
+  return [chosen, clause[0].trim(), tail].filter(Boolean).join(" ").replace(/\s{2,}/g, " ");
+};
 var SCHEMA_KEYS = /* @__PURE__ */ new WeakMap();
 var schema = (shape) => {
   const inputSchema = external_exports.object(shape).passthrough();
@@ -107135,7 +107146,7 @@ var TOOLS2 = [
   },
   {
     name: "build_workflow",
-    description: "Build and verify a new workflow draft through the canonical dependency-aware orchestrator (proof: engine source). This tool never publishes.",
+    description: describe3("build_workflow", "Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes."),
     inputSchema: schema({
       locationId: external_exports.string(),
       spec: external_exports.object({}).passthrough(),
@@ -107205,7 +107216,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine (proof: engine source). Confirmed step edits use only the plain workflow PUT and are round-trip verified.",
+    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -107554,7 +107565,7 @@ var TOOLS2 = [
   },
   {
     name: "publish_workflow",
-    description: "Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope (proof: engine source). Publishing is round-trip verified but runtime firing still requires logs.",
+    description: describe3("publish_workflow", "Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified but runtime firing still requires logs."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -108588,7 +108599,7 @@ var TOOLS2 = [
   },
   {
     name: "search_endpoints",
-    description: `${describe3("search_endpoints", "Search the internal API surface \u2014 risk: read")}. Ranked search over 222 internal endpoints mined from GHL's own builder source. Returns compact STUBS \u2014 method, path, base. Call describe_endpoint on the one you pick. Use this when no typed tool covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves the GHL builder calls that path \u2014 NOT that your token can reach it, and not that calling it is safe.`,
+    description: `${describe3("search_endpoints", "Search the internal API surface \u2014 risk: read")}. Ranked search over ${endpoints().length} internal endpoints mined from GHL's own builder source. Returns compact STUBS \u2014 method, path, base. Call describe_endpoint on the one you pick. Use this when no typed tool covers what you need, BEFORE reaching for raw_request. Reads no account data. A hit proves the GHL builder calls that path \u2014 NOT that your token can reach it, and not that calling it is safe.`,
     inputSchema: schema({
       intent: external_exports.string().describe('what you want to do, in plain words \u2014 e.g. "list workflow folders", "erroring workflows", "scheduled pause"'),
       method: external_exports.string().trim().optional().describe("filter to one HTTP method, e.g. GET"),
@@ -108645,7 +108656,12 @@ var TOOLS2 = [
         ...hit,
         status: "source-derived",
         meaning: "The GHL builder calls this path. That is NOT proof your token reaches it, nor that calling it is safe \u2014 some rows are permission-gated.",
-        headers: hit.base.endsWith("/workflow") ? "Standard Bearer. The marketplace headers below are tolerated but not required here." : 'REQUIRES Channel: APP, Source: WEB_USER, Version: 2021-04-15 in addition to the Bearer. Without them this returns 401 with the body "version header was not found", which reads like an auth failure and is not one.',
+        // A5: this used to tell the caller to send Channel/Source/Version: 2021-04-15. Two things
+        // were wrong with that. The gateway already sends channel/source/version on EVERY call
+        // (core/gateway.mjs), so the advice describes a solved problem -- and it named 2021-04-15
+        // while the gateway sends 2021-07-28. raw_request also exposes no header parameter, so the
+        // instruction was unactionable through the very tool this field points at.
+        headers: "Auth and the marketplace headers are added for you on every call. Do not set them.",
         next: hit.method === "GET" ? "Call it with raw_request (GET needs no confirm). Read the result back before trusting it." : "This is a WRITE. Prefer a typed tool if one covers it \u2014 those carry the compiler and the verification. raw_request needs confirm:true and does neither."
       } };
     })

@@ -13,9 +13,19 @@ test('every tool has a name, description, schema, handler and declared capabilit
   }
 });
 
+// A1 changed which LEAD ships, not whether proof status ships. The original contract -- every
+// capability-bearing description discloses its proof -- is deliberate and is restored here.
 test('capability-bearing descriptions carry proof labels', () => {
   const withRows = TOOLS.filter(t => t.capabilities.length > 0);
   for (const t of withRows) assert.match(t.description, /proof:/, `${t.name} carries a proof label`);
+});
+
+test('a stub catalog entry does not shadow the hand-written sentence', () => {
+  const logs = TOOLS.find((t) => t.name === 'get_workflow_logs');
+  // Shipped as the bare title "Get workflow logs" until A1; this sentence is what routes an agent
+  // to the right tool for "what did this run actually do".
+  assert.match(logs.description, /executionId/, 'get_workflow_logs keeps its operational sentence');
+  assert.match(logs.description, /proof:/, 'and still discloses proof status');
 });
 
 test('read tools declare only GET capabilities', () => {

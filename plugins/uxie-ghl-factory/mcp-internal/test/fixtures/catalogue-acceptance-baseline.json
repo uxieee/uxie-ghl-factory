@@ -1,0 +1,509 @@
+{
+  "task": "A0",
+  "measuredAgainst": "catalogue and ranker as shipped, before any change in this plan",
+  "measuredOn": "2026-08-25",
+  "note": "Offline half only — search_endpoints reads no account data and needs no token. The online half (did the first raw_request succeed) requires a live JWT and is recorded separately as part of F3. No account data appears here: these are catalogue paths, not results.",
+  "aggregate": {
+    "intentsMeasured": 10,
+    "catalogueCount": 235,
+    "topThreeSlots": 30,
+    "writeSlotsInTopThree": 18,
+    "intentsWithCleanReadOnlyTopThree": 1,
+    "totalFieldRange": [
+      108,
+      218
+    ]
+  },
+  "intents": [
+    {
+      "intent": "why did a premium step not run on this account",
+      "total": 111,
+      "top10": [
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/custom-code/run-test"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/run-single-action"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step/:stepId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/list"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/count"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/settings"
+        },
+        {
+          "method": "PUT",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/settings/users"
+        },
+        {
+          "method": "PUT",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/settings/is-active"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/premium-tier-usage/:tier"
+        }
+      ],
+      "writesInTop3": 2,
+      "deletesInTop10": 0,
+      "top3AllRead": false
+    },
+    {
+      "intent": "which workflows contain an SMS step",
+      "total": 165,
+      "top10": [
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/:workflowId/remove-stuck-statuses/:stepId"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/:workflowId/requeue-stuck-statuses/:stepId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflows/status/search/count-per-step"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/ai/sms-ai"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/sms/send-test-sms"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step/:stepId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/workflow-templates"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/loop-lock/:workflowId"
+        }
+      ],
+      "writesInTop3": 2,
+      "deletesInTop10": 0,
+      "top3AllRead": false
+    },
+    {
+      "intent": "is this workflow paused on a schedule",
+      "total": 164,
+      "top10": [
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/scheduled-pause/config"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/scheduled-pause/config"
+        },
+        {
+          "method": "DELETE",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/scheduled-pause/config/:recordId"
+        },
+        {
+          "method": "PUT",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/scheduled-pause/config/:recordId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/workflow-templates"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/loop-lock/:workflowId"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/v2/ai/build-workflow"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow/:workflowId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/workflow-rendering/:workflowId"
+        }
+      ],
+      "writesInTop3": 2,
+      "deletesInTop10": 1,
+      "top3AllRead": false
+    },
+    {
+      "intent": "read the split test results for this workflow",
+      "total": 165,
+      "top10": [
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/custom-code/run-test"
+        },
+        {
+          "method": "DELETE",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/split"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/split/stats"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/split/isExecuted"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/sms/send-test-sms"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/email/send-test-email"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/workflow-templates"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/loop-lock/:workflowId"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/v2/ai/build-workflow"
+        }
+      ],
+      "writesInTop3": 2,
+      "deletesInTop10": 1,
+      "top3AllRead": false
+    },
+    {
+      "intent": "list the workflow folders",
+      "total": 168,
+      "top10": [
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/workflow/:workflowId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflows/copyWorkflow/logList"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflows/copyWorkflow/statusList"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflows/copyWorkflow/internalLogList"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:listEndpoint"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/list"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/list"
+        },
+        {
+          "method": "DELETE",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/remove-directory/:folderId"
+        },
+        {
+          "method": "PUT",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/rename-directory/:folderId"
+        }
+      ],
+      "writesInTop3": 1,
+      "deletesInTop10": 1,
+      "top3AllRead": false
+    },
+    {
+      "intent": "find the error notifications for this account",
+      "total": 108,
+      "top10": [
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/list"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/count"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/settings"
+        },
+        {
+          "method": "PUT",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/settings/users"
+        },
+        {
+          "method": "PUT",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/settings/is-active"
+        },
+        {
+          "method": "DELETE",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/:workflowId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/error-notification/:workflowId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/twilio-accounts"
+        },
+        {
+          "method": "METHOD-UNKNOWN",
+          "path": "backend.leadconnectorhq.com/oauth/clients/:appId/authentication/locations/:locationId/accounts"
+        },
+        {
+          "method": "METHOD-UNKNOWN",
+          "path": "backend.leadconnectorhq.com/oauth/clients/:appId/authentication/locations/:locationId/accounts/:accountId"
+        }
+      ],
+      "writesInTop3": 0,
+      "deletesInTop10": 1,
+      "top3AllRead": true
+    },
+    {
+      "intent": "what did this specific execution do step by step",
+      "total": 108,
+      "top10": [
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step/:stepId"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/:workflowId/remove-stuck-statuses/:stepId"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/:workflowId/requeue-stuck-statuses/:stepId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflows/status/search/count-per-step"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/ivr/get-mappings-by-phones"
+        },
+        {
+          "method": "DELETE",
+          "path": "backend.leadconnectorhq.com/workflow/oauth2/delete-token-by-state"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/rate-limiting/bypass"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/rate-limiting/bypass"
+        },
+        {
+          "method": "DELETE",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/rate-limiting/bypass/:id"
+        }
+      ],
+      "writesInTop3": 2,
+      "deletesInTop10": 2,
+      "top3AllRead": false
+    },
+    {
+      "intent": "register a test webhook for a marketplace trigger",
+      "total": 218,
+      "top10": [
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/register-test-webhook"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/deregister-test-webhook"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/register-test-polling"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/test-trigger"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflows-marketplace/internal-triggers/integration/webhook-operation"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/forms"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:marketPlaceBackendURL/integrations/facebook/:locationId/trigger/pages"
+        },
+        {
+          "method": "GET",
+          "path": "services.leadconnectorhq.com/hooks/inbound-webhook-request/trigger/:triggerId"
+        },
+        {
+          "method": "GET",
+          "path": "services.leadconnectorhq.com/hooks/inbound-webhook-request/reference/:triggerId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/marketplace/app/:appId/versions/latest"
+        }
+      ],
+      "writesInTop3": 3,
+      "deletesInTop10": 0,
+      "top3AllRead": false
+    },
+    {
+      "intent": "read the account email deliverability posture",
+      "total": 116,
+      "top10": [
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/ai/email-ai"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/email/send-test-email"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/email/location-email-provider"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/twilio-accounts"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/conversations-reporting/emails"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/conversations-reporting/emails/aggregate"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/emails/builder/custom-value-defaults/track"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/emails/builder/meta/:locationId/:id"
+        },
+        {
+          "method": "DELETE",
+          "path": "backend.leadconnectorhq.com/emails/trigger/:locationId/:triggerId"
+        },
+        {
+          "method": "METHOD-UNKNOWN",
+          "path": "backend.leadconnectorhq.com/oauth/clients/:appId/authentication/locations/:locationId/accounts"
+        }
+      ],
+      "writesInTop3": 2,
+      "deletesInTop10": 1,
+      "top3AllRead": false
+    },
+    {
+      "intent": "which contacts are sitting at step X right now",
+      "total": 195,
+      "top10": [
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/:workflowId/remove-stuck-statuses/:stepId"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/:workflowId/requeue-stuck-statuses/:stepId"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflows/status/search/count-per-step"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step"
+        },
+        {
+          "method": "GET",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/contact"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/step/:stepId"
+        },
+        {
+          "method": "POST",
+          "path": "backend.leadconnectorhq.com/workflow/flowguard/blacklist/contact/:contactId"
+        },
+        {
+          "method": "METHOD-UNKNOWN",
+          "path": "backend.leadconnectorhq.com/workflow/:locationId/v3/ai/wait"
+        },
+        {
+          "method": "METHOD-UNKNOWN",
+          "path": "backend.leadconnectorhq.com/workflow/agent/:locationId/models"
+        },
+        {
+          "method": "METHOD-UNKNOWN",
+          "path": "backend.leadconnectorhq.com/workflow/agent/:locationId/feedback"
+        }
+      ],
+      "writesInTop3": 2,
+      "deletesInTop10": 0,
+      "top3AllRead": false
+    }
+  ]
+}
