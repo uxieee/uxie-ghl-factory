@@ -11,7 +11,7 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [Unreleased]
+## [0.30.0] — 2026-08-25
 
 ### Changed
 
