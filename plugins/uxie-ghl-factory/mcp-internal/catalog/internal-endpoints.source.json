@@ -1,6 +1,12 @@
 {
   "generated": "2026-08-25",
   "source": "sniffs/bundle-2026-08-21-2/recovered-source/src",
+  "capture": {
+    "dir": "sniffs/bundle-2026-08-21-2",
+    "capturedAt": "2026-08-21T07:53:43.614Z",
+    "hash": "1413b07bd2cb1b77",
+    "fileCount": 1867
+  },
   "note": "SOURCE-DERIVED ONLY. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves the builder calls that path — not that your token reaches it, and not that calling it is safe. `origin` is scheme+host only; any prefix is folded into `path`, which is the full wire path raw_request takes.",
   "discoveredCallSites": 379,
   "skippedCallSites": 26,
