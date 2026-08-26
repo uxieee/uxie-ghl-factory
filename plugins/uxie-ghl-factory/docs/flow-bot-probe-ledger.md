@@ -54,11 +54,11 @@ guarantee, so `planTriggerOps` now refuses `modifyTrigger` and `deleteTrigger` o
 
 ## G1 confirmed by GHL's own client
 
-A real `FLOW_BUILDER_BOT` was created (`czHXZyPPqcoRg37CeSKg`) and bound to the fixed probe
+A real `FLOW_BUILDER_BOT` was created (`{agentId}`) and bound to the fixed probe
 workflow, then the flow builder was opened. GHL's own UI:
 
 - titles the surface **"Conversation AI"**, not Automation — it is the bot's canvas;
-- renders the trigger node as `Bot Id is "czHXZyPPqcoRg37CeSKg"` — **read straight out of the
+- renders the trigger node as `Bot Id is "{agentId}"` — **read straight out of the
   `conditions[].botId` row the fix emits**;
 - offers the flow-bot-only **"Test bot"** control;
 - **disables the Settings tab** (a flow workflow has no settings surface).
@@ -126,11 +126,15 @@ assume a flow build is inert.
 
 ## Probe artifacts — left in place, for a human to remove
 
+Identifiers are templated here because this repo is **public**. Find these by NAME in the UI; the
+real ids are recorded in the private `knowledge/` probe record
+(`corpus/workflows/70-research/2026-08-26-flow-bot-probe.md`) and in this session's report.
+
 | what | id |
 |---|---|
-| workflow `CLAUDE PROBE flowbot-binding 2026-08-26 (G1 A/B, safe to delete)` | `97134393-9fd8-4448-923c-423d3728f361` |
-| workflow `CLAUDE PROBE flowbot-binding-FIXED 2026-08-26 (G1 proof, safe to delete)` | `48578281-7146-47ce-8289-d05dd789a728` |
-| AI agent `ZZ CLAUDE FLOW-BOT PROBE 2026-08-26` (FLOW_BUILDER_BOT, `mode: off`) | `czHXZyPPqcoRg37CeSKg` |
+| workflow `CLAUDE PROBE flowbot-binding 2026-08-26 (G1 A/B, safe to delete)` | `{workflowId}` |
+| workflow `CLAUDE PROBE flowbot-binding-FIXED 2026-08-26 (G1 proof, safe to delete)` | `{workflowId}` |
+| AI agent `ZZ CLAUDE FLOW-BOT PROBE 2026-08-26` (FLOW_BUILDER_BOT, `mode: off`) | `{agentId}` |
 
 The second workflow is the corrected artifact, bound to the probe agent above. The agent is
 `mode: "off"` so it will not answer anything. Both workflows report `published` (see above) — that
