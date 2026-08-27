@@ -200,10 +200,14 @@ export function compileSubgraph(node, ctx) {
     { name: '_edit', triggers: [], graph: [{ ...node, ref: '_edit_step', kind: node.kind ?? 'action', assocGuaranteed: true }] },
     ctx,
   );
-  // `_templates`, not `autoSaveBody.workflowData.templates`: the latter has had its
-  // terminal `next: null` stripped for the wire (terminals.mjs), which would delete the
-  // end-of-chain marker this splice depends on for every node it inherits, not just the
-  // head — e.g. an empty find_opportunity Not-Found transition with no children.
+  // `_templates`, not `autoSaveBody.workflowData.templates`: the latter has its terminal
+  // `next: null` stripped for the wire (terminals.mjs). Reading the stripped shape here would
+  // not break any splice logic — rootTail/scopeChain/inboundOf/branchTargets below are all
+  // absent-safe — but it WOULD hand the edit graph an inconsistent node (missing `next` on a
+  // terminal it inherits, e.g. an empty find_opportunity Not-Found transition) next to every
+  // other node in the graph that still carries `next: null`. `_templates` keeps every node
+  // compileSubgraph hands off in the SAME in-memory convention as the rest of the graph.
+  // See compiler.mjs's `_templates` comment for the aliasing hazard this shortcut carries.
   const tpls = out._templates;
   // The compiled scope's head: the only node the flattener left unparented.
   const head = tpls.find((t) => (t.parentKey === null || t.parentKey === undefined) && t.parent == null) ?? tpls[0];

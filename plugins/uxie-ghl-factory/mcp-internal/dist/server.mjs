@@ -144951,7 +144951,7 @@ var TOOLS2 = [
       }
       const roundTripResponse = roundTripCall.value;
       const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
-      const verify = verifyEditRoundTrip(templates, beforeTemplates, gotTemplates);
+      const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;

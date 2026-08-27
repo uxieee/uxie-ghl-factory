@@ -8,6 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { TOOLS } from '../core/tools.mjs';
+import { stripNullNext } from '../../skills/create-ghl-workflow/engine/terminals.mjs';
 
 const editTool = () => TOOLS.find((candidate) => candidate.name === 'edit_workflow');
 
@@ -130,9 +131,12 @@ test('a marketplace op fetches the index and commits the marketplace step shape'
   assert.equal(step.attributes.type, 'imessage_a');
   assert.equal(step.attributes.message, 'Hi {{contact.first_name}}');
   assert.equal('body' in step.attributes, false, 'the old sms body survived into the marketplace step');
-  // Graph untouched: same ids, same count, same wiring.
+  // Graph untouched: same ids, same count, same wiring. The stored document strips a
+  // terminal's `next: null` at the wire boundary (terminals.mjs) — s3 loses the key on
+  // commit, same as `smsWorkflow()`'s fixture would if it were ever written, so the fixture
+  // side is normalised the same way before comparing.
   assert.deepEqual(current().workflowData.templates.map((t) => [t.id, t.next, t.parentKey, t.order]),
-    smsWorkflow().workflowData.templates.map((t) => [t.id, t.next, t.parentKey, t.order]));
+    stripNullNext(smsWorkflow().workflowData.templates).map((t) => [t.id, t.next, t.parentKey, t.order]));
   assert.deepEqual(current().meta.stepIndexCounter, { imessage_a: 1 });
 });
 
