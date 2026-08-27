@@ -17,6 +17,7 @@ import { checkStepRefs } from './graph-refs.mjs';
 import { applyUiDefaults } from './ui-defaults.mjs';
 import { checkIfElseVocab } from './ifelse-vocab.mjs';
 import { checkMergeTags } from './merge-tags.mjs';
+import { gotoLoops } from './goto-loops.mjs';
 
 // NINE step types take a DEDICATED attribute builder instead of the generic normalizeAttrs path,
 // and normalizeAttrs is where enforceRequiredFields is wired. So every one of them reached GHL
@@ -1550,6 +1551,19 @@ export function buildTrigger(t, ctx, wid, refMap) {
     ctx?.warn?.(`TRIGGER_TARGET: '${t.name ?? t.type}' is a goto trigger with NO target — the `
       + 'builder flags it as an incomplete trigger. Pass `target: "<step ref>"`.');
   }
+  if (targetActionId && isGotoTriggerType(t.type, ctx)) {
+    ctx?.warn?.(`GOTO_TRIGGER_RACE: '${t.name ?? t.type}' re-enters the flow at a step via `
+      + 'targetActionId. GHL can deliver the SAME trigger event twice ~15s apart (different '
+      + 'workflowTraceIds, at-least-once delivery). The second firing\'s remove-from-run lands '
+      + 'on the run the first one created, and its re-enrol never arrives: the run dies mid-'
+      + 'conversation with no reply and no field writes. Reproduced 3/3 on 2026-08-27 '
+      + '(goto-kill-evidence.md). The fatal case is a remove hitting a run WAITING at an '
+      + 'interactive step, so a targeted section that only derives and records is survivable '
+      + 'while one that asks a question is not. GHL\'s own pattern avoids the jump entirely: '
+      + 'land every trigger at the flow HEAD and route on trigger identity with a head if_else '
+      + '({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} '
+      + '— conditionSubType is mandatory).');
+  }
   return {
     status: 'draft', workflowId: wid, schedule_config: {},
     ...(targetActionId ? { targetActionId } : {}),
@@ -1803,6 +1817,19 @@ export function compile(ir, ctx) {
   // UI defaults + constructor-forced fields FIRST, so enforcement sees the same initialized
   // shape the UI's validators see (ui-defaults.mjs; corpus-verified keys only)
   applyUiDefaults(templates, ctx?.catalog, ctx);
+  // A goto that closes a cycle gets the WORKFLOW stamped loopIdentified by GHL's backend and
+  // demoted to draft — for a published client flow that means it silently stops running. Refuse
+  // it at author time rather than shipping a workflow the platform will lock. See goto-loops.mjs.
+  const loops = gotoLoops(templates);
+  if (loops.length) {
+    throw new IRError('GOTO_LOOP',
+      `GOTO_LOOP: ${loops.length} goto step(s) jump BACKWARD to a step that can reach them again: `
+      + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join('; ')
+      + '. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow '
+      + 'loopIdentified and forces its status to draft — a published workflow silently stops. '
+      + 'Loops are not a legal flow shape here: restructure so the goto points forward, or use '
+      + 'the dedicated `loop` step type, which is a supported container with its own body.');
+  }
   // custom_code needs a SERVER test run before the builder accepts it: the drawer's Save requires
   // attributes.output to be the non-empty object returned by POST /custom-code/run-test, and editing
   // the code voids it (custom-code-components, recovered 2026-08-22). The engine can't run the test

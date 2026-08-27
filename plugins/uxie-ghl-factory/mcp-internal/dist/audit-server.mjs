@@ -136336,6 +136336,48 @@ function checkMergeTags(templates, catalog, ctx) {
   return F;
 }
 
+// ../skills/create-ghl-workflow/engine/goto-loops.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+function gotoLoops(templates) {
+  if (!Array.isArray(templates)) return [];
+  const byId = new Map(templates.filter((t) => t && t.id).map((t) => [t.id, t]));
+  const successors = (step) => {
+    const n = step?.next;
+    if (Array.isArray(n)) return n.filter((x) => typeof x === "string");
+    return typeof n === "string" ? [n] : [];
+  };
+  const out = [];
+  for (const g of templates) {
+    if (g?.type !== "goto") continue;
+    const target = g.attributes?.targetNodeId;
+    if (!target || !byId.has(target)) continue;
+    const seen = /* @__PURE__ */ new Set();
+    const stack = [target];
+    let loops = false;
+    while (stack.length) {
+      const id = stack.pop();
+      if (id === g.id) {
+        loops = true;
+        break;
+      }
+      if (seen.has(id)) continue;
+      seen.add(id);
+      for (const s of successors(byId.get(id))) stack.push(s);
+    }
+    if (loops) {
+      out.push({
+        id: g.id,
+        name: g.name ?? null,
+        target,
+        targetName: byId.get(target)?.name ?? null
+      });
+    }
+  }
+  return out;
+}
+
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 var DEDICATED_ATTRIBUTES = [
   [(n) => n.marketplace === true, (n, ctx) => marketplaceAttributes(n, ctx)],
@@ -137489,6 +137531,9 @@ function buildTrigger(t, ctx, wid, refMap) {
   if (!targetActionId && isGotoTriggerType(t.type, ctx)) {
     ctx?.warn?.(`TRIGGER_TARGET: '${t.name ?? t.type}' is a goto trigger with NO target \u2014 the builder flags it as an incomplete trigger. Pass \`target: "<step ref>"\`.`);
   }
+  if (targetActionId && isGotoTriggerType(t.type, ctx)) {
+    ctx?.warn?.(`GOTO_TRIGGER_RACE: '${t.name ?? t.type}' re-enters the flow at a step via targetActionId. GHL can deliver the SAME trigger event twice ~15s apart (different workflowTraceIds, at-least-once delivery). The second firing's remove-from-run lands on the run the first one created, and its re-enrol never arrives: the run dies mid-conversation with no reply and no field writes. Reproduced 3/3 on 2026-08-27 (goto-kill-evidence.md). The fatal case is a remove hitting a run WAITING at an interactive step, so a targeted section that only derives and records is survivable while one that asks a question is not. GHL's own pattern avoids the jump entirely: land every trigger at the flow HEAD and route on trigger identity with a head if_else ({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} \u2014 conditionSubType is mandatory).`);
+  }
   return {
     status: "draft",
     workflowId: wid,
@@ -137689,6 +137734,13 @@ function compile(ir, ctx) {
   };
   const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid, refMap));
   applyUiDefaults(templates, ctx?.catalog, ctx);
+  const loops = gotoLoops(templates);
+  if (loops.length) {
+    throw new IRError(
+      "GOTO_LOOP",
+      `GOTO_LOOP: ${loops.length} goto step(s) jump BACKWARD to a step that can reach them again: ` + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join("; ") + '. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow loopIdentified and forces its status to draft \u2014 a published workflow silently stops. Loops are not a legal flow shape here: restructure so the goto points forward, or use the dedicated `loop` step type, which is a supported container with its own body.'
+    );
+  }
   if (typeof ctx?.warn === "function") {
     for (const t of templates) {
       if (t?.type !== "custom_code") continue;

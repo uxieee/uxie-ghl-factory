@@ -361,11 +361,22 @@ test('multipath reply-wait: container + 2 transition steps + both paths', () => 
   assert.equal(t.find((s) => s.name === 'No reply').parent, container.next[1]);
 });
 
+// Target 'end' lives inside an earlier branch's dead end, not on the root chain the goto sits
+// on: a target that CAN reach the goto again closes a cycle and GOTO_LOOP refuses it at compile
+// time (goto-loops.test.mjs owns that case). This fixture is only about the goto's own wire
+// shape (a root-scope goto stays lean), so 'g' stays a plain root-scope step and the target is
+// placed where it cannot loop back to it.
 const gotoIR = {
-  name: 'Loop', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+  name: 'Skip ahead', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
   graph: [
+    { ref: 'branch', kind: 'if_else', name: 'Split', branches: [
+      { ref: 'yes', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'x' }], then: [
+        { ref: 'end', kind: 'action', type: 'add_contact_tag', name: 'End', attributes: { tags: ['e'] } },
+      ] },
+      { ref: 'no', name: 'No', else: true, then: [] },
+    ] },
     { ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'Start', attributes: { tags: ['s'] } },
-    { ref: 'g', kind: 'goto', target: 'a' },
+    { ref: 'g', kind: 'goto', target: 'end' },
   ],
 };
 
@@ -373,8 +384,9 @@ test('goto emits targetNodeId, no next key, lean envelope', () => {
   const { autoSaveBody } = compile(gotoIR, ctx());
   const t = autoSaveBody.workflowData.templates;
   const start = t.find((s) => s.name === 'Start');
+  const end = t.find((s) => s.name === 'End');
   const g = t.find((s) => s.type === 'goto');
-  assert.equal(g.attributes.targetNodeId, start.id);
+  assert.equal(g.attributes.targetNodeId, end.id);
   assert.equal(g.attributes.type, 'goto');
   // Terminal: no `next` key on the wire, not next:null (see terminals.mjs — the save
   // validator refuses an explicit null; live A/B 2026-08-27).
