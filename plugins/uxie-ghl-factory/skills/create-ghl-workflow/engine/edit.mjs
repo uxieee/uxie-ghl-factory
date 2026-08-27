@@ -19,29 +19,40 @@ import { gotoLoops } from './goto-loops.mjs';
 // A trigger added via the API lands `active: false` on the server NO MATTER WHAT the
 // POST body said.
 //
-// RETIRED 2026-08-27 (Task 9, workflow save-correctness): this module used to export
-// shouldActivateTriggers()/triggerActivationBody(), which drove a status draft→published
-// double full-document PUT here — every trigger forced active:true onto that PUT's
-// oldTriggers/newTriggers roster ("mirroring the builder's real publish", or so it was
-// believed). Live-proven INERT: the PUT is accepted, `version` bumps, and the stored
-// trigger's `active` flag never moves — the same shape as the reported "every generic
-// write path for workflow trigger conditions returns 200 and changes nothing" defect.
+// Two write rails were tried here and retired, in order — kept as history so neither gets
+// re-proposed:
+//   1. RETIRED 2026-08-27 (Task 9, workflow save-correctness): this module used to export
+//      shouldActivateTriggers()/triggerActivationBody(), which drove a status
+//      draft→published double full-document PUT — every trigger forced active:true onto
+//      that PUT's oldTriggers/newTriggers roster ("mirroring the builder's real publish",
+//      or so it was believed). Live-proven INERT: the PUT is accepted, `version` bumps, and
+//      the stored trigger's `active` flag never moves — the same shape as the reported
+//      "every generic write path for workflow trigger conditions returns 200 and changes
+//      nothing" defect.
+//   2. RETIRED 2026-08-28: what replaced it was a per-trigger PUT
+//      /workflow/{loc}/trigger/{triggerId} carrying the WHOLE trigger record with
+//      active:true (planTriggerActivation(), formerly in edit-driver.mjs). That rail is
+//      genuinely live-proven for trigger CONTENT — conditions, name, targetActionId all
+//      land and persist — so it stayed in use for modifyTrigger. For `active` specifically
+//      it was retracted to "unproven" the same day it shipped (a probe read it back
+//      unchanged), and then fully DISPROVED on 2026-08-28 by three measurements
+//      (throwaway probes on the designated test sub-account): a publish with ZERO trigger
+//      writes still activates every trigger, sub-second after the publish PUT returns; a
+//      per-trigger PUT with active:false against a published workflow returns 200 and the
+//      trigger stays active:true; and the sub-second publish-to-active convergence is what
+//      actually explained the earlier "read back unchanged" result, not an unsettled value.
+//      `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state — this
+//      endpoint accepts the field and silently ignores it, in both directions. The write
+//      was a 200 that changed nothing: exactly the defect class Task 9 existed to
+//      eliminate. It was removed rather than kept "best effort".
 //
-// What replaced it is a per-trigger PUT /workflow/{loc}/trigger/{triggerId} carrying the
-// WHOLE trigger record with active:true (planTriggerActivation() in edit-driver.mjs —
-// scripts/edit.mjs's activation step and mcp-internal's publish_workflow both use it now). That
-// rail is live-proven (2026-08-27, read-back verified) for trigger CONTENT — conditions, name,
-// targetActionId — but it is NOT proven to persist `active`: a live probe the same day sent
-// this exact shape with active:false against two triggers and both read back UNCHANGED.
-// Trigger activation itself remains an open, unsolved defect. What makes this safe to ship
-// anyway is that every caller treats the write as an attempt, not a fact — each one re-lists
-// triggers afterward and fails loudly (publish_workflow's round-trip check, scripts/edit.mjs's
-// exitCode:2, orchestrate.mjs's --publish gate) rather than reporting success on a bare 200.
-//
-// Whether to run activation at all is still decided from the workflow's status (only a
-// PUBLISHED workflow gets it — publishing a draft is a separate, user-confirmed decision,
-// never a side effect of a trigger edit), but the write itself no longer touches the workflow
-// document or its `status` at all.
+// Nothing replaced it. There is no known write that activates a trigger against an
+// ALREADY-published workflow — publishing (or re-publishing) is the only known way `active`
+// moves, because it is a side effect of the publish transition itself. Whether to even
+// check is still decided from the workflow's status (only a PUBLISHED workflow gets a
+// post-edit activation check — publishing a draft is a separate, user-confirmed decision,
+// never a side effect of a trigger edit); when it does run, it can only read the truth back
+// and report it loudly (scripts/edit.mjs's exitCode:2), never claim to fix it.
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).

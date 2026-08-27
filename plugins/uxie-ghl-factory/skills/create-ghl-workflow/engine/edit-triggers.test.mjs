@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { partitionOps, planTriggerOps, planTriggerActivation, resolveTrigger, applyOps } from './edit-driver.mjs';
+import * as editDriver from './edit-driver.mjs';
+import { partitionOps, planTriggerOps, resolveTrigger, applyOps } from './edit-driver.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
 
@@ -120,36 +121,30 @@ test('resolveTrigger: a miss names what is actually there', () => {
   assert.throws(() => resolveTrigger({ op: 'deleteTrigger' }, existing()), /needs a triggerId, or a name\/type/);
 });
 
-// RETIRED 2026-08-27 (Task 9, workflow save-correctness): shouldActivateTriggers /
-// triggerActivationBody implemented a draft→published double full-document PUT, forcing every
-// trigger's `active` onto that PUT's oldTriggers/newTriggers roster. Live-proven INERT — GHL
-// accepts the PUT, bumps the version, and the stored trigger's `active` flag never moves. The
-// real write rail, captured from a live builder save, is a per-trigger
-// PUT /workflow/{loc}/trigger/{triggerId} carrying the whole trigger record with active:true —
-// see planTriggerActivation below, now the only activation path (scripts/edit.mjs and
-// mcp-internal's publish_workflow both use it).
-test('planTriggerActivation: only triggers found inactive get a PUT; an already-active trigger is left alone', () => {
-  const live = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] },
-    { id: 'tr2', _id: 'tr2', type: 'contact_changed', name: 'Changed', active: true, conditions: [] }];
-  const plan = planTriggerActivation(live, { loc: 'LOC' });
-  assert.equal(plan.length, 1, 'the already-active trigger must not be re-written');
-  assert.equal(plan[0].method, 'PUT');
-  assert.equal(plan[0].path, '/workflow/LOC/trigger/tr1');
-  assert.equal(plan[0].triggerId, 'tr1');
-});
-
-test('planTriggerActivation PUTs the WHOLE trigger record, not a patch — plus active:true and triggersChanged:true', () => {
-  const live = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [{ field: 'tagsAdded', value: 'vip' }], workflow_id: 'wid-1', location_id: 'LOC' }];
-  const [r] = planTriggerActivation(live, { loc: 'LOC' });
-  assert.equal(r.body.active, true);
-  assert.equal(r.body.triggersChanged, true);
-  assert.equal(r.body.type, 'contact_tag');      // the rest of the record carries over verbatim
-  assert.equal(r.body.name, 'VIP added');
-  assert.deepEqual(r.body.conditions, [{ field: 'tagsAdded', value: 'vip' }]);
-  assert.equal(r.body.workflow_id, 'wid-1');
-});
-
-test('planTriggerActivation on an all-active roster plans nothing', () => {
-  const live = [{ id: 'tr1', active: true }, { id: 'tr2', active: true }];
-  assert.deepEqual(planTriggerActivation(live, { loc: 'LOC' }), []);
+// HISTORY (do not re-propose either of these):
+//   RETIRED 2026-08-27 (Task 9, workflow save-correctness): shouldActivateTriggers /
+//   triggerActivationBody implemented a draft→published double full-document PUT, forcing
+//   every trigger's `active` onto that PUT's oldTriggers/newTriggers roster. Live-proven
+//   INERT — GHL accepts the PUT, bumps the version, and the stored trigger's `active` flag
+//   never moves.
+//   RETIRED 2026-08-28: what replaced it, planTriggerActivation() (formerly exported from
+//   this module), built one PUT /workflow/{loc}/trigger/{triggerId} per inactive trigger,
+//   carrying the whole record with active:true. This module used to unit-test that planner
+//   directly (only-inactive-gets-a-PUT, whole-record-not-a-patch, all-active-plans-nothing).
+//   Measurement (throwaway probes on the designated test sub-account, 2026-08-28, three
+//   experiments) proved the write itself was inert: a publish with ZERO trigger writes
+//   still activates every trigger sub-second after the publish PUT returns, and a
+//   per-trigger PUT with active:false against a published workflow returns 200 with the
+//   trigger reading active:true regardless. `active` is a SERVER-MANAGED PROJECTION of the
+//   workflow's publish state, not a field this endpoint's body controls in either
+//   direction. The planner was removed rather than kept unused — see edit-driver.mjs for
+//   the full record. The three unit tests above are replaced by the one below, which pins
+//   the new contract: this module offers no per-trigger activation planner at all. The
+//   integration-level assertions (publish sends no such write; the post-write verification
+//   still fires and fails loudly on an inactive trigger) live in
+//   mcp-internal/test/publish-workflow.test.mjs and orchestrate.test.mjs, where the actual
+//   publish handlers run.
+test('edit-driver exports no per-trigger activation planner — activation is not a write this module offers', () => {
+  assert.equal('planTriggerActivation' in editDriver, false,
+    'planTriggerActivation was removed 2026-08-28 as a proven-inert write; do not reintroduce it here');
 });
