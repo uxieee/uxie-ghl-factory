@@ -187,15 +187,24 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
   });
 }
 
-// Task 9 (workflow save-correctness): the ONLY rail proven to flip a trigger's stored `active`
-// flag. Both the full-document PUT's oldTriggers/newTriggers (publish_workflow used to build
+// Task 9 (workflow save-correctness): this is the per-trigger PUT rail, used here instead of
+// the full-document PUT's oldTriggers/newTriggers (publish_workflow used to build
 // `{...trigger, active:true}` there and send it as part of the workflow PUT) and the standalone
 // draft→published double-PUT dance (the retired shouldActivateTriggers/triggerActivationBody in
-// edit.mjs) are live-proven INERT: 200, version bumped, trigger unchanged. What the live builder
-// itself sends — and what a live capture proved actually persists — is one
-// PUT /workflow/{loc}/trigger/{triggerId} per trigger, carrying the WHOLE stored record with
-// active:true (+ triggersChanged:true). Callers: publish_workflow (mcp-internal/core/tools.mjs)
-// and scripts/edit.mjs's post-add activation step.
+// edit.mjs). Both of THOSE are live-proven INERT for trigger content: 200, version bumped,
+// trigger unchanged.
+//
+// This rail is live-proven 2026-08-27 (read-back verified) for trigger CONTENT — conditions,
+// name, targetActionId all land and persist. Whether it persists the `active` flag specifically
+// is NOT established: a live probe the same day sent this exact per-trigger PUT with
+// active:false against two triggers, and both returned 200 and read back UNCHANGED. Trigger
+// activation is therefore an open, unsolved defect (see the source memory note "a trigger
+// reading active:false STILL FIRES"), not something this function is proven to fix. Do not
+// treat a 200 from this write as proof a trigger is now active — the actual safety net is the
+// caller's post-write round-trip check (publish_workflow re-lists triggers and fails loudly if
+// any remain inactive; scripts/edit.mjs sets exitCode:2 the same way; orchestrate.mjs's
+// --publish gate does too). Callers: publish_workflow (mcp-internal/core/tools.mjs),
+// orchestrate.mjs's --publish step, and scripts/edit.mjs's post-add activation step.
 //
 // Only triggers found inactive are planned — an already-active trigger gets no write, matching
 // the project rule of never touching what wasn't asked to change.

@@ -3031,16 +3031,23 @@ export const TOOLS = [
       }
       const latestTriggers = latestTriggersCall.value;
 
-      // ACTIVATE FIRST, over the real rail — before the document PUT flips `status` to
-      // published. A full-document PUT's oldTriggers/newTriggers roster (built below) is
+      // ACTIVATE FIRST, over the per-trigger rail — before the document PUT flips `status`
+      // to published. A full-document PUT's oldTriggers/newTriggers roster (built below) is
       // live-proven INERT for changing trigger content, including `active`: GHL accepts it,
       // bumps `version`, and the stored trigger never moves (Task 9, workflow
       // save-correctness — this is the exact "every generic write path for workflow trigger
-      // conditions returns 200 and changes nothing" defect). The one rail proven to flip
-      // `active`, captured from a live builder save, is a per-trigger
-      // PUT /workflow/{loc}/trigger/{triggerId} carrying the WHOLE trigger record.
+      // conditions returns 200 and changes nothing" defect).
       //
-      // Done before the document PUT so a failed activation never leaves the workflow
+      // The per-trigger PUT /workflow/{loc}/trigger/{triggerId} used below is live-proven
+      // (2026-08-27, read-back verified) for trigger CONTENT — conditions, name,
+      // targetActionId. It is NOT proven to persist the `active` flag: a live probe the same
+      // day sent this exact shape with active:false against two triggers and both read back
+      // UNCHANGED. Trigger activation is an open, unsolved defect, not something this write is
+      // known to fix — so the loop below does not trust its own 200s. The verification after
+      // the document PUT (re-listing triggers and failing loudly on any still inactive) is the
+      // actual safety net; this write is attempted best-effort, not relied on silently.
+      //
+      // Done before the document PUT so a failed activation attempt never leaves the workflow
       // looking "published" while a trigger silently isn't wired in.
       const activationPlan = planTriggerActivation(latestTriggers.triggers, { loc: args.locationId });
       partialProgress.triggerActivation.planned = activationPlan.length;
@@ -3386,9 +3393,10 @@ export const TOOLS = [
       + 'Preview by default; pass confirm:true '
       + 'to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed '
       + 'straight into a folder with parentId. TRIGGERS DO CLONE — name, type and conditions all carry over — but '
-      + 'they land active:false and stay that way until publish_workflow activates them (a per-trigger PUT, '
-      + 'not a bare status flip — a full-document PUT is proven inert for this), so a freshly duplicated '
-      + 'workflow enrols nobody until it is published. (The clone\'s triggersFilePath ends in "NaN" rather than a '
+      + 'they land active:false. publish_workflow ATTEMPTS to activate them (a per-trigger PUT; a full-document '
+      + 'PUT is proven inert for this) and reports loudly — never silently — if any trigger is still inactive '
+      + 'afterward; trigger activation is not a guaranteed outcome, so treat a freshly duplicated workflow as '
+      + 'unverified until that check comes back clean. (The clone\'s triggersFilePath ends in "NaN" rather than a '
       + 'version integer; that is cosmetic — the trigger records themselves are present and readable.) '
       + 'The create response is a bare id, so the clone is read back and returned as a record.',
     inputSchema: schema({

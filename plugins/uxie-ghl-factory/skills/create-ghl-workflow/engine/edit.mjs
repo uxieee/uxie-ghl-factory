@@ -27,13 +27,20 @@ import { gotoLoops } from './goto-loops.mjs';
 // trigger's `active` flag never moves — the same shape as the reported "every generic
 // write path for workflow trigger conditions returns 200 and changes nothing" defect.
 //
-// The real write rail, captured from a live builder save, is a per-trigger
-// PUT /workflow/{loc}/trigger/{triggerId} carrying the WHOLE trigger record with
-// active:true. See planTriggerActivation() in edit-driver.mjs — scripts/edit.mjs's
-// activation step and mcp-internal's publish_workflow both use it now. Whether to run
-// activation at all is still decided from the workflow's status (only a PUBLISHED
-// workflow gets it — publishing a draft is a separate, user-confirmed decision, never a
-// side effect of a trigger edit), but the write itself no longer touches the workflow
+// What replaced it is a per-trigger PUT /workflow/{loc}/trigger/{triggerId} carrying the
+// WHOLE trigger record with active:true (planTriggerActivation() in edit-driver.mjs —
+// scripts/edit.mjs's activation step and mcp-internal's publish_workflow both use it now). That
+// rail is live-proven (2026-08-27, read-back verified) for trigger CONTENT — conditions, name,
+// targetActionId — but it is NOT proven to persist `active`: a live probe the same day sent
+// this exact shape with active:false against two triggers and both read back UNCHANGED.
+// Trigger activation itself remains an open, unsolved defect. What makes this safe to ship
+// anyway is that every caller treats the write as an attempt, not a fact — each one re-lists
+// triggers afterward and fails loudly (publish_workflow's round-trip check, scripts/edit.mjs's
+// exitCode:2, orchestrate.mjs's --publish gate) rather than reporting success on a bare 200.
+//
+// Whether to run activation at all is still decided from the workflow's status (only a
+// PUBLISHED workflow gets it — publishing a draft is a separate, user-confirmed decision,
+// never a side effect of a trigger edit), but the write itself no longer touches the workflow
 // document or its `status` at all.
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
