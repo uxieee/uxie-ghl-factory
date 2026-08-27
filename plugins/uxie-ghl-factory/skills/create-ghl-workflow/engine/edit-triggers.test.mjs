@@ -1,7 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { partitionOps, planTriggerOps, resolveTrigger, applyOps } from './edit-driver.mjs';
-import { shouldActivateTriggers, triggerActivationBody } from './edit.mjs';
+import { partitionOps, planTriggerOps, planTriggerActivation, resolveTrigger, applyOps } from './edit-driver.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
 
@@ -81,6 +80,35 @@ test('modifyTrigger PUTs the full merged object and keeps the server id', () => 
   assert.equal(r.body.workflowId, WID);
 });
 
+// Task 9 (workflow save-correctness): modifyTrigger used to hard-code `active: op.trigger?.active
+// ?? true` — so editing anything else about a trigger GHL's own API had landed OFF (every
+// API-created trigger, per addTrigger's doc comment above) silently switched it back ON. There is
+// a standing project rule against enabling anything found off. The fix preserves the STORED
+// active flag when the caller doesn't mention it at all.
+test('modifyTrigger preserves a stored INACTIVE trigger — it must never force-activate a trigger the caller did not ask to touch', () => {
+  const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] }];
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [{ field: 'tagsAdded', value: 'gold' }] } }, ex);
+  assert.equal(r.body.active, false, 'a trigger found OFF must stay OFF unless the caller explicitly asks to activate it');
+});
+
+test('modifyTrigger still activates when the caller explicitly says active:true', () => {
+  const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] }];
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
+  assert.equal(r.body.active, true);
+});
+
+test('modifyTrigger still deactivates when the caller explicitly says active:false on a trigger that was on', () => {
+  const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: true, conditions: [] }];
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: false, filters: [] } }, ex);
+  assert.equal(r.body.active, false);
+});
+
+test('modifyTrigger on a stored trigger with no active flag at all defaults to OFF, not ON', () => {
+  const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', conditions: [] }];
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [] } }, ex);
+  assert.equal(r.body.active, false);
+});
+
 test('resolveTrigger: ambiguity is an error, never a silent pick', () => {
   const dupes = [{ id: 'a', type: 'contact_tag', name: 'Dup' }, { id: 'b', type: 'contact_tag', name: 'Dup' }];
   assert.throws(() => resolveTrigger({ op: 'deleteTrigger', name: 'Dup' }, dupes), /2 triggers match.*explicit triggerId/s);
@@ -92,33 +120,36 @@ test('resolveTrigger: a miss names what is actually there', () => {
   assert.throws(() => resolveTrigger({ op: 'deleteTrigger' }, existing()), /needs a triggerId, or a name\/type/);
 });
 
-test('activation: only a published workflow gets the cycle; a draft is never published as a side effect', () => {
-  assert.equal(shouldActivateTriggers({ status: 'published' }), true);
-  assert.equal(shouldActivateTriggers({ status: 'draft' }), false);
-  assert.equal(shouldActivateTriggers(undefined), false);
+// RETIRED 2026-08-27 (Task 9, workflow save-correctness): shouldActivateTriggers /
+// triggerActivationBody implemented a draft→published double full-document PUT, forcing every
+// trigger's `active` onto that PUT's oldTriggers/newTriggers roster. Live-proven INERT — GHL
+// accepts the PUT, bumps the version, and the stored trigger's `active` flag never moves. The
+// real write rail, captured from a live builder save, is a per-trigger
+// PUT /workflow/{loc}/trigger/{triggerId} carrying the whole trigger record with active:true —
+// see planTriggerActivation below, now the only activation path (scripts/edit.mjs and
+// mcp-internal's publish_workflow both use it).
+test('planTriggerActivation: only triggers found inactive get a PUT; an already-active trigger is left alone', () => {
+  const live = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] },
+    { id: 'tr2', _id: 'tr2', type: 'contact_changed', name: 'Changed', active: true, conditions: [] }];
+  const plan = planTriggerActivation(live, { loc: 'LOC' });
+  assert.equal(plan.length, 1, 'the already-active trigger must not be re-written');
+  assert.equal(plan[0].method, 'PUT');
+  assert.equal(plan[0].path, '/workflow/LOC/trigger/tr1');
+  assert.equal(plan[0].triggerId, 'tr1');
 });
 
-test('activation body forces every trigger active and preserves the server envelope', () => {
-  const fresh = { _id: 'w', id: 'w', status: 'published', version: 7, filePath: 'keep.json', workflowData: { templates: [] } };
-  const b = triggerActivationBody(fresh, [{ id: 'tr1', active: false }, { id: 'tr2', active: true }], 'draft');
-  assert.equal(b.status, 'draft');
-  assert.equal(b.version, 7);                 // current version — version+1 422s
-  assert.equal(b.filePath, 'keep.json');      // server envelope preserved
-  assert.equal(b.triggersChanged, false);
-  assert.deepEqual(b.oldTriggers, b.newTriggers);
-  assert.deepEqual(b.oldTriggers.map((t) => t.active), [true, true]);  // API-added lands false; this flips it
-  assert.deepEqual(b.createdSteps, []);
+test('planTriggerActivation PUTs the WHOLE trigger record, not a patch — plus active:true and triggersChanged:true', () => {
+  const live = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [{ field: 'tagsAdded', value: 'vip' }], workflow_id: 'wid-1', location_id: 'LOC' }];
+  const [r] = planTriggerActivation(live, { loc: 'LOC' });
+  assert.equal(r.body.active, true);
+  assert.equal(r.body.triggersChanged, true);
+  assert.equal(r.body.type, 'contact_tag');      // the rest of the record carries over verbatim
+  assert.equal(r.body.name, 'VIP added');
+  assert.deepEqual(r.body.conditions, [{ field: 'tagsAdded', value: 'vip' }]);
+  assert.equal(r.body.workflow_id, 'wid-1');
 });
 
-// THE REGRESSION. Live-caught 2026-07-17: the published leg was planned by re-asking
-// "is this published?" AFTER the draft leg had already made it a draft — so it never
-// fired, and a live workflow was downgraded to draft with every trigger switched off.
-// The status decision is made ONCE, before the cycle; the second leg must still build
-// a published body from the (now draft) re-GET object.
-test('activation: the published leg builds from the mid-cycle DRAFT object (never re-gated on status)', () => {
-  const mid = { _id: 'w', status: 'draft', version: 8, filePath: 'keep.json' };  // what the re-GET returns
-  const b = triggerActivationBody(mid, [{ id: 'tr1', active: false }], 'published');
-  assert.equal(b.status, 'published', 'must publish from a draft mid-cycle object — this is the leg that re-publishes');
-  assert.equal(b.version, 8, 'must send the re-GET version — the draft PUT bumped it');
-  assert.deepEqual(b.oldTriggers.map((t) => t.active), [true]);
+test('planTriggerActivation on an all-active roster plans nothing', () => {
+  const live = [{ id: 'tr1', active: true }, { id: 'tr2', active: true }];
+  assert.deepEqual(planTriggerActivation(live, { loc: 'LOC' }), []);
 });

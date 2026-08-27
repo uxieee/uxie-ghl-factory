@@ -21,6 +21,7 @@ const workflow = ({ status = 'draft', version = 3 } = {}) => ({
 
 function publishGateway({
   initial = workflow(), refreshVersion, failWorkflowGets = [], throwAfterPublishApply = false,
+  failTriggerActivation = false,
 } = {}) {
   const calls = [];
   let current = structuredClone(initial);
@@ -43,9 +44,23 @@ function publishGateway({
       if (method === 'GET' && path === '/workflow/LOC/trigger?workflowId=WID') {
         return { status: 200, ok: true, json: { triggers: structuredClone(triggers) } };
       }
+      // The REAL write rail (Task 9, workflow save-correctness): one PUT per trigger,
+      // carrying the whole stored record. Only this endpoint moves `active` in this
+      // fixture — the document PUT below deliberately does NOT, matching the live-proven
+      // inertness of a full-document PUT's oldTriggers/newTriggers for trigger content.
+      if (method === 'PUT' && path.startsWith('/workflow/LOC/trigger/')) {
+        if (failTriggerActivation) return { status: 500, ok: false, json: { message: 'trigger activation unavailable' } };
+        const tid = path.split('/').pop();
+        const index = triggers.findIndex((trigger) => (trigger.id ?? trigger._id) === tid);
+        if (index === -1) return { status: 404, ok: false, json: { message: `no trigger ${tid}` } };
+        triggers = triggers.map((trigger, i) => (i === index ? { ...trigger, ...body } : trigger));
+        return { status: 200, ok: true, json: { id: tid } };
+      }
       if (method === 'PUT' && path === '/workflow/LOC/WID') {
         current = { ...structuredClone(body), version: body.version + 1 };
-        triggers = body.newTriggers.map((trigger) => ({ ...trigger }));
+        // Deliberately NOT applied to `triggers` — a full-document PUT's oldTriggers/
+        // newTriggers is live-proven INERT for trigger content, including `active`. Real
+        // activation happens only through the per-trigger PUT above.
         if (throwAfterPublishApply) throw new Error('transport lost after publish PUT applied');
         return { status: 200, ok: true, json: { id: 'WID' } };
       }
@@ -119,8 +134,18 @@ test('confirmed publish re-GETs immediately before PUT, uses that version, strip
     'a stored null terminal must not survive onto the publish PUT');
   assert.equal('autoSaveSession' in body, false);
   assert.equal('autoSaveSessionId' in body, false);
+  // oldTriggers/newTriggers on the DOCUMENT PUT is an unchanged roster ECHO of what was
+  // read before activation — not the activation mechanism. Real activation already
+  // happened above, via the per-trigger PUT rail (asserted below).
   assert.deepEqual(body.oldTriggers, body.newTriggers);
-  assert.deepEqual(body.newTriggers.map((trigger) => trigger.active), [true]);
+  assert.deepEqual(body.newTriggers.map((trigger) => trigger.active), [false]);
+  const activatePutIndex = calls.findIndex(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/trigger/tr1');
+  assert.ok(activatePutIndex !== -1, 'a per-trigger activation PUT must have been sent');
+  assert.ok(activatePutIndex < putIndex, 'trigger activation must happen BEFORE the document publish PUT');
+  const activateBody = calls[activatePutIndex].body;
+  assert.equal(activateBody.active, true);
+  assert.equal(activateBody.triggersChanged, true);
+  assert.equal(activateBody.name, 'Trigger', 'the whole stored record rides along, not a patch');
   assert.equal(current().status, 'published');
   assert.deepEqual(triggers().map((trigger) => trigger.active), [true]);
   assert.equal(result.data.verify.roundTrip, true);
@@ -142,10 +167,43 @@ test('v0.3.4 regression: publishing an already-published workflow never drafts i
   assert.equal(result.ok, true);
   assert.equal(current().status, 'published');
   assert.deepEqual(triggers().map((trigger) => trigger.active), [true]);
-  const putBodies = calls.filter(({ method }) => method === 'PUT').map(({ body }) => body);
-  assert.equal(putBodies.length, 1);
-  assert.deepEqual(putBodies.map(({ status }) => status), ['published'],
+  const documentPutBodies = calls.filter(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID').map(({ body }) => body);
+  assert.equal(documentPutBodies.length, 1);
+  assert.deepEqual(documentPutBodies.map(({ status }) => status), ['published'],
     'publish_workflow must never perform a draft leg');
+  const activationPuts = calls.filter(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/trigger/tr1');
+  assert.equal(activationPuts.length, 1, 'the inactive trigger must be activated exactly once, via the per-trigger rail');
+});
+
+test('a failed trigger activation PUT aborts before the document publish PUT is ever sent', async () => {
+  const { gw, calls, current } = publishGateway({ failTriggerActivation: true });
+  const result = await publishTool().handler(
+    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.data.partialProgress.failurePhase, 'trigger_activate');
+  assert.equal(calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID'), false,
+    'the document publish PUT must never be sent after a failed trigger activation');
+  assert.equal(current().status, 'draft', 'the workflow must not appear published while a trigger failed to activate');
+});
+
+test('an already-active trigger gets no activation PUT at all', async () => {
+  const { gw, calls } = publishGateway({
+    initial: workflow({ status: 'draft', version: 3 }),
+  });
+  // Flip the fixture's trigger to already-active before publish runs, by activating it
+  // through the real rail first (mirrors an account where every trigger already fired once).
+  await gw.call('PUT', '/workflow/LOC/trigger/tr1', { id: 'tr1', name: 'Trigger', active: true, triggersChanged: true });
+  calls.length = 0;
+  const result = await publishTool().handler(
+    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+    deps(gw),
+  );
+  assert.equal(result.ok, true);
+  assert.equal(calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/trigger/tr1'), false,
+    'an already-active trigger must not be re-written');
 });
 
 test('post-PUT verification failure reports acknowledged publish progress and urgent remediation', async () => {

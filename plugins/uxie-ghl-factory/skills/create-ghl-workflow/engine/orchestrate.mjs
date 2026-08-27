@@ -27,6 +27,7 @@ import { loadCatalog } from './catalog.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
+import { planTriggerActivation } from './edit-driver.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
 import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 import { buildMarketplaceIndex } from './marketplace.mjs';
@@ -602,10 +603,18 @@ export async function orchestrate(ir, gw, opts = {}) {
 
   // 6. optional publish (opt-in). Mirrors the builder's real publish PUT — this is
   //    NOT a bare status flip. The UI sends the WHOLE workflow object as-is (it keeps
-  //    filePath/fileUrl/version/autoSaveSessionId — do NOT strip them), bumps `version`,
-  //    and includes oldTriggers + newTriggers (the full trigger list). Those trigger
-  //    arrays are what wire the triggers into the live execution bucket; without them
-  //    status becomes "published" but the workflow never fires (verified 2026-07-11).
+  //    filePath/fileUrl/version/autoSaveSessionId — do NOT strip them) and bumps `version`.
+  //
+  //    Task 9 (workflow save-correctness): this used to force `active: true` onto
+  //    oldTriggers/newTriggers and rely on THIS PUT to wire triggers into the live execution
+  //    bucket. Live-proven INERT — the same shape as the reported "every generic write path
+  //    for workflow trigger conditions returns 200 and changes nothing" defect: 200, version
+  //    bumped, stored trigger `active` unchanged. The real write rail, captured from a live
+  //    builder save, is a per-trigger PUT /workflow/{loc}/trigger/{triggerId} carrying the
+  //    WHOLE trigger record with active:true (planTriggerActivation) — run BEFORE this PUT,
+  //    so a failed activation never leaves the document published with inactive triggers.
+  //    oldTriggers/newTriggers on THIS body are now an unchanged roster ECHO — what the
+  //    builder always sends on publish — not the activation mechanism.
   if (opts.publish) {
     // NB: the bare GET /workflow/{loc}/{wid} 404s ("Not Found") — the workflow GET
     // REQUIRES the ?includeScheduledPauseInfo=true query param.
@@ -615,7 +624,11 @@ export async function orchestrate(ir, gw, opts = {}) {
     const triggerResponse = await callAt('publish_trigger_get', 'GET', `/workflow/${loc}/trigger?workflowId=${WID}`);
     if (!triggerResponse) return report;
     const tr = triggerResponse.json;
-    const triggers = (Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || [])).map((t) => ({ ...t, active: true }));
+    const triggers = (Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || []));
+    for (const activation of planTriggerActivation(triggers, { loc })) {
+      const activated = await dependencyCallAt('publish_trigger_activate', activation.method, activation.path, activation.body);
+      if (!activated) return report;
+    }
     // Send the CURRENT version (optimistic-concurrency check) — NOT version+1, which
     // 422s "version is outdated". The server bumps it internally on publish.
     // publish echoes the stored document back as a PUT, so it inherits every stored
@@ -633,8 +646,13 @@ export async function orchestrate(ir, gw, opts = {}) {
     const checkResponse = await callAt('publish_verify_get', 'GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
     if (!checkResponse) return report;
     const check = checkResponse.json;
-    report.published = pub.ok && (check?.status === 'published');
-    if (!report.published) report.verify.issues.push({ publish: pub.status, status: check?.status, body: JSON.stringify(pub.json).slice(0, 160) });
+    const checkedTriggerResponse = await callAt('publish_verify_triggers_get', 'GET', `/workflow/${loc}/trigger?workflowId=${WID}`);
+    if (!checkedTriggerResponse) return report;
+    const checkedTr = checkedTriggerResponse.json;
+    const checkedTriggers = (Array.isArray(checkedTr) ? checkedTr : (checkedTr?.triggers || checkedTr?.data || []));
+    const inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+    report.published = pub.ok && (check?.status === 'published') && inactiveTriggers.length === 0;
+    if (!report.published) report.verify.issues.push({ publish: pub.status, status: check?.status, inactiveTriggers, body: JSON.stringify(pub.json).slice(0, 160) });
   }
 
   return report;

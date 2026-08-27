@@ -36555,14 +36555,14 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "PUT /workflow/{locationId}/only-triggers/{wid}": {
           kind: "write",
           reach: "proven",
-          summary: "Save ONLY a workflow's triggers, leaving workflowData untouched. What the builder calls when the edit touched triggers and nothing else.",
-          note: "Live-proven 2026-08-25. Matters because the FULL workflow PUT validates triggers and can 400 with INVALID_TRIGGER_CONDITION (ruleId trigger-condition-invalid) on a conv_ai_autonomous_trigger the builder itself created \u2014 this path accepted the same stored conditions. If a flow workflow will not save from the UI, its triggers are the suspect, and this is the endpoint that still works."
+          summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
+          note: "\u{1F534} Live-proven INERT 2026-08-27 (Task 9, workflow save-correctness), both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back. This CORRECTS the 2026-08-25 note below, which only checked that the call was ACCEPTED (no 400 on re-PUTting unchanged stored conditions) \u2014 accepted is not applied. The 2026-08-25 finding about the full workflow PUT's INVALID_TRIGGER_CONDITION 400 on conv_ai_autonomous_trigger still stands; this endpoint is just not the fix for it. The real write rail is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow)."
         },
         "PUT /workflow/{locationId}/only-triggers/{id}": {
           kind: "write",
           reach: "proven",
-          summary: "Save ONLY a workflow's triggers ({id} spelling of the same route).",
-          note: "Same route as the {wid} row; the miner produced both spellings from different call sites."
+          summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
+          note: "Same route as the {wid} row; the miner produced both spellings from different call sites. See that row's 2026-08-27 correction \u2014 this does not persist a trigger edit either."
         }
       }
     };
@@ -137491,6 +137491,11 @@ function expandFilter(f, rows) {
   }
   const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
   if (row.id) cond.id = row.id;
+  if (cond.field === "customTriggerPriority" && cond.value !== void 0 && cond.value !== null && cond.value !== "") {
+    const n = Number(cond.value);
+    if (!Number.isNaN(n)) cond.value = n;
+  }
+  if (cond.field === "customTriggerDescription") cond.title = String(cond.value ?? "");
   return cond;
 }
 function isGotoTriggerType(type, ctx) {
@@ -139050,6 +139055,320 @@ function replaceTagInTriggerConditions(conditions, oldTag, newTag) {
   return changed ? out : null;
 }
 
+// ../skills/create-ghl-workflow/engine/edit-driver.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers"]);
+var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
+function partitionOps(ops) {
+  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
+  for (const op of ops ?? []) {
+    (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
+    if (op.op === "replaceTag" && op.triggers !== false) triggerOps.push({ op: "replaceTagInTriggers", oldTag: op.oldTag, newTag: op.newTag });
+  }
+  return { stepOps, triggerOps, settingsOps, stickyOps };
+}
+function mergeSettingsOps(settingsOps) {
+  if (!settingsOps?.length) return null;
+  const patch = {};
+  for (const op of settingsOps) {
+    if (!op.settings || typeof op.settings !== "object" || Array.isArray(op.settings))
+      throw new Error(`updateSettings needs a 'settings' object, e.g. { "op":"updateSettings", "settings": { "stopOnResponse": true } }`);
+    Object.assign(patch, op.settings);
+  }
+  return patch;
+}
+function opsUseMarketplace(ops) {
+  let uses = false;
+  const mark = (node) => {
+    if (node?.marketplace === true) uses = true;
+  };
+  for (const op of ops ?? []) {
+    mark(op?.trigger);
+    if (op?.step) walkNodes([op.step], mark);
+  }
+  return uses;
+}
+function resolveTrigger(op, existing) {
+  const list = existing ?? [];
+  const idOf3 = (t) => t.id ?? t._id;
+  if (op.triggerId) {
+    const hit = list.find((t) => idOf3(t) === op.triggerId);
+    if (!hit) throw new Error(`${op.op}: no trigger ${op.triggerId} on this workflow (have: ${list.map(idOf3).join(", ") || "none"})`);
+    return hit;
+  }
+  if (!op.name && !op.type) throw new Error(`${op.op} needs a triggerId, or a name/type to match on`);
+  const hits = list.filter((t) => (op.name == null || t.name === op.name) && (op.type == null || t.type === op.type));
+  const what = [op.name && `name '${op.name}'`, op.type && `type '${op.type}'`].filter(Boolean).join(" + ");
+  if (!hits.length) throw new Error(`${op.op}: no trigger matching ${what} (have: ${list.map((t) => `${t.name}/${t.type}`).join(", ") || "none"})`);
+  if (hits.length > 1) throw new Error(`${op.op}: ${hits.length} triggers match ${what} \u2014 pass an explicit triggerId (${hits.map(idOf3).join(", ")})`);
+  return hits[0];
+}
+var isFlowEntry = (t) => t?.type === "conv_ai_trigger";
+function guardFlowEntry(op, t, ctx) {
+  if (ctx?.allowFlowTriggerEdit === true) return;
+  if (!isFlowEntry(t)) return;
+  const bot = (t.conditions ?? []).find((c) => c?.field === "botId")?.value;
+  const who = bot ? `agent ${bot}` : "its agent";
+  throw new Error(
+    `${op.op}: refusing to touch a conv_ai_trigger \u2014 this is the entry of a FLOW_BUILDER_BOT flow bound to ${who}. GHL's API allows this (live-proven 2026-08-26: rebinding and retyping both return 200 and apply) but the flow builder does not, and breaking it orphans the bot: the agent keeps objectiveBuilderWorkflowId while nothing can enter the flow. Edit the flow through the flow builder, or pass ctx.allowFlowTriggerEdit if you mean it.`
+  );
+}
+function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
+  const loc = ctx.loc;
+  return (triggerOps ?? []).flatMap((op) => {
+    switch (op.op) {
+      case "addTrigger":
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: buildTrigger(op.trigger, ctx, wid) };
+      case "deleteTrigger": {
+        const t = resolveTrigger(op, existing);
+        guardFlowEntry(op, t, ctx);
+        return { op: op.op, method: "DELETE", path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
+      }
+      // "Copy Trigger" (trigger ⋯ menu / ⌘V → cloneTriggers, recovered EDIT-RAIL.md): the stored
+      // trigger is re-posted with a "(Copy)" name; it lands INACTIVE like every API-created trigger,
+      // and an inbound-webhook trigger gets a fresh predeterminedId (its URL must differ).
+      case "duplicateTrigger": {
+        const t = resolveTrigger(op, existing);
+        const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
+        const body = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, workflow_id: wid };
+        if (body.predeterminedId && ctx.idGen) body.predeterminedId = ctx.idGen();
+        for (const c of body.conditions ?? []) if (c && typeof c === "object" && c.field === "predeterminedId" && ctx.idGen) c.value = body.predeterminedId ?? ctx.idGen();
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body, sourceTriggerId: t.id ?? t._id };
+      }
+      // derived from a `replaceTag` op: one full-object PUT per trigger whose conditions carry the tag
+      case "replaceTagInTriggers": {
+        return existing.flatMap((t) => {
+          const conditions = replaceTagInTriggerConditions(t.conditions, op.oldTag, op.newTag);
+          if (!conditions) return [];
+          const tid = t.id ?? t._id;
+          return [{ op: op.op, method: "PUT", path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+        });
+      }
+      case "modifyTrigger": {
+        const t = resolveTrigger(op, existing);
+        guardFlowEntry(op, t, ctx);
+        const tid = t.id ?? t._id;
+        const merged = buildTrigger(
+          {
+            type: op.trigger?.type ?? t.type,
+            name: op.trigger?.name ?? t.name,
+            masterType: op.trigger?.masterType ?? t.masterType,
+            filters: op.trigger?.filters ?? t.conditions ?? [],
+            // Task 9 (workflow save-correctness): NEVER force-activate. A modify that doesn't
+            // mention `active` must preserve whatever the live trigger already had — `?? true`
+            // here used to switch on any trigger the caller found off (every API-created
+            // trigger lands active:false per addTrigger, so this fired constantly). There is a
+            // standing project rule against enabling anything found off.
+            active: op.trigger?.active ?? t.active ?? false,
+            ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
+          },
+          ctx,
+          wid
+        );
+        return {
+          op: op.op,
+          method: "PUT",
+          path: `/workflow/${loc}/trigger/${tid}`,
+          triggerId: tid,
+          body: { ...t, ...merged, id: tid, _id: t._id ?? tid }
+        };
+      }
+      default:
+        throw new Error(`unknown trigger op: ${JSON.stringify(op.op)}`);
+    }
+  });
+}
+function planTriggerActivation(triggers, { loc }) {
+  return (triggers ?? []).filter((t) => t.active !== true).map((t) => {
+    const tid = t.id ?? t._id;
+    return {
+      op: "activateTrigger",
+      method: "PUT",
+      path: `/workflow/${loc}/trigger/${tid}`,
+      triggerId: tid,
+      body: { ...t, active: true, triggersChanged: true }
+    };
+  });
+}
+function compileSubgraph(node, ctx) {
+  const out = compile(
+    { name: "_edit", triggers: [], graph: [{ ...node, ref: "_edit_step", kind: node.kind ?? "action", assocGuaranteed: true }] },
+    ctx
+  );
+  const tpls = out._templates;
+  const head = tpls.find((t) => (t.parentKey === null || t.parentKey === void 0) && t.parent == null) ?? tpls[0];
+  const isContainer = Array.isArray(head.next);
+  const entry = { ...head };
+  delete entry.order;
+  delete entry.parentKey;
+  delete entry.parent;
+  if (!isContainer) delete entry.next;
+  if (!isContainer && tpls.length !== 1)
+    throw new Error(`edit-add: '${node.type}' compiled to ${tpls.length} templates but its entry has no branch array \u2014 unsupported shape`);
+  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer };
+}
+var empty = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
+function mergeDiff(a, b) {
+  return {
+    createdSteps: [.../* @__PURE__ */ new Set([...a.createdSteps, ...b.createdSteps])],
+    modifiedSteps: [.../* @__PURE__ */ new Set([...a.modifiedSteps, ...b.modifiedSteps])],
+    deletedSteps: [.../* @__PURE__ */ new Set([...a.deletedSteps, ...b.deletedSteps])]
+  };
+}
+function normalizeDiff(d) {
+  const created = new Set(d.createdSteps);
+  const deleted = new Set(d.deletedSteps);
+  const netted = /* @__PURE__ */ new Set();
+  for (const id of [...created]) if (deleted.has(id)) {
+    created.delete(id);
+    deleted.delete(id);
+    netted.add(id);
+  }
+  const modified = d.modifiedSteps.filter((id) => !created.has(id) && !deleted.has(id) && !netted.has(id));
+  return { createdSteps: [...created], modifiedSteps: [...new Set(modified)], deletedSteps: [...deleted] };
+}
+var OP_REQUIRED_ARGS = {
+  addStepNote: ["stepId", "text"],
+  duplicateStep: ["stepId"],
+  replaceTag: ["oldTag", "newTag"],
+  appendStep: ["step"],
+  insertAfter: ["step", "afterId"],
+  insertBefore: ["step", "beforeId"],
+  appendToBranch: ["step", "branchEntryId"],
+  deleteStep: ["stepId"],
+  modifyStep: ["stepId"],
+  retypeStep: ["stepId", "step"],
+  renameStep: ["stepId", "name"],
+  setStepDisabled: ["stepId"],
+  disableStepsByType: ["type"],
+  moveStep: ["stepId", "afterId"],
+  addBranch: ["containerId"],
+  deleteContainer: ["containerId"],
+  repairParentKeys: []
+};
+var OP_ARG_ALIASES = {
+  node: "step",
+  newStep: "step",
+  action: "step",
+  id: "stepId",
+  targetId: "stepId",
+  afterStepId: "afterId",
+  beforeStepId: "beforeId",
+  branchId: "branchEntryId",
+  container: "containerId",
+  newName: "name",
+  stepName: "name",
+  label: "name",
+  title: "name"
+};
+function checkOpShape(op) {
+  const required2 = OP_REQUIRED_ARGS[op?.op];
+  if (!required2) return;
+  const missing = required2.filter((k) => op[k] === void 0);
+  if (!missing.length) return;
+  const suggestions = missing.map((want) => {
+    const wrong = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === want);
+    return wrong ? `you passed '${wrong}' \u2014 this op takes '${want}'` : null;
+  }).filter(Boolean);
+  throw new Error(
+    `edit op '${op.op}' is missing required argument(s) [${missing.join(", ")}]` + (suggestions.length ? ` \u2014 ${suggestions.join("; ")}` : "") + `. '${op.op}' takes: ${required2.join(", ")}.`
+  );
+}
+function applyOp(templates, op, { ctx, idGen }) {
+  checkOpShape(op);
+  switch (op.op) {
+    // The three add ops each take EITHER a linear step or a container subgraph; the
+    // compile decides which, so callers write the same op either way.
+    case "appendStep": {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer ? appendSubgraph(templates, sub) : appendStep(templates, sub.entry);
+    }
+    case "insertAfter": {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer ? insertSubgraphAfter(templates, sub, op.afterId, op.attachTailTo) : insertAfter(templates, sub.entry, op.afterId);
+    }
+    case "insertBefore": {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer ? insertSubgraphBefore(templates, sub, op.beforeId, op.attachTailTo) : insertBefore(templates, sub.entry, op.beforeId);
+    }
+    case "appendToBranch": {
+      const sub = compileSubgraph(op.step, ctx);
+      return sub.isContainer ? appendSubgraphToBranch(templates, op.branchEntryId, sub) : appendToBranch(templates, op.branchEntryId, sub.entry);
+    }
+    case "deleteStep":
+      return deleteStep(templates, op.stepId);
+    // Find & Replace, TAG mode (exact on tag arrays / tags-subtype conditions; string replace on customTags)
+    case "replaceTag":
+      return replaceTagInTemplates(templates, op.oldTag, op.newTag);
+    // Action NOTES (node ⋯ → Notes): unshift {id, userId, timestamp, comment:HTML} onto step.comments[]
+    case "addStepNote":
+      return addStepNote(templates, op.stepId, op.text, { uid: ctx?.uid, now: ctx?.now, idGen });
+    // "Copy action" + "Copy here": a fresh-id copy right after the source (or op.afterId); containers/goals/loops/gotos refused
+    case "duplicateStep":
+      return duplicateStep(templates, op.stepId, idGen, { afterId: op.afterId });
+    case "repairParentKeys": {
+      const { templates: t, diff } = repairParentKeys(templates);
+      return { templates: t, diff };
+    }
+    // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
+    // it refuses graph fields — see PROTECTED_STEP_FIELDS.
+    case "modifyStep":
+      return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
+    // A retype REPLACES the step's whole attribute set, so `step.attributes` is
+    // MANDATORY — that requirement is the entire reason this is its own op rather than a
+    // hole in modifyStep's PROTECTED_STEP_FIELDS. Absent is refused; an explicit `{}` is
+    // allowed, because "this type takes no attributes" is a real, deliberate answer.
+    case "retypeStep": {
+      if (op.step?.attributes === void 0)
+        throw new Error(`retypeStep: '${op.stepId}' needs a full 'attributes' object on 'step'. A retype REPLACES attributes, never merges them \u2014 without one the new type would inherit the old type's keys (an sms 'body' stranded beside a whatsapp 'message'). Pass the complete attribute set for '${op.step?.type ?? "?"}', or {} if it takes none.`);
+      const sub = compileSubgraph(op.step, ctx);
+      if (sub.isContainer)
+        throw new Error(`retypeStep: '${op.step.type}' is a container \u2014 it compiles to a whole subgraph (entry + branch entries), which cannot replace a single step in place. Use deleteStep plus one of the subgraph splices.`);
+      return retypeStep(templates, op.stepId, sub.entry);
+    }
+    case "renameStep":
+      return renameStep(templates, op.stepId, op.name);
+    case "setStepDisabled":
+      return setStepDisabled(templates, op.stepId, op.disabled);
+    case "disableStepsByType":
+      return disableStepsByType(templates, op.type, op.disabled);
+    case "moveStep":
+      return moveStep(templates, op.stepId, op.afterId);
+    case "addBranch":
+      return addBranch(templates, op.containerId, { name: op.name, conditions: op.conditions ?? [] }, idGen);
+    case "deleteContainer":
+      return deleteContainer(templates, op.containerId);
+    default:
+      if (TRIGGER_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a TRIGGER op \u2014 it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
+      if (SETTINGS_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a SETTINGS op \u2014 it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() \u2192 editCommitBody({ settingsPatch }).`);
+      if (STICKY_OPS.has(op.op))
+        throw new Error(`'${op.op}' is a STICKY-NOTE op \u2014 sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
+      throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
+  }
+}
+function applyOps(templates, ops, { ctx, idGen }) {
+  let tpls = templates;
+  let diff = empty();
+  for (const op of ops ?? []) {
+    const r = applyOp(tpls, op, { ctx, idGen });
+    tpls = r.templates;
+    diff = mergeDiff(diff, r.diff);
+  }
+  const norm2 = normalizeDiff(diff);
+  const touched = /* @__PURE__ */ new Set([...norm2.createdSteps, ...norm2.modifiedSteps]);
+  if (tpls.some((t) => t?.isMarketplaceAction === true && touched.has(t.id))) {
+    const renumbered = assignMarketplaceStepIndexes(tpls);
+    tpls = renumbered.templates;
+    if (renumbered.changed.length)
+      norm2.modifiedSteps = [.../* @__PURE__ */ new Set([...norm2.modifiedSteps, ...renumbered.changed])];
+  }
+  return { templates: tpls, diff: norm2 };
+}
+
 // ../skills/create-ghl-workflow/engine/marketplace.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -139981,7 +140300,11 @@ async function orchestrate(ir, gw, opts = {}) {
     const triggerResponse = await callAt("publish_trigger_get", "GET", `/workflow/${loc}/trigger?workflowId=${WID}`);
     if (!triggerResponse) return report;
     const tr = triggerResponse.json;
-    const triggers = (Array.isArray(tr) ? tr : tr?.triggers || tr?.data || []).map((t) => ({ ...t, active: true }));
+    const triggers = Array.isArray(tr) ? tr : tr?.triggers || tr?.data || [];
+    for (const activation of planTriggerActivation(triggers, { loc })) {
+      const activated = await dependencyCallAt("publish_trigger_activate", activation.method, activation.path, activation.body);
+      if (!activated) return report;
+    }
     const body = {
       ...fresh,
       status: "published",
@@ -139999,8 +140322,13 @@ async function orchestrate(ir, gw, opts = {}) {
     const checkResponse = await callAt("publish_verify_get", "GET", `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
     if (!checkResponse) return report;
     const check2 = checkResponse.json;
-    report.published = pub.ok && check2?.status === "published";
-    if (!report.published) report.verify.issues.push({ publish: pub.status, status: check2?.status, body: JSON.stringify(pub.json).slice(0, 160) });
+    const checkedTriggerResponse = await callAt("publish_verify_triggers_get", "GET", `/workflow/${loc}/trigger?workflowId=${WID}`);
+    if (!checkedTriggerResponse) return report;
+    const checkedTr = checkedTriggerResponse.json;
+    const checkedTriggers = Array.isArray(checkedTr) ? checkedTr : checkedTr?.triggers || checkedTr?.data || [];
+    const inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+    report.published = pub.ok && check2?.status === "published" && inactiveTriggers.length === 0;
+    if (!report.published) report.verify.issues.push({ publish: pub.status, status: check2?.status, inactiveTriggers, body: JSON.stringify(pub.json).slice(0, 160) });
   }
   return report;
 }
@@ -140008,303 +140336,6 @@ function sortKeysDeep(o) {
   if (Array.isArray(o)) return o.map(sortKeysDeep);
   if (o && typeof o === "object") return Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortKeysDeep(o[k])]));
   return o;
-}
-
-// ../skills/create-ghl-workflow/engine/edit-driver.mjs
-init_define_ENDPOINT_CATALOG();
-init_define_ENDPOINT_OVERLAY();
-init_define_TOOL_CATALOG();
-var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers"]);
-var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
-function partitionOps(ops) {
-  const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
-  for (const op of ops ?? []) {
-    (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
-    if (op.op === "replaceTag" && op.triggers !== false) triggerOps.push({ op: "replaceTagInTriggers", oldTag: op.oldTag, newTag: op.newTag });
-  }
-  return { stepOps, triggerOps, settingsOps, stickyOps };
-}
-function mergeSettingsOps(settingsOps) {
-  if (!settingsOps?.length) return null;
-  const patch = {};
-  for (const op of settingsOps) {
-    if (!op.settings || typeof op.settings !== "object" || Array.isArray(op.settings))
-      throw new Error(`updateSettings needs a 'settings' object, e.g. { "op":"updateSettings", "settings": { "stopOnResponse": true } }`);
-    Object.assign(patch, op.settings);
-  }
-  return patch;
-}
-function opsUseMarketplace(ops) {
-  let uses = false;
-  const mark = (node) => {
-    if (node?.marketplace === true) uses = true;
-  };
-  for (const op of ops ?? []) {
-    mark(op?.trigger);
-    if (op?.step) walkNodes([op.step], mark);
-  }
-  return uses;
-}
-function resolveTrigger(op, existing) {
-  const list = existing ?? [];
-  const idOf3 = (t) => t.id ?? t._id;
-  if (op.triggerId) {
-    const hit = list.find((t) => idOf3(t) === op.triggerId);
-    if (!hit) throw new Error(`${op.op}: no trigger ${op.triggerId} on this workflow (have: ${list.map(idOf3).join(", ") || "none"})`);
-    return hit;
-  }
-  if (!op.name && !op.type) throw new Error(`${op.op} needs a triggerId, or a name/type to match on`);
-  const hits = list.filter((t) => (op.name == null || t.name === op.name) && (op.type == null || t.type === op.type));
-  const what = [op.name && `name '${op.name}'`, op.type && `type '${op.type}'`].filter(Boolean).join(" + ");
-  if (!hits.length) throw new Error(`${op.op}: no trigger matching ${what} (have: ${list.map((t) => `${t.name}/${t.type}`).join(", ") || "none"})`);
-  if (hits.length > 1) throw new Error(`${op.op}: ${hits.length} triggers match ${what} \u2014 pass an explicit triggerId (${hits.map(idOf3).join(", ")})`);
-  return hits[0];
-}
-var isFlowEntry = (t) => t?.type === "conv_ai_trigger";
-function guardFlowEntry(op, t, ctx) {
-  if (ctx?.allowFlowTriggerEdit === true) return;
-  if (!isFlowEntry(t)) return;
-  const bot = (t.conditions ?? []).find((c) => c?.field === "botId")?.value;
-  const who = bot ? `agent ${bot}` : "its agent";
-  throw new Error(
-    `${op.op}: refusing to touch a conv_ai_trigger \u2014 this is the entry of a FLOW_BUILDER_BOT flow bound to ${who}. GHL's API allows this (live-proven 2026-08-26: rebinding and retyping both return 200 and apply) but the flow builder does not, and breaking it orphans the bot: the agent keeps objectiveBuilderWorkflowId while nothing can enter the flow. Edit the flow through the flow builder, or pass ctx.allowFlowTriggerEdit if you mean it.`
-  );
-}
-function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
-  const loc = ctx.loc;
-  return (triggerOps ?? []).flatMap((op) => {
-    switch (op.op) {
-      case "addTrigger":
-        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: buildTrigger(op.trigger, ctx, wid) };
-      case "deleteTrigger": {
-        const t = resolveTrigger(op, existing);
-        guardFlowEntry(op, t, ctx);
-        return { op: op.op, method: "DELETE", path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
-      }
-      // "Copy Trigger" (trigger ⋯ menu / ⌘V → cloneTriggers, recovered EDIT-RAIL.md): the stored
-      // trigger is re-posted with a "(Copy)" name; it lands INACTIVE like every API-created trigger,
-      // and an inbound-webhook trigger gets a fresh predeterminedId (its URL must differ).
-      case "duplicateTrigger": {
-        const t = resolveTrigger(op, existing);
-        const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
-        const body = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, workflow_id: wid };
-        if (body.predeterminedId && ctx.idGen) body.predeterminedId = ctx.idGen();
-        for (const c of body.conditions ?? []) if (c && typeof c === "object" && c.field === "predeterminedId" && ctx.idGen) c.value = body.predeterminedId ?? ctx.idGen();
-        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body, sourceTriggerId: t.id ?? t._id };
-      }
-      // derived from a `replaceTag` op: one full-object PUT per trigger whose conditions carry the tag
-      case "replaceTagInTriggers": {
-        return existing.flatMap((t) => {
-          const conditions = replaceTagInTriggerConditions(t.conditions, op.oldTag, op.newTag);
-          if (!conditions) return [];
-          const tid = t.id ?? t._id;
-          return [{ op: op.op, method: "PUT", path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
-        });
-      }
-      case "modifyTrigger": {
-        const t = resolveTrigger(op, existing);
-        guardFlowEntry(op, t, ctx);
-        const tid = t.id ?? t._id;
-        const merged = buildTrigger(
-          {
-            type: op.trigger?.type ?? t.type,
-            name: op.trigger?.name ?? t.name,
-            masterType: op.trigger?.masterType ?? t.masterType,
-            filters: op.trigger?.filters ?? t.conditions ?? [],
-            active: op.trigger?.active ?? true,
-            ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
-          },
-          ctx,
-          wid
-        );
-        return {
-          op: op.op,
-          method: "PUT",
-          path: `/workflow/${loc}/trigger/${tid}`,
-          triggerId: tid,
-          body: { ...t, ...merged, id: tid, _id: t._id ?? tid }
-        };
-      }
-      default:
-        throw new Error(`unknown trigger op: ${JSON.stringify(op.op)}`);
-    }
-  });
-}
-function compileSubgraph(node, ctx) {
-  const out = compile(
-    { name: "_edit", triggers: [], graph: [{ ...node, ref: "_edit_step", kind: node.kind ?? "action", assocGuaranteed: true }] },
-    ctx
-  );
-  const tpls = out._templates;
-  const head = tpls.find((t) => (t.parentKey === null || t.parentKey === void 0) && t.parent == null) ?? tpls[0];
-  const isContainer = Array.isArray(head.next);
-  const entry = { ...head };
-  delete entry.order;
-  delete entry.parentKey;
-  delete entry.parent;
-  if (!isContainer) delete entry.next;
-  if (!isContainer && tpls.length !== 1)
-    throw new Error(`edit-add: '${node.type}' compiled to ${tpls.length} templates but its entry has no branch array \u2014 unsupported shape`);
-  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer };
-}
-var empty = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
-function mergeDiff(a, b) {
-  return {
-    createdSteps: [.../* @__PURE__ */ new Set([...a.createdSteps, ...b.createdSteps])],
-    modifiedSteps: [.../* @__PURE__ */ new Set([...a.modifiedSteps, ...b.modifiedSteps])],
-    deletedSteps: [.../* @__PURE__ */ new Set([...a.deletedSteps, ...b.deletedSteps])]
-  };
-}
-function normalizeDiff(d) {
-  const created = new Set(d.createdSteps);
-  const deleted = new Set(d.deletedSteps);
-  const netted = /* @__PURE__ */ new Set();
-  for (const id of [...created]) if (deleted.has(id)) {
-    created.delete(id);
-    deleted.delete(id);
-    netted.add(id);
-  }
-  const modified = d.modifiedSteps.filter((id) => !created.has(id) && !deleted.has(id) && !netted.has(id));
-  return { createdSteps: [...created], modifiedSteps: [...new Set(modified)], deletedSteps: [...deleted] };
-}
-var OP_REQUIRED_ARGS = {
-  addStepNote: ["stepId", "text"],
-  duplicateStep: ["stepId"],
-  replaceTag: ["oldTag", "newTag"],
-  appendStep: ["step"],
-  insertAfter: ["step", "afterId"],
-  insertBefore: ["step", "beforeId"],
-  appendToBranch: ["step", "branchEntryId"],
-  deleteStep: ["stepId"],
-  modifyStep: ["stepId"],
-  retypeStep: ["stepId", "step"],
-  renameStep: ["stepId", "name"],
-  setStepDisabled: ["stepId"],
-  disableStepsByType: ["type"],
-  moveStep: ["stepId", "afterId"],
-  addBranch: ["containerId"],
-  deleteContainer: ["containerId"],
-  repairParentKeys: []
-};
-var OP_ARG_ALIASES = {
-  node: "step",
-  newStep: "step",
-  action: "step",
-  id: "stepId",
-  targetId: "stepId",
-  afterStepId: "afterId",
-  beforeStepId: "beforeId",
-  branchId: "branchEntryId",
-  container: "containerId",
-  newName: "name",
-  stepName: "name",
-  label: "name",
-  title: "name"
-};
-function checkOpShape(op) {
-  const required2 = OP_REQUIRED_ARGS[op?.op];
-  if (!required2) return;
-  const missing = required2.filter((k) => op[k] === void 0);
-  if (!missing.length) return;
-  const suggestions = missing.map((want) => {
-    const wrong = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === want);
-    return wrong ? `you passed '${wrong}' \u2014 this op takes '${want}'` : null;
-  }).filter(Boolean);
-  throw new Error(
-    `edit op '${op.op}' is missing required argument(s) [${missing.join(", ")}]` + (suggestions.length ? ` \u2014 ${suggestions.join("; ")}` : "") + `. '${op.op}' takes: ${required2.join(", ")}.`
-  );
-}
-function applyOp(templates, op, { ctx, idGen }) {
-  checkOpShape(op);
-  switch (op.op) {
-    // The three add ops each take EITHER a linear step or a container subgraph; the
-    // compile decides which, so callers write the same op either way.
-    case "appendStep": {
-      const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? appendSubgraph(templates, sub) : appendStep(templates, sub.entry);
-    }
-    case "insertAfter": {
-      const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? insertSubgraphAfter(templates, sub, op.afterId, op.attachTailTo) : insertAfter(templates, sub.entry, op.afterId);
-    }
-    case "insertBefore": {
-      const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? insertSubgraphBefore(templates, sub, op.beforeId, op.attachTailTo) : insertBefore(templates, sub.entry, op.beforeId);
-    }
-    case "appendToBranch": {
-      const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? appendSubgraphToBranch(templates, op.branchEntryId, sub) : appendToBranch(templates, op.branchEntryId, sub.entry);
-    }
-    case "deleteStep":
-      return deleteStep(templates, op.stepId);
-    // Find & Replace, TAG mode (exact on tag arrays / tags-subtype conditions; string replace on customTags)
-    case "replaceTag":
-      return replaceTagInTemplates(templates, op.oldTag, op.newTag);
-    // Action NOTES (node ⋯ → Notes): unshift {id, userId, timestamp, comment:HTML} onto step.comments[]
-    case "addStepNote":
-      return addStepNote(templates, op.stepId, op.text, { uid: ctx?.uid, now: ctx?.now, idGen });
-    // "Copy action" + "Copy here": a fresh-id copy right after the source (or op.afterId); containers/goals/loops/gotos refused
-    case "duplicateStep":
-      return duplicateStep(templates, op.stepId, idGen, { afterId: op.afterId });
-    case "repairParentKeys": {
-      const { templates: t, diff } = repairParentKeys(templates);
-      return { templates: t, diff };
-    }
-    // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
-    // it refuses graph fields — see PROTECTED_STEP_FIELDS.
-    case "modifyStep":
-      return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
-    // A retype REPLACES the step's whole attribute set, so `step.attributes` is
-    // MANDATORY — that requirement is the entire reason this is its own op rather than a
-    // hole in modifyStep's PROTECTED_STEP_FIELDS. Absent is refused; an explicit `{}` is
-    // allowed, because "this type takes no attributes" is a real, deliberate answer.
-    case "retypeStep": {
-      if (op.step?.attributes === void 0)
-        throw new Error(`retypeStep: '${op.stepId}' needs a full 'attributes' object on 'step'. A retype REPLACES attributes, never merges them \u2014 without one the new type would inherit the old type's keys (an sms 'body' stranded beside a whatsapp 'message'). Pass the complete attribute set for '${op.step?.type ?? "?"}', or {} if it takes none.`);
-      const sub = compileSubgraph(op.step, ctx);
-      if (sub.isContainer)
-        throw new Error(`retypeStep: '${op.step.type}' is a container \u2014 it compiles to a whole subgraph (entry + branch entries), which cannot replace a single step in place. Use deleteStep plus one of the subgraph splices.`);
-      return retypeStep(templates, op.stepId, sub.entry);
-    }
-    case "renameStep":
-      return renameStep(templates, op.stepId, op.name);
-    case "setStepDisabled":
-      return setStepDisabled(templates, op.stepId, op.disabled);
-    case "disableStepsByType":
-      return disableStepsByType(templates, op.type, op.disabled);
-    case "moveStep":
-      return moveStep(templates, op.stepId, op.afterId);
-    case "addBranch":
-      return addBranch(templates, op.containerId, { name: op.name, conditions: op.conditions ?? [] }, idGen);
-    case "deleteContainer":
-      return deleteContainer(templates, op.containerId);
-    default:
-      if (TRIGGER_OPS.has(op.op))
-        throw new Error(`'${op.op}' is a TRIGGER op \u2014 it edits a separate document, not workflowData.templates. Route it through partitionOps()/planTriggerOps().`);
-      if (SETTINGS_OPS.has(op.op))
-        throw new Error(`'${op.op}' is a SETTINGS op \u2014 it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() \u2192 editCommitBody({ settingsPatch }).`);
-      if (STICKY_OPS.has(op.op))
-        throw new Error(`'${op.op}' is a STICKY-NOTE op \u2014 sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
-      throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
-  }
-}
-function applyOps(templates, ops, { ctx, idGen }) {
-  let tpls = templates;
-  let diff = empty();
-  for (const op of ops ?? []) {
-    const r = applyOp(tpls, op, { ctx, idGen });
-    tpls = r.templates;
-    diff = mergeDiff(diff, r.diff);
-  }
-  const norm2 = normalizeDiff(diff);
-  const touched = /* @__PURE__ */ new Set([...norm2.createdSteps, ...norm2.modifiedSteps]);
-  if (tpls.some((t) => t?.isMarketplaceAction === true && touched.has(t.id))) {
-    const renumbered = assignMarketplaceStepIndexes(tpls);
-    tpls = renumbered.templates;
-    if (renumbered.changed.length)
-      norm2.modifiedSteps = [.../* @__PURE__ */ new Set([...norm2.modifiedSteps, ...renumbered.changed])];
-  }
-  return { templates: tpls, diff: norm2 };
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
@@ -145207,6 +145238,7 @@ var TOOLS2 = [
         putAttempted: false,
         putApplied: false,
         putOutcome: null,
+        triggerActivation: { planned: 0, applied: 0 },
         verification: { attempted: false, completed: false }
       };
       let publishedWithVersion = null;
@@ -145239,6 +145271,19 @@ var TOOLS2 = [
         else if (result.value?.ok) outcome.acknowledged = true;
         return { ...result, outcome };
       };
+      const attemptActivationWrite = async (invoke) => {
+        const outcome = {
+          phase: "trigger_activate",
+          attempted: true,
+          acknowledged: false,
+          ambiguous: false
+        };
+        partialProgress.writes.push(outcome);
+        const result = await safeGatewayCall(invoke);
+        if (result.threw) outcome.ambiguous = true;
+        else if (result.value?.ok) outcome.acknowledged = true;
+        return { ...result, outcome };
+      };
       const latestTriggersCall = await safeGatewayCall(
         () => listWorkflowTriggers(gw, args.locationId, args.workflowId)
       );
@@ -145250,6 +145295,21 @@ var TOOLS2 = [
         );
       }
       const latestTriggers = latestTriggersCall.value;
+      const activationPlan = planTriggerActivation(latestTriggers.triggers, { loc: args.locationId });
+      partialProgress.triggerActivation.planned = activationPlan.length;
+      for (const activation of activationPlan) {
+        const activatedCall = await attemptActivationWrite(
+          () => gw.call(activation.method, activation.path, activation.body)
+        );
+        if (activatedCall.threw || !activatedCall.value.ok) {
+          return publishPartialFailure(
+            activatedCall.threw ? activatedCall.failure : fromHttp(activatedCall.value.status, activatedCall.value.json),
+            "trigger_activate",
+            "One or more trigger activations were attempted; earlier ones in this request may already be active. No document publish PUT was sent."
+          );
+        }
+        partialProgress.triggerActivation.applied++;
+      }
       const freshCall = await safeGatewayCall(
         () => getWorkflow(gw, args.locationId, args.workflowId)
       );
@@ -145270,14 +145330,14 @@ var TOOLS2 = [
           templates: stripNullNext(publishable.workflowData.templates)
         };
       }
-      const activeTriggers = latestTriggers.triggers.map((trigger) => ({ ...trigger, active: true }));
+      const triggerRosterEcho = latestTriggers.triggers;
       const body = {
         ...publishable,
         status: "published",
         version: freshResponse.json.version,
         triggersChanged: false,
-        oldTriggers: activeTriggers,
-        newTriggers: activeTriggers,
+        oldTriggers: triggerRosterEcho,
+        newTriggers: triggerRosterEcho,
         createdSteps: [],
         modifiedSteps: [],
         deletedSteps: []
@@ -145538,7 +145598,7 @@ var TOOLS2 = [
   },
   {
     name: "duplicate_workflow",
-    description: `${describe3("duplicate_workflow", "Duplicate workflow \u2014 risk: write")}. Preview by default; pass confirm:true to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed straight into a folder with parentId. TRIGGERS DO CLONE \u2014 name, type and conditions all carry over \u2014 but they land active:false and only start firing after a draft->published cycle, so a freshly duplicated workflow enrols nobody until it is published. (The clone's triggersFilePath ends in "NaN" rather than a version integer; that is cosmetic \u2014 the trigger records themselves are present and readable.) The create response is a bare id, so the clone is read back and returned as a record.`,
+    description: `${describe3("duplicate_workflow", "Duplicate workflow \u2014 risk: write")}. Preview by default; pass confirm:true to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed straight into a folder with parentId. TRIGGERS DO CLONE \u2014 name, type and conditions all carry over \u2014 but they land active:false and stay that way until publish_workflow activates them (a per-trigger PUT, not a bare status flip \u2014 a full-document PUT is proven inert for this), so a freshly duplicated workflow enrols nobody until it is published. (The clone's triggersFilePath ends in "NaN" rather than a version integer; that is cosmetic \u2014 the trigger records themselves are present and readable.) The create response is a bare id, so the clone is read back and returned as a record.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),

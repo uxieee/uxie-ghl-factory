@@ -27,6 +27,7 @@ import {
   opsUseMarketplace,
   partitionOps,
   planTriggerOps,
+  planTriggerActivation,
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
 import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky-notes.mjs';
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
@@ -2963,6 +2964,7 @@ export const TOOLS = [
         putAttempted: false,
         putApplied: false,
         putOutcome: null,
+        triggerActivation: { planned: 0, applied: 0 },
         verification: { attempted: false, completed: false },
       };
       let publishedWithVersion = null;
@@ -2997,6 +2999,21 @@ export const TOOLS = [
         else if (result.value?.ok) outcome.acknowledged = true;
         return { ...result, outcome };
       };
+      // Activation writes are tracked the same way (attempted/acknowledged/ambiguous) but
+      // don't touch putAttempted/putOutcome — those are reserved for the document PUT below.
+      const attemptActivationWrite = async (invoke) => {
+        const outcome = {
+          phase: 'trigger_activate',
+          attempted: true,
+          acknowledged: false,
+          ambiguous: false,
+        };
+        partialProgress.writes.push(outcome);
+        const result = await safeGatewayCall(invoke);
+        if (result.threw) outcome.ambiguous = true;
+        else if (result.value?.ok) outcome.acknowledged = true;
+        return { ...result, outcome };
+      };
 
       // Refresh trigger state first, then re-GET the workflow LAST so no account call
       // can make its optimistic-concurrency version stale before the PUT.
@@ -3013,6 +3030,37 @@ export const TOOLS = [
         );
       }
       const latestTriggers = latestTriggersCall.value;
+
+      // ACTIVATE FIRST, over the real rail — before the document PUT flips `status` to
+      // published. A full-document PUT's oldTriggers/newTriggers roster (built below) is
+      // live-proven INERT for changing trigger content, including `active`: GHL accepts it,
+      // bumps `version`, and the stored trigger never moves (Task 9, workflow
+      // save-correctness — this is the exact "every generic write path for workflow trigger
+      // conditions returns 200 and changes nothing" defect). The one rail proven to flip
+      // `active`, captured from a live builder save, is a per-trigger
+      // PUT /workflow/{loc}/trigger/{triggerId} carrying the WHOLE trigger record.
+      //
+      // Done before the document PUT so a failed activation never leaves the workflow
+      // looking "published" while a trigger silently isn't wired in.
+      const activationPlan = planTriggerActivation(latestTriggers.triggers, { loc: args.locationId });
+      partialProgress.triggerActivation.planned = activationPlan.length;
+      for (const activation of activationPlan) {
+        const activatedCall = await attemptActivationWrite(
+          () => gw.call(activation.method, activation.path, activation.body),
+        );
+        if (activatedCall.threw || !activatedCall.value.ok) {
+          return publishPartialFailure(
+            activatedCall.threw
+              ? activatedCall.failure
+              : fromHttp(activatedCall.value.status, activatedCall.value.json),
+            'trigger_activate',
+            'One or more trigger activations were attempted; earlier ones in this request may '
+              + 'already be active. No document publish PUT was sent.',
+          );
+        }
+        partialProgress.triggerActivation.applied++;
+      }
+
       const freshCall = await safeGatewayCall(
         () => getWorkflow(gw, args.locationId, args.workflowId),
       );
@@ -3039,14 +3087,19 @@ export const TOOLS = [
           templates: stripNullNext(publishable.workflowData.templates),
         };
       }
-      const activeTriggers = latestTriggers.triggers.map((trigger) => ({ ...trigger, active: true }));
+      // ECHO, not a write: this is the unchanged roster the builder always sends on
+      // publish — the roster as it was READ above, before activation. Real activation
+      // already happened via the per-trigger PUT loop above; a full-document PUT's
+      // trigger fields are proven inert for changing content, so this must never again be
+      // the thing a caller relies on to flip `active`.
+      const triggerRosterEcho = latestTriggers.triggers;
       const body = {
         ...publishable,
         status: 'published',
         version: freshResponse.json.version,
         triggersChanged: false,
-        oldTriggers: activeTriggers,
-        newTriggers: activeTriggers,
+        oldTriggers: triggerRosterEcho,
+        newTriggers: triggerRosterEcho,
         createdSteps: [],
         modifiedSteps: [],
         deletedSteps: [],
@@ -3333,7 +3386,8 @@ export const TOOLS = [
       + 'Preview by default; pass confirm:true '
       + 'to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed '
       + 'straight into a folder with parentId. TRIGGERS DO CLONE — name, type and conditions all carry over — but '
-      + 'they land active:false and only start firing after a draft->published cycle, so a freshly duplicated '
+      + 'they land active:false and stay that way until publish_workflow activates them (a per-trigger PUT, '
+      + 'not a bare status flip — a full-document PUT is proven inert for this), so a freshly duplicated '
       + 'workflow enrols nobody until it is published. (The clone\'s triggersFilePath ends in "NaN" rather than a '
       + 'version integer; that is cosmetic — the trigger records themselves are present and readable.) '
       + 'The create response is a bare id, so the clone is read back and returned as a record.',

@@ -251,10 +251,17 @@ test('conv_ai_autonomous_trigger resolves target -> targetActionId and expands i
   // designated test sub-account, workflow 36bb7c70): identical PUT body, eq -> 400
   // trigger-condition-invalid (one error per row), == -> 200. The 2026-08-26 A/B that cleared
   // `eq` predates the update and is stale.
+  //
+  // Task 9 (workflow save-correctness) FIDELITY fix, from a live per-trigger PUT capture:
+  // customTriggerPriority's value is a NUMBER (not the string the row model would otherwise
+  // produce), and customTriggerDescription's condition carries its text in BOTH `value` and
+  // `title` (not title:''). Proved live NON-load-bearing — the plain-string/blank-title shape
+  // still wrote and read back unchanged — so this is matching the builder byte-for-byte, not
+  // a correctness fix. Do not treat it as the reason a write applies.
   assert.deepEqual(goto.conditions, [
     { field: 'customTriggerType', operator: '==', value: 'book_appointment', title: '', type: 'input' },
-    { field: 'customTriggerDescription', operator: '==', value: 'The customer wants to book', title: '', type: 'input' },
-    { field: 'customTriggerPriority', operator: '==', value: '8', title: '', type: 'input' },
+    { field: 'customTriggerDescription', operator: '==', value: 'The customer wants to book', title: 'The customer wants to book', type: 'input' },
+    { field: 'customTriggerPriority', operator: '==', value: 8, title: '', type: 'input' },
     { field: 'customTriggerSensitivity', operator: '==', value: 'medium', title: '', type: 'input' },
   ]);
   // the entry trigger is NOT a goto and carries no target

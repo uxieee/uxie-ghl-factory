@@ -100,8 +100,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { editCommitBody, shouldActivateTriggers, triggerActivationBody } from '../engine/edit.mjs';
-import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
+import { editCommitBody } from '../engine/edit.mjs';
+import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps, planTriggerActivation } from '../engine/edit-driver.mjs';
 import { planStickyNoteOp } from '../engine/sticky-notes.mjs';
 import { buildMarketplaceIndex } from '../engine/marketplace.mjs';
 import { fetchMarketplace } from '../engine/orchestrate.mjs';
@@ -233,7 +233,7 @@ if (dryRun) {
   for (const r of plan) console.log(`trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
   for (const r of stickyPlan) console.log(`sticky note: ${r.op} ${r.method} ${r.path}`, JSON.stringify(r.body).slice(0, 200));
   if (plan.length) console.log('activation:', fresh.status === 'published'
-    ? 'draft→published cycle WILL run (workflow is published)'
+    ? 'per-trigger activation PUT(s) WILL run (workflow is published)'
     : `SKIPPED — workflow is '${fresh.status}'; triggers activate when you publish`);
   if (neededTags.length) console.log('tags referenced:', neededTags.join(', '),
     tagsToCreate.length ? `| WOULD CREATE: ${tagsToCreate.join(', ')}` : '| all exist');
@@ -277,37 +277,35 @@ for (const r of plan) {
 }
 
 // Activation. API-added triggers land active:false server-side no matter what the POST
-// said — only a status draft→published round trip subscribes them. Two PUTs, re-GETting
-// between them because each PUT bumps `version` (a stale version 422s).
+// said. RETIRED 2026-08-27 (Task 9, workflow save-correctness): this used to run a status
+// draft→published double full-document PUT to "subscribe" them — live-proven INERT, it
+// never actually flipped a trigger's stored `active` flag. The real write rail, captured
+// from a live builder save, is a per-trigger PUT /workflow/{loc}/trigger/{triggerId}
+// carrying the whole trigger record with active:true (planTriggerActivation). It never
+// touches the workflow document or its `status`, so there is no draft leg, no version
+// dance, and no risk of leaving a published workflow sitting in draft.
 //
-// The decision to run the cycle is made ONCE, here, from the pre-cycle status. Do NOT
-// re-check "is it published?" before the second leg — the first leg just made it a
-// draft, so that check would always fail and leave the workflow downgraded to draft
-// with its triggers switched off.
+// Whether to run it at all is still gated on the workflow already being published —
+// publishing a draft is a separate, user-confirmed decision, never a side effect of a
+// trigger edit.
 if (plan.length && !triggerFailed) {
   const after = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
-  if (!shouldActivateTriggers(after)) {
+  if (after?.status !== 'published') {
     console.log(`activation: SKIPPED — workflow is '${after?.status}', not published.`);
     console.log('  The trigger is saved but will not fire until you publish (publish is opt-in).');
   } else {
-    const d = await call('PUT', `/workflow/${LOC}/${WID}`,
-      triggerActivationBody(after, await listTriggers(), 'draft'));
-    const mid = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
-    const p = await call('PUT', `/workflow/${LOC}/${WID}`,
-      triggerActivationBody(mid, await listTriggers(), 'published'));
-    const check = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
+    const activationPlan = planTriggerActivation(await listTriggers(), { loc: LOC });
+    let activationFailed = false;
+    for (const r of activationPlan) {
+      const res = await call(r.method, r.path, r.body);
+      console.log(`activate ${r.triggerId}: ${r.method} ${r.path.split('?')[0]} → ${res.status} ${res.ok ? 'OK' : 'FAIL'}`);
+      if (!res.ok) activationFailed = true;
+    }
     const live = await listTriggers();
     const inactive = live.filter((t) => !t.active).map((t) => t.name ?? t.id);
-    console.log(`activation: draft ${d.status} → published ${p.status} | status now: ${check?.status}`);
     console.log('triggers active:', live.filter((t) => t.active).length, '/', live.length,
       inactive.length ? `— STILL INACTIVE: ${inactive.join(', ')}` : '');
-    // Never leave a workflow that WAS published sitting in draft — that silently
-    // switches off a live automation.
-    if (check?.status !== 'published') {
-      console.log('  ⚠️ WORKFLOW LEFT UNPUBLISHED after a trigger edit — it was published before. Re-publish before relying on it.');
-      process.exitCode = 2;
-    }
-    if (inactive.length) process.exitCode = 2;
+    if (inactive.length || activationFailed) process.exitCode = 2;
   }
 }
 
