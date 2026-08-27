@@ -187,38 +187,39 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
   });
 }
 
-// Task 9 (workflow save-correctness): this is the per-trigger PUT rail, used here instead of
-// the full-document PUT's oldTriggers/newTriggers (publish_workflow used to build
-// `{...trigger, active:true}` there and send it as part of the workflow PUT) and the standalone
-// draft→published double-PUT dance (the retired shouldActivateTriggers/triggerActivationBody in
-// edit.mjs). Both of THOSE are live-proven INERT for trigger content: 200, version bumped,
-// trigger unchanged.
+// REMOVED 2026-08-28 — planTriggerActivation() used to live here. History, so nobody
+// re-proposes the same fix:
+//   Task 9 (workflow save-correctness, 2026-08-27) found the full-document PUT's
+//   oldTriggers/newTriggers INERT for trigger content generally (200, version bumped, trigger
+//   unchanged) and the standalone draft→published double-PUT dance in edit.mjs equally inert.
+//   The fix routed activation through a per-trigger PUT /workflow/{loc}/trigger/{triggerId}
+//   instead — this function built that request, one per inactive trigger, carrying the WHOLE
+//   record with active:true.
+//   Later the same day, a live probe sending that exact per-trigger PUT with active:false
+//   against two triggers got 200 back with both read UNCHANGED — the `active` claim was
+//   retracted, but the write stayed in place "best effort" (docs corrected, code untouched).
+//   Measured 2026-08-28 (throwaway probes on the designated test sub-account) closed the
+//   question with three experiments: (1) a publish with ZERO trigger writes still flips
+//   `active` to true; (2) publish-PUT-to-active convergence is sub-second (0.28s), which is
+//   what actually explained the 2026-08-27 "unsettled value" false lead, not this write; (3) a
+//   per-trigger PUT with active:false against a PUBLISHED workflow returns 200 and the trigger
+//   still reads active:true at +0.5s/+2s/+5s. Conclusion: `active` is a SERVER-MANAGED
+//   PROJECTION of the workflow's publish state. This endpoint accepts `active` and ignores it
+//   in both directions — the write this function built was a 200 that changed nothing, the
+//   exact defect class Task 9 existed to eliminate. It was proven live-load-bearing for trigger
+//   CONTENT (conditions, name, targetActionId) and remains true there — see modifyTrigger
+//   above, which still uses the same per-trigger PUT shape for content edits, just never for
+//   `active`.
 //
-// This rail is live-proven 2026-08-27 (read-back verified) for trigger CONTENT — conditions,
-// name, targetActionId all land and persist. Whether it persists the `active` flag specifically
-// is NOT established: a live probe the same day sent this exact per-trigger PUT with
-// active:false against two triggers, and both returned 200 and read back UNCHANGED. Trigger
-// activation is therefore an open, unsolved defect (see the source memory note "a trigger
-// reading active:false STILL FIRES"), not something this function is proven to fix. Do not
-// treat a 200 from this write as proof a trigger is now active — the actual safety net is the
-// caller's post-write round-trip check (publish_workflow re-lists triggers and fails loudly if
-// any remain inactive; scripts/edit.mjs sets exitCode:2 the same way; orchestrate.mjs's
-// --publish gate does too). Callers: publish_workflow (mcp-internal/core/tools.mjs),
-// orchestrate.mjs's --publish step, and scripts/edit.mjs's post-add activation step.
-//
-// Only triggers found inactive are planned — an already-active trigger gets no write, matching
-// the project rule of never touching what wasn't asked to change.
-export function planTriggerActivation(triggers, { loc }) {
-  return (triggers ?? [])
-    .filter((t) => t.active !== true)
-    .map((t) => {
-      const tid = t.id ?? t._id;
-      return {
-        op: 'activateTrigger', method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid,
-        body: { ...t, active: true, triggersChanged: true },
-      };
-    });
-}
+// Nothing replaced this function. There is currently no known write that activates a trigger
+// against an ALREADY-published workflow (see edit.mjs's activation-check comment, and
+// scripts/edit.mjs). Publishing (or re-publishing) a workflow is the only known way `active`
+// moves, because it is a side effect of the publish transition itself, not of any field sent.
+// The callers that used to call this (publish_workflow in mcp-internal/core/tools.mjs,
+// orchestrate.mjs's --publish step, scripts/edit.mjs's post-add activation step) all kept their
+// post-write round-trip verification — re-listing triggers and failing loudly if any remain
+// inactive — because that check is the only thing in this system that tells the truth about
+// activation.
 
 // Compile an IR action node into the subgraph the edit ops splice in. A linear step
 // compiles to exactly one template; a CONTAINER (find_opportunity with onFound/onNotFound,

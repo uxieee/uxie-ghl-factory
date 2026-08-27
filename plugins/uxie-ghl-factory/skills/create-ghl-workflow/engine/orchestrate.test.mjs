@@ -509,12 +509,17 @@ test('orchestrate --publish fills input_trigger_params on a legacy add_to_workfl
     'it must be a real JSON boolean, not a stringified or missing value');
 });
 
-// Task 9 (workflow save-correctness): this publish path used to force `active: true` onto
-// oldTriggers/newTriggers and rely on the full-document PUT to write it — the SAME shape
-// live-proven INERT in mcp-internal's publish_workflow (a 200, a bumped version, and the
-// stored trigger's `active` flag never moves). The real write rail is a per-trigger
-// PUT /workflow/{loc}/trigger/{triggerId} carrying the whole record with active:true.
-test('orchestrate --publish activates each inactive trigger via a per-trigger PUT BEFORE the document publish PUT — oldTriggers/newTriggers is an echo, not the mechanism', async () => {
+// Task 9 (workflow save-correctness, 2026-08-27) found the full-document PUT's
+// oldTriggers/newTriggers INERT for trigger content generally and routed activation
+// through a per-trigger PUT /workflow/{loc}/trigger/{triggerId} instead. Measured
+// 2026-08-28 (throwaway probes on the designated test sub-account, three experiments)
+// DISPROVED that rail for `active` specifically: a publish with ZERO trigger writes still
+// activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT
+// with active:false against a published workflow returns 200 with the trigger staying
+// active:true. `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state —
+// this test now pins the opposite of what it used to assert: no per-trigger write is sent,
+// and activation happens purely as a side effect of the publish PUT succeeding.
+test('orchestrate --publish sends no per-trigger activation PUT — activation happens as a side effect of the publish PUT alone', async () => {
   let triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
   let getWorkflowCalls = 0;
   const staleTemplates = [{ id: 's1', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['new-tag'] } }];
@@ -528,50 +533,57 @@ test('orchestrate --publish activates each inactive trigger via a per-trigger PU
     }],
     [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1',
       () => ({ ok: true, status: 200, json: { triggers: triggersState.map((t) => ({ ...t })) } })],
+    // Modeled inert, matching the live-measured behavior: accepts `active`, ignores it —
+    // kept only so a stray reintroduction of the write is caught doing nothing, same as
+    // the real API, rather than the mock accidentally "fixing" a bug the API does not fix.
     [(m, p) => m === 'PUT' && p === '/workflow/LOC/trigger/tr1', (m, p, body) => {
-      triggersState = triggersState.map((t) => ((t.id ?? t._id) === 'tr1' ? { ...t, ...body } : t));
+      const { active: _ignoredActive, ...contentOnly } = body ?? {};
+      triggersState = triggersState.map((t) => ((t.id ?? t._id) === 'tr1' ? { ...t, ...contentOnly } : t));
       return { ok: true, status: 200, json: { id: 'tr1' } };
     }],
-    [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
+    // The measured mechanism: publishing itself flips `active`, not any field in this body.
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', (m, p, body) => {
+      if (body.status === 'published') triggersState = triggersState.map((t) => ({ ...t, active: true }));
+      return { ok: true, status: 200, json: {} };
+    }],
   ];
   const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
   const report = await orchestrate(tagIR(), gw, { publish: true });
   assert.equal(report.aborted, null, JSON.stringify(report.aborted));
   assert.equal(report.published, true);
 
-  const activatePutIndex = calls.findIndex((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr1');
-  const publishPutIndex = calls.findIndex((c) => c.method === 'PUT' && c.path === '/workflow/LOC/WID_1');
-  assert.ok(activatePutIndex !== -1, 'the per-trigger activation PUT must have been sent');
-  assert.ok(activatePutIndex < publishPutIndex, 'trigger activation must happen BEFORE the document publish PUT');
-  const activatePut = calls[activatePutIndex];
-  assert.equal(activatePut.body.active, true);
-  assert.equal(activatePut.body.triggersChanged, true);
-  assert.equal(activatePut.body.type, 'contact_tag', 'the WHOLE stored record rides along, not a patch');
+  assert.equal(calls.some((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr1'), false,
+    'orchestrate --publish must never send a per-trigger activation PUT — the write is proven inert');
 
-  // the document PUT's oldTriggers/newTriggers is an ECHO of the roster as it was READ
-  // (before activation) — NOT the activation mechanism, which already ran above.
-  const publishPut = calls[publishPutIndex];
+  // the document PUT's oldTriggers/newTriggers is an ECHO of the roster as it was READ —
+  // still active:false — because that field is not the activation mechanism.
+  const publishPut = calls.find((c) => c.method === 'PUT' && c.path === '/workflow/LOC/WID_1');
   assert.deepEqual(publishPut.body.oldTriggers, publishPut.body.newTriggers);
   assert.deepEqual(publishPut.body.newTriggers.map((t) => t.active), [false]);
 
-  // and the trigger is REALLY active afterward, via the per-trigger rail
+  // and the trigger reads active afterward, via the publish transition itself
   assert.equal(triggersState[0].active, true);
 });
 
-test('orchestrate --publish: a failed trigger activation PUT aborts before the document publish PUT is ever sent', async () => {
+test('orchestrate --publish reports published:false, naming the trigger, when it reads inactive after a successful publish PUT — the open, unsolved case', async () => {
+  // Models the honest open question: `active` is a server-managed projection with no known
+  // write to force it, so a trigger that simply never flips cannot currently be fixed
+  // through any known API path — including by retrying the retired per-trigger write. The
+  // engine's job is to report that state clearly and name the trigger, never to pretend a
+  // fix exists.
   const triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
   const routes = [
     [(m, p) => m === 'GET' && p === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true',
-      { ok: true, status: 200, json: { status: 'draft', version: 3, workflowData: { templates: [] } } }],
+      { ok: true, status: 200, json: { status: 'published', version: 3, workflowData: { templates: [] } } }],
     [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1',
       () => ({ ok: true, status: 200, json: { triggers: triggersState.map((t) => ({ ...t })) } })],
-    [(m, p) => m === 'PUT' && p === '/workflow/LOC/trigger/tr1', { ok: false, status: 500, json: { message: 'boom' } }],
     [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
   ];
   const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
   const report = await orchestrate(tagIR(), gw, { publish: true });
   assert.equal(report.published, false);
-  assert.equal(report.failurePhase, 'publish_trigger_activate');
-  assert.equal(calls.some((c) => c.method === 'PUT' && c.path === '/workflow/LOC/WID_1'), false,
-    'the document publish PUT must never be sent after a failed trigger activation');
+  assert.equal(calls.some((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr1'), false,
+    'a trigger reading inactive after publish must not provoke a retry via the retired per-trigger write');
+  assert.ok(report.verify.issues.some((i) => Array.isArray(i.inactiveTriggers) && i.inactiveTriggers.includes('T')),
+    'the failure must name the still-inactive trigger, not just say "publish failed"');
 });

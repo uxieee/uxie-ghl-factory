@@ -27,7 +27,6 @@ import { loadCatalog } from './catalog.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
-import { planTriggerActivation } from './edit-driver.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
 import { fetchActionSchema, checkWorkflow } from './action-schema.mjs';
 import { buildMarketplaceIndex } from './marketplace.mjs';
@@ -605,16 +604,20 @@ export async function orchestrate(ir, gw, opts = {}) {
   //    NOT a bare status flip. The UI sends the WHOLE workflow object as-is (it keeps
   //    filePath/fileUrl/version/autoSaveSessionId — do NOT strip them) and bumps `version`.
   //
-  //    Task 9 (workflow save-correctness): this used to force `active: true` onto
-  //    oldTriggers/newTriggers and rely on THIS PUT to wire triggers into the live execution
-  //    bucket. Live-proven INERT — the same shape as the reported "every generic write path
-  //    for workflow trigger conditions returns 200 and changes nothing" defect: 200, version
-  //    bumped, stored trigger `active` unchanged. The real write rail, captured from a live
-  //    builder save, is a per-trigger PUT /workflow/{loc}/trigger/{triggerId} carrying the
-  //    WHOLE trigger record with active:true (planTriggerActivation) — run BEFORE this PUT,
-  //    so a failed activation never leaves the document published with inactive triggers.
-  //    oldTriggers/newTriggers on THIS body are now an unchanged roster ECHO — what the
-  //    builder always sends on publish — not the activation mechanism.
+  //    Task 9 (workflow save-correctness, 2026-08-27) found the full-document PUT's
+  //    oldTriggers/newTriggers INERT for trigger content generally — 200, version bumped,
+  //    stored trigger unchanged — and routed activation through a per-trigger PUT
+  //    /workflow/{loc}/trigger/{triggerId} instead (planTriggerActivation), run BEFORE this
+  //    PUT. Measured 2026-08-28 (throwaway probes on the designated test sub-account, three
+  //    experiments) DISPROVED that this per-trigger write did anything: a publish with ZERO
+  //    trigger writes still activates every trigger; a per-trigger PUT with active:false
+  //    against a published workflow returns 200 and the trigger stays active:true; and the
+  //    publish-PUT-to-active convergence is sub-second (0.28s), which is what actually
+  //    explained the earlier "still unchanged" reads, not an unproven write. `active` is a
+  //    SERVER-MANAGED PROJECTION of the workflow's publish state — this PUT flips it by being
+  //    a publish transition, not through any field in its body. No per-trigger write is sent
+  //    here anymore. oldTriggers/newTriggers on THIS body is an unchanged roster ECHO — what
+  //    the builder always sends on publish — never the activation mechanism.
   if (opts.publish) {
     // NB: the bare GET /workflow/{loc}/{wid} 404s ("Not Found") — the workflow GET
     // REQUIRES the ?includeScheduledPauseInfo=true query param.
@@ -625,10 +628,6 @@ export async function orchestrate(ir, gw, opts = {}) {
     if (!triggerResponse) return report;
     const tr = triggerResponse.json;
     const triggers = (Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || []));
-    for (const activation of planTriggerActivation(triggers, { loc })) {
-      const activated = await dependencyCallAt('publish_trigger_activate', activation.method, activation.path, activation.body);
-      if (!activated) return report;
-    }
     // Send the CURRENT version (optimistic-concurrency check) — NOT version+1, which
     // 422s "version is outdated". The server bumps it internally on publish.
     // publish echoes the stored document back as a PUT, so it inherits every stored
