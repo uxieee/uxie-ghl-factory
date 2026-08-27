@@ -6208,7 +6208,7 @@
      "type": "checkbox",
      "required": false,
      "default": "default `false",
-     "notes": "alters DYNAMIC"
+     "notes": "INVERTED NAME — this is the checkbox \"Don't Proceed to Next Objective If Criteria not Met.\": true = BLOCK and keep asking, false = proceed. true makes closingMessage required and reveals tags."
     },
     {
      "name": "DYNAMIC",
@@ -6490,7 +6490,7 @@
      "type": "checkbox",
      "required": false,
      "default": "false",
-     "notes": "—"
+     "notes": "INVERTED NAME — this is the checkbox \"Don't Proceed to Next Objective If Criteria not Met.\": true = BLOCK and keep asking, false = proceed. true makes closingMessage required and reveals tags."
     }
    ],
    "hasCanonicalExample": false

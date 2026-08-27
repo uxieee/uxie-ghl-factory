@@ -135337,6 +135337,16 @@ var CATALOG_CORRECTIONS = {
     reason: "the documented `prompt` key did not persist in the committed capture (2026-07-25 AU)",
     attrKeys: ["assignedEmployeeId", "type", "__customInputs__"],
     note: "committed shape captured 2026-07-25 on AU: assignedEmployeeId only. Bot ids come from GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}."
+  },
+  // Deliberately carries ONLY reason + docNote — no attrKeys, no confidence. This node has no
+  // full capture (see the file-header warning), so an attrKeys list would be a GUESS that then
+  // switches on the ATTR_KEY guard and starts REJECTING keys absent from that guess. All this
+  // entry does is surface the COUPLED_FIELDS.conversationai_objective rule above (and the
+  // proceedIfNotMet polarity behind it) into capabilities.md, mechanically, via docNote — the
+  // same mechanism TRIGGER_CORRECTIONS.conv_ai_autonomous_trigger uses on the trigger side.
+  conversationai_objective: {
+    reason: `proceedIfNotMet is bound directly to the checkbox "Don't Proceed to Next Objective If Criteria not Met." (fixtures/action-schema.sample.json input 6) \u2014 true means STOP, the opposite of what the name suggests \u2014 and checking it makes closingMessage required (sibling customGenerator) and reveals optional tags. See COUPLED_FIELDS above.`,
+    docNote: '\u{1F534} **`proceedIfNotMet` means the OPPOSITE of its name.** It is bound directly to the checkbox "Don\'t Proceed to Next Objective If Criteria not Met.", so `true` = the objective BLOCKS and keeps asking; `false` = carry on to the next objective. For "carry on even if unmet", write `false`. Setting `true` makes `closingMessage` REQUIRED (what the bot says when it gives up) and reveals an optional `tags`; the engine refuses a blocking objective without one.'
   }
 };
 var suppliedPresence = (attrs, key) => key in attrs && attrs[key] !== void 0;
@@ -135492,6 +135502,26 @@ var COUPLED_FIELDS = {
     when: (a) => a.sleepEnabled === true,
     require: ["sleepDuration", "sleepUnit"],
     why: 'Reactivation is a schedule and needs both halves \u2014 the committed capture is {sleepEnabled:true, sleepDuration:1, sleepUnit:"hours"}.'
+  }],
+  // 🔴 `proceedIfNotMet` MEANS THE OPPOSITE OF ITS NAME. GHL's own action schema binds it
+  // DIRECTLY to a checkbox titled "Don't Proceed to Next Objective If Criteria not Met." —
+  // fieldType "checkbox", no inversion layer — so `true` = box checked = the objective BLOCKS
+  // and keeps asking, and `false` = carry on. Verified three ways 2026-08-27:
+  //   1. the live action schema (fixtures/action-schema.sample.json, conversationai_objective
+  //      input 6) carries that exact title against this exact field;
+  //   2. its sibling's dynamicFieldsConfig.customGenerator reveals a REQUIRED "Closing Message"
+  //      plus an optional "Add a Tag" the moment the field is truthy — the configuration of a
+  //      give-up path, not a carry-on path;
+  //   3. a real UI-built client workflow (identity withheld — this repo is public) correlates
+  //      perfectly: five objectives at false carry no closingMessage, and the one at true
+  //      carries a hand-off closing message (a staff member picks the conversation up from
+  //      there) plus tags: ''.
+  // So a spec author who writes true meaning "carry on" gets a blocking objective that grinds,
+  // repeats its ask, and holds the run inside its section.
+  conversationai_objective: [{
+    when: (a) => a.proceedIfNotMet === true,
+    require: ["closingMessage"],
+    why: `proceedIfNotMet:true is the "Don't Proceed to Next Objective If Criteria not Met." checkbox \u2014 the objective STOPS rather than carrying on, and GHL's drawer then makes "Closing Message" REQUIRED (its customGenerator returns it with required:true). Without one the step carries a required-field error in the builder. If you meant "carry on even when the criteria are not met", the value you want is FALSE.`
   }],
   // THE ONE THE ENGINE ITSELF CREATES. compiler.mjs's email envelope writes `html: a.html ?? ''`
   // on the inline (non-template) path, so an author who supplies a subject and no body gets a

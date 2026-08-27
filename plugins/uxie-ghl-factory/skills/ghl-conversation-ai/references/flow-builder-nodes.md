@@ -182,6 +182,17 @@ All nine accept **both** `conv_ai_trigger` and `conv_ai_autonomous_trigger`.
 | `skipIfFilled` | checkbox | no | `false` |
 | `maxAttempts` | numerical | no | `5` |
 | `proceedIfNotMet` | checkbox | no | `false` |
+| `closingMessage` | string | **yes, when `proceedIfNotMet` is true** | — |
+| `tags` | multiselect | no | — |
+
+🔴 **`proceedIfNotMet` is an inverted name.** It is bound directly to the checkbox "Don't Proceed
+to Next Objective If Criteria not Met." — `true` = STOP (the objective blocks and keeps asking,
+holding the run inside this section); `false` = proceed to the next objective. Checking it
+(`true`) makes `closingMessage` REQUIRED — what the bot says when it gives up on this objective —
+and reveals an optional `tags`. Confirmed 2026-08-27 against the live action schema
+(`fixtures/action-schema.sample.json`, input 6) plus a real UI-built client workflow whose
+non-blocking objectives (`false`) carry no `closingMessage` and whose one blocking objective
+(`true`) carries both a closing message and `tags: ''`.
 
 ### `conversationai_services_booking` — Services Booking
 
