@@ -91,6 +91,7 @@ const NAME_HASHES = new Set([
   '5dfd46e27a5e3e8e06fcb92817b0955f7fd28048f5003bfd4e5be8e67bf417db',
   'fcb1d1c298887a6ffcd3f5f6eb28504c1ffa84f79984040683b0c74452b2245f',
   '6e8bfe2ae1abb91f367c8c9ecbef24cddbedbc0686ae0f1ea9584116ad4ffd98',
+  '73f91b8e33fa0f6931d3872a012785b54373c1c3712dad952a11d631d873c569',
 ]);
 
 // Normalize a candidate the way the hashes were generated: lowercase, collapse any
