@@ -445,7 +445,19 @@ function buildWorkflowData(report, locationId) {
     builderUrl: report.wid
       ? `https://app.gohighlevel.com/v2/location/${encodeURIComponent(locationId)}/automation/workflow/${encodeURIComponent(report.wid)}`
       : null,
-    publicationNote: 'Draft-only operation: nothing was published.',
+    // build_workflow never calls publish — but a "nothing was published" claim is only as
+    // good as what we actually checked. orchestrate.mjs's round-trip GET (~line 527) reads
+    // the document back and records report.statusReadBack; base the note on THAT, not on
+    // the fact that we never issued a publish PUT. Two separately-built workflows have been
+    // observed reading back status:"published" with no publish call and no --publish flag —
+    // the underlying cause is a separate, unresolved platform-adjacent defect (out of scope
+    // here). This only stops the tool from asserting a safety property it never verified.
+    statusReadBack: report.statusReadBack ?? null,
+    publicationNote: report.statusReadBack === 'draft'
+      ? 'Draft-only operation: nothing was published; read back as draft.'
+      : report.statusReadBack == null
+        ? 'Draft-only operation: nothing was published; status could not be read back to confirm.'
+        : `⚠ read back as '${report.statusReadBack}' although no publish was requested — investigate before relying on draft state.`,
   }).data;
 }
 
@@ -2500,6 +2512,10 @@ export const TOOLS = [
       ops: z.array(z.object({}).passthrough()),
       assumeAssociated: z.boolean().default(false),
       skipWorkflowRules: z.union([z.boolean(), z.array(z.string())]).optional(),
+      // Hatch for editCommitBody's GOTO_LOOP guard (edit.mjs) — a legacy goto that jumps
+      // backward to a step it can reach again. Without this the guard names a remedy
+      // ("pass allowGotoLoops:true") that no caller could ever reach.
+      allowGotoLoops: z.boolean().optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
@@ -2632,6 +2648,7 @@ export const TOOLS = [
         // touched, at the same commit point as the parentKey and step-reference checks.
         catalog: ctx.catalog, warn: ctx.warn,
         settingsPatch,
+        allowGotoLoops: args.allowGotoLoops === true,
       });
       // WORKFLOW-level rules (GHL's WorkflowValidator): graph-scoped + trigger-aware, evaluated on
       // the post-edit document with the live trigger set. Hatch: args.skipWorkflowRules.

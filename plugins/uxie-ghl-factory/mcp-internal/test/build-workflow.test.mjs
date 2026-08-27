@@ -24,6 +24,7 @@ function buildGateway({
   createFails = false,
   existingTags = ['existing-tag'],
   throwAt = null,
+  readBackStatus = undefined,
 } = {}) {
   const calls = [];
   let sentTemplates = [];
@@ -61,7 +62,10 @@ function buildGateway({
         return {
           status: 200,
           ok: true,
-          json: { workflowData: { templates: persistedSteps === 'sent' ? sentTemplates : [] } },
+          json: {
+            ...(readBackStatus !== undefined ? { status: readBackStatus } : {}),
+            workflowData: { templates: persistedSteps === 'sent' ? sentTemplates : [] },
+          },
         };
       }
       return { status: 404, ok: false, json: { message: `no fixture for ${method} ${path}` } };
@@ -120,6 +124,38 @@ test('build_workflow delegates a successful draft to the orchestrator and return
     calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID_1'),
     false,
     'draft build must never make the publish PUT',
+  );
+});
+
+test('build_workflow records the read-back status and words the note off it, not off the absence of a publish call', async () => {
+  const { gw } = buildGateway({ readBackStatus: 'draft' });
+  const result = await buildTool().handler(
+    { locationId: 'LOC', spec: tagSpec(), ignoreUnresolved: false },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(result.data.statusReadBack, 'draft');
+  assert.equal(result.data.publicationNote, 'Draft-only operation: nothing was published; read back as draft.');
+});
+
+// Live-observed defect (out of scope to fix here, see orchestrate.mjs): a workflow can read
+// back status:"published" with no publish call and no --publish flag. buildWorkflowData must
+// not assert a safety property it never checked — it should surface exactly what it read back.
+test('build_workflow surfaces a loud warning when the read-back status is not draft, without touching the underlying cause', async () => {
+  const { gw, calls } = buildGateway({ readBackStatus: 'published' });
+  const result = await buildTool().handler(
+    { locationId: 'LOC', spec: tagSpec(), ignoreUnresolved: false },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, true);
+  assert.equal(result.data.statusReadBack, 'published');
+  assert.match(result.data.publicationNote, /read back as 'published'.*no publish was requested/i);
+  assert.equal(
+    calls.some(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID_1'),
+    false,
+    'the fix only reports the observation — it must not itself attempt to correct the status',
   );
 });
 

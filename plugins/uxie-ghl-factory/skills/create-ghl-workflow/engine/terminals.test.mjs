@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stripNullNext, nullNextIds } from './terminals.mjs';
+import { stripNullNext, nullNextIds, fillInputTriggerParams } from './terminals.mjs';
 
 test('an explicit null next is removed and nothing else on the step changes', () => {
   const templates = [
@@ -58,6 +58,56 @@ test('editCommitBody strips a legacy null terminal the edit never touched', asyn
   assert.equal('next' in sent[1], false, 'the untouched legacy terminal must not carry next:null');
   assert.equal(sent[0].next, 'b', 'a real forward edge is untouched');
   assert.deepEqual(body.modifiedSteps, ['a'], 'the diff is unchanged by normalisation');
+});
+
+test('fillInputTriggerParams defaults input_trigger_params:false on an add_to_workflow step that lacks it', () => {
+  const templates = [
+    { id: 'a', type: 'add_to_workflow', name: 'Enrol', attributes: { workflow_id: 'W1', type: 'add_to_workflow' }, order: 0 },
+  ];
+  const out = fillInputTriggerParams(templates);
+  assert.equal(out[0].attributes.input_trigger_params, false);
+  assert.equal(out[0].attributes.workflow_id, 'W1', 'the rest of attributes is untouched');
+});
+
+test('fillInputTriggerParams leaves an author-supplied true alone', () => {
+  const templates = [
+    { id: 'a', type: 'add_to_workflow', name: 'Enrol', attributes: { workflow_id: 'W1', type: 'add_to_workflow', input_trigger_params: true }, order: 0 },
+  ];
+  const out = fillInputTriggerParams(templates);
+  assert.equal(out[0].attributes.input_trigger_params, true);
+  assert.equal(out, templates, 'nothing changed, so the identity-preservation contract still applies');
+});
+
+test('fillInputTriggerParams returns the SAME array when nothing changed, exactly as stripNullNext does', () => {
+  const templates = [
+    { id: 'a', type: 'sms', name: 'Text', attributes: {}, order: 0 },
+    { id: 'b', type: 'add_to_workflow', name: 'Enrol', attributes: { workflow_id: 'W1', type: 'add_to_workflow', input_trigger_params: false }, order: 1 },
+  ];
+  assert.equal(fillInputTriggerParams(templates), templates);
+});
+
+test('fillInputTriggerParams never touches a non-add_to_workflow step, even one with no attributes key', () => {
+  const templates = [{ id: 'a', type: 'sms', name: 'Text', order: 0 }];
+  assert.deepEqual(fillInputTriggerParams(templates), templates);
+  assert.equal(fillInputTriggerParams(templates), templates);
+});
+
+test('a non-array is handed straight back rather than throwing (fillInputTriggerParams)', () => {
+  assert.equal(fillInputTriggerParams(undefined), undefined);
+});
+
+test('editCommitBody fills input_trigger_params on a legacy add_to_workflow step this edit never touched — its absence blocks EVERY save on the workflow, not just this step', async () => {
+  const { editCommitBody } = await import('./edit.mjs');
+  const fresh = { _id: 'w1', id: 'w1', status: 'draft', version: 4, name: 'WF' };
+  const templates = [
+    { id: 'a', type: 'sms', name: 'Text', next: 'b', order: 0 },
+    { id: 'b', type: 'add_to_workflow', name: 'Enrol', attributes: { workflow_id: 'W1', type: 'add_to_workflow' }, parentKey: 'a', order: 1 },
+  ];
+  const diff = { createdSteps: [], modifiedSteps: ['a'], deletedSteps: [] };
+  const body = editCommitBody(fresh, templates, diff, 'uid-1');
+  const sent = body.workflowData.templates;
+  assert.equal(sent[1].attributes.input_trigger_params, false,
+    'a stored {workflow_id, type}-only add_to_workflow step must not ride the wire unrepaired');
 });
 
 test('a built workflow puts no null terminal in autoSaveBody', async () => {

@@ -73736,6 +73736,18 @@ function stripNullNext(templates) {
   });
   return changed ? out : templates;
 }
+function fillInputTriggerParams(templates) {
+  if (!Array.isArray(templates)) return templates;
+  let changed = false;
+  const out = templates.map((t) => {
+    if (!t || typeof t !== "object" || t.type !== "add_to_workflow") return t;
+    const attrs = t.attributes;
+    if (!attrs || typeof attrs !== "object" || "input_trigger_params" in attrs) return t;
+    changed = true;
+    return { ...t, attributes: { ...attrs, input_trigger_params: false } };
+  });
+  return changed ? out : templates;
+}
 
 // ../skills/create-ghl-workflow/engine/step-notes.mjs
 init_define_ENDPOINT_CATALOG();
@@ -135286,7 +135298,7 @@ Rules to Follow:
 var ILLEGAL_SMS_WORDS = catalog_data_default?.workflowRules?.vocab?.illegalWordsSms ?? [];
 var TRIGGER_CORRECTIONS = {
   conv_ai_autonomous_trigger: {
-    reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid (validationType 'value', source 'trigger', severity 'error', ONE ERROR PER ROW), while '==' passes. Live A/B 2026-08-27 on Sandbox probe 36bb7c70: identical PUT body, eq -> 400, == -> 200. The generated filterRows still carry the pre-update `eq` the builder itself wrote, so the catalog capture is right about history and wrong about today. NOTE the blast radius: the validator only runs when triggers are carried IN THE PUT BODY, which the engine's own commit never does (proven, arm J) \u2014 so stored `eq` triggers block a human clicking Save, not edit_workflow.",
+    reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid (validationType 'value', source 'trigger', severity 'error', ONE ERROR PER ROW), while '==' passes. Live A/B 2026-08-27 on the designated test sub-account, workflow 36bb7c70: identical PUT body, eq -> 400, == -> 200. The generated filterRows still carry the pre-update `eq` the builder itself wrote, so the catalog capture is right about history and wrong about today. NOTE the blast radius: the validator only runs when triggers are carried IN THE PUT BODY, which the engine's own commit never does (proven, arm J) \u2014 so stored `eq` triggers block a human clicking Save, not edit_workflow.",
     correctFilterRows: (rows) => rows.map((r) => r.operator === "eq" ? { ...r, operator: "==" } : r),
     docNote: '\u{1F534} Condition rows must carry **`operator: "=="`**. GHL\'s ~2026-08-27 update refuses `operator: "eq"` at save time (`ruleId: trigger-condition-invalid`, one error per row) even though the trigger API accepts it and the runtime honours it \u2014 so a flow built with `eq` runs correctly and cannot be saved from the builder. The engine emits `==` automatically; a hand-authored complete filter row is passed through untouched, so author `==` yourself if you supply `field`+`operator`+`title`+`type`. `catalog/trigger-examples/conv_ai_autonomous_trigger.json` is a pre-update capture and still shows `eq` \u2014 it is evidence of what GHL wrote then, not a template to copy.'
   }
@@ -138879,7 +138891,10 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
     triggersChanged: false,
     // Terminals go on the wire with no `next` key — an explicit null is refused by the save
     // validator, including on steps this edit never touched. See terminals.mjs.
-    workflowData: { templates: stripNullNext(newTemplates) },
+    // A legacy add_to_workflow step stored as {workflow_id, type} is missing
+    // input_trigger_params, which blocks EVERY save on the workflow, not just this step —
+    // same wire-assembly boundary, same reason. See terminals.mjs.
+    workflowData: { templates: fillInputTriggerParams(stripNullNext(newTemplates)) },
     ...counter.size > 0 && editTouchedMarketplace ? { meta: {
       ...fresh.meta ?? {},
       stepIndexCounter: { ...fresh.meta?.stepIndexCounter ?? {}, ...Object.fromEntries(counter) }
@@ -139915,6 +139930,7 @@ async function orchestrate(ir, gw, opts = {}) {
   const got = back.json?.workflowData?.templates || [];
   const sentById = new Map(sent.workflowData.templates.map((x) => [x.id, x]));
   report.steps = got.length;
+  report.statusReadBack = back.json?.status ?? null;
   if (got.length !== sent.workflowData.templates.length)
     report.verify.issues.push({
       stepCountMismatch: { sent: sent.workflowData.templates.length, got: got.length },
@@ -139975,7 +139991,8 @@ async function orchestrate(ir, gw, opts = {}) {
       newTriggers: triggers,
       modifiedSteps: [],
       deletedSteps: [],
-      createdSteps: []
+      createdSteps: [],
+      ...Array.isArray(fresh?.workflowData?.templates) ? { workflowData: { ...fresh.workflowData, templates: stripNullNext(fresh.workflowData.templates) } } : {}
     };
     const pub = await callAt("publish_put", "PUT", `/workflow/${loc}/${WID}`, body);
     if (!pub) return report;
@@ -142937,7 +142954,15 @@ function buildWorkflowData(report, locationId) {
       warning: mismatch ? `LOUD STEP-COUNT MISMATCH: authored=${report.authored}, compiled=${report.compiled}, persisted steps=${report.steps}. The draft may be incomplete.` : "authored, compiled, and persisted step counts match."
     },
     builderUrl: report.wid ? `https://app.gohighlevel.com/v2/location/${encodeURIComponent(locationId)}/automation/workflow/${encodeURIComponent(report.wid)}` : null,
-    publicationNote: "Draft-only operation: nothing was published."
+    // build_workflow never calls publish — but a "nothing was published" claim is only as
+    // good as what we actually checked. orchestrate.mjs's round-trip GET (~line 527) reads
+    // the document back and records report.statusReadBack; base the note on THAT, not on
+    // the fact that we never issued a publish PUT. Two separately-built workflows have been
+    // observed reading back status:"published" with no publish call and no --publish flag —
+    // the underlying cause is a separate, unresolved platform-adjacent defect (out of scope
+    // here). This only stops the tool from asserting a safety property it never verified.
+    statusReadBack: report.statusReadBack ?? null,
+    publicationNote: report.statusReadBack === "draft" ? "Draft-only operation: nothing was published; read back as draft." : report.statusReadBack == null ? "Draft-only operation: nothing was published; status could not be read back to confirm." : `\u26A0 read back as '${report.statusReadBack}' although no publish was requested \u2014 investigate before relying on draft state.`
   }).data;
 }
 var recordsFrom = (payload, ...keys) => {
@@ -144791,6 +144816,10 @@ var TOOLS2 = [
       ops: external_exports.array(external_exports.object({}).passthrough()),
       assumeAssociated: external_exports.boolean().default(false),
       skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional(),
+      // Hatch for editCommitBody's GOTO_LOOP guard (edit.mjs) — a legacy goto that jumps
+      // backward to a step it can reach again. Without this the guard names a remedy
+      // ("pass allowGotoLoops:true") that no caller could ever reach.
+      allowGotoLoops: external_exports.boolean().optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
@@ -144893,7 +144922,8 @@ var TOOLS2 = [
         // touched, at the same commit point as the parentKey and step-reference checks.
         catalog: ctx.catalog,
         warn: ctx.warn,
-        settingsPatch
+        settingsPatch,
+        allowGotoLoops: args.allowGotoLoops === true
       });
       checkWorkflowRules(
         { templates, triggers: existingTriggers, settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === "published" },
