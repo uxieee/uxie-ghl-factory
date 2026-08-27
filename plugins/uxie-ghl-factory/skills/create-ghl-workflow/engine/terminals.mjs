@@ -1,4 +1,15 @@
-// TERMINAL STEPS CARRY NO `next` KEY.
+// MAKING A WORKFLOW DOCUMENT LEGAL ON THE WIRE.
+//
+// GHL's save validator enforces per-field shape rules that have nothing to do with what an
+// edit or a build actually changed — a document can 400 on a field nobody touched, and because
+// the validator refuses the WHOLE save, that one bad field blocks every other change riding
+// along with it. This module holds the repairs for each such rule this project has hit, applied
+// at every wire-assembly boundary (build, edit, and both publish paths) so a document that
+// reached the wire once keeps reaching it, no matter how it got stale. Two rules live here so
+// far — each with its own live A/B evidence below — and both compose the same way: apply on
+// top of whatever this boundary already does, never in place of it.
+//
+// RULE 1 — TERMINAL STEPS CARRY NO `next` KEY.
 //
 // GHL's save validator REFUSES an explicit `next: null` and accepts the key being absent.
 // Live A/B 2026-08-27, the designated test sub-account, workflow 36bb7c70, identical body
@@ -43,6 +54,8 @@ export function nullNextIds(templates) {
     .map((t) => ({ id: t.id, name: t.name ?? null, type: t.type ?? null }));
 }
 
+// RULE 2 — EVERY add_to_workflow STEP CARRIES `input_trigger_params`.
+//
 // GHL's save validator REQUIRES `input_trigger_params` on every add_to_workflow step: a step
 // carrying only {workflow_id, type} is refused with "Input Trigger Params is required" — and
 // that refusal blocks EVERY save on the workflow, not just the offending step (required-fields.mjs,
@@ -53,8 +66,10 @@ export function nullNextIds(templates) {
 // path (enforceRequiredFields's one importer is compiler.mjs). A stored legacy step never passes
 // through the compiler again: `editCommitBody` emits it unchanged, so a workflow the pre-fix
 // engine built with an enrol step stays permanently unsaveable through edit_workflow, no matter
-// what the edit touches. This is the edit-path repair, at the same wire-assembly boundary
-// stripNullNext already owns.
+// what the edit touches. This was first fixed at the edit-path boundary, the same one
+// stripNullNext already owned; publish_workflow (mcp-internal/core/tools.mjs) and orchestrate's
+// opts.publish (orchestrate.mjs) echo a stored document back as a PUT exactly the same way edit
+// does, so they carried the identical exposure until they composed this function in too.
 //
 /** Default `input_trigger_params:false` on any add_to_workflow step whose attributes lack the
  *  key. Returns the SAME array when nothing changed, exactly as stripNullNext does. */

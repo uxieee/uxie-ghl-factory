@@ -36,7 +36,7 @@ import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
 import { checkWorkflowRules } from './graph-rules.mjs';
 import { checkGraphContextRules } from './graph-context-rules.mjs';
-import { stripNullNext } from './terminals.mjs';
+import { stripNullNext, fillInputTriggerParams } from './terminals.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -632,14 +632,16 @@ export async function orchestrate(ir, gw, opts = {}) {
     // Send the CURRENT version (optimistic-concurrency check) — NOT version+1, which
     // 422s "version is outdated". The server bumps it internally on publish.
     // publish echoes the stored document back as a PUT, so it inherits every stored
-    // `next: null` — including ones written before this fix. Normalise before the wire
-    // or the publish 400s on a step nobody touched. Mirrors the publish_workflow fix in
-    // mcp-internal/core/tools.mjs — see terminals.mjs.
+    // `next: null` AND every stored add_to_workflow step still missing
+    // `input_trigger_params` — including ones written before this fix. Normalise before the
+    // wire or the publish 400s on a step nobody touched. Mirrors the publish_workflow fix in
+    // mcp-internal/core/tools.mjs, and the same composition editCommitBody (edit.mjs) already
+    // uses — see terminals.mjs.
     const body = { ...fresh, status: 'published', version: fresh.version,
       triggersChanged: false, oldTriggers: triggers, newTriggers: triggers,
       modifiedSteps: [], deletedSteps: [], createdSteps: [],
       ...(Array.isArray(fresh?.workflowData?.templates)
-        ? { workflowData: { ...fresh.workflowData, templates: stripNullNext(fresh.workflowData.templates) } }
+        ? { workflowData: { ...fresh.workflowData, templates: fillInputTriggerParams(stripNullNext(fresh.workflowData.templates)) } }
         : {}) };
     const pub = await callAt('publish_put', 'PUT', `/workflow/${loc}/${WID}`, body);
     if (!pub) return report;

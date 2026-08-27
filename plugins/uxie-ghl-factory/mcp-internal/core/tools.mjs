@@ -18,7 +18,7 @@ import {
 } from './audit-configuration.mjs';
 import { fetchEntities, fetchMarketplace, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
-import { stripNullNext } from '../../skills/create-ghl-workflow/engine/terminals.mjs';
+import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-workflow/engine/terminals.mjs';
 import { checkWorkflowRules, rulesNeedTriggers } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
@@ -3085,13 +3085,14 @@ export const TOOLS = [
       delete publishable.autoSaveSession;
       delete publishable.autoSaveSessionId;
       // publish echoes the stored document back as a PUT, so it inherits every stored
-      // `next: null` — including ones written before this fix, and ones written by the
-      // builder's own older versions. Normalise before the wire or the publish 400s on a
-      // step nobody touched. See terminals.mjs.
+      // `next: null` AND every stored add_to_workflow step still missing
+      // `input_trigger_params` — including ones written before this fix, and ones written by
+      // the builder's own older versions. Normalise before the wire or the publish 400s on a
+      // step nobody touched. Same composition as editCommitBody (edit.mjs). See terminals.mjs.
       if (Array.isArray(publishable.workflowData?.templates)) {
         publishable.workflowData = {
           ...publishable.workflowData,
-          templates: stripNullNext(publishable.workflowData.templates),
+          templates: fillInputTriggerParams(stripNullNext(publishable.workflowData.templates)),
         };
       }
       // ECHO, not a write: this is the unchanged roster the builder always sends on
