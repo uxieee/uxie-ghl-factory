@@ -41,9 +41,14 @@ const complexIR = {
       ] },
       { ref: 'cold', name: 'Cold', else: true, then: [
         { ref: 'w', kind: 'wait', name: 'Cooldown', config: { unit: 'days', value: 3, when: 'after' } },
-        { ref: 'g', kind: 'goto', target: 'start' },
+        // Forward, not back to 'start': a goto that could reach itself again closes a cycle and
+        // GOTO_LOOP refuses it at compile time (goto-loops.test.mjs owns that case). This fixture
+        // is demonstrating cross-scope goto (nested branch -> shared root-scope step), so it
+        // converges on a step further down the root scope instead.
+        { ref: 'g', kind: 'goto', target: 'tail' },
       ] },
     ] },
+    { ref: 'tail', kind: 'action', type: 'add_notes', name: 'Tail', attributes: { html: '<p>done</p>' } },
   ],
 };
 
@@ -75,10 +80,11 @@ test('complex nested build compiles, wires, and passes casing lint', () => {
   assert.equal(branchEntries.filter((s) => s.nodeType === 'branch-yes').length, 2);
   assert.equal(branchEntries.filter((s) => s.nodeType === 'branch-no').length, 1);
 
-  // cross-scope goto: the else branch's goto targets `start` (root scope)
-  const start = t.find((s) => s.name === 'Entered');
+  // cross-scope goto: the else branch's goto targets `tail` (root scope, forward — a target
+  // that could reach the goto again would close a cycle and GOTO_LOOP refuses it)
+  const tail = t.find((s) => s.name === 'Tail');
   const g = t.find((s) => s.type === 'goto');
-  assert.equal(g.attributes.targetNodeId, start.id);
+  assert.equal(g.attributes.targetNodeId, tail.id);
 
   // two triggers, both well-formed
   assert.equal(result.triggerBodies.length, 2);

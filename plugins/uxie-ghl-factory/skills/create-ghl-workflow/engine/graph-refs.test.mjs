@@ -24,10 +24,21 @@ test('a goto targeting a nonexistent ref REFUSES at compile, naming the authored
 });
 
 test('a goto targeting a real ref compiles with its resolved targetNodeId', () => {
-  const built = compile(wf([tag('a', 'A'), { ref: 'g', kind: 'goto', name: 'Loop back', target: 'a' }]), ctx());
+  // Target 'b' lives inside an earlier branch's dead end, not on the root chain the goto sits
+  // on: a target that CAN reach the goto again closes a cycle and GOTO_LOOP refuses it
+  // (goto-loops.test.mjs owns that case). This test is only about ref resolution, so the shape
+  // is restructured to stay legal without changing what it proves.
+  const built = compile(wf([
+    { ref: 'branch', kind: 'if_else', name: 'Split', branches: [
+      { ref: 'yes', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'x' }], then: [tag('b', 'B')] },
+      { ref: 'no', name: 'No', else: true, then: [] },
+    ] },
+    tag('a', 'A'),
+    { ref: 'g', kind: 'goto', name: 'Skip ahead', target: 'b' },
+  ]), ctx());
   const tpls = built.autoSaveBody.workflowData.templates;
   const g = tpls.find((t) => t.type === 'goto');
-  assert.equal(g.attributes.targetNodeId, tpls.find((t) => t.type === 'add_contact_tag').id);
+  assert.equal(g.attributes.targetNodeId, tpls.find((t) => t.name === 'B').id);
 });
 
 // ── the chokepoint sweep catches every other path ─────────────────────────────────────────

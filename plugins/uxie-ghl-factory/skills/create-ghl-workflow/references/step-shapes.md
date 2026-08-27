@@ -302,6 +302,25 @@ await customRequest.put(base + '/calendars/events/appointments/' + target.id,
   { headers: H, data: { appointmentStatus: 'confirmed', toNotify: false } });   // note: {headers, data}
 ```
 
+### `goto` — may not point backward; and the goto-trigger race
+
+🔴 **A goto may not point backward.** If the target can reach the goto again, GHL's backend
+detects the cycle, marks the node "Loop Locked", stamps the workflow's `loopIdentified` and
+forces `status` to `draft` — a published workflow silently stops running. The engine refuses
+this at compile time with `GOTO_LOOP`. Point the goto forward, or use the dedicated `loop`
+step type, which is a supported container with its own body and its own validators.
+
+`attributes.loopIdentified` is **backend-stamped and read-only** — never emit it. Emitting it
+fabricates a lock (`ACTION-DRAWERS-2.md:1675`).
+
+🔴 **A `conv_ai_autonomous_trigger` with a `targetActionId` is a reliability risk, not a bug you
+can fix.** GHL can deliver one trigger event twice ~15s apart; the second delivery's remove
+lands on the run the first created and no re-enrol follows, killing the run mid-conversation.
+Reproduced 3/3 (`goto-kill-evidence.md`). Prefer GHL's own pattern: land triggers at the flow
+head and route on trigger identity with a head `if_else` carrying
+`{conditionType: "trigger", conditionSubType: "trigger", conditionValue: "<real trigger id>"}`.
+`conditionSubType` is mandatory — the engine compiles the full canonical shape when given both.
+
 ## Verifying a built step — GET, not the editor panel
 
 The "editor panel won't open" symptom is a *human-clicking* diagnostic. Via **browser
