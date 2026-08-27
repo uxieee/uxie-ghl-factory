@@ -45,9 +45,10 @@ test('deleteStep on the tail leaves predecessor.next null', () => {
   assert.deepEqual(diff.deletedSteps, ['s3']);
 });
 
-test('deleteStep of a missing id is a no-op', () => {
-  const { diff } = deleteStep(chain(), 'nope');
-  assert.deepEqual(diff, { createdSteps: [], modifiedSteps: [], deletedSteps: [] });
+// D27: an unknown stepId used to return emptyDiff() here — a successful-looking no-op
+// (ok, stepCount unchanged, createdSteps []) that hid a caller bug. Now it throws.
+test('deleteStep of a missing id throws instead of returning a clean empty diff', () => {
+  assert.throws(() => deleteStep(chain(), 'nope'), /deleteStep: no step with id 'nope'/);
 });
 
 test('insertAfter drops a step mid-chain and rewires', () => {
@@ -282,4 +283,34 @@ test('a repairParentKeys op commits cleanly through editCommitBody', async () =>
   assert.equal(danglingParentKeys(templates).length, 0);
   const fresh = { status: 'draft', version: 1, workflowData: { templates } };
   assert.doesNotThrow(() => editCommitBody(fresh, templates, diff, 'uid'));
+});
+
+test('every op refuses an unknown stepId instead of returning a clean empty diff', async () => {
+  const {
+    deleteStep, insertAfter, modifyStep, insertBefore, insertSubgraphBefore,
+  } = await import('./edit.mjs');
+  const templates = [{ id: 'real', type: 'sms', name: 'Text', order: 0 }];
+  const newStep = { id: 'new', type: 'email', name: 'Mail', attributes: {} };
+  const sub = { entry: newStep, templates: [newStep] };
+
+  assert.throws(() => deleteStep(templates, 'ghost'), /deleteStep: no step with id 'ghost'/);
+  assert.throws(() => insertAfter(templates, newStep, 'ghost'), /insertAfter: no step with id 'ghost'/);
+  assert.throws(() => modifyStep(templates, 'ghost', { a: 1 }), /modifyStep: no step with id 'ghost'/);
+  assert.throws(() => insertBefore(templates, newStep, 'ghost'), /insertBefore: no step with id 'ghost'/);
+  assert.throws(() => insertSubgraphBefore(templates, sub, 'ghost', null), /insertSubgraphBefore: no step with id 'ghost'/);
+});
+
+test('a truncated stepId is refused rather than silently ignored', async () => {
+  const { modifyStep } = await import('./edit.mjs');
+  const templates = [{ id: '2e4a3c6e-a4dd-497a-9c2b-a4b497708d2e', type: 'sms', name: 'Text' }];
+  assert.throws(() => modifyStep(templates, '2e4a3c6e', { body: 'hi' }),
+    /modifyStep: no step with id '2e4a3c6e'/);
+});
+
+test('a real stepId still works exactly as before', async () => {
+  const { modifyStep } = await import('./edit.mjs');
+  const templates = [{ id: 'real', type: 'sms', name: 'Text', attributes: { body: 'old' } }];
+  const { templates: out, diff } = modifyStep(templates, 'real', { body: 'new' });
+  assert.equal(out[0].attributes.body, 'new');
+  assert.deepEqual(diff.modifiedSteps, ['real']);
 });
