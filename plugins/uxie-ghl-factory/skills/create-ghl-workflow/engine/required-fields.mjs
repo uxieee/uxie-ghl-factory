@@ -93,6 +93,42 @@ import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
 // nothing read until now.
 const ILLEGAL_SMS_WORDS = CATALOG_DATA?.workflowRules?.vocab?.illegalWordsSms ?? [];
 
+// TRIGGER-side corrections. Same argument as CATALOG_CORRECTIONS below: catalog.data.json is
+// regenerated wholesale by gen-catalog.mjs, so a fix written into it is lost on the next regen.
+// Applied by catalog.mjs::correctTriggers.
+//
+// `correctFilterRows` is a MAPPER rather than a replacement array on purpose: a regenerated
+// catalog that adds a fifth drawer row still gets corrected instead of silently losing it.
+//
+// `docNote` is separate from `reason`: `reason` is the engineering justification (probe id,
+// error shape) read by whoever maintains this file; `docNote` is user-facing authoring
+// guidance rendered into references/capabilities.md by query-catalog.mjs's renderMarkdown.
+// capabilities.md is itself GENERATED ("do not hand-edit", enforced by
+// query-catalog.test.mjs's sync check) — routing the note through the correction object
+// keeps that true instead of hand-editing the committed doc out of sync with its generator.
+export const TRIGGER_CORRECTIONS = {
+  conv_ai_autonomous_trigger: {
+    reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a "
+      + "condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid "
+      + "(validationType 'value', source 'trigger', severity 'error', ONE ERROR PER ROW), while "
+      + "'==' passes. Live A/B 2026-08-27 on Sandbox probe 36bb7c70: identical PUT body, eq -> "
+      + '400, == -> 200. The generated filterRows still carry the pre-update `eq` the builder '
+      + 'itself wrote, so the catalog capture is right about history and wrong about today. '
+      + 'NOTE the blast radius: the validator only runs when triggers are carried IN THE PUT '
+      + "BODY, which the engine's own commit never does (proven, arm J) — so stored `eq` "
+      + 'triggers block a human clicking Save, not edit_workflow.',
+    correctFilterRows: (rows) => rows.map((r) => (r.operator === 'eq' ? { ...r, operator: '==' } : r)),
+    docNote: '🔴 Condition rows must carry **`operator: "=="`**. GHL\'s ~2026-08-27 update refuses '
+      + '`operator: "eq"` at save time (`ruleId: trigger-condition-invalid`, one error per row) '
+      + 'even though the trigger API accepts it and the runtime honours it — so a flow built '
+      + 'with `eq` runs correctly and cannot be saved from the builder. The engine emits `==` '
+      + 'automatically; a hand-authored complete filter row is passed through untouched, so '
+      + 'author `==` yourself if you supply `field`+`operator`+`title`+`type`. '
+      + '`catalog/trigger-examples/conv_ai_autonomous_trigger.json` is a pre-update capture and '
+      + 'still shows `eq` — it is evidence of what GHL wrote then, not a template to copy.',
+  },
+};
+
 // Corrections applied over the generated catalog entry, merged in catalog.mjs.
 // `reason` is required — an unexplained correction is indistinguishable from a typo.
 export const CATALOG_CORRECTIONS = {

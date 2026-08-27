@@ -10,14 +10,16 @@
 // Regenerate the committed index after gen-catalog runs:
 //   node scripts/query-catalog-cli.mjs --md > references/capabilities.md
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
-import { correctSteps } from './catalog.mjs';
+import { correctSteps, correctTriggers } from './catalog.mjs';
 
 // Apply the same hand-maintained corrections the compiler runs on. Without this, the
 // generated capabilities.md kept advertising conversationai_end's WRONG keys
 // (customMessage/reactivate/duration) — the very keys that caused the defect this overlay
-// exists to fix, in the document agents are told to consult before authoring.
+// exists to fix, in the document agents are told to consult before authoring. Triggers get
+// the mirror treatment (correctTriggers) so a trigger-side fix — e.g. the conv_ai_autonomous_trigger
+// operator — shows up here too instead of only in the compiled output.
 export function loadData() {
-  return { ...CATALOG_DATA, steps: correctSteps(CATALOG_DATA.steps) };
+  return { ...CATALOG_DATA, steps: correctSteps(CATALOG_DATA.steps), triggers: correctTriggers(CATALOG_DATA.triggers) };
 }
 
 // IR authoring sugar for container types (SKILL.md "Node kinds"). Everything else
@@ -200,7 +202,11 @@ export function renderMarkdown(d) {
     for (const t of list.sort((a, b) => a.type.localeCompare(b.type))) {
       const rows = (t.filterRows ?? []).map((r) => `${r.label} (\`${r.value}\`)`).join(', ')
         || (t.schemaFilters ?? []).map((r) => `${r.title} (\`${r.field}\`)`).join(', ');
-      out.push(`- ${TIER_MARK[t.confidence] ?? ''} \`${t.type}\` (${masterTypeLabel(t)})${rows ? ' — filters: ' + rows : ''}`);
+      // docNote surfaces a trigger-side TRIGGER_CORRECTIONS entry (required-fields.mjs) — see
+      // conv_ai_autonomous_trigger's operator note. Keeps this doc GENERATED rather than
+      // hand-edited, so the sync check below stays meaningful.
+      const note = t.docNote ? `. ${t.docNote}` : '';
+      out.push(`- ${TIER_MARK[t.confidence] ?? ''} \`${t.type}\` (${masterTypeLabel(t)})${rows ? ' — filters: ' + rows : ''}${note}`);
     }
   }
   out.push('');

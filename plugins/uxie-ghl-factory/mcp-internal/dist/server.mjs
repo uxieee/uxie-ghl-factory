@@ -135284,6 +135284,13 @@ Rules to Follow:
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
 var ILLEGAL_SMS_WORDS = catalog_data_default?.workflowRules?.vocab?.illegalWordsSms ?? [];
+var TRIGGER_CORRECTIONS = {
+  conv_ai_autonomous_trigger: {
+    reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid (validationType 'value', source 'trigger', severity 'error', ONE ERROR PER ROW), while '==' passes. Live A/B 2026-08-27 on Sandbox probe 36bb7c70: identical PUT body, eq -> 400, == -> 200. The generated filterRows still carry the pre-update `eq` the builder itself wrote, so the catalog capture is right about history and wrong about today. NOTE the blast radius: the validator only runs when triggers are carried IN THE PUT BODY, which the engine's own commit never does (proven, arm J) \u2014 so stored `eq` triggers block a human clicking Save, not edit_workflow.",
+    correctFilterRows: (rows) => rows.map((r) => r.operator === "eq" ? { ...r, operator: "==" } : r),
+    docNote: '\u{1F534} Condition rows must carry **`operator: "=="`**. GHL\'s ~2026-08-27 update refuses `operator: "eq"` at save time (`ruleId: trigger-condition-invalid`, one error per row) even though the trigger API accepts it and the runtime honours it \u2014 so a flow built with `eq` runs correctly and cannot be saved from the builder. The engine emits `==` automatically; a hand-authored complete filter row is passed through untouched, so author `==` yourself if you supply `field`+`operator`+`title`+`type`. `catalog/trigger-examples/conv_ai_autonomous_trigger.json` is a pre-update capture and still shows `eq` \u2014 it is evidence of what GHL wrote then, not a template to copy.'
+  }
+};
 var CATALOG_CORRECTIONS = {
   // 🔴 The generated keys for this node are WRONG. Authoring the documented
   // `reactivate: false` was accepted, persisted as an unknown key, and left the
@@ -137868,6 +137875,20 @@ function correctSteps(steps) {
   }
   return out;
 }
+function correctTriggers(triggers) {
+  const out = { ...triggers };
+  for (const [type, fix] of Object.entries(TRIGGER_CORRECTIONS)) {
+    const entry = out[type];
+    if (!entry) continue;
+    const { reason, correctFilterRows, ...patch } = fix;
+    out[type] = {
+      ...entry,
+      ...patch,
+      ...correctFilterRows && Array.isArray(entry.filterRows) ? { filterRows: correctFilterRows(entry.filterRows) } : {}
+    };
+  }
+  return out;
+}
 function findFilterModel(d, triggerType) {
   const models = d.filterModels ?? {};
   for (const [cls, m] of Object.entries(models)) {
@@ -137880,9 +137901,10 @@ function findFilterModel(d, triggerType) {
 function loadCatalog() {
   const d = data();
   const steps = correctSteps(d.steps);
+  const triggers = correctTriggers(d.triggers);
   return {
     step: (type) => steps[type],
-    trigger: (type) => d.triggers[type],
+    trigger: (type) => triggers[type],
     filterModel: (type) => findFilterModel(d, type),
     // GHL's WORKFLOW-level validator (graph-scoped, trigger-aware rules + the vocab they test
     // against) — consumed by graph-rules.mjs at every write path. null on a pre-sweep catalog.
@@ -137894,7 +137916,7 @@ function loadCatalog() {
     i18n: d.i18n ?? null,
     stepCapabilities: () => d.stepCapabilities ?? {},
     allSteps: () => Object.keys(steps),
-    allTriggers: () => Object.keys(d.triggers),
+    allTriggers: () => Object.keys(triggers),
     // coverage snapshot for reporting / tests
     counts: () => ({
       steps: d.stepCount,
