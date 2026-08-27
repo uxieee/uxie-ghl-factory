@@ -16,7 +16,14 @@ const workflow = ({ status = 'draft', version = 3 } = {}) => ({
   filePath: 'keep.json',
   autoSaveSession: { id: 'must-strip' },
   autoSaveSessionId: 'must-strip-too',
-  workflowData: { templates: [{ id: 's1', next: null, parentKey: null }] },
+  // s1 exercises the null-`next` rule; s2 exercises the sibling `input_trigger_params` rule —
+  // a legacy add_to_workflow step whose attributes are exactly {workflow_id, type}, the shape
+  // a pre-fix engine build actually produced (required-fields.mjs's CONDITIONAL_DEFAULTS only
+  // ever ran on the compile path).
+  workflowData: { templates: [
+    { id: 's1', next: null, parentKey: null },
+    { id: 's2', type: 'add_to_workflow', name: 'Enrol', attributes: { workflow_id: 'W1', type: 'add_to_workflow' } },
+  ] },
 });
 
 function publishGateway({
@@ -152,6 +159,30 @@ test('confirmed publish re-GETs immediately before PUT, uses that version, strip
   assert.equal(result.data.verify.status, 'published');
   assert.deepEqual(result.data.verify.inactiveTriggers, []);
   assert.match(result.data.runtimeProofNote, /active: true.*not proof.*added_to_workflow/is);
+});
+
+test('confirmed publish fills input_trigger_params on a legacy add_to_workflow step it never touched — its absence blocks EVERY save on the workflow, not just this step (terminals.mjs)', async () => {
+  // Sibling rule to the null-`next` test above, same wire-assembly boundary. The fixture's
+  // fresh GET (workflow() above, step s2) carries a legacy add_to_workflow step stored as
+  // {workflow_id, type} — no input_trigger_params key at all, the shape a pre-fix engine
+  // build actually produced. GHL's save validator refuses its absence with "Input Trigger
+  // Params is required", and that refusal blocks EVERY save on the workflow. publish_workflow
+  // echoes the stored document straight back as a PUT, so it must repair this the same way
+  // editCommitBody already does on the edit path.
+  const { gw, calls } = publishGateway({ refreshVersion: 9 });
+  const result = await publishTool().handler(
+    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, true);
+  const putIndex = calls.findIndex(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID');
+  const body = calls[putIndex].body;
+  const legacyStep = body.workflowData.templates.find((t) => t.id === 's2');
+  assert.equal(legacyStep.attributes.input_trigger_params, false,
+    'a stored {workflow_id, type}-only add_to_workflow step must not ride the publish PUT unrepaired');
+  assert.equal(typeof legacyStep.attributes.input_trigger_params, 'boolean',
+    'it must be a real JSON boolean, not a stringified or missing value');
 });
 
 test('v0.3.4 regression: publishing an already-published workflow never drafts it or turns triggers off', async () => {

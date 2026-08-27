@@ -475,6 +475,40 @@ test('orchestrate --publish strips a stored null `next` before the publish PUT �
     'the stored null `next` must not ride onto the publish PUT unrepaired');
 });
 
+test('orchestrate --publish fills input_trigger_params on a legacy add_to_workflow step it never touched — same wire-assembly boundary as the null-`next` fix above (see terminals.mjs)', async () => {
+  // Sibling rule to the null-`next` test above. The document GET returns a stale add_to_workflow
+  // step stored as {workflow_id, type} — no input_trigger_params key at all, the shape a pre-fix
+  // engine build actually produced (required-fields.mjs's CONDITIONAL_DEFAULTS only ever ran on
+  // the compile path). GHL's save validator refuses its absence with "Input Trigger Params is
+  // required", and that refusal blocks EVERY save on the workflow, not just this step. The
+  // publish path re-GETs and echoes this document back as a PUT, so it must repair this the
+  // same way editCommitBody already does on the edit path.
+  let getWorkflowCalls = 0;
+  const staleTemplates = [
+    { id: 's2', type: 'add_to_workflow', name: 'Enrol', attributes: { workflow_id: 'W1', type: 'add_to_workflow' } },
+  ];
+  const routes = [
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true', () => {
+      getWorkflowCalls++;
+      const status = getWorkflowCalls >= 3 ? 'published' : 'draft';
+      return { ok: true, status: 200, json: { status, version: 3, workflowData: { templates: staleTemplates } } };
+    }],
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1', { ok: true, status: 200, json: { triggers: [] } }],
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
+  ];
+  const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
+  const report = await orchestrate(tagIR(), gw, { publish: true });
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  assert.equal(report.published, true);
+  const publishPut = calls.find((c) => c.method === 'PUT' && c.path === '/workflow/LOC/WID_1');
+  assert.ok(publishPut, 'the publish PUT must have been sent');
+  const legacyStep = publishPut.body.workflowData.templates.find((t) => t.id === 's2');
+  assert.equal(legacyStep.attributes.input_trigger_params, false,
+    'a stored {workflow_id, type}-only add_to_workflow step must not ride the publish PUT unrepaired');
+  assert.equal(typeof legacyStep.attributes.input_trigger_params, 'boolean',
+    'it must be a real JSON boolean, not a stringified or missing value');
+});
+
 // Task 9 (workflow save-correctness): this publish path used to force `active: true` onto
 // oldTriggers/newTriggers and rely on the full-document PUT to write it — the SAME shape
 // live-proven INERT in mcp-internal's publish_workflow (a 200, a bumped version, and the

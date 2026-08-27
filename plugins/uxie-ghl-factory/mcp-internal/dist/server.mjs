@@ -140315,7 +140315,7 @@ async function orchestrate(ir, gw, opts = {}) {
       modifiedSteps: [],
       deletedSteps: [],
       createdSteps: [],
-      ...Array.isArray(fresh?.workflowData?.templates) ? { workflowData: { ...fresh.workflowData, templates: stripNullNext(fresh.workflowData.templates) } } : {}
+      ...Array.isArray(fresh?.workflowData?.templates) ? { workflowData: { ...fresh.workflowData, templates: fillInputTriggerParams(stripNullNext(fresh.workflowData.templates)) } } : {}
     };
     const pub = await callAt("publish_put", "PUT", `/workflow/${loc}/${WID}`, body);
     if (!pub) return report;
@@ -145327,7 +145327,7 @@ var TOOLS2 = [
       if (Array.isArray(publishable.workflowData?.templates)) {
         publishable.workflowData = {
           ...publishable.workflowData,
-          templates: stripNullNext(publishable.workflowData.templates)
+          templates: fillInputTriggerParams(stripNullNext(publishable.workflowData.templates))
         };
       }
       const triggerRosterEcho = latestTriggers.triggers;
