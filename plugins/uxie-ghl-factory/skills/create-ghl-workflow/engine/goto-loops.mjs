@@ -37,8 +37,18 @@ export function gotoLoops(templates) {
     if (g?.type !== 'goto') continue;
     const target = g.attributes?.targetNodeId;
     if (!target || !byId.has(target)) continue;
-    // Walk forward from the target along `next` only. Reaching the goto again means the goto's
-    // own jump closes the cycle. Self-reference is the degenerate case and is caught first.
+    // Walk forward from the target via `successors()` — which follows a plain step's `next`
+    // AND a goto step's jump edge (its targetNodeId), not `next` alone. Reaching the original
+    // goto again means its own jump closes the cycle. Self-reference is the degenerate case
+    // and is caught first.
+    //
+    // KNOWN FALSE NEGATIVE (edit path): a *stored* legacy goto can carry both a targetNodeId
+    // AND a stale `next` key left over from before it was retyped to goto. successors() reads
+    // only targetNodeId for a goto step, so that stale `next` chain is never walked — a cycle
+    // reachable solely through it would go unreported. Accepted: the compiler never emits a
+    // goto with `next` (terminals.mjs strips terminal `next`, and a goto is never a terminal
+    // author-side), so this can only arise from harvested legacy data, and the edit-path guard
+    // is already scoped to touched steps for the same "don't brick a legacy workflow" reason.
     const seen = new Set();
     const stack = [target];
     let loops = false;

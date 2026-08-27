@@ -467,6 +467,44 @@ test('malformed custom-field items degrade to unavailable instead of throwing', 
   }
 });
 
+// A stored workflow closed into a cycle by its own goto: g -> s1 -> s2 -> g. Fix #1/#5 pairing:
+// editCommitBody's GOTO_LOOP guard (edit.mjs) names `allowGotoLoops:true` as its remedy — this
+// proves that hatch is actually reachable from the tool, end to end through the wire schema.
+const gotoLoopWorkflow = () => workflow({
+  templates: [
+    { id: 's1', type: 'add_contact_tag', name: 'First', next: 's2', parentKey: null, order: 0, attributes: { tags: ['a'] } },
+    { id: 's2', type: 'add_contact_tag', name: 'Second', next: 'g', parentKey: 's1', order: 1, attributes: { tags: ['b'] } },
+    { id: 'g', type: 'goto', name: 'Back to first', parentKey: 's2', order: 2, attributes: { targetNodeId: 's1', type: 'goto' } },
+  ],
+});
+
+test('edit_workflow refuses to commit an edit that leaves a goto loop, naming the allowGotoLoops:true hatch', async () => {
+  const { gw, calls } = editGateway({ initial: gotoLoopWorkflow() });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'renameStep', stepId: 'g', name: 'Loop back to first' }],
+  }, deps(gw));
+
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'ENGINE_ABORT');
+  assert.match(result.detail, /allowGotoLoops:true/);
+  assert.equal(calls.some(({ method }) => method === 'PUT'), false, 'no write was sent');
+});
+
+test('edit_workflow allowGotoLoops:true lets that same edit commit', async () => {
+  const { gw, calls } = editGateway({ initial: gotoLoopWorkflow() });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, allowGotoLoops: true,
+    ops: [{ op: 'renameStep', stepId: 'g', name: 'Loop back to first' }],
+  }, deps(gw));
+
+  assert.equal(result.ok, true, JSON.stringify(result));
+  const put = calls.find(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/WID');
+  assert.ok(put, 'the step commit PUT must have been sent');
+  const renamed = put.body.workflowData.templates.find((t) => t.id === 'g');
+  assert.equal(renamed.name, 'Loop back to first');
+});
+
 test('identical workflow version and canonical ops keep preview and confirm ids identical', async () => {
   const ops = [{
     op: 'appendStep',

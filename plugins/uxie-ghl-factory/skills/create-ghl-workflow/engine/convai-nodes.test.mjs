@@ -247,9 +247,10 @@ test('conv_ai_autonomous_trigger resolves target -> targetActionId and expands i
   // targetActionId saves and has nowhere to send the contact
   assert.equal(goto.targetActionId, bookId);
   // Rows carry type `input` and title '' as GHL's builder writes them — but operator `==`,
-  // NOT the `eq` the builder wrote before its ~2026-08-27 update. Live A/B that day (Sandbox
-  // probe 36bb7c70): identical PUT body, eq -> 400 trigger-condition-invalid (one error per
-  // row), == -> 200. The 2026-08-26 A/B that cleared `eq` predates the update and is stale.
+  // NOT the `eq` the builder wrote before its ~2026-08-27 update. Live A/B that day (the
+  // designated test sub-account, workflow 36bb7c70): identical PUT body, eq -> 400
+  // trigger-condition-invalid (one error per row), == -> 200. The 2026-08-26 A/B that cleared
+  // `eq` predates the update and is stale.
   assert.deepEqual(goto.conditions, [
     { field: 'customTriggerType', operator: '==', value: 'book_appointment', title: '', type: 'input' },
     { field: 'customTriggerDescription', operator: '==', value: 'The customer wants to book', title: '', type: 'input' },

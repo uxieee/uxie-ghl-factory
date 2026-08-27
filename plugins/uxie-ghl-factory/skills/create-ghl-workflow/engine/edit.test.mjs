@@ -277,6 +277,34 @@ test('editCommitBody fails closed on a dangling parentKey among touched steps', 
   );
 });
 
+// A chain closed into a cycle by its own goto: g -> s1 -> s2 -> g. Mirrors withDangling()'s
+// role for DANGLING_PARENTKEY — the fixture for GOTO_LOOP (edit.mjs ~889, goto-loops.mjs).
+const withGotoLoop = () => [
+  { id: 's1', type: 'sms', name: 'First', next: 's2', parentKey: null, order: 0, attributes: {} },
+  { id: 's2', type: 'email', name: 'Second', next: 'g', parentKey: 's1', order: 1, attributes: {} },
+  { id: 'g', type: 'goto', name: 'Back to first', parentKey: 's2', order: 2, attributes: { targetNodeId: 's1', type: 'goto' } },
+];
+
+test('editCommitBody fails closed on a goto loop among touched steps, has an allowGotoLoops hatch, and does not brick an edit that never touched the loop', () => {
+  const fresh = { status: 'draft', version: 1, workflowData: { templates: withGotoLoop() } };
+  // (a) the edit modified the goto itself (e.g. renamed it) — the loop it still closes must throw
+  assert.throws(
+    () => editCommitBody(fresh, withGotoLoop(), { createdSteps: [], modifiedSteps: ['g'], deletedSteps: [] }, 'uid'),
+    (err) => err.code === 'GOTO_LOOP' && /allowGotoLoops:true/.test(err.message),
+  );
+  // (b) opts.allowGotoLoops:true lets that same edit commit anyway
+  assert.doesNotThrow(
+    () => editCommitBody(fresh, withGotoLoop(), { createdSteps: [], modifiedSteps: ['g'], deletedSteps: [] }, 'uid', { allowGotoLoops: true }),
+  );
+  // (c) the most valuable case: a PRE-EXISTING loop on a step this edit did NOT touch must not
+  // brick an unrelated edit — the same scoping that protects DANGLING_PARENTKEY and every
+  // sibling hatch here. A legacy workflow harvested with a loop nobody is editing must stay
+  // editable elsewhere.
+  assert.doesNotThrow(
+    () => editCommitBody(fresh, withGotoLoop(), { createdSteps: [], modifiedSteps: ['s1'], deletedSteps: [] }, 'uid'),
+  );
+});
+
 test('a repairParentKeys op commits cleanly through editCommitBody', async () => {
   const { applyOps } = await import('./edit-driver.mjs');
   const { templates, diff } = applyOps(withDangling(), [{ op: 'repairParentKeys' }], { ctx: {}, idGen: () => 'x' });

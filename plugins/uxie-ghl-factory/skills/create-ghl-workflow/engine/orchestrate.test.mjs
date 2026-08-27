@@ -444,3 +444,33 @@ test('webhook pin (opt-in): POSTs the sample to the receiving path, finds it by 
   const r3 = await orchestrate(ir, g3.gw, { sleep: async () => {}, pinPollMs: 1, pinMaxPolls: 2 });
   assert.equal(r3.aborted, null); assert.match(r3.webhookPins[0].error, /not recorded/); assert.ok(r3.warnings.some((w) => /webhook pin/.test(w)));
 });
+
+test('orchestrate --publish strips a stored null `next` before the publish PUT — the same fix as publish_workflow in mcp-internal/core/tools.mjs (see terminals.mjs)', async () => {
+  // The document GET returns a stale step whose `next` a prior save wrote as an explicit
+  // null (terminals.mjs). The publish path re-GETs and echoes this document back as a PUT
+  // (unlike the round-trip verify GET, which is read-only) — without stripping, that PUT
+  // 400s on a step nobody touched.
+  let getWorkflowCalls = 0;
+  const staleTemplates = [
+    { id: 's1', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['new-tag'] }, next: null },
+  ];
+  const routes = [
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true', () => {
+      getWorkflowCalls++;
+      // 1st call: step-5 round-trip verify. 2nd: publish preflight fetch. 3rd: post-publish
+      // verify — reports the status the PUT presumably committed.
+      const status = getWorkflowCalls >= 3 ? 'published' : 'draft';
+      return { ok: true, status: 200, json: { status, version: 3, workflowData: { templates: staleTemplates } } };
+    }],
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1', { ok: true, status: 200, json: { triggers: [] } }],
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
+  ];
+  const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
+  const report = await orchestrate(tagIR(), gw, { publish: true });
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  assert.equal(report.published, true);
+  const publishPut = calls.find((c) => c.method === 'PUT' && c.path === '/workflow/LOC/WID_1');
+  assert.ok(publishPut, 'the publish PUT must have been sent');
+  assert.equal('next' in publishPut.body.workflowData.templates[0], false,
+    'the stored null `next` must not ride onto the publish PUT unrepaired');
+});

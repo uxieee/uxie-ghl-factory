@@ -111,7 +111,8 @@ export const TRIGGER_CORRECTIONS = {
     reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a "
       + "condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid "
       + "(validationType 'value', source 'trigger', severity 'error', ONE ERROR PER ROW), while "
-      + "'==' passes. Live A/B 2026-08-27 on Sandbox probe 36bb7c70: identical PUT body, eq -> "
+      + "'==' passes. Live A/B 2026-08-27 on the designated test sub-account, workflow "
+      + "36bb7c70: identical PUT body, eq -> "
       + '400, == -> 200. The generated filterRows still carry the pre-update `eq` the builder '
       + 'itself wrote, so the catalog capture is right about history and wrong about today. '
       + 'NOTE the blast radius: the validator only runs when triggers are carried IN THE PUT '

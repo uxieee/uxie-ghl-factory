@@ -35,6 +35,7 @@ import { validateAssets, describeFinding } from './asset-preflight.mjs';
 import { parseServerValidation, describeServerFindings } from './server-validation.mjs';
 import { checkWorkflowRules } from './graph-rules.mjs';
 import { checkGraphContextRules } from './graph-context-rules.mjs';
+import { stripNullNext } from './terminals.mjs';
 
 const BASE = 'https://backend.leadconnectorhq.com';
 
@@ -529,6 +530,13 @@ export async function orchestrate(ir, gw, opts = {}) {
   const got = back.json?.workflowData?.templates || [];
   const sentById = new Map(sent.workflowData.templates.map((x) => [x.id, x]));
   report.steps = got.length;
+  // Recorded so a DRAFT-only tool (buildWorkflowData in mcp-internal/core/tools.mjs) can
+  // state what it actually verified rather than assert a publication state it never
+  // checked. Two separately-built workflows have been observed reading back
+  // status:"published" here with no publish call and no --publish flag — the underlying
+  // cause is a separate, unresolved platform-adjacent defect (out of scope for this fix);
+  // this field only stops the tool from asserting "nothing was published" unconditionally.
+  report.statusReadBack = back.json?.status ?? null;
   // The server dropping whole steps is a distinct failure from it dropping attributes —
   // and the old per-step loop `continue`d right past it, so a short GET still reported
   // every surviving step as a pass.
@@ -610,9 +618,16 @@ export async function orchestrate(ir, gw, opts = {}) {
     const triggers = (Array.isArray(tr) ? tr : (tr?.triggers || tr?.data || [])).map((t) => ({ ...t, active: true }));
     // Send the CURRENT version (optimistic-concurrency check) — NOT version+1, which
     // 422s "version is outdated". The server bumps it internally on publish.
+    // publish echoes the stored document back as a PUT, so it inherits every stored
+    // `next: null` — including ones written before this fix. Normalise before the wire
+    // or the publish 400s on a step nobody touched. Mirrors the publish_workflow fix in
+    // mcp-internal/core/tools.mjs — see terminals.mjs.
     const body = { ...fresh, status: 'published', version: fresh.version,
       triggersChanged: false, oldTriggers: triggers, newTriggers: triggers,
-      modifiedSteps: [], deletedSteps: [], createdSteps: [] };
+      modifiedSteps: [], deletedSteps: [], createdSteps: [],
+      ...(Array.isArray(fresh?.workflowData?.templates)
+        ? { workflowData: { ...fresh.workflowData, templates: stripNullNext(fresh.workflowData.templates) } }
+        : {}) };
     const pub = await callAt('publish_put', 'PUT', `/workflow/${loc}/${WID}`, body);
     if (!pub) return report;
     const checkResponse = await callAt('publish_verify_get', 'GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
