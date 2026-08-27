@@ -135338,14 +135338,41 @@ var CATALOG_CORRECTIONS = {
     attrKeys: ["assignedEmployeeId", "type", "__customInputs__"],
     note: "committed shape captured 2026-07-25 on AU: assignedEmployeeId only. Bot ids come from GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}."
   },
-  // Deliberately carries ONLY reason + docNote — no attrKeys, no confidence. This node has no
-  // full capture (see the file-header warning), so an attrKeys list would be a GUESS that then
-  // switches on the ATTR_KEY guard and starts REJECTING keys absent from that guess. All this
-  // entry does is surface the COUPLED_FIELDS.conversationai_objective rule above (and the
-  // proceedIfNotMet polarity behind it) into capabilities.md, mechanically, via docNote — the
-  // same mechanism TRIGGER_CORRECTIONS.conv_ai_autonomous_trigger uses on the trigger side.
+  // 🔴 REVERSED 2026-08-27: this correction originally carried ONLY reason + docNote, on the
+  // stated theory that adding attrKeys would be a GUESS that arms the ATTR_KEY guard against a
+  // node with no full capture. That theory was WRONG for this specific node: the generated
+  // catalog entry was ALREADY confidence:'verified-live' with a 9-key attrKeys list (from
+  // catalog/step-examples/conversationai_objective.json) — the guard was already armed, before
+  // this correction ever existed. The only effect of leaving attrKeys untouched was that the
+  // guard rejected closingMessage/tags as unknown keys, which meant a blocking objective
+  // (proceedIfNotMet:true) could not compile AT ALL: enforceRequiredFields throws without
+  // closingMessage, and checkAttrKeys throws WITH it. Caught live via compile(), not just the
+  // unit-level enforceRequiredFields check — see required-fields.test.mjs's
+  // 'a blocking objective compiles end to end...' test, which drives the full pipeline.
+  //
+  // attrKeys REPLACES the generated list (correctSteps spreads the patch), so the original nine
+  // keys are carried through verbatim and closingMessage/tags are appended. Evidence for exactly
+  // these two, and no others: (1) GHL's action schema dynamicFieldsConfig.customGenerator
+  // returns precisely {closingMessage (required:true), tags} the moment proceedIfNotMet is
+  // truthy — the schema the builder itself validates against; (2) a UI-built capture on a client
+  // account stores precisely those two keys on its one objective with proceedIfNotMet:true, and
+  // neither key on its objectives with proceedIfNotMet:false (client identity withheld — this
+  // repo is public).
   conversationai_objective: {
-    reason: `proceedIfNotMet is bound directly to the checkbox "Don't Proceed to Next Objective If Criteria not Met." (fixtures/action-schema.sample.json input 6) \u2014 true means STOP, the opposite of what the name suggests \u2014 and checking it makes closingMessage required (sibling customGenerator) and reveals optional tags. See COUPLED_FIELDS above.`,
+    reason: `proceedIfNotMet is bound directly to the checkbox "Don't Proceed to Next Objective If Criteria not Met." (fixtures/action-schema.sample.json input 6) \u2014 true means STOP, the opposite of what the name suggests \u2014 and checking it makes closingMessage required (sibling customGenerator) and reveals optional tags. The generated attrKeys omitted both because the underlying capture was not built with proceedIfNotMet:true; the evidence for adding them is the customGenerator declaring them AND a UI-built capture on a client account storing exactly those two keys only when proceedIfNotMet is true (identity withheld). Without this the COUPLED_FIELDS rule below made a blocking objective unauthorable: required without closingMessage, rejected as ATTR_KEY with it.`,
+    attrKeys: [
+      "objective",
+      "contactField",
+      "instructions",
+      "responseExample",
+      "skipIfFilled",
+      "maxAttempts",
+      "proceedIfNotMet",
+      "closingMessage",
+      "tags",
+      "type",
+      "__customInputs__"
+    ],
     docNote: '\u{1F534} **`proceedIfNotMet` means the OPPOSITE of its name.** It is bound directly to the checkbox "Don\'t Proceed to Next Objective If Criteria not Met.", so `true` = the objective BLOCKS and keeps asking; `false` = carry on to the next objective. For "carry on even if unmet", write `false`. Setting `true` makes `closingMessage` REQUIRED (what the bot says when it gives up) and reveals an optional `tags`; the engine refuses a blocking objective without one.'
   }
 };

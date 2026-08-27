@@ -691,3 +691,25 @@ test('a blocking objective WITH a closing message is accepted', async () => {
     maxAttempts: '5',
   }, {}));
 });
+
+// Regression test for the ATTR_KEY / COUPLED_FIELDS bind discovered 2026-08-27: the three
+// tests above only drive enforceRequiredFields() in isolation, which passed even while the
+// full compile() pipeline still threw ATTR_KEY on `closingMessage` (attrKeys had not been
+// extended). This one drives the real pipeline end to end, the way convai-nodes.test.mjs does,
+// so a future regression on either side (COUPLED_FIELDS OR attrKeys) fails here.
+test('a blocking objective compiles end to end and carries closingMessage + tags on the compiled step', () => {
+  const a = attrsOf({
+    type: 'conversationai_objective',
+    name: 'Capture outcome',
+    attributes: {
+      objective: 'Capture the target outcome',
+      proceedIfNotMet: true,
+      closingMessage: 'Handing this off to the team.',
+      tags: '',
+      maxAttempts: '5',
+    },
+  });
+  assert.equal(a.proceedIfNotMet, true);
+  assert.equal(a.closingMessage, 'Handing this off to the team.');
+  assert.equal(a.tags, '');
+});
