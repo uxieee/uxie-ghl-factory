@@ -7,6 +7,7 @@ import { checkGoghlSyntax } from './goghl.mjs';
 import { checkWebhookRefs } from './webhook-rail.mjs';
 import { checkStepOutputRefs } from './step-outputs.mjs';
 import { normalizeSettings } from './settings.mjs';
+import { stripNullNext } from './terminals.mjs';
 import { stepNotesToComments } from './step-notes.mjs';
 import { checkContactFieldShape } from './contact-field-shapes.mjs';
 import { enforceRequiredFields } from './required-fields.mjs';
@@ -1776,6 +1777,12 @@ export function compile(ir, ctx) {
     triggersChanged: false, isAutoSave: true,
     autoSaveSession: { workflowId: wid, id: sessionId, userId: ctx.uid, version: 1 },
     createdSteps, modifiedSteps: [], deletedSteps: [],
+    // NOTE: this shares the `templates` array by reference (not stripped yet). Every pass
+    // below (applyUiDefaults, enforceTemplates, ...) mutates the array's OBJECTS in place and
+    // relies on this being the same array it is looking at — stripping here would replace
+    // terminal steps with new objects the later passes never touch, so their defaults/
+    // enforcement would silently vanish from what actually ships. The null-terminal strip
+    // happens once, at the very end, right before `templates` stops changing. See below.
     workflowData: { templates },
     // Only present when the workflow actually HAS marketplace steps — a native-only
     // build must emit exactly the autoSaveBody it emitted before this fix, with no new
@@ -1847,7 +1854,22 @@ export function compile(ir, ctx) {
   // (wait reply/emailEventSteps/appointmentSpecificStep, workflow_goal ids, edit-composed graphs).
   checkStepRefs(templates, IRError);
 
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
+  // Terminals ship with no `next` key. The graph keeps `next: null` internally because the
+  // flattener and every edit op above read it as "end of chain"; it is stripped here, once,
+  // at the boundary where the body is assembled — after every mutation pass, so nothing
+  // written above is lost, and before anything reads `autoSaveBody` for the wire.
+  // See terminals.mjs for the live A/B.
+  //
+  // `_templates` keeps the UNSTRIPPED graph available for internal reuse:
+  // compileSubgraph (edit-driver.mjs) calls compile() to build the subgraph it splices into
+  // an edit, and its terminal-detection depends on `next: null` surviving as the end-of-chain
+  // marker on every node it inherits, not just the head. Stripping compile()'s own output
+  // in place would delete that marker from a branch entry with no children (e.g. an empty
+  // find_opportunity Not-Found transition) before the edit graph ever sees it.
+  const _templates = templates;
+  autoSaveBody.workflowData.templates = stripNullNext(templates);
+
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, authored, compiled: templates.length };
   casingLint(result);
   return result;
 }

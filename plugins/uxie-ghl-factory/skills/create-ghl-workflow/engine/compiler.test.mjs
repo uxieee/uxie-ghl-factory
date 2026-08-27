@@ -43,7 +43,10 @@ test('linear chain wires next/parentKey/order and lean envelope', () => {
   assert.equal(t[0].next, t[1].id);
   assert.equal(t[1].parentKey, t[0].id);
   assert.equal(t[1].next, t[2].id);
-  assert.equal(t[2].next, null);
+  // Terminals ship with no `next` key at all — the save validator refuses an explicit
+  // null (live A/B 2026-08-27, terminals.mjs). `next: null` is only the in-memory
+  // end-of-chain marker; stripNullNext removes it at the autoSaveBody boundary.
+  assert.ok(!('next' in t[2]), 'terminal must omit next entirely, not emit null');
   assert.deepEqual([t[0].order, t[1].order, t[2].order], [0, 1, 2]);
   assert.equal(t[1].attributes.type, 'time');
   assert.deepEqual(t[1].attributes.startAfter, { type: 'days', value: 1, when: 'after' });
@@ -135,7 +138,8 @@ test('binary if_else: container + branch-yes/None-node wiring (runtime-correct s
   assert.deepEqual(no.sibling, [yes.id]);
   assert.equal(yes.next, byRef('Premium').id);
   assert.equal(byRef('Premium').parent, yes.id);
-  assert.equal(byRef('Premium').next, null);
+  // Terminal: no `next` key on the wire (see terminals.mjs — the save validator refuses null).
+  assert.ok(!('next' in byRef('Premium')), 'terminal must omit next entirely, not emit null');
   assert.equal(no.next, byRef('Standard').id, 'None node wires the else fallback ladder');
   assert.ok(['parent', 'sibling', 'cat', 'comments', 'nodeType', 'parentKey'].every((k) => k in yes));
 });
@@ -222,7 +226,7 @@ const noElseIR = {
   ],
 };
 
-test('if_else with no else branch synthesizes a None node with next:null', () => {
+test('if_else with no else branch synthesizes a terminal None node', () => {
   const { autoSaveBody } = compile(noElseIR, ctx());
   const t = autoSaveBody.workflowData.templates;
   const container = t.find((s) => s.name === 'Gate');
@@ -232,7 +236,9 @@ test('if_else with no else branch synthesizes a None node with next:null', () =>
   const noneNode = t.find((s) => s.id === container.next[2] && s.type === 'if_else');
   assert.equal(noneNode.nodeType, 'branch-no');
   assert.deepEqual(noneNode.attributes, { else: true });
-  assert.equal(noneNode.next, null, 'no fallback ladder → None.next is null');
+  // Terminal: no `next` key on the wire, not next:null (see terminals.mjs — the save
+  // validator refuses an explicit null; live A/B 2026-08-27).
+  assert.ok(!('next' in noneNode), 'no fallback ladder → None must omit next entirely');
 });
 
 test('create body + auto-save envelope are well-formed', () => {
@@ -363,17 +369,19 @@ const gotoIR = {
   ],
 };
 
-test('goto emits targetNodeId, next null, lean envelope', () => {
+test('goto emits targetNodeId, no next key, lean envelope', () => {
   const { autoSaveBody } = compile(gotoIR, ctx());
   const t = autoSaveBody.workflowData.templates;
   const start = t.find((s) => s.name === 'Start');
   const g = t.find((s) => s.type === 'goto');
   assert.equal(g.attributes.targetNodeId, start.id);
   assert.equal(g.attributes.type, 'goto');
-  assert.equal(g.next, null);
+  // Terminal: no `next` key on the wire, not next:null (see terminals.mjs — the save
+  // validator refuses an explicit null; live A/B 2026-08-27).
+  assert.ok(!('next' in g), 'goto is a terminal, so next must be absent, not null');
   assert.equal(g.parentKey, start.id);
   // lean: no situational keys on a root-scope goto
-  assert.deepEqual(Object.keys(g).sort(), ['attributes', 'id', 'name', 'next', 'order', 'parentKey', 'type']);
+  assert.deepEqual(Object.keys(g).sort(), ['attributes', 'id', 'name', 'order', 'parentKey', 'type']);
 });
 
 test('voice_ai_outbound_call: attributes + workflowsActionType INTERNAL (live-verified shape)', () => {
@@ -412,7 +420,9 @@ test('Appendix A acceptance: tagged-vip-nurture compiles to 8 steps, correct sha
   assert.equal(byName('Has high-value tag?').nodeType, 'condition-node');
   assert.equal(byName('Yes').nodeType, 'branch-yes');
   assert.equal(byName('No').nodeType, 'branch-no');
-  assert.equal(byName('Tag premium').next, null);
+  // Terminal: no `next` key on the wire, not next:null (see terminals.mjs — the save
+  // validator refuses an explicit null; live A/B 2026-08-27).
+  assert.ok(!('next' in byName('Tag premium')), 'terminal must omit next entirely, not emit null');
   assert.equal(byName('Tag premium').parent, byName('Yes').id);
   assert.equal(triggerBodies[0].type, 'contact_tag');
   // filter expansion enriches the lean {field,operator,value} into the full UI condition

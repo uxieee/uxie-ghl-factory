@@ -646,3 +646,18 @@ test('every dedicated-builder type with a coupled rule enforces it through compi
     }
   }
 });
+
+test('add_to_workflow always ships a boolean input_trigger_params', async () => {
+  const { enforceRequiredFields } = await import('./required-fields.mjs');
+  const node = { type: 'add_to_workflow', name: 'Enrol' };
+  const out = enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow' }, {});
+  assert.equal(out.input_trigger_params, false);
+  assert.equal(typeof out.input_trigger_params, 'boolean', 'the UI drawer writes the STRING "False", which the validator rejects with "Expected boolean"');
+});
+
+test('an author-supplied input_trigger_params is respected', async () => {
+  const { enforceRequiredFields } = await import('./required-fields.mjs');
+  const node = { type: 'add_to_workflow', name: 'Enrol' };
+  const out = enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow', input_trigger_params: true }, {});
+  assert.equal(out.input_trigger_params, true);
+});

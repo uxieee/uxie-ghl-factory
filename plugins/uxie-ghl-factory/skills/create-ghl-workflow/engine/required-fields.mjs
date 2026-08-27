@@ -302,6 +302,18 @@ const CONDITIONAL_DEFAULTS = {
   wait: (attrs) => (APPOINTMENT_WAIT_TYPES.has(attrs.type) && attrs.appointmentCondition === undefined
     ? { appointmentCondition: 'skip' }
     : {}),
+
+  // GHL's save validator REQUIRES this key on every add_to_workflow step: a step carrying only
+  // {workflow_id, type} is refused with "Input Trigger Params is required", and that refusal
+  // blocks EVERY save on the workflow, including edits to unrelated steps. Proven by
+  // differential 2026-08-27: the builder PUT body that returned 200 carries
+  // input_trigger_params:false on both enrol steps; the one that returned 400 carries neither.
+  // It must be a BOOLEAN — the UI drawer writes the string "False", which the post-update
+  // validator rejects with "Expected boolean". The type card records it as required:false and
+  // present in 100% of the corpus, which is the contradiction that let the engine omit it.
+  add_to_workflow: (attrs) => (attrs.input_trigger_params === undefined
+    ? { input_trigger_params: false }
+    : {}),
 };
 
 // Fields that only become required once ANOTHER field takes a particular value. The generated

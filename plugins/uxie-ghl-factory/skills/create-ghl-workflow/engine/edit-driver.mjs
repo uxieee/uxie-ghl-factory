@@ -200,7 +200,11 @@ export function compileSubgraph(node, ctx) {
     { name: '_edit', triggers: [], graph: [{ ...node, ref: '_edit_step', kind: node.kind ?? 'action', assocGuaranteed: true }] },
     ctx,
   );
-  const tpls = out.autoSaveBody.workflowData.templates;
+  // `_templates`, not `autoSaveBody.workflowData.templates`: the latter has had its
+  // terminal `next: null` stripped for the wire (terminals.mjs), which would delete the
+  // end-of-chain marker this splice depends on for every node it inherits, not just the
+  // head — e.g. an empty find_opportunity Not-Found transition with no children.
+  const tpls = out._templates;
   // The compiled scope's head: the only node the flattener left unparented.
   const head = tpls.find((t) => (t.parentKey === null || t.parentKey === undefined) && t.parent == null) ?? tpls[0];
   const isContainer = Array.isArray(head.next);

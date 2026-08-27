@@ -110,6 +110,13 @@ test('confirmed publish re-GETs immediately before PUT, uses that version, strip
   const body = calls[putIndex].body;
   assert.equal(body.version, 9, 'publish must use the immediately refreshed current version');
   assert.equal(body.status, 'published');
+  // The fixture's fresh GET carries a stored `next: null` (workflow() above) — publish echoes
+  // that document straight back as a PUT, so it inherits every stored null the same way an
+  // untouched build or edit does. The save validator refuses the explicit null (terminals.mjs
+  // live A/B 2026-08-27), so this must be stripped before the wire or an untouched legacy
+  // terminal 400s a publish nobody meant to change.
+  assert.equal('next' in body.workflowData.templates[0], false,
+    'a stored null terminal must not survive onto the publish PUT');
   assert.equal('autoSaveSession' in body, false);
   assert.equal('autoSaveSessionId' in body, false);
   assert.deepEqual(body.oldTriggers, body.newTriggers);
