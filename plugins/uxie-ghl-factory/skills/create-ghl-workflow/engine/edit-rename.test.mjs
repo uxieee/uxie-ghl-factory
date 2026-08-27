@@ -36,10 +36,11 @@ test('renameStep refuses an empty or non-string name rather than blanking the la
     assert.throws(() => renameStep(chain(), 's2', bad), /non-empty string/);
 });
 
-test('renameStep on an unknown id is a no-op, like every other op in this module', () => {
-  const { templates, diff } = renameStep(chain(), 'nope', 'X');
-  assert.deepEqual(templates, chain());
-  assert.deepEqual(diff, { createdSteps: [], modifiedSteps: [], deletedSteps: [] });
+// D27: renameStep delegates to modifyStep, which used to return emptyDiff() for an unknown
+// id — a successful-looking no-op that hid a caller bug. modifyStep now throws, so renameStep
+// does too, by inheritance rather than its own guard.
+test('renameStep on an unknown id throws instead of returning a clean empty diff', () => {
+  assert.throws(() => renameStep(chain(), 'nope', 'X'), /modifyStep: no step with id 'nope'/);
 });
 
 test('modifyStep still merges attributes only when no stepPatch is passed (contract intact)', () => {

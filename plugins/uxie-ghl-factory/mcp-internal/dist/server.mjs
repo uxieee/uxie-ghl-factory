@@ -138231,9 +138231,13 @@ function appendStep(templates, newStep) {
   out.push(step);
   return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: tail ? [tail.id] : [], deletedSteps: [] } };
 }
+function requireStep(templates, stepId, op) {
+  const found = templates.find((t) => t.id === stepId);
+  if (!found) throw new Error(`${op}: no step with id '${stepId}'`);
+  return found;
+}
 function deleteStep(templates, stepId) {
-  const victim = templates.find((t) => t.id === stepId);
-  if (!victim) return { templates, diff: emptyDiff() };
+  const victim = requireStep(templates, stepId, "deleteStep");
   const holders = templates.filter((t) => t.id !== stepId && stepRefsOf(t).some((r) => r.id === stepId));
   if (holders.length)
     throw new Error(`deleteStep: '${victim.name ?? stepId}' is still referenced by ` + holders.map((h) => `'${h.name ?? h.id}' (${h.type})`).join(", ") + ` \u2014 repoint or delete the referencing step(s) first (GHL would render a broken link and report 0 errors).`);
@@ -138281,8 +138285,7 @@ function repairParentKeys(templates) {
 }
 var emptyDiff = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
 function insertAfter(templates, newStep, afterId) {
-  const anchor = templates.find((t) => t.id === afterId);
-  if (!anchor) return { templates, diff: emptyDiff() };
+  const anchor = requireStep(templates, afterId, "insertAfter");
   if (Array.isArray(anchor.next))
     throw new Error(`insertAfter: '${anchor.name ?? afterId}' is a container \u2014 it is terminal in its scope, and inserting after it would orphan its branches. Use appendToBranch with one of its branch ids instead.`);
   const oldNext = typeof anchor.next === "string" ? anchor.next : null;
@@ -138309,8 +138312,7 @@ function assertPatchableFields(stepPatch, opLabel) {
     );
 }
 function modifyStep(templates, stepId, attrPatch, stepPatch) {
-  const found = templates.find((t) => t.id === stepId);
-  if (!found) return { templates, diff: emptyDiff() };
+  requireStep(templates, stepId, "modifyStep");
   assertPatchableFields(stepPatch, "modifyStep");
   const out = templates.map((t) => t.id === stepId ? { ...t, ...stepPatch ?? {}, attributes: { ...t.attributes, ...attrPatch } } : t);
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
@@ -138533,16 +138535,14 @@ function prependStep(templates, newStep, head = null) {
   return { templates: out, diff: { createdSteps: [step.id], modifiedSteps: [...modified], deletedSteps: [] } };
 }
 function insertBefore(templates, newStep, beforeId) {
-  const target = templates.find((t) => t.id === beforeId);
-  if (!target) return { templates, diff: emptyDiff() };
+  const target = requireStep(templates, beforeId, "insertBefore");
   const { pred, viaBranchArray } = inboundOf(templates, beforeId);
   if (viaBranchArray) refuseBranchEntry(target, beforeId, "insertBefore");
   if (pred) return insertAfter(templates, newStep, pred.id);
   return prependStep(templates, newStep, target);
 }
 function insertSubgraphBefore(templates, sub, beforeId, attachTailTo) {
-  const target = templates.find((t) => t.id === beforeId);
-  if (!target) return { templates, diff: emptyDiff() };
+  const target = requireStep(templates, beforeId, "insertSubgraphBefore");
   const { pred, viaBranchArray } = inboundOf(templates, beforeId);
   if (viaBranchArray) refuseBranchEntry(target, beforeId, "insertBefore");
   if (pred) return insertSubgraphAfter(templates, sub, pred.id, attachTailTo);

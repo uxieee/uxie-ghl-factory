@@ -82,11 +82,12 @@ test('insertBefore refuses a branch ENTRY — that position is structural', () =
   assert.throws(() => insertBefore(wf, step, 'b1'), /branch entry|appendToBranch/i);
 });
 
-test('insertBefore on a missing id is a no-op', () => {
+// D27: an unknown beforeId used to return emptyDiff() here — a successful-looking no-op
+// (ok, stepCount unchanged, createdSteps []) that hid a caller bug. Now it throws.
+test('insertBefore on a missing id throws instead of returning a clean empty diff', () => {
   const wf = linearWf();
-  const { templates, diff } = insertBefore(wf, { id: 'nEW', type: 'add_contact_tag' }, 'nope');
-  assert.deepEqual(templates, wf);
-  assert.deepEqual(diff, { createdSteps: [], modifiedSteps: [], deletedSteps: [] });
+  assert.throws(() => insertBefore(wf, { id: 'nEW', type: 'add_contact_tag' }, 'nope'),
+    /insertBefore: no step with id 'nope'/);
 });
 
 test('a CONTAINER can become the head — the whole workflow re-scopes onto the named branch', () => {

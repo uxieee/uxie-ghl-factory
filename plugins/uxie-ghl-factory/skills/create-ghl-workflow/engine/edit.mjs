@@ -80,9 +80,20 @@ export function appendStep(templates, newStep) {
 // parentKey at the now-gone victim — the origin of the "residue" dangling parentKeys seen
 // in client workflows. Re-point that orphan at the victim's own inbound source (pred), or
 // null if the victim was the head, and mark it modified so GHL re-persists the change.
+
+// An op naming a step that does not exist is a CALLER BUG, and returning an empty diff makes it
+// indistinguishable from success: the tool reports ok, stepCount unchanged, createdSteps []. That
+// no-op has been mistaken for a completed edit more than once (findings item 12, re-confirmed as
+// D27 on 2026-08-27 with a truncated id). Fail closed, and name the id so the typo is visible.
+// addStepNote and duplicateStep already did this; these five did not.
+function requireStep(templates, stepId, op) {
+  const found = templates.find((t) => t.id === stepId);
+  if (!found) throw new Error(`${op}: no step with id '${stepId}'`);
+  return found;
+}
+
 export function deleteStep(templates, stepId) {
-  const victim = templates.find((t) => t.id === stepId);
-  if (!victim) return { templates, diff: emptyDiff() };
+  const victim = requireStep(templates, stepId, 'deleteStep');
   // Refuse to orphan a REFERENCE. Deleting only rewires next/parentKey; a goto/wait/goal that
   // POINTS at the victim would keep its id and become the broken-link node GHL's panel calls
   // "0 Errors" (gotoValidator grades !targetExists warning-level). The holder must be repointed
@@ -149,8 +160,7 @@ const emptyDiff = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: []
 // inherits afterId's scope (its `parent`), so this works mid-chain in the root trunk
 // OR mid-chain inside a branch. Rewires afterId.next → newStep → (afterId's old next).
 export function insertAfter(templates, newStep, afterId) {
-  const anchor = templates.find((t) => t.id === afterId);
-  if (!anchor) return { templates, diff: emptyDiff() };
+  const anchor = requireStep(templates, afterId, 'insertAfter');
   // A container's `next` is its BRANCH ARRAY, not a chain pointer. Overwriting it with
   // the new step's id silently orphans every branch and everything under them — the
   // workflow round-trips clean and loses half its graph. A container is terminal in its
@@ -198,8 +208,7 @@ function assertPatchableFields(stepPatch, opLabel) {
 // Signed Won" step at a different stage could not fix the now-lying label it left behind.
 // Graph fields are refused (see PROTECTED_STEP_FIELDS); everything else merges shallowly.
 export function modifyStep(templates, stepId, attrPatch, stepPatch) {
-  const found = templates.find((t) => t.id === stepId);
-  if (!found) return { templates, diff: emptyDiff() };
+  requireStep(templates, stepId, 'modifyStep');
   assertPatchableFields(stepPatch, 'modifyStep');
   const out = templates.map((t) => (t.id === stepId
     ? { ...t, ...(stepPatch ?? {}), attributes: { ...t.attributes, ...attrPatch } }
@@ -584,8 +593,7 @@ export function prependStep(templates, newStep, head = null) {
 
 // Insert a plain step immediately BEFORE `beforeId`.
 export function insertBefore(templates, newStep, beforeId) {
-  const target = templates.find((t) => t.id === beforeId);
-  if (!target) return { templates, diff: emptyDiff() };
+  const target = requireStep(templates, beforeId, 'insertBefore');
   const { pred, viaBranchArray } = inboundOf(templates, beforeId);
   if (viaBranchArray) refuseBranchEntry(target, beforeId, 'insertBefore');
   if (pred) return insertAfter(templates, newStep, pred.id);
@@ -595,8 +603,7 @@ export function insertBefore(templates, newStep, beforeId) {
 // Insert a CONTAINER subgraph immediately BEFORE `beforeId`, re-scoping what it displaces
 // onto the container's `attachTailTo` branch.
 export function insertSubgraphBefore(templates, sub, beforeId, attachTailTo) {
-  const target = templates.find((t) => t.id === beforeId);
-  if (!target) return { templates, diff: emptyDiff() };
+  const target = requireStep(templates, beforeId, 'insertSubgraphBefore');
   const { pred, viaBranchArray } = inboundOf(templates, beforeId);
   if (viaBranchArray) refuseBranchEntry(target, beforeId, 'insertBefore');
   if (pred) return insertSubgraphAfter(templates, sub, pred.id, attachTailTo);
