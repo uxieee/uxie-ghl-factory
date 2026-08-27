@@ -246,13 +246,15 @@ test('conv_ai_autonomous_trigger resolves target -> targetActionId and expands i
   // the jump target is a REAL step id, resolved from the ref — a goto trigger with no
   // targetActionId saves and has nowhere to send the contact
   assert.equal(goto.targetActionId, bookId);
-  // and the rows carry the envelope GHL's own builder writes: operator `eq` (NOT `==`), type
-  // `input`, title '' — captured live 2026-08-26
+  // Rows carry type `input` and title '' as GHL's builder writes them — but operator `==`,
+  // NOT the `eq` the builder wrote before its ~2026-08-27 update. Live A/B that day (Sandbox
+  // probe 36bb7c70): identical PUT body, eq -> 400 trigger-condition-invalid (one error per
+  // row), == -> 200. The 2026-08-26 A/B that cleared `eq` predates the update and is stale.
   assert.deepEqual(goto.conditions, [
-    { field: 'customTriggerType', operator: 'eq', value: 'book_appointment', title: '', type: 'input' },
-    { field: 'customTriggerDescription', operator: 'eq', value: 'The customer wants to book', title: '', type: 'input' },
-    { field: 'customTriggerPriority', operator: 'eq', value: '8', title: '', type: 'input' },
-    { field: 'customTriggerSensitivity', operator: 'eq', value: 'medium', title: '', type: 'input' },
+    { field: 'customTriggerType', operator: '==', value: 'book_appointment', title: '', type: 'input' },
+    { field: 'customTriggerDescription', operator: '==', value: 'The customer wants to book', title: '', type: 'input' },
+    { field: 'customTriggerPriority', operator: '==', value: '8', title: '', type: 'input' },
+    { field: 'customTriggerSensitivity', operator: '==', value: 'medium', title: '', type: 'input' },
   ]);
   // the entry trigger is NOT a goto and carries no target
   assert.equal('targetActionId' in out.triggerBodies[0], false);
@@ -368,4 +370,23 @@ test('two custom triggers on one target warn rather than throw — legal, but a 
     graph: [{ ref: 'm', kind: 'action', type: 'conversationai_ai_message', name: 'Greet', attributes: { message: 'hi', waitForReply: false } }],
   }, c);
   assert.ok(warnings.some((w) => /targets the same step/.test(w)), JSON.stringify(warnings));
+});
+
+test('the eq->== trigger correction is still NEEDED (delete it when the generator is fixed)', async () => {
+  const raw = (await import('./catalog.data.json', { with: { type: 'json' } })).default;
+  const rows = raw.triggers?.conv_ai_autonomous_trigger?.filterRows ?? [];
+  assert.ok(
+    rows.some((r) => r.operator === 'eq'),
+    'catalog.data.json no longer carries operator "eq" on conv_ai_autonomous_trigger — the '
+    + 'generator has been corrected upstream. Delete conv_ai_autonomous_trigger from '
+    + 'TRIGGER_CORRECTIONS in required-fields.mjs.',
+  );
+});
+
+test('the loaded catalog serves == for every conv_ai_autonomous_trigger filter row', async () => {
+  const { loadCatalog } = await import('./catalog.mjs');
+  const rows = loadCatalog().trigger('conv_ai_autonomous_trigger').filterRows;
+  assert.ok(rows.length >= 4, 'all four drawer rows are present');
+  assert.deepEqual([...new Set(rows.map((r) => r.operator))], ['=='],
+    'GHL refuses eq at save time as of ~2026-08-27');
 });

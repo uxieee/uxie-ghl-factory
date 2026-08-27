@@ -391,7 +391,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### events
 - ✅ `call_status` (highlevel) — filters: Call status (`call_status`), Custom disposition (`custom_disposition`), Call direction (`message.direction`), In workflow (`workflow.id`)
-- ✅ `conv_ai_autonomous_trigger` (highlevel) — filters:  (`customTriggerType`),  (`customTriggerDescription`),  (`customTriggerPriority`),  (`customTriggerSensitivity`)
+- ✅ `conv_ai_autonomous_trigger` (highlevel) — filters:  (`customTriggerType`),  (`customTriggerDescription`),  (`customTriggerPriority`),  (`customTriggerSensitivity`). 🔴 Condition rows must carry **`operator: "=="`**. GHL's ~2026-08-27 update refuses `operator: "eq"` at save time (`ruleId: trigger-condition-invalid`, one error per row) even though the trigger API accepts it and the runtime honours it — so a flow built with `eq` runs correctly and cannot be saved from the builder. The engine emits `==` automatically; a hand-authored complete filter row is passed through untouched, so author `==` yourself if you supply `field`+`operator`+`title`+`type`. `catalog/trigger-examples/conv_ai_autonomous_trigger.json` is a pre-update capture and still shows `eq` — it is evidence of what GHL wrote then, not a template to copy.
 - ✅ `conv_ai_trigger` (highlevel) — filters:  (`botId`)
 - ✅ `customer_reply` (highlevel) — filters: Replied to workflow (`workflow.id`), Reply channel (`message.type`), Message body (`message.body`), Intent type (`message.body`), Has tag (`contact.tags`), Doesn't have tag (`contact.tags`), Has Attachments (`message.hasAttachments`)
 - ▫ `external_tracking` (internal)

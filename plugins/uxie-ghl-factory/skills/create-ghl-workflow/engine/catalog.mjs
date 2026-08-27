@@ -11,7 +11,7 @@
 //   catalog.stepCapabilities() -> universal author/edit capabilities for all steps
 //   catalog.allSteps() / catalog.allTriggers() -> type[]  (for coverage reporting)
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
-import { CATALOG_CORRECTIONS, REQUIRED_FIELDS } from './required-fields.mjs';
+import { CATALOG_CORRECTIONS, REQUIRED_FIELDS, TRIGGER_CORRECTIONS } from './required-fields.mjs';
 
 function data() {
   return CATALOG_DATA;
@@ -39,6 +39,25 @@ export function correctSteps(steps) {
   return out;
 }
 
+// Triggers were served RAW from the generated catalog until 2026-08-27 — there was no overlay
+// on this side at all, so a stale generated value had no correction path. Mirrors correctSteps.
+export function correctTriggers(triggers) {
+  const out = { ...triggers };
+  for (const [type, fix] of Object.entries(TRIGGER_CORRECTIONS)) {
+    const entry = out[type];
+    if (!entry) continue;
+    const { reason, correctFilterRows, ...patch } = fix;
+    out[type] = {
+      ...entry,
+      ...patch,
+      ...(correctFilterRows && Array.isArray(entry.filterRows)
+        ? { filterRows: correctFilterRows(entry.filterRows) }
+        : {}),
+    };
+  }
+  return out;
+}
+
 // Map a trigger type to its recovered filter model. The generator keys filter
 // models by class name (BirthdayReminderFilter), not slug — resolve by scanning
 // the source_path / class for the trigger slug.
@@ -56,9 +75,10 @@ function findFilterModel(d, triggerType) {
 export function loadCatalog() {
   const d = data();
   const steps = correctSteps(d.steps);
+  const triggers = correctTriggers(d.triggers);
   return {
     step: (type) => steps[type],
-    trigger: (type) => d.triggers[type],
+    trigger: (type) => triggers[type],
     filterModel: (type) => findFilterModel(d, type),
     // GHL's WORKFLOW-level validator (graph-scoped, trigger-aware rules + the vocab they test
     // against) — consumed by graph-rules.mjs at every write path. null on a pre-sweep catalog.
@@ -70,7 +90,7 @@ export function loadCatalog() {
     i18n: d.i18n ?? null,
     stepCapabilities: () => d.stepCapabilities ?? {},
     allSteps: () => Object.keys(steps),
-    allTriggers: () => Object.keys(d.triggers),
+    allTriggers: () => Object.keys(triggers),
     // coverage snapshot for reporting / tests
     counts: () => ({
       steps: d.stepCount, triggers: d.triggerCount,
