@@ -178,7 +178,12 @@ export function renderMarkdown(d) {
       }
       if (s.isMultipathContainer) bits.push(`container → IR kind \`${IR_KIND[s.type] ?? s.type}\``);
       if (s.premium) bits.push('premium');
-      out.push(`- ${TIER_MARK[s.confidence]} \`${s.type}\`${bits.length ? ' — ' + bits.join('; ') : ''}`);
+      // docNote surfaces a step-side CATALOG_CORRECTIONS entry (required-fields.mjs) — see
+      // conversationai_objective's proceedIfNotMet polarity note. Mirrors the trigger-side
+      // docNote below. Keeps this doc GENERATED rather than hand-edited, so the sync check
+      // stays meaningful.
+      const note = s.docNote ? `. ${s.docNote}` : '';
+      out.push(`- ${TIER_MARK[s.confidence]} \`${s.type}\`${bits.length ? ' — ' + bits.join('; ') : ''}${note}`);
     }
   }
   out.push('', '## Containers / control flow (IR node kinds)', '');

@@ -661,3 +661,33 @@ test('an author-supplied input_trigger_params is respected', async () => {
   const out = enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow', input_trigger_params: true }, {});
   assert.equal(out.input_trigger_params, true);
 });
+
+test('a blocking objective without a closing message is refused', async () => {
+  const { enforceRequiredFields } = await import('./required-fields.mjs');
+  const node = { type: 'conversationai_objective', name: 'Capture outcome' };
+  assert.throws(
+    () => enforceRequiredFields(node, {
+      objective: 'Capture the target outcome', proceedIfNotMet: true, maxAttempts: '5',
+    }, {}),
+    /closingMessage/,
+  );
+});
+
+test('a non-blocking objective needs no closing message', async () => {
+  const { enforceRequiredFields } = await import('./required-fields.mjs');
+  const node = { type: 'conversationai_objective', name: 'Capture name' };
+  assert.doesNotThrow(() => enforceRequiredFields(node, {
+    objective: 'Capture the first name', proceedIfNotMet: false, maxAttempts: '5',
+  }, {}));
+});
+
+test('a blocking objective WITH a closing message is accepted', async () => {
+  const { enforceRequiredFields } = await import('./required-fields.mjs');
+  const node = { type: 'conversationai_objective', name: 'Capture outcome' };
+  assert.doesNotThrow(() => enforceRequiredFields(node, {
+    objective: 'Capture the target outcome',
+    proceedIfNotMet: true,
+    closingMessage: "I'll have the team pick this up and point you the right way.",
+    maxAttempts: '5',
+  }, {}));
+});
