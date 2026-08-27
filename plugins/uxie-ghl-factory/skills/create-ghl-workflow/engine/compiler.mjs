@@ -1860,12 +1860,25 @@ export function compile(ir, ctx) {
   // written above is lost, and before anything reads `autoSaveBody` for the wire.
   // See terminals.mjs for the live A/B.
   //
-  // `_templates` keeps the UNSTRIPPED graph available for internal reuse:
-  // compileSubgraph (edit-driver.mjs) calls compile() to build the subgraph it splices into
-  // an edit, and its terminal-detection depends on `next: null` surviving as the end-of-chain
-  // marker on every node it inherits, not just the head. Stripping compile()'s own output
-  // in place would delete that marker from a branch entry with no children (e.g. an empty
-  // find_opportunity Not-Found transition) before the edit graph ever sees it.
+  // `_templates` keeps the UNSTRIPPED graph available for internal reuse: compileSubgraph
+  // (edit-driver.mjs) calls compile() to build the subgraph it splices into an edit, and reads
+  // this instead of `autoSaveBody.workflowData.templates` so every node it inherits keeps the
+  // SAME `next: null` convention the rest of the edit graph uses. This is NOT because any
+  // splice/re-scope logic reads `next: null` as a sentinel — rootTail, scopeChain, inboundOf
+  // and branchTargets are all absent-safe (`typeof x.next === 'string'` / `x.next == null`
+  // checks) — it is so a node compileSubgraph hands to the edit graph looks like every other
+  // node already in it, rather than an inconsistent shape depending on where it came from.
+  //
+  // HAZARD (latent, not exercised today): stripNullNext returns the SAME object reference for
+  // a non-terminal step and a FRESH object for a terminal one, so `_templates` and
+  // `autoSaveBody.workflowData.templates` are a PARTIAL alias, not two independent copies. A
+  // mutation applied to a step object reached via `_templates` after this point lands on both
+  // arrays for a non-terminal step and on only `_templates`' copy for a terminal one.
+  // orchestrate.mjs:418 does exactly this kind of post-compile `t2.attributes = {...}`
+  // mutation, but over `[autoSaveBody.workflowData.templates, createBody.workflowData.templates]`
+  // — `_templates` is not in that list, so nothing reads or mutates through it today. If a
+  // future caller adds it to a similar sweep, a terminal step's mutation could silently miss
+  // the copy that reaches the wire.
   const _templates = templates;
   autoSaveBody.workflowData.templates = stripNullNext(templates);
 

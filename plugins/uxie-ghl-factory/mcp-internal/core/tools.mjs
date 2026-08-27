@@ -2848,7 +2848,17 @@ export const TOOLS = [
       }
       const roundTripResponse = roundTripCall.value;
       const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
-      const verify = verifyEditRoundTrip(templates, beforeTemplates, gotTemplates);
+      // `templates` is the in-memory edit graph, which correctly keeps `next: null` on
+      // terminals (edit.mjs's rootTail/scopeChain/inboundOf all key off that marker). Whether
+      // the re-GET (`gotTemplates`) still carries that key depends on what actually reached
+      // the wire: editCommitBody strips it (terminals.mjs) when a step PUT was sent, but a
+      // trigger-only edit sends no step PUT at all, so the stored document — and this re-GET —
+      // keeps whatever it already had. Comparing the raw graph against a STRIPPED store false-
+      // flagged every terminal (ENGINE_ABORT on a write that fully succeeded); comparing the
+      // unstripped graph against an UNTOUCHED-but-unstripped store works, but only by accident.
+      // Stripping BOTH sides is correct either way: it makes the comparison blind to whether
+      // this particular edit happened to touch the wire boundary at all.
+      const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
