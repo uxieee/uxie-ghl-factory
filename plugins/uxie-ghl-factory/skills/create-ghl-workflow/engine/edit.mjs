@@ -9,6 +9,7 @@
 // an edit apply cleanly without disturbing untouched steps.
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
 import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
+import { stripNullNext } from './terminals.mjs';
 import { stepNoteRecord } from './step-notes.mjs';
 import { expandCondition } from './compiler.mjs';
 import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
@@ -910,7 +911,9 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
     status: fresh.status ?? 'draft',
     version: fresh.version,
     triggersChanged: false,
-    workflowData: { templates: newTemplates },
+    // Terminals go on the wire with no `next` key — an explicit null is refused by the save
+    // validator, including on steps this edit never touched. See terminals.mjs.
+    workflowData: { templates: stripNullNext(newTemplates) },
     ...(counter.size > 0 && editTouchedMarketplace
       ? { meta: { ...(fresh.meta ?? {}),
         stepIndexCounter: { ...(fresh.meta?.stepIndexCounter ?? {}), ...Object.fromEntries(counter) } } }

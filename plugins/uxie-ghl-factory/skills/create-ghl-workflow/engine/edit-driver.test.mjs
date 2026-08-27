@@ -117,6 +117,12 @@ test('disableStepsByType op round-trips through the published commit body withou
     position: { x: 120, y: 240 },
     isDisabled: true,
   });
-  assert.deepEqual(body.workflowData.templates.filter((t) => t.id !== 's2'),
-    original.filter((t) => t.id !== 's2'));
+  // s3's fixture carries an explicit `next: null` (chain()'s terminal). editCommitBody now
+  // strips that key wire-wide (terminals.mjs) even though this edit never touched s3 — that is
+  // the point of the fix, not a regression. Diff s3's expectation on that one key; s1 (which
+  // has a real next edge) still round-trips byte for byte.
+  const { next: _s3Next, ...s3Untouched } = original.find((t) => t.id === 's3');
+  assert.deepEqual(body.workflowData.templates.filter((t) => t.id !== 's2' && t.id !== 's3'),
+    original.filter((t) => t.id !== 's2' && t.id !== 's3'));
+  assert.deepEqual(body.workflowData.templates.find((t) => t.id === 's3'), s3Untouched);
 });
