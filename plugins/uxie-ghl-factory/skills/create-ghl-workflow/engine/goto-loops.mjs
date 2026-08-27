@@ -21,6 +21,13 @@ export function gotoLoops(templates) {
   if (!Array.isArray(templates)) return [];
   const byId = new Map(templates.filter((t) => t && t.id).map((t) => [t.id, t]));
   const successors = (step) => {
+    // A goto's forward edge is its JUMP, not `next` — it is emitted with no `next` key at all.
+    // Without this, a walk passing through a second goto stops dead and a mutual two-goto cycle
+    // (A→B→g2→C, C→g1→A) goes unreported, which is exactly the shape GHL locks.
+    if (step?.type === 'goto') {
+      const t = step.attributes?.targetNodeId;
+      return typeof t === 'string' ? [t] : [];
+    }
     const n = step?.next;
     if (Array.isArray(n)) return n.filter((x) => typeof x === 'string');
     return typeof n === 'string' ? [n] : [];

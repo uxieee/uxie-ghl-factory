@@ -14,6 +14,7 @@ import { stepNoteRecord } from './step-notes.mjs';
 import { expandCondition } from './compiler.mjs';
 import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
+import { gotoLoops } from './goto-loops.mjs';
 
 // A trigger added via the API lands `active: false` on the server NO MATTER WHAT the
 // POST body said — it only starts firing after a status draft→published round trip
@@ -876,6 +877,25 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
         `edit left ${bad.length} step(s) with a parentKey pointing at a missing step: `
         + bad.map((d) => `'${d.name ?? d.id}' → ${d.parentKey}`).join(', ')
         + `. Add a repairParentKeys op, or pass allowDanglingParentKeys:true to commit anyway.`);
+  }
+  // Fail CLOSED on a goto THIS edit created or modified that now closes a cycle — the exact
+  // shape the build path refuses unconditionally in compile() (goto-loops.mjs). Scoped to
+  // touched steps like the parentKey check above: a legacy workflow's pre-existing loop must
+  // not brick an unrelated edit near it. Unlike the build-path throw, this one carries a hatch
+  // (opts.allowGotoLoops) — the build path authors a fresh workflow with no legitimate reason
+  // to emit something GHL will immediately demote to draft, but the edit path runs over
+  // harvested legacy data of uncertain provenance, the same reason every sibling guard here
+  // (allowDanglingParentKeys, allowDanglingStepRefs, deadBranchAcknowledged) carries one.
+  if (opts.allowGotoLoops !== true) {
+    const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+    const loops = gotoLoops(newTemplates).filter((l) => touched.has(l.id));
+    if (loops.length)
+      throw new IRError('GOTO_LOOP',
+        `edit would leave ${loops.length} goto step(s) jumping BACKWARD to a step that can reach `
+        + `them again: ` + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join('; ')
+        + `. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow `
+        + `loopIdentified and forces its status to draft — a published workflow silently stops. `
+        + `Point the goto forward, or pass allowGotoLoops:true to commit anyway.`);
   }
   // Fail CLOSED on a container this edit spliced in that routes the displaced chain down
   // one branch and a sibling straight to END. The author names the branch, so this is not

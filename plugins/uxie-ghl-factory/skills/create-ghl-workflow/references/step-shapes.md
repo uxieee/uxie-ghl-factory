@@ -306,8 +306,15 @@ await customRequest.put(base + '/calendars/events/appointments/' + target.id,
 
 🔴 **A goto may not point backward.** If the target can reach the goto again, GHL's backend
 detects the cycle, marks the node "Loop Locked", stamps the workflow's `loopIdentified` and
-forces `status` to `draft` — a published workflow silently stops running. The engine refuses
-this at compile time with `GOTO_LOOP`. Point the goto forward, or use the dedicated `loop`
+forces `status` to `draft` — a published workflow silently stops running. **On a fresh build**,
+`compile()` refuses this unconditionally with `GOTO_LOOP` — there is no hatch, because a fresh
+build has no legitimate reason to emit something GHL will immediately demote to draft. **On an
+edit** (`editCommitBody`), the same check runs scoped to the steps THIS edit created or
+modified — a legacy workflow's pre-existing loop elsewhere must not brick an unrelated edit near
+it — and it carries a hatch, `allowGotoLoops: true`, the same way its sibling edit-path guards
+do (`allowDanglingParentKeys`, `allowDanglingStepRefs`, `deadBranchAcknowledged`): edits run over
+harvested legacy data of uncertain provenance, where failing closed by default but allowing an
+informed override is the right posture. Point the goto forward, or use the dedicated `loop`
 step type, which is a supported container with its own body and its own validators.
 
 `attributes.loopIdentified` is **backend-stamped and read-only** — never emit it. Emitting it
