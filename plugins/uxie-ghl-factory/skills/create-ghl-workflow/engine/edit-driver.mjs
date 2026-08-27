@@ -163,6 +163,36 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
+        // REFUSE an attempted `active` CHANGE — fail loudly rather than send a write proven
+        // to do nothing. Measured 2026-08-28 (throwaway probes on the designated test
+        // sub-account, three experiments): `active` is a SERVER-MANAGED PROJECTION of the
+        // workflow's publish state, not a field the per-trigger PUT below controls in either
+        // direction — publishing with ZERO trigger writes flipped it to true within 0.28s of
+        // the PUT returning, and a per-trigger PUT explicitly setting it returned 200 and
+        // changed nothing at +0.5s/+2s/+5s (same measurements as publish_workflow's removed
+        // activation write — see edit-driver.mjs's REMOVED-2026-08-28 note below). A silent
+        // 200 that changes nothing is exactly the failure mode this whole line of work exists
+        // to eliminate, so this is a throw, not a warning: a caller who deliberately passes
+        // `active` deserves to learn it cannot work here, not a green light that lied.
+        // A value that MATCHES the stored trigger is a harmless no-op echo (common when a
+        // caller round-trips a whole trigger object) and is let through unchanged, as is the
+        // absence of `active` altogether — only a genuine attempted CHANGE is refused.
+        const requestedActive = op.trigger?.active;
+        const storedActive = t.active ?? false;
+        if (requestedActive !== undefined && requestedActive !== storedActive) {
+          throw new Error(
+            `${op.op}: refusing to set active:${requestedActive} on trigger ${tid} (currently `
+            + `active:${storedActive}) — this write cannot do anything. Measured 2026-08-28 `
+            + `(throwaway probes on the designated test sub-account): 'active' is a `
+            + `SERVER-MANAGED PROJECTION of the workflow's publish state. Publishing with ZERO `
+            + `trigger writes flipped it to true within 0.28s of the publish PUT returning; a `
+            + `per-trigger PUT explicitly setting active returned 200 and changed nothing at `
+            + `+0.5s/+2s/+5s. To activate this trigger, publish the workflow with `
+            + `publish_workflow/orchestrate --publish — there is no known API path that `
+            + `activates a trigger on an ALREADY-published workflow. Do not reintroduce a write `
+            + `here; omit 'active' from this op, or pass its current value, if you don't intend `
+            + `to change it.`);
+        }
         // The update PUT wants the FULL trigger object with edits, not a patch. Rebuild
         // through buildTrigger so an edited filter gets the same expansion a fresh create
         // gets, then re-seat the server's identity/envelope fields over the top.
@@ -174,7 +204,10 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
             // mention `active` must preserve whatever the live trigger already had — `?? true`
             // here used to switch on any trigger the caller found off (every API-created
             // trigger lands active:false per addTrigger, so this fired constantly). There is a
-            // standing project rule against enabling anything found off.
+            // standing project rule against enabling anything found off. (The refusal above
+            // already rejects any CHANGE attempt — by the time we get here, `active` is
+            // either absent or already equal to `storedActive`, so this fallback chain is
+            // never load-bearing for a change, only for preserving the stored value verbatim.)
             active: op.trigger?.active ?? t.active ?? false,
             ...(op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}) },
           ctx, wid,

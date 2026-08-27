@@ -85,23 +85,44 @@ test('modifyTrigger PUTs the full merged object and keeps the server id', () => 
 // ?? true` — so editing anything else about a trigger GHL's own API had landed OFF (every
 // API-created trigger, per addTrigger's doc comment above) silently switched it back ON. There is
 // a standing project rule against enabling anything found off. The fix preserves the STORED
-// active flag when the caller doesn't mention it at all.
+// active flag when the caller doesn't mention it at all. This test and 'defaults to OFF, not
+// ON' below also now pin the third case the 2026-08-28 refusal above needed covered: an
+// ABSENT `active` never triggers the refusal, only a genuine attempted CHANGE does.
 test('modifyTrigger preserves a stored INACTIVE trigger — it must never force-activate a trigger the caller did not ask to touch', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] }];
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [{ field: 'tagsAdded', value: 'gold' }] } }, ex);
   assert.equal(r.body.active, false, 'a trigger found OFF must stay OFF unless the caller explicitly asks to activate it');
 });
 
-test('modifyTrigger still activates when the caller explicitly says active:true', () => {
+// RETIRED 2026-08-28: these two tests used to assert that modifyTrigger's per-trigger PUT
+// could flip `active` in either direction when the caller asked explicitly. That write is the
+// last reachable instance of the defect this whole line of work exists to kill — measured
+// 2026-08-28 (throwaway probes on the designated test sub-account, three experiments):
+// `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state, not a field this
+// PUT controls either way. A silent 200 that changes nothing must never be reachable, so
+// modifyTrigger now REFUSES an attempted `active` CHANGE outright — see below.
+test('modifyTrigger refuses to change active:false→true — the per-trigger write cannot persist it', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] }];
-  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
-  assert.equal(r.body.active, true);
+  assert.throws(
+    () => plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex),
+    /SERVER-MANAGED PROJECTION/,
+    'a genuine attempted activation must fail loudly, not send a write proven to do nothing',
+  );
 });
 
-test('modifyTrigger still deactivates when the caller explicitly says active:false on a trigger that was on', () => {
+test('modifyTrigger refuses to change active:true→false — the per-trigger write cannot persist it', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: true, conditions: [] }];
-  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: false, filters: [] } }, ex);
-  assert.equal(r.body.active, false);
+  assert.throws(
+    () => plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: false, filters: [] } }, ex),
+    /SERVER-MANAGED PROJECTION/,
+    'a genuine attempted deactivation must fail loudly too — the write is inert in both directions',
+  );
+});
+
+test('modifyTrigger allows an explicit active value that MATCHES the stored trigger — a harmless no-op echo', () => {
+  const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: true, conditions: [] }];
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
+  assert.equal(r.body.active, true, 'echoing the current value back must not be refused — only a genuine CHANGE is');
 });
 
 test('modifyTrigger on a stored trigger with no active flag at all defaults to OFF, not ON', () => {

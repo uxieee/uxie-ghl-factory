@@ -574,6 +574,28 @@ function returnedResourceId(response) {
   return typeof id === 'string' && id.trim().length > 0 ? id.trim() : null;
 }
 
+// `active` is DELIBERATELY EXCLUDED from this list — considered and rejected 2026-08-28 as
+// belt-and-braces for the modifyTrigger refusal added the same day (edit-driver.mjs). The
+// reasoning: `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state, not a
+// field any per-trigger PUT controls (measured: publishing with zero trigger writes flips it;
+// an explicit per-trigger PUT setting it does nothing, in either direction). Two consequences
+// follow from that fact, not one:
+//   1. modifyTrigger now REFUSES to send a request whose `active` would attempt a real change,
+//      so `request.body.active` is guaranteed (by construction, before the write is ever sent)
+//      to already equal what was stored — comparing it here could never catch a NEW defect,
+//      because the class of defect it would catch (this write silently failing to apply an
+//      active change) can no longer be attempted at all.
+//   2. `active` is also known to converge ASYNCHRONOUSLY, on its own schedule, following any
+//      publish transition anywhere on the workflow — not just this request. A round-trip GET
+//      run moments after an unrelated publish (or even this same request, if something else
+//      touched the workflow concurrently) can legitimately observe a DIFFERENT `active` value
+//      than whatever this request echoed, for reasons that have nothing to do with whether
+//      THIS edit's content (conditions/name/targetActionId/etc.) persisted. Comparing it here
+//      would manufacture false-negative round-trip failures on an otherwise-clean content
+//      edit, exactly when the field is behaving correctly.
+// Net: adding `active` here would add a false-positive risk for zero additional defect
+// coverage. See mcp-internal/test/edit-workflow.test.mjs's drift test for the scenario this
+// avoids, and edit-driver.mjs's REMOVED-2026-08-28 note for the underlying measurements.
 function triggerSemanticExpectation(body = {}) {
   const keys = [
     'workflowId', 'type', 'masterType', 'name', 'conditions', 'actions',

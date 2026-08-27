@@ -140115,6 +140115,13 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
+        const requestedActive = op.trigger?.active;
+        const storedActive = t.active ?? false;
+        if (requestedActive !== void 0 && requestedActive !== storedActive) {
+          throw new Error(
+            `${op.op}: refusing to set active:${requestedActive} on trigger ${tid} (currently active:${storedActive}) \u2014 this write cannot do anything. Measured 2026-08-28 (throwaway probes on the designated test sub-account): 'active' is a SERVER-MANAGED PROJECTION of the workflow's publish state. Publishing with ZERO trigger writes flipped it to true within 0.28s of the publish PUT returning; a per-trigger PUT explicitly setting active returned 200 and changed nothing at +0.5s/+2s/+5s. To activate this trigger, publish the workflow with publish_workflow/orchestrate --publish \u2014 there is no known API path that activates a trigger on an ALREADY-published workflow. Do not reintroduce a write here; omit 'active' from this op, or pass its current value, if you don't intend to change it.`
+          );
+        }
         const merged = buildTrigger(
           {
             type: op.trigger?.type ?? t.type,
@@ -140125,7 +140132,10 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
             // mention `active` must preserve whatever the live trigger already had — `?? true`
             // here used to switch on any trigger the caller found off (every API-created
             // trigger lands active:false per addTrigger, so this fired constantly). There is a
-            // standing project rule against enabling anything found off.
+            // standing project rule against enabling anything found off. (The refusal above
+            // already rejects any CHANGE attempt — by the time we get here, `active` is
+            // either absent or already equal to `storedActive`, so this fallback chain is
+            // never load-bearing for a change, only for preserving the stored value verbatim.)
             active: op.trigger?.active ?? t.active ?? false,
             ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
           },

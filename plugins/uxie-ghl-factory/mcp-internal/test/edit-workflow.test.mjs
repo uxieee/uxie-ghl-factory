@@ -38,6 +38,12 @@ function editGateway({
   triggerPostResponseIds,
   triggerPostPersistedIds,
   persistTransform = (body) => body,
+  // Simulates `active` as a SERVER-MANAGED PROJECTION independent of what a per-trigger PUT's
+  // body says (measured 2026-08-28) — the real value on read-back can diverge from whatever
+  // this fixture's PUT handler was sent, e.g. because something unrelated (a publish
+  // elsewhere) changed it in the gap. Keyed by trigger id; a value here OVERRIDES whatever
+  // `active` the PUT body carried when the trigger is next read back.
+  triggerActiveOverride = {},
 } = {}) {
   const calls = [];
   let current = structuredClone(initial);
@@ -91,9 +97,12 @@ function editGateway({
       if (path.startsWith('/workflow/LOC/trigger/') && method === 'PUT') {
         const triggerId = path.split('/').at(-1);
         if (!ignoredTriggerWrites.includes('PUT')) {
-          currentTriggers = currentTriggers.map((trigger) => (
-            (trigger.id ?? trigger._id) === triggerId ? structuredClone(body) : trigger
-          ));
+          currentTriggers = currentTriggers.map((trigger) => {
+            if ((trigger.id ?? trigger._id) !== triggerId) return trigger;
+            const stored = structuredClone(body);
+            if (Object.hasOwn(triggerActiveOverride, triggerId)) stored.active = triggerActiveOverride[triggerId];
+            return stored;
+          });
         }
         return { status: 200, ok: true, json: { id: triggerId } };
       }
@@ -312,6 +321,36 @@ test('acknowledged trigger add, modify, and delete each fail closed when the cha
       method === 'GET' && path === '/workflow/LOC/trigger?workflowId=WID'
     )).length, 2, `${scenario.label} must re-list after the acknowledged write`);
   }
+});
+
+// Belt-and-braces considered and REJECTED 2026-08-28 for the modifyTrigger refusal added
+// the same day (edit-driver.mjs): should `active` join triggerSemanticExpectation()'s
+// compared keys in tools.mjs? No — see that function's comment for the full reasoning. This
+// test pins the concrete scenario that reasoning describes: a per-trigger content edit
+// persists cleanly while `active` reads back as something OTHER than what was echoed (e.g.
+// because an unrelated publish elsewhere changed it in the gap — `active` is a
+// SERVER-MANAGED PROJECTION, never something this PUT controls, measured 2026-08-28). The
+// round-trip must judge the edit on what it actually touched, not on a field it never wrote.
+test('modifyTrigger round-trip check ignores an `active` drift unrelated to this edit — a clean content persist must not be reported as failed', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
+    name: 'Original', conditions: [], active: false,
+  };
+  const { gw } = editGateway({
+    triggers: [existingTrigger],
+    triggerActiveOverride: { 'tr-old': true },
+  });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { name: 'Renamed' } }],
+  }, deps(gw));
+
+  assert.equal(result.ok, true);
+  assert.equal(result.data.partialProgress.verification.triggers.roundTrip, true,
+    'content persisted cleanly; an active drift the edit never attempted must not fail it');
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, true);
+  assert.equal(check.mismatches.length, 0, '`active` must never appear as a mismatch — it is not a compared key');
 });
 
 const identicalAddTrigger = () => ({
