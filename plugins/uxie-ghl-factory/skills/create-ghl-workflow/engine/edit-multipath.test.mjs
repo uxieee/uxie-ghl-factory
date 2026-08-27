@@ -11,6 +11,7 @@ import { branchTargets, editCommitBody } from './edit.mjs';
 import { compile } from './compiler.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
+import { stripNullNext } from './terminals.mjs';
 
 const ctx = (seed = 'e') => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 0, idGen: makeSeededIdGen(seed), catalog: loadCatalog() });
 
@@ -156,8 +157,12 @@ test('ROUND-TRIP: an edit-inserted find_opportunity is structurally identical to
     { op: 'insertAfter', afterId: 's1', step: findOpp([]), attachTailTo: 'predefined_Opportunity Found' },
   ], { ctx: ctx('ed'), idGen: makeSeededIdGen('z') });
 
+  // `fresh` came off compile()'s wire boundary, which strips a terminal's `next: null`
+  // (terminals.mjs). `edited` is the raw edit graph — editCommitBody, not applyOps, is the
+  // boundary that would strip it before a real commit — so it is stripped here to compare
+  // like for like: "identical once both reach the wire", not "identical in memory".
   assert.equal(edited.length, fresh.length);
-  assert.deepEqual(normalize(edited), normalize(fresh));
+  assert.deepEqual(normalize(stripNullNext(edited)), normalize(fresh));
 });
 
 test('insertAfter REFUSES to guess the branch when a tail must land on one of several', () => {

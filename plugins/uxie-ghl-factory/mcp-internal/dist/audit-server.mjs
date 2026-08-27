@@ -73720,6 +73720,23 @@ function normalizeSettings(settings, ctx = {}) {
   return { body, warnings };
 }
 
+// ../skills/create-ghl-workflow/engine/terminals.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+function stripNullNext(templates) {
+  if (!Array.isArray(templates)) return templates;
+  let changed = false;
+  const out = templates.map((t) => {
+    if (!t || typeof t !== "object") return t;
+    if (!("next" in t) || t.next !== null) return t;
+    changed = true;
+    const { next, ...rest } = t;
+    return rest;
+  });
+  return changed ? out : templates;
+}
+
 // ../skills/create-ghl-workflow/engine/step-notes.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -135432,7 +135449,16 @@ var CONDITIONAL_DEFAULTS = {
   // it out is not neutral: the field is optional to GHL, so the step saves either way and the
   // past-time behaviour becomes whatever the backend falls back to, with nothing on screen to
   // say which. 'skip' means skip the outbound send and move on.
-  wait: (attrs) => APPOINTMENT_WAIT_TYPES.has(attrs.type) && attrs.appointmentCondition === void 0 ? { appointmentCondition: "skip" } : {}
+  wait: (attrs) => APPOINTMENT_WAIT_TYPES.has(attrs.type) && attrs.appointmentCondition === void 0 ? { appointmentCondition: "skip" } : {},
+  // GHL's save validator REQUIRES this key on every add_to_workflow step: a step carrying only
+  // {workflow_id, type} is refused with "Input Trigger Params is required", and that refusal
+  // blocks EVERY save on the workflow, including edits to unrelated steps. Proven by
+  // differential 2026-08-27: the builder PUT body that returned 200 carries
+  // input_trigger_params:false on both enrol steps; the one that returned 400 carries neither.
+  // It must be a BOOLEAN — the UI drawer writes the string "False", which the post-update
+  // validator rejects with "Expected boolean". The type card records it as required:false and
+  // present in 100% of the corpus, which is the contradiction that let the engine omit it.
+  add_to_workflow: (attrs) => attrs.input_trigger_params === void 0 ? { input_trigger_params: false } : {}
 };
 var hasAttachments = (a) => Boolean(a.attachments?.length || a.urlAttachments?.length);
 var HANDLEBAR_FIELDS = {
@@ -137584,6 +137610,12 @@ function compile(ir, ctx) {
     createdSteps,
     modifiedSteps: [],
     deletedSteps: [],
+    // NOTE: this shares the `templates` array by reference (not stripped yet). Every pass
+    // below (applyUiDefaults, enforceTemplates, ...) mutates the array's OBJECTS in place and
+    // relies on this being the same array it is looking at — stripping here would replace
+    // terminal steps with new objects the later passes never touch, so their defaults/
+    // enforcement would silently vanish from what actually ships. The null-terminal strip
+    // happens once, at the very end, right before `templates` stops changing. See below.
     workflowData: { templates },
     // Only present when the workflow actually HAS marketplace steps — a native-only
     // build must emit exactly the autoSaveBody it emitted before this fix, with no new
@@ -137636,7 +137668,9 @@ function compile(ir, ctx) {
   }
   enforceTemplates(templates, ctx?.catalog, ctx);
   checkStepRefs(templates, IRError);
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, authored, compiled: templates.length };
+  const _templates = templates;
+  autoSaveBody.workflowData.templates = stripNullNext(templates);
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, authored, compiled: templates.length };
   casingLint(result);
   return result;
 }
@@ -138699,7 +138733,9 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
     status: fresh.status ?? "draft",
     version: fresh.version,
     triggersChanged: false,
-    workflowData: { templates: newTemplates },
+    // Terminals go on the wire with no `next` key — an explicit null is refused by the save
+    // validator, including on steps this edit never touched. See terminals.mjs.
+    workflowData: { templates: stripNullNext(newTemplates) },
     ...counter.size > 0 && editTouchedMarketplace ? { meta: {
       ...fresh.meta ?? {},
       stepIndexCounter: { ...fresh.meta?.stepIndexCounter ?? {}, ...Object.fromEntries(counter) }
@@ -139938,7 +139974,7 @@ function compileSubgraph(node, ctx) {
     { name: "_edit", triggers: [], graph: [{ ...node, ref: "_edit_step", kind: node.kind ?? "action", assocGuaranteed: true }] },
     ctx
   );
-  const tpls = out.autoSaveBody.workflowData.templates;
+  const tpls = out._templates;
   const head = tpls.find((t) => (t.parentKey === null || t.parentKey === void 0) && t.parent == null) ?? tpls[0];
   const isContainer = Array.isArray(head.next);
   const entry = { ...head };
@@ -145054,6 +145090,12 @@ var TOOLS2 = [
       const publishable = { ...freshResponse.json };
       delete publishable.autoSaveSession;
       delete publishable.autoSaveSessionId;
+      if (Array.isArray(publishable.workflowData?.templates)) {
+        publishable.workflowData = {
+          ...publishable.workflowData,
+          templates: stripNullNext(publishable.workflowData.templates)
+        };
+      }
       const activeTriggers = latestTriggers.triggers.map((trigger) => ({ ...trigger, active: true }));
       const body = {
         ...publishable,

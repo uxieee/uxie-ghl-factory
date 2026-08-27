@@ -59,3 +59,26 @@ test('editCommitBody strips a legacy null terminal the edit never touched', asyn
   assert.equal(sent[0].next, 'b', 'a real forward edge is untouched');
   assert.deepEqual(body.modifiedSteps, ['a'], 'the diff is unchanged by normalisation');
 });
+
+test('a built workflow puts no null terminal in autoSaveBody', async () => {
+  const { compile } = await import('./compiler.mjs');
+  const { loadCatalog } = await import('./catalog.mjs');
+  const { makeSeededIdGen } = await import('./idgen.mjs');
+  // Same ctx shape the existing engine tests use (convai-nodes.test.mjs:11).
+  const ctx = {
+    loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27,
+    idGen: makeSeededIdGen('a'), catalog: loadCatalog(),
+  };
+  const out = compile({
+    name: 'Terminal probe',
+    triggers: [],
+    graph: [
+      { ref: 's1', kind: 'action', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['x'] } },
+      { ref: 's2', kind: 'action', type: 'add_contact_tag', name: 'Tag2', attributes: { tags: ['y'] } },
+    ],
+  }, ctx);
+  const sent = out.autoSaveBody.workflowData.templates;
+  assert.equal(sent.length, 2);
+  assert.equal(sent[0].next, sent[1].id, 'the first step still points at the second');
+  assert.equal('next' in sent[1], false, 'the terminal must not carry next:null on the wire');
+});
