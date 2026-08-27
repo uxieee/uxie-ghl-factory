@@ -136344,6 +136344,10 @@ function gotoLoops(templates) {
   if (!Array.isArray(templates)) return [];
   const byId = new Map(templates.filter((t) => t && t.id).map((t) => [t.id, t]));
   const successors = (step) => {
+    if (step?.type === "goto") {
+      const t = step.attributes?.targetNodeId;
+      return typeof t === "string" ? [t] : [];
+    }
     const n = step?.next;
     if (Array.isArray(n)) return n.filter((x) => typeof x === "string");
     return typeof n === "string" ? [n] : [];
@@ -138844,6 +138848,15 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
       throw new IRError(
         "DANGLING_PARENTKEY",
         `edit left ${bad.length} step(s) with a parentKey pointing at a missing step: ` + bad.map((d) => `'${d.name ?? d.id}' \u2192 ${d.parentKey}`).join(", ") + `. Add a repairParentKeys op, or pass allowDanglingParentKeys:true to commit anyway.`
+      );
+  }
+  if (opts.allowGotoLoops !== true) {
+    const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+    const loops = gotoLoops(newTemplates).filter((l) => touched2.has(l.id));
+    if (loops.length)
+      throw new IRError(
+        "GOTO_LOOP",
+        `edit would leave ${loops.length} goto step(s) jumping BACKWARD to a step that can reach them again: ` + loops.map((l) => `'${l.name ?? l.id}' -> '${l.targetName ?? l.target}'`).join("; ") + `. GHL detects the cycle server-side, marks the node "Loop Locked", stamps the workflow loopIdentified and forces its status to draft \u2014 a published workflow silently stops. Point the goto forward, or pass allowGotoLoops:true to commit anyway.`
       );
   }
   if (opts.deadBranchAcknowledged !== true) {
