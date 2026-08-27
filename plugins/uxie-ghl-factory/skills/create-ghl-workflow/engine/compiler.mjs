@@ -1453,6 +1453,20 @@ function expandFilter(f, rows) {
   }
   const cond = { field: row.value, operator, value, title: f.title ?? row.label, type };
   if (row.id) cond.id = row.id;
+  // FIDELITY, not correctness (Task 9, workflow save-correctness) — a live per-trigger PUT
+  // capture of conv_ai_autonomous_trigger's condition rows (2026-08-27) shows two quirks the
+  // generic row model above doesn't reproduce: customTriggerPriority's value is a NUMBER, and
+  // customTriggerDescription's condition carries its text in BOTH `value` and `title` (the
+  // generic model leaves title as the row's blank label). Neither was required for the write
+  // to apply — proved live sending the plain-string/blank-title shape and reading it back
+  // unchanged — so this is matching the builder byte-for-byte, not fixing a write that didn't
+  // work. Only applies to the row-expansion path; a hand-authored complete filter row
+  // (field+operator+title+type, handled above) is passed through untouched either way.
+  if (cond.field === 'customTriggerPriority' && cond.value !== undefined && cond.value !== null && cond.value !== '') {
+    const n = Number(cond.value);
+    if (!Number.isNaN(n)) cond.value = n;
+  }
+  if (cond.field === 'customTriggerDescription') cond.title = String(cond.value ?? '');
   return cond;
 }
 

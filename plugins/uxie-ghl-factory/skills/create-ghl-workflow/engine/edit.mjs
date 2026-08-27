@@ -17,36 +17,24 @@ import { enforceTemplates } from './enforce.mjs';
 import { gotoLoops } from './goto-loops.mjs';
 
 // A trigger added via the API lands `active: false` on the server NO MATTER WHAT the
-// POST body said — it only starts firing after a status draft→published round trip
-// (the "draftcycle", verified live 2026-07-17).
+// POST body said.
 //
-// Whether to run that cycle is decided ONCE, from the workflow's status BEFORE the
-// cycle starts. It must never be re-derived mid-cycle: the draft leg sets status to
-// 'draft', so re-asking "is this published?" between the two legs always answers no
-// and strands the workflow in draft with its triggers inactive — i.e. it DOWNGRADES a
-// live workflow and silently switches it off. (Live-caught 2026-07-17; the unit test
-// missed it because it only ever planned from an already-published object.)
+// RETIRED 2026-08-27 (Task 9, workflow save-correctness): this module used to export
+// shouldActivateTriggers()/triggerActivationBody(), which drove a status draft→published
+// double full-document PUT here — every trigger forced active:true onto that PUT's
+// oldTriggers/newTriggers roster ("mirroring the builder's real publish", or so it was
+// believed). Live-proven INERT: the PUT is accepted, `version` bumps, and the stored
+// trigger's `active` flag never moves — the same shape as the reported "every generic
+// write path for workflow trigger conditions returns 200 and changes nothing" defect.
 //
-// Only a PUBLISHED workflow gets the cycle. Publishing a draft is a separate,
-// user-confirmed decision (the skill's draft-first rule) — a trigger edit must never do
-// it as a side effect. On a draft, the new trigger activates when the user publishes.
-export function shouldActivateTriggers(fresh) {
-  return fresh?.status === 'published';
-}
-
-// One full-object PUT body targeting `status`, every trigger forced active:true —
-// mirroring the builder's real publish (oldTriggers/newTriggers are what wire triggers
-// into the live execution bucket; see orchestrate()'s publish step). Call it once per
-// leg against a FRESHLY re-GET object: each PUT bumps `version`, and the next PUT must
-// send the CURRENT version (version+1 422s "version is outdated").
-export function triggerActivationBody(fresh, triggers, status) {
-  const live = (triggers ?? []).map((t) => ({ ...t, active: true }));
-  return {
-    ...fresh, status, version: fresh.version, triggersChanged: false,
-    oldTriggers: live, newTriggers: live,
-    createdSteps: [], modifiedSteps: [], deletedSteps: [],
-  };
-}
+// The real write rail, captured from a live builder save, is a per-trigger
+// PUT /workflow/{loc}/trigger/{triggerId} carrying the WHOLE trigger record with
+// active:true. See planTriggerActivation() in edit-driver.mjs — scripts/edit.mjs's
+// activation step and mcp-internal's publish_workflow both use it now. Whether to run
+// activation at all is still decided from the workflow's status (only a PUBLISHED
+// workflow gets it — publishing a draft is a separate, user-confirmed decision, never a
+// side effect of a trigger edit), but the write itself no longer touches the workflow
+// document or its `status` at all.
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).

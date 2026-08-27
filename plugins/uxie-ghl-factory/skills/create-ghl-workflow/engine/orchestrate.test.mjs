@@ -474,3 +474,70 @@ test('orchestrate --publish strips a stored null `next` before the publish PUT �
   assert.equal('next' in publishPut.body.workflowData.templates[0], false,
     'the stored null `next` must not ride onto the publish PUT unrepaired');
 });
+
+// Task 9 (workflow save-correctness): this publish path used to force `active: true` onto
+// oldTriggers/newTriggers and rely on the full-document PUT to write it — the SAME shape
+// live-proven INERT in mcp-internal's publish_workflow (a 200, a bumped version, and the
+// stored trigger's `active` flag never moves). The real write rail is a per-trigger
+// PUT /workflow/{loc}/trigger/{triggerId} carrying the whole record with active:true.
+test('orchestrate --publish activates each inactive trigger via a per-trigger PUT BEFORE the document publish PUT — oldTriggers/newTriggers is an echo, not the mechanism', async () => {
+  let triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
+  let getWorkflowCalls = 0;
+  const staleTemplates = [{ id: 's1', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['new-tag'] } }];
+  const routes = [
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true', () => {
+      getWorkflowCalls++;
+      // Mirrors the null-`next` test above: 1st call is the step-5 round-trip verify, 2nd is
+      // the publish preflight fetch, 3rd is the post-publish verify.
+      const status = getWorkflowCalls >= 3 ? 'published' : 'draft';
+      return { ok: true, status: 200, json: { status, version: 3, workflowData: { templates: staleTemplates } } };
+    }],
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1',
+      () => ({ ok: true, status: 200, json: { triggers: triggersState.map((t) => ({ ...t })) } })],
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/trigger/tr1', (m, p, body) => {
+      triggersState = triggersState.map((t) => ((t.id ?? t._id) === 'tr1' ? { ...t, ...body } : t));
+      return { ok: true, status: 200, json: { id: 'tr1' } };
+    }],
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
+  ];
+  const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
+  const report = await orchestrate(tagIR(), gw, { publish: true });
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  assert.equal(report.published, true);
+
+  const activatePutIndex = calls.findIndex((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr1');
+  const publishPutIndex = calls.findIndex((c) => c.method === 'PUT' && c.path === '/workflow/LOC/WID_1');
+  assert.ok(activatePutIndex !== -1, 'the per-trigger activation PUT must have been sent');
+  assert.ok(activatePutIndex < publishPutIndex, 'trigger activation must happen BEFORE the document publish PUT');
+  const activatePut = calls[activatePutIndex];
+  assert.equal(activatePut.body.active, true);
+  assert.equal(activatePut.body.triggersChanged, true);
+  assert.equal(activatePut.body.type, 'contact_tag', 'the WHOLE stored record rides along, not a patch');
+
+  // the document PUT's oldTriggers/newTriggers is an ECHO of the roster as it was READ
+  // (before activation) — NOT the activation mechanism, which already ran above.
+  const publishPut = calls[publishPutIndex];
+  assert.deepEqual(publishPut.body.oldTriggers, publishPut.body.newTriggers);
+  assert.deepEqual(publishPut.body.newTriggers.map((t) => t.active), [false]);
+
+  // and the trigger is REALLY active afterward, via the per-trigger rail
+  assert.equal(triggersState[0].active, true);
+});
+
+test('orchestrate --publish: a failed trigger activation PUT aborts before the document publish PUT is ever sent', async () => {
+  const triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
+  const routes = [
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true',
+      { ok: true, status: 200, json: { status: 'draft', version: 3, workflowData: { templates: [] } } }],
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1',
+      () => ({ ok: true, status: 200, json: { triggers: triggersState.map((t) => ({ ...t })) } })],
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/trigger/tr1', { ok: false, status: 500, json: { message: 'boom' } }],
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
+  ];
+  const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
+  const report = await orchestrate(tagIR(), gw, { publish: true });
+  assert.equal(report.published, false);
+  assert.equal(report.failurePhase, 'publish_trigger_activate');
+  assert.equal(calls.some((c) => c.method === 'PUT' && c.path === '/workflow/LOC/WID_1'), false,
+    'the document publish PUT must never be sent after a failed trigger activation');
+});

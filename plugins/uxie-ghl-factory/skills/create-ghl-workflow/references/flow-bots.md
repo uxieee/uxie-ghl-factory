@@ -75,8 +75,11 @@ skip straight to booking when the customer asks for it.
 - All four filters are **required by the drawer**. The compiler expands them to the envelope GHL's
   own builder writes: `operator: "eq"` — note **`eq`, not `==`**, which is what
   `conv_ai_trigger`'s `botId` row uses. Two conventions on one document type.
-- `customTriggerPriority` is stored as a **string**; `customTriggerSensitivity` is **lower-case**
-  (`low` / `medium` / `high`).
+- `customTriggerPriority` is stored as a **number** (a live per-trigger PUT capture, 2026-08-27 —
+  the engine coerces an authored string/number filter value to match; proved non-load-bearing,
+  a plain string wrote and read back fine too); `customTriggerDescription`'s condition carries its
+  text in **both** `value` and `title` (also fidelity, also non-load-bearing);
+  `customTriggerSensitivity` is **lower-case** (`low` / `medium` / `high`).
 - **Rules, and NONE of them are enforced by the API** — probed 2026-08-26, all accepted and
   persisted: 8 custom triggers on one workflow, a target naming no step, no target at all,
   duplicate targets, `priority: "999"`, `sensitivity: "telepathic"`. The drawer requires a

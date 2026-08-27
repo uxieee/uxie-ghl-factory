@@ -170,7 +170,12 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
           { type: op.trigger?.type ?? t.type, name: op.trigger?.name ?? t.name,
             masterType: op.trigger?.masterType ?? t.masterType,
             filters: op.trigger?.filters ?? t.conditions ?? [],
-            active: op.trigger?.active ?? true,
+            // Task 9 (workflow save-correctness): NEVER force-activate. A modify that doesn't
+            // mention `active` must preserve whatever the live trigger already had — `?? true`
+            // here used to switch on any trigger the caller found off (every API-created
+            // trigger lands active:false per addTrigger, so this fired constantly). There is a
+            // standing project rule against enabling anything found off.
+            active: op.trigger?.active ?? t.active ?? false,
             ...(op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}) },
           ctx, wid,
         );
@@ -180,6 +185,30 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
       default: throw new Error(`unknown trigger op: ${JSON.stringify(op.op)}`);
     }
   });
+}
+
+// Task 9 (workflow save-correctness): the ONLY rail proven to flip a trigger's stored `active`
+// flag. Both the full-document PUT's oldTriggers/newTriggers (publish_workflow used to build
+// `{...trigger, active:true}` there and send it as part of the workflow PUT) and the standalone
+// draft→published double-PUT dance (the retired shouldActivateTriggers/triggerActivationBody in
+// edit.mjs) are live-proven INERT: 200, version bumped, trigger unchanged. What the live builder
+// itself sends — and what a live capture proved actually persists — is one
+// PUT /workflow/{loc}/trigger/{triggerId} per trigger, carrying the WHOLE stored record with
+// active:true (+ triggersChanged:true). Callers: publish_workflow (mcp-internal/core/tools.mjs)
+// and scripts/edit.mjs's post-add activation step.
+//
+// Only triggers found inactive are planned — an already-active trigger gets no write, matching
+// the project rule of never touching what wasn't asked to change.
+export function planTriggerActivation(triggers, { loc }) {
+  return (triggers ?? [])
+    .filter((t) => t.active !== true)
+    .map((t) => {
+      const tid = t.id ?? t._id;
+      return {
+        op: 'activateTrigger', method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid,
+        body: { ...t, active: true, triggersChanged: true },
+      };
+    });
 }
 
 // Compile an IR action node into the subgraph the edit ops splice in. A linear step

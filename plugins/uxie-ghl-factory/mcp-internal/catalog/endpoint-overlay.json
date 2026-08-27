@@ -574,14 +574,14 @@
     "PUT /workflow/{locationId}/only-triggers/{wid}": {
       "kind": "write",
       "reach": "proven",
-      "summary": "Save ONLY a workflow's triggers, leaving workflowData untouched. What the builder calls when the edit touched triggers and nothing else.",
-      "note": "Live-proven 2026-08-25. Matters because the FULL workflow PUT validates triggers and can 400 with INVALID_TRIGGER_CONDITION (ruleId trigger-condition-invalid) on a conv_ai_autonomous_trigger the builder itself created — this path accepted the same stored conditions. If a flow workflow will not save from the UI, its triggers are the suspect, and this is the endpoint that still works."
+      "summary": "Accepted with 200 and bumps the workflow version — but does NOT change trigger content. Do not use this to save a trigger edit.",
+      "note": "🔴 Live-proven INERT 2026-08-27 (Task 9, workflow save-correctness), both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back. This CORRECTS the 2026-08-25 note below, which only checked that the call was ACCEPTED (no 400 on re-PUTting unchanged stored conditions) — accepted is not applied. The 2026-08-25 finding about the full workflow PUT's INVALID_TRIGGER_CONDITION 400 on conv_ai_autonomous_trigger still stands; this endpoint is just not the fix for it. The real write rail is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow)."
     },
     "PUT /workflow/{locationId}/only-triggers/{id}": {
       "kind": "write",
       "reach": "proven",
-      "summary": "Save ONLY a workflow's triggers ({id} spelling of the same route).",
-      "note": "Same route as the {wid} row; the miner produced both spellings from different call sites."
+      "summary": "Same route as the {wid} row — also live-proven INERT for trigger content, see that row.",
+      "note": "Same route as the {wid} row; the miner produced both spellings from different call sites. See that row's 2026-08-27 correction — this does not persist a trigger edit either."
     }
   }
 }
