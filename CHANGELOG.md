@@ -11,6 +11,82 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.35.0] — 2026-08-28
+
+GHL tightened its save-time validation around 2026-08-27 and engine-built workflows stopped being
+saveable — by the API and, worse, by a human clicking Save in the builder. Four independent data
+faults, each fixed at the boundary where the request body is assembled, each proven by a live A/B
+that changed exactly one variable. The acceptance test is the one that cannot be faked: an
+engine-built flow opened in the real builder, edited, and saved with a 200 and no manual repair.
+
+### Fixed
+
+- 🔴 **Terminal steps shipped `next: null`, and the save validator refuses it.** A step with an
+  explicit null `next` is rejected with `Next is invalid. Please provide a valid value.` — naming a
+  step the caller never touched, so one legacy terminal blocked every edit to the whole workflow.
+  The builder omits the key entirely; the server stores it absent. Live A/B on a throwaway probe:
+  `next: null` → 400, key absent → 200, same body otherwise. Normalisation now happens at every
+  boundary that assembles a request body — build, edit, and both publish paths — through the new
+  `engine/terminals.mjs`. This also un-broke `publish_workflow`, which echoed a fresh GET verbatim
+  and inherited every stored null.
+- 🔴 **`add_to_workflow` steps shipped without `input_trigger_params`, blocking EVERY save on the
+  workflow.** GHL refuses the document with `Input Trigger Params is required`. It must be a real
+  boolean — the UI drawer writes the string `"False"`, which the validator rejects with
+  `Expected boolean`. Proven by differential against two captured builder bodies: the one that
+  returned 200 carries the flag on both enrol steps, the one that returned 400 carries neither.
+  The compiler now defaults it, and the edit and publish paths repair legacy steps on the way out.
+- 🔴 **`conv_ai_autonomous_trigger` conditions shipped `operator: "eq"`, which the updated validator
+  refuses** with `trigger-condition-invalid`, one error per row. Live A/B: identical body, `eq` →
+  400, `==` → 200. Corrected through a new trigger-side catalog overlay, because the value comes
+  from a generated file that must never be hand-edited. Blast radius is narrower than it looks and
+  is documented: the validator only runs when triggers ride in the request body, which the engine's
+  own commit never does — so stored `eq` triggers block a human clicking Save, not `edit_workflow`.
+- 🔴 **Five edit operations returned a clean empty diff for a step id that does not exist**, so a
+  typo or truncated id read back as a successful no-op (`ok`, `stepCount 6 → 6`, `createdSteps: []`).
+  `deleteStep`, `insertAfter`, `modifyStep`, `insertBefore` and `insertSubgraphBefore` now throw,
+  matching `addStepNote` and `duplicateStep`, which already did.
+- 🔴 **`edit_workflow` reported `ENGINE_ABORT` after every successful edit that touched a terminal.**
+  The round-trip verifier compared the in-memory graph (terminals still `next: null`, by design)
+  against the read-back (key now absent), and told the operator to inspect a workflow that was
+  perfectly fine. Both sides are now normalised identically.
+- 🔴 **Trigger activation was written through a rail that cannot persist it.** Measured 2026-08-28:
+  publishing with **no** trigger write at all flips a trigger to `active: true` within 0.28s of the
+  publish PUT returning, while a per-trigger PUT setting `active` returns **200** and changes
+  nothing in either direction. `active` is a server-managed projection of the workflow's publish
+  state. The inert write is removed; the post-publish verification that reports the truth is kept;
+  and `modifyTrigger` now refuses an attempted `active` change instead of silently no-op'ing.
+  Known limit, recorded rather than papered over: a trigger reading inactive on an ALREADY-published
+  workflow cannot be activated through any known API path.
+- **`conversationai_objective`'s `proceedIfNotMet` means the opposite of its name**, and nothing said
+  so. It is bound directly to the checkbox "Don't Proceed to Next Objective If Criteria not Met.",
+  so `true` blocks. Checking it also makes `closingMessage` required — a field the engine did not
+  know, so it could not author a valid blocking objective at all. Both keys added, the coupling
+  enforced, and the polarity documented at every site that describes the field.
+- **A real staff name shipped inside a captured example** in this public repo, and the privacy gate
+  reported clean because it matches only names someone had registered. Scrubbed, and the name
+  registered so a recurrence fails the gate — proven both directions. A sweep of all 99 capture
+  files found no other real person's name.
+
+### Added
+
+- **Goto loops are refused at compile time** (`GOTO_LOOP`). A goto that closes a cycle gets the
+  workflow stamped `loopIdentified` by GHL's backend and demoted to draft — a published workflow
+  silently stops. The detector follows goto jump edges as well as `next`, so a mutual two-goto cycle
+  is caught. The edit path carries the same check, scoped to the steps an edit touched so a legacy
+  loop cannot brick an unrelated edit, with an `allowGotoLoops` escape hatch that `edit_workflow`
+  now exposes.
+- **A warning when a spec relies on `conv_ai_autonomous_trigger` re-entry** (`GOTO_TRIGGER_RACE`).
+  GHL can deliver one trigger event twice ~15s apart; the second delivery's remove lands on the run
+  the first created and no re-enrol follows, killing the run mid-conversation. Reproduced 3/3.
+  The docs now carry GHL's own safer pattern instead.
+
+### Changed
+
+- **`build_workflow` no longer asserts a publication state it never checked.** It records the status
+  read back after the build and warns when that is not `draft`. This surfaced a platform behaviour
+  worth knowing: `workflowType: "agent"` flow workflows are stored **published** by GHL regardless of
+  what was requested, while ordinary workflows store `draft` correctly.
+
 ## [0.34.0] — 2026-08-26
 
 Flow bots become buildable. A `FLOW_BUILDER_BOT`'s logic **is** a workflow, and the engine has
