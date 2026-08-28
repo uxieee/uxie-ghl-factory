@@ -13,6 +13,13 @@ function mockGateway({ tags = [], pipelines = [], calendars = [], users = [], fo
     if (method === 'GET' && path.includes('/users/')) return { ok: true, json: { users } };
     if (method === 'GET' && path.includes('/forms/')) return { ok: true, json: { forms } };
     if (method === 'GET' && path.includes('/customFields')) return { ok: true, json: { customFields: [] } };
+    // this mock ACCOUNT owns the two sender custom values the senderDefault fixtures reference.
+    // Left empty, the merge-tag check is right to reject them: a {{custom_values.x}} the location
+    // does not define renders as literal braces to the customer.
+    if (method === 'GET' && path.match(/\/customValues$/)) return { ok: true, json: { customValues: [
+      { id: 'CV_1', name: 'Sender Name', fieldKey: '{{ custom_values.sender_name }}' },
+      { id: 'CV_2', name: 'Sender Email', fieldKey: '{{ custom_values.sender_email }}' },
+    ] } };
     if (method === 'GET' && path.includes('/voice-ai/') || path.includes('/ai-employees/')) return { ok: false, json: {} };
     if (method === 'GET' && path.match(/\/tags$/)) return { ok: true, json: { tags: tags.map((n) => ({ name: n })) } };
     if (method === 'POST' && path.match(/\/tags$/)) return { ok: true, json: { id: 'TAG_' + body.name } };

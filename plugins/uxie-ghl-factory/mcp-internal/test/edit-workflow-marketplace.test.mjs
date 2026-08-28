@@ -87,6 +87,9 @@ test('a purely native edit stays network-identical — no marketplace reads at a
     'a native edit fetched the marketplace index it has no use for');
   assert.deepEqual(calls.map(({ method, path }) => `${method} ${path}`), [
     'GET /locations/LOC/customFields/search?parentId=&skip=0&limit=10000&documentType=field&model=all&query=&includeStandards=false',
+    // the two per-location vocabulary reads an edit always makes: custom FIELDS resolve field ids,
+    // custom VALUES complete the {{custom_values.*}} merge-tag check. Neither is a marketplace read.
+    'GET /locations/LOC/customValues',
     'GET /workflow/LOC/WID?includeScheduledPauseInfo=true',
     'PUT /workflow/LOC/WID',
     'GET /workflow/LOC/WID?includeScheduledPauseInfo=true',

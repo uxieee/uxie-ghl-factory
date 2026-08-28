@@ -306,7 +306,11 @@ export async function orchestrate(ir, gw, opts = {}) {
   let built;
   try {
     built = compile(ir, { loc, cid: undefined, uid, companyAge: 0, idGen: makeUuidV4, catalog, marketplace,
-      customFields: entities.customFields, warn: (msg) => report.warnings.push(msg),
+      customFields: entities.customFields,
+      // the per-location half of the {{custom_values.*}} merge-tag vocabulary (merge-tags.mjs);
+      // already fetched above for the resolver, it just never reached the compile ctx
+      customValues: entities.customValues,
+      warn: (msg) => report.warnings.push(msg),
       // §5: an account-wide email sender default. Reachable two ways — programmatically via
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
       // parseIR passes through). Without either, email steps fall back to {{location.*}}.

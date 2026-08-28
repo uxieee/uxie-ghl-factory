@@ -136348,11 +136348,109 @@ Fix the condition (see catalog.ifElseConditions), or pass skipIfElseVocab: true 
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-var TOKEN = /\{\{\s*([A-Za-z_][\w]*)(\.[^{}]*)?\s*\}\}/g;
-function evaluateMergeTags(templates, mergeTags) {
+var NAMESPACE_POLICY = Object.freeze({
+  closed: /* @__PURE__ */ new Set([
+    "appointment",
+    "user",
+    "calendar",
+    "right_now",
+    "message",
+    "phoneCall",
+    "document",
+    "location",
+    "location_owner",
+    "membership_contact"
+  ]),
+  perLocation: Object.freeze({ contact: "customFields", opportunity: "customFields", custom_values: "customValues" }),
+  gated: /* @__PURE__ */ new Set([
+    "task",
+    "note",
+    "form_data",
+    "survey_data",
+    "invoice",
+    "order",
+    "payment",
+    "event",
+    "membership",
+    "subscription",
+    "refund",
+    "inboundEmail",
+    "mailgun_email_event",
+    "voice_ai",
+    "conversations_ai"
+  ]),
+  ownedElsewhere: /* @__PURE__ */ new Set([
+    "custom_webhook",
+    "custom_code",
+    "chatgpt",
+    "ai_agent",
+    "inboundWebhookRequest",
+    "trigger_link",
+    "datetime_formatter",
+    "text_formatter",
+    "number_formatter",
+    "math_operation",
+    "array_functions",
+    "loop",
+    "ai_field",
+    "conversationai_objective",
+    "affiliate_new_lead",
+    "contactMethod",
+    "cancellation_link",
+    "reschedule_link",
+    "task-notification"
+  ]),
+  ignore: /* @__PURE__ */ new Set(["else", "this", "if", "unless", "each", "with"]),
+  // Corpus-attested tags the picker does not list. Add nothing here without live proof.
+  allow: /* @__PURE__ */ new Set(["{{location.id}}"])
+});
+var CHILD_USER_KEYS = ["id", "name", "first_name", "last_name", "email", "phone", "phone_raw", "email_signature", "twilio_phone_number"];
+var ENGINE_STATIC_TAGS = ["appointment", "task"].flatMap((ns) => CHILD_USER_KEYS.map((k) => `{{${ns}.user.${k}}}`));
+var TOKEN = /\{\{\s*([A-Za-z_][\w-]*)((?:\.[^{}]*)?)\s*\}\}/g;
+var compact = (s) => String(s ?? "").replace(/\s+/g, "");
+var split = (full) => {
+  const m = /^\{\{([^.}]+)\.?(.*)\}\}$/.exec(full);
+  return m ? { ns: m[1], key: m[2] } : null;
+};
+function editDistance2(a, b) {
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return dp[a.length][b.length];
+}
+function suggestTags(full, candidates, limit = 4) {
+  const q = split(full);
+  if (!q) return [];
+  const words = q.key.split(/[._]/).filter(Boolean);
+  const scored = [];
+  for (const c of candidates) {
+    const s = split(c);
+    if (!s || s.ns !== q.ns || c === full) continue;
+    const d = editDistance2(q.key, s.key);
+    const cw = s.key.split(/[._]/).filter(Boolean);
+    const shared = cw.filter((w) => words.includes(w)).length;
+    const prefix = words.some((w) => cw.some((x) => x.startsWith(w) || w.startsWith(x)));
+    if (d <= 2 || shared > 0 || prefix) scored.push({ c, score: shared * -100 + (d <= 2 ? 0 : 10) + d - (prefix ? 1 : 0) });
+  }
+  return scored.sort((a, b) => a.score - b.score || a.c.localeCompare(b.c)).slice(0, limit).map((x) => x.c);
+}
+function perLocationVocabulary(ns, opts) {
+  const source = NAMESPACE_POLICY.perLocation[ns];
+  const list = opts?.[source];
+  if (!Array.isArray(list)) return null;
+  if (source === "customFields") {
+    return new Set(list.filter((f) => ns === "contact" ? (f.model ?? "contact") === "contact" : f.model === "opportunity").map((f) => `{{${compact(f.fieldKey)}}}`));
+  }
+  return new Set(list.map((v) => {
+    const k = compact(v.fieldKey);
+    return k.startsWith("{{") ? k : `{{custom_values.${k.replace(/^custom_values\./, "")}}}`;
+  }));
+}
+function evaluateMergeTags(templates, mergeTags, opts = {}) {
   if (!mergeTags?.tags) return [];
-  const known = new Set(mergeTags.tags.map((t) => String(t.tag).replace(/\s+/g, "")));
-  const closed = new Set(mergeTags.closedNamespaces ?? []);
+  const staticTags = /* @__PURE__ */ new Set([...mergeTags.tags.map((t) => compact(t.tag)), ...ENGINE_STATIC_TAGS, ...NAMESPACE_POLICY.allow]);
+  const P = NAMESPACE_POLICY;
   const out = [];
   const walk2 = (v, cb) => {
     if (typeof v === "string") cb(v);
@@ -136364,21 +136462,62 @@ function evaluateMergeTags(templates, mergeTags) {
     const where = `'${t.name ?? t.id}' (${t.type})`;
     walk2(t.attributes, (s) => {
       const opens = (s.match(/\{\{/g) ?? []).length, closes = (s.match(/\}\}/g) ?? []).length;
-      if (opens !== closes) out.push({ where, kind: "unbalanced", msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? "\u2026" : ""}"` });
+      if (opens !== closes) out.push({
+        where,
+        kind: "unbalanced",
+        severity: "warning",
+        ns: null,
+        tag: null,
+        suggestions: [],
+        msg: `unbalanced merge-tag braces (${opens} '{{' vs ${closes} '}}') in "${s.slice(0, 60)}${s.length > 60 ? "\u2026" : ""}"`
+      });
       for (const m of s.matchAll(TOKEN)) {
-        const ns = m[1], full = `{{${ns}${(m[2] ?? "").replace(/\s+/g, "")}}}`;
-        if (!closed.has(ns) || known.has(full)) continue;
-        const near = mergeTags.tags.filter((x) => String(x.tag).startsWith(`{{${ns}.`)).map((x) => x.tag).slice(0, 4).join(", ");
-        out.push({ where, kind: "unknown", msg: `${full} is not a picker variable in the closed namespace '${ns}' (known: ${near}${near ? ", \u2026" : ""}) \u2014 it will render literally at runtime` });
+        const ns = m[1], full = `{{${ns}${compact(m[2])}}}`;
+        if (P.ignore.has(ns) || P.ownedElsewhere.has(ns) || staticTags.has(full)) continue;
+        const candidates = [...staticTags];
+        const push = (severity, kind, msg) => out.push({ where, kind, severity, ns, tag: full, suggestions: suggestTags(full, candidates), msg });
+        if (P.perLocation[ns]) {
+          const vocab = perLocationVocabulary(ns, opts);
+          if (vocab === null) {
+            push("warning", "unknown", `${full} is not a picker tag and this location's ${P.perLocation[ns]} were not fetched \u2014 unverifiable; it renders literally if the field does not exist`);
+            continue;
+          }
+          if (vocab.has(full)) continue;
+          candidates.push(...vocab);
+          push("error", "unknown", `${full} is not a picker tag and not one of this location's ${vocab.size} ${P.perLocation[ns]} \u2014 it will render literally`);
+          continue;
+        }
+        if (P.closed.has(ns)) {
+          push("error", "unknown", `${full} is not a picker variable in the closed namespace '${ns}' \u2014 it will render literally at runtime`);
+          continue;
+        }
+        if (P.gated.has(ns)) {
+          push("warning", "unknown", `${full} is not a picker variable in '${ns}' (a trigger/action-gated menu) \u2014 it will render literally unless a matching trigger/action provides it`);
+          continue;
+        }
+        push("warning", "unknown-namespace", `${full} uses a namespace the picker does not list ('${ns}') \u2014 it will render literally`);
       }
     });
   }
+  for (const f of out) if (f.suggestions.length) f.msg += ` (did you mean ${f.suggestions.join(", ")}?)`;
   return out;
 }
 function checkMergeTags(templates, catalog, ctx) {
   if (ctx?.skipMergeTagCheck === true) return [];
-  const F = evaluateMergeTags(templates, catalog?.mergeTags);
-  for (const f of F) ctx?.warn?.(`MERGE_TAG_SOFT: ${f.where}: ${f.msg}`);
+  const F = evaluateMergeTags(templates, catalog?.mergeTags, { customFields: ctx?.customFields, customValues: ctx?.customValues });
+  const errors = F.filter((f) => f.severity === "error");
+  for (const f of F) if (f.severity === "warning") ctx?.warn?.(`MERGE_TAG_SOFT: ${f.where}: ${f.msg}`);
+  if (errors.length && ctx?.strictMergeTags === false) {
+    for (const f of errors) ctx?.warn?.(`MERGE_TAG: ${f.where}: ${f.msg}`);
+    return F;
+  }
+  if (errors.length)
+    throw new IRError(
+      "MERGE_TAG_UNKNOWN",
+      `MERGE_TAG_UNKNOWN: ${errors.length} merge tag(s) GHL cannot resolve \u2014 they would go out as literal text:
+` + errors.map((f) => `  ${f.where}: ${f.msg}`).join("\n") + `
+Author tags from the picker inventory (search_merge_tags / catalog mergeTags), or pass strictMergeTags:false to demote to warnings.`
+    );
   return F;
 }
 
@@ -139816,6 +139955,9 @@ async function orchestrate(ir, gw, opts = {}) {
       catalog,
       marketplace,
       customFields: entities.customFields,
+      // the per-location half of the {{custom_values.*}} merge-tag vocabulary (merge-tags.mjs);
+      // already fetched above for the resolver, it just never reached the compile ctx
+      customValues: entities.customValues,
       warn: (msg) => report.warnings.push(msg),
       // §5: an account-wide email sender default. Reachable two ways — programmatically via
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
@@ -144744,6 +144886,7 @@ var TOOLS2 = [
       { method: "GET", path: "/users/" },
       { method: "GET", path: "/forms/" },
       { method: "GET", path: "/locations/{loc}/customFields/search" },
+      { method: "GET", path: "/locations/{loc}/customValues" },
       { method: "GET", path: "/voice-ai/agents" },
       { method: "GET", path: "/ai-employees/employees/search" }
     ],
@@ -144975,6 +145118,7 @@ var TOOLS2 = [
       { method: "GET", path: "/users/" },
       { method: "GET", path: "/forms/" },
       { method: "GET", path: "/locations/{loc}/customFields/search" },
+      { method: "GET", path: "/locations/{loc}/customValues" },
       { method: "GET", path: "/voice-ai/agents" },
       { method: "GET", path: "/ai-employees/employees/search" },
       { method: "POST", path: "/emails/builder" },
@@ -145046,6 +145190,7 @@ var TOOLS2 = [
     }),
     capabilities: [
       { method: "GET", path: "/locations/{loc}/customFields/search" },
+      { method: "GET", path: "/locations/{loc}/customValues" },
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/trigger" },
       // Marketplace index — read ONLY when an op carries marketplace:true.
@@ -145097,6 +145242,12 @@ var TOOLS2 = [
           model: field.model
         }));
       }
+      let customValues;
+      const customValueResponse = await gw.call("GET", `/locations/${locationPath}/customValues`);
+      const customValueRecords = Array.isArray(customValueResponse.json) ? customValueResponse.json : customValueResponse.json?.customValues;
+      if (customValueResponse.ok && Array.isArray(customValueRecords)) {
+        customValues = customValueRecords.filter((value) => value !== null && typeof value === "object" && !Array.isArray(value)).map((value) => ({ id: value.id ?? value._id, name: value.name, fieldKey: value.fieldKey }));
+      }
       const initialResponse = await getWorkflow(gw, args.locationId, args.workflowId);
       if (!initialResponse.ok) return fromHttp(initialResponse.status, initialResponse.json);
       const fresh = initialResponse.json;
@@ -145125,6 +145276,7 @@ var TOOLS2 = [
         catalog: loadCatalog(),
         marketplace,
         ...customFields !== void 0 ? { customFields } : {},
+        ...customValues !== void 0 ? { customValues } : {},
         warn: (message) => warnings.push(message)
       };
       const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(args.ops);
