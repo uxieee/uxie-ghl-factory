@@ -106,6 +106,16 @@ const ILLEGAL_SMS_WORDS = CATALOG_DATA?.workflowRules?.vocab?.illegalWordsSms ??
 // capabilities.md is itself GENERATED ("do not hand-edit", enforced by
 // query-catalog.test.mjs's sync check) — routing the note through the correction object
 // keeps that true instead of hand-editing the committed doc out of sync with its generator.
+const MULTI_SELECT_ENUM = 'ValueDataType.MULTI_SELECT';
+// ValueDataType.MULTI_SELECT is `'multiselect'` (recovered-source/src/types/conditions.ts:41).
+// extract-trigger-filters.mjs resolves TriggerOperator.* only, so this enum reached the catalog as
+// {__dynamic__:"ValueDataType.MULTI_SELECT"}, gen-catalog copied it verbatim, and expandFilter
+// copied it onto the wire: POST /workflow/{loc}/trigger returned 500 on EVERY call_status trigger
+// (F5-16 — 7 of 7 failed on 2026-08-28 while the steps saved fine). Retired automatically once the
+// extractor resolves the enum; the staleness loop then names each entry for deletion.
+const resolveMultiSelectType = (rows) => rows.map((r) => (
+  r.type && typeof r.type === 'object' && r.type.__dynamic__ === MULTI_SELECT_ENUM ? { ...r, type: 'multiselect' } : r));
+
 export const TRIGGER_CORRECTIONS = {
   conv_ai_autonomous_trigger: {
     reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a "
@@ -127,6 +137,22 @@ export const TRIGGER_CORRECTIONS = {
       + 'author `==` yourself if you supply `field`+`operator`+`title`+`type`. '
       + '`catalog/trigger-examples/conv_ai_autonomous_trigger.json` is a pre-update capture and '
       + 'still shows `eq` — it is evidence of what GHL wrote then, not a template to copy.',
+  },
+  call_status: {
+    reason: 'filterRows[].type is the unresolved enum object {__dynamic__:"ValueDataType.MULTI_SELECT"} on both '
+      + 'call_status and custom_disposition; the trigger POST 500s on an object-valued type (live 2026-08-28, 7/7 failed)',
+    correctFilterRows: resolveMultiSelectType,
+    docNote: 'Condition rows on `custom_disposition` / `call_status` are `operator: "contains-any"` with an ARRAY '
+      + 'value and `type: "multiselect"` — the drawer\'s own shape. Dispositions are matched BY NAME, so the names '
+      + 'must exist in Settings → Phone → Call dispositions or the trigger can never fire.',
+  },
+  validation_error: {
+    reason: 'same unresolved ValueDataType.MULTI_SELECT on the contact.phoneInfo row',
+    correctFilterRows: resolveMultiSelectType,
+  },
+  ivr_incoming_call: {
+    reason: 'same unresolved ValueDataType.MULTI_SELECT on the inbound_number row',
+    correctFilterRows: resolveMultiSelectType,
   },
 };
 

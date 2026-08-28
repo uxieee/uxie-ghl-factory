@@ -109,3 +109,27 @@ test('the OG primitives are untouched — the rulebook does not contain them', (
     assert.notEqual(e.source, 'rulebook', `${k} was redefined from the marketplace schema`);
   }
 });
+
+test('no filter row served by the catalog carries a non-string type or operator (unresolved enum artefacts reach the wire and 500)', () => {
+  const bad = [];
+  for (const t of catalog.allTriggers()) {
+    for (const r of (catalog.trigger(t)?.filterRows ?? [])) {
+      // `null`/absent is fine — expandFilter's `?? row.type ?? 'select'` chain resolves nullish.
+      // An OBJECT is the defect: an enum the extractor could not resolve, copied verbatim onto the
+      // wire, which GHL answers with a 500 (F5-16).
+      if (r.type != null && typeof r.type !== 'string') bad.push(`${t}.${r.value}.type=${JSON.stringify(r.type)}`);
+      if (r.operator != null && typeof r.operator !== 'string') bad.push(`${t}.${r.value}.operator=${JSON.stringify(r.operator)}`);
+    }
+  }
+  assert.deepEqual(bad, []);
+});
+
+test('call_status: the drawer shape — contains-any + array value + type multiselect (F5-16/F5-22)', () => {
+  const body = buildTrigger({ ref: 't', type: 'call_status', name: 'Booked calls',
+    filters: [{ field: 'custom_disposition', value: 'Booked' }, { field: 'message.direction', value: 'outbound' }] }, ctx(), 'WID', new Map());
+  const disp = body.conditions.find((c) => c.field === 'custom_disposition');
+  assert.deepEqual({ operator: disp.operator, value: disp.value, type: disp.type },
+    { operator: 'contains-any', value: ['Booked'], type: 'multiselect' });
+  const dir = body.conditions.find((c) => c.field === 'message.direction');
+  assert.deepEqual({ operator: dir.operator, value: dir.value, type: dir.type }, { operator: '==', value: 'outbound', type: 'select' });
+});

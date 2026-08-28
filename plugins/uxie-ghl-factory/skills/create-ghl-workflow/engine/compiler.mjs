@@ -1447,6 +1447,10 @@ function expandFilter(f, rows) {
   // already complete — but still normalize a scalar-op value, so a hand-authored
   // ['tag'] can't silently reintroduce the inert-trigger bug via this passthrough.
   if (f.field && f.operator && f.title && f.type) {
+    if (typeof f.type !== 'string' || typeof f.operator !== 'string')
+      throw new IRError('FILTER_SHAPE',
+        `trigger filter '${f.field}' was authored with a non-string type/operator; both are strings on the wire `
+        + `and GHL returns 500 on an object-valued row.`);
     return SCALAR_OPS.has(f.operator) && Array.isArray(f.value) && f.value.length === 1
       ? { ...f, value: f.value[0] }
       : f;
@@ -1457,6 +1461,17 @@ function expandFilter(f, rows) {
   if (!row) return f; // unknown row — passthrough whatever was given
   const type = f.type ?? row.type ?? 'select';
   let operator = f.operator ?? row.operator ?? defaultOp(type);
+  // WIRE-SHAPE GUARD: a condition row's type/operator are STRINGS on the wire. An object here is
+  // an unresolved catalog artefact (an enum the extractor could not resolve), and GHL answers 500
+  // to the trigger POST — the whole build reported ok with every trigger failed (F5-16). Refuse at
+  // compile with the fix named, instead of shipping a workflow with no working trigger.
+  if (typeof type !== 'string' || typeof operator !== 'string') {
+    const which = typeof type !== 'string' ? `type (${JSON.stringify(type)})` : `operator (${JSON.stringify(operator)})`;
+    throw new IRError('FILTER_SHAPE',
+      `trigger filter '${row.value}' resolved to a non-string ${which} — an unresolved catalog artefact. GHL returns `
+      + `500 on an object-valued row. Fix the catalog row (TRIGGER_CORRECTIONS in required-fields.mjs, or regenerate `
+      + `with the enum resolved) rather than authoring around it.`);
+  }
   let value = f.value;
   // an array value with a scalar-equality operator means "one of" — upgrade to is-any-of
   // (e.g. form.id, whose recovered row has no operator and defaults to '==')
