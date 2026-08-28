@@ -36556,7 +36556,7 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "write",
           reach: "proven",
           summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
-          note: "\u{1F534} Live-proven INERT 2026-08-27 (Task 9, workflow save-correctness), both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back. This CORRECTS the 2026-08-25 note below, which only checked that the call was ACCEPTED (no 400 on re-PUTting unchanged stored conditions) \u2014 accepted is not applied. The 2026-08-25 finding about the full workflow PUT's INVALID_TRIGGER_CONDITION 400 on conv_ai_autonomous_trigger still stands; this endpoint is just not the fix for it. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow) \u2014 live-proven for trigger CONTENT (conditions/name/targetActionId), but NOT proven to persist the `active` flag: a same-day probe sent that exact shape with active:false against two triggers and both read back unchanged. Treat trigger activation as an open, unsolved defect, not something either rail is known to fix. UPDATE 2026-08-28: that open question is now closed. Throwaway probes on the designated test sub-account (three experiments) proved `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state, not a field any PUT body controls: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger reading active:true at +0.5s/+2s/+5s. The per-trigger rail above remains genuinely load-bearing for trigger CONTENT (conditions/name/targetActionId) \u2014 that part is unchanged \u2014 but the engine no longer sends it for activation, because it was a 200 that changed nothing. Publishing itself is the only known way to flip `active`; there is no known write that activates a trigger on an already-published workflow."
+          note: '\u{1F534} Live-proven INERT 2026-08-27 (Task 9, workflow save-correctness), both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back. This CORRECTS the 2026-08-25 note below, which only checked that the call was ACCEPTED (no 400 on re-PUTting unchanged stored conditions) \u2014 accepted is not applied. The 2026-08-25 finding about the full workflow PUT\'s INVALID_TRIGGER_CONDITION 400 on conv_ai_autonomous_trigger still stands; this endpoint is just not the fix for it. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow\'s modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow) \u2014 live-proven for trigger CONTENT (conditions/name/targetActionId), but NOT proven to persist the `active` flag: a same-day probe sent that exact shape with active:false against two triggers and both read back unchanged. Treat trigger activation as an open, unsolved defect, not something either rail is known to fix. UPDATE 2026-08-28: that open question is now closed. Throwaway probes on the designated test sub-account (three experiments) proved `active` is a SERVER-MANAGED PROJECTION of the workflow\'s publish state, not a field any PUT body controls: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger reading active:true at +0.5s/+2s/+5s. The per-trigger rail above remains genuinely load-bearing for trigger CONTENT (conditions/name/targetActionId) \u2014 that part is unchanged \u2014 but the engine no longer sends it for activation, because it was a 200 that changed nothing. Publishing itself is the only known way to flip `active`; there is no known write that activates a trigger on an already-published workflow. CORRECTED later the same day: that last sentence was incomplete, not wrong about `active` itself \u2014 every experiment above sent (or omitted) `active`, never `status`, and the roster GET that fed them never surfaces `status` at all (only `active`), so the field that actually matters was invisible to the investigation, not absent from the API. A trigger record carries its OWN `status` field ("draft"|"published"), and `active` is a read-only projection of it (`active === (status !== "draft")`). Sending `status:"published"` on the SAME per-trigger PUT named above \u2014 the shape edit_workflow\'s modifyTrigger already used for content \u2014 DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:"draft"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged), so this write is held to the same read-back discipline as everything else here \u2014 never trust the 200. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs\'s --publish step, and skills/create-ghl-workflow/scripts/edit.mjs\'s post-add check now send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT\'s own draft\u2192published cascade \u2014 before ever reporting failure.'
         },
         "PUT /workflow/{locationId}/only-triggers/{id}": {
           kind: "write",
@@ -137556,6 +137556,19 @@ function buildTrigger(t, ctx, wid, refMap) {
     ctx?.warn?.(`GOTO_TRIGGER_RACE: '${t.name ?? t.type}' re-enters the flow at a step via targetActionId. GHL can deliver the SAME trigger event twice ~15s apart (different workflowTraceIds, at-least-once delivery). The second firing's remove-from-run lands on the run the first one created, and its re-enrol never arrives: the run dies mid-conversation with no reply and no field writes. Reproduced 3/3 on 2026-08-27 (goto-kill-evidence.md). The fatal case is a remove hitting a run WAITING at an interactive step, so a targeted section that only derives and records is survivable while one that asks a question is not. GHL's own pattern avoids the jump entirely: land every trigger at the flow HEAD and route on trigger identity with a head if_else ({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} \u2014 conditionSubType is mandatory).`);
   }
   return {
+    // `status` ("draft"|"published") is the ACTIVATION FIELD — measured 2026-08-28 (throwaway
+    // workflows on the designated test sub-account): a trigger's `active` flag is a READ-ONLY
+    // PROJECTION of this field (`active === (status !== "draft")`), not something any write
+    // controls directly. Hardcoding `status:'draft'` is correct ONLY here, on the fresh-
+    // workflow BUILD path: compile() always creates a new workflow in draft (see orchestrate.mjs),
+    // and its triggers must stay inactive until the workflow itself is published — draft-first
+    // is a deliberate product policy, not just a side effect of this field. The EDIT path
+    // (edit-driver.mjs's planTriggerOps: addTrigger/duplicateTrigger/modifyTrigger) calls this
+    // same function but must NOT inherit this hardcoded value unexamined — an already-published
+    // target workflow needs `status:'published'` instead, or a fresh trigger lands dead with
+    // nothing that will ever activate it. See planTriggerOps's mechanism note for the full
+    // history of what this field's absence caused (the modifyTrigger deactivation bug) and how
+    // each edit-path caller decides `status` for itself.
     status: "draft",
     workflowId: wid,
     schedule_config: {},
@@ -140007,8 +140020,21 @@ async function orchestrate(ir, gw, opts = {}) {
     const checkedTriggerResponse = await callAt("publish_verify_triggers_get", "GET", `/workflow/${loc}/trigger?workflowId=${WID}`);
     if (!checkedTriggerResponse) return report;
     const checkedTr = checkedTriggerResponse.json;
-    const checkedTriggers = Array.isArray(checkedTr) ? checkedTr : checkedTr?.triggers || checkedTr?.data || [];
-    const inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+    let checkedTriggers = Array.isArray(checkedTr) ? checkedTr : checkedTr?.triggers || checkedTr?.data || [];
+    let inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+    if (pub.ok && check2?.status === "published" && inactiveTriggers.length) {
+      const toRepair = checkedTriggers.filter((t) => t.active !== true);
+      for (const t of toRepair) {
+        const tid = t.id ?? t._id;
+        const repaired = await callAt("publish_trigger_repair_put", "PUT", `/workflow/${loc}/trigger/${tid}`, { ...t, status: "published" });
+        if (!repaired) return report;
+      }
+      const reCheckedResponse = await callAt("publish_trigger_repair_verify_get", "GET", `/workflow/${loc}/trigger?workflowId=${WID}`);
+      if (!reCheckedResponse) return report;
+      const reCheckedTr = reCheckedResponse.json;
+      checkedTriggers = Array.isArray(reCheckedTr) ? reCheckedTr : reCheckedTr?.triggers || reCheckedTr?.data || [];
+      inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+    }
     report.published = pub.ok && check2?.status === "published" && inactiveTriggers.length === 0;
     if (!report.published) report.verify.issues.push({ publish: pub.status, status: check2?.status, inactiveTriggers, body: JSON.stringify(pub.json).slice(0, 160) });
   }
@@ -140080,24 +140106,39 @@ function guardFlowEntry(op, t, ctx) {
     `${op.op}: refusing to touch a conv_ai_trigger \u2014 this is the entry of a FLOW_BUILDER_BOT flow bound to ${who}. GHL's API allows this (live-proven 2026-08-26: rebinding and retyping both return 200 and apply) but the flow builder does not, and breaking it orphans the bot: the agent keeps objectiveBuilderWorkflowId while nothing can enter the flow. Edit the flow through the flow builder, or pass ctx.allowFlowTriggerEdit if you mean it.`
   );
 }
-function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
+function translateActiveToStatus(requestedActive, storedActive) {
+  if (requestedActive === void 0 || requestedActive === storedActive) return void 0;
+  return requestedActive ? "published" : "draft";
+}
+function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStatus } = {}) {
   const loc = ctx.loc;
+  const targetStatus = workflowStatus === "published" ? "published" : "draft";
   return (triggerOps ?? []).flatMap((op) => {
     switch (op.op) {
       case "addTrigger":
-        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: buildTrigger(op.trigger, ctx, wid) };
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: { ...buildTrigger(op.trigger, ctx, wid), status: targetStatus } };
       case "deleteTrigger": {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
         return { op: op.op, method: "DELETE", path: `/workflow/${loc}/trigger/${t.id ?? t._id}?userId=${uid}`, triggerId: t.id ?? t._id };
       }
       // "Copy Trigger" (trigger ⋯ menu / ⌘V → cloneTriggers, recovered EDIT-RAIL.md): the stored
-      // trigger is re-posted with a "(Copy)" name; it lands INACTIVE like every API-created trigger,
-      // and an inbound-webhook trigger gets a fresh predeterminedId (its URL must differ).
+      // trigger is re-posted with a "(Copy)" name, and an inbound-webhook trigger gets a fresh
+      // predeterminedId (its URL must differ).
+      //
+      // CORRECTED 2026-08-28: this used to say "it lands INACTIVE like every API-created
+      // trigger" and left `status` absent — the roster GET `t` came from never carries a
+      // `status` key (see planTriggerOps's mechanism note above), so nothing here ever
+      // overrode the absent-status default. Per the measured POST table, an absent `status`
+      // lands a trigger ACTIVE on either a draft OR a published workflow — the opposite of
+      // "inactive" for a draft target, and wherever it landed had nothing to do with the
+      // copy being API-created. `status` now follows the workflow's own state explicitly,
+      // same rule as addTrigger, so a copy matches its workflow instead of landing wherever
+      // the absent-status default happened to put it.
       case "duplicateTrigger": {
         const t = resolveTrigger(op, existing);
         const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
-        const body = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, workflow_id: wid };
+        const body = { ...JSON.parse(JSON.stringify(rest)), name: op.newName ?? `${t.name ?? t.type} (Copy)`, active: false, status: targetStatus, workflow_id: wid };
         if (body.predeterminedId && ctx.idGen) body.predeterminedId = ctx.idGen();
         for (const c of body.conditions ?? []) if (c && typeof c === "object" && c.field === "predeterminedId" && ctx.idGen) c.value = body.predeterminedId ?? ctx.idGen();
         return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body, sourceTriggerId: t.id ?? t._id };
@@ -140117,11 +140158,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
         const tid = t.id ?? t._id;
         const requestedActive = op.trigger?.active;
         const storedActive = t.active ?? false;
-        if (requestedActive !== void 0 && requestedActive !== storedActive) {
-          throw new Error(
-            `${op.op}: refusing to set active:${requestedActive} on trigger ${tid} (currently active:${storedActive}) \u2014 this write cannot do anything. Measured 2026-08-28 (throwaway probes on the designated test sub-account): 'active' is a SERVER-MANAGED PROJECTION of the workflow's publish state. Publishing with ZERO trigger writes flipped it to true within 0.28s of the publish PUT returning; a per-trigger PUT explicitly setting active returned 200 and changed nothing at +0.5s/+2s/+5s. To activate this trigger, publish the workflow with publish_workflow/orchestrate --publish \u2014 there is no known API path that activates a trigger on an ALREADY-published workflow. Do not reintroduce a write here; omit 'active' from this op, or pass its current value, if you don't intend to change it.`
-          );
-        }
+        const status = translateActiveToStatus(requestedActive, storedActive);
         const merged = buildTrigger(
           {
             type: op.trigger?.type ?? t.type,
@@ -140132,22 +140169,22 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [] }) {
             // mention `active` must preserve whatever the live trigger already had — `?? true`
             // here used to switch on any trigger the caller found off (every API-created
             // trigger lands active:false per addTrigger, so this fired constantly). There is a
-            // standing project rule against enabling anything found off. (The refusal above
-            // already rejects any CHANGE attempt — by the time we get here, `active` is
-            // either absent or already equal to `storedActive`, so this fallback chain is
-            // never load-bearing for a change, only for preserving the stored value verbatim.)
+            // standing project rule against enabling anything found off. (`status` above,
+            // not this `active` field, is what actually moves the projection now — this
+            // stays only for read-back fidelity of the request shape the server echoes.)
             active: op.trigger?.active ?? t.active ?? false,
             ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
           },
           ctx,
           wid
         );
+        delete merged.status;
         return {
           op: op.op,
           method: "PUT",
           path: `/workflow/${loc}/trigger/${tid}`,
           triggerId: tid,
-          body: { ...t, ...merged, id: tid, _id: t._id ?? tid }
+          body: { ...t, ...merged, id: tid, _id: t._id ?? tid, ...status !== void 0 ? { status } : {} }
         };
       }
       default:
@@ -143042,9 +143079,13 @@ async function listWorkflowTriggers(gw, locationId, workflowId) {
   );
   return { response, triggers: recordsFrom(response.json, "triggers", "data") };
 }
+function triggerRequiresPublish(request) {
+  return request.method !== "DELETE" && request.body?.status === "draft";
+}
 function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
   const afterIds = new Set(templates.map((step) => step.id));
+  const requiresPublish = triggerPlan.some(triggerRequiresPublish);
   return {
     opsApplied: ops.map((op) => op?.op ?? null),
     stepCount: { before: beforeTemplates.length, after: templates.length },
@@ -143052,8 +143093,8 @@ function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededT
     idsRemoved: [...beforeIds].filter((id) => !afterIds.has(id)),
     diff,
     triggerChanges: triggerPlan.map(({ op, method, path, triggerId }) => ({ op, method, path, ...triggerId ? { triggerId } : {} })),
-    requiresPublish: triggerPlan.length > 0,
-    publishInstruction: triggerPlan.length ? "Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : null,
+    requiresPublish,
+    publishInstruction: requiresPublish ? "Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : null,
     tagsReferenced: neededTags,
     tagsToCreate
   };
@@ -143080,7 +143121,7 @@ function returnedResourceId(response) {
   const id = response?.json?.id ?? response?.json?._id ?? response?.json?.data?.id ?? response?.json?.data?._id ?? null;
   return typeof id === "string" && id.trim().length > 0 ? id.trim() : null;
 }
-function triggerSemanticExpectation(body = {}) {
+function triggerSemanticExpectation(body = {}, { verifyActive = false } = {}) {
   const keys = [
     "workflowId",
     "type",
@@ -143091,7 +143132,9 @@ function triggerSemanticExpectation(body = {}) {
     "schedule_config",
     "convTriggerBotId"
   ];
-  return Object.fromEntries(keys.filter((key) => Object.hasOwn(body, key)).map((key) => [key, body[key]]));
+  const expected = Object.fromEntries(keys.filter((key) => Object.hasOwn(body, key)).map((key) => [key, body[key]]));
+  if (verifyActive) expected.active = body.status === "published";
+  return expected;
 }
 function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = []) {
   const usableId = (trigger) => {
@@ -143123,7 +143166,8 @@ function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = [
       const persisted = !actualById.has(request.triggerId);
       return { op: request.op, triggerId: request.triggerId, persisted, mismatches: [] };
     }
-    const expected = triggerSemanticExpectation(request.body);
+    const verifyActive = request.op === "modifyTrigger" && Object.hasOwn(request.body ?? {}, "status");
+    const expected = triggerSemanticExpectation(request.body, { verifyActive });
     let actual;
     let matchSource = null;
     if (request.op === "modifyTrigger") {
@@ -144959,7 +145003,11 @@ var TOOLS2 = [
         ctx,
         wid: args.workflowId,
         uid: gw.uid,
-        existing: existingTriggers
+        existing: existingTriggers,
+        // The target workflow's OWN status — addTrigger/duplicateTrigger need it to decide
+        // what `status` a freshly-created trigger carries (measured 2026-08-28: `status`
+        // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
+        workflowStatus: fresh.status
       });
       const neededTags = collectOpTags(args.ops);
       let tagsToCreate = [];
@@ -145165,8 +145213,8 @@ var TOOLS2 = [
         triggerChangesApplied: partialProgress.triggerWrites.applied,
         stickyNotesApplied: partialProgress.stickyNotes.applied,
         stickyNoteIds: partialProgress.stickyNotes.ids,
-        requiresPublish: triggerPlan.length > 0,
-        publishInstruction: triggerPlan.length ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : null,
+        requiresPublish: triggerPlan.some(triggerRequiresPublish),
+        publishInstruction: triggerPlan.some(triggerRequiresPublish) ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : null,
         verify,
         warnings,
         partialProgress,
@@ -145232,7 +145280,13 @@ var TOOLS2 = [
         putAttempted: false,
         putApplied: false,
         putOutcome: null,
-        verification: { attempted: false, completed: false }
+        verification: { attempted: false, completed: false },
+        // REPAIR (added 2026-08-28 — see the measurement note below): tracks the per-trigger
+        // status writes sent for any trigger that still reads inactive after the publish
+        // PUT's own cascade. `attempted` stays false when the cascade already covered
+        // everything — the common case — so this is easy to tell apart from "ran and fixed
+        // nothing" (`stillInactive.length > 0` after `completed`).
+        triggerRepair: { attempted: false, completed: false, planned: 0, applied: 0, stillInactive: [] }
       };
       let publishedWithVersion = null;
       const publishPartialFailure = (failure2, failurePhase, note) => {
@@ -145249,16 +145303,18 @@ var TOOLS2 = [
           partialProgress.verification.status === "published"
         ) : withFailureData(failure2, data3);
       };
-      const attemptPublishWrite = async (invoke) => {
+      const attemptPublishWrite = async (invoke, phase = "publish_put") => {
         const outcome = {
-          phase: "publish_put",
+          phase,
           attempted: true,
           acknowledged: false,
           ambiguous: false
         };
         partialProgress.writes.push(outcome);
-        partialProgress.putAttempted = true;
-        partialProgress.putOutcome = outcome;
+        if (phase === "publish_put") {
+          partialProgress.putAttempted = true;
+          partialProgress.putOutcome = outcome;
+        }
         const result = await safeGatewayCall(invoke);
         if (result.threw) outcome.ambiguous = true;
         else if (result.value?.ok) outcome.acknowledged = true;
@@ -145346,8 +145402,42 @@ var TOOLS2 = [
           "The publish PUT was acknowledged, but resulting trigger state could not be read."
         );
       }
-      const checkedTriggers = checkedTriggersCall.value;
-      const inactiveTriggers = checkedTriggers.triggers.filter((trigger) => trigger.active !== true).map((trigger) => trigger.name ?? trigger.id ?? trigger._id);
+      let checkedTriggers = checkedTriggersCall.value;
+      let inactiveTriggers = checkedTriggers.triggers.filter((trigger) => trigger.active !== true).map((trigger) => trigger.name ?? trigger.id ?? trigger._id);
+      if (checkResponse.json?.status === "published" && inactiveTriggers.length) {
+        const toRepair = checkedTriggers.triggers.filter((trigger) => trigger.active !== true);
+        partialProgress.triggerRepair.attempted = true;
+        partialProgress.triggerRepair.planned = toRepair.length;
+        for (const trigger of toRepair) {
+          const tid = triggerIdOf(trigger);
+          const repairCall = await attemptPublishWrite(
+            () => gw.call("PUT", `/workflow/${encodeURIComponent(args.locationId)}/trigger/${encodeURIComponent(tid)}`, { ...trigger, status: "published" }),
+            "trigger_repair_put"
+          );
+          if (repairCall.threw || !repairCall.value.ok) {
+            return publishPartialFailure(
+              repairCall.threw ? repairCall.failure : fromHttp(repairCall.value.status, repairCall.value.json),
+              "trigger_repair_put",
+              "The publish PUT was acknowledged, but a repair write for a still-inactive trigger failed."
+            );
+          }
+          partialProgress.triggerRepair.applied++;
+        }
+        const repairVerifyCall = await safeGatewayCall(
+          () => listWorkflowTriggers(gw, args.locationId, args.workflowId)
+        );
+        if (repairVerifyCall.threw || !repairVerifyCall.value.response.ok) {
+          return publishPartialFailure(
+            repairVerifyCall.threw ? repairVerifyCall.failure : fromHttp(repairVerifyCall.value.response.status, repairVerifyCall.value.response.json),
+            "trigger_repair_verify_get",
+            "Repair writes were attempted, but resulting trigger state could not be re-read."
+          );
+        }
+        checkedTriggers = repairVerifyCall.value;
+        inactiveTriggers = checkedTriggers.triggers.filter((trigger) => trigger.active !== true).map((trigger) => trigger.name ?? trigger.id ?? trigger._id);
+        partialProgress.triggerRepair.completed = true;
+        partialProgress.triggerRepair.stillInactive = inactiveTriggers;
+      }
       const verify = {
         roundTrip: checkResponse.json?.status === "published" && inactiveTriggers.length === 0,
         status: checkResponse.json?.status ?? null,
@@ -145563,7 +145653,7 @@ var TOOLS2 = [
   },
   {
     name: "duplicate_workflow",
-    description: `${describe3("duplicate_workflow", "Duplicate workflow \u2014 risk: write")}. Preview by default; pass confirm:true to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed straight into a folder with parentId. TRIGGERS DO CLONE \u2014 name, type and conditions all carry over \u2014 but they land active:false. \`active\` is a server-managed projection of the workflow's publish state (measured 2026-08-28) \u2014 no per-trigger write flips it in either direction, so publish_workflow sends none; publishing the clone is what turns triggers on, and publish_workflow reports loudly \u2014 never silently \u2014 if any trigger still reads inactive afterward. Treat a freshly duplicated workflow as unverified until that post-publish check comes back clean. (The clone's triggersFilePath ends in "NaN" rather than a version integer; that is cosmetic \u2014 the trigger records themselves are present and readable.) The create response is a bare id, so the clone is read back and returned as a record.`,
+    description: `${describe3("duplicate_workflow", "Duplicate workflow \u2014 risk: write")}. Preview by default; pass confirm:true to write. The clone lands status:"draft", version 1, originType "duplicate-workflow", and can be placed straight into a folder with parentId. TRIGGERS DO CLONE \u2014 name, type and conditions all carry over \u2014 but they land active:false. \`active\` is a server-managed projection of the trigger's own \`status\` field (measured 2026-08-28) \u2014 publishing the clone is what turns triggers on via its draft\u2192published cascade, and publish_workflow now self-repairs (one per-trigger status write, verified by read-back) any trigger that cascade does not reach, reporting loudly \u2014 never silently \u2014 if one still reads inactive afterward. Treat a freshly duplicated workflow as unverified until that post-publish check comes back clean. (The clone's triggersFilePath ends in "NaN" rather than a version integer; that is cosmetic \u2014 the trigger records themselves are present and readable.) The create response is a bare id, so the clone is read back and returned as a record.`,
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),

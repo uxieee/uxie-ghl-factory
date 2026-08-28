@@ -31,7 +31,7 @@ IS, see "Retyping a step" below), `moveStep`, `addBranch`
 (see "Editing TRIGGERS" below), and **`updateSettings`** (`{settings:{…}}` — the Settings tab's
 keys, merged over the stored values and validated by the same contract as `settings:` in a
 build: `window`, `timezone`, `stopOnResponse`, `senderAddress`, `workflowNote`, `statsView`…;
-a settings-only edit still commits with one PUT). Also `addStepNote` (`{stepId,text}` — the node's Notes popover; lands in `comments[]` newest-first) and `duplicateStep` (`{stepId, afterId?}` — "Copy action" → "Copy here": fresh-id copy after the source, notes not copied, disabled state travels; containers/goals/loops/gotos refused). Trigger side: `duplicateTrigger` (`{triggerId|name, newName?}` — "Copy Trigger": the stored trigger re-posted as "… (Copy)", inactive until publish; webhook copies get a fresh `predeterminedId`). Find & Replace, tag mode: `replaceTag` (`{oldTag,newTag,triggers?}` — exact swap in tag arrays and tags-subtype if/else conditions, string replace in `customTags`, plus one PUT per trigger carrying the tag; the UI's text mode has no replace, so there is no text op). The disable operations use GHL's native top-level
+a settings-only edit still commits with one PUT). Also `addStepNote` (`{stepId,text}` — the node's Notes popover; lands in `comments[]` newest-first) and `duplicateStep` (`{stepId, afterId?}` — "Copy action" → "Copy here": fresh-id copy after the source, notes not copied, disabled state travels; containers/goals/loops/gotos refused). Trigger side: `duplicateTrigger` (`{triggerId|name, newName?}` — "Copy Trigger": the stored trigger re-posted as "… (Copy)", matching the target workflow's own published/draft state (see "Editing TRIGGERS" below); webhook copies get a fresh `predeterminedId`). Find & Replace, tag mode: `replaceTag` (`{oldTag,newTag,triggers?}` — exact swap in tag arrays and tags-subtype if/else conditions, string replace in `customTags`, plus one PUT per trigger carrying the tag; the UI's text mode has no replace, so there is no text op). The disable operations use GHL's native top-level
 `advanceCanvasMeta.isDisabled` flag, preserve the full step config, and commit only changed
 step IDs in `modifiedSteps`. Example — add an SMS, delete a step, and natively pause all
 internal notifications:
@@ -263,19 +263,31 @@ Two things the engine handles that a hand-rolled POST gets wrong:
   `triggersChanged/location_id/company_age`. Root `workflowId` is **camelCase**;
   `location_id`/`company_age`/`actions[].workflow_id` are **snake_case** — sending the root
   as `workflow_id` also 200s and also silently doesn't persist.
-- **API-added triggers land `active: false`** regardless of what the POST body says. They
-  only start firing after a `status: draft` → `published` PUT cycle. `scripts/edit.mjs`
-  runs that cycle automatically **when the workflow is already published**, then reports
-  `triggers active: N/M`. On a **draft** workflow it SKIPS activation and says so — a
-  trigger edit must never publish a workflow as a side effect (publish stays opt-in). The
-  trigger activates when the user publishes normally.
-  > ⚠️ The activation decision is made ONCE, from the status BEFORE the cycle
-  > (`shouldActivateTriggers`). Never re-derive it between the two legs: the draft leg
-  > sets status to `draft`, so re-asking "is it published?" always answers no, the
-  > published leg never fires, and the workflow is left **downgraded to draft with every
-  > trigger switched off**. That bug shipped in v0.3.4 and was caught only by a live run
-  > (unit tests passed — they planned from an already-published object). Fixed in v0.3.5;
-  > `edit-triggers.test.mjs` carries the regression test.
+- **A trigger's `active` is a read-only PROJECTION of its own `status` field** (`"draft"` |
+  `"published"`) — `active === (status !== "draft")` (measured 2026-08-28, throwaway
+  workflows on the designated test sub-account). `addTrigger`/`duplicateTrigger` send
+  `status` matching the **target workflow's own status**: on an already-**published**
+  workflow the new/duplicated trigger lands **active immediately**, no separate publish
+  needed; on a **draft** workflow it sends `status:"draft"` explicitly and stays inactive
+  until the workflow itself is published (draft-first — a trigger edit must never publish a
+  workflow as a side effect). `modifyTrigger` never sends `status` unless the caller
+  explicitly asks for an activation change (`trigger.active` differing from the stored
+  value), translated into `status:"published"`/`"draft"`; any other `modifyTrigger` edit
+  leaves activation exactly as it was. If a trigger somehow still reads inactive after the
+  add on an already-published workflow, `scripts/edit.mjs`'s post-add check (and
+  `publish_workflow`/`orchestrate --publish`, on their own paths) now **repairs** it — one
+  per-trigger PUT with the full record + `status:"published"`, verified by a fresh read-back,
+  never trusted from the write's own 200 — before reporting `triggers active: N/M`.
+  > HISTORY: this paragraph used to describe a `shouldActivateTriggers`-driven draft→
+  > published double-PUT cycle (retired 2026-08-27 as proven inert — see the v0.3.4/v0.3.5
+  > regression note this replaces), then a per-trigger PUT that set `active` directly
+  > (retired 2026-08-28, also proven inert for `active` — the endpoint silently ignores that
+  > field). Both beliefs were correct that `active` itself is not directly writable and
+  > incomplete in not finding `status` — every experiment behind them sent (or omitted)
+  > `active`, never `status`, and the roster GET that fed them never surfaces `status` at all
+  > (only `active`), so the field that actually matters was invisible to the investigation.
+  > `edit-driver.mjs`'s `translateActiveToStatus` and `planTriggerOps`'s mechanism note carry
+  > the full record; `edit-triggers.test.mjs` carries the current tests.
 
 **Tags are pre-created for you**, same as on the build path. `scripts/edit.mjs` collects
 every tag name the ops reference (trigger filter values, `add`/`remove_contact_tag` steps,

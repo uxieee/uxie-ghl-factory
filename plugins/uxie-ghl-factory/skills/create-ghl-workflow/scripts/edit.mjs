@@ -88,11 +88,20 @@
 //   { "op":"deleteTrigger", "triggerId":"<id>" | "name":"..." | "type":"..." }
 //   { "op":"modifyTrigger", "triggerId":"<id>"|"name":"...", "trigger": {filters:[...], ...} }
 //   { "op":"duplicateTrigger", "triggerId":"<id>"|"name":"...", "newName":"optional name for the copy" }   # "Copy Trigger": re-posts
-//     the stored trigger as "<name> (Copy)", lands INACTIVE; an inbound-webhook copy gets a fresh predeterminedId.
-// A trigger added via the API lands active:false regardless of the POST body; if the
-// workflow is PUBLISHED this runs the draft→published activation cycle so it actually
-// fires. If it's a DRAFT, activation is skipped and reported — publishing is the user's
-// call, never a side effect of a trigger edit.
+//     the stored trigger as "<name> (Copy)"; an inbound-webhook copy gets a fresh predeterminedId.
+// CORRECTED 2026-08-28: this used to say a trigger added via the API lands active:false
+// "regardless of the POST body" and that an already-published workflow needs a draft→
+// published double-PUT cycle to activate it. Measured (throwaway workflows on the designated
+// test sub-account): `active` is a read-only projection of the trigger's OWN `status` field
+// ("draft"|"published"), and addTrigger/duplicateTrigger now send `status` matching the
+// TARGET WORKFLOW's own state — "published" lands the new trigger active immediately (no
+// separate activation cycle needed), "draft" keeps it inactive until the workflow itself
+// publishes (draft-first). If the workflow is already PUBLISHED and a trigger somehow still
+// reads inactive after the add (the cascade/targeted status write did not reach it), the
+// post-add check below now REPAIRS it — one per-trigger status write, verified by read-back —
+// before ever reporting failure. Publishing itself remains the user's call, never a side
+// effect of a trigger edit; only the REPAIR of an already-published workflow's own trigger
+// is automatic here.
 //
 // --assume-associated : skip the opportunity-association check when adding an
 //   internal_update_opportunity (only if ALL the workflow's triggers are opp-based).
@@ -207,7 +216,10 @@ const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, all
   checkWorkflowRules({ templates, triggers: trig, settings: { senderAddress: body.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === 'published' },
     ctx.catalog?.workflowRules, { skipWorkflowRules: process.argv.includes('--skip-workflow-rules'), warn: ctx.warn }); }
 const plan = triggerOps.length
-  ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers() })
+  // workflowStatus is the TARGET WORKFLOW's own status — addTrigger/duplicateTrigger need it
+  // to decide what `status` a freshly-created trigger carries (measured 2026-08-28: `status`
+  // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
+  ? planTriggerOps(triggerOps, { ctx, wid: WID, uid: UID, existing: await listTriggers(), workflowStatus: fresh.status })
   : [];
 
 // Tag pre-creation — the edit-path analog of what orchestrate() does before a build.
@@ -232,9 +244,13 @@ if (dryRun) {
   if (settingsPatch) console.log('settings:', JSON.stringify(Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === 'statsView' ? body.meta?.statsView : body[k]]))));
   for (const r of plan) console.log(`trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
   for (const r of stickyPlan) console.log(`sticky note: ${r.op} ${r.method} ${r.path}`, JSON.stringify(r.body).slice(0, 200));
+  // CORRECTED 2026-08-28: a new/duplicated trigger's own POST now carries status matching
+  // the target workflow (see planTriggerOps), so on a PUBLISHED workflow it lands active
+  // immediately — no separate activation PUT in the common case. The post-add REPAIR PUT
+  // (below, not in dry-run) only runs for a trigger that still reads inactive afterward.
   if (plan.length) console.log('activation:', fresh.status === 'published'
-    ? 'per-trigger activation PUT(s) WILL run (workflow is published)'
-    : `SKIPPED — workflow is '${fresh.status}'; triggers activate when you publish`);
+    ? 'new/duplicated triggers POST with status:"published" and land active immediately; a repair PUT only runs if one still reads inactive afterward'
+    : `SKIPPED — workflow is '${fresh.status}'; triggers stay inactive until you publish`);
   if (neededTags.length) console.log('tags referenced:', neededTags.join(', '),
     tagsToCreate.length ? `| WOULD CREATE: ${tagsToCreate.join(', ')}` : '| all exist');
   flushWarnings();
@@ -276,40 +292,63 @@ for (const r of plan) {
     console.log(sv ? `  SERVER VALIDATION (${sv.validationType}): ${describeServerFindings(sv)}` : '  body: ' + JSON.stringify(res.json).slice(0, 240)); }
 }
 
-// Activation check. API-added triggers land active:false server-side no matter what the
-// POST said. Two write rails were tried and retired here, in order:
+// Activation check + REPAIR. Two write rails were tried and retired here, in order, before
+// the mechanism was actually found:
 //   1. RETIRED 2026-08-27 (Task 9, workflow save-correctness): a status draft→published
 //      double full-document PUT to "subscribe" them — live-proven INERT, never flipped the
 //      stored `active` flag.
-//   2. RETIRED 2026-08-28: a per-trigger PUT /workflow/{loc}/trigger/{triggerId} carrying
-//      the whole trigger record with active:true (planTriggerActivation). This looked right
-//      for a day — it demonstrably persists trigger CONTENT (conditions, name,
-//      targetActionId) — but measurement (throwaway probes on the designated test
-//      sub-account, 2026-08-28) proved it never touches `active`: a publish with ZERO
-//      trigger writes still activates every trigger, sub-second after the publish PUT
-//      returns; a per-trigger PUT with active:false against a published workflow returns
-//      200 and the trigger stays active:true. `active` is a SERVER-MANAGED PROJECTION of
-//      the workflow's publish state — this endpoint accepts the field and ignores it, in
-//      both directions.
+//   2. RETIRED 2026-08-28 (as a body SHAPE, not as an endpoint — see below): a per-trigger
+//      PUT /workflow/{loc}/trigger/{triggerId} carrying the whole trigger record with
+//      active:true (planTriggerActivation). This looked right for a day — it demonstrably
+//      persists trigger CONTENT (conditions, name, targetActionId) — but measurement
+//      (throwaway probes on the designated test sub-account, 2026-08-28) proved sending
+//      `active` itself never touches it: a publish with ZERO trigger writes still activates
+//      every trigger, sub-second after the publish PUT returns; a per-trigger PUT with
+//      active:false against a published workflow returns 200 and the trigger stays
+//      active:true. `active` is a SERVER-MANAGED PROJECTION of the workflow's publish
+//      state — this endpoint accepts the `active` FIELD and ignores it, in both directions.
 //
-// There is consequently NO KNOWN WRITE that activates a trigger against an
-// ALREADY-published workflow, which is exactly the case this branch runs in (a trigger op
-// landed on a workflow that was already published before this edit). Only a fresh publish
-// transition is known to flip `active`, and publishing is a separate, user-confirmed
-// decision this script never takes as a side effect of a trigger edit. So this step does
-// not attempt to fix anything — it reads the truth back and reports it, loudly, exactly as
-// before.
+// CORRECTED later the same day: the conclusion drawn from (2) — "there is consequently no
+// known write that activates a trigger against an already-published workflow" — was
+// incomplete, not wrong about `active`. Every experiment above sent (or omitted) `active`,
+// never `status` — and the roster GET that fed them never surfaces `status` at all, only
+// `active`, so the field that actually matters was invisible to the investigation, not
+// absent from the API. A trigger record carries its OWN `status` field ("draft"|
+// "published"), and `active` is a read-only projection of it
+// (`active === (status !== "draft")`). Sending `status:"published"` on the SAME per-trigger
+// PUT (2) already used — just with the one field it never tried — DOES activate a trigger
+// on an already-published workflow, verified by read-back. A bogus `status` string is
+// silently accepted and ignored (200, unchanged), so this write is held to the same rule as
+// every other one in this script: never trust the 200, always read `active` back.
+//
+// So this step now REPAIRS: for any trigger still inactive after the add, send one
+// per-trigger PUT with the full record + status:"published", then re-list and verify again
+// before ever reporting failure. Publishing itself remains a separate, user-confirmed
+// decision this script never takes as a side effect of a trigger edit — this repair only
+// fixes a trigger's OWN activation state on a workflow that was ALREADY published before
+// this edit ran.
 if (plan.length && !triggerFailed) {
   const after = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
   if (after?.status !== 'published') {
     console.log(`activation check: SKIPPED — workflow is '${after?.status}', not published.`);
     console.log('  The trigger is saved but will not fire until you publish (publish is opt-in).');
   } else {
-    const live = await listTriggers();
-    const inactive = live.filter((t) => !t.active).map((t) => t.name ?? t.id);
+    let live = await listTriggers();
+    let inactiveRecords = live.filter((t) => !t.active);
+    if (inactiveRecords.length) {
+      for (const t of inactiveRecords) {
+        const tid = t.id ?? t._id;
+        await call('PUT', `/workflow/${LOC}/trigger/${tid}`, { ...t, status: 'published' });
+      }
+      // NEVER TRUST THE 200 — a bogus/ignored `status` is silently accepted (measured
+      // 2026-08-28). Re-list and let the read-back decide, exactly like every other write here.
+      live = await listTriggers();
+      inactiveRecords = live.filter((t) => !t.active);
+    }
+    const inactive = inactiveRecords.map((t) => t.name ?? t.id);
     console.log('triggers active:', live.filter((t) => t.active).length, '/', live.length,
       inactive.length
-        ? `— STILL INACTIVE (no known write activates a trigger on an already-published workflow — see comment above): ${inactive.join(', ')}`
+        ? `— STILL INACTIVE (repair PUT attempted + verified by read-back — see comment above): ${inactive.join(', ')}`
         : '');
     if (inactive.length) process.exitCode = 2;
   }
