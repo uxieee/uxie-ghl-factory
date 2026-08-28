@@ -318,6 +318,8 @@ export async function orchestrate(ir, gw, opts = {}) {
       // Deliberate override for STEP_TYPE_UNKNOWN — see compiler.mjs. Off by default:
       // an unrecognised type builds a step the builder cannot render or open.
       skipEnforcement: opts.skipEnforcement,
+      // the caller's deliberate force-build: the opportunity name guard warns instead of throwing
+      ignoreUnresolved: opts.ignoreUnresolved === true,
       allowUnknownStepTypes: opts.allowUnknownStepTypes });
   } catch (e) {
     if (e?.name === 'IRError') {

@@ -343,19 +343,23 @@ const CREATE_OPP_ALIASES = {
 // A pipeline/stage/lost-reason NAME that was never resolved to an id is not a shape the builder can
 // paper over: written verbatim it moves nothing (F5-09 / T1-1). Names resolve on the BUILD path
 // only (orchestrate → resolveIR fetches the account's pipelines); the edit path must be given ids.
-function refuseUnresolvedOppNames(a, ref, stepType) {
+function refuseUnresolvedOppNames(a, ref, stepType, ctx) {
   const missing = [];
   if (a.pipeline != null && a.pipelineId == null) missing.push(`pipeline '${a.pipeline}'`);
   if (a.stage != null && a.stageId == null) missing.push(`stage '${a.stage}'`);
-  if (missing.length)
-    throw new IRError('UNRESOLVED_NAME',
-      `${stepType} '${ref}' names ${missing.join(' and ')} but no id was resolved for it. Names resolve only `
-      + `through build_workflow / scripts/build.mjs, which fetch the account's pipelines; on the edit path author `
-      + `pipelineId/stageId from list_account_entities. A name written to the wire moves nothing.`);
+  if (!missing.length) return;
+  const detail = `${stepType} '${ref}' names ${missing.join(' and ')} but no id was resolved for it. `
+    + `Names resolve only through build_workflow / scripts/build.mjs, which fetch the account's pipelines; on the `
+    + `edit path author pipelineId/stageId from list_account_entities. A name written to the wire moves nothing.`;
+  // `ignoreUnresolved` is the caller's documented, deliberate "build it anyway, pointing at
+  // nothing" — the same opt-out orchestrate applies to the dependency abort. Honour it here too
+  // (loudly) rather than silently revoking a hatch: an unreachable hatch is its own defect class.
+  if (ctx?.ignoreUnresolved === true) { ctx.warn?.(`UNRESOLVED_NAME (ignored): ${detail}`); return; }
+  throw new IRError('UNRESOLVED_NAME', detail);
 }
 
 function createOpportunityAttributes(a, ref, ctx) {
-  refuseUnresolvedOppNames(a, ref, 'create_opportunity');
+  refuseUnresolvedOppNames(a, ref, 'create_opportunity', ctx);
   const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError('UNKNOWN_ATTR',
@@ -452,7 +456,7 @@ function resolveOppUpdateField(u, ref, ctx) {
 }
 
 function updateOpportunityAttributes(a, ref, ctx) {
-  refuseUnresolvedOppNames(a, ref, 'update_opportunity');
+  refuseUnresolvedOppNames(a, ref, 'update_opportunity', ctx);
   const bad = Object.keys(a).filter((k) => !UPDATE_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError('UNKNOWN_ATTR',

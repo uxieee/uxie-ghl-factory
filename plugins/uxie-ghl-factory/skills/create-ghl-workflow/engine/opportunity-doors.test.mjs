@@ -71,3 +71,30 @@ test('door 5: a modifyStep that patches a NAME onto an opportunity step is refus
   assert.throws(() => editCommitBody(fresh, templates, diff, 'uid', { assumeAssociated: true }),
     (e) => e.code === 'UNRESOLVED_NAME' && /stage/.test(e.message));
 });
+
+// The refusal above is a GUARD, not a wall. `ignoreUnresolved` is the caller's documented
+// "build it anyway, pointing at nothing" — the same opt-out orchestrate applies to the dependency
+// abort — so the guard must warn through it rather than revoke it. An unreachable hatch is its own
+// defect class, and this one was found by an MCP test the guard broke (build_workflow's
+// downstream-abort case), not by review.
+// The hatch still cannot mint an inert step: with the names dropped, a step that held NOTHING else
+// compiles to __customInputFields__:[] and the older EMPTY_STEP guard refuses it anyway. So the
+// hatch only ever widens a step that already carries a real row — asserted both ways below.
+test('the hatch: ignoreUnresolved downgrades the refusal to a loud warning, and still writes no name', () => {
+  const warnings = [];
+  const hatched = () => ({ ...ctx(), ignoreUnresolved: true, warn: (m) => warnings.push(m) });
+  const run = (attributes) => compile(
+    { name: 'X', triggers: [oppTrigger], graph: [{ ref: 'n', kind: 'action', name: 'Move', type: 'update_opportunity', attributes }] },
+    hatched(),
+  ).autoSaveBody.workflowData.templates.find((s) => s.type === 'internal_update_opportunity');
+
+  const out = run({ pipeline: 'Ghost', stage: 'Nowhere', status: 'won' });
+  assert.equal(warnings.length, 1, 'the ignored refusal must still be reported');
+  assert.match(warnings[0], /UNRESOLVED_NAME \(ignored\).*pipeline 'Ghost' and stage 'Nowhere'/s);
+  assert.deepEqual(rowsOf(out), [['status', 'won']], 'only the resolvable row reaches the wire');
+  assert.equal(out.attributes.pipeline, undefined, 'a name never survives as a wire key, hatch or no hatch');
+  assert.equal(out.attributes.stage, undefined);
+
+  // names-only through the hatch: the step is empty, and EMPTY_STEP still refuses it
+  assert.throws(() => run({ pipeline: 'Ghost' }), (e) => e.code === 'EMPTY_STEP');
+});
