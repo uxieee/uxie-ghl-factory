@@ -87,8 +87,13 @@ function editGateway({
           ? responseId
           : triggerPostPersistedIds[index] ?? null;
         if (!ignoredTriggerWrites.includes('POST') && persistedId) {
+          // Measured 2026-08-28: `active` is a read-only projection of the POSTed trigger's
+          // OWN `status` field (`active === (status !== 'draft')`) — not a hardcoded
+          // API-created default. addTrigger/duplicateTrigger now always send an explicit
+          // `status` (see edit-driver.mjs's targetStatus), so this derives the same way the
+          // real API does instead of hardcoding `active:false`.
           currentTriggers.push({
-            ...structuredClone(body), id: persistedId, _id: persistedId, active: false,
+            ...structuredClone(body), id: persistedId, _id: persistedId, active: body.status !== 'draft',
           });
         }
         if (throwAfterTriggerPost) throw new Error('transport lost after trigger POST applied');
@@ -100,6 +105,14 @@ function editGateway({
           currentTriggers = currentTriggers.map((trigger) => {
             if ((trigger.id ?? trigger._id) !== triggerId) return trigger;
             const stored = structuredClone(body);
+            // Measured 2026-08-28: `active` projects the PUT body's own `status` field when
+            // present ('draft'->false, 'published'->true); an ABSENT status (a pure content
+            // modifyTrigger, or replaceTagInTriggers) leaves `active` UNCHANGED from before
+            // this write, exactly as measured live — never falls back to whatever `active`
+            // this PUT's body happened to carry, which the real server does not key off.
+            if (stored.status === 'draft') stored.active = false;
+            else if (stored.status === 'published') stored.active = true;
+            else stored.active = trigger.active ?? false;
             if (Object.hasOwn(triggerActiveOverride, triggerId)) stored.active = triggerActiveOverride[triggerId];
             return stored;
           });
@@ -236,46 +249,90 @@ test('edit_workflow refuses to guess attachTailTo for a mid-chain multi-branch c
   assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false);
 });
 
-for (const initialStatus of ['draft', 'published']) {
-  test(`edit_workflow preserves an initially ${initialStatus} status and never publishes trigger edits`, async () => {
-    const initial = workflow({ status: initialStatus, version: 20 });
-    const { gw, calls, current, currentTriggers } = editGateway({ initial, existingTags: ['vip'] });
-    const result = await editTool().handler({
-      locationId: 'LOC', workflowId: 'WID', confirm: true,
-      ops: [
-        { op: 'modifyStep', stepId: 's1', attrPatch: { tags: ['vip'] } },
-        {
-          op: 'addTrigger',
-          trigger: { type: 'contact_tag', name: 'VIP added', filters: [{ field: 'tagsAdded', value: 'vip' }] },
-        },
-      ],
-    }, deps(gw));
+// Split 2026-08-28 from one parametrized test that asserted `active:false` and
+// `requiresPublish:true` identically for BOTH a draft and an already-published target — that
+// was belief #2 from the corpus/docs ("every API-created trigger lands active:false"),
+// finally traced to buildTrigger's hardcoded `status:'draft'`, not to being API-created (see
+// edit-driver.mjs's mechanism note). edit_workflow now passes `workflowStatus: fresh.status`
+// into planTriggerOps, so `addTrigger` on an ALREADY-PUBLISHED workflow lands active
+// immediately — the two cases now genuinely diverge and need their own assertions.
+test('edit_workflow on a DRAFT workflow commits a new trigger inactive — never publishes trigger edits as a side effect', async () => {
+  const initial = workflow({ status: 'draft', version: 20 });
+  const { gw, calls, current, currentTriggers } = editGateway({ initial, existingTags: ['vip'] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [
+      { op: 'modifyStep', stepId: 's1', attrPatch: { tags: ['vip'] } },
+      {
+        op: 'addTrigger',
+        trigger: { type: 'contact_tag', name: 'VIP added', filters: [{ field: 'tagsAdded', value: 'vip' }] },
+      },
+    ],
+  }, deps(gw));
 
-    assert.equal(result.ok, true);
-    assert.equal(current().status, initialStatus);
-    assert.deepEqual(currentTriggers().map((trigger) => trigger.active), [false],
-      'edit commits trigger configuration but does not activate or publish it');
-    assert.equal(result.data.requiresPublish, true);
-    assert.equal(result.data.partialProgress.verification.triggers.roundTrip, true);
-    assert.equal(result.data.partialProgress.verification.triggers.checks[0].persisted, true);
-    assert.match(result.data.publishInstruction, /publish_workflow.*confirm:true/i);
-    assert.equal(Object.hasOwn(result.data, 'triggerActivation'), false);
-    assert.equal(Object.hasOwn(result.data.partialProgress, 'draftApplied'), false);
-    assert.equal(Object.hasOwn(result.data.partialProgress, 'publishedApplied'), false);
-    assert.equal(Object.hasOwn(result.data.partialProgress, 'recovery'), false);
+  assert.equal(result.ok, true);
+  assert.equal(current().status, 'draft');
+  assert.deepEqual(currentTriggers().map((trigger) => trigger.active), [false],
+    'draft-first: a trigger added to a still-draft workflow stays inactive until the workflow itself is published');
+  assert.equal(result.data.requiresPublish, true);
+  assert.equal(result.data.partialProgress.verification.triggers.roundTrip, true);
+  assert.equal(result.data.partialProgress.verification.triggers.checks[0].persisted, true);
+  assert.match(result.data.publishInstruction, /publish_workflow.*confirm:true/i);
+  assert.equal(Object.hasOwn(result.data, 'triggerActivation'), false);
+  assert.equal(Object.hasOwn(result.data.partialProgress, 'draftApplied'), false);
+  assert.equal(Object.hasOwn(result.data.partialProgress, 'publishedApplied'), false);
+  assert.equal(Object.hasOwn(result.data.partialProgress, 'recovery'), false);
 
-    const workflowPuts = calls.filter(({ method, path }) => (
-      method === 'PUT' && path === '/workflow/LOC/WID'
-    ));
-    assert.equal(workflowPuts.length, 1, 'an edit with step changes sends one plain workflow PUT');
-    assert.equal(workflowPuts[0].body.status, initialStatus, 'the single PUT preserves current status');
-    assert.equal('oldTriggers' in workflowPuts[0].body, false);
-    assert.equal('newTriggers' in workflowPuts[0].body, false);
-    assert.equal(calls.some(({ method, path, body }) => (
-      method === 'PUT' && path === '/workflow/LOC/WID' && body.status !== initialStatus
-    )), false, 'edit_workflow must never own a status transition');
-  });
-}
+  const workflowPuts = calls.filter(({ method, path }) => (
+    method === 'PUT' && path === '/workflow/LOC/WID'
+  ));
+  assert.equal(workflowPuts.length, 1, 'an edit with step changes sends one plain workflow PUT');
+  assert.equal(workflowPuts[0].body.status, 'draft', 'the single PUT preserves current status');
+  assert.equal('oldTriggers' in workflowPuts[0].body, false);
+  assert.equal('newTriggers' in workflowPuts[0].body, false);
+  assert.equal(calls.some(({ method, path, body }) => (
+    method === 'PUT' && path === '/workflow/LOC/WID' && body.status !== 'draft'
+  )), false, 'edit_workflow must never own a status transition');
+});
+
+test('edit_workflow on an ALREADY-PUBLISHED workflow activates a new trigger immediately — no separate publish needed, and no dead trigger left behind', async () => {
+  const initial = workflow({ status: 'published', version: 20 });
+  const { gw, calls, current, currentTriggers } = editGateway({ initial, existingTags: ['vip'] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [
+      { op: 'modifyStep', stepId: 's1', attrPatch: { tags: ['vip'] } },
+      {
+        op: 'addTrigger',
+        trigger: { type: 'contact_tag', name: 'VIP added', filters: [{ field: 'tagsAdded', value: 'vip' }] },
+      },
+    ],
+  }, deps(gw));
+
+  assert.equal(result.ok, true);
+  assert.equal(current().status, 'published');
+  assert.deepEqual(currentTriggers().map((trigger) => trigger.active), [true],
+    'measured 2026-08-28: a trigger POSTed with status:"published" (the target workflow\'s own state) lands active immediately — this is the addTrigger-creates-a-dead-trigger fix');
+  assert.equal(result.data.requiresPublish, false, 'the trigger is already active; nothing further to publish');
+  assert.equal(result.data.publishInstruction, null);
+  assert.equal(result.data.partialProgress.verification.triggers.roundTrip, true);
+  assert.equal(result.data.partialProgress.verification.triggers.checks[0].persisted, true);
+  assert.equal(Object.hasOwn(result.data, 'triggerActivation'), false);
+  assert.equal(Object.hasOwn(result.data.partialProgress, 'draftApplied'), false);
+  assert.equal(Object.hasOwn(result.data.partialProgress, 'publishedApplied'), false);
+  assert.equal(Object.hasOwn(result.data.partialProgress, 'recovery'), false);
+
+  const workflowPuts = calls.filter(({ method, path }) => (
+    method === 'PUT' && path === '/workflow/LOC/WID'
+  ));
+  assert.equal(workflowPuts.length, 1, 'an edit with step changes sends one plain workflow PUT');
+  assert.equal(workflowPuts[0].body.status, 'published', 'the single PUT preserves current status');
+  assert.equal('oldTriggers' in workflowPuts[0].body, false);
+  assert.equal('newTriggers' in workflowPuts[0].body, false);
+  assert.equal(calls.some(({ method, path, body }) => (
+    method === 'PUT' && path === '/workflow/LOC/WID' && body.status !== 'published'
+  )), false, 'edit_workflow must never own a status transition');
+});
 
 test('acknowledged trigger add, modify, and delete each fail closed when the change did not persist', async () => {
   const existingTrigger = {
@@ -329,8 +386,11 @@ test('acknowledged trigger add, modify, and delete each fail closed when the cha
 // test pins the concrete scenario that reasoning describes: a per-trigger content edit
 // persists cleanly while `active` reads back as something OTHER than what was echoed (e.g.
 // because an unrelated publish elsewhere changed it in the gap — `active` is a
-// SERVER-MANAGED PROJECTION, never something this PUT controls, measured 2026-08-28). The
-// round-trip must judge the edit on what it actually touched, not on a field it never wrote.
+// SERVER-MANAGED PROJECTION, never something THIS PUT controls, for a pure content edit).
+// The round-trip must judge the edit on what it actually touched, not on a field it never
+// wrote. `active` STILL never joins the compared keys for a case like this one — see the two
+// tests below for the one case that changed: an op that explicitly asked for an active
+// change (the TRANSLATED case, carrying a real `status` write) now DOES get it verified.
 test('modifyTrigger round-trip check ignores an `active` drift unrelated to this edit — a clean content persist must not be reported as failed', async () => {
   const existingTrigger = {
     id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
@@ -351,6 +411,52 @@ test('modifyTrigger round-trip check ignores an `active` drift unrelated to this
   const check = result.data.partialProgress.verification.triggers.checks[0];
   assert.equal(check.persisted, true);
   assert.equal(check.mismatches.length, 0, '`active` must never appear as a mismatch — it is not a compared key');
+});
+
+// ADDED 2026-08-28 (later the same day, item 6 of the status-rail fix): now that a requested
+// `active` change is a real write (translated into `status` — edit-driver.mjs's
+// translateActiveToStatus), the round trip SHOULD verify it, but ONLY for this translated
+// case — see triggerSemanticExpectation's updated comment in tools.mjs. This is the mirror
+// image of the drift test above: THERE active was never requested, so a drift must not fail
+// it; HERE active WAS explicitly requested, so a failure to persist it MUST be caught.
+test('modifyTrigger round-trip check DOES verify an explicitly requested `active` change — a translated write that silently failed to flip it must be caught, never trusted from the 200', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
+    name: 'Original', conditions: [], active: false,
+  };
+  const { gw } = editGateway({
+    triggers: [existingTrigger],
+    // Models the measured bogus-status pitfall: the write is acknowledged (200) but the
+    // trigger reads back UNCHANGED — exactly the case a bare 200 must never be trusted for.
+    triggerActiveOverride: { 'tr-old': false },
+  });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { active: true, filters: [] } }],
+  }, deps(gw));
+
+  assert.equal(result.ok, false, 'an explicit activation that did not actually persist must fail loudly, not report success');
+  assert.equal(result.data.partialProgress.failurePhase, 'trigger_round_trip_verify');
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, false);
+  assert.ok(check.mismatches.some((m) => m.path === 'active'), '`active` must be the flagged mismatch when the op explicitly requested it');
+});
+
+test('modifyTrigger round-trip check confirms an explicitly requested `active` change when it DOES persist', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
+    name: 'Original', conditions: [], active: false,
+  };
+  const { gw } = editGateway({ triggers: [existingTrigger] });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { active: true, filters: [] } }],
+  }, deps(gw));
+
+  assert.equal(result.ok, true);
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, true);
+  assert.equal(check.mismatches.length, 0);
 });
 
 const identicalAddTrigger = () => ({
@@ -420,9 +526,15 @@ test('identical acknowledged adds without returned IDs pass when distinct new ca
   assert.deepEqual(checks.map(({ triggerId }) => triggerId), ['tr-new-1', 'tr-new-2']);
 });
 
-test('trigger preview tells the caller that only confirmed publish_workflow activates the change', async () => {
+// CORRECTED 2026-08-28: this used to assert `requiresPublish:true` for a PUBLISHED target
+// workflow too — belief #2 from the corpus/docs ("every API-created trigger lands
+// active:false", so a publish is always needed), traced to buildTrigger's hardcoded
+// `status:'draft'`, not to being API-created. The preview now reflects what the planned
+// request will actually do: an addTrigger against an already-published workflow activates
+// immediately, so no publish is required for it.
+test('trigger preview on a DRAFT workflow tells the caller that a confirmed publish_workflow is needed to activate the change', async () => {
   const { gw, calls } = editGateway({
-    initial: workflow({ status: 'published', version: 20 }),
+    initial: workflow({ status: 'draft', version: 20 }),
     existingTags: ['vip'],
   });
   const result = await editTool().handler({
@@ -436,6 +548,25 @@ test('trigger preview tells the caller that only confirmed publish_workflow acti
   assert.equal(result.code, 'CONFIRM_REQUIRED');
   assert.equal(result.data.preview.requiresPublish, true);
   assert.match(result.data.preview.publishInstruction, /publish_workflow.*confirm:true/i);
+  assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false);
+});
+
+test('trigger preview on an ALREADY-PUBLISHED workflow tells the caller no separate publish is needed — the trigger will land active', async () => {
+  const { gw, calls } = editGateway({
+    initial: workflow({ status: 'published', version: 20 }),
+    existingTags: ['vip'],
+  });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID',
+    ops: [{
+      op: 'addTrigger',
+      trigger: { type: 'contact_tag', name: 'VIP added', filters: [{ field: 'tagsAdded', value: 'vip' }] },
+    }],
+  }, deps(gw));
+
+  assert.equal(result.code, 'CONFIRM_REQUIRED');
+  assert.equal(result.data.preview.requiresPublish, false);
+  assert.equal(result.data.preview.publishInstruction, null);
   assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false);
 });
 

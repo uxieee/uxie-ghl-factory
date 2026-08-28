@@ -14,7 +14,7 @@ const existing = () => [
   { id: 'tr2', _id: 'tr2', type: 'contact_changed', name: 'Changed', active: true, conditions: [] },
 ];
 
-const plan1 = (op, ex = existing()) => planTriggerOps([op], { ctx: ctx(), wid: WID, uid: 'UID', existing: ex })[0];
+const plan1 = (op, ex = existing(), workflowStatus) => planTriggerOps([op], { ctx: ctx(), wid: WID, uid: 'UID', existing: ex, workflowStatus })[0];
 
 test('partitionOps splits trigger ops from step ops, preserving order within each', () => {
   const { stepOps, triggerOps } = partitionOps([
@@ -59,6 +59,30 @@ test('addTrigger: a contact_tag value stays a plain STRING (array = dispatcher n
   assert.equal(Array.isArray(wrapped.body.conditions[0].value), false);
 });
 
+// Bug fix 2026-08-28 (measured mechanism, same day as the modifyTrigger refusal below): a
+// trigger's `active` is a read-only projection of its OWN `status` field
+// ("draft"|"published") — `active === (status !== "draft")`. On POST, `status` follows the
+// TARGET WORKFLOW's publish state: "published" lands the trigger active immediately (no known
+// write ever activated a trigger against an already-published workflow before this — see
+// edit-driver.mjs's REMOVED-2026-08-28 note); "draft" keeps draft-first true — a trigger added
+// to a still-draft workflow must stay inactive until the workflow itself is published.
+// planTriggerOps cannot see the workflow document, so callers (mcp-internal/core/tools.mjs's
+// edit_workflow, scripts/edit.mjs) pass it in as `workflowStatus`.
+test('addTrigger sends status:"published" when the target workflow is already published — this is what activates it immediately, no publish cycle needed', () => {
+  const r = plan1({ op: 'addTrigger', trigger: { type: 'contact_tag', name: 'VIP', filters: [] } }, existing(), 'published');
+  assert.equal(r.body.status, 'published');
+});
+
+test('addTrigger sends status:"draft" when the target workflow is a draft — draft-first: stays inactive until the workflow itself publishes', () => {
+  const r = plan1({ op: 'addTrigger', trigger: { type: 'contact_tag', name: 'VIP', filters: [] } }, existing(), 'draft');
+  assert.equal(r.body.status, 'draft');
+});
+
+test('addTrigger defaults to status:"draft" when workflowStatus is not passed at all — the safe default for a caller not yet updated', () => {
+  const r = plan1({ op: 'addTrigger', trigger: { type: 'contact_tag', name: 'VIP', filters: [] } });
+  assert.equal(r.body.status, 'draft');
+});
+
 test('deleteTrigger issues the DELETE with the required userId query param', () => {
   const r = plan1({ op: 'deleteTrigger', triggerId: 'tr1' });
   assert.equal(r.method, 'DELETE');
@@ -81,54 +105,68 @@ test('modifyTrigger PUTs the full merged object and keeps the server id', () => 
   assert.equal(r.body.workflowId, WID);
 });
 
+// BUG (live, client-affecting — fixed 2026-08-28): modifyTrigger rebuilds its PUT body through
+// buildTrigger, which hardcodes `status: 'draft'` (correct ONLY on the fresh-workflow BUILD
+// path — see compiler.mjs). Left in place, that 'draft' rode every modifyTrigger PUT and
+// DEACTIVATED the trigger being edited on a published workflow — the long-standing "modifyTrigger
+// flips active to FALSE" observation from 17 Aug, finally explained by the mechanism measured
+// 2026-08-28: `active` is a read-only projection of the trigger's own `status` field
+// (`active === (status !== 'draft')`), and a bare PUT with no explicit intent must send NO
+// `status` key at all — absent is proven to leave it unchanged. This is the regression test.
+test('modifyTrigger on a published trigger sends NO status key for a pure content edit — it must never carry buildTrigger\'s hardcoded draft status', () => {
+  const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: true, conditions: [] }];
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [{ field: 'tagsAdded', value: 'gold' }] } }, ex);
+  assert.equal('status' in r.body, false,
+    'a content-only modifyTrigger must never leak buildTrigger\'s hardcoded draft status onto the PUT — that is what deactivated a live, published trigger on every edit');
+});
+
 // Task 9 (workflow save-correctness): modifyTrigger used to hard-code `active: op.trigger?.active
 // ?? true` — so editing anything else about a trigger GHL's own API had landed OFF (every
 // API-created trigger, per addTrigger's doc comment above) silently switched it back ON. There is
 // a standing project rule against enabling anything found off. The fix preserves the STORED
 // active flag when the caller doesn't mention it at all. This test and 'defaults to OFF, not
-// ON' below also now pin the third case the 2026-08-28 refusal above needed covered: an
-// ABSENT `active` never triggers the refusal, only a genuine attempted CHANGE does.
+// ON' below also now pin the third/fourth translate cases below: an ABSENT `active` never
+// provokes a status write, only a genuine attempted CHANGE does.
 test('modifyTrigger preserves a stored INACTIVE trigger — it must never force-activate a trigger the caller did not ask to touch', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] }];
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [{ field: 'tagsAdded', value: 'gold' }] } }, ex);
   assert.equal(r.body.active, false, 'a trigger found OFF must stay OFF unless the caller explicitly asks to activate it');
 });
 
-// RETIRED 2026-08-28: these two tests used to assert that modifyTrigger's per-trigger PUT
-// could flip `active` in either direction when the caller asked explicitly. That write is the
-// last reachable instance of the defect this whole line of work exists to kill — measured
-// 2026-08-28 (throwaway probes on the designated test sub-account, three experiments):
-// `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state, not a field this
-// PUT controls either way. A silent 200 that changes nothing must never be reachable, so
-// modifyTrigger now REFUSES an attempted `active` CHANGE outright — see below.
-test('modifyTrigger refuses to change active:false→true — the per-trigger write cannot persist it', () => {
+// TRANSLATED, not refused, as of 2026-08-28 (later the same day) — see edit-driver.mjs's
+// translateActiveToStatus for the mechanism. The two tests that used to live here (until this
+// same day) asserted that ANY attempted `active` change threw, on the belief that no per-trigger
+// PUT body could ever move `active` in either direction. That belief was RIGHT about `active`
+// itself and INCOMPLETE about `status`: further measurement the same day (throwaway probes on
+// the designated test sub-account) found the trigger's own `status` field ("draft"|"published")
+// is what `active` projects, and IS controlled by this exact PUT — the disproof experiments only
+// ever sent (or omitted) `active`, never `status`, and the roster GET that fed them never surfaces
+// `status` at all, so nobody could see it was the missing field. A genuine attempted CHANGE is
+// now translated into the corresponding `status` write instead of thrown away.
+test('modifyTrigger translates active:false→true (a genuine change) into status:"published"', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] }];
-  assert.throws(
-    () => plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex),
-    /SERVER-MANAGED PROJECTION/,
-    'a genuine attempted activation must fail loudly, not send a write proven to do nothing',
-  );
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
+  assert.equal(r.body.status, 'published', 'an explicit activation must translate into the field that actually controls it');
 });
 
-test('modifyTrigger refuses to change active:true→false — the per-trigger write cannot persist it', () => {
+test('modifyTrigger translates active:true→false (a genuine change) into status:"draft"', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: true, conditions: [] }];
-  assert.throws(
-    () => plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: false, filters: [] } }, ex),
-    /SERVER-MANAGED PROJECTION/,
-    'a genuine attempted deactivation must fail loudly too — the write is inert in both directions',
-  );
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: false, filters: [] } }, ex);
+  assert.equal(r.body.status, 'draft', 'an explicit deactivation must translate into the field that actually controls it');
 });
 
-test('modifyTrigger allows an explicit active value that MATCHES the stored trigger — a harmless no-op echo', () => {
+test('modifyTrigger allows an explicit active value that MATCHES the stored trigger — a harmless no-op echo, and sends NO status write for it', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: true, conditions: [] }];
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
   assert.equal(r.body.active, true, 'echoing the current value back must not be refused — only a genuine CHANGE is');
+  assert.equal('status' in r.body, false, 'matching the stored value is not a change — it must not provoke a status write at all');
 });
 
-test('modifyTrigger on a stored trigger with no active flag at all defaults to OFF, not ON', () => {
+test('modifyTrigger on a stored trigger with no active flag at all defaults to OFF, not ON, and sends no status write', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', conditions: [] }];
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [] } }, ex);
   assert.equal(r.body.active, false);
+  assert.equal('status' in r.body, false, 'active being absent everywhere is not a change — it must not provoke a status write');
 });
 
 test('resolveTrigger: ambiguity is an error, never a silent pick', () => {

@@ -618,6 +618,23 @@ export async function orchestrate(ir, gw, opts = {}) {
   //    a publish transition, not through any field in its body. No per-trigger write is sent
   //    here anymore. oldTriggers/newTriggers on THIS body is an unchanged roster ECHO — what
   //    the builder always sends on publish — never the activation mechanism.
+  //
+  //    UPDATE 2026-08-28 (later the same day): the conclusion above was right about `active`
+  //    and incomplete about `status`. Every disproof experiment sent (or omitted) `active` and
+  //    never `status` — and the roster GET that fed them never surfaces `status` at all, only
+  //    `active` — so the field that actually matters was invisible to the investigation, not
+  //    absent from the API. Measured the same day: a trigger record carries its OWN `status`
+  //    field ("draft"|"published"), and `active` is a read-only projection of it
+  //    (`active === (status !== "draft")`). A per-trigger PUT carrying `status:"published"` —
+  //    the SAME endpoint the retired per-trigger write used, just with the one field it never
+  //    tried — DOES activate a trigger on an already-published workflow, verified by read-back.
+  //    A bogus `status` string is silently accepted and ignored (200, unchanged), so this
+  //    write is held to the same rule as everything else here: never trust the 200.
+  //
+  //    This is now a REPAIR, not the primary mechanism: the publish PUT's own draft→published
+  //    cascade (proven to reach every trigger sub-second, per the measurement above) already
+  //    activates the common case with no trigger write at all, so the loop below only sends
+  //    anything when a trigger STILL reads inactive after that cascade — see below.
   if (opts.publish) {
     // NB: the bare GET /workflow/{loc}/{wid} 404s ("Not Found") — the workflow GET
     // REQUIRES the ?includeScheduledPauseInfo=true query param.
@@ -650,8 +667,29 @@ export async function orchestrate(ir, gw, opts = {}) {
     const checkedTriggerResponse = await callAt('publish_verify_triggers_get', 'GET', `/workflow/${loc}/trigger?workflowId=${WID}`);
     if (!checkedTriggerResponse) return report;
     const checkedTr = checkedTriggerResponse.json;
-    const checkedTriggers = (Array.isArray(checkedTr) ? checkedTr : (checkedTr?.triggers || checkedTr?.data || []));
-    const inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+    let checkedTriggers = (Array.isArray(checkedTr) ? checkedTr : (checkedTr?.triggers || checkedTr?.data || []));
+    let inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+
+    // REPAIR — measured 2026-08-28 (see the UPDATE above): send one per-trigger PUT carrying
+    // `status:'published'` for each trigger that is STILL inactive after the publish PUT's
+    // own cascade. This is the ONLY write this step sends besides the document PUT itself,
+    // and only when the cascade did not already cover everything.
+    if (pub.ok && check?.status === 'published' && inactiveTriggers.length) {
+      const toRepair = checkedTriggers.filter((t) => t.active !== true);
+      for (const t of toRepair) {
+        const tid = t.id ?? t._id;
+        const repaired = await callAt('publish_trigger_repair_put', 'PUT', `/workflow/${loc}/trigger/${tid}`, { ...t, status: 'published' });
+        if (!repaired) return report;
+      }
+      // NEVER TRUST THE 200 — a bogus/ignored `status` is silently accepted (measured
+      // 2026-08-28). Re-list and let the read-back, not the PUT's status code, decide.
+      const reCheckedResponse = await callAt('publish_trigger_repair_verify_get', 'GET', `/workflow/${loc}/trigger?workflowId=${WID}`);
+      if (!reCheckedResponse) return report;
+      const reCheckedTr = reCheckedResponse.json;
+      checkedTriggers = (Array.isArray(reCheckedTr) ? reCheckedTr : (reCheckedTr?.triggers || reCheckedTr?.data || []));
+      inactiveTriggers = checkedTriggers.filter((t) => t.active !== true).map((t) => t.name ?? t.id ?? t._id);
+    }
+
     report.published = pub.ok && (check?.status === 'published') && inactiveTriggers.length === 0;
     if (!report.published) report.verify.issues.push({ publish: pub.status, status: check?.status, inactiveTriggers, body: JSON.stringify(pub.json).slice(0, 160) });
   }

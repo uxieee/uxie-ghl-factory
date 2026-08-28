@@ -519,7 +519,14 @@ test('orchestrate --publish fills input_trigger_params on a legacy add_to_workfl
 // active:true. `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state —
 // this test now pins the opposite of what it used to assert: no per-trigger write is sent,
 // and activation happens purely as a side effect of the publish PUT succeeding.
-test('orchestrate --publish sends no per-trigger activation PUT — activation happens as a side effect of the publish PUT alone', async () => {
+//
+// This pins the HAPPY PATH ONLY: the workflow-level publish transition's own cascade
+// (measured later, same day) already activates every trigger here, so there is nothing left
+// for the REPAIR rail to do. A trigger that the cascade does NOT reach — the repair rail
+// added 2026-08-28 for exactly that case — is covered separately below
+// ('...REPAIRS a trigger that still reads inactive...'), where the per-trigger PUT this test
+// forbids is exactly what gets sent.
+test('orchestrate --publish sends no per-trigger activation PUT when the publish PUT alone already activated everything', async () => {
   let triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
   let getWorkflowCalls = 0;
   const staleTemplates = [{ id: 's1', type: 'add_contact_tag', name: 'Tag', attributes: { tags: ['new-tag'] } }];
@@ -565,12 +572,44 @@ test('orchestrate --publish sends no per-trigger activation PUT — activation h
   assert.equal(triggersState[0].active, true);
 });
 
-test('orchestrate --publish reports published:false, naming the trigger, when it reads inactive after a successful publish PUT — the open, unsolved case', async () => {
-  // Models the honest open question: `active` is a server-managed projection with no known
-  // write to force it, so a trigger that simply never flips cannot currently be fixed
-  // through any known API path — including by retrying the retired per-trigger write. The
-  // engine's job is to report that state clearly and name the trigger, never to pretend a
-  // fix exists.
+// REPLACES the 2026-08-28 test that used to stand here ("...the open, unsolved case"), which
+// asserted the opposite of what this now pins: that a trigger reading inactive after a
+// successful publish PUT could not be fixed by ANY known write, including a retry of the
+// retired per-trigger PUT. That was correct about `active` (the retired write's body) and
+// incomplete about `status` — see edit-driver.mjs's REMOVED-2026-08-28 UPDATE. Measured the
+// same day: the trigger's own `status` field is what `active` projects, and a per-trigger PUT
+// carrying `status:'published'` DOES activate it. orchestrate --publish now REPAIRS exactly
+// this case — one PUT per trigger still reading inactive after the publish PUT's own cascade
+// — before ever reporting failure.
+test('orchestrate --publish REPAIRS a trigger that still reads inactive after the publish PUT — one per-trigger status write, verified by read-back', async () => {
+  let triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
+  const routes = [
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true',
+      { ok: true, status: 200, json: { status: 'published', version: 3, workflowData: { templates: [] } } }],
+    [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1',
+      () => ({ ok: true, status: 200, json: { triggers: triggersState.map((t) => ({ ...t })) } })],
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
+    // The measured repair mechanism: a per-trigger PUT carrying status:'published' activates
+    // a trigger the publish PUT's own cascade missed.
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/trigger/tr1', (m, p, body) => {
+      if (body.status === 'published') triggersState = triggersState.map((t) => ({ ...t, active: true }));
+      return { ok: true, status: 200, json: { id: 'tr1' } };
+    }],
+  ];
+  const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
+  const report = await orchestrate(tagIR(), gw, { publish: true });
+  assert.equal(report.aborted, null, JSON.stringify(report.aborted));
+  assert.equal(report.published, true, 'the repair must let the publish report success');
+  const repairPut = calls.find((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr1');
+  assert.ok(repairPut, 'a still-inactive trigger after publish must get exactly one repair PUT');
+  assert.equal(repairPut.body.status, 'published');
+  assert.equal(triggersState[0].active, true);
+});
+
+test('orchestrate --publish reports published:false, naming the trigger, when it is STILL inactive after the repair PUT — never trust the 200, verify by read-back', async () => {
+  // Models the measured bogus-status pitfall (a `status` write can be silently accepted and
+  // ignored, 200 + unchanged) — the repair must be ATTEMPTED, but the engine must still fail
+  // loudly rather than trust the write's 200 when the read-back proves it did not apply.
   const triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
   const routes = [
     [(m, p) => m === 'GET' && p === '/workflow/LOC/WID_1?includeScheduledPauseInfo=true',
@@ -578,12 +617,15 @@ test('orchestrate --publish reports published:false, naming the trigger, when it
     [(m, p) => m === 'GET' && p === '/workflow/LOC/trigger?workflowId=WID_1',
       () => ({ ok: true, status: 200, json: { triggers: triggersState.map((t) => ({ ...t })) } })],
     [(m, p) => m === 'PUT' && p === '/workflow/LOC/WID_1', { ok: true, status: 200, json: {} }],
+    // Acknowledged but inert — proves the repair's 200 is never trusted on its own.
+    [(m, p) => m === 'PUT' && p === '/workflow/LOC/trigger/tr1', { ok: true, status: 200, json: { id: 'tr1' } }],
   ];
   const { gw, calls } = gwWith(routes, mockGateway({ tags: ['new-tag'] }));
   const report = await orchestrate(tagIR(), gw, { publish: true });
   assert.equal(report.published, false);
-  assert.equal(calls.some((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr1'), false,
-    'a trigger reading inactive after publish must not provoke a retry via the retired per-trigger write');
+  const repairPut = calls.find((c) => c.method === 'PUT' && c.path === '/workflow/LOC/trigger/tr1');
+  assert.ok(repairPut, 'the repair must still be ATTEMPTED even though it will not fix this particular trigger');
+  assert.equal(repairPut.body.status, 'published');
   assert.ok(report.verify.issues.some((i) => Array.isArray(i.inactiveTriggers) && i.inactiveTriggers.includes('T')),
     'the failure must name the still-inactive trigger, not just say "publish failed"');
 });

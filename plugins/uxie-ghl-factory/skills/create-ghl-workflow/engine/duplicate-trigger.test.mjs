@@ -21,6 +21,29 @@ test('duplicateTrigger is a trigger op and re-posts the stored trigger as "(Copy
   assert.equal(plan.body.masterType, 'highlevel'); assert.deepEqual(plan.body.actions, existing[0].actions);
 });
 
+// Bug fix 2026-08-28: this used to leave `status` absent on the copy entirely, so it landed
+// "wherever the absent-status default puts it" — per the measured POST table, an ABSENT
+// `status` lands a trigger ACTIVE on either a draft OR a published target, regardless of the
+// stale `active:false` this body also carries (the server does not key off `active` on
+// write). `status` now follows the workflow's own state explicitly, same rule as addTrigger.
+test('duplicateTrigger sends status:"published" when the target workflow is already published — the copy matches its workflow instead of landing wherever the absent-status default puts it', () => {
+  const { triggerOps } = partitionOps([{ op: 'duplicateTrigger', triggerId: 'T1' }]);
+  const [plan] = planTriggerOps(triggerOps, { ctx, wid: 'W', uid: 'U', existing, workflowStatus: 'published' });
+  assert.equal(plan.body.status, 'published');
+});
+
+test('duplicateTrigger sends status:"draft" when the target workflow is a draft', () => {
+  const { triggerOps } = partitionOps([{ op: 'duplicateTrigger', triggerId: 'T1' }]);
+  const [plan] = planTriggerOps(triggerOps, { ctx, wid: 'W', uid: 'U', existing, workflowStatus: 'draft' });
+  assert.equal(plan.body.status, 'draft');
+});
+
+test('duplicateTrigger defaults to status:"draft" when workflowStatus is not passed at all', () => {
+  const { triggerOps } = partitionOps([{ op: 'duplicateTrigger', triggerId: 'T1' }]);
+  const [plan] = planTriggerOps(triggerOps, { ctx, wid: 'W', uid: 'U', existing });
+  assert.equal(plan.body.status, 'draft');
+});
+
 test('an explicit name wins; an inbound-webhook copy gets a fresh predeterminedId; unknown triggers throw', () => {
   const [byName] = planTriggerOps([{ op: 'duplicateTrigger', name: 'Tag trigger' }], { ctx, wid: 'W', uid: 'U', existing });
   assert.equal(byName.body.name, 'Tag trigger (Copy)');

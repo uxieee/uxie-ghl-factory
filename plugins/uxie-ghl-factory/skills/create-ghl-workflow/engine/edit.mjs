@@ -16,8 +16,11 @@ import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { gotoLoops } from './goto-loops.mjs';
 
-// A trigger added via the API lands `active: false` on the server NO MATTER WHAT the
-// POST body said.
+// A trigger added via the API used to land `active: false` on the server no matter what the
+// POST body said — or so it was believed until 2026-08-28 (see UPDATE below). That belief was
+// actually a property of buildTrigger hardcoding `status:'draft'` on every trigger it built,
+// not of being API-created: `status` ("draft"|"published") is the field that actually decides
+// `active`, and the edit path had never sent anything else.
 //
 // Two write rails were tried here and retired, in order — kept as history so neither gets
 // re-proposed:
@@ -46,13 +49,32 @@ import { gotoLoops } from './goto-loops.mjs';
 //      was a 200 that changed nothing: exactly the defect class Task 9 existed to
 //      eliminate. It was removed rather than kept "best effort".
 //
-// Nothing replaced it. There is no known write that activates a trigger against an
-// ALREADY-published workflow — publishing (or re-publishing) is the only known way `active`
-// moves, because it is a side effect of the publish transition itself. Whether to even
-// check is still decided from the workflow's status (only a PUBLISHED workflow gets a
-// post-edit activation check — publishing a draft is a separate, user-confirmed decision,
-// never a side effect of a trigger edit); when it does run, it can only read the truth back
-// and report it loudly (scripts/edit.mjs's exitCode:2), never claim to fix it.
+// Nothing replaced either rail's BODY SHAPE (carrying `active` directly) — that remains the
+// wrong tool. The paragraph that used to stand here said flatly that nothing activates a
+// trigger against an already-published workflow; that conclusion did not survive the day.
+//
+// UPDATE 2026-08-28 (later the same day): further measurement (throwaway workflows on the
+// designated test sub-account) found the field both retired rails, and the belief above,
+// missed: a trigger record carries its OWN `status` field ("draft"|"published"), never
+// returned by the roster GET that fed every earlier probe (only `active` is), and `active` is
+// a READ-ONLY PROJECTION of it — `active === (status !== "draft")`. Sending
+// `status:"published"` on the SAME per-trigger PUT rail #2 already used — just with the one
+// field it never tried — DOES activate a trigger on an already-published workflow, verified
+// by read-back at +0.5s/+2s/+5s; `status:"draft"` deactivates it. A bogus `status` string is
+// silently accepted and ignored (200, unchanged), so this write is held to the same rule as
+// everything else in this file: the 200 is never the proof, the read-back is.
+//
+// This is now a REPAIR rail, not something buildTrigger emits blind: buildTrigger still
+// hardcodes `status:'draft'` for the fresh-workflow BUILD path (correct there — see its own
+// comment in compiler.mjs), and modifyTrigger strips that hardcoded value from its PUT body
+// unless the caller explicitly asked for an activation change (edit-driver.mjs's
+// translateActiveToStatus). Whether to run the repair is still decided from the workflow's
+// status (only a PUBLISHED workflow's still-inactive triggers get one — publishing a draft
+// remains a separate, user-confirmed decision, never a side effect of a trigger edit);
+// publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and
+// scripts/edit.mjs's post-add check each send it, one per trigger that reads inactive after
+// their own publish PUT, then re-list and verify before ever reporting success — only a
+// trigger STILL inactive after that repair is reported as a failure now.
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).

@@ -1579,6 +1579,19 @@ export function buildTrigger(t, ctx, wid, refMap) {
       + '— conditionSubType is mandatory).');
   }
   return {
+    // `status` ("draft"|"published") is the ACTIVATION FIELD — measured 2026-08-28 (throwaway
+    // workflows on the designated test sub-account): a trigger's `active` flag is a READ-ONLY
+    // PROJECTION of this field (`active === (status !== "draft")`), not something any write
+    // controls directly. Hardcoding `status:'draft'` is correct ONLY here, on the fresh-
+    // workflow BUILD path: compile() always creates a new workflow in draft (see orchestrate.mjs),
+    // and its triggers must stay inactive until the workflow itself is published — draft-first
+    // is a deliberate product policy, not just a side effect of this field. The EDIT path
+    // (edit-driver.mjs's planTriggerOps: addTrigger/duplicateTrigger/modifyTrigger) calls this
+    // same function but must NOT inherit this hardcoded value unexamined — an already-published
+    // target workflow needs `status:'published'` instead, or a fresh trigger lands dead with
+    // nothing that will ever activate it. See planTriggerOps's mechanism note for the full
+    // history of what this field's absence caused (the modifyTrigger deactivation bug) and how
+    // each edit-path caller decides `status` for itself.
     status: 'draft', workflowId: wid, schedule_config: {},
     ...(targetActionId ? { targetActionId } : {}),
     conditions,

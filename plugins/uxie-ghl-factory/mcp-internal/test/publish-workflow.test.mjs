@@ -28,12 +28,19 @@ const workflow = ({ status = 'draft', version = 3 } = {}) => ({
 
 function publishGateway({
   initial = workflow(), refreshVersion, failWorkflowGets = [], throwAfterPublishApply = false,
-  // Models the measured truth (throwaway probes on the designated test sub-account,
-  // 2026-08-28): `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state.
-  // Publishing flips every trigger active as a side effect of the status transition itself
-  // — set this false to model the "stuck inactive despite a successful publish" case the
-  // engine has no known fix for, so the verification test below can exercise it.
+  // Models the measured truth (throwaway workflows on the designated test sub-account,
+  // 2026-08-28): `active` is a READ-ONLY PROJECTION of a trigger's own `status` field
+  // ("draft"|"published") — `active === (status !== "draft")`. The workflow-level
+  // draft→published transition CASCADES `status:"published"` onto every trigger as a side
+  // effect of the publish PUT, with no trigger write needed — set this false to model a
+  // trigger the cascade does NOT reach, so the REPAIR path below (added 2026-08-28) gets
+  // exercised.
   triggersActivateOnPublish = true,
+  // Controls whether the REPAIR PUT (one per-trigger status write, sent only for a trigger
+  // still inactive after the cascade) actually takes. false models the measured
+  // "a bogus/ignored `status` is silently accepted" pitfall — 200, unchanged — so the
+  // verification tests below can prove the repair's 200 is never trusted on its own.
+  repairActivates = true,
 } = {}) {
   const calls = [];
   let current = structuredClone(initial);
@@ -56,25 +63,33 @@ function publishGateway({
       if (method === 'GET' && path === '/workflow/LOC/trigger?workflowId=WID') {
         return { status: 200, ok: true, json: { triggers: structuredClone(triggers) } };
       }
-      // publish_workflow no longer sends this write at all (removed 2026-08-28 as proven
-      // inert for `active` — see edit-driver.mjs's history comment). This route is kept in
-      // the fixture only so a stray reintroduction of the write is caught doing what the
-      // real API does — accept `active` and ignore it — rather than the mock accidentally
-      // "fixing" a bug the live API does not fix. Content fields DO persist here, matching
-      // the live-proven CONTENT rail modifyTrigger still uses.
+      // REPAIR rail (added 2026-08-28): a per-trigger PUT carrying `status:'published'` is
+      // what actually activates a trigger the publish PUT's own cascade missed — see
+      // edit-driver.mjs's REMOVED-2026-08-28 UPDATE for the full measurement. The body's own
+      // `active` key is still ignored (the server never keys off it — only `status` does);
+      // this fixture derives `active` from `status` the same way, gated by `repairActivates`
+      // to model the "silently ignored" pitfall on demand.
       if (method === 'PUT' && path.startsWith('/workflow/LOC/trigger/')) {
         const tid = path.split('/').pop();
         const index = triggers.findIndex((trigger) => (trigger.id ?? trigger._id) === tid);
         if (index === -1) return { status: 404, ok: false, json: { message: `no trigger ${tid}` } };
         const { active: _ignoredActive, ...contentOnly } = body ?? {};
-        triggers = triggers.map((trigger, i) => (i === index ? { ...trigger, ...contentOnly } : trigger));
+        triggers = triggers.map((trigger, i) => {
+          if (i !== index) return trigger;
+          const merged = { ...trigger, ...contentOnly };
+          if (contentOnly.status === 'draft') merged.active = false;
+          else if (contentOnly.status === 'published') merged.active = repairActivates ? true : trigger.active;
+          else merged.active = trigger.active;
+          return merged;
+        });
         return { status: 200, ok: true, json: { id: tid } };
       }
       if (method === 'PUT' && path === '/workflow/LOC/WID') {
         current = { ...structuredClone(body), version: body.version + 1 };
-        // The measured mechanism: publishing itself is what flips `active`, not anything in
-        // oldTriggers/newTriggers (which is proven inert and asserted as an unchanged echo
-        // below). triggersActivateOnPublish:false models the case the engine cannot fix.
+        // The measured mechanism: the document PUT's OWN draft→published transition cascades
+        // status:'published' onto every trigger, sub-second — not anything in
+        // oldTriggers/newTriggers (proven inert for content, asserted as an unchanged echo
+        // below). triggersActivateOnPublish:false models a trigger the cascade does not reach.
         if (triggersActivateOnPublish && body.status === 'published') {
           triggers = triggers.map((trigger) => ({ ...trigger, active: true }));
         }
@@ -87,8 +102,9 @@ function publishGateway({
   return { gw, calls, current: () => current, triggers: () => triggers };
 }
 
-// Every activation test below asserts this the same way — no per-trigger PUT is ever sent
-// by publish_workflow, because none does anything (measured 2026-08-28).
+// Asserts no per-trigger PUT was sent AT ALL. Valid only for the HAPPY PATH (the publish
+// PUT's own cascade already activated everything, so the REPAIR rail added 2026-08-28 has
+// nothing to do) — the repair tests further below assert the opposite on purpose.
 const noActivationPutSent = (calls) => calls.every(({ method, path }) => !(method === 'PUT' && path.startsWith('/workflow/LOC/trigger/')));
 
 const deps = (gw) => ({ state: { tokenFile: '/fixture/token.txt' }, makeGw: () => gw });
@@ -224,24 +240,50 @@ test('v0.3.4 regression: publishing an already-published workflow never drafts i
 // 2026-08-28, three experiments) proved does nothing: a publish with ZERO trigger writes
 // still activates every trigger sub-second after the publish PUT returns, and a
 // per-trigger PUT with active:false against a published workflow returns 200 with the
-// trigger reading active:true regardless. The new contract is the opposite of what those
-// tests asserted — no such write is ever sent, whatever the trigger roster's active state.
-test('publish_workflow sends no per-trigger activation PUT, whatever the trigger roster looks like before publish', async () => {
+// trigger reading active:true regardless. This pins the HAPPY PATH: when the publish PUT's
+// own cascade already activates every trigger (the default fixture), there is nothing left
+// for the REPAIR rail (added 2026-08-28, later the same day) to do. The two tests below cover
+// the case the cascade does NOT reach, where a per-trigger PUT is exactly what gets sent.
+test('publish_workflow sends no per-trigger activation PUT when the publish PUT alone already activated every trigger', async () => {
   const { gw, calls } = publishGateway();
   const result = await publishTool().handler(
     { locationId: 'LOC', workflowId: 'WID', confirm: true },
     deps(gw),
   );
   assert.equal(result.ok, true);
-  assert.ok(noActivationPutSent(calls), 'no per-trigger PUT may be sent by publish_workflow, ever');
+  assert.ok(noActivationPutSent(calls), 'the cascade already covers this case; the repair rail must not fire needlessly');
 });
 
-test('post-publish verification fails loudly when a trigger reads inactive despite a successful publish PUT — the open, unsolved case', async () => {
-  // Models the honest open question: `active` is a server-managed projection with no known
-  // write to force it, so a trigger that does not flip on publish cannot currently be
-  // fixed through any known API path. The engine's job here is to report that state
-  // clearly, never to pretend a fix exists.
-  const { gw, calls, current } = publishGateway({ triggersActivateOnPublish: false });
+// REPLACES the 2026-08-28 test that used to stand here ("...the open, unsolved case"), which
+// asserted a trigger reading inactive after a successful publish PUT could not be fixed by
+// ANY known write. That was correct about `active` and incomplete about `status` — see
+// edit-driver.mjs's REMOVED-2026-08-28 UPDATE. Measured the same day: the trigger's own
+// `status` field is what `active` projects, and a per-trigger PUT carrying
+// `status:'published'` DOES activate it. publish_workflow now REPAIRS exactly this case —
+// one PUT per trigger still reading inactive after the cascade — before reporting failure.
+test('publish_workflow REPAIRS a trigger that still reads inactive after the publish PUT — one per-trigger status write, verified by read-back', async () => {
+  const { gw, calls, current, triggers } = publishGateway({ triggersActivateOnPublish: false });
+  const result = await publishTool().handler(
+    { locationId: 'LOC', workflowId: 'WID', confirm: true },
+    deps(gw),
+  );
+
+  assert.equal(result.ok, true, 'the repair must let publish_workflow report success');
+  assert.equal(current().status, 'published');
+  const repairPut = calls.find(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/trigger/tr1');
+  assert.ok(repairPut, 'a still-inactive trigger after publish must get exactly one repair PUT');
+  assert.equal(repairPut.body.status, 'published');
+  assert.equal(repairPut.body.id, 'tr1', 'the repair sends the FULL trigger record, not a lean patch');
+  assert.deepEqual(triggers().map((trigger) => trigger.active), [true]);
+  assert.equal(result.data.verify.roundTrip, true);
+  assert.deepEqual(result.data.verify.inactiveTriggers, []);
+});
+
+test('post-publish verification fails loudly, naming the trigger, when it is STILL inactive after the repair PUT — never trust the 200, verify by read-back', async () => {
+  // Models the measured bogus-status pitfall: the repair PUT is acknowledged (200) but the
+  // trigger reads back UNCHANGED. The engine's job is to ATTEMPT the repair, but the write's
+  // 200 must never be trusted — only the re-list decides.
+  const { gw, calls, current } = publishGateway({ triggersActivateOnPublish: false, repairActivates: false });
   const result = await publishTool().handler(
     { locationId: 'LOC', workflowId: 'WID', confirm: true },
     deps(gw),
@@ -250,7 +292,9 @@ test('post-publish verification fails loudly when a trigger reads inactive despi
   assert.equal(result.ok, false);
   assert.equal(result.code, 'ENGINE_ABORT');
   assert.equal(current().status, 'published', 'the document PUT itself still applied');
-  assert.ok(noActivationPutSent(calls), 'the verification failure must not provoke a retry via the retired per-trigger write');
+  const repairPut = calls.find(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/trigger/tr1');
+  assert.ok(repairPut, 'the repair must still be ATTEMPTED even though it will not fix this particular trigger');
+  assert.equal(repairPut.body.status, 'published');
   assert.equal(result.data.partialProgress.putApplied, true);
   assert.equal(result.data.partialProgress.verification.completed, true);
   assert.equal(result.data.verify.roundTrip, false);
