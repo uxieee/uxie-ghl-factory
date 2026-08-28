@@ -140147,6 +140147,12 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
+        if (op.trigger?.target) {
+          throw new IRError(
+            "TARGET_REF_UNSUPPORTED",
+            `modifyTrigger: 'target' ('${op.trigger.target}') is an IR ref and is not usable on the edit path \u2014 there is no IR graph here for a ref to resolve against, only the live trigger/step roster. Pass 'targetActionId' (a real, existing step id \u2014 e.g. from export_workflow) instead.`
+          );
+        }
         const requestedActive = op.trigger?.active;
         const storedActive = t.active ?? false;
         const status = translateActiveToStatus(requestedActive, storedActive);
@@ -140167,11 +140173,10 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
             // TRIGGER_TARGET: "... is a goto trigger with NO target" on every edit — dishonest,
             // since t.targetActionId in fact survives onto the PUT body below via spread order
             // (`{ ...t, ...merged }`) whether buildTrigger ever saw it or not. An author-supplied
-            // targetActionId on the op overrides the stored one; `target` (a ref) is passed
-            // through too so buildTrigger's own target-over-targetActionId precedence still
-            // applies if a caller ever supplies one.
+            // targetActionId (a real step id) on the op overrides the stored one. `target` (a
+            // ref) is refused above rather than forwarded here — buildTrigger has no refMap on
+            // this path to resolve it against.
             targetActionId: op.trigger?.targetActionId ?? t.targetActionId,
-            ...op.trigger?.target ? { target: op.trigger.target } : {},
             ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
           },
           ctx,

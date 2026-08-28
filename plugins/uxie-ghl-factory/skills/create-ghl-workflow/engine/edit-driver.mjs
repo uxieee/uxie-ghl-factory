@@ -13,7 +13,7 @@ import {
   replaceTagInTriggerConditions,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
-import { walkNodes } from './ir.mjs';
+import { walkNodes, IRError } from './ir.mjs';
 import { STICKY_OPS } from './sticky-notes.mjs';
 export { STICKY_OPS };
 
@@ -122,20 +122,10 @@ function guardFlowEntry(op, t, ctx) {
     + `Edit the flow through the flow builder, or pass ctx.allowFlowTriggerEdit if you mean it.`);
 }
 
-// MEASURED MECHANISM (2026-08-28, throwaway workflows on the designated test sub-account):
-// a trigger's `active` is a READ-ONLY PROJECTION of its own `status` field ("draft"|
+// A trigger's `active` is a READ-ONLY PROJECTION of its own `status` field ("draft"|
 // "published") — `active === (status !== "draft")`. Nothing on the per-trigger PUT/POST
-// controls `active` directly; `status` is the field that does. This overturns two beliefs:
-//   1. Yesterday's conclusion (edit-driver.mjs's REMOVED-2026-08-28 note below, and the
-//      modifyTrigger refusal this replaced) that "no write persists active in either
-//      direction" — measured with `status` ABSENT from the body, which is exactly the
-//      "unchanged" case. It was RIGHT that `active` itself is unwritable and INCOMPLETE in
-//      not finding `status`.
-//   2. The corpus/docs belief that "every API-created trigger lands active:false" — they
-//      landed inactive because buildTrigger hardcodes `status:'draft'` (correct ONLY on the
-//      BUILD path — see compiler.mjs), not because of anything intrinsic to being
-//      API-created.
-// buildTrigger's `status:'draft'` therefore must never ride an EDIT-path write unexamined —
+// controls `active` directly; `status` is the field that does. buildTrigger's `status:'draft'`
+// therefore must never ride an EDIT-path write unexamined —
 // see addTrigger/duplicateTrigger (workflowStatus-driven) and modifyTrigger
 // (translateActiveToStatus) below, each of which decides `status` for itself rather than
 // inheriting whatever buildTrigger happened to hardcode.
@@ -215,6 +205,20 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
+        // `target` (an IR ref) resolves through buildTrigger's refMap argument, which only
+        // exists on the fresh-build path (compile() flattens the graph first and hands
+        // buildTrigger the resulting ref->id map). The edit path has no IR graph here, only
+        // the live trigger/step roster, so it never has a refMap to pass — buildTrigger would
+        // see `target` set, find no refMap, and unconditionally throw REF_DANGLING regardless
+        // of whether the ref was ever valid, coaching the caller to keep retrying refs that
+        // can never resolve. Refuse it here instead, naming the real fix.
+        if (op.trigger?.target) {
+          throw new IRError('TARGET_REF_UNSUPPORTED',
+            `modifyTrigger: 'target' ('${op.trigger.target}') is an IR ref and is not usable on `
+            + `the edit path — there is no IR graph here for a ref to resolve against, only the `
+            + `live trigger/step roster. Pass 'targetActionId' (a real, existing step id — e.g. `
+            + `from export_workflow) instead.`);
+        }
         // TRANSLATE an attempted `active` CHANGE into the field that actually controls it —
         // see translateActiveToStatus above for the full mechanism. A value that MATCHES the
         // stored trigger is a harmless no-op echo (common when a caller round-trips a whole
@@ -241,11 +245,10 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
             // TRIGGER_TARGET: "... is a goto trigger with NO target" on every edit — dishonest,
             // since t.targetActionId in fact survives onto the PUT body below via spread order
             // (`{ ...t, ...merged }`) whether buildTrigger ever saw it or not. An author-supplied
-            // targetActionId on the op overrides the stored one; `target` (a ref) is passed
-            // through too so buildTrigger's own target-over-targetActionId precedence still
-            // applies if a caller ever supplies one.
+            // targetActionId (a real step id) on the op overrides the stored one. `target` (a
+            // ref) is refused above rather than forwarded here — buildTrigger has no refMap on
+            // this path to resolve it against.
             targetActionId: op.trigger?.targetActionId ?? t.targetActionId,
-            ...(op.trigger?.target ? { target: op.trigger.target } : {}),
             ...(op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}) },
           ctx, wid,
         );

@@ -59,15 +59,13 @@ test('addTrigger: a contact_tag value stays a plain STRING (array = dispatcher n
   assert.equal(Array.isArray(wrapped.body.conditions[0].value), false);
 });
 
-// Bug fix 2026-08-28 (measured mechanism, same day as the modifyTrigger refusal below): a
-// trigger's `active` is a read-only projection of its OWN `status` field
+// A trigger's `active` is a read-only projection of its OWN `status` field
 // ("draft"|"published") — `active === (status !== "draft")`. On POST, `status` follows the
-// TARGET WORKFLOW's publish state: "published" lands the trigger active immediately (no known
-// write ever activated a trigger against an already-published workflow before this — see
-// edit-driver.mjs's REMOVED-2026-08-28 note); "draft" keeps draft-first true — a trigger added
-// to a still-draft workflow must stay inactive until the workflow itself is published.
-// planTriggerOps cannot see the workflow document, so callers (mcp-internal/core/tools.mjs's
-// edit_workflow, scripts/edit.mjs) pass it in as `workflowStatus`.
+// TARGET WORKFLOW's publish state: "published" lands the trigger active immediately; "draft"
+// keeps draft-first true — a trigger added to a still-draft workflow stays inactive until the
+// workflow itself is published. planTriggerOps cannot see the workflow document, so callers
+// (mcp-internal/core/tools.mjs's edit_workflow, scripts/edit.mjs) pass it in as
+// `workflowStatus`.
 test('addTrigger sends status:"published" when the target workflow is already published — this is what activates it immediately, no publish cycle needed', () => {
   const r = plan1({ op: 'addTrigger', trigger: { type: 'contact_tag', name: 'VIP', filters: [] } }, existing(), 'published');
   assert.equal(r.body.status, 'published');
@@ -114,6 +112,42 @@ test('modifyTrigger on a conv_ai_autonomous_trigger forwards the stored targetAc
     `modifying a goto trigger with a stored target must not warn about a missing one: ${JSON.stringify(warnings)}`);
 });
 
+// REVIEW FIX: the object buildTrigger rebuilds from must never carry `target` on the edit
+// path. buildTrigger resolves `target` (an IR ref) through a refMap fourth argument that only
+// exists on the fresh-build path (compile() flattens the graph and hands buildTrigger the
+// resulting ref->id map) — the edit path calls buildTrigger with no refMap at all, because
+// there is no IR graph here, only the live trigger/step roster. Passing `target` through
+// therefore always hit buildTrigger's `if (!targetActionId) throw REF_DANGLING` branch,
+// regardless of whether the ref was ever valid, with a message that coaches the caller to
+// keep trying refs that can never resolve. Refuse the input clearly instead.
+test('modifyTrigger refuses a `target` ref outright — there is no IR on the edit path for it to resolve against', () => {
+  const ex = [{
+    id: 'tr1', _id: 'tr1', type: 'conv_ai_autonomous_trigger', name: 'Custom trigger',
+    active: true, conditions: [], targetActionId: 'step-xyz',
+  }];
+  assert.throws(
+    () => planTriggerOps(
+      [{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { target: 'some-ref', filters: [] } }],
+      { ctx: ctx(), wid: WID, uid: 'UID', existing: ex },
+    ),
+    (e) => e.code === 'TARGET_REF_UNSUPPORTED'
+      && /target/.test(e.message) && /targetActionId/.test(e.message) && /no IR/i.test(e.message),
+  );
+});
+
+test('modifyTrigger can change targetActionId directly via the op (a real step id, not a ref)', () => {
+  const ex = [{
+    id: 'tr1', _id: 'tr1', type: 'conv_ai_autonomous_trigger', name: 'Custom trigger',
+    active: true, conditions: [], targetActionId: 'step-old',
+  }];
+  const r = planTriggerOps(
+    [{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { targetActionId: 'step-new', filters: [] } }],
+    { ctx: ctx(), wid: WID, uid: 'UID', existing: ex },
+  )[0];
+  assert.equal(r.body.targetActionId, 'step-new',
+    'an author-supplied targetActionId must override the stored one');
+});
+
 test('modifyTrigger PUTs the full merged object and keeps the server id', () => {
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [{ field: 'tagsAdded', value: 'gold' }] } });
   assert.equal(r.method, 'PUT');
@@ -154,16 +188,8 @@ test('modifyTrigger preserves a stored INACTIVE trigger — it must never force-
   assert.equal(r.body.active, false, 'a trigger found OFF must stay OFF unless the caller explicitly asks to activate it');
 });
 
-// TRANSLATED, not refused, as of 2026-08-28 (later the same day) — see edit-driver.mjs's
-// translateActiveToStatus for the mechanism. The two tests that used to live here (until this
-// same day) asserted that ANY attempted `active` change threw, on the belief that no per-trigger
-// PUT body could ever move `active` in either direction. That belief was RIGHT about `active`
-// itself and INCOMPLETE about `status`: further measurement the same day (throwaway probes on
-// the designated test sub-account) found the trigger's own `status` field ("draft"|"published")
-// is what `active` projects, and IS controlled by this exact PUT — the disproof experiments only
-// ever sent (or omitted) `active`, never `status`, and the roster GET that fed them never surfaces
-// `status` at all, so nobody could see it was the missing field. A genuine attempted CHANGE is
-// now translated into the corresponding `status` write instead of thrown away.
+// A genuine attempted `active` CHANGE is translated into the corresponding `status` write —
+// see edit-driver.mjs's translateActiveToStatus for the mechanism.
 test('modifyTrigger translates active:false→true (a genuine change) into status:"published"', () => {
   const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', active: false, conditions: [] }];
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
