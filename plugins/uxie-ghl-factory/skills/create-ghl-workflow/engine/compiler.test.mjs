@@ -677,3 +677,19 @@ test('email sender: ctx.senderDefault overrides the location fallback when the n
   assert.equal(email.attributes.from_name, '{{ custom_values.sender_name }}');
   assert.equal(email.attributes.from_email, '{{ custom_values.sender_email }}');
 });
+
+// The drawer's own option list (Wait.ts:1588 startAfterTypeOptions, bundle-2026-08-21-3) maps the
+// plural LABEL "hours" to the VALUE 'hour', so seconds|minutes|hour|days are the only values the UI
+// can ever write. Stored workflows nonetheless contain both spellings (startAfter blocks across
+// corpus+sniffs: minutes x71, days x10, hours x4, hour x1) — a stored 'hours' therefore came from an
+// API write, not the drawer, which is exactly the population where accepted-but-inert values live.
+// So 'hours' is accepted with a warning, an unknown unit is refused outright.
+test('wait units: seconds/minutes/hour/days accepted; hours warns; anything else is WAIT_UNIT', () => {
+  const ir = (unit) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'w', kind: 'wait', name: 'Wait', config: { unit, value: 5, when: 'after' } }] });
+  for (const unit of ['seconds', 'minutes', 'hour', 'days']) assert.doesNotThrow(() => compile(ir(unit), ctx()), unit);
+  const warns = [];
+  compile(ir('hours'), { ...ctx(), warn: (m) => warns.push(m) });
+  assert.ok(warns.some((w) => /WAIT_UNIT_SOFT/.test(w)), JSON.stringify(warns));
+  assert.throws(() => compile(ir('fortnights'), ctx()), (e) => e.code === 'WAIT_UNIT');
+});

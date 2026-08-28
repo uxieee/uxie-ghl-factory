@@ -136570,7 +136570,7 @@ function gotoLoops(templates) {
 // ../skills/create-ghl-workflow/engine/compiler.mjs
 var DEDICATED_ATTRIBUTES = [
   [(n) => n.marketplace === true, (n, ctx) => marketplaceAttributes(n, ctx)],
-  [(n) => n.kind === "wait", (n) => waitAttributes(n)],
+  [(n) => n.kind === "wait", (n, ctx) => waitAttributes(n, ctx)],
   [(n) => n.type === "email", (n, ctx) => emailAttributes(n, ctx)],
   [(n) => n.type === "custom_webhook", (n) => webhookAttributes(n.attributes ?? {}, n.ref)],
   [(n) => n.type === "custom_code", (n) => codeAttributes(n.attributes ?? {}, n.ref)],
@@ -136982,7 +136982,8 @@ function codeAttributes(a, ref) {
     output
   };
 }
-function waitAttributes(node) {
+var WAIT_UNITS = /* @__PURE__ */ new Set(["seconds", "minutes", "hour", "hours", "days"]);
+function waitAttributes(node, ctx) {
   const a = node.attributes ?? {};
   const hybrid = { cat: "", isHybridAction: true, hybridActionType: "wait", convertToMultipath: false, transitions: [] };
   const wt = node.waitType ?? (node.config ? "time" : a.type ?? "time");
@@ -136998,6 +136999,13 @@ function waitAttributes(node) {
         "EMPTY_STEP",
         `wait '${node.ref}' has no usable duration \u2014 a time wait needs config:{unit,value,when} (or attributes.startAfter:{type,value,when}). Got startAfter:${JSON.stringify(startAfter)}. An empty/partial startAfter compiles and publishes clean but the wait DOES NOT PAUSE at runtime \u2014 every following step fires immediately.`
       );
+    if (!WAIT_UNITS.has(startAfter.type))
+      throw new IRError(
+        "WAIT_UNIT",
+        `wait '${node.ref}' has startAfter.type '${startAfter.type}' \u2014 the drawer offers seconds | minutes | hour | days. An unknown unit saves and publishes clean, but the scheduler's behaviour is undefined: the wait may not pause at all.`
+      );
+    if (startAfter.type === "hours")
+      ctx?.warn?.(`WAIT_UNIT_SOFT: wait '${node.ref}' uses 'hours'; the drawer writes the singular 'hour' (Wait.ts startAfterTypeOptions maps label "hours" -> value 'hour'). Both spellings exist in stored workflows; prefer 'hour' until a live probe confirms the scheduler reads 'hours'.`);
     const base = { type: "time", startAfter, ...hybrid };
     const w = node.window ?? a.window;
     if (w) {
