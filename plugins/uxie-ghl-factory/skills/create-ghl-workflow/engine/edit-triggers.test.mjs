@@ -169,6 +169,19 @@ test('modifyTrigger on a stored trigger with no active flag at all defaults to O
   assert.equal('status' in r.body, false, 'active being absent everywhere is not a change — it must not provoke a status write');
 });
 
+// The opposite corner (review round 1): the op REQUESTS active:true while the STORED trigger
+// has NO active field at all — not `false`, simply absent. storedActive defaults to false
+// (Task 9's rule, same default the test above pins for the no-request case), so true !== false
+// IS a genuine change and must still translate to a real status write. This is not the same
+// case triggerRequiresPublish's modifyTrigger exclusion covers (tools.mjs) — that exclusion is
+// about whether a self-contained modifyTrigger write ever needs a publish, not about whether
+// it produces a status write at all.
+test('modifyTrigger treats active:true as a genuine change when the stored trigger has NO active field at all (absent defaults to false)', () => {
+  const ex = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'VIP added', conditions: [] }];
+  const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { active: true, filters: [] } }, ex);
+  assert.equal(r.body.status, 'published', 'stored active absent must default to false, so requesting active:true is a genuine change');
+});
+
 test('resolveTrigger: ambiguity is an error, never a silent pick', () => {
   const dupes = [{ id: 'a', type: 'contact_tag', name: 'Dup' }, { id: 'b', type: 'contact_tag', name: 'Dup' }];
   assert.throws(() => resolveTrigger({ op: 'deleteTrigger', name: 'Dup' }, dupes), /2 triggers match.*explicit triggerId/s);

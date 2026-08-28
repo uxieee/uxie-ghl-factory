@@ -459,6 +459,87 @@ test('modifyTrigger round-trip check confirms an explicitly requested `active` c
   assert.equal(check.mismatches.length, 0);
 });
 
+// CRITICAL, review round 1: triggerRequiresPublish could not distinguish "a fresh trigger
+// inherited status:'draft' because its workflow is draft" (genuinely needs a publish) from "an
+// existing trigger was just explicitly, verifiably deactivated via modifyTrigger active:false"
+// (also translates to status:'draft' — edit-driver.mjs's translateActiveToStatus — but the
+// write already applied and round-trip verified; there is nothing left for a publish to do).
+// Reproduced: published workflow, stored active:true, modifyTrigger{active:false} → round-trip
+// clean, deactivation succeeded — yet the OLD code reported requiresPublish:true with an
+// instruction to invoke publish_workflow. A caller following that instruction would republish,
+// the publish cascade would set every trigger status:"published", and the trigger the user just
+// turned OFF would come back ON — the exact severity class this branch exists to eliminate,
+// inverted. Fixed: triggerRequiresPublish now excludes request.op === 'modifyTrigger' outright —
+// a modifyTrigger translate is always self-contained in BOTH directions (the status write
+// applies immediately and is round-trip verified), so it never needs a publish; only a CREATE
+// that inherits draft (addTrigger/duplicateTrigger on a draft workflow) leaves something for
+// publish to do.
+test('CRITICAL: modifyTrigger active:false on an already-published workflow must NOT report requiresPublish — the write already applied, and republishing would undo it', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
+    name: 'Original', conditions: [], active: true,
+  };
+  const { gw } = editGateway({
+    initial: workflow({ status: 'published', version: 20 }),
+    triggers: [existingTrigger],
+  });
+  const op = { op: 'modifyTrigger', triggerId: 'tr-old', trigger: { active: false, filters: [] } };
+
+  // editPreview uses the SAME helper — the preview must not lie either.
+  const preview = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', ops: [op],
+  }, deps(gw));
+  assert.equal(preview.code, 'CONFIRM_REQUIRED');
+  assert.equal(preview.data.preview.requiresPublish, false,
+    'a self-contained deactivation must never claim a publish is needed');
+  assert.equal(preview.data.preview.publishInstruction, null);
+
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, ops: [op],
+  }, deps(gw));
+  assert.equal(result.ok, true);
+  assert.equal(result.data.partialProgress.verification.triggers.roundTrip, true,
+    'the deactivation itself must have applied and round-trip verified');
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, true);
+  // This op carries an explicit `active` change, so triggerSemanticExpectation's verifyActive
+  // path (change 6) fires HERE too — deliberately, so the deactivate direction gets the same
+  // "not just trusted from the 200" coverage the activate direction already has above. A
+  // mismatch on `active` specifically would be the tell if this ever regressed.
+  assert.equal(check.mismatches.length, 0, 'active:false must be verified by read-back, not merely accepted, and must actually match');
+  assert.equal(result.data.requiresPublish, false,
+    'CRITICAL: republishing after this would run the draft→published cascade and turn the trigger the user just turned OFF back ON');
+  assert.equal(result.data.publishInstruction, null);
+});
+
+// The corner the CRITICAL fix above must NOT paper over: requesting active:true against a
+// stored trigger that has NO active field at all (never simply "false") is still a genuine
+// change (storedActive defaults to false — Task 9's rule), so it still gets a status write and
+// still needs to be verified. This has nothing to do with modifyTrigger's requiresPublish
+// exclusion; it pins that the exclusion is scoped to the OP, not to whether a status write
+// happened at all.
+test('modifyTrigger active:true against a stored trigger with NO active field at all is still a genuine change (defaults to false)', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
+    name: 'Original', conditions: [],
+  };
+  const { gw, calls } = editGateway({
+    initial: workflow({ status: 'published', version: 20 }),
+    triggers: [existingTrigger],
+  });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyTrigger', triggerId: 'tr-old', trigger: { active: true, filters: [] } }],
+  }, deps(gw));
+
+  assert.equal(result.ok, true);
+  const put = calls.find(({ method, path }) => method === 'PUT' && path === '/workflow/LOC/trigger/tr-old');
+  assert.equal(put.body.status, 'published', 'active:true against an absent stored active must still translate to a real status write');
+  const check = result.data.partialProgress.verification.triggers.checks[0];
+  assert.equal(check.persisted, true);
+  assert.equal(result.data.requiresPublish, false, 'still a modifyTrigger — self-contained either way');
+});
+
 const identicalAddTrigger = () => ({
   op: 'addTrigger',
   trigger: { type: 'contact_tag', name: 'Identical add', filters: [] },

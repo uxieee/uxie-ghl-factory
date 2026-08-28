@@ -338,7 +338,11 @@ if (plan.length && !triggerFailed) {
     if (inactiveRecords.length) {
       for (const t of inactiveRecords) {
         const tid = t.id ?? t._id;
-        await call('PUT', `/workflow/${LOC}/trigger/${tid}`, { ...t, status: 'published' });
+        const repairPath = `/workflow/${LOC}/trigger/${tid}`;
+        const res = await call('PUT', repairPath, { ...t, status: 'published' });
+        // Per-attempt, matching the main trigger-write loop's style above — so an operator
+        // reading the log SEES that a repair fired at all, not just the aggregate count below.
+        console.log(`repair ${tid}: PUT ${repairPath} → ${res.status} ${res.ok ? 'OK' : 'FAIL'}`);
       }
       // NEVER TRUST THE 200 — a bogus/ignored `status` is silently accepted (measured
       // 2026-08-28). Re-list and let the read-back decide, exactly like every other write here.

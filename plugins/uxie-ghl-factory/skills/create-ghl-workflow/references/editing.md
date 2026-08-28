@@ -298,13 +298,24 @@ create fails rather than referencing a tag that doesn't exist. It reports `creat
 a tag trigger on a missing tag never fires.)
 
 **Live-proven 2026-07-17** on GROM AU (throwaway canaries, since deleted, account verified
-clean): `addTrigger` POST 200 → cycle → `2/2 active` on a published workflow;
-`modifyTrigger` PUT 200 with the rename + new condition confirmed by GET (value a plain
-string); `deleteTrigger` via a name matcher 200; `addTrigger` on a draft correctly SKIPPED
-activation and left it a draft. **RUNTIME-proven**: tag write → `added_to_workflow` in
-`/workflows/logs/v2` within 4s, i.e. an edit-added trigger genuinely subscribes. That last
-check is the only one that counts — `active: true` plus a clean round-trip is NOT proof a
-trigger fires (see the 2026-07-16 inert-trigger bug).
+clean): `modifyTrigger` PUT 200 with the rename + new condition confirmed by GET (value a
+plain string); `deleteTrigger` via a name matcher 200. **RUNTIME-proven**: tag write →
+`added_to_workflow` in `/workflows/logs/v2` within 4s, i.e. an edit-added trigger genuinely
+subscribes. That last check is the only one that counts — `active: true` plus a clean
+round-trip is NOT proof a trigger fires (see the 2026-07-16 inert-trigger bug).
+> HISTORY (review round 1 flagged this paragraph as contradicting the corrected one above it):
+> this same 2026-07-17 run also reported `addTrigger` POST 200 → cycle → `2/2 active` on a
+> published workflow, and `addTrigger` on a draft correctly SKIPPING that cycle and staying
+> draft. The "cycle" there is the `shouldActivateTriggers`-driven draft→published double
+> full-document PUT — the same mechanism RETIRED 2026-08-27 (Task 9, workflow
+> save-correctness) as proven INERT: accepted, version bumped, the stored `active` flag never
+> moved. It was replaced the same day by a per-trigger PUT setting `active` directly
+> (`planTriggerActivation`), itself superseded 2026-08-28 when the trigger's own `status`
+> field — not `active` — was found to be the real activation mechanism (`active` is a
+> read-only projection of it). See the corrected paragraph above ("A trigger's `active` is a
+> read-only PROJECTION…") for what `addTrigger`/`duplicateTrigger`/`modifyTrigger` actually
+> send today, and `edit-triggers.test.mjs` for the current tests. This line is left standing
+> as the historical record of what that specific canary run reported, not as current fact.
 
 Trigger filter values obey the string/array split above — `value: "vip"`, never `["vip"]`.
 `expandFilter` unwraps a single-element array on this path too, but author the string.
