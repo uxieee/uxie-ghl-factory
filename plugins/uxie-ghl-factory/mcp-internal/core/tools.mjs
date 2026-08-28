@@ -2279,7 +2279,11 @@ export const TOOLS = [
     name: 'list_account_entities',
     description: describe(
       'list_account_entities',
-      'Sweep pipelines, calendars, users, forms, custom fields and AI agents before authoring a workflow spec.',
+      'Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, '
+      + 'custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers '
+      + '+ products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, '
+      + 'funnels, Facebook pages, document templates and custom-object schemas — the same 20 entity kinds the '
+      + 'build resolver uses (21 requests; custom fields take two).',
     ),
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [

@@ -47,6 +47,12 @@ The one internal exception on Conversation AI is the **per-contact AI switch**
 Endpoint maps and audit references still describe the internal AI routes; that is what those
 endpoints do, and is separate from which rail to choose for a task.
 
+**Before treating any surface as internal, search the public catalog first**
+(`search_actions` on the `ghl` MCP): calendar availability schedules, custom-field
+create/update/delete and lost-reason listing are all public and were rebuilt by hand against the
+internal rail in one session because nobody looked. The internal rail is for what the public rail
+cannot reach, and for the workflow builder.
+
 **Surfaces the public rail does not reach at all**, so there is no choice to make:
 
 | Surface | Skill |

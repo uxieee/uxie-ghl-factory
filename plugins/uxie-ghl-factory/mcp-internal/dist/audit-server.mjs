@@ -70493,7 +70493,7 @@ var parseAsctimeGmt = (text) => {
   return valid ? at : NaN;
 };
 var MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
-var RECAPTURE2 = "Run /uxie-ghl-factory:internal-connect to re-authorize (the agent re-captures the token), then retry. No restart needed.";
+var RECAPTURE2 = "Re-capture the token: invoke the uxie-ghl-factory:internal-connect skill yourself, then retry the call. No restart needed; the server re-reads the token file on every call.";
 var defaultSleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
 function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep2, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
   const creds = readCredentials({ tokenFile, allowExpired: true });
@@ -144885,7 +144885,7 @@ var TOOLS2 = [
     name: "list_account_entities",
     description: describe3(
       "list_account_entities",
-      "Sweep pipelines, calendars, users, forms, custom fields and AI agents before authoring a workflow spec."
+      "Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers + products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, funnels, Facebook pages, document templates and custom-object schemas \u2014 the same 20 entity kinds the build resolver uses (21 requests; custom fields take two)."
     ),
     inputSchema: schema({ locationId: external_exports.string() }),
     capabilities: [

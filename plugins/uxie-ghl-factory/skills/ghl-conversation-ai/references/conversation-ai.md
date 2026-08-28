@@ -30,7 +30,7 @@ into three parts, not a tool-calling system prompt.
 | Operation | Method | Path |
 |---|---|---|
 | Create agent | `POST` | `/ai-employees/employees` |
-| Update agent (merge) | `PUT` | `/ai-employees/employees/:agentId` |
+| Update agent (partial PUT — merge UNPROVEN, see below) | `PUT` | `/ai-employees/employees/:agentId` |
 | Get agent | `GET` | `/ai-employees/employees/:agentId` |
 | List / search agents | `GET` | `/ai-employees/employees/search` · `/ai-employees/employees/dashboard/search` |
 | Delete agent | `DELETE` | `/ai-employees/employees/:agentId` |
@@ -111,12 +111,16 @@ hook rather than merging the field on the bare escalation tag — but treat that
 and the LARGE_TEXT/overwrite/timing specifics above, as attested rather than independently proven
 until this plugin drives the behaviour itself.
 
-## Merge-PUT semantics
+## Update-PUT semantics
 
-`PUT /ai-employees/employees/:agentId` **MERGES**, not replaces. A capture that sent only
-`{locationId, knowledgeBaseTriggers}` left every other field on the live agent untouched. This
-is the opposite of Voice AI and Agent Studio (both full-replace) — see the parent SKILL.md's
-Execute table. Practically: an update only needs to carry the fields actually changing.
+`PUT /ai-employees/employees/:agentId` accepts a partial body, and the old claim that it
+**merges** was drawn from a capture where the fields at risk were already `false` — so a
+reset-to-false could not have been seen. A live partial PUT carrying only `knowledgeBaseIds` +
+`knowledgeBaseTriggers` reset the agent-level `cancelEnabled` and `rescheduleEnabled` to `false`
+(2026-08-28). Treat the PUT as **replace-what-you-omit for booleans** until a differential at
+non-default values says otherwise: send every agent-level field you care about (`cancelEnabled`,
+`rescheduleEnabled`, `tones`, `sleepOnManualMessage`, `summary`, `actions`) on EVERY PUT, and read
+the record back. The UI itself never sends a partial PUT — it PUTs the whole state.
 
 `convai-ir.mjs` reflects this with two parse functions:
 - `parseConvaiIR(ir)` — full validation for create. Requires `name`, `mode` (enum), `channels`
@@ -315,7 +319,7 @@ const { create, actions, authHeader } = compileConvaiAgent({
                          triggerCondition: 'Contact explicitly asks for a person, 3+ times, or expresses frustration.' } }],
 }, { locationId });
 
-// Update: only pass what's changing — merge semantics, no need to resend the whole agent.
+// Update: a partial body RESETS omitted agent-level booleans (measured) — resend every field you care about.
 const upd = compileConvaiUpdate({ mode: 'autoPilot' }, { agentId, locationId });
 
 // Flow-Based Builder (FLOW_BUILDER_BOT) — build the agent + its flow workflow end to end:

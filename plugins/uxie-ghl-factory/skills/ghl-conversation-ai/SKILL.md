@@ -71,7 +71,7 @@ never make live calls; the caller/executor attaches auth and issues the HTTP req
 
 | Product | Base path | Create | Update semantics | Compiler |
 |---|---|---|---|---|
-| Conversation AI | `/ai-employees/*` | `POST /ai-employees/employees` | `PUT` **merges** partial bodies | `convai-compiler.mjs` |
+| Conversation AI | `/ai-employees/*` | `POST /ai-employees/employees` | `PUT` takes a partial body; omitted agent-level booleans RESET (merge unproven) | `convai-compiler.mjs` |
 | Voice AI | `/voice-ai/*` | `POST /voice-ai/agents` (near-empty; server auto-generates a default) | `PUT ...?publishAgent=true&mode=update` **full-replace** | `voiceai-compiler.mjs` |
 | Agent Studio | `/agent-studio/super-agent/*` | `POST /agent-studio/super-agents/build` (NL-prompt, SSE) | `PUT /agent-studio/super-agent/agents/:id` **full-replace** | `studio-compiler.mjs` |
 | Knowledge Base (rich-text) | `/knowledge-base/rich-text/` | `POST` (async — response is `status:"training"`; poll until `"trained"`) | — | `kb-compiler.mjs` |
@@ -107,7 +107,7 @@ Delegate never-hand-roll: don't call these endpoints ad hoc — drive them throu
 | create → read → verify → delete | **live-proven** — engine drove a real agent through the internal API and it round-tripped |
 | `humanHandOver` action | **live-proven** |
 | the other 6 action types | **capture-verified, not live-fired.** Each validates its required fields against `convai-actions-all.json` and merges capture-grounded defaults, but none has been individually round-tripped |
-| merge-PUT semantics | **capture-derived** — observed on captures, not independently round-tripped |
+| partial-PUT semantics | **refuted for booleans** — a partial PUT reset cancel/reschedule live (2026-08-28); read-merge-write is the safe shape |
 
 The seven types are `humanHandOver`, `appointmentBooking`, `triggerWorkflow`,
 `updateContactField`, `stopBot`, `transferBot`, `advancedFollowup`.

@@ -323,10 +323,12 @@ const UPDATE_FIELD_MAP = {
   objectiveBuilderWorkflowId: 'objectiveBuilderWorkflowId',
 };
 
-// PUT /ai-employees/employees/:agentId — the backend MERGES (confirmed by convai-kb.json,
-// which sent only `locationId` + `knowledgeBaseTriggers` and had the rest of the record
-// survive untouched). So only keys actually present on `partialIr` are emitted; there are
-// no defaults here (unlike the create body).
+// PUT /ai-employees/employees/:agentId — this is a PARTIAL-BODY PUT. Whether the backend merges
+// is NOT proven: the one capture behind the old "MERGES" claim (convai-kb.json) had
+// cancelEnabled/rescheduleEnabled already false, so a reset-to-false was invisible in it; a live
+// partial PUT on 2026-08-28 did reset both agent-level toggles (F5-04). Until the read-merge-write
+// update lands (Phase-5 plan 3), callers must resend every agent-level field they care about and
+// read the echo back. Only keys present on `partialIr` are emitted; no defaults (unlike create).
 export function compileConvaiUpdate(partialIr, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError('MISSING_FIELD', 'compileConvaiUpdate requires agentId');
   const norm = parseConvaiPartialIR(partialIr);
