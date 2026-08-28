@@ -17,8 +17,33 @@ export const AUTH_HEADER = 'ai';
 // Full validation for a rich-text KB doc. Required: knowledgeBaseId, title
 // (non-empty string), contentHtml (non-empty HTML string — the capture shows
 // this is raw TipTap/ProseMirror HTML, NOT markdown or plain text).
+//
+// Also refuses a `contentMarkdown` key on the incoming doc, ahead of every other check, for
+// BOTH create and update — this is the one parser both compile functions route through, so the
+// refusal applies uniformly rather than living twice. The refusal itself was measured directly
+// only on UPDATE (PUT /knowledge-base/rich-text/:id, live-verified 2026-08-28, the designated
+// test sub-account, against an EXISTING document): a contentMarkdown-only body, and an
+// unchanged-content-plus-contentMarkdown body, both came back 200 and changed nothing — the
+// server derives contentMarkdown from `content` and silently ignores a direct write. CREATE was
+// not separately measured with a contentMarkdown key in the body, so refusing it there is
+// preventive, not a restated create-path result: a caller who puts contentMarkdown in a create
+// IR holds the same false belief the update measurement disproved, and a silent pass-through on
+// create would recreate exactly the defect class this repo exists to kill. Runs before the
+// knowledgeBaseId/title/contentHtml checks below, so it wins over an unrelated "field missing"
+// error rather than getting masked by one (pinned by
+// "…contentMarkdown refusal wins over a missing-field schema error" in the test file).
 function parseRichTextDocIR(doc) {
   if (!doc || typeof doc !== 'object') throw new IRError('SCHEMA', 'rich-text doc must be an object');
+  if ('contentMarkdown' in doc) {
+    throw new IRError(
+      'CONTENT_MARKDOWN_REJECTED',
+      'a direct contentMarkdown write was measured on update (PUT /knowledge-base/rich-text/:id) ' +
+        'to return 200 and change nothing (both a contentMarkdown-only body and an unchanged-' +
+        'content-plus-contentMarkdown body were probed against an existing document) — send ' +
+        '`content` as HTML instead; the server derives contentMarkdown itself and re-embeds ' +
+        'automatically',
+    );
+  }
   if (typeof doc.knowledgeBaseId !== 'string' || doc.knowledgeBaseId.length === 0)
     throw new IRError('SCHEMA', 'knowledgeBaseId must be a non-empty string');
   if (typeof doc.title !== 'string' || doc.title.length === 0)
@@ -31,7 +56,9 @@ function parseRichTextDocIR(doc) {
 // POST /knowledge-base/rich-text/ — body: {locationId, knowledgeBaseId, title, content}
 // (knowledge-base-richtext.json's request_body). `content` carries the caller's HTML
 // verbatim (server persists it as-is and separately derives `contentMarkdown` — that
-// derivation is server-side only, not something this compiler reproduces).
+// derivation is server-side only, not something this compiler reproduces). `parseRichTextDocIR`
+// also refuses a stray `contentMarkdown` key here on create — see its doc comment for why that
+// is a preventive guard on this path rather than a create-specific measurement.
 //
 // Create is async: the response comes back `status:"training"`; the caller must poll
 // `statusPoll` (GET .../:id/status, `id` filled in by the caller once known) until the
@@ -63,22 +90,14 @@ export function compileRichTextDoc(doc, { locationId } = {}) {
 //      and it REPLACES the document — there is no partial/merge form.
 //   2. Send `content` (HTML). The server re-derives `contentMarkdown` from it — writing
 //      `contentMarkdown` directly is a measured no-op (200, nothing changes), so a caller
-//      whose IR carries that key believes something false about this API. This compiler
-//      throws rather than silently passing it through, which would recreate the exact
-//      defect class this repo exists to kill.
+//      whose IR carries that key believes something false about this API.
+//      `parseRichTextDocIR` refuses that key (for both create and update — see its doc
+//      comment); this function doesn't re-check it, it inherits the refusal by reusing that
+//      parser rather than duplicating the guard.
 //   3. It re-chunks and re-embeds automatically — no separate retrain call. The response
 //      returns `status:"training"`; poll `statusPoll` until `"trained"` exactly as for create.
 export function compileRichTextUpdate(id, doc, { locationId } = {}) {
   if (typeof id !== 'string' || id.length === 0) throw new IRError('MISSING_FIELD', 'compileRichTextUpdate requires a non-empty id');
-  if (doc && typeof doc === 'object' && 'contentMarkdown' in doc) {
-    throw new IRError(
-      'CONTENT_MARKDOWN_REJECTED',
-      'a direct contentMarkdown write is measured to return 200 and change nothing (verified ' +
-        '2026-08-28: both a contentMarkdown-only body and an unchanged-content-plus-contentMarkdown ' +
-        'body were probed) — send `content` as HTML instead; the server derives contentMarkdown ' +
-        'itself and re-embeds automatically',
-    );
-  }
   const norm = parseRichTextDocIR(doc);
   const body = {
     locationId,

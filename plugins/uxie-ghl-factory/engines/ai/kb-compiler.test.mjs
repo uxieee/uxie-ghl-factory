@@ -61,6 +61,27 @@ test('compileRichTextDoc: missing knowledgeBaseId rejected', () => {
   assert.throws(() => compileRichTextDoc(noKb, { locationId: 'LOC' }), (e) => e.code === 'SCHEMA');
 });
 
+// The contentMarkdown no-op was measured on UPDATE (see compileRichTextUpdate's tests below);
+// create refuses the same key preventively — parseRichTextDocIR is the one parser both compile
+// functions route through, so the guard applies uniformly rather than being update-only.
+test('compileRichTextDoc: refuses an IR that carries contentMarkdown', () => {
+  assert.throws(
+    () => compileRichTextDoc({ ...doc, contentMarkdown: '## heading' }, { locationId: 'LOC' }),
+    (e) => e instanceof IRError && e.code === 'CONTENT_MARKDOWN_REJECTED' && /200/.test(e.message) && /content/i.test(e.message),
+  );
+});
+
+// Ordering pin (the guard must win over an unrelated schema failure, not just fire when nothing
+// else is wrong): a doc that is BOTH missing a required field AND carrying contentMarkdown must
+// report the false belief, not the missing field.
+test('compileRichTextDoc: contentMarkdown refusal wins over a missing-field schema error', () => {
+  const { title, ...noTitle } = doc;
+  assert.throws(
+    () => compileRichTextDoc({ ...noTitle, contentMarkdown: '## heading' }, { locationId: 'LOC' }),
+    (e) => e.code === 'CONTENT_MARKDOWN_REJECTED',
+  );
+});
+
 // PUT /knowledge-base/rich-text/:id — full-replace update. Live-verified 2026-08-28 on the
 // designated test sub-account: a throwaway KB doc round-tripped byte-identical, and both
 // negative shapes (contentMarkdown-only; unchanged-content + contentMarkdown) came back
