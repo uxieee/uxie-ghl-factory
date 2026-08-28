@@ -58,15 +58,21 @@ route to them.
 
 🔴 **Correction to an earlier claim.** "The host is `services`, not `backend`" is **false** as a
 generalisation for this surface — proven by differential, the same route answers 200 on **both**
-hosts:
-- `services.leadconnectorhq.com` — what the **browser** actually calls.
+hosts, each on its OWN single credential (neither needs both headers):
+- `services.leadconnectorhq.com` + **`token-id`** — what the **browser** actually calls.
+  `token-id` is the same credential named in the "Auth is SERVICE-DEPENDENT" table above for the
+  AI-services dual rail, but observed here **alone**: the captured UI request carries `token-id`
+  and has **no `Authorization` header at all**. Don't assume the dual Bearer+`token-id` pair just
+  because the host matches — that table's "Surface" column enumerates ai-employees/voice-ai/
+  agent-studio and says nothing about `/contacts/...`.
 - `backend.leadconnectorhq.com` with plain **Bearer** (no `token-id`) — also 200, and it is the
   engine's **native** rail: an engine that already holds a Bearer JWT for `backend` (the
-  workflow-builder credential) needs no second `token-id` credential just to reach smart lists.
+  workflow-builder credential) needs no second credential just to reach smart lists.
 
-Document both hosts. Treat any single-host claim about an internal surface as provisional until
-checked by differential (call the neighbouring host too — don't infer "not available there" from
-one success elsewhere).
+Document both hosts AND both credentials — don't make a reader infer either one from the
+AI-services table above, or from the neighbouring host's rail. Treat any single-host (or
+single-credential) claim about an internal surface as provisional until checked by differential
+(call the neighbouring host too — don't infer "not available there" from one success elsewhere).
 
 | Operation | Method | Path |
 |---|---|---|
@@ -101,6 +107,18 @@ object carries `userId` and `sharedWith: []`, and `sharedWith` plus the `globals
 both imply a sharing model, but whether other users in the location actually see a created list
 was not exercised. Update/delete on `/:id` are **not yet captured** — a separate sweep is running;
 do not assume they exist just because neighbouring products expose them.
+
+**Don't conflate this with the OTHER "list" surface.** `/contacts/smartlist/*` above and the
+pre-existing catalogued `/lists/dynamic/*` (`mcp-internal/catalog/internal-endpoints.json`, on
+`backend.leadconnectorhq.com` per that catalog) are **different routes over related objects**, not
+two names for one thing. Verified live this session: both resolve the same underlying record, but
+project it with different field names AND different shapes — `columns` is `{key, value, order}`
+on `/contacts/smartlist`, `{field, position}` on `/lists/dynamic`. Also, `GET
+/lists/dynamic/{locationId}` requires an `objectKey` query param
+(`contacts`|`opportunity`|`custom_objects.<key>`|`business`) — the singular `contact` is not a
+valid value and returns a bare **500**, not a validation error, so a typo there doesn't announce
+itself as one. The full `/lists/dynamic/*` endpoint map lives in the corpus (a separate repo) —
+this is a pointer to keep the two surfaces distinct, not a copy of that map.
 
 ## Technique: let the validator hand you the schema
 Several of these services run a strict DTO validator that names **every** violated constraint at

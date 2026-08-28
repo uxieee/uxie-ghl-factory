@@ -80,17 +80,21 @@ parent SKILL.md's Execute section for the capture procedure pointer.
 Field existence **corroborated from captures** (this plugin's own May-2026 agent GETs and the
 25-Aug-2026 ai-employees bundle, no client/IDs/PII in either) — the ConvAI conversation summary
 is not confined to the `humanHandOver` action's Task. It is a first-class agent setting with two
-workflow-facing outputs, both under **ConvAI → Preferences → Conversation Summary** and both
-persisted on the agent's `summary{}` object.
+workflow-facing outputs, both persisted on the agent's `summary{}` object.
 
 | UI control | `summary{}` field | Effect |
 |---|---|---|
 | **Save to custom field** | `summary.customFieldId` | Writes the generated summary into a **contact** custom field. |
 | **Trigger a workflow when summary/transcript generated** | `summary.workflowIds[]` | A hook that enrols the listed workflow(s) at the moment a summary commits. |
 
-**Contributor-attested (2026-07-18), not independently re-verified** — the behavioural details
-below come from contributor zedricedwardc (PR #3); this plugin has corroborated that the fields
-exist and are named as shown, but has not itself re-driven the behaviour:
+**Contributor-attested (2026-07-18), not independently re-verified** — the details below come
+from contributor zedricedwardc (PR #3); this plugin has corroborated that the fields exist and
+are named as shown (via JSON captures of the agent object), but has not itself re-driven the
+behaviour or confirmed the UI:
+- Both controls live in the UI under **ConvAI → Preferences → Conversation Summary**. A JSON
+  capture of the agent object proves the two `summary{}` fields exist — it doesn't show where
+  their controls sit on screen, so the UI location is attested, not corroborated the way the
+  field existence above is.
 - `summary.customFieldId` must point at an **existing `LARGE_TEXT`** field — it does **not**
   auto-create one. Each regeneration **overwrites** the field.
 - Once it points at a `LARGE_TEXT` field, the summary merges like any other contact field:
