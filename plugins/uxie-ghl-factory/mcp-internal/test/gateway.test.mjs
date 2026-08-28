@@ -330,3 +330,22 @@ test('non-SSE response on an SSE endpoint fails loudly', async () => {
   ) });
   await assert.rejects(gw.stream('POST', '/agent-studio/super-agents/build', { message: 'build' }, { base: 'https://services.leadconnectorhq.com' }), (e) => e.code === 'SSE_EXPECTED');
 });
+
+test('ai rail: a call with NO explicit base goes to the AI host (never backend) and carries both credentials', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', rail: 'ai', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  const r = await gw.call('GET', '/marketplace/core/search/module?locationId=L&type=actions&isInstalled=true&skip=0&limit=200');
+  assert.equal(r.ok, true);
+  assert.equal(calls.length, 1);
+  assert.ok(calls[0].url.startsWith('https://services.leadconnectorhq.com/marketplace/core/search/module?'), calls[0].url);
+  assert.equal(calls[0].init.headers['token-id'], tokenId);
+  assert.match(calls[0].init.headers.authorization, /^Bearer /);
+});
+
+test('jwt rail: a call with NO explicit base still goes to backend and never carries token-id', async () => {
+  const calls = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'L', fetchImpl: stubFetch(calls), sleepImpl: async () => {} });
+  await gw.call('GET', '/workflow/L/list');
+  assert.ok(calls[0].url.startsWith('https://backend.leadconnectorhq.com/workflow/L/list'), calls[0].url);
+  assert.equal(calls[0].init.headers['token-id'], undefined);
+});

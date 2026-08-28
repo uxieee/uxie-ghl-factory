@@ -70547,9 +70547,9 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     }
     return h;
   };
-  const request = async (method, path, body, baseOrOptions = BASE) => {
+  const request = async (method, path, body, baseOrOptions) => {
     const options = typeof baseOrOptions === "string" ? { base: baseOrOptions } : baseOrOptions ?? {};
-    const base = options.base ?? BASE;
+    const base = options.base ?? (rail === "ai" ? AI_HOST : BASE);
     const signedUpload = options.signedUpload === true;
     let signedTarget = null;
     if (signedUpload) {
@@ -70575,7 +70575,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     });
     return res;
   };
-  const call = async (method, path, body, baseOrOptions = BASE) => {
+  const call = async (method, path, body, baseOrOptions) => {
     const res = await request(method, path, body, baseOrOptions);
     const text = await res.text();
     let json2;
@@ -70610,7 +70610,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     if (Number.isNaN(at)) return null;
     return Math.min(Math.max(0, at - capturedAt), MAX_RETRY_AFTER_MS);
   };
-  const callWithMeta = async (method, path, body, baseOrOptions = BASE) => {
+  const callWithMeta = async (method, path, body, baseOrOptions) => {
     const res = await request(method, path, body, baseOrOptions);
     const capturedAt = nowImpl();
     const text = await res.text();
@@ -70645,7 +70645,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     }
     return { event, data: payload };
   };
-  const stream = async (method, path, body, baseOrOptions = BASE) => {
+  const stream = async (method, path, body, baseOrOptions) => {
     const diagnose = process.env.GHL_SSE_DIAGNOSTICS === "1";
     const startedAt = Date.now();
     let bytesReceived = 0;
@@ -144646,7 +144646,9 @@ var TOOLS2 = [
         if (want !== "both" && want !== type) return { status: "skipped", rows: null };
         const r = await gw.call(
           "GET",
-          `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`
+          `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`,
+          void 0,
+          { base: AI_BASE2 }
         );
         if (!r?.ok) return { status: "failed", rows: null };
         return { status: "ok", rows: Array.isArray(r.json) ? r.json : r.json?.modules ?? r.json?.data ?? [] };

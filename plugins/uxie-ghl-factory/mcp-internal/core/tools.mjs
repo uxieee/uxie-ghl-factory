@@ -2298,7 +2298,10 @@ export const TOOLS = [
     handler: async (args, deps) => guard(async () => {
       const loc = encodeURIComponent(args.locationId);
       const want = args.type ?? 'both';
-      // The module endpoint lives on the AI host, which needs the dual credential rail.
+      // The module endpoint answers on the AI host with the dual credential rail (what this tool
+      // uses) AND on backend with the plain location JWT (what the builder itself and
+      // orchestrate.fetchMarketplace use — recovered WorkflowMarketplaceService.ts:377, live ledger).
+      // Base is passed explicitly below so this handler never depends on the gateway's rail default.
       const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
       // Each leg reports its own outcome rather than collapsing straight to rows, the same
       // convention get_ai_configuration_bundle uses for its three components: a leg that
@@ -2310,7 +2313,8 @@ export const TOOLS = [
       const page = async (type) => {
         if (want !== 'both' && want !== type) return { status: 'skipped', rows: null };
         const r = await gw.call('GET',
-          `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`);
+          `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`,
+          undefined, { base: AI_BASE });
         if (!r?.ok) return { status: 'failed', rows: null };
         return { status: 'ok', rows: Array.isArray(r.json) ? r.json : (r.json?.modules ?? r.json?.data ?? []) };
       };
