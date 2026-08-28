@@ -159,6 +159,21 @@ export const TRIGGER_CORRECTIONS = {
 // Corrections applied over the generated catalog entry, merged in catalog.mjs.
 // `reason` is required — an unexplained correction is indistinguishable from a typo.
 export const CATALOG_CORRECTIONS = {
+  // The capabilities index listed the WIRE type with its wire attrs and nothing said "author the
+  // lean name" — pattern-matching from it authored the very door that leaked stage names (T1-1).
+  internal_update_opportunity: {
+    reason: 'the wire type name routed around the lean builder and the resolver until parseIR canonicalised it '
+      + '(2026-08-29); the generated index must steer authors at the lean keys, not the wire ones',
+    docNote: 'Author as **`update_opportunity`**: `pipeline`/`stage` NAMES on the build path (the resolver turns '
+      + 'them into ids) or `pipelineId`/`stageId` on the edit path, plus `status`, `allowBackward`, `updates[]`. '
+      + '`internal_update_opportunity` is accepted as an alias and compiles identically; a NAME that reaches the '
+      + 'wire is refused (`UNRESOLVED_NAME`) because GHL stores the word and the step then moves nothing.',
+  },
+  internal_create_opportunity: {
+    reason: 'same wire/lean split as internal_update_opportunity',
+    docNote: 'Author as **`create_opportunity`** (lean keys: `pipeline`/`stage` names on the build path, ids on '
+      + 'the edit path, plus `name`, `status`, `value`…). `internal_create_opportunity` is accepted as an alias.',
+  },
   // 🔴 The generated keys for this node are WRONG. Authoring the documented
   // `reactivate: false` was accepted, persisted as an unknown key, and left the
   // actually-required `sleepEnabled` unset — so the node kept its error badge. The shape

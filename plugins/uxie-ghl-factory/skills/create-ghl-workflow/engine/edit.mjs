@@ -828,6 +828,22 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   if (opts.assumeAssociated !== true
       && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  // A NAME on an opportunity write is a dead step (F5-09 / T1-1): the build path resolves names to
+  // ids, the edit path never does, and GHL stores the word verbatim — the step saves, round-trips
+  // clean and moves nothing. `modifyStep` merges an attrPatch straight onto the stored step without
+  // ever reaching the compiler, so this commit is the first place that can see it.
+  // `touched`/`touchedIds` in this function are declared inside LATER guard blocks, so this owns its set.
+  const oppTouched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+  const oppTypes = new Set(['internal_update_opportunity', 'internal_create_opportunity']);
+  for (const t of newTemplates) {
+    if (!oppTouched.has(t.id) || !oppTypes.has(t.type)) continue;
+    const leaked = ['pipeline', 'stage', 'lostReason'].filter((k) => t.attributes?.[k] !== undefined);
+    if (leaked.length)
+      throw new IRError('UNRESOLVED_NAME',
+        `'${t.name ?? t.id}' (${t.type}) carries name key(s) [${leaked.join(', ')}] — the edit path does not `
+        + `resolve names to ids, so GHL would store the word and the step would move nothing. Author `
+        + `pipelineId/stageId (from list_account_entities), or rebuild through build_workflow, which resolves names.`);
+  }
   // FIELD enforcement on the steps THIS edit touched. Steps ADDED by ops were compiled through
   // compile() and its chokepoint already; `modifyStep` merges an attrPatch straight onto a stored
   // step and NEVER reaches the compiler — the long-known bypass (same reason tools.mjs runs

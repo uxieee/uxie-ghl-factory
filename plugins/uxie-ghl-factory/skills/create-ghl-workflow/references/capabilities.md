@@ -123,8 +123,8 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `edit_conversation` — attrs: `read`, `type`, `__customInputs__`
 - ✅ `find_opportunity` — attrs: `sorting`, `type`, `__customInputFields__`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `find_opportunity (onFound/onNotFound)`
 - ✅ `find_or_create_contact` — attrs: `emailLabel`, `emailAddress`, `namePrefix`, `names`, `middleName`, `lastName`, `nameSuffix`, `organizationName`, `jobTitle`, `phoneLabel`, `phoneNumber`, `addressLabel` +8 more (see card); premium
-- ✅ `internal_create_opportunity` — attrs: `pipelineId`, `type`, `__customInputs__`, `__customInputFields__`
-- ✅ `internal_update_opportunity` — attrs: `allowBackward`, `type`, `__customInputFields__`, `__customInputs__`
+- ✅ `internal_create_opportunity` — attrs: `pipelineId`, `type`, `__customInputs__`, `__customInputFields__`. Author as **`create_opportunity`** (lean keys: `pipeline`/`stage` names on the build path, ids on the edit path, plus `name`, `status`, `value`…). `internal_create_opportunity` is accepted as an alias.
+- ✅ `internal_update_opportunity` — attrs: `allowBackward`, `type`, `__customInputFields__`, `__customInputs__`. Author as **`update_opportunity`**: `pipeline`/`stage` NAMES on the build path (the resolver turns them into ids) or `pipelineId`/`stageId` on the edit path, plus `status`, `allowBackward`, `updates[]`. `internal_update_opportunity` is accepted as an alias and compiles identically; a NAME that reaches the wire is refused (`UNRESOLVED_NAME`) because GHL stores the word and the step then moves nothing.
 - ✅ `internal-add-contact-followers` — attrs: `users`, `type`, `__customInputs__`
 - ✅ `internal-add-opportunity-owner` — attrs: `user`, `onlyUnAssigned`, `type`, `__customInputs__`
 - ✅ `internal-delete-contact` — attrs: `type`, `__customInputs__`
