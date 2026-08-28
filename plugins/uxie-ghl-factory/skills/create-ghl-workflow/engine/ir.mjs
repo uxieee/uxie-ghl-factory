@@ -60,6 +60,15 @@ const SCOPE_OWNERS = {
 // attributes.targetNodeId stays a raw step (REF_DANGLING owns that case).
 const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', goto: 'goto' };
 
+// Opportunity steps have a LEAN authoring name (update_opportunity) and a WIRE name
+// (internal_update_opportunity). The dedicated builder and the resolver key on the LEAN name, so
+// the wire name fell through to the generic path — where `stage`/`pipeline` were whitelisted
+// "because the resolver keeps the name" even though the resolver never runs there. A stage NAME
+// therefore reached the wire as a dead top-level key: the step saves, round-trips clean, renders
+// half-empty and moves nothing (F5-09 / T1-1, eight client workflows on 2026-08-28). One spelling
+// from here on. `kind:'raw'` opts out — a raw template is the author's responsibility end to end.
+const WIRE_TYPE_ALIASES = { internal_update_opportunity: 'update_opportunity', internal_create_opportunity: 'create_opportunity' };
+
 // Reject any node-level key the compiler will not read. Attribute keys already had this
 // (ATTR_KEY); node keys did not, which is how `kind:'find_opportunity'`, a typo'd
 // `attribute:`, and a stray `onFound:` all compiled "clean" while doing nothing.
@@ -210,6 +219,7 @@ export function parseIR(ir) {
     if ((n.kind === undefined || n.kind === 'action') && KIND_BY_TYPE[n.type] && (n.type !== 'goto' || n.target !== undefined)) {
       n.kind = KIND_BY_TYPE[n.type];
     }
+    if (n.kind !== 'raw' && WIRE_TYPE_ALIASES[n.type]) n.type = WIRE_TYPE_ALIASES[n.type];
   });
   walkNodes(ir.graph, (n) => checkNodeKeys(n));
 
