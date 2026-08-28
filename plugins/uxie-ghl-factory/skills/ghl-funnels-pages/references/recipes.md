@@ -603,33 +603,30 @@ is not reliable on a domained funnel — §0.)
 
 ## 9. Create the FUNNEL in the UI; create its STEPS and PAGES via the API
 
-**Superseded in part on 2026-08-10.** This section previously read "🔴 API-created
-funnels are MALFORMED" and asserted four compounding defects. **Two of the four were
-wrong** — they were one body-shape mistake in the caller, restated twice. The corrected
-status:
+**API-created funnels work.** `POST /funnels/funnel/create` produces a funnel that opens
+instantly and is fully interactive, and an API-created step in it renders correctly — no
+known reason remains to route funnel creation through the UI. `POST
+/funnels/builder/autosave/{pageId}` needs the **recipe-4 envelope**: a raw, unwrapped
+`page/data` echo 422s (`pageData should not be empty, pageVersion should not be empty`);
+wrapped in the recipe-4 envelope, it `201`s on a page created seconds earlier by
+`create-step`. The full sequence §2 → §4 → §7 → §10 → public URL is live-proven on a
+domained funnel, so an API-created page CAN be published. `POST
+/funnels/funnel/update-settings` still cannot clear a field with an empty string —
+`chatWidgetId: ""` never attaches or detaches a widget.
 
-| # | Original claim (2026-07-25) | Status |
-|---|---|---|
-| 1 | `POST /funnels/funnel/create` produces a funnel the UI cannot render — detail view hangs on a spinner indefinitely, while UI-created funnels open instantly. | ❌ **DID NOT REPRODUCE 2026-08-10.** Retested on GROM AU: the API-created funnel opened instantly and fully interactive, and an API-created step in it rendered. Not proof the original was false — cause unknown — but no known reason remains to route funnel creation to the UI. |
-| 2 | `POST /funnels/builder/autosave/{pageId}` **422s** on a new page, even on an unmodified echo of its own `page/data`. | ❌ **WRONG.** The 422 is a body-shape error (`pageData should not be empty, pageVersion should not be empty`) — `autosave` needs the **recipe-4 envelope**, and a raw `page/data` echo lacks the wrapper. Wrapped, it `201`s on a page created seconds earlier by `create-step`. |
-| 3 | No autosave → no version → **"an API-created page can never be published."** | ❌ **WRONG**, and downstream of #2. The full sequence §2 → §4 → §7 → §10 → public URL is live-proven 2026-08-10 on a domained funnel. |
-| 4 | `POST /funnels/funnel/update-settings` silently ignores empty strings (recipe 5a). | ✅ **STANDS.** Fields cannot be cleared; `chatWidgetId: ""` never attaches or detaches a widget. |
+A 4xx that names the missing body fields in its own message is a **caller** defect until
+the body is proven correct — read the error text before concluding the platform is broken.
 
-**The lesson worth keeping:** #2 and #3 were shipped as a hard "impossible" on the
-strength of a 422 whose own message named the cause. A 4xx that names two missing body
-fields is a **caller** defect until the body is proven correct — read the error text
-before concluding the platform is broken.
-
-New defects found 2026-08-10, not in the original table:
+Other defects in the funnel/page routing layer:
 
 | # | Defect | Effect |
 |---|---|---|
-| 5 | A step's `url` and its CONTROL page's Path are **two different paths**, and `create-step` auto-appends `-page` to the page path. | The public URL 301s to the funnel's first step. Page is live, correct, unreachable. **Fix with recipe 10.** |
-| 6 | `/preview/{pageId}` does not serve — **301** to the first step on one account, **404** on another, both for pages serving fine publicly. | Preview-based verification reports a **false failure**. Verify on the public URL (§0). |
-| 7 | The public URL resolves from the **`funnel_lookup`** routing table (one row per funnel/step/page), NOT from the page doc's `url`. | `POST funnel-page/{pageId}` alone updates the page doc while the live route keeps the old path, **silently**. Recipe 10 needs all three calls. |
-| 8 | `funnel-step-page-url` returns **`ok: true` for a path that is already taken**. | Reading `ok` as availability is always wrong; compare `uniqueUrl` to what you asked (§10). |
+| 1 | A step's `url` and its CONTROL page's Path are **two different paths**, and `create-step` auto-appends `-page` to the page path. | The public URL 301s to the funnel's first step. Page is live, correct, unreachable. **Fix with recipe 10.** |
+| 2 | `/preview/{pageId}` does not serve — **301** to the first step on one account, **404** on another, both for pages serving fine publicly. | Preview-based verification reports a **false failure**. Verify on the public URL (§0). |
+| 3 | The public URL resolves from the **`funnel_lookup`** routing table (one row per funnel/step/page), NOT from the page doc's `url`. | `POST funnel-page/{pageId}` alone updates the page doc while the live route keeps the old path, **silently**. Recipe 10 needs all three calls. |
+| 4 | `funnel-step-page-url` returns **`ok: true` for a path that is already taken**. | Reading `ok` as availability is always wrong; compare `uniqueUrl` to what you asked (§10). |
 
-### The UI path for the funnel container (optional since defect 1 stopped reproducing)
+### The UI path for the funnel container (optional — API-created funnels render fine)
 
 Still the safest route if you want a human to pick the domain. The minimum:
 

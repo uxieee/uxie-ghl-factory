@@ -522,29 +522,18 @@ async function listWorkflowTriggers(gw, locationId, workflowId) {
   return { response, triggers: recordsFrom(response.json, 'triggers', 'data') };
 }
 
-// CORRECTED 2026-08-28: this used to be `triggerPlan.length > 0` — ANY trigger op meant
-// "requires publish", on the belief that an API-created trigger always lands inactive (belief
-// #2 from the corpus/docs, traced to buildTrigger's hardcoded `status:'draft'`, not to being
-// API-created — see edit-driver.mjs). Now that addTrigger/duplicateTrigger send an explicit
-// `status` matching the target workflow's own state, and modifyTrigger sends `status` only
-// when the caller asked for an activation change, a request's own body says whether IT will
-// leave something inactive: `status:'draft'` will (an addTrigger/duplicateTrigger landing on
-// a still-draft workflow); anything else — `status:'published'`, or no `status` key at all (a
-// pure content edit, delete, replaceTagInTriggers) — does not, by itself, need a publish to
-// take effect.
+// A request's own body says whether it will leave something inactive: `status:'draft'` will
+// (an addTrigger/duplicateTrigger landing on a still-draft workflow); anything else —
+// `status:'published'`, or no `status` key at all (a pure content edit, delete,
+// replaceTagInTriggers) — does not, by itself, need a publish to take effect.
 //
-// CRITICAL, review round 1 (2026-08-28): the first version of this fix also matched an
-// explicit modifyTrigger DEACTIVATION (translateActiveToStatus sends status:'draft' there
-// too) and reported requiresPublish:true for it — WRONG, and dangerous: that write already
-// applied and round-trip verified. A caller told "invoke publish_workflow to activate it"
-// would republish, the publish PUT's own draft→published cascade would set EVERY trigger's
-// status back to "published", and the trigger the user just explicitly turned OFF would come
-// back ON — the same silent-undo severity class this whole branch exists to eliminate,
-// inverted. `request.op !== 'modifyTrigger'` excludes it: a modifyTrigger translate is always
-// self-contained in BOTH directions (the status write applies immediately and is round-trip
-// verified by verifyTriggerRoundTrip's verifyActive path — see triggerSemanticExpectation),
-// so it never needs a publish. Only a CREATE that inherits draft (addTrigger/duplicateTrigger
-// landing on a still-draft workflow) leaves something for a publish to actually do.
+// `modifyTrigger` is excluded from that check: a modifyTrigger status write is self-contained
+// in BOTH directions — it applies immediately and is round-trip verified by
+// verifyTriggerRoundTrip's verifyActive path (see triggerSemanticExpectation) — so an explicit
+// activation OR deactivation through modifyTrigger never needs a publish on its own. (Telling
+// a caller to publish after a deactivation would be actively harmful: republishing cascades
+// draft→published across every trigger on the workflow and would turn the just-deactivated
+// trigger back on.)
 function triggerRequiresPublish(request) {
   return request.method !== 'DELETE' && request.op !== 'modifyTrigger' && request.body?.status === 'draft';
 }
@@ -602,42 +591,26 @@ function returnedResourceId(response) {
   return typeof id === 'string' && id.trim().length > 0 ? id.trim() : null;
 }
 
-// `active` was DELIBERATELY EXCLUDED from this list — considered and rejected 2026-08-28 as
-// belt-and-braces for the modifyTrigger refusal added the same day (edit-driver.mjs). The
-// reasoning at the time: `active` is a SERVER-MANAGED PROJECTION of the workflow's publish
-// state, not a field any per-trigger PUT controls (measured: publishing with zero trigger
-// writes flips it; an explicit per-trigger PUT setting `active` does nothing, in either
-// direction). Two consequences were drawn from that fact:
-//   1. modifyTrigger REFUSED to send a request whose `active` would attempt a real change,
-//      so `request.body.active` was guaranteed (by construction, before the write was ever
-//      sent) to already equal what was stored — comparing it here could never catch a NEW
-//      defect, because the class of defect it would catch (this write silently failing to
-//      apply an active change) could not be attempted at all.
-//   2. `active` is also known to converge ASYNCHRONOUSLY, on its own schedule, following any
-//      publish transition anywhere on the workflow — not just this request. A round-trip GET
-//      run moments after an unrelated publish (or even this same request, if something else
-//      touched the workflow concurrently) can legitimately observe a DIFFERENT `active` value
-//      than whatever this request echoed, for reasons that have nothing to do with whether
-//      THIS edit's content (conditions/name/targetActionId/etc.) persisted. Comparing it here
-//      would manufacture false-negative round-trip failures on an otherwise-clean content
-//      edit, exactly when the field is behaving correctly. This half of the reasoning still
-//      holds and is why `active` stays excluded for every case BUT the one below.
+// `active` is excluded from this comparison list on purpose: it is a SERVER-MANAGED
+// PROJECTION of the workflow's publish state (measured: publishing with zero trigger writes
+// flips it; an explicit per-trigger PUT setting `active` does nothing, in either direction),
+// and it converges ASYNCHRONOUSLY, on its own schedule, following any publish transition
+// anywhere on the workflow — not just this request. A round-trip GET run moments after an
+// unrelated publish can legitimately observe a DIFFERENT `active` value than whatever this
+// request echoed, for reasons that have nothing to do with whether THIS edit's content
+// (conditions/name/targetActionId/etc.) persisted. Comparing it unconditionally would
+// manufacture false-negative round-trip failures on an otherwise-clean content edit.
 //
-// UPDATE 2026-08-28 (later the same day): point 1's premise is gone. modifyTrigger no longer
-// refuses an attempted `active` change — it TRANSLATES it into a real `status` write
-// (edit-driver.mjs's translateActiveToStatus), because further measurement found `status` is
-// the field `active` actually projects. So for exactly that one case — an op that explicitly
-// requested an active change, which the request body now marks by carrying a `status` key at
-// all (translateActiveToStatus omits it for every non-change) — this write DOES determine the
-// final `active` value, and skipping the comparison would mean never verifying the one
-// concrete thing bug 1 (modifyTrigger deactivating a trigger it merely edited) was about.
-// `verifyActive` is passed true ONLY for that case; point 2's async-drift risk does not apply
-// to it, because this request is exactly what's expected to have caused the value. Every
-// other trigger write (a pure content modifyTrigger, an addTrigger, replaceTagInTriggers…)
-// still must not compare `active`, for exactly the reason point 2 gives. See
-// mcp-internal/test/edit-workflow.test.mjs's drift test for the untranslated case this still
-// avoids, and its two 'DOES verify' tests for the translated case this now catches, and
-// edit-driver.mjs's REMOVED-2026-08-28 note for the underlying measurements.
+// The one exception: when an op explicitly requests an active change, the request body
+// carries a `status` key (edit-driver.mjs's translateActiveToStatus omits it for every
+// non-change), and THAT write does determine the final `active` value — so `verifyActive` is
+// passed true ONLY for that case, verifying the one thing the write is actually responsible
+// for; the async-drift risk above does not apply to it, because this request is exactly
+// what's expected to have caused the value. Every other trigger write (a pure content
+// modifyTrigger, an addTrigger, replaceTagInTriggers…) still must not compare `active`, for
+// the async-drift reason above. See mcp-internal/test/edit-workflow.test.mjs's drift test for
+// the untranslated case this still avoids, and its two 'DOES verify' tests for the translated
+// case this catches.
 function triggerSemanticExpectation(body = {}, { verifyActive = false } = {}) {
   const keys = [
     'workflowId', 'type', 'masterType', 'name', 'conditions', 'actions',
@@ -1842,9 +1815,8 @@ export const TOOLS = [
       maxPages: z.number().int().min(1).max(1000).default(100),
     }),
     capabilities: [
-      // CORRECTED 2026-07-27 from live traffic: `/ai-employees/agents` 404s ("Cannot GET",
-      // i.e. no such route), so this component failed every run. The live discovery route is
-      // the sibling of the detail route below. See core/audit-capabilities.mjs for the probe.
+      // `/ai-employees/agents` 404s ("Cannot GET", i.e. no such route) — use
+      // `/ai-employees/employees/search` instead (see core/audit-capabilities.mjs).
       { method: 'GET', path: '/ai-employees/employees/search' },
       { method: 'GET', path: '/ai-employees/employees/{agentId}' },
       // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
@@ -3104,48 +3076,26 @@ export const TOOLS = [
       }
       const latestTriggers = latestTriggersCall.value;
 
-      // NO PER-TRIGGER ACTIVATION WRITE *BEFORE* THE DOCUMENT PUT. There used to be one (Task
-      // 9, workflow save-correctness, 2026-08-27): a PUT /workflow/{loc}/trigger/{triggerId}
-      // per inactive trigger, carrying the whole record with active:true, run before the
-      // document PUT below on the belief that it was the rail that persists `active`. That
-      // belief went through two rounds of narrowing before it was disproved, then corrected
-      // again the same day:
-      //   1. First finding (2026-08-27): the full-document PUT's oldTriggers/newTriggers is
-      //      INERT for trigger content generally — 200, version bumped, nothing stored moves.
-      //      This is what motivated routing activation through the per-trigger PUT instead.
-      //   2. Second finding, same day: the per-trigger PUT DOES persist trigger CONTENT
-      //      (conditions, name, targetActionId) — but a probe sending that same shape with
-      //      active:false against two triggers got 200 back with both read UNCHANGED. The
-      //      `active` claim specifically was retracted; the write stayed in place "best effort".
-      //   3. Measured 2026-08-28 (throwaway probes on the designated test sub-account): three
-      //      experiments closed the question AS IT WAS THEN POSED. A publish with ZERO trigger
-      //      writes still flips `active` to true. A per-trigger PUT with active:false against a
-      //      PUBLISHED workflow returns 200 and the trigger reads active:true at +0.5s/+2s/+5s.
-      //      And the publish PUT-to-active convergence is sub-second (0.28s after the PUT
-      //      returns), which rules out "unsettled value" as the explanation for finding 1.
-      //      Conclusion at the time: `active` is a SERVER-MANAGED PROJECTION of the workflow's
-      //      publish state, not a field either PUT shape controls. The per-trigger endpoint
-      //      accepts `active` and ignores it, in both directions — this write was 200s that
-      //      changed nothing, exactly the defect class Task 9 existed to eliminate.
-      //   4. UPDATE, later the same day: (3) was right about `active` and incomplete about
-      //      `status`. Every experiment in (2) and (3) sent (or omitted) `active`, never
-      //      `status` — and the roster GET that fed every one of them never surfaces `status`
-      //      at all, only `active`, so the field that actually matters was invisible to the
-      //      investigation, not absent from the API. A trigger record carries its OWN `status`
-      //      field ("draft"|"published"), and `active` is a read-only projection of it
-      //      (`active === (status !== "draft")`). Sending `status:"published"` on the SAME
-      //      per-trigger PUT (2) already used — just with the one field it never tried — DOES
-      //      activate a trigger on an already-published workflow, verified by read-back.
+      // NO PER-TRIGGER ACTIVATION WRITE *BEFORE* THE DOCUMENT PUT. The document PUT's own
+      // trigger-diff fields (oldTriggers/newTriggers) do not persist trigger CONTENT — the
+      // working rail for content is the separate per-trigger PUT
+      // /workflow/{loc}/trigger/{triggerId} (modifyTrigger, see edit-driver.mjs). Activation
+      // works differently: the document PUT's own draft→published transition activates every
+      // trigger as a side effect, sub-second, regardless of anything in its body — not the
+      // oldTriggers/newTriggers field. A per-trigger PUT carrying `active` does nothing in
+      // either direction (silently accepted, ignored); only `status` governs it (`active` is
+      // a read-only projection: `active === (status !== "draft")`). Sending
+      // `status:"published"` on that same per-trigger PUT DOES activate a trigger already on
+      // a published workflow, verified by read-back.
       //
       // What flips `active` in the COMMON case is still the document PUT below, by virtue of
-      // its own draft→published cascade (sub-second, per (3)) — not any field in ITS body.
-      // Nothing is sent per-trigger before it, and nothing in this preflight section changes.
-      // What DOES now exist is a REPAIR, sent AFTER the document PUT and its round-trip
-      // re-list, for any trigger the cascade did not reach — see below, after `checkedTriggers`
-      // is computed. The round-trip verification itself is unchanged and mandatory either way:
-      // re-listing triggers and failing loudly on any still inactive (now: still inactive
-      // AFTER the repair) remains the only thing in this handler that tells the truth about
-      // activation.
+      // its own draft→published cascade — not any field in ITS body. Nothing is sent
+      // per-trigger before it, and nothing in this preflight section changes. What DOES exist
+      // is a REPAIR, sent AFTER the document PUT and its round-trip re-list, for any trigger
+      // the cascade did not reach — see below, after `checkedTriggers` is computed. The
+      // round-trip verification itself is mandatory either way: re-listing triggers and
+      // failing loudly on any still inactive (now: still inactive AFTER the repair) remains
+      // the only thing in this handler that tells the truth about activation.
       const freshCall = await safeGatewayCall(
         () => getWorkflow(gw, args.locationId, args.workflowId),
       );
@@ -3335,9 +3285,9 @@ export const TOOLS = [
   // negative cases. Two facts that the source alone would not have settled, and which the
   // shape of these tools depends on:
   //
-  //   - Folders are `type: 'directory'` — NOT 'folder'. `?type=folder` returns count 0,
-  //     which reads exactly like "this account has no folders" and is why the folder list
-  //     was believed not to exist at all.
+  //   - Folders are `type: 'directory'` — NOT 'folder'. `?type=folder` returns count 0, not
+  //     an error, which reads exactly like "this account has no folders" if you don't check
+  //     the type.
   //   - The BULK move (`PUT /move`) cannot move anything to root: parentId null, '' and
   //     the sentinel 'root' all 404 "Parent directory not found". Only the SINGLE-item
   //     `PUT /move-directory/{id}` accepts `parentId: null`. move_workflows therefore uses

@@ -36,13 +36,9 @@ test('course preview reports every object class without performing account acces
   assert.equal(preview.wouldCreate.embeds, 1);
 });
 
-// CORRECTED 2026-08-24 (live, GROM UK with Stripe + GROM AU): this test used to assert
-// that ANY paid offer was rejected because "paid offers return 500 without a payment
-// provider". That premise was false. The 500 came from sending one_time/recurring, which
-// are not the wire enum — models/Offer.ts says free|onetime|subscription|multiple. The
-// differential: the wrong enum 500s on an account that HAS Stripe; the right enum creates
-// an offer that reads back with its amount. Paid offers are now supported; what is
-// rejected is a paid offer with no amount.
+// The wire enum for offer type is free|onetime|subscription|multiple (models/Offer.ts) —
+// NOT one_time/recurring, which 500 even on an account that has Stripe configured. Paid
+// offers are supported; what this test asserts is rejected is a paid offer with no amount.
 test('MCP preview rejects a paid offer with no amount, and non-absolute local media', () => {
   const preview = previewCourseSpec({
     course: { title: 'Launchpad' },

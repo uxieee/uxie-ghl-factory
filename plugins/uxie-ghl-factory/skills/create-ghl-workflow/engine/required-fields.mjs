@@ -188,17 +188,14 @@ export const CATALOG_CORRECTIONS = {
       + 'GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}.',
   },
 
-  // 🔴 REVERSED 2026-08-27: this correction originally carried ONLY reason + docNote, on the
-  // stated theory that adding attrKeys would be a GUESS that arms the ATTR_KEY guard against a
-  // node with no full capture. That theory was WRONG for this specific node: the generated
-  // catalog entry was ALREADY confidence:'verified-live' with a 9-key attrKeys list (from
-  // catalog/step-examples/conversationai_objective.json) — the guard was already armed, before
-  // this correction ever existed. The only effect of leaving attrKeys untouched was that the
-  // guard rejected closingMessage/tags as unknown keys, which meant a blocking objective
-  // (proceedIfNotMet:true) could not compile AT ALL: enforceRequiredFields throws without
-  // closingMessage, and checkAttrKeys throws WITH it. Caught live via compile(), not just the
-  // unit-level enforceRequiredFields check — see required-fields.test.mjs's
-  // 'a blocking objective compiles end to end...' test, which drives the full pipeline.
+  // The catalog entry for this node is ALREADY confidence:'verified-live' with a 9-key
+  // attrKeys list (from catalog/step-examples/conversationai_objective.json), so the
+  // ATTR_KEY guard is armed and rejects closingMessage/tags as unknown keys without this
+  // patch — which means a blocking objective (proceedIfNotMet:true) cannot compile AT ALL:
+  // enforceRequiredFields throws without closingMessage, and checkAttrKeys throws WITH it.
+  // Caught live via compile(), not just the unit-level enforceRequiredFields check — see
+  // required-fields.test.mjs's 'a blocking objective compiles end to end...' test, which
+  // drives the full pipeline.
   //
   // attrKeys REPLACES the generated list (correctSteps spreads the patch), so the original nine
   // keys are carried through verbatim and closingMessage/tags are appended. Evidence for exactly

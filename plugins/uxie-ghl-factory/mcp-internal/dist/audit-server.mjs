@@ -36556,13 +36556,13 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "write",
           reach: "proven",
           summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
-          note: '\u{1F534} Live-proven INERT 2026-08-27 (Task 9, workflow save-correctness), both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back. This CORRECTS the 2026-08-25 note below, which only checked that the call was ACCEPTED (no 400 on re-PUTting unchanged stored conditions) \u2014 accepted is not applied. The 2026-08-25 finding about the full workflow PUT\'s INVALID_TRIGGER_CONDITION 400 on conv_ai_autonomous_trigger still stands; this endpoint is just not the fix for it. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow\'s modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow) \u2014 live-proven for trigger CONTENT (conditions/name/targetActionId), but NOT proven to persist the `active` flag: a same-day probe sent that exact shape with active:false against two triggers and both read back unchanged. Treat trigger activation as an open, unsolved defect, not something either rail is known to fix. UPDATE 2026-08-28: that open question is now closed. Throwaway probes on the designated test sub-account (three experiments) proved `active` is a SERVER-MANAGED PROJECTION of the workflow\'s publish state, not a field any PUT body controls: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger reading active:true at +0.5s/+2s/+5s. The per-trigger rail above remains genuinely load-bearing for trigger CONTENT (conditions/name/targetActionId) \u2014 that part is unchanged \u2014 but the engine no longer sends it for activation, because it was a 200 that changed nothing. Publishing itself is the only known way to flip `active`; there is no known write that activates a trigger on an already-published workflow. CORRECTED later the same day: that last sentence was incomplete, not wrong about `active` itself \u2014 every experiment above sent (or omitted) `active`, never `status`, and the roster GET that fed them never surfaces `status` at all (only `active`), so the field that actually matters was invisible to the investigation, not absent from the API. A trigger record carries its OWN `status` field ("draft"|"published"), and `active` is a read-only projection of it (`active === (status !== "draft")`). Sending `status:"published"` on the SAME per-trigger PUT named above \u2014 the shape edit_workflow\'s modifyTrigger already used for content \u2014 DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:"draft"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged), so this write is held to the same read-back discipline as everything else here \u2014 never trust the 200. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs\'s --publish step, and skills/create-ghl-workflow/scripts/edit.mjs\'s post-add check now send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT\'s own draft\u2192published cascade \u2014 before ever reporting failure.'
+          note: "\u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either."
         },
         "PUT /workflow/{locationId}/only-triggers/{id}": {
           kind: "write",
           reach: "proven",
           summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
-          note: "Same route as the {wid} row; the miner produced both spellings from different call sites. See that row's 2026-08-27 correction \u2014 this does not persist a trigger edit either."
+          note: "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either."
         }
       }
     };
@@ -69680,26 +69680,18 @@ var AUDIT_CAPABILITIES = Object.freeze([
     capabilityId: "conversation_ai_agent_discovery",
     host: "services",
     authRail: "ai",
-    // CORRECTED 2026-07-27 FROM LIVE TRAFFIC. This was `/ai-employees/agents`, which GHL does
-    // not serve: a read-only probe on GROM AU answered
-    // `404 {"message":"Cannot GET /ai-employees/agents?locationId=…","error":"Not Found"}` —
-    // an express-style "route not registered", not an empty surface and not a permissions
-    // problem. The whole Conversation AI component therefore failed EVERY run with
-    // AI_DISCOVERY_READ_FAILED, took the bundle to complete:false, and would have done so on
-    // the canary for a reason that had nothing to do with what the canary was testing.
-    //
-    // The live route is the discovery sibling of the detail route below — same
-    // `/ai-employees/employees/*` family — and it answers
+    // `/ai-employees/agents` 404s ("Cannot GET" — an express-style route not registered, not
+    // an empty surface or a permissions problem). The live route is the discovery sibling of
+    // the detail route below — same `/ai-employees/employees/*` family — and it answers
     // `{employees: [...], totalCount: N, count: N, traceId}` with `id` on each row, matching
     // the id the detail body returns. `totalCount` is why AI_TOTAL_KEYS reads it; `count` is
     // deliberately not read (see core/audit-configuration.mjs — it carried the same value as
     // `totalCount` on a single-page response, so nothing observed separates a page count from
     // a surface total).
     //
-    // NOTE FOR CONSUMERS: this moves `capabilityDescriptorHash` for this capability and
-    // therefore `capabilityManifestHash`. That is a pinned handshake value; a client holding
-    // the old one must re-pin. The alternative was leaving a capability that cannot read its
-    // surface at all, which is not a contract worth preserving.
+    // NOTE FOR CONSUMERS: this capability's `capabilityDescriptorHash` (and therefore
+    // `capabilityManifestHash`) reflects this path, not `/ai-employees/agents`. That is a
+    // pinned handshake value; a client holding the old hash must re-pin.
     normalizedPath: "/ai-employees/employees/search",
     requiredQueryKeys: ["locationId"],
     locationBinding: "query"
@@ -135350,17 +135342,14 @@ var CATALOG_CORRECTIONS = {
     attrKeys: ["assignedEmployeeId", "type", "__customInputs__"],
     note: "committed shape captured 2026-07-25 on AU: assignedEmployeeId only. Bot ids come from GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}."
   },
-  // 🔴 REVERSED 2026-08-27: this correction originally carried ONLY reason + docNote, on the
-  // stated theory that adding attrKeys would be a GUESS that arms the ATTR_KEY guard against a
-  // node with no full capture. That theory was WRONG for this specific node: the generated
-  // catalog entry was ALREADY confidence:'verified-live' with a 9-key attrKeys list (from
-  // catalog/step-examples/conversationai_objective.json) — the guard was already armed, before
-  // this correction ever existed. The only effect of leaving attrKeys untouched was that the
-  // guard rejected closingMessage/tags as unknown keys, which meant a blocking objective
-  // (proceedIfNotMet:true) could not compile AT ALL: enforceRequiredFields throws without
-  // closingMessage, and checkAttrKeys throws WITH it. Caught live via compile(), not just the
-  // unit-level enforceRequiredFields check — see required-fields.test.mjs's
-  // 'a blocking objective compiles end to end...' test, which drives the full pipeline.
+  // The catalog entry for this node is ALREADY confidence:'verified-live' with a 9-key
+  // attrKeys list (from catalog/step-examples/conversationai_objective.json), so the
+  // ATTR_KEY guard is armed and rejects closingMessage/tags as unknown keys without this
+  // patch — which means a blocking objective (proceedIfNotMet:true) cannot compile AT ALL:
+  // enforceRequiredFields throws without closingMessage, and checkAttrKeys throws WITH it.
+  // Caught live via compile(), not just the unit-level enforceRequiredFields check — see
+  // required-fields.test.mjs's 'a blocking objective compiles end to end...' test, which
+  // drives the full pipeline.
   //
   // attrKeys REPLACES the generated list (correctSteps spreads the patch), so the original nine
   // keys are carried through verbatim and closingMessage/tags are appended. Evidence for exactly
@@ -139500,13 +139489,9 @@ async function fetchEntities(gw) {
     })}`),
     g(`/voice-ai/agents?${locationQuery()}`),
     // best-effort (may 404)
-    // CORRECTED 2026-07-27 from live traffic. This was `/ai-employees/agents`, annotated
-    // "best-effort (may 404)" — but it does not "may" 404, it ALWAYS does: GHL answers
-    // `404 {"message":"Cannot GET /ai-employees/agents?locationId=…","error":"Not Found"}`,
-    // an express route-not-registered. So this leg contributed nothing on every call and the
-    // best-effort annotation made a permanent blind spot look like an occasional one —
-    // `list_account_entities` reported ZERO Conversation AI agents on accounts that had them.
-    // The live discovery route is the search sibling of the per-agent detail route.
+    // `/ai-employees/agents` 404s ("Cannot GET ... Not Found", an express route-not-registered)
+    // — always, not just "may". The live discovery route is the search sibling of the
+    // per-agent detail route, used below.
     g(`/ai-employees/employees/search?${locationQuery()}`),
     // best-effort (may 404)
     // SECOND-ORDER resolvers (SURFACE-GAP-ANALYSIS G1–G3, live-proven shapes 2026-08-22):
@@ -140126,15 +140111,11 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
       // trigger is re-posted with a "(Copy)" name, and an inbound-webhook trigger gets a fresh
       // predeterminedId (its URL must differ).
       //
-      // CORRECTED 2026-08-28: this used to say "it lands INACTIVE like every API-created
-      // trigger" and left `status` absent — the roster GET `t` came from never carries a
-      // `status` key (see planTriggerOps's mechanism note above), so nothing here ever
-      // overrode the absent-status default. Per the measured POST table, an absent `status`
-      // lands a trigger ACTIVE on either a draft OR a published workflow — the opposite of
-      // "inactive" for a draft target, and wherever it landed had nothing to do with the
-      // copy being API-created. `status` now follows the workflow's own state explicitly,
-      // same rule as addTrigger, so a copy matches its workflow instead of landing wherever
-      // the absent-status default happened to put it.
+      // The roster GET `t` came from never carries a `status` key, and an absent `status`
+      // lands a trigger ACTIVE on either a draft OR a published workflow (per the measured
+      // POST table above planTriggerOps) — wrong for a copy landing on a still-draft
+      // workflow. `status` follows the workflow's own state explicitly, same rule as
+      // addTrigger, so a copy matches its workflow instead of the absent-status default.
       case "duplicateTrigger": {
         const t = resolveTrigger(op, existing);
         const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
@@ -140165,13 +140146,11 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
             name: op.trigger?.name ?? t.name,
             masterType: op.trigger?.masterType ?? t.masterType,
             filters: op.trigger?.filters ?? t.conditions ?? [],
-            // Task 9 (workflow save-correctness): NEVER force-activate. A modify that doesn't
-            // mention `active` must preserve whatever the live trigger already had — `?? true`
-            // here used to switch on any trigger the caller found off (every API-created
-            // trigger lands active:false per addTrigger, so this fired constantly). There is a
-            // standing project rule against enabling anything found off. (`status` above,
-            // not this `active` field, is what actually moves the projection now — this
-            // stays only for read-back fidelity of the request shape the server echoes.)
+            // NEVER force-activate: a modify that doesn't mention `active` preserves whatever
+            // the live trigger already had. There is a standing project rule against enabling
+            // anything found off. (`status` above, not this `active` field, is what actually
+            // moves the projection — this stays only for read-back fidelity of the request
+            // shape the server echoes.)
             active: op.trigger?.active ?? t.active ?? false,
             ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
           },
@@ -144153,9 +144132,8 @@ var TOOLS2 = [
       maxPages: external_exports.number().int().min(1).max(1e3).default(100)
     }),
     capabilities: [
-      // CORRECTED 2026-07-27 from live traffic: `/ai-employees/agents` 404s ("Cannot GET",
-      // i.e. no such route), so this component failed every run. The live discovery route is
-      // the sibling of the detail route below. See core/audit-capabilities.mjs for the probe.
+      // `/ai-employees/agents` 404s ("Cannot GET", i.e. no such route) — use
+      // `/ai-employees/employees/search` instead (see core/audit-capabilities.mjs).
       { method: "GET", path: "/ai-employees/employees/search" },
       { method: "GET", path: "/ai-employees/employees/{agentId}" },
       // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
@@ -145486,9 +145464,9 @@ var TOOLS2 = [
   // negative cases. Two facts that the source alone would not have settled, and which the
   // shape of these tools depends on:
   //
-  //   - Folders are `type: 'directory'` — NOT 'folder'. `?type=folder` returns count 0,
-  //     which reads exactly like "this account has no folders" and is why the folder list
-  //     was believed not to exist at all.
+  //   - Folders are `type: 'directory'` — NOT 'folder'. `?type=folder` returns count 0, not
+  //     an error, which reads exactly like "this account has no folders" if you don't check
+  //     the type.
   //   - The BULK move (`PUT /move`) cannot move anything to root: parentId null, '' and
   //     the sentinel 'root' all 404 "Parent directory not found". Only the SINGLE-item
   //     `PUT /move-directory/{id}` accepts `parentId: null`. move_workflows therefore uses

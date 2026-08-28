@@ -186,15 +186,11 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
       // trigger is re-posted with a "(Copy)" name, and an inbound-webhook trigger gets a fresh
       // predeterminedId (its URL must differ).
       //
-      // CORRECTED 2026-08-28: this used to say "it lands INACTIVE like every API-created
-      // trigger" and left `status` absent — the roster GET `t` came from never carries a
-      // `status` key (see planTriggerOps's mechanism note above), so nothing here ever
-      // overrode the absent-status default. Per the measured POST table, an absent `status`
-      // lands a trigger ACTIVE on either a draft OR a published workflow — the opposite of
-      // "inactive" for a draft target, and wherever it landed had nothing to do with the
-      // copy being API-created. `status` now follows the workflow's own state explicitly,
-      // same rule as addTrigger, so a copy matches its workflow instead of landing wherever
-      // the absent-status default happened to put it.
+      // The roster GET `t` came from never carries a `status` key, and an absent `status`
+      // lands a trigger ACTIVE on either a draft OR a published workflow (per the measured
+      // POST table above planTriggerOps) — wrong for a copy landing on a still-draft
+      // workflow. `status` follows the workflow's own state explicitly, same rule as
+      // addTrigger, so a copy matches its workflow instead of the absent-status default.
       case 'duplicateTrigger': {
         const t = resolveTrigger(op, existing);
         const { id: _i, _id: _ii, date_added: _da, date_updated: _du, deleted: _d, ...rest } = t;
@@ -220,15 +216,10 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
         // TRANSLATE an attempted `active` CHANGE into the field that actually controls it —
-        // see translateActiveToStatus above for the full mechanism and belief history.
-        // FIXED 2026-08-28 (later the same day this used to be a refusal — see
-        // edit-triggers.test.mjs's history comment): this used to THROW here rather than
-        // translate, on the belief that no per-trigger PUT could move `active` in either
-        // direction. That belief was RIGHT about `active` and INCOMPLETE about `status` — see
-        // the mechanism note above planTriggerOps. A value that MATCHES the stored trigger is
-        // a harmless no-op echo (common when a caller round-trips a whole trigger object) and
-        // sends no status write, as does the absence of `active` altogether — only a genuine
-        // attempted CHANGE produces one.
+        // see translateActiveToStatus above for the full mechanism. A value that MATCHES the
+        // stored trigger is a harmless no-op echo (common when a caller round-trips a whole
+        // trigger object) and sends no status write, as does the absence of `active`
+        // altogether — only a genuine attempted CHANGE produces one.
         const requestedActive = op.trigger?.active;
         const storedActive = t.active ?? false;
         const status = translateActiveToStatus(requestedActive, storedActive);
@@ -239,25 +230,21 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
           { type: op.trigger?.type ?? t.type, name: op.trigger?.name ?? t.name,
             masterType: op.trigger?.masterType ?? t.masterType,
             filters: op.trigger?.filters ?? t.conditions ?? [],
-            // Task 9 (workflow save-correctness): NEVER force-activate. A modify that doesn't
-            // mention `active` must preserve whatever the live trigger already had — `?? true`
-            // here used to switch on any trigger the caller found off (every API-created
-            // trigger lands active:false per addTrigger, so this fired constantly). There is a
-            // standing project rule against enabling anything found off. (`status` above,
-            // not this `active` field, is what actually moves the projection now — this
-            // stays only for read-back fidelity of the request shape the server echoes.)
+            // NEVER force-activate: a modify that doesn't mention `active` preserves whatever
+            // the live trigger already had. There is a standing project rule against enabling
+            // anything found off. (`status` above, not this `active` field, is what actually
+            // moves the projection — this stays only for read-back fidelity of the request
+            // shape the server echoes.)
             active: op.trigger?.active ?? t.active ?? false,
             ...(op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}) },
           ctx, wid,
         );
-        // BUG FIX 2026-08-28 (live, client-affecting — the long-standing "modifyTrigger flips
-        // active to FALSE" observation from 17 Aug, finally explained): buildTrigger hardcodes
-        // `status:'draft'` (correct ONLY on the BUILD path — see compiler.mjs's own comment).
-        // Left in `merged`, that 'draft' rides EVERY modifyTrigger PUT and DEACTIVATES the
-        // trigger being edited, because `active` is a projection of `status`
-        // (`active === (status !== 'draft')`) and status:'draft' is a genuine write, not an
-        // echo. Strip it — this PUT sends `status` if, and only if, `status` above says a
-        // change was actually requested.
+        // buildTrigger hardcodes `status:'draft'` (correct ONLY on the BUILD path — see
+        // compiler.mjs's own comment). Left in `merged`, that 'draft' would ride EVERY
+        // modifyTrigger PUT and DEACTIVATE the trigger being edited, because `active` is a
+        // projection of `status` (`active === (status !== 'draft')`) and status:'draft' is a
+        // genuine write, not an echo. Strip it — this PUT sends `status` if, and only if,
+        // `status` above says a change was actually requested.
         delete merged.status;
         return { op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid,
           body: { ...t, ...merged, id: tid, _id: t._id ?? tid, ...(status !== undefined ? { status } : {}) } };
@@ -267,59 +254,31 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
   });
 }
 
-// REMOVED 2026-08-28 — planTriggerActivation() used to live here. History, so nobody
-// re-proposes the same fix:
-//   Task 9 (workflow save-correctness, 2026-08-27) found the full-document PUT's
-//   oldTriggers/newTriggers INERT for trigger content generally (200, version bumped, trigger
-//   unchanged) and the standalone draft→published double-PUT dance in edit.mjs equally inert.
-//   The fix routed activation through a per-trigger PUT /workflow/{loc}/trigger/{triggerId}
-//   instead — this function built that request, one per inactive trigger, carrying the WHOLE
-//   record with active:true.
-//   Later the same day, a live probe sending that exact per-trigger PUT with active:false
-//   against two triggers got 200 back with both read UNCHANGED — the `active` claim was
-//   retracted, but the write stayed in place "best effort" (docs corrected, code untouched).
-//   Measured 2026-08-28 (throwaway probes on the designated test sub-account) closed the
-//   question with three experiments: (1) a publish with ZERO trigger writes still flips
-//   `active` to true; (2) publish-PUT-to-active convergence is sub-second (0.28s), which is
-//   what actually explained the 2026-08-27 "unsettled value" false lead, not this write; (3) a
-//   per-trigger PUT with active:false against a PUBLISHED workflow returns 200 and the trigger
-//   still reads active:true at +0.5s/+2s/+5s. Conclusion: `active` is a SERVER-MANAGED
-//   PROJECTION of the workflow's publish state. This endpoint accepts `active` and ignores it
-//   in both directions — the write this function built was a 200 that changed nothing, the
-//   exact defect class Task 9 existed to eliminate. It was proven live-load-bearing for trigger
-//   CONTENT (conditions, name, targetActionId) and remains true there — see modifyTrigger
-//   above, which still uses the same per-trigger PUT shape for content edits, just never for
-//   `active`.
+// planTriggerActivation() does not exist — do not re-add a function that sends a per-trigger
+// PUT carrying `active` directly. `active` is a SERVER-MANAGED PROJECTION of the workflow's
+// publish state, not a field any PUT body controls: a publish with zero trigger writes still
+// activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT
+// with `active:false` against a published workflow returns 200 with the trigger reading
+// active:true. The field that actually controls it is the trigger's OWN `status` field
+// ("draft"|"published") — `active === (status !== "draft")`. Sending `status:"published"` on
+// a per-trigger PUT DOES activate a trigger on an already-published workflow, read back clean
+// at +0.5s/+2s/+5s; `status:"draft"` deactivates it the same way. A bogus `status` string is
+// silently accepted and ignored (200, unchanged) — never trust the 200, always read `active`
+// back.
 //
-// Nothing replaced this function TO REACTIVATE THE SAME BODY SHAPE — carrying `active` was
-// and remains the wrong tool. The conclusion below it stood for less than 24 hours before
-// further measurement corrected it:
+// The per-trigger PUT is still genuinely load-bearing for trigger CONTENT (conditions, name,
+// targetActionId) — see modifyTrigger above, which uses the same PUT shape for content edits,
+// just never sends `active`.
 //
-// UPDATE 2026-08-28 (later the same day): "there is currently no known write that activates a
-// trigger against an ALREADY-published workflow" was INCOMPLETE, not wrong about `active`
-// itself. Every experiment above (and the retired planTriggerActivation body) sent `active`
-// and never `status` — and the roster GET that fed every one of those probes does not surface
-// `status` at all (only `active`), so the field that actually matters was invisible to the
-// investigation, not absent from the API. Measured the same day, on the same test
-// sub-account: a trigger record carries its OWN `status` field ("draft"|"published"), and
-// `active` is a read-only projection of it — `active === (status !== "draft")`. Sending
-// `status:"published"` on exactly this per-trigger PUT — the same shape planTriggerActivation
-// used, just with the one field it never tried — DOES activate a trigger on an
-// already-published workflow, read back clean at +0.5s/+2s/+5s; `status:"draft"` deactivates
-// it the same way. A bogus `status` string is silently accepted and ignored (200, unchanged),
-// so this write is subject to the same rule as every other one in this file: never trust the
-// 200, always read `active` back.
-//
-// This is now the REPAIR rail: publish_workflow (mcp-internal/core/tools.mjs),
-// orchestrate.mjs's --publish step, and scripts/edit.mjs's post-add activation check each
-// send this exact PUT — one per trigger that STILL reads inactive after the publish PUT's own
-// cascade (the workflow-level draft→published transition sets `status:"published"` on every
-// trigger within ~0.3s, with no trigger write needed, and usually makes the repair a no-op) —
-// then re-list and verify before reporting success. Only a trigger that is STILL inactive
-// after that repair is reported as a failure now; see each call site's own comment for the
-// current wording. The round-trip verification itself is unchanged and remains mandatory: it
-// is still the only thing in this system that tells the truth about activation, exactly as
-// it was when `active` looked unwritable.
+// This is the REPAIR rail: publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's
+// --publish step, and scripts/edit.mjs's post-add activation check each send this exact PUT —
+// one per trigger that STILL reads inactive after the publish PUT's own cascade (the
+// workflow-level draft→published transition sets `status:"published"` on every trigger within
+// ~0.3s, with no trigger write needed, which usually makes the repair a no-op) — then re-list
+// and verify before reporting success. Only a trigger still inactive after that repair is
+// reported as a failure; see each call site's own comment for the current wording. The
+// round-trip verification is mandatory either way: it is the only thing in this system that
+// tells the truth about activation.
 
 // Compile an IR action node into the subgraph the edit ops splice in. A linear step
 // compiles to exactly one template; a CONTAINER (find_opportunity with onFound/onNotFound,

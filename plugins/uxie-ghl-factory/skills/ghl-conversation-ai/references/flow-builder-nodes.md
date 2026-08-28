@@ -93,9 +93,8 @@ a flow can never gain an ordinary trigger, only more custom ones.
 the primary / main workflow is completed. This will move the contact to the alternate branch."*
 Not executed — the jump has not been observed running.
 
-> An earlier revision of this page said this trigger was unreachable from the flow builder. That
-> was observed before the app finished resolving its Conversation-AI plan state; once resolved the
-> picker offers it. Corrected 2026-08-26.
+> The picker only offers this trigger once the app has finished resolving its Conversation-AI
+> plan state — checking too early makes it look unreachable from the flow builder.
 
 ---
 

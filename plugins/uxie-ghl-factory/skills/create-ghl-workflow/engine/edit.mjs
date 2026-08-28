@@ -16,65 +16,26 @@ import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { gotoLoops } from './goto-loops.mjs';
 
-// A trigger added via the API used to land `active: false` on the server no matter what the
-// POST body said — or so it was believed until 2026-08-28 (see UPDATE below). That belief was
-// actually a property of buildTrigger hardcoding `status:'draft'` on every trigger it built,
-// not of being API-created: `status` ("draft"|"published") is the field that actually decides
-// `active`, and the edit path had never sent anything else.
+// `active` is a read-only projection of a trigger's own `status` field ("draft"|"published")
+// — `active === (status !== "draft")` — not a field any PUT body sets directly. A per-trigger
+// PUT carrying `active` is silently accepted and ignored in both directions; the publish
+// PUT's own draft→published transition activates every trigger as a side effect, sub-second,
+// with no trigger write at all. `buildTrigger` hardcodes `status:'draft'`, correct only on
+// the BUILD path (see its own comment in compiler.mjs); `modifyTrigger` strips that hardcoded
+// value from its PUT body unless the caller explicitly asked for an activation change
+// (edit-driver.mjs's translateActiveToStatus) — the PUT sends `status` if, and only if, an
+// activation change was actually requested, and otherwise echoes the trigger's stored status
+// untouched.
 //
-// Two write rails were tried here and retired, in order — kept as history so neither gets
-// re-proposed:
-//   1. RETIRED 2026-08-27 (Task 9, workflow save-correctness): this module used to export
-//      shouldActivateTriggers()/triggerActivationBody(), which drove a status
-//      draft→published double full-document PUT — every trigger forced active:true onto
-//      that PUT's oldTriggers/newTriggers roster ("mirroring the builder's real publish",
-//      or so it was believed). Live-proven INERT: the PUT is accepted, `version` bumps, and
-//      the stored trigger's `active` flag never moves — the same shape as the reported
-//      "every generic write path for workflow trigger conditions returns 200 and changes
-//      nothing" defect.
-//   2. RETIRED 2026-08-28: what replaced it was a per-trigger PUT
-//      /workflow/{loc}/trigger/{triggerId} carrying the WHOLE trigger record with
-//      active:true (planTriggerActivation(), formerly in edit-driver.mjs). That rail is
-//      genuinely live-proven for trigger CONTENT — conditions, name, targetActionId all
-//      land and persist — so it stayed in use for modifyTrigger. For `active` specifically
-//      it was retracted to "unproven" the same day it shipped (a probe read it back
-//      unchanged), and then fully DISPROVED on 2026-08-28 by three measurements
-//      (throwaway probes on the designated test sub-account): a publish with ZERO trigger
-//      writes still activates every trigger, sub-second after the publish PUT returns; a
-//      per-trigger PUT with active:false against a published workflow returns 200 and the
-//      trigger stays active:true; and the sub-second publish-to-active convergence is what
-//      actually explained the earlier "read back unchanged" result, not an unsettled value.
-//      `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state — this
-//      endpoint accepts the field and silently ignores it, in both directions. The write
-//      was a 200 that changed nothing: exactly the defect class Task 9 existed to
-//      eliminate. It was removed rather than kept "best effort".
-//
-// Nothing replaced either rail's BODY SHAPE (carrying `active` directly) — that remains the
-// wrong tool. The paragraph that used to stand here said flatly that nothing activates a
-// trigger against an already-published workflow; that conclusion did not survive the day.
-//
-// UPDATE 2026-08-28 (later the same day): further measurement (throwaway workflows on the
-// designated test sub-account) found the field both retired rails, and the belief above,
-// missed: a trigger record carries its OWN `status` field ("draft"|"published"), never
-// returned by the roster GET that fed every earlier probe (only `active` is), and `active` is
-// a READ-ONLY PROJECTION of it — `active === (status !== "draft")`. Sending
-// `status:"published"` on the SAME per-trigger PUT rail #2 already used — just with the one
-// field it never tried — DOES activate a trigger on an already-published workflow, verified
-// by read-back at +0.5s/+2s/+5s; `status:"draft"` deactivates it. A bogus `status` string is
-// silently accepted and ignored (200, unchanged), so this write is held to the same rule as
-// everything else in this file: the 200 is never the proof, the read-back is.
-//
-// This is now a REPAIR rail, not something buildTrigger emits blind: buildTrigger still
-// hardcodes `status:'draft'` for the fresh-workflow BUILD path (correct there — see its own
-// comment in compiler.mjs), and modifyTrigger strips that hardcoded value from its PUT body
-// unless the caller explicitly asked for an activation change (edit-driver.mjs's
-// translateActiveToStatus). Whether to run the repair is still decided from the workflow's
-// status (only a PUBLISHED workflow's still-inactive triggers get one — publishing a draft
-// remains a separate, user-confirmed decision, never a side effect of a trigger edit);
-// publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and
-// scripts/edit.mjs's post-add check each send it, one per trigger that reads inactive after
-// their own publish PUT, then re-list and verify before ever reporting success — only a
-// trigger STILL inactive after that repair is reported as a failure now.
+// The only write this module (or its callers) sends for activation is a REPAIR: one
+// per-trigger PUT carrying `status:"published"` for a trigger that still reads inactive after
+// a PUBLISHED workflow's own publish PUT — never as a side effect of a plain trigger edit,
+// and never on a still-draft workflow (publishing a draft remains a separate, user-confirmed
+// decision). publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish
+// step, and scripts/edit.mjs's post-add check each send it, one per trigger that reads
+// inactive after their own publish PUT, then re-list and verify before ever reporting
+// success — a bogus or ignored `status` is silently accepted (200, unchanged), so only a
+// trigger still inactive after that repair, confirmed by read-back, is reported as a failure.
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).

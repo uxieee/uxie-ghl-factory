@@ -269,11 +269,12 @@ the real ones are confirmed by the options endpoint, which returns the list unde
 `conversationai_services`. Treat any ⚑ row as having possibly-wrong key NAMES until a committed
 capture proves otherwise.
 
-🔴 **SUPERSEDED IN PART — see [`flow-builder-nodes.md`](flow-builder-nodes.md)** (2026-08-26), the
-complete capture taken against a real `FLOW_BUILDER_BOT`. It corrects this section on four points:
-the flow binds via a `conditions[].botId` row and **not** `convTriggerBotId` (which GHL discards);
-there are **three** multi-path nodes, not two (`services_booking` has Appointment Booked / Not
-Booked); `continue`'s key is `instructions` and it stores `""` rather than being `{}`; and
+🔴 **[`flow-builder-nodes.md`](flow-builder-nodes.md) is the authoritative reference** for the
+flow builder's trigger binding and node semantics — it holds the complete capture (2026-08-26)
+against a real `FLOW_BUILDER_BOT`. Four points where it differs from the summary above: the
+flow binds via a `conditions[].botId` row, **not** `convTriggerBotId` (GHL discards that
+field); there are **three** multi-path nodes, not two (`services_booking` has Appointment
+Booked / Not Booked); `continue`'s key is `instructions`, storing `""` rather than `{}`; and
 `continue`/`end` are TERMINAL — an `end` inserted mid-flow is silently dropped at save.
 
 The multi-path nodes emit `cat:"multi-path"`, `convertToMultipath:true`, `transitions[]`, and

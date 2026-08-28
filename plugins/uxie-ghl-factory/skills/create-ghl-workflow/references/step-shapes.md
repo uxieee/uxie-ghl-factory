@@ -56,8 +56,7 @@ corpus — the catalog had no way to know they existed.
 
 `update_appointment_status` is the second trap: the sibling `category` attribute selects
 *which* union applies (appointment vs rental booking), and `cancelled` is the only value
-valid in both. A note in that example previously asserted the set was `confirmed | cancelled`
-— read off the single capture, and wrong; corrected 2026-08-04.
+valid in both.
 
 **So:** before authoring any enum-shaped attribute, check the example's `_variantRules`
 block, and if the field is not covered there, read the union out of

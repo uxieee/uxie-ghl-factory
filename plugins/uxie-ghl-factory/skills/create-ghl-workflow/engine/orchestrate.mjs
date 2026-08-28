@@ -95,13 +95,9 @@ export async function fetchEntities(gw) {
       model: 'all', query: '', includeStandards: 'false',
     })}`),
     g(`/voice-ai/agents?${locationQuery()}`),               // best-effort (may 404)
-    // CORRECTED 2026-07-27 from live traffic. This was `/ai-employees/agents`, annotated
-    // "best-effort (may 404)" — but it does not "may" 404, it ALWAYS does: GHL answers
-    // `404 {"message":"Cannot GET /ai-employees/agents?locationId=…","error":"Not Found"}`,
-    // an express route-not-registered. So this leg contributed nothing on every call and the
-    // best-effort annotation made a permanent blind spot look like an occasional one —
-    // `list_account_entities` reported ZERO Conversation AI agents on accounts that had them.
-    // The live discovery route is the search sibling of the per-agent detail route.
+    // `/ai-employees/agents` 404s ("Cannot GET ... Not Found", an express route-not-registered)
+    // — always, not just "may". The live discovery route is the search sibling of the
+    // per-agent detail route, used below.
     g(`/ai-employees/employees/search?${locationQuery()}`), // best-effort (may 404)
     // SECOND-ORDER resolvers (SURFACE-GAP-ANALYSIS G1–G3, live-proven shapes 2026-08-22):
     // the account's workflows (add_to_workflow targets by NAME), custom values, trigger links,
@@ -604,35 +600,20 @@ export async function orchestrate(ir, gw, opts = {}) {
   //    NOT a bare status flip. The UI sends the WHOLE workflow object as-is (it keeps
   //    filePath/fileUrl/version/autoSaveSessionId — do NOT strip them) and bumps `version`.
   //
-  //    Task 9 (workflow save-correctness, 2026-08-27) found the full-document PUT's
-  //    oldTriggers/newTriggers INERT for trigger content generally — 200, version bumped,
-  //    stored trigger unchanged — and routed activation through a per-trigger PUT
-  //    /workflow/{loc}/trigger/{triggerId} instead (planTriggerActivation), run BEFORE this
-  //    PUT. Measured 2026-08-28 (throwaway probes on the designated test sub-account, three
-  //    experiments) DISPROVED that this per-trigger write did anything: a publish with ZERO
-  //    trigger writes still activates every trigger; a per-trigger PUT with active:false
-  //    against a published workflow returns 200 and the trigger stays active:true; and the
-  //    publish-PUT-to-active convergence is sub-second (0.28s), which is what actually
-  //    explained the earlier "still unchanged" reads, not an unproven write. `active` is a
-  //    SERVER-MANAGED PROJECTION of the workflow's publish state — this PUT flips it by being
-  //    a publish transition, not through any field in its body. No per-trigger write is sent
-  //    here anymore. oldTriggers/newTriggers on THIS body is an unchanged roster ECHO — what
-  //    the builder always sends on publish — never the activation mechanism.
+  //    No per-trigger write is sent before this PUT. `active` is a SERVER-MANAGED PROJECTION
+  //    of the workflow's publish state, not a field any PUT body controls directly — this
+  //    PUT's own draft→published transition activates every trigger sub-second, purely by
+  //    being a publish transition. oldTriggers/newTriggers on THIS body is an unchanged
+  //    roster ECHO — what the builder always sends on publish — never the activation
+  //    mechanism. The trigger's own `status` field ("draft"|"published") is what actually
+  //    controls `active` (`active === (status !== "draft")`); a per-trigger PUT carrying
+  //    `status:"published"` DOES activate a trigger on an already-published workflow,
+  //    verified by read-back, while one carrying `active` directly is silently accepted and
+  //    ignored. A bogus `status` string is likewise silently accepted and ignored (200,
+  //    unchanged), so this write is held to the same rule as everything else here: never
+  //    trust the 200.
   //
-  //    UPDATE 2026-08-28 (later the same day): the conclusion above was right about `active`
-  //    and incomplete about `status`. Every disproof experiment sent (or omitted) `active` and
-  //    never `status` — and the roster GET that fed them never surfaces `status` at all, only
-  //    `active` — so the field that actually matters was invisible to the investigation, not
-  //    absent from the API. Measured the same day: a trigger record carries its OWN `status`
-  //    field ("draft"|"published"), and `active` is a read-only projection of it
-  //    (`active === (status !== "draft")`). A per-trigger PUT carrying `status:"published"` —
-  //    the SAME endpoint the retired per-trigger write used, just with the one field it never
-  //    tried — DOES activate a trigger on an already-published workflow, verified by read-back.
-  //    A bogus `status` string is silently accepted and ignored (200, unchanged), so this
-  //    write is held to the same rule as everything else here: never trust the 200.
-  //
-  //    This is now a REPAIR, not the primary mechanism: the publish PUT's own draft→published
-  //    cascade (proven to reach every trigger sub-second, per the measurement above) already
+  //    This is a REPAIR, not the primary mechanism: the publish PUT's own cascade already
   //    activates the common case with no trigger write at all, so the loop below only sends
   //    anything when a trigger STILL reads inactive after that cascade — see below.
   if (opts.publish) {
