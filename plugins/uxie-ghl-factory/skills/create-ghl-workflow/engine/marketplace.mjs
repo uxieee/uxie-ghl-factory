@@ -112,7 +112,7 @@ export function parseInstalledModules({ triggers = [], actions = [] } = {}) {
 // list. An action entry's `appId`/`installed` can only ever come from an app that
 // publishes that key AS AN ACTION; a trigger entry's, only from an app that publishes it
 // AS A TRIGGER.
-export function buildMarketplaceIndex({ assets, modules } = {}) {
+export function buildMarketplaceIndex({ assets, modules, legs } = {}) {
   const actionSchema = parseMarketplaceActions(assets);
   const triggerSchema = parseMarketplaceTriggers(assets);
   const apps = parseInstalledModules(modules ?? {});
@@ -135,6 +135,15 @@ export function buildMarketplaceIndex({ assets, modules } = {}) {
   const byKind = { action: join(actionSchema, 'action'), trigger: join(triggerSchema, 'trigger') };
 
   return {
+    // WHICH READS FAILED. A key missing from the assets schema, or an app reading installed:false,
+    // means nothing when the read behind it did not succeed — the compiler must say "unknown",
+    // never "not installed" (F5-11). Absent legs = a caller that built the index from data it
+    // already trusts (tests, the empty index a native build uses).
+    readFailed: {
+      assets: legs?.assets === 'failed',
+      actions: legs?.actions === 'failed',
+      triggers: legs?.triggers === 'failed',
+    },
     // `kind` is REQUIRED — must be exactly 'action' or 'trigger'. Action and trigger
     // keys are NOT one namespace (see parseMarketplaceActions's docstring for the
     // observed `contact_engagement_score` collision); the caller must always say which

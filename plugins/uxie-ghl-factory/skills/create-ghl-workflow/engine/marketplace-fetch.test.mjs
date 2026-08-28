@@ -96,3 +96,14 @@ test('a native build whose attributes nest an object CONTAINING "marketplace":tr
   assert.equal(calls.filter(({ path }) => path.includes('/workflows-marketplace/')).length, 1,
     'only the pre-existing action-schema fetch should hit this endpoint, not a second marketplace-index fetch');
 });
+
+test('fetchMarketplace reports each leg — a failed leg is named, never folded into "no apps"', async () => {
+  const call = async (m, p) => {
+    if (p.includes('/assets')) return { ok: true, json: { actions: [], triggers: [] } };
+    if (p.includes('type=actions')) return { ok: false, status: 500, json: {} };
+    throw new Error('transport');
+  };
+  const out = await fetchMarketplace(call, 'LOC');
+  assert.deepEqual(out.legs, { assets: 'ok', actions: 'failed', triggers: 'failed' });
+  assert.deepEqual(out.modules, { actions: [], triggers: [] });
+});

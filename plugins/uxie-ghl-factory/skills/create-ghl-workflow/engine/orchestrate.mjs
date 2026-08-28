@@ -158,25 +158,29 @@ export async function fetchEntities(gw) {
 // because an optional enrichment was unavailable, matching fetchActionSchema's contract.
 // The two module reads are on the AI host; the caller's gateway routes them.
 export async function fetchMarketplace(call, loc) {
-  const empty = { assets: null, modules: { actions: [], triggers: [] } };
-  const get = async (path) => {
+  const legs = { assets: 'failed', actions: 'failed', triggers: 'failed' };
+  const get = async (leg, path) => {
     try {
       const r = await call('GET', path);
-      return r?.ok ? r.json : null;
+      if (r?.ok) { legs[leg] = 'ok'; return r.json; }
+      return null;
     } catch { return null; }
   };
-  const assets = await get(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const assets = await get('assets', `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
   const page = (type) =>
     `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
-  const actions = await get(page('actions'));
-  const triggers = await get(page('triggers'));
-  if (!assets && !actions && !triggers) return empty;
+  const actions = await get('actions', page('actions'));
+  const triggers = await get('triggers', page('triggers'));
   return {
     assets,
     modules: {
       actions: Array.isArray(actions) ? actions : (actions?.modules ?? actions?.data ?? []),
       triggers: Array.isArray(triggers) ? triggers : (triggers?.modules ?? triggers?.data ?? []),
     },
+    // WHICH LEGS SUCCEEDED. A failed leg used to collapse into "no modules", which the index read
+    // as installed:false for every key and the compiler turned into MARKETPLACE_APP_NOT_INSTALLED —
+    // a transient 5xx or an expired token read as "install the app first" (F5-11).
+    legs,
   };
 }
 
@@ -200,7 +204,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // 8 clean" hid a dropped 51-step subtree on a live build (2026-07-16) because round-trip
   // only compares SENT vs GOT — both were 8. `authored` is the only number tied to what the
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
-  const report = { wid: null, resolvedFrom: null, unresolved: [], createdTags: [], createdTemplates: [],
+  const report = { wid: null, resolvedFrom: null, marketplaceRead: null, unresolved: [], createdTags: [], createdTemplates: [],
     authored: 0, compiled: 0, steps: 0, warnings: [], stickyNotes: { planned: 0, posted: 0, failed: [] }, readiness: [],
     triggers: { posted: 0, failed: [], ids: [] }, webhookUrls: [], webhookPins: [], customCodeTests: [], verify: { pass: 0, issues: [] }, published: false,
     aborted: null, failurePhase: null, failureHttp: null };
@@ -246,6 +250,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   const marketplace = usesMarketplace
     ? buildMarketplaceIndex(await fetchMarketplace(call, loc))
     : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
+  report.marketplaceRead = usesMarketplace ? marketplace.readFailed : null;
   const resolvers = buildResolvers(entities);
   const { unresolved } = resolveIR(ir, resolvers);
   report.unresolved = unresolved;

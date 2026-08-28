@@ -195,3 +195,23 @@ test('cross-app collision: the installed trigger resolves to its OWN app, unaffe
   assert.equal(trigger.installed, true);
   assert.equal(trigger.appId, 'app-B');
 });
+
+test('buildMarketplaceIndex exposes readFailed per leg; absent legs mean nothing failed', () => {
+  const assets = { actions: [{ appName: 'A', actions: [{ key: 'k', version: '1', templateId: 'T' }] }], triggers: [] };
+  const withLegs = buildMarketplaceIndex({ assets, modules: { actions: [], triggers: [] }, legs: { assets: 'ok', actions: 'failed', triggers: 'ok' } });
+  assert.deepEqual(withLegs.readFailed, { assets: false, actions: true, triggers: false });
+  const noLegs = buildMarketplaceIndex({ assets, modules: { actions: [], triggers: [] } });
+  assert.deepEqual(noLegs.readFailed, { assets: false, actions: false, triggers: false });
+});
+
+test('marketplaceEntry: a failed install read is MARKETPLACE_READ_FAILED, never "not installed"', async () => {
+  const { marketplaceEntry } = await import('./compiler.mjs');
+  const entry = { installed: false, appName: 'Some App', key: 'k' };
+  const node = { type: 'k', ref: 'n' };
+  const ctxFailed = { marketplace: { get: () => entry, readFailed: { assets: false, actions: true, triggers: false } } };
+  assert.throws(() => marketplaceEntry(node, ctxFailed, 'action'), (e) => e.code === 'MARKETPLACE_READ_FAILED' && /read failure/.test(e.message));
+  const ctxOk = { marketplace: { get: () => entry, readFailed: { assets: false, actions: false, triggers: false } } };
+  assert.throws(() => marketplaceEntry(node, ctxOk, 'action'), (e) => e.code === 'MARKETPLACE_APP_NOT_INSTALLED');
+  const ctxNoAssets = { marketplace: { get: () => undefined, readFailed: { assets: true, actions: false, triggers: false } } };
+  assert.throws(() => marketplaceEntry(node, ctxNoAssets, 'trigger'), (e) => e.code === 'MARKETPLACE_READ_FAILED');
+});
