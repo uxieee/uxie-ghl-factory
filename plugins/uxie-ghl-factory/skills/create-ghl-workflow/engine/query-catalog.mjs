@@ -180,9 +180,13 @@ export function renderMarkdown(d) {
       if (s.premium) bits.push('premium');
       // docNote surfaces a step-side CATALOG_CORRECTIONS entry (required-fields.mjs) — see
       // conversationai_objective's proceedIfNotMet polarity note. Mirrors the trigger-side
-      // docNote below. Keeps this doc GENERATED rather than hand-edited, so the sync check
-      // stays meaningful.
-      const note = s.docNote ? `. ${s.docNote}` : '';
+      // docNote below. `note` is the same kind of author-facing evidence text on the four
+      // entries that predate the docNote convention (conversationai_end/continue/
+      // services_booking/transfer_bot) — rendered here too, falling back only when docNote
+      // is absent, since no entry currently carries both. Keeps this doc GENERATED rather
+      // than hand-edited, so the sync check stays meaningful.
+      const noteText = s.docNote ?? s.note;
+      const note = noteText ? `. ${noteText}` : '';
       out.push(`- ${TIER_MARK[s.confidence]} \`${s.type}\`${bits.length ? ' — ' + bits.join('; ') : ''}${note}`);
     }
   }

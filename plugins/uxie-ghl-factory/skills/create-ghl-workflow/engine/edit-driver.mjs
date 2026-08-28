@@ -236,6 +236,16 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
             // moves the projection — this stays only for read-back fidelity of the request
             // shape the server echoes.)
             active: op.trigger?.active ?? t.active ?? false,
+            // Forward the stored target so buildTrigger's own goto-target check sees it. Left
+            // unset, a modify of a goto trigger (conv_ai_autonomous_trigger) warned
+            // TRIGGER_TARGET: "... is a goto trigger with NO target" on every edit — dishonest,
+            // since t.targetActionId in fact survives onto the PUT body below via spread order
+            // (`{ ...t, ...merged }`) whether buildTrigger ever saw it or not. An author-supplied
+            // targetActionId on the op overrides the stored one; `target` (a ref) is passed
+            // through too so buildTrigger's own target-over-targetActionId precedence still
+            // applies if a caller ever supplies one.
+            targetActionId: op.trigger?.targetActionId ?? t.targetActionId,
+            ...(op.trigger?.target ? { target: op.trigger.target } : {}),
             ...(op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}) },
           ctx, wid,
         );

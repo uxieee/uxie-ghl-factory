@@ -687,6 +687,23 @@ test('add_to_workflow always ships a boolean input_trigger_params, defaulting to
     'CONDITIONAL_DEFAULTS.add_to_workflow must only fill an ABSENT value, never override one the author supplied');
 });
 
+// The UI drawer writes the STRING "False" here (see the comment above
+// CONDITIONAL_DEFAULTS.add_to_workflow), which GHL's save validator rejects with "Expected
+// boolean" — and "False" is truthy, so a naive `!!value` coercion would turn a value GHL
+// rejects into one that looks accepted, hiding the defect instead of catching it. Refuse
+// outright rather than coerce.
+test('add_to_workflow refuses a non-boolean input_trigger_params instead of coercing it', async () => {
+  const { enforceRequiredFields } = await import('./required-fields.mjs');
+  const node = { type: 'add_to_workflow', name: 'Enrol' };
+  for (const badValue of ['False', null, 0]) {
+    assert.throws(
+      () => enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow', input_trigger_params: badValue }, {}),
+      (e) => e.code === 'ATTR_TYPE' && /input_trigger_params/.test(e.message) && /boolean/.test(e.message),
+      `input_trigger_params: ${JSON.stringify(badValue)} must be refused, not coerced`,
+    );
+  }
+});
+
 test('a blocking objective without a closing message is refused', async () => {
   const { enforceRequiredFields } = await import('./required-fields.mjs');
   const node = { type: 'conversationai_objective', name: 'Capture outcome' };

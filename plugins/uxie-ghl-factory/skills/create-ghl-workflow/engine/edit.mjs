@@ -311,6 +311,9 @@ export function assignMarketplaceStepIndexes(templates) {
 // account 2026-07-31 — version 14→15, 8 steps intact, attributes byte-identical, the
 // workflow stayed published).
 export function renameStep(templates, stepId, name) {
+  // Named here rather than left to modifyStep's own guard: a bare pass-through reported an
+  // unknown id as "modifyStep: no step with id …", naming the op renameStep never called.
+  requireStep(templates, stepId, 'renameStep');
   if (typeof name !== 'string' || name.trim() === '')
     throw new Error(`renameStep: 'name' must be a non-empty string (got ${JSON.stringify(name)})`);
   return modifyStep(templates, stepId, {}, { name });

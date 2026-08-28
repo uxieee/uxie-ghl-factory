@@ -36,11 +36,11 @@ test('renameStep refuses an empty or non-string name rather than blanking the la
     assert.throws(() => renameStep(chain(), 's2', bad), /non-empty string/);
 });
 
-// D27: renameStep delegates to modifyStep, which used to return emptyDiff() for an unknown
-// id — a successful-looking no-op that hid a caller bug. modifyStep now throws, so renameStep
-// does too, by inheritance rather than its own guard.
+// D27: an unknown id used to return emptyDiff() — a successful-looking no-op that hid a
+// caller bug. renameStep checks the id itself before delegating to modifyStep for the actual
+// mutation, so the thrown message names the op the caller actually invoked.
 test('renameStep on an unknown id throws instead of returning a clean empty diff', () => {
-  assert.throws(() => renameStep(chain(), 'nope', 'X'), /modifyStep: no step with id 'nope'/);
+  assert.throws(() => renameStep(chain(), 'nope', 'X'), /renameStep: no step with id 'nope'/);
 });
 
 test('modifyStep still merges attributes only when no stepPatch is passed (contract intact)', () => {
