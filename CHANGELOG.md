@@ -11,6 +11,52 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.36.0] — 2026-08-28
+
+The 0.35.0 release shipped a limit stated as fact: "a trigger reading inactive on an
+already-published workflow cannot be activated through any known API path." Re-investigation
+disproved it the same day — and on the way found a live, client-affecting bug that predates every
+recent release. The mechanism, measured one variable at a time on throwaway workflows: a trigger's
+`active` flag is a **read-only projection of the trigger's own `status` field**
+(`active === status !== "draft"`). `active` itself is never a write; `status` is. The recovered
+source had said so all along (`Trigger.ts:74,79`) — in a research page the API page contradicted.
+
+### Fixed
+
+- 🔴 **`modifyTrigger` deactivated every trigger it edited on a published workflow.** The trigger
+  body was rebuilt through `buildTrigger`, which hardcodes `status: "draft"` — so any content edit
+  silently switched the trigger off. This is the unexplained "active flipped to FALSE" observation
+  from 2026-08-17, finally root-caused. A modify now sends no `status` at all (absent = unchanged,
+  measured) unless the caller asked for an activation change.
+- 🔴 **`addTrigger` on an already-published workflow created a trigger that could never fire** —
+  it landed `status: "draft"` with no publish transition ever coming. Triggers created on the edit
+  path now carry `status` matching the target workflow's publish state; the build path keeps
+  `"draft"` deliberately, so a new workflow's triggers stay inert until publish.
+- 🔴 **The 0.35.0 refusal of an explicit `active` change is replaced by the real write.**
+  `active: true` translates to `status: "published"`, `active: false` to `status: "draft"`; a value
+  matching the stored state, or no `active` at all, sends no status key. Live-proven: a trigger
+  stranded inactive by the old engine shape was activated through `scripts/edit.mjs` and read back
+  active, alongside a content-only modify that stayed active.
+- 🔴 **`requiresPublish` no longer tells a caller to undo their own deactivation.** Caught in
+  review before shipping: after an explicit `modifyTrigger active: false`, the response instructed
+  the caller to run `publish_workflow` — whose cascade would have turned the just-disabled trigger
+  back on. A modifyTrigger translate is self-contained in both directions and never needs a publish.
+- **`publish_workflow` (and both other publish paths) now REPAIR inactive triggers** on an
+  already-published workflow: one per-trigger PUT with `status: "published"` per inactive trigger,
+  verified by a fresh read-back, failing loudly only after the repair. The 0.35.0 "no known API
+  path" comments and tool descriptions are corrected, with the belief-and-disproof history kept.
+
+### Changed
+
+- A bogus `status` value is accepted by GHL with a 200 and silently ignored — measured — so every
+  status write remains proven by reading `active` back, never trusted.
+- Round-trip verification now checks `active` when (and only when) the op carried an explicit
+  `active` request, in both directions.
+- Known, recorded, not yet fixed: a `modifyTrigger` activation applied to a trigger of a
+  still-draft workflow gets no advisory that the workflow itself must be published before anything
+  enrols — the trigger will evaluate and match, but enrolment stays gated by workflow status
+  (measured: draft-first holds one layer lower than assumed).
+
 ## [0.35.0] — 2026-08-28
 
 GHL tightened its save-time validation around 2026-08-27 and engine-built workflows stopped being
