@@ -3083,9 +3083,10 @@
    "location_owner": 3,
    "message": 3,
    "user": 10,
-   "appointment": 21,
+   "appointment": 30,
    "calendar": 1,
    "membership_contact": 3,
+   "task": 13,
    "inboundEmail": 8,
    "mailgun_email_event": 3,
    "document": 15,
@@ -3773,6 +3774,30 @@
     "group": "getCustomTagOptions"
    },
    {
+    "tag": "{{task.id}}",
+    "label": "Task ID",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.title}}",
+    "label": "Title",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.body}}",
+    "label": "Description",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.dueDate}}",
+    "label": "Due Date",
+    "type": "DATE",
+    "group": "getTaskOptions"
+   },
+   {
     "tag": "{{inboundEmail.messageId}}",
     "label": {
      "i18nKey": "inbound_email.message_id"
@@ -3862,91 +3887,91 @@
    },
    {
     "tag": "{{document.name}}",
-    "label": "Docs & Contracts",
+    "label": "Name",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
     "tag": "{{document.totalAmount}}",
-    "label": "Name",
+    "label": "Total Amount",
     "type": "NUMERICAL",
     "group": "getDocumentOptions"
    },
    {
     "tag": "{{document.type}}",
-    "label": "Total Amount",
-    "type": "TEXT",
-    "group": "getDocumentOptions"
-   },
-   {
-    "tag": "{{document.url}}",
     "label": "Type",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.previewUrl}}",
+    "tag": "{{document.url}}",
     "label": "URL",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.pdfLink}}",
+    "tag": "{{document.previewUrl}}",
     "label": "Preview URL",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.currencySymbol}}",
+    "tag": "{{document.pdfLink}}",
     "label": "PDF Link",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.currencyCode}}",
+    "tag": "{{document.currencySymbol}}",
     "label": "Currency Symbol",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.recipient.firstName}}",
+    "tag": "{{document.currencyCode}}",
     "label": "Currency Code",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.recipient.lastName}}",
+    "tag": "{{document.recipient.firstName}}",
     "label": "Recipient First Name",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.recipient.email}}",
+    "tag": "{{document.recipient.lastName}}",
     "label": "Recipient Last Name",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.recipient.phoneNumber}}",
+    "tag": "{{document.recipient.email}}",
     "label": "Recipient Email",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.recipient.country}}",
+    "tag": "{{document.recipient.phoneNumber}}",
     "label": "Recipient Phone Number",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.declinedReasonBody}}",
+    "tag": "{{document.recipient.country}}",
     "label": "Recipient Country",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
    {
-    "tag": "{{document.declinedReasons}}",
+    "tag": "{{document.declinedReasonBody}}",
     "label": "Decline Reason Body",
+    "type": "TEXT",
+    "group": "getDocumentOptions"
+   },
+   {
+    "tag": "{{document.declinedReasons}}",
+    "label": "Decline Reasons",
     "type": "TEXT",
     "group": "getDocumentOptions"
    },
@@ -5749,21 +5774,131 @@
     "label": "Transcript",
     "type": "TEXT",
     "group": "getConversationAIOptions"
+   },
+   {
+    "tag": "{{appointment.user.id}}",
+    "label": "Assigned User ID",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.name}}",
+    "label": "Assigned User Full Name",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.first_name}}",
+    "label": "Assigned User First Name",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.last_name}}",
+    "label": "Assigned User Last Name",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.email}}",
+    "label": "Assigned User Email",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.phone}}",
+    "label": "Assigned User Phone",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.phone_raw}}",
+    "label": "Assigned User Phone (raw format)",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.email_signature}}",
+    "label": "Assigned User Signature",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{appointment.user.twilio_phone_number}}",
+    "label": "Assigned User Twilio Phone",
+    "type": "TEXT",
+    "group": "getCustomTagOptions"
+   },
+   {
+    "tag": "{{task.user.id}}",
+    "label": "Assigned User ID",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.name}}",
+    "label": "Assigned User Full Name",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.first_name}}",
+    "label": "Assigned User First Name",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.last_name}}",
+    "label": "Assigned User Last Name",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.email}}",
+    "label": "Assigned User Email",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.phone}}",
+    "label": "Assigned User Phone",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.phone_raw}}",
+    "label": "Assigned User Phone (raw format)",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.email_signature}}",
+    "label": "Assigned User Signature",
+    "type": "TEXT",
+    "group": "getTaskOptions"
+   },
+   {
+    "tag": "{{task.user.twilio_phone_number}}",
+    "label": "Assigned User Twilio Phone",
+    "type": "TEXT",
+    "group": "getTaskOptions"
    }
   ],
   "closedNamespaces": [
+   "appointment",
    "calendar",
    "document",
+   "location",
    "message",
    "phoneCall",
    "right_now",
+   "task",
    "user"
   ],
   "openNamespaces": [
    "affiliate_new_lead",
    "ai_agent",
    "ai_field",
-   "appointment",
    "cancellation_link",
    "chatgpt",
    "contact",
@@ -5774,10 +5909,8 @@
    "custom_webhook",
    "datetime_formatter",
    "inboundWebhookRequest",
-   "location",
    "opportunity",
    "reschedule_link",
-   "task",
    "text_formatter",
    "trigger_link"
   ],
@@ -47472,9 +47605,7 @@
      "value": "call_status",
      "field": "call_status",
      "operator": "contains-any",
-     "type": {
-      "__dynamic__": "ValueDataType.MULTI_SELECT"
-     },
+     "type": "multiselect",
      "options": [
       {
        "value": "busy",
@@ -47505,9 +47636,7 @@
      "value": "custom_disposition",
      "field": "custom_disposition",
      "operator": "contains-any",
-     "type": {
-      "__dynamic__": "ValueDataType.MULTI_SELECT"
-     },
+     "type": "multiselect",
      "optionsSource": "dynamic"
     },
     {
@@ -48508,9 +48637,7 @@
      "value": "contact.phoneInfo",
      "field": "contact.phoneInfo",
      "operator": "contains-any",
-     "type": {
-      "__dynamic__": "ValueDataType.MULTI_SELECT"
-     },
+     "type": "multiselect",
      "options": [
       {
        "value": "sms_incapable",
@@ -51406,9 +51533,7 @@
      "value": "inbound_number",
      "field": "inbound_number",
      "operator": "contains-any",
-     "type": {
-      "__dynamic__": "ValueDataType.MULTI_SELECT"
-     },
+     "type": "multiselect",
      "optionsSource": "dynamic",
      "id": "inbound-twilio-number"
     }

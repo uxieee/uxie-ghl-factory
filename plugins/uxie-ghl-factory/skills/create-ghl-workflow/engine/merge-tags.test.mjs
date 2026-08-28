@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCatalog } from './catalog.mjs';
-import { evaluateMergeTags, checkMergeTags, suggestTags, ENGINE_STATIC_TAGS, NAMESPACE_POLICY } from './merge-tags.mjs';
+import { evaluateMergeTags, checkMergeTags, suggestTags, NAMESPACE_POLICY } from './merge-tags.mjs';
 const catalog = loadCatalog();
 const M = catalog.mergeTags;
 const tpl = (body) => [{ id: 's', type: 'sms', name: 'S', attributes: { body } }];
@@ -43,10 +43,14 @@ test('gated namespaces warn; unknown namespaces warn; step-output namespaces and
   assert.deepEqual(warns(f).sort(), ['{{appt.time}}', '{{invoice.nope}}']);
 });
 
-test('ENGINE_STATIC_TAGS carries the 18 assigned-user tags the harvest dropped — and dies when the catalog gains them', () => {
-  assert.equal(ENGINE_STATIC_TAGS.length, 18);
+// ENGINE_STATIC_TAGS is retired: the extractor expands childUserMenu() and the catalog carries all
+// 18 itself. What must not regress is the OUTCOME the overlay existed to guarantee — the assigned-
+// user tags are real picker tags in a CLOSED namespace, so a miss here would be a hard error.
+test('the assigned-user tags are in the catalog itself, no engine-side overlay needed', () => {
   const known = new Set(M.tags.map((t) => String(t.tag).replace(/\s+/g, '')));
-  assert.ok(ENGINE_STATIC_TAGS.some((t) => !known.has(t)), 'the catalog now carries these tags — DELETE ENGINE_STATIC_TAGS from merge-tags.mjs');
+  const expected = ['appointment', 'task'].flatMap((ns) => ['id', 'name', 'first_name', 'last_name',
+    'email', 'phone', 'phone_raw', 'email_signature', 'twilio_phone_number'].map((k) => `{{${ns}.user.${k}}}`));
+  assert.deepEqual(expected.filter((t) => !known.has(t)), [], 'the catalog lost the childUserMenu expansion');
   assert.deepEqual(errs(evaluateMergeTags(tpl('{{appointment.user.first_name}} {{task.user.email}}'), M)), []);
 });
 

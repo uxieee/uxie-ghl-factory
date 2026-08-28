@@ -76949,9 +76949,10 @@ var catalog_data_default = {
       location_owner: 3,
       message: 3,
       user: 10,
-      appointment: 21,
+      appointment: 30,
       calendar: 1,
       membership_contact: 3,
+      task: 13,
       inboundEmail: 8,
       mailgun_email_event: 3,
       document: 15,
@@ -77639,6 +77640,30 @@ var catalog_data_default = {
         group: "getCustomTagOptions"
       },
       {
+        tag: "{{task.id}}",
+        label: "Task ID",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.title}}",
+        label: "Title",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.body}}",
+        label: "Description",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.dueDate}}",
+        label: "Due Date",
+        type: "DATE",
+        group: "getTaskOptions"
+      },
+      {
         tag: "{{inboundEmail.messageId}}",
         label: {
           i18nKey: "inbound_email.message_id"
@@ -77728,91 +77753,91 @@ var catalog_data_default = {
       },
       {
         tag: "{{document.name}}",
-        label: "Docs & Contracts",
+        label: "Name",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
         tag: "{{document.totalAmount}}",
-        label: "Name",
+        label: "Total Amount",
         type: "NUMERICAL",
         group: "getDocumentOptions"
       },
       {
         tag: "{{document.type}}",
-        label: "Total Amount",
-        type: "TEXT",
-        group: "getDocumentOptions"
-      },
-      {
-        tag: "{{document.url}}",
         label: "Type",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.previewUrl}}",
+        tag: "{{document.url}}",
         label: "URL",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.pdfLink}}",
+        tag: "{{document.previewUrl}}",
         label: "Preview URL",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.currencySymbol}}",
+        tag: "{{document.pdfLink}}",
         label: "PDF Link",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.currencyCode}}",
+        tag: "{{document.currencySymbol}}",
         label: "Currency Symbol",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.recipient.firstName}}",
+        tag: "{{document.currencyCode}}",
         label: "Currency Code",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.recipient.lastName}}",
+        tag: "{{document.recipient.firstName}}",
         label: "Recipient First Name",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.recipient.email}}",
+        tag: "{{document.recipient.lastName}}",
         label: "Recipient Last Name",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.recipient.phoneNumber}}",
+        tag: "{{document.recipient.email}}",
         label: "Recipient Email",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.recipient.country}}",
+        tag: "{{document.recipient.phoneNumber}}",
         label: "Recipient Phone Number",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.declinedReasonBody}}",
+        tag: "{{document.recipient.country}}",
         label: "Recipient Country",
         type: "TEXT",
         group: "getDocumentOptions"
       },
       {
-        tag: "{{document.declinedReasons}}",
+        tag: "{{document.declinedReasonBody}}",
         label: "Decline Reason Body",
+        type: "TEXT",
+        group: "getDocumentOptions"
+      },
+      {
+        tag: "{{document.declinedReasons}}",
+        label: "Decline Reasons",
         type: "TEXT",
         group: "getDocumentOptions"
       },
@@ -79615,21 +79640,131 @@ var catalog_data_default = {
         label: "Transcript",
         type: "TEXT",
         group: "getConversationAIOptions"
+      },
+      {
+        tag: "{{appointment.user.id}}",
+        label: "Assigned User ID",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.name}}",
+        label: "Assigned User Full Name",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.first_name}}",
+        label: "Assigned User First Name",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.last_name}}",
+        label: "Assigned User Last Name",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.email}}",
+        label: "Assigned User Email",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.phone}}",
+        label: "Assigned User Phone",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.phone_raw}}",
+        label: "Assigned User Phone (raw format)",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.email_signature}}",
+        label: "Assigned User Signature",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{appointment.user.twilio_phone_number}}",
+        label: "Assigned User Twilio Phone",
+        type: "TEXT",
+        group: "getCustomTagOptions"
+      },
+      {
+        tag: "{{task.user.id}}",
+        label: "Assigned User ID",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.name}}",
+        label: "Assigned User Full Name",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.first_name}}",
+        label: "Assigned User First Name",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.last_name}}",
+        label: "Assigned User Last Name",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.email}}",
+        label: "Assigned User Email",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.phone}}",
+        label: "Assigned User Phone",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.phone_raw}}",
+        label: "Assigned User Phone (raw format)",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.email_signature}}",
+        label: "Assigned User Signature",
+        type: "TEXT",
+        group: "getTaskOptions"
+      },
+      {
+        tag: "{{task.user.twilio_phone_number}}",
+        label: "Assigned User Twilio Phone",
+        type: "TEXT",
+        group: "getTaskOptions"
       }
     ],
     closedNamespaces: [
+      "appointment",
       "calendar",
       "document",
+      "location",
       "message",
       "phoneCall",
       "right_now",
+      "task",
       "user"
     ],
     openNamespaces: [
       "affiliate_new_lead",
       "ai_agent",
       "ai_field",
-      "appointment",
       "cancellation_link",
       "chatgpt",
       "contact",
@@ -79640,10 +79775,8 @@ var catalog_data_default = {
       "custom_webhook",
       "datetime_formatter",
       "inboundWebhookRequest",
-      "location",
       "opportunity",
       "reschedule_link",
-      "task",
       "text_formatter",
       "trigger_link"
     ],
@@ -121353,9 +121486,7 @@ Rules to Follow:
           value: "call_status",
           field: "call_status",
           operator: "contains-any",
-          type: {
-            __dynamic__: "ValueDataType.MULTI_SELECT"
-          },
+          type: "multiselect",
           options: [
             {
               value: "busy",
@@ -121386,9 +121517,7 @@ Rules to Follow:
           value: "custom_disposition",
           field: "custom_disposition",
           operator: "contains-any",
-          type: {
-            __dynamic__: "ValueDataType.MULTI_SELECT"
-          },
+          type: "multiselect",
           optionsSource: "dynamic"
         },
         {
@@ -122389,9 +122518,7 @@ Rules to Follow:
           value: "contact.phoneInfo",
           field: "contact.phoneInfo",
           operator: "contains-any",
-          type: {
-            __dynamic__: "ValueDataType.MULTI_SELECT"
-          },
+          type: "multiselect",
           options: [
             {
               value: "sms_incapable",
@@ -125287,9 +125414,7 @@ Rules to Follow:
           value: "inbound_number",
           field: "inbound_number",
           operator: "contains-any",
-          type: {
-            __dynamic__: "ValueDataType.MULTI_SELECT"
-          },
+          type: "multiselect",
           optionsSource: "dynamic",
           id: "inbound-twilio-number"
         }
@@ -135299,8 +135424,6 @@ Rules to Follow:
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
 var ILLEGAL_SMS_WORDS = catalog_data_default?.workflowRules?.vocab?.illegalWordsSms ?? [];
-var MULTI_SELECT_ENUM = "ValueDataType.MULTI_SELECT";
-var resolveMultiSelectType = (rows) => rows.map((r) => r.type && typeof r.type === "object" && r.type.__dynamic__ === MULTI_SELECT_ENUM ? { ...r, type: "multiselect" } : r);
 var TRIGGER_CORRECTIONS = {
   conv_ai_autonomous_trigger: {
     reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid (validationType 'value', source 'trigger', severity 'error', ONE ERROR PER ROW), while '==' passes. Live A/B 2026-08-27 on the designated test sub-account, workflow 36bb7c70: identical PUT body, eq -> 400, == -> 200. The generated filterRows still carry the pre-update `eq` the builder itself wrote, so the catalog capture is right about history and wrong about today. NOTE the blast radius: the validator only runs when triggers are carried IN THE PUT BODY, which the engine's own commit never does (proven, arm J) \u2014 so stored `eq` triggers block a human clicking Save, not edit_workflow.",
@@ -135308,17 +135431,8 @@ var TRIGGER_CORRECTIONS = {
     docNote: '\u{1F534} Condition rows must carry **`operator: "=="`**. GHL\'s ~2026-08-27 update refuses `operator: "eq"` at save time (`ruleId: trigger-condition-invalid`, one error per row) even though the trigger API accepts it and the runtime honours it \u2014 so a flow built with `eq` runs correctly and cannot be saved from the builder. The engine emits `==` automatically; a hand-authored complete filter row is passed through untouched, so author `==` yourself if you supply `field`+`operator`+`title`+`type`. `catalog/trigger-examples/conv_ai_autonomous_trigger.json` is a pre-update capture and still shows `eq` \u2014 it is evidence of what GHL wrote then, not a template to copy.'
   },
   call_status: {
-    reason: 'filterRows[].type is the unresolved enum object {__dynamic__:"ValueDataType.MULTI_SELECT"} on both call_status and custom_disposition; the trigger POST 500s on an object-valued type (live 2026-08-28, 7/7 failed)',
-    correctFilterRows: resolveMultiSelectType,
+    reason: "documentation only \u2014 the generated filterRows are correct since the extractor resolved ValueDataType.MULTI_SELECT (2026-08-29). Kept because dispositions matching BY NAME is a runtime trap the catalog cannot express: a name absent from Settings never fires.",
     docNote: 'Condition rows on `custom_disposition` / `call_status` are `operator: "contains-any"` with an ARRAY value and `type: "multiselect"` \u2014 the drawer\'s own shape. Dispositions are matched BY NAME, so the names must exist in Settings \u2192 Phone \u2192 Call dispositions or the trigger can never fire.'
-  },
-  validation_error: {
-    reason: "same unresolved ValueDataType.MULTI_SELECT on the contact.phoneInfo row",
-    correctFilterRows: resolveMultiSelectType
-  },
-  ivr_incoming_call: {
-    reason: "same unresolved ValueDataType.MULTI_SELECT on the inbound_number row",
-    correctFilterRows: resolveMultiSelectType
   }
 };
 var CATALOG_CORRECTIONS = {
@@ -136404,8 +136518,6 @@ var NAMESPACE_POLICY = Object.freeze({
   // Corpus-attested tags the picker does not list. Add nothing here without live proof.
   allow: /* @__PURE__ */ new Set(["{{location.id}}"])
 });
-var CHILD_USER_KEYS = ["id", "name", "first_name", "last_name", "email", "phone", "phone_raw", "email_signature", "twilio_phone_number"];
-var ENGINE_STATIC_TAGS = ["appointment", "task"].flatMap((ns) => CHILD_USER_KEYS.map((k) => `{{${ns}.user.${k}}}`));
 var TOKEN = /\{\{\s*([A-Za-z_][\w-]*)((?:\.[^{}]*)?)\s*\}\}/g;
 var compact = (s) => String(s ?? "").replace(/\s+/g, "");
 var split = (full) => {
@@ -136449,7 +136561,7 @@ function perLocationVocabulary(ns, opts) {
 }
 function evaluateMergeTags(templates, mergeTags, opts = {}) {
   if (!mergeTags?.tags) return [];
-  const staticTags = /* @__PURE__ */ new Set([...mergeTags.tags.map((t) => compact(t.tag)), ...ENGINE_STATIC_TAGS, ...NAMESPACE_POLICY.allow]);
+  const staticTags = /* @__PURE__ */ new Set([...mergeTags.tags.map((t) => compact(t.tag)), ...NAMESPACE_POLICY.allow]);
   const P = NAMESPACE_POLICY;
   const out = [];
   const walk2 = (v, cb) => {
