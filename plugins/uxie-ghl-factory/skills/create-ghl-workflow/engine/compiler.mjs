@@ -35,7 +35,7 @@ import { gotoLoops } from './goto-loops.mjs';
 // would double any warning.
 export const DEDICATED_ATTRIBUTES = [
   [(n) => n.marketplace === true, (n, ctx) => marketplaceAttributes(n, ctx)],
-  [(n) => n.kind === 'wait', (n) => waitAttributes(n)],
+  [(n) => n.kind === 'wait', (n, ctx) => waitAttributes(n, ctx)],
   [(n) => n.type === 'email', (n, ctx) => emailAttributes(n, ctx)],
   [(n) => n.type === 'custom_webhook', (n) => webhookAttributes(n.attributes ?? {}, n.ref)],
   [(n) => n.type === 'custom_code', (n) => codeAttributes(n.attributes ?? {}, n.ref)],
@@ -698,7 +698,17 @@ function codeAttributes(a, ref) {
 
 // wait — 9 subtypes discriminated by attributes.type. This builds LINEAR waits
 // (single next). Multipath waits (timeout branching) are handled in flattenGraph.
-function waitAttributes(node) {
+// The drawer's option list (Wait.ts:1588 `startAfterTypeOptions`, bundle-2026-08-21-3) is
+// [{label:'seconds',value:'seconds'},{label:'minutes',value:'minutes'},{label:'hours',value:'hour'},
+// {label:'days',value:'days'}] — note the plural LABEL over the singular VALUE. So the UI can only
+// ever write seconds|minutes|hour|days. Stored workflows hold both spellings (startAfter blocks
+// across corpus+sniffs: minutes x71, days x10, hours x4, hour x1), so a stored 'hours' was written
+// by an API call rather than the drawer; whether the scheduler honours it is UNPROVEN. Accepted
+// with a warning until a live probe settles it; anything outside the set is refused, because an
+// unknown unit saves clean and leaves the pause undefined.
+const WAIT_UNITS = new Set(['seconds', 'minutes', 'hour', 'hours', 'days']);
+
+function waitAttributes(node, ctx) {
   const a = node.attributes ?? {};
   const hybrid = { cat: '', isHybridAction: true, hybridActionType: 'wait', convertToMultipath: false, transitions: [] };
   const wt = node.waitType ?? (node.config ? 'time' : (a.type ?? 'time'));
@@ -719,6 +729,15 @@ function waitAttributes(node) {
         `(or attributes.startAfter:{type,value,when}). Got startAfter:${JSON.stringify(startAfter)}. ` +
         `An empty/partial startAfter compiles and publishes clean but the wait DOES NOT PAUSE at ` +
         `runtime — every following step fires immediately.`);
+    if (!WAIT_UNITS.has(startAfter.type))
+      throw new IRError('WAIT_UNIT',
+        `wait '${node.ref}' has startAfter.type '${startAfter.type}' — the drawer offers `
+        + `seconds | minutes | hour | days. An unknown unit saves and publishes clean, but the `
+        + `scheduler's behaviour is undefined: the wait may not pause at all.`);
+    if (startAfter.type === 'hours')
+      ctx?.warn?.(`WAIT_UNIT_SOFT: wait '${node.ref}' uses 'hours'; the drawer writes the singular `
+        + `'hour' (Wait.ts startAfterTypeOptions maps label "hours" -> value 'hour'). Both spellings `
+        + `exist in stored workflows; prefer 'hour' until a live probe confirms the scheduler reads 'hours'.`);
     const base = { type: 'time', startAfter, ...hybrid };
     // "Advance window" — resume-on days + resume-between-hours (live-verified shape).
     // Accept it from either the node level or attributes, mirroring the duration.

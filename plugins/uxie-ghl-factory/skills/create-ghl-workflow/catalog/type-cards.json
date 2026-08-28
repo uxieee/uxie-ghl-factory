@@ -255,10 +255,10 @@
    "fields": [
     {
      "name": "type",
-     "type": "\"add_contact_tag\" \\",
+     "type": "\"add_contact_tag\" | \"remove_contact_tag\"",
      "required": false,
-     "default": "no",
-     "notes": "—"
+     "default": "—",
+     "notes": "Class is shared; `type` selects direction. The step-row's top-level `type: \"add_contact_tag\"` is the source of truth."
     },
     {
      "name": "tags",
@@ -4364,10 +4364,10 @@
     },
     {
      "name": "actionType",
-     "type": "\"custom\" \\",
+     "type": "\"custom\" | ...",
      "required": false,
-     "default": "no",
-     "notes": "\"custom\""
+     "default": "\"custom\"",
+     "notes": "UI scaffold mode. 100%."
     },
     {
      "name": "actionParams",
@@ -4402,7 +4402,7 @@
      "type": "string",
      "required": false,
      "default": "—",
-     "notes": "actionParams.memoryKeyType: \"action\" \\"
+     "notes": "actionParams.memoryKeyType: \"action\" | \"custom\"`; when `\"custom\"`, `memoryKeyCustom` is used."
     },
     {
      "name": "excludeFromHistory",
@@ -7412,7 +7412,7 @@
      "type": "Status",
      "required": false,
      "default": "\"open\"",
-     "notes": "\"open\" \\"
+     "notes": "\"open\" | \"won\" | \"lost\" | \"abandoned\"`. 80.6%."
     },
     {
      "name": "monetary_value",
@@ -7633,10 +7633,10 @@
     },
     {
      "name": "method",
-     "type": "\"GET\" \\",
-     "required": false,
-     "default": "\"PUT\" \\",
-     "notes": "\"PATCH\" \\"
+     "type": "\"GET\" | \"POST\" | \"PUT\" | \"PATCH\" | \"DELETE\"",
+     "required": true,
+     "default": "\"POST\"",
+     "notes": "HTTP method. 100%."
     },
     {
      "name": "event",
@@ -7685,7 +7685,7 @@
      "type": "object",
      "required": false,
      "default": "{ type: \"NONE\", data: null }",
-     "notes": "{ type: \"NONE\" \\"
+     "notes": "{ type: \"NONE\" | \"BASIC\" | \"BEARER\" | ...; data: { token, tokenId } | null }`. 100%."
     },
     {
      "name": "authorization.data.token",
@@ -7992,10 +7992,10 @@
     },
     {
      "name": "dnd_direction",
-     "type": "'inbound' \\",
-     "required": false,
-     "default": "yes (per interface)",
-     "notes": "—"
+     "type": "'inbound' | 'outbound'",
+     "required": true,
+     "default": "—",
+     "notes": "Direction scope. Not enforced by validator."
     }
    ],
    "validator": "`contactDNDValidator` (per `sniffs/bundle/validators.json`):",
@@ -8037,7 +8037,7 @@
      "type": "object",
      "required": true,
      "default": "—",
-     "notes": "{ timeUnit: \"minutes\" \\"
+     "notes": "{ timeUnit: \"minutes\" | \"hours\" | \"days\", value: number }`. 100%."
     },
     {
      "name": "interval.value",
@@ -8298,17 +8298,17 @@
     },
     {
      "name": "templatesource",
-     "type": "\"other\" \\",
+     "type": "\"other\" | \"email-builder\" | \"snippet\"",
      "required": false,
-     "default": "\"snippet\"",
-     "notes": "no"
+     "default": "—",
+     "notes": "What the `template_id` points at. 45.4%."
     },
     {
      "name": "templateCreationMode",
-     "type": "\"smart-builder\" \\",
+     "type": "\"smart-builder\" | \"template-gallery\" | \"quick-compose\" | \"existing\"",
      "required": false,
-     "default": "\"quick-compose\" \\",
-     "notes": "\"existing\""
+     "default": "—",
+     "notes": "UI provenance. 36.1%."
     },
     {
      "name": "to",
@@ -8326,10 +8326,10 @@
     },
     {
      "name": "userType",
-     "type": "\"all\" \\",
-     "required": false,
-     "default": "\"user\" \\",
-     "notes": "\"custom_email\""
+     "type": "\"all\" | \"assign\" | \"user\" | \"custom_email\"",
+     "required": "conditional",
+     "default": "—",
+     "notes": "Only used when this email is inside an `internal_notification` envelope (`isInternalEmail`)."
     },
     {
      "name": "selectedUser",
@@ -10070,7 +10070,7 @@
    "meta": {
     "Section": "`internal`",
     "Validator": "None registered (no `validation` key in registry; `og-action-ui-metadata.json::if_else` reports `validator: null`)",
-    "Hybrid / multi-path?": "Multi-path container — see [`docs/04-workflow-anatomy.md §4`](../../10-anatomy/04-workflow-anatomy.md). Branches are siblings of the parent; each branch is itself a node with `nodeType: \"branch-yes\" \\",
+    "Hybrid / multi-path?": "Multi-path container — see [`docs/04-workflow-anatomy.md §4`](../../10-anatomy/04-workflow-anatomy.md). Branches are siblings of the parent; each branch is itself a node with `nodeType: \"branch-yes\" | \"branch-no\"`",
     "Corpus frequency": "984 occurrences across 107 workflows in 6 locations (top-1 by usage)",
     "Premium / beta?": "No",
     "UI editor source": "`sniffs/bundle/recovered-source/src/models/conditions/IfElseMain.ts` + `IfElseNode.vue` + `IfElseRecipeConfigs.ts`"
@@ -10529,7 +10529,7 @@
      "type": "NotificationType",
      "required": true,
      "default": "—",
-     "notes": "Channel discriminator: `\"email\" \\"
+     "notes": "Channel discriminator: `\"email\" | \"sms\" | \"whatsapp\" | \"notification\"`. 100%."
     },
     {
      "name": "email",
@@ -10564,7 +10564,7 @@
      "type": "UserType",
      "required": true,
      "default": "—",
-     "notes": "Who to notify: `\"all\" \\"
+     "notes": "Who to notify: `\"all\" | \"assign\" | \"user\"`. Set per-channel inside the channel sub-object in corpus rows."
     },
     {
      "name": "selectedUser",
@@ -10923,10 +10923,10 @@
     },
     {
      "name": "widgetType",
-     "type": "'say' \\",
-     "required": false,
-     "default": "yes",
-     "notes": "—"
+     "type": "'say' | 'play'",
+     "required": true,
+     "default": "—",
+     "notes": "Selects TTS vs. audio-file mode."
     },
     {
      "name": "loop",
@@ -15990,10 +15990,10 @@
     },
     {
      "name": "workflow_id",
-     "type": "string \\",
-     "required": false,
-     "default": "yes¹",
-     "notes": "—"
+     "type": "string | string[]",
+     "required": true,
+     "default": "—",
+     "notes": "Target workflow UUID(s). Polymorphic: corpus shows both single string and array forms. 98.0%."
     },
     {
      "name": "allWorkflows",
@@ -16053,10 +16053,10 @@
     },
     {
      "name": "opportunity_to_be_found",
-     "type": "'all' \\",
-     "required": false,
-     "default": "yes",
-     "notes": "—"
+     "type": "'all' | 'previous'",
+     "required": true,
+     "default": "—",
+     "notes": "all`: every opportunity for the contact in the pipeline. `previous`: the one referenced by a prior step in this workflow run."
     }
    ],
    "validator": "`removeOpportunityActionValidator` (per `sniffs/bundle/validators.json`):",
@@ -16380,10 +16380,10 @@
     },
     {
      "name": "overrideReviewLink",
-     "type": "string \\",
+     "type": "string | null",
      "required": false,
-     "default": "no",
-     "notes": "—"
+     "default": "—",
+     "notes": "Custom URL to override the default review-collection URL."
     }
    ],
    "validator": "`reviewRequestValidator` (per `sniffs/bundle/validators.json`):",
@@ -16865,10 +16865,10 @@
     },
     {
      "name": "userType",
-     "type": "\"all\" \\",
-     "required": false,
-     "default": "\"user\" \\",
-     "notes": "\"custom_sms\""
+     "type": "\"all\" | \"assign\" | \"user\" | \"custom_sms\"",
+     "required": "conditional",
+     "default": "—",
+     "notes": "Used only when this SMS is inside an `internal_notification` envelope (`isInternalSMS`)."
     },
     {
      "name": "selectedUser",
@@ -17443,10 +17443,10 @@
     },
     {
      "name": "dueDate",
-     "type": "int \\",
+     "type": "int | object | string",
      "required": false,
-     "default": "string",
-     "notes": "no"
+     "default": "—",
+     "notes": "Polymorphic. See § Notes. 100%."
     },
     {
      "name": "__customInputs__",
@@ -18203,10 +18203,10 @@
     },
     {
      "name": "affiliate_state",
-     "type": "'active' \\",
-     "required": false,
-     "default": "yes",
-     "notes": "—"
+     "type": "'active' | 'inactive'",
+     "required": true,
+     "default": "—",
+     "notes": "Target state."
     }
    ],
    "validator": "`updateAffiliateValidator` (per `sniffs/bundle/validators.json`):",
@@ -18238,17 +18238,17 @@
     },
     {
      "name": "category",
-     "type": "'appointment' \\",
+     "type": "'appointment' | 'service_booking' | 'rental_booking'",
      "required": false,
-     "default": "'rental_booking'",
-     "notes": "no (interface)"
+     "default": "—",
+     "notes": "Which booking-type's status to update."
     },
     {
      "name": "status_type",
-     "type": "AppointmentStatusType \\",
-     "required": false,
-     "default": "RentalBookingStatusType \\",
-     "notes": "undefined"
+     "type": "AppointmentStatusType | ServiceBookingStatusType | RentalBookingStatusType | undefined",
+     "required": true,
+     "default": "—",
+     "notes": "Target status. Discriminant on `category`."
     }
    ],
    "validator": "`appointmentStatusValidator` (per `sniffs/bundle/validators.json`):",
@@ -18694,7 +18694,7 @@
      "type": "string",
      "required": true,
      "default": "—",
-     "notes": "Discriminator: `\"time\" \\"
+     "notes": "Discriminator: `\"time\" | \"condition\" | \"reply\" | \"appointment\" | \"service_booking\" | \"overdue\" | \"email_event\" | \"link_clicked\"`. 100% of corpus."
     },
     {
      "name": "name",
@@ -18708,14 +18708,14 @@
      "type": "object",
      "required": "conditional",
      "default": "—",
-     "notes": "{ type: \"minutes\" \\"
+     "notes": "{ type: \"seconds\" | \"minutes\" | \"hour\" | \"days\", value: number, when: \"after\" | ... }`. Required for `time`. 90.7%. The drawer's unit VALUES are `seconds`, `minutes`, `hour` (singular) and `days` — `startAfterTypeOptions` (Wait.ts:1588, bundle-2026-08-21-3) maps the plural LABEL \"hours\" to the value `hour`. The TS interface still declares `'minutes' | 'hours' | 'days'`, and stored workflows contain both spellings (`startAfter` blocks in corpus+sniffs: minutes ×71, days ×10, hours ×4, hour ×1) — so a stored `hours` was written by an API call, not the drawer. Whether the scheduler honours it is UNPROVEN; the engine accepts it with a warning."
     },
     {
      "name": "appointmentStartAfter",
      "type": "object",
      "required": "conditional",
      "default": "—",
-     "notes": "{ when: \"now\" \\"
+     "notes": "{ when: \"now\" | \"before\" | \"after\", type, value, distributed: {} }`. Required for `appointment` / `service_booking` / `overdue`. 9.3%."
     },
     {
      "name": "appointmentCondition",
@@ -18778,7 +18778,7 @@
      "type": "object",
      "required": false,
      "default": "—",
-     "notes": "{ condition: \"when\" \\"
+     "notes": "{ condition: \"when\" | \"exact\", days: number[], start: \"HH:MM\", end: \"HH:MM\" }`. 22.2%."
     },
     {
      "name": "windowCondition",
@@ -18855,7 +18855,7 @@
      "type": "MethodType",
      "required": true,
      "default": "—",
-     "notes": "\"GET\" \\"
+     "notes": "\"GET\" | \"POST\"`. Corpus shows both. 100%."
     },
     {
      "name": "customData",
@@ -19009,10 +19009,10 @@
     },
     {
      "name": "op",
-     "type": "'or' \\",
-     "required": false,
-     "default": "yes",
-     "notes": "'or'"
+     "type": "'or' | 'and'",
+     "required": true,
+     "default": "'or'",
+     "notes": "Top-level boolean operator across `segments`."
     },
     {
      "name": "segments",
@@ -19023,10 +19023,10 @@
     },
     {
      "name": "action",
-     "type": "'exit' \\",
-     "required": false,
-     "default": "yes",
-     "notes": "—"
+     "type": "'exit' | ...",
+     "required": true,
+     "default": "—",
+     "notes": "What happens when the goal fires. Corpus shows `\"exit\"`."
     }
    ],
    "validator": "`goalActionValidator` (per `sniffs/bundle/validators.json`):",
