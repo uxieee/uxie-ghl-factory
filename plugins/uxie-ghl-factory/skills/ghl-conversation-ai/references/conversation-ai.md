@@ -66,11 +66,46 @@ parent SKILL.md's Execute section for the capture procedure pointer.
   knowledgeBaseIds[], triggerCondition, priority}`. This routing concept is internal-only — the
   public KB API manages KB *content*, not this trigger logic.
 - `summary{}` — conversation-summary settings (inactivity threshold, minimum messages before
-  summarizing, notification routing).
+  summarizing, notification routing). Also carries **`summary.customFieldId`** and
+  **`summary.workflowIds[]`**, which make the generated summary workflow-obtainable — see
+  "[Conversation summary is workflow-obtainable](#conversation-summary-is-workflow-obtainable-summary)"
+  below.
 - `llm{primary, secondary}` — model selection (e.g. `gpt-4.1` / `gpt-4.1-mini`); observed on
   update captures.
 - `isPrimary`, `respondToImages`, `respondToAudio`, `isObjectiveBuilderEnabled`,
   `responseLength` / `aiResponseLengthEnabled` — secondary knobs, pass through as given.
+
+## Conversation summary is workflow-obtainable (`summary{}`)
+
+Field existence **corroborated from captures** (this plugin's own May-2026 agent GETs and the
+25-Aug-2026 ai-employees bundle, no client/IDs/PII in either) — the ConvAI conversation summary
+is not confined to the `humanHandOver` action's Task. It is a first-class agent setting with two
+workflow-facing outputs, both under **ConvAI → Preferences → Conversation Summary** and both
+persisted on the agent's `summary{}` object.
+
+| UI control | `summary{}` field | Effect |
+|---|---|---|
+| **Save to custom field** | `summary.customFieldId` | Writes the generated summary into a **contact** custom field. |
+| **Trigger a workflow when summary/transcript generated** | `summary.workflowIds[]` | A hook that enrols the listed workflow(s) at the moment a summary commits. |
+
+**Contributor-attested (2026-07-18), not independently re-verified** — the behavioural details
+below come from contributor zedricedwardc (PR #3); this plugin has corroborated that the fields
+exist and are named as shown, but has not itself re-driven the behaviour:
+- `summary.customFieldId` must point at an **existing `LARGE_TEXT`** field — it does **not**
+  auto-create one. Each regeneration **overwrites** the field.
+- Once it points at a `LARGE_TEXT` field, the summary merges like any other contact field:
+  `{{contact.<fieldKey>}}`.
+- 🚨 **Timing gotcha.** A human-handover does generate a summary, but the write is asynchronous
+  and lands **seconds after** the `ai:escalated` tag is applied. A workflow triggered by that tag
+  that merges `{{contact.<fieldKey>}}` immediately renders **BLANK** — it reads the field before
+  the summary lands. Two fixes: add a short wait (~3 min) before the merge step, or trigger off
+  the summary-generated hook (`summary.workflowIds`) instead of the tag, since that hook fires
+  *after* the commit.
+
+An engine emitting an `ai:escalated`-triggered summary email should default to the wait or the
+hook rather than merging the field on the bare escalation tag — but treat that recommendation,
+and the LARGE_TEXT/overwrite/timing specifics above, as attested rather than independently proven
+until this plugin drives the behaviour itself.
 
 ## Merge-PUT semantics
 
