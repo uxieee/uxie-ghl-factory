@@ -135288,11 +135288,26 @@ Rules to Follow:
 
 // ../skills/create-ghl-workflow/engine/required-fields.mjs
 var ILLEGAL_SMS_WORDS = catalog_data_default?.workflowRules?.vocab?.illegalWordsSms ?? [];
+var MULTI_SELECT_ENUM = "ValueDataType.MULTI_SELECT";
+var resolveMultiSelectType = (rows) => rows.map((r) => r.type && typeof r.type === "object" && r.type.__dynamic__ === MULTI_SELECT_ENUM ? { ...r, type: "multiselect" } : r);
 var TRIGGER_CORRECTIONS = {
   conv_ai_autonomous_trigger: {
     reason: "GHL's ~2026-08-27 builder update tightened save-time trigger validation: a condition row with operator 'eq' is now refused with ruleId trigger-condition-invalid (validationType 'value', source 'trigger', severity 'error', ONE ERROR PER ROW), while '==' passes. Live A/B 2026-08-27 on the designated test sub-account, workflow 36bb7c70: identical PUT body, eq -> 400, == -> 200. The generated filterRows still carry the pre-update `eq` the builder itself wrote, so the catalog capture is right about history and wrong about today. NOTE the blast radius: the validator only runs when triggers are carried IN THE PUT BODY, which the engine's own commit never does (proven, arm J) \u2014 so stored `eq` triggers block a human clicking Save, not edit_workflow.",
     correctFilterRows: (rows) => rows.map((r) => r.operator === "eq" ? { ...r, operator: "==" } : r),
     docNote: '\u{1F534} Condition rows must carry **`operator: "=="`**. GHL\'s ~2026-08-27 update refuses `operator: "eq"` at save time (`ruleId: trigger-condition-invalid`, one error per row) even though the trigger API accepts it and the runtime honours it \u2014 so a flow built with `eq` runs correctly and cannot be saved from the builder. The engine emits `==` automatically; a hand-authored complete filter row is passed through untouched, so author `==` yourself if you supply `field`+`operator`+`title`+`type`. `catalog/trigger-examples/conv_ai_autonomous_trigger.json` is a pre-update capture and still shows `eq` \u2014 it is evidence of what GHL wrote then, not a template to copy.'
+  },
+  call_status: {
+    reason: 'filterRows[].type is the unresolved enum object {__dynamic__:"ValueDataType.MULTI_SELECT"} on both call_status and custom_disposition; the trigger POST 500s on an object-valued type (live 2026-08-28, 7/7 failed)',
+    correctFilterRows: resolveMultiSelectType,
+    docNote: 'Condition rows on `custom_disposition` / `call_status` are `operator: "contains-any"` with an ARRAY value and `type: "multiselect"` \u2014 the drawer\'s own shape. Dispositions are matched BY NAME, so the names must exist in Settings \u2192 Phone \u2192 Call dispositions or the trigger can never fire.'
+  },
+  validation_error: {
+    reason: "same unresolved ValueDataType.MULTI_SELECT on the contact.phoneInfo row",
+    correctFilterRows: resolveMultiSelectType
+  },
+  ivr_incoming_call: {
+    reason: "same unresolved ValueDataType.MULTI_SELECT on the inbound_number row",
+    correctFilterRows: resolveMultiSelectType
   }
 };
 var CATALOG_CORRECTIONS = {
@@ -136422,7 +136437,14 @@ var MARKETPLACE_ENVELOPE_KEYS = /* @__PURE__ */ new Set([
 ]);
 function marketplaceEntry(node, ctx, kind) {
   const entry = ctx?.marketplace?.get?.(node.type, kind);
+  const readFailed = ctx?.marketplace?.readFailed ?? {};
+  const modulesLeg = kind === "action" ? "actions" : "triggers";
   if (!entry) {
+    if (readFailed.assets)
+      throw new IRError(
+        "MARKETPLACE_READ_FAILED",
+        `'${node.type}' on '${node.ref}' is flagged marketplace:true, but the marketplace assets read for this location FAILED, so whether the key exists here is UNKNOWN. This is a read failure, not evidence the app is missing \u2014 retry; if it persists, check the token and /workflows-marketplace/location/{loc}/assets.`
+      );
     const otherKind = kind === "action" ? "trigger" : "action";
     const existsAsOtherKind = ctx?.marketplace?.get?.(node.type, otherKind);
     throw new IRError(
@@ -136430,11 +136452,17 @@ function marketplaceEntry(node, ctx, kind) {
       existsAsOtherKind ? `'${node.type}' on '${node.ref}' is flagged marketplace:true and was looked up as a marketplace ${kind}, but '${node.type}' is only published in this location as a marketplace ${otherKind}. This node is using a ${otherKind} key in a ${kind} slot \u2014 fix the type, or move this node to where a ${otherKind} key belongs.` : `'${node.type}' on '${node.ref}' is flagged marketplace:true but no installed or available marketplace ${kind} in this location publishes that key. Run list_marketplace_apps for this locationId to see what is actually there, or drop the marketplace flag if you meant a native step.`
     );
   }
-  if (!entry.installed)
+  if (!entry.installed) {
+    if (readFailed[modulesLeg])
+      throw new IRError(
+        "MARKETPLACE_READ_FAILED",
+        `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", but the install-truth read (/marketplace/core/search/module?type=${modulesLeg}) FAILED for this location, so installed / not installed is UNKNOWN. This is a read failure, not evidence the app is uninstalled \u2014 retry before installing anything.`
+      );
     throw new IRError(
       "MARKETPLACE_APP_NOT_INSTALLED",
       `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", which is NOT installed in this location. The step would save and never run. Install the app in the sub-account first.`
     );
+  }
   return entry;
 }
 function marketplaceAttributes(node, ctx) {
@@ -137467,6 +137495,11 @@ function defaultOp(type) {
 }
 function expandFilter(f, rows) {
   if (f.field && f.operator && f.title && f.type) {
+    if (typeof f.type !== "string" || typeof f.operator !== "string")
+      throw new IRError(
+        "FILTER_SHAPE",
+        `trigger filter '${f.field}' was authored with a non-string type/operator; both are strings on the wire and GHL returns 500 on an object-valued row.`
+      );
     return SCALAR_OPS.has(f.operator) && Array.isArray(f.value) && f.value.length === 1 ? { ...f, value: f.value[0] } : f;
   }
   const key = f.on ?? f.field ?? f.id;
@@ -137475,6 +137508,13 @@ function expandFilter(f, rows) {
   if (!row) return f;
   const type = f.type ?? row.type ?? "select";
   let operator = f.operator ?? row.operator ?? defaultOp(type);
+  if (typeof type !== "string" || typeof operator !== "string") {
+    const which = typeof type !== "string" ? `type (${JSON.stringify(type)})` : `operator (${JSON.stringify(operator)})`;
+    throw new IRError(
+      "FILTER_SHAPE",
+      `trigger filter '${row.value}' resolved to a non-string ${which} \u2014 an unresolved catalog artefact. GHL returns 500 on an object-valued row. Fix the catalog row (TRIGGER_CORRECTIONS in required-fields.mjs, or regenerate with the enum resolved) rather than authoring around it.`
+    );
+  }
   let value = f.value;
   if (Array.isArray(value) && operator === "==") operator = "is-any-of";
   if (ARRAY_OPS.has(operator) && !Array.isArray(value)) value = [value];
@@ -139126,7 +139166,7 @@ function parseInstalledModules({ triggers = [], actions = [] } = {}) {
   absorb(triggers, "triggers", "triggerKeys");
   return byAppId;
 }
-function buildMarketplaceIndex({ assets, modules } = {}) {
+function buildMarketplaceIndex({ assets, modules, legs } = {}) {
   const actionSchema = parseMarketplaceActions(assets);
   const triggerSchema = parseMarketplaceTriggers(assets);
   const apps = parseInstalledModules(modules ?? {});
@@ -139147,6 +139187,15 @@ function buildMarketplaceIndex({ assets, modules } = {}) {
   };
   const byKind = { action: join2(actionSchema, "action"), trigger: join2(triggerSchema, "trigger") };
   return {
+    // WHICH READS FAILED. A key missing from the assets schema, or an app reading installed:false,
+    // means nothing when the read behind it did not succeed — the compiler must say "unknown",
+    // never "not installed" (F5-11). Absent legs = a caller that built the index from data it
+    // already trusts (tests, the empty index a native build uses).
+    readFailed: {
+      assets: legs?.assets === "failed",
+      actions: legs?.actions === "failed",
+      triggers: legs?.triggers === "failed"
+    },
     // `kind` is REQUIRED — must be exactly 'action' or 'trigger'. Action and trigger
     // keys are NOT one namespace (see parseMarketplaceActions's docstring for the
     // observed `contact_engagement_score` collision); the caller must always say which
@@ -139560,26 +139609,33 @@ async function fetchEntities(gw) {
   };
 }
 async function fetchMarketplace(call, loc) {
-  const empty2 = { assets: null, modules: { actions: [], triggers: [] } };
-  const get3 = async (path) => {
+  const legs = { assets: "failed", actions: "failed", triggers: "failed" };
+  const get3 = async (leg, path) => {
     try {
       const r = await call("GET", path);
-      return r?.ok ? r.json : null;
+      if (r?.ok) {
+        legs[leg] = "ok";
+        return r.json;
+      }
+      return null;
     } catch {
       return null;
     }
   };
-  const assets = await get3(`/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+  const assets = await get3("assets", `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
   const page = (type) => `/marketplace/core/search/module?locationId=${encodeURIComponent(loc)}&type=${type}&isInstalled=true&skip=0&limit=200`;
-  const actions = await get3(page("actions"));
-  const triggers = await get3(page("triggers"));
-  if (!assets && !actions && !triggers) return empty2;
+  const actions = await get3("actions", page("actions"));
+  const triggers = await get3("triggers", page("triggers"));
   return {
     assets,
     modules: {
       actions: Array.isArray(actions) ? actions : actions?.modules ?? actions?.data ?? [],
       triggers: Array.isArray(triggers) ? triggers : triggers?.modules ?? triggers?.data ?? []
-    }
+    },
+    // WHICH LEGS SUCCEEDED. A failed leg used to collapse into "no modules", which the index read
+    // as installed:false for every key and the compiler turned into MARKETPLACE_APP_NOT_INSTALLED —
+    // a transient 5xx or an expired token read as "install the app first" (F5-11).
+    legs
   };
 }
 function collectEmailTemplates(ir) {
@@ -139601,6 +139657,7 @@ async function orchestrate(ir, gw, opts = {}) {
   const report = {
     wid: null,
     resolvedFrom: null,
+    marketplaceRead: null,
     unresolved: [],
     createdTags: [],
     createdTemplates: [],
@@ -139610,7 +139667,7 @@ async function orchestrate(ir, gw, opts = {}) {
     warnings: [],
     stickyNotes: { planned: 0, posted: 0, failed: [] },
     readiness: [],
-    triggers: { posted: 0, failed: [], ids: [] },
+    triggers: { authored: 0, posted: 0, failed: [], ids: [], persisted: null },
     webhookUrls: [],
     webhookPins: [],
     customCodeTests: [],
@@ -139650,6 +139707,7 @@ async function orchestrate(ir, gw, opts = {}) {
     if (n.marketplace === true) usesMarketplace = true;
   });
   const marketplace = usesMarketplace ? buildMarketplaceIndex(await fetchMarketplace(call, loc)) : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
+  report.marketplaceRead = usesMarketplace ? marketplace.readFailed : null;
   const resolvers = buildResolvers(entities);
   const { unresolved } = resolveIR(ir, resolvers);
   report.unresolved = unresolved;
@@ -139855,6 +139913,7 @@ async function orchestrate(ir, gw, opts = {}) {
     report.aborted = `auto-save failed: ${s.status}`;
     return report;
   }
+  report.triggers.authored = built.triggerBodies.length;
   const backoff = opts.triggerBackoffMs ?? [0, 700, 2e3];
   for (const tb of built.triggerBodies.map(swap)) {
     let r;
@@ -139875,6 +139934,17 @@ async function orchestrate(ir, gw, opts = {}) {
       error: JSON.stringify(r?.json ?? "").slice(0, 160)
     });
   }
+  if (built.triggerBodies.length) {
+    const listed = await callAt("trigger_list_verify", "GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: WID })}`);
+    if (!listed) return report;
+    const rows = Array.isArray(listed.json) ? listed.json : listed.json?.triggers ?? listed.json?.data ?? null;
+    report.triggers.persisted = listed.ok && Array.isArray(rows) ? rows.length : null;
+    if (report.triggers.persisted === null) report.warnings.push("triggers: the post-build trigger re-list failed; the persisted count is UNKNOWN");
+  } else {
+    report.triggers.persisted = 0;
+  }
+  if (report.triggers.failed.length)
+    report.warnings.push(`\u{1F534} TRIGGERS FAILED: ${report.triggers.failed.length} of ${report.triggers.authored} trigger POST(s) failed after retries \u2014 the draft has NO working trigger for each one. Fix before calling this done.`);
   report.webhookUrls = webhookUrlsFor(loc, report.triggers.ids);
   {
     const wantPin = opts.pinWebhookSample ?? ir.pinWebhookSample;
@@ -143013,12 +143083,27 @@ var aiPlanPreview = (plan) => ({
 function buildWorkflowData(report, locationId) {
   const counts = [report.authored, report.compiled, report.steps];
   const mismatch = new Set(counts).size !== 1;
+  const trg = report.triggers ?? {};
+  const failed = trg.failed?.length ?? 0;
+  const triggerMismatch = failed > 0 || Number.isInteger(trg.persisted) && Number.isInteger(trg.authored) && trg.persisted !== trg.authored;
   return ok({
     ...report,
     countIntegrity: {
       mismatch,
       warning: mismatch ? `LOUD STEP-COUNT MISMATCH: authored=${report.authored}, compiled=${report.compiled}, persisted steps=${report.steps}. The draft may be incomplete.` : "authored, compiled, and persisted step counts match."
     },
+    // The same integrity sentence for TRIGGERS. `failed[]` was always recorded; it was never a
+    // HEADLINE, so a build whose every trigger POST failed still read as a clean draft with
+    // `verify.pass: N, issues: []` (F5-16). A workflow with no working trigger never runs.
+    triggerIntegrity: {
+      authored: trg.authored ?? null,
+      posted: trg.posted ?? 0,
+      failed,
+      persisted: trg.persisted ?? null,
+      mismatch: triggerMismatch,
+      warning: triggerMismatch ? `LOUD TRIGGER MISMATCH: authored=${trg.authored}, posted=${trg.posted}, failed=${failed}, persisted=${trg.persisted}. The draft has NO working trigger for each failed POST \u2014 fix before calling this done.` : "every authored trigger was posted and read back."
+    },
+    partial: mismatch || triggerMismatch,
     builderUrl: report.wid ? `https://app.gohighlevel.com/v2/location/${encodeURIComponent(locationId)}/automation/workflow/${encodeURIComponent(report.wid)}` : null,
     // build_workflow never calls publish — but a "nothing was published" claim is only as
     // good as what we actually checked. orchestrate.mjs's round-trip GET (~line 527) reads
@@ -144825,7 +144910,7 @@ var TOOLS2 = [
   },
   {
     name: "build_workflow",
-    description: describe3("build_workflow", "Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes."),
+    description: describe3("build_workflow", "Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true \u2014 the draft then has no working trigger for it."),
     inputSchema: schema({
       locationId: external_exports.string(),
       spec: external_exports.object({}).passthrough(),
