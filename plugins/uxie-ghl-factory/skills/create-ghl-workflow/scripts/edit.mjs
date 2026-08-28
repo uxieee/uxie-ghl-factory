@@ -89,19 +89,15 @@
 //   { "op":"modifyTrigger", "triggerId":"<id>"|"name":"...", "trigger": {filters:[...], ...} }
 //   { "op":"duplicateTrigger", "triggerId":"<id>"|"name":"...", "newName":"optional name for the copy" }   # "Copy Trigger": re-posts
 //     the stored trigger as "<name> (Copy)"; an inbound-webhook copy gets a fresh predeterminedId.
-// CORRECTED 2026-08-28: this used to say a trigger added via the API lands active:false
-// "regardless of the POST body" and that an already-published workflow needs a draft→
-// published double-PUT cycle to activate it. Measured (throwaway workflows on the designated
-// test sub-account): `active` is a read-only projection of the trigger's OWN `status` field
-// ("draft"|"published"), and addTrigger/duplicateTrigger now send `status` matching the
-// TARGET WORKFLOW's own state — "published" lands the new trigger active immediately (no
-// separate activation cycle needed), "draft" keeps it inactive until the workflow itself
-// publishes (draft-first). If the workflow is already PUBLISHED and a trigger somehow still
-// reads inactive after the add (the cascade/targeted status write did not reach it), the
-// post-add check below now REPAIRS it — one per-trigger status write, verified by read-back —
-// before ever reporting failure. Publishing itself remains the user's call, never a side
-// effect of a trigger edit; only the REPAIR of an already-published workflow's own trigger
-// is automatic here.
+// `active` is a read-only projection of the trigger's OWN `status` field ("draft"|
+// "published"). addTrigger/duplicateTrigger send `status` matching the TARGET WORKFLOW's own
+// state — "published" lands the new trigger active immediately (no separate activation cycle
+// needed), "draft" keeps it inactive until the workflow itself publishes (draft-first). If
+// the workflow is already PUBLISHED and a trigger somehow still reads inactive after the add
+// (the cascade/targeted status write did not reach it), the post-add check below REPAIRS it —
+// one per-trigger status write, verified by read-back — before ever reporting failure.
+// Publishing itself remains the user's call, never a side effect of a trigger edit; only the
+// REPAIR of an already-published workflow's own trigger is automatic here.
 //
 // --assume-associated : skip the opportunity-association check when adding an
 //   internal_update_opportunity (only if ALL the workflow's triggers are opp-based).
@@ -244,10 +240,10 @@ if (dryRun) {
   if (settingsPatch) console.log('settings:', JSON.stringify(Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === 'statsView' ? body.meta?.statsView : body[k]]))));
   for (const r of plan) console.log(`trigger: ${r.method} ${r.path}`, r.body ? JSON.stringify(r.body).slice(0, 200) : '');
   for (const r of stickyPlan) console.log(`sticky note: ${r.op} ${r.method} ${r.path}`, JSON.stringify(r.body).slice(0, 200));
-  // CORRECTED 2026-08-28: a new/duplicated trigger's own POST now carries status matching
-  // the target workflow (see planTriggerOps), so on a PUBLISHED workflow it lands active
-  // immediately — no separate activation PUT in the common case. The post-add REPAIR PUT
-  // (below, not in dry-run) only runs for a trigger that still reads inactive afterward.
+  // A new/duplicated trigger's own POST carries status matching the target workflow (see
+  // planTriggerOps), so on a PUBLISHED workflow it lands active immediately — no separate
+  // activation PUT in the common case. The post-add REPAIR PUT (below, not in dry-run) only
+  // runs for a trigger that still reads inactive afterward.
   if (plan.length) console.log('activation:', fresh.status === 'published'
     ? 'new/duplicated triggers POST with status:"published" and land active immediately; a repair PUT only runs if one still reads inactive afterward'
     : `SKIPPED — workflow is '${fresh.status}'; triggers stay inactive until you publish`);

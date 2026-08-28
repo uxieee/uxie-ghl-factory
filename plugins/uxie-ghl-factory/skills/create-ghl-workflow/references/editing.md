@@ -278,16 +278,8 @@ Two things the engine handles that a hand-rolled POST gets wrong:
   `publish_workflow`/`orchestrate --publish`, on their own paths) now **repairs** it — one
   per-trigger PUT with the full record + `status:"published"`, verified by a fresh read-back,
   never trusted from the write's own 200 — before reporting `triggers active: N/M`.
-  > HISTORY: this paragraph used to describe a `shouldActivateTriggers`-driven draft→
-  > published double-PUT cycle (retired 2026-08-27 as proven inert — see the v0.3.4/v0.3.5
-  > regression note this replaces), then a per-trigger PUT that set `active` directly
-  > (retired 2026-08-28, also proven inert for `active` — the endpoint silently ignores that
-  > field). Both beliefs were correct that `active` itself is not directly writable and
-  > incomplete in not finding `status` — every experiment behind them sent (or omitted)
-  > `active`, never `status`, and the roster GET that fed them never surfaces `status` at all
-  > (only `active`), so the field that actually matters was invisible to the investigation.
-  > `edit-driver.mjs`'s `translateActiveToStatus` and `planTriggerOps`'s mechanism note carry
-  > the full record; `edit-triggers.test.mjs` carries the current tests.
+  `edit-driver.mjs`'s `translateActiveToStatus` and `planTriggerOps`'s mechanism note carry
+  the full mechanism; `edit-triggers.test.mjs` carries the current tests.
 
 **Tags are pre-created for you**, same as on the build path. `scripts/edit.mjs` collects
 every tag name the ops reference (trigger filter values, `add`/`remove_contact_tag` steps,
@@ -303,19 +295,6 @@ plain string); `deleteTrigger` via a name matcher 200. **RUNTIME-proven**: tag w
 `added_to_workflow` in `/workflows/logs/v2` within 4s, i.e. an edit-added trigger genuinely
 subscribes. That last check is the only one that counts — `active: true` plus a clean
 round-trip is NOT proof a trigger fires (see the 2026-07-16 inert-trigger bug).
-> HISTORY (review round 1 flagged this paragraph as contradicting the corrected one above it):
-> this same 2026-07-17 run also reported `addTrigger` POST 200 → cycle → `2/2 active` on a
-> published workflow, and `addTrigger` on a draft correctly SKIPPING that cycle and staying
-> draft. The "cycle" there is the `shouldActivateTriggers`-driven draft→published double
-> full-document PUT — the same mechanism RETIRED 2026-08-27 (Task 9, workflow
-> save-correctness) as proven INERT: accepted, version bumped, the stored `active` flag never
-> moved. It was replaced the same day by a per-trigger PUT setting `active` directly
-> (`planTriggerActivation`), itself superseded 2026-08-28 when the trigger's own `status`
-> field — not `active` — was found to be the real activation mechanism (`active` is a
-> read-only projection of it). See the corrected paragraph above ("A trigger's `active` is a
-> read-only PROJECTION…") for what `addTrigger`/`duplicateTrigger`/`modifyTrigger` actually
-> send today, and `edit-triggers.test.mjs` for the current tests. This line is left standing
-> as the historical record of what that specific canary run reported, not as current fact.
 
 Trigger filter values obey the string/array split above — `value: "vip"`, never `["vip"]`.
 `expandFilter` unwraps a single-element array on this path too, but author the string.

@@ -607,12 +607,10 @@ test('identical acknowledged adds without returned IDs pass when distinct new ca
   assert.deepEqual(checks.map(({ triggerId }) => triggerId), ['tr-new-1', 'tr-new-2']);
 });
 
-// CORRECTED 2026-08-28: this used to assert `requiresPublish:true` for a PUBLISHED target
-// workflow too — belief #2 from the corpus/docs ("every API-created trigger lands
-// active:false", so a publish is always needed), traced to buildTrigger's hardcoded
-// `status:'draft'`, not to being API-created. The preview now reflects what the planned
-// request will actually do: an addTrigger against an already-published workflow activates
-// immediately, so no publish is required for it.
+// An addTrigger against an already-published workflow activates immediately (buildTrigger
+// sends `status` matching the target workflow's own state), so the preview must not demand a
+// publish for that case — only a still-draft target actually needs one, as the next test
+// below confirms for the published case.
 test('trigger preview on a DRAFT workflow tells the caller that a confirmed publish_workflow is needed to activate the change', async () => {
   const { gw, calls } = editGateway({
     initial: workflow({ status: 'draft', version: 20 }),

@@ -509,15 +509,10 @@ test('orchestrate --publish fills input_trigger_params on a legacy add_to_workfl
     'it must be a real JSON boolean, not a stringified or missing value');
 });
 
-// Task 9 (workflow save-correctness, 2026-08-27) found the full-document PUT's
-// oldTriggers/newTriggers INERT for trigger content generally and routed activation
-// through a per-trigger PUT /workflow/{loc}/trigger/{triggerId} instead. Measured
-// 2026-08-28 (throwaway probes on the designated test sub-account, three experiments)
-// DISPROVED that rail for `active` specifically: a publish with ZERO trigger writes still
-// activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT
-// with active:false against a published workflow returns 200 with the trigger staying
-// active:true. `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state —
-// this test now pins the opposite of what it used to assert: no per-trigger write is sent,
+// `active` is a SERVER-MANAGED PROJECTION of the workflow's publish state: a publish with
+// ZERO trigger writes still activates every trigger sub-second after the publish PUT
+// returns, and a per-trigger PUT with active:false against a published workflow returns 200
+// with the trigger staying active:true. This test pins that: no per-trigger write is sent,
 // and activation happens purely as a side effect of the publish PUT succeeding.
 //
 // This pins the HAPPY PATH ONLY: the workflow-level publish transition's own cascade
