@@ -657,8 +657,15 @@ function returnedResourceId(response) {
 // the untranslated case this still avoids, and its two 'DOES verify' tests for the translated
 // case this catches.
 function triggerSemanticExpectation(body = {}, { verifyActive = false } = {}) {
+  // ROOT `workflowId` is deliberately NOT here. The POST body carries it camelCase (the only casing
+  // the server accepts — see casingLint), but the STORED trigger carries `workflow_id` and no
+  // `workflowId` at all, so expecting the WRITE key on the READ shape manufactured a false
+  // "did not persist" abort on every successful add (F5-13, hit twice in one session; the abort
+  // tells the caller not to publish and invites a retry, which duplicates the trigger). The
+  // attachment IS still verified: `actions[0].workflow_id` rides inside the compared `actions`
+  // subtree, and that is the field that actually binds a trigger to its workflow.
   const keys = [
-    'workflowId', 'type', 'masterType', 'name', 'conditions', 'actions',
+    'type', 'masterType', 'name', 'conditions', 'actions',
     'schedule_config', 'convTriggerBotId',
   ];
   const expected = Object.fromEntries(keys
