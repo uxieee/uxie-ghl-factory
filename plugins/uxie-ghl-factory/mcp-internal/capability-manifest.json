@@ -352,6 +352,11 @@
   {
     "tool": "list_account_entities",
     "method": "GET",
+    "path": "/locations/{loc}/customValues"
+  },
+  {
+    "tool": "list_account_entities",
+    "method": "GET",
     "path": "/voice-ai/agents"
   },
   {
@@ -542,6 +547,11 @@
   {
     "tool": "build_workflow",
     "method": "GET",
+    "path": "/locations/{loc}/customValues"
+  },
+  {
+    "tool": "build_workflow",
+    "method": "GET",
     "path": "/voice-ai/agents"
   },
   {
@@ -618,6 +628,11 @@
     "tool": "edit_workflow",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/customValues"
   },
   {
     "tool": "edit_workflow",

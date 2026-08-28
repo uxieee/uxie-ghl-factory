@@ -72,6 +72,9 @@ function editGateway({
       if (method === 'GET' && path.includes('/customFields/search')) {
         return structuredClone(customFieldsResponse);
       }
+      if (method === 'GET' && path === '/locations/LOC/customValues') {
+        return { status: 200, ok: true, json: { customValues: [] } };
+      }
       if (method === 'GET' && path === '/locations/LOC/tags') {
         return { status: 200, ok: true, json: { tags: existingTags.map((name) => ({ name })) } };
       }

@@ -2288,6 +2288,7 @@ export const TOOLS = [
       { method: 'GET', path: '/users/' },
       { method: 'GET', path: '/forms/' },
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'GET', path: '/locations/{loc}/customValues' },
       { method: 'GET', path: '/voice-ai/agents' },
       { method: 'GET', path: '/ai-employees/employees/search' },
     ],
@@ -2546,6 +2547,7 @@ export const TOOLS = [
       { method: 'GET', path: '/users/' },
       { method: 'GET', path: '/forms/' },
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'GET', path: '/locations/{loc}/customValues' },
       { method: 'GET', path: '/voice-ai/agents' },
       { method: 'GET', path: '/ai-employees/employees/search' },
       { method: 'POST', path: '/emails/builder' },
@@ -2626,6 +2628,7 @@ export const TOOLS = [
     }),
     capabilities: [
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'GET', path: '/locations/{loc}/customValues' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       // Marketplace index — read ONLY when an op carries marketplace:true.
@@ -2687,6 +2690,20 @@ export const TOOLS = [
         }));
       }
 
+      // Custom VALUES, same best-effort contract as custom fields: they are the per-location half
+      // of the {{custom_values.*}} merge-tag vocabulary (merge-tags.mjs); an unavailable list only
+      // demotes that check to "unverifiable", it never blocks the edit.
+      let customValues;
+      const customValueResponse = await gw.call('GET', `/locations/${locationPath}/customValues`);
+      const customValueRecords = Array.isArray(customValueResponse.json)
+        ? customValueResponse.json
+        : customValueResponse.json?.customValues;
+      if (customValueResponse.ok && Array.isArray(customValueRecords)) {
+        customValues = customValueRecords
+          .filter((value) => value !== null && typeof value === 'object' && !Array.isArray(value))
+          .map((value) => ({ id: value.id ?? value._id, name: value.name, fieldKey: value.fieldKey }));
+      }
+
       const initialResponse = await getWorkflow(gw, args.locationId, args.workflowId);
       if (!initialResponse.ok) return fromHttp(initialResponse.status, initialResponse.json);
       const fresh = initialResponse.json;
@@ -2724,6 +2741,7 @@ export const TOOLS = [
         catalog: loadCatalog(),
         marketplace,
         ...(customFields !== undefined ? { customFields } : {}),
+        ...(customValues !== undefined ? { customValues } : {}),
         warn: (message) => warnings.push(message),
       };
       const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(args.ops);

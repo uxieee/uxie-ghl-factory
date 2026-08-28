@@ -276,6 +276,7 @@ wrong stage. Every guard below exists because that happened on a live account (2
 | `ATTR_KEY` | An invented attribute key on a verified-live type | A step that saves and renders blank |
 | `OPP_UNASSOCIATED` | `update_opportunity` with no proven opportunity on its path | A stage move that no-ops at runtime |
 | `OPP_LOST_REASON_NO_LOST_STATUS` | `lostReasonId` on a step whose `status` isn't literally `lost` | The builder **deletes** the lost-reason entry on open — the step saves, round-trips clean, and records no reason |
+| `MERGE_TAG_UNKNOWN` | A `{{tag}}` outside the picker inventory in a closed namespace (`appointment`, `user`, `calendar`, `right_now`, `message`, `phoneCall`, `document`, `location`), or a `contact.*` / `opportunity.*` / `custom_values.*` key that is not one of THIS location's custom fields / values | Literal braces sent to a customer — `{{appointment.date}}` went out for three weeks. Trigger/action-gated namespaces and unknown namespaces warn (`MERGE_TAG_SOFT`); step-output tags are checked by their own modules. Hatches: `strictMergeTags:false` (demote), `skipMergeTagCheck` (skip) |
 
 **`kind:` is an accepted alias for `type:` on the finder containers** (`find_opportunity`,
 `find_contact`, `lc_merge_contact`) — both spellings keep their `onFound`/`onNotFound`
