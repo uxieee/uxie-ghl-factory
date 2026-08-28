@@ -135503,7 +135503,16 @@ var CONDITIONAL_DEFAULTS = {
   // It must be a BOOLEAN — the UI drawer writes the string "False", which the post-update
   // validator rejects with "Expected boolean". The type card records it as required:false and
   // present in 100% of the corpus, which is the contradiction that let the engine omit it.
-  add_to_workflow: (attrs) => attrs.input_trigger_params === void 0 ? { input_trigger_params: false } : {}
+  add_to_workflow: (attrs) => {
+    if (attrs.input_trigger_params === void 0) return { input_trigger_params: false };
+    if (typeof attrs.input_trigger_params !== "boolean") {
+      throw new IRError(
+        "ATTR_TYPE",
+        `add_to_workflow's 'input_trigger_params' must be a real boolean, not ${JSON.stringify(attrs.input_trigger_params)} (typeof ${typeof attrs.input_trigger_params}). GHL's UI drawer writes the STRING "False" here, which the save validator rejects with "Expected boolean" \u2014 never coerce a non-boolean value into one.`
+      );
+    }
+    return {};
+  }
 };
 var hasAttachments = (a) => Boolean(a.attachments?.length || a.urlAttachments?.length);
 var HANDLEBAR_FIELDS = {
@@ -138491,6 +138500,7 @@ function assignMarketplaceStepIndexes(templates) {
   return { templates: out, changed, counter: running };
 }
 function renameStep(templates, stepId, name) {
+  requireStep(templates, stepId, "renameStep");
   if (typeof name !== "string" || name.trim() === "")
     throw new Error(`renameStep: 'name' must be a non-empty string (got ${JSON.stringify(name)})`);
   return modifyStep(templates, stepId, {}, { name });
@@ -140152,6 +140162,16 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
             // moves the projection — this stays only for read-back fidelity of the request
             // shape the server echoes.)
             active: op.trigger?.active ?? t.active ?? false,
+            // Forward the stored target so buildTrigger's own goto-target check sees it. Left
+            // unset, a modify of a goto trigger (conv_ai_autonomous_trigger) warned
+            // TRIGGER_TARGET: "... is a goto trigger with NO target" on every edit — dishonest,
+            // since t.targetActionId in fact survives onto the PUT body below via spread order
+            // (`{ ...t, ...merged }`) whether buildTrigger ever saw it or not. An author-supplied
+            // targetActionId on the op overrides the stored one; `target` (a ref) is passed
+            // through too so buildTrigger's own target-over-targetActionId precedence still
+            // applies if a caller ever supplies one.
+            targetActionId: op.trigger?.targetActionId ?? t.targetActionId,
+            ...op.trigger?.target ? { target: op.trigger.target } : {},
             ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
           },
           ctx,

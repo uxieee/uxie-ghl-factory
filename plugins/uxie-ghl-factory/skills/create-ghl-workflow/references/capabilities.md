@@ -37,7 +37,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `review_request` — attrs: `type`, `review_type`, `overrideReviewLink`
 - ✅ `slack_message` — attrs: `action`, `integration`, `channel`, `text`, `type`, `userSource`; premium
 - ✅ `sms` — attrs: `body`, `attachments`, `template_id`, `urlAttachments`, `to`, `testPhones`, `userType`, `selectedUser`, `assignedUser`, `standardAssignedUser`, `customAssignedUser`, `assignedOwners` +2 more (see card)
-- ✅ `voice_ai_outbound_call` — attrs: `agentId`, `fromPhoneNumber`, `outboundGuidelines`, `type`, `__customInputs__`
+- ✅ `voice_ai_outbound_call` — attrs: `agentId`, `fromPhoneNumber`, `outboundGuidelines`, `type`, `__customInputs__`. live-verified 2026-07-11 (Client Clinic / GROM); needs outbound-enabled + KYC location to publish
 - ✅ `voicemail` — attrs: `attachment`
 
 ### contact
@@ -54,9 +54,9 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 
 ### conversation_ai
 - ✅ `conversationai_book_appointment` — attrs: `promptInstructions`, `calendarId`, `type`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `conversationai_book_appointment`
-- ✅ `conversationai_continue` — attrs: `instructions`, `type`, `__customInputs__`
-- ✅ `conversationai_end` — attrs: `message`, `sleepEnabled`, `sleepDuration`, `sleepUnit`, `type`, `__customInputs__`
-- ⚑ `conversationai_services_booking` — attrs: `conversationai_services`, `conversationai_booking_description`, `type`, `__customInputs__`; container → IR kind `conversationai_services_booking`
+- ✅ `conversationai_continue` — attrs: `instructions`, `type`, `__customInputs__`. committed shape captured 2026-07-25 on AU is {} (nothing required). `instructions` is an optional textarea per reference/steps/marketplace/conversation-ai.md.
+- ✅ `conversationai_end` — attrs: `message`, `sleepEnabled`, `sleepDuration`, `sleepUnit`, `type`, `__customInputs__`. committed shape captured 2026-07-25 on AU. UI label -> key: End custom message = message, Reactivate After bot (REQUIRED) = sleepEnabled, Reactivate After value = sleepDuration, unit = sleepUnit ("hours").
+- ⚑ `conversationai_services_booking` — attrs: `conversationai_services`, `conversationai_booking_description`, `type`, `__customInputs__`; container → IR kind `conversationai_services_booking`. NO committed capture — keys come from the marketplace assets schema, with `conversationai_services` corroborated by the options-endpoint response key. Unusable on an account with no commerce services.
 
 ### customObjects
 - ◐ `clear_custom_object_fields`
@@ -119,7 +119,7 @@ Legend: ✅ verified-live (round-tripped against a live account) · ◐ bundle-d
 - ✅ `conversationai_ai_splitter` — attrs: `description`, `type`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `conversationai_ai_splitter`
 - ✅ `conversationai_custom_message` — attrs: `message`, `waitForReply`, `type`, `__customInputs__`
 - ✅ `conversationai_objective` — attrs: `objective`, `contactField`, `instructions`, `responseExample`, `skipIfFilled`, `maxAttempts`, `proceedIfNotMet`, `closingMessage`, `tags`, `type`, `__customInputs__`; premium. 🔴 **`proceedIfNotMet` means the OPPOSITE of its name.** It is bound directly to the checkbox "Don't Proceed to Next Objective If Criteria not Met.", so `true` = the objective BLOCKS and keeps asking; `false` = carry on to the next objective. For "carry on even if unmet", write `false`. Setting `true` makes `closingMessage` REQUIRED (what the bot says when it gives up) and reveals an optional `tags`; the engine refuses a blocking objective without one.
-- ✅ `conversationai_transfer_bot` — attrs: `assignedEmployeeId`, `type`, `__customInputs__`
+- ✅ `conversationai_transfer_bot` — attrs: `assignedEmployeeId`, `type`, `__customInputs__`. committed shape captured 2026-07-25 on AU: assignedEmployeeId only. Bot ids come from GET services.leadconnectorhq.com/ai-employees/employees/list?locationId={LOC}.
 - ✅ `edit_conversation` — attrs: `read`, `type`, `__customInputs__`
 - ✅ `find_opportunity` — attrs: `sorting`, `type`, `__customInputFields__`, `__customInputs__`, `cat`, `convertToMultipath`, `transitions`, `__name__`; container → IR kind `find_opportunity (onFound/onNotFound)`
 - ✅ `find_or_create_contact` — attrs: `emailLabel`, `emailAddress`, `namePrefix`, `names`, `middleName`, `lastName`, `nameSuffix`, `organizationName`, `jobTitle`, `phoneLabel`, `phoneNumber`, `addressLabel` +8 more (see card); premium

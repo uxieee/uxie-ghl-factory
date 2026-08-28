@@ -78,6 +78,26 @@ test('renderMarkdown surfaces a docNote inline for both a step and a trigger', (
     'a trigger docNote must render on its own bullet line, not just live on the catalog entry');
 });
 
+test('renderMarkdown also surfaces a step-side `note` (the CATALOG_CORRECTIONS entries that predate docNote)', () => {
+  // conversationai_end/continue/services_booking/transfer_bot carry `note`, not `docNote` —
+  // author-facing evidence (UI-label-to-key mappings, "nothing is required", where bot ids
+  // come from) that rendered nowhere before this test existed.
+  const fixture = {
+    stepCount: 1,
+    triggerCount: 0,
+    steps: {
+      fake_step_with_note: {
+        type: 'fake_step_with_note', section: 'test-section', confidence: 'verified-live',
+        note: 'STEP_NOTE_MARKER',
+      },
+    },
+    triggers: {},
+  };
+  const md = renderMarkdown(fixture);
+  assert.match(md, /`fake_step_with_note`[^\n]*STEP_NOTE_MARKER/,
+    'a step-side `note` must render inline, the same as `docNote` does');
+});
+
 test('committed references/capabilities.md is in sync with the catalog', () => {
   const p = resolve(dirname(fileURLToPath(import.meta.url)), '../references/capabilities.md');
   assert.ok(existsSync(p), 'references/capabilities.md missing — regenerate it');

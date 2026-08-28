@@ -385,9 +385,19 @@ const CONDITIONAL_DEFAULTS = {
   // It must be a BOOLEAN — the UI drawer writes the string "False", which the post-update
   // validator rejects with "Expected boolean". The type card records it as required:false and
   // present in 100% of the corpus, which is the contradiction that let the engine omit it.
-  add_to_workflow: (attrs) => (attrs.input_trigger_params === undefined
-    ? { input_trigger_params: false }
-    : {}),
+  add_to_workflow: (attrs) => {
+    if (attrs.input_trigger_params === undefined) return { input_trigger_params: false };
+    // "False" (the exact string the UI drawer writes) is truthy, so coercing here would turn
+    // the one value GHL's own validator rejects into one that looks accepted. Refuse instead.
+    if (typeof attrs.input_trigger_params !== 'boolean') {
+      throw new IRError('ATTR_TYPE',
+        `add_to_workflow's 'input_trigger_params' must be a real boolean, not `
+        + `${JSON.stringify(attrs.input_trigger_params)} (typeof ${typeof attrs.input_trigger_params}). `
+        + `GHL's UI drawer writes the STRING "False" here, which the save validator rejects `
+        + `with "Expected boolean" — never coerce a non-boolean value into one.`);
+    }
+    return {};
+  },
 };
 
 // Fields that only become required once ANOTHER field takes a particular value. The generated

@@ -93,6 +93,27 @@ test('deleteTrigger resolves a name matcher instead of a raw id', () => {
   assert.equal(plan1({ op: 'deleteTrigger', name: 'VIP added' }).path, '/workflow/LOC/trigger/tr1?userId=UID');
 });
 
+// buildTrigger runs its own goto-target check (compiler.mjs) and never saw the stored
+// trigger's targetActionId here — it wasn't in the object passed in, only spliced onto the
+// PUT body afterward by spread order (`{ ...t, ...merged }`). That made the check warn
+// TRIGGER_TARGET on every modify of a goto trigger even though the field itself survived.
+test('modifyTrigger on a conv_ai_autonomous_trigger forwards the stored targetActionId — no TRIGGER_TARGET warning, and the target is preserved on purpose', () => {
+  const warnings = [];
+  const c = { ...ctx(), warn: (w) => warnings.push(w) };
+  const ex = [{
+    id: 'tr1', _id: 'tr1', type: 'conv_ai_autonomous_trigger', name: 'Custom trigger',
+    active: true, conditions: [], targetActionId: 'step-xyz',
+  }];
+  const r = planTriggerOps(
+    [{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [] } }],
+    { ctx: c, wid: WID, uid: 'UID', existing: ex },
+  )[0];
+  assert.equal(r.body.targetActionId, 'step-xyz',
+    'the stored target must be forwarded into the rebuild, not merely survive via spread order');
+  assert.ok(!warnings.some((w) => /TRIGGER_TARGET/.test(w)),
+    `modifying a goto trigger with a stored target must not warn about a missing one: ${JSON.stringify(warnings)}`);
+});
+
 test('modifyTrigger PUTs the full merged object and keeps the server id', () => {
   const r = plan1({ op: 'modifyTrigger', triggerId: 'tr1', trigger: { filters: [{ field: 'tagsAdded', value: 'gold' }] } });
   assert.equal(r.method, 'PUT');
