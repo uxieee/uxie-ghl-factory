@@ -5,6 +5,7 @@ import { fetchEntities, orchestrate } from './orchestrate.mjs';
 // Mock gateway: records calls, returns canned responses keyed by method+path prefix.
 function mockGateway({ tags = [], pipelines = [], calendars = [], users = [], forms = [] } = {}) {
   const calls = [];
+  const postedTriggers = [];
   const call = async (method, path, body) => {
     calls.push({ method, path, body });
     if (method === 'GET' && path.includes('/opportunities/pipelines')) return { ok: true, json: { pipelines } };
@@ -17,13 +18,14 @@ function mockGateway({ tags = [], pipelines = [], calendars = [], users = [], fo
     if (method === 'POST' && path.match(/\/tags$/)) return { ok: true, json: { id: 'TAG_' + body.name } };
     if (method === 'POST' && path.match(/\/workflow\/[^/]+$/)) return { ok: true, json: { id: 'WID_1' } };
     if (method === 'PUT' && path.includes('/auto-save')) return { ok: true, json: {} };
-    if (method === 'POST' && path.includes('/trigger')) return { ok: true, json: { id: 'TRIG_1' } };
+    if (method === 'POST' && path.includes('/trigger')) { postedTriggers.push({ ...body, id: `TRIG_${postedTriggers.length + 1}` }); return { ok: true, json: { id: `TRIG_${postedTriggers.length}` } }; }
+    if (method === 'GET' && path.includes('/trigger?workflowId=')) return { ok: true, json: { triggers: postedTriggers } };
     if (method === 'GET' && path.includes('/workflow/')) return { ok: true, json: { workflowData: { templates: [
       { id: 'WID_1', type: 'add_contact_tag', attributes: { tags: ['new-tag'] } },
     ] } } };
     return { ok: true, json: {} };
   };
-  return { gw: { call, loc: 'LOC', uid: 'UID' }, calls };
+  return { gw: { call, loc: 'LOC', uid: 'UID' }, calls, postedTriggers };
 }
 
 const tagIR = () => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [{ field: 'tagsAdded', value: 'new-tag' }] }],
@@ -619,4 +621,25 @@ test('orchestrate --publish reports published:false, naming the trigger, when it
   assert.equal(repairPut.body.status, 'published');
   assert.ok(report.verify.issues.some((i) => Array.isArray(i.inactiveTriggers) && i.inactiveTriggers.includes('T')),
     'the failure must name the still-inactive trigger, not just say "publish failed"');
+});
+
+test('orchestrate counts authored vs posted vs persisted triggers and re-lists them after the POST loop', async () => {
+  const { gw, calls } = mockGateway({ tags: ['new-tag'] });
+  const report = await orchestrate(tagIR(), gw);
+  assert.deepEqual({ authored: report.triggers.authored, posted: report.triggers.posted, persisted: report.triggers.persisted },
+    { authored: 1, posted: 1, persisted: 1 });
+  assert.ok(calls.some((c) => c.method === 'GET' && c.path.includes('/trigger?workflowId=WID_1')), 'must re-list triggers after posting');
+});
+
+test('orchestrate: a trigger that failed every retry leaves persisted < authored and warns LOUDLY', async () => {
+  const { gw } = mockGateway({ tags: ['new-tag'] });
+  const inner = gw.call;
+  gw.call = async (m, p, b) => (m === 'POST' && p.includes('/trigger'))
+    ? { ok: false, status: 500, json: { message: 'Internal Server Error' } } : inner(m, p, b);
+  const report = await orchestrate(tagIR(), gw, { triggerBackoffMs: [0, 0] });
+  assert.equal(report.triggers.authored, 1);
+  assert.equal(report.triggers.posted, 0);
+  assert.equal(report.triggers.persisted, 0);
+  assert.equal(report.triggers.failed.length, 1);
+  assert.ok(report.warnings.some((w) => /TRIGGERS FAILED/.test(w)), report.warnings.join('\n'));
 });

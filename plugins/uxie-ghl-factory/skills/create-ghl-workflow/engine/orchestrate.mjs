@@ -206,7 +206,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // operator actually wrote. compile() hard-fails on a drop; this surfaces the shape anyway.
   const report = { wid: null, resolvedFrom: null, marketplaceRead: null, unresolved: [], createdTags: [], createdTemplates: [],
     authored: 0, compiled: 0, steps: 0, warnings: [], stickyNotes: { planned: 0, posted: 0, failed: [] }, readiness: [],
-    triggers: { posted: 0, failed: [], ids: [] }, webhookUrls: [], webhookPins: [], customCodeTests: [], verify: { pass: 0, issues: [] }, published: false,
+    triggers: { authored: 0, posted: 0, failed: [], ids: [], persisted: null }, webhookUrls: [], webhookPins: [], customCodeTests: [], verify: { pass: 0, issues: [] }, published: false,
     aborted: null, failurePhase: null, failureHttp: null };
   const callAt = async (failurePhase, method, path, body) => {
     try {
@@ -454,6 +454,7 @@ export async function orchestrate(ir, gw, opts = {}) {
   // a non-issue here: it replaces the placeholder across the whole serialised document rather
   // than field by field. Keep it that way — a targeted per-field substitution reintroduces the
   // bug in the id nobody remembers. See corpus/workflows/20-api/trigger-create.md.
+  report.triggers.authored = built.triggerBodies.length;
   const backoff = opts.triggerBackoffMs ?? [0, 700, 2000];
   for (const tb of built.triggerBodies.map(swap)) {
     let r;
@@ -472,6 +473,22 @@ export async function orchestrate(ir, gw, opts = {}) {
     } else report.triggers.failed.push({ type: tb.type, name: tb.name, status: r?.status,
       error: JSON.stringify(r?.json ?? '').slice(0, 160) });
   }
+  // COUNT INTEGRITY for triggers, the way authored/compiled/steps already does it for steps: go and
+  // LOOK at what the server holds. A POST that failed every retry was recorded in `failed`, but the
+  // tool still returned ok — 7 of 7 failed trigger POSTs once read as a clean draft with
+  // `verify.pass: N, issues: []` (F5-16). A build with no working trigger must say so.
+  if (built.triggerBodies.length) {
+    const listed = await callAt('trigger_list_verify', 'GET', `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: WID })}`);
+    if (!listed) return report;
+    const rows = Array.isArray(listed.json) ? listed.json : (listed.json?.triggers ?? listed.json?.data ?? null);
+    report.triggers.persisted = listed.ok && Array.isArray(rows) ? rows.length : null;
+    if (report.triggers.persisted === null) report.warnings.push('triggers: the post-build trigger re-list failed; the persisted count is UNKNOWN');
+  } else {
+    report.triggers.persisted = 0;
+  }
+  if (report.triggers.failed.length)
+    report.warnings.push(`🔴 TRIGGERS FAILED: ${report.triggers.failed.length} of ${report.triggers.authored} trigger POST(s) failed after retries — the draft has NO working trigger for each one. Fix before calling this done.`);
+
   report.webhookUrls = webhookUrlsFor(loc, report.triggers.ids);
 
   // ── Webhook sample pin (opt-in: pinWebhookSample + sampleWebhookPayload) ──────────────────

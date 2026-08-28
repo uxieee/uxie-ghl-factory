@@ -25,8 +25,10 @@ function buildGateway({
   existingTags = ['existing-tag'],
   throwAt = null,
   readBackStatus = undefined,
+  triggerPostFails = false,
 } = {}) {
   const calls = [];
+  const postedTriggers = [];
   let sentTemplates = [];
   const gw = {
     loc: 'LOC',
@@ -67,6 +69,14 @@ function buildGateway({
             workflowData: { templates: persistedSteps === 'sent' ? sentTemplates : [] },
           },
         };
+      }
+      if (method === 'POST' && path === '/workflow/LOC/trigger') {
+        if (triggerPostFails) return { status: 500, ok: false, json: { message: 'Internal Server Error' } };
+        postedTriggers.push({ ...body, id: `tr-${postedTriggers.length + 1}` });
+        return { status: 201, ok: true, json: { id: `tr-${postedTriggers.length}` } };
+      }
+      if (method === 'GET' && path.startsWith('/workflow/LOC/trigger?')) {
+        return { status: 200, ok: true, json: { triggers: postedTriggers } };
       }
       return { status: 404, ok: false, json: { message: `no fixture for ${method} ${path}` } };
     },
@@ -332,4 +342,28 @@ test('build_workflow maps a known dependency HTTP failure through fromHttp with 
   assert.equal(calls.some(({ method, path }) => (
     method === 'POST' && path === '/workflow/LOC'
   )), false);
+});
+
+const triggerSpec = () => ({ ...tagSpec(), triggers: [{ ref: 't', type: 'contact_tag', name: 'Tagged', filters: [{ field: 'tagsAdded', value: 'existing-tag' }] }] });
+
+test('build_workflow reports trigger count-integrity and flips partial:true when a trigger POST failed', async () => {
+  const { gw } = buildGateway({ triggerPostFails: true });
+  const result = await buildTool().handler({ locationId: 'LOC', spec: triggerSpec(), ignoreUnresolved: false }, deps(gw));
+  assert.equal(result.ok, true, 'the draft exists, so the call is ok — but it is PARTIAL');
+  assert.equal(result.data.partial, true);
+  assert.deepEqual({
+    authored: result.data.triggerIntegrity.authored, posted: result.data.triggerIntegrity.posted,
+    failed: result.data.triggerIntegrity.failed, persisted: result.data.triggerIntegrity.persisted,
+    mismatch: result.data.triggerIntegrity.mismatch,
+  }, { authored: 1, posted: 0, failed: 1, persisted: 0, mismatch: true });
+  assert.match(result.data.triggerIntegrity.warning, /LOUD TRIGGER MISMATCH/);
+  assert.ok(result.data.warnings.some((w) => /TRIGGERS FAILED/.test(w)));
+});
+
+test('build_workflow: a clean trigger build is not partial', async () => {
+  const { gw } = buildGateway();
+  const result = await buildTool().handler({ locationId: 'LOC', spec: triggerSpec(), ignoreUnresolved: false }, deps(gw));
+  assert.equal(result.ok, true, JSON.stringify(result).slice(0, 300));
+  assert.equal(result.data.partial, false);
+  assert.equal(result.data.triggerIntegrity.mismatch, false);
 });

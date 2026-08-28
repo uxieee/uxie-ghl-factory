@@ -434,6 +434,10 @@ const aiPlanPreview = (plan) => ({
 function buildWorkflowData(report, locationId) {
   const counts = [report.authored, report.compiled, report.steps];
   const mismatch = new Set(counts).size !== 1;
+  const trg = report.triggers ?? {};
+  const failed = trg.failed?.length ?? 0;
+  const triggerMismatch = failed > 0
+    || (Number.isInteger(trg.persisted) && Number.isInteger(trg.authored) && trg.persisted !== trg.authored);
   return ok({
     ...report,
     countIntegrity: {
@@ -442,6 +446,20 @@ function buildWorkflowData(report, locationId) {
         ? `LOUD STEP-COUNT MISMATCH: authored=${report.authored}, compiled=${report.compiled}, persisted steps=${report.steps}. The draft may be incomplete.`
         : 'authored, compiled, and persisted step counts match.',
     },
+    // The same integrity sentence for TRIGGERS. `failed[]` was always recorded; it was never a
+    // HEADLINE, so a build whose every trigger POST failed still read as a clean draft with
+    // `verify.pass: N, issues: []` (F5-16). A workflow with no working trigger never runs.
+    triggerIntegrity: {
+      authored: trg.authored ?? null,
+      posted: trg.posted ?? 0,
+      failed,
+      persisted: trg.persisted ?? null,
+      mismatch: triggerMismatch,
+      warning: triggerMismatch
+        ? `LOUD TRIGGER MISMATCH: authored=${trg.authored}, posted=${trg.posted}, failed=${failed}, persisted=${trg.persisted}. The draft has NO working trigger for each failed POST — fix before calling this done.`
+        : 'every authored trigger was posted and read back.',
+    },
+    partial: mismatch || triggerMismatch,
     builderUrl: report.wid
       ? `https://app.gohighlevel.com/v2/location/${encodeURIComponent(locationId)}/automation/workflow/${encodeURIComponent(report.wid)}`
       : null,
@@ -2500,7 +2518,7 @@ export const TOOLS = [
   },
   {
     name: 'build_workflow',
-    description: describe('build_workflow', 'Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes.'),
+    description: describe('build_workflow', 'Build and verify a new workflow draft through the canonical dependency-aware orchestrator. This tool never publishes. A trigger POST that fails after retries is reported in data.triggerIntegrity and flips data.partial to true — the draft then has no working trigger for it.'),
     inputSchema: schema({
       locationId: z.string(),
       spec: z.object({}).passthrough(),
