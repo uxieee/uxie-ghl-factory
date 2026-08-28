@@ -313,11 +313,12 @@ test('a repairParentKeys op commits cleanly through editCommitBody', async () =>
   assert.doesNotThrow(() => editCommitBody(fresh, templates, diff, 'uid'));
 });
 
-test('every op refuses an unknown stepId instead of returning a clean empty diff', async () => {
+test('every op refuses an unknown stepId/anchor instead of returning a clean empty diff', async () => {
   const {
-    deleteStep, insertAfter, modifyStep, insertBefore, insertSubgraphBefore,
+    deleteStep, insertAfter, modifyStep, insertBefore, insertSubgraphBefore, insertSubgraphAfter,
+    appendSubgraphToBranch, appendToBranch, moveStep, addBranch, deleteContainer, retypeStep, setStepDisabled,
   } = await import('./edit.mjs');
-  const templates = [{ id: 'real', type: 'sms', name: 'Text', order: 0 }];
+  const templates = [{ id: 'real', type: 'sms', name: 'Text', order: 0, attributes: {} }];
   const newStep = { id: 'new', type: 'email', name: 'Mail', attributes: {} };
   const sub = { entry: newStep, templates: [newStep] };
 
@@ -326,6 +327,17 @@ test('every op refuses an unknown stepId instead of returning a clean empty diff
   assert.throws(() => modifyStep(templates, 'ghost', { a: 1 }), /modifyStep: no step with id 'ghost'/);
   assert.throws(() => insertBefore(templates, newStep, 'ghost'), /insertBefore: no step with id 'ghost'/);
   assert.throws(() => insertSubgraphBefore(templates, sub, 'ghost', null), /insertSubgraphBefore: no step with id 'ghost'/);
+  // the eight that still returned emptyDiff() on a ghost anchor at 0.37.1 (T2-5)
+  assert.throws(() => insertSubgraphAfter(templates, sub, 'ghost', null), /insertAfter: no step with id 'ghost'/);
+  assert.throws(() => appendSubgraphToBranch(templates, 'ghost', sub), /appendToBranch: no step with id 'ghost'/);
+  assert.throws(() => appendToBranch(templates, 'ghost', newStep), /appendToBranch: no step with id 'ghost'/);
+  assert.throws(() => moveStep(templates, 'ghost', 'real'), /moveStep: no step with id 'ghost'/);
+  assert.throws(() => moveStep(templates, 'real', 'ghost'), /moveStep: no step with id 'ghost'/);
+  assert.throws(() => addBranch(templates, 'ghost', { name: 'B' }, () => 'x'), /addBranch: no step with id 'ghost'/);
+  assert.throws(() => addBranch(templates, 'real', { name: 'B' }, () => 'x'), /addBranch: 'Text' is not an if\/else container/);
+  assert.throws(() => deleteContainer(templates, 'ghost'), /deleteContainer: no step with id 'ghost'/);
+  assert.throws(() => retypeStep(templates, 'ghost', newStep), /retypeStep: no step with id 'ghost'/);
+  assert.throws(() => setStepDisabled(templates, 'ghost', true), /setStepDisabled: no step with id 'ghost'/);
 });
 
 test('a truncated stepId is refused rather than silently ignored', async () => {
