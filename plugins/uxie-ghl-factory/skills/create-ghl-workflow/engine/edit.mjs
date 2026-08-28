@@ -75,7 +75,8 @@ export function appendStep(templates, newStep) {
 // indistinguishable from success: the tool reports ok, stepCount unchanged, createdSteps []. That
 // no-op has been mistaken for a completed edit more than once (findings item 12, re-confirmed as
 // D27 on 2026-08-27 with a truncated id). Fail closed, and name the id so the typo is visible.
-// addStepNote and duplicateStep already did this; these five did not.
+// Every anchor lookup goes through here. Eight ops still returned emptyDiff() on a ghost id at
+// 0.37.1 — the same successful-looking no-op, one op-name later (T2-5); none do now.
 function requireStep(templates, stepId, op) {
   const found = templates.find((t) => t.id === stepId);
   if (!found) throw new Error(`${op}: no step with id '${stepId}'`);
@@ -236,8 +237,7 @@ export const RETYPE_PRESERVED_FIELDS = ['id', 'order', 'next', 'parent', 'parent
 // inherited. The one deliberate carry-over is `advanceCanvasMeta` — the native pause flag
 // is orthogonal to type, and a disabled step must not silently switch itself back on.
 export function retypeStep(templates, stepId, compiledEntry) {
-  const old = templates.find((t) => t.id === stepId);
-  if (!old) return { templates, diff: emptyDiff() };
+  const old = requireStep(templates, stepId, 'retypeStep');
   // A container's `next` is its BRANCH ARRAY. Retyping one would either strand its branch
   // entries under a type that has no branches, or overwrite the array outright — the same
   // orphan-the-subgraph failure insertAfter refuses.
@@ -340,6 +340,7 @@ function setDisabledWhere(templates, matches, disabled) {
 }
 
 export function setStepDisabled(templates, stepId, disabled) {
+  requireStep(templates, stepId, 'setStepDisabled');
   return setDisabledWhere(templates, (t) => t.id === stepId, disabled);
 }
 
@@ -482,8 +483,7 @@ function spliceSubgraph(templates, sub, anchorId, position, prepend = false) {
 // Insert a CONTAINER subgraph immediately after `afterId`, re-scoping whatever followed
 // the anchor onto the container's `attachTailTo` branch.
 export function insertSubgraphAfter(templates, sub, afterId, attachTailTo) {
-  const anchor = templates.find((t) => t.id === afterId);
-  if (!anchor) return { templates, diff: emptyDiff() };
+  const anchor = requireStep(templates, afterId, 'insertAfter');
   if (Array.isArray(anchor.next))
     throw new Error(`insertAfter: '${anchor.name ?? afterId}' is a container — it is terminal in its scope. Use appendToBranch with one of its branch ids instead.`);
   const tailId = typeof anchor.next === 'string' ? anchor.next : null;
@@ -512,8 +512,7 @@ export function appendSubgraph(templates, sub) {
 // Append a CONTAINER subgraph to the tail of a branch scope. Again nothing follows a
 // scope's tail, so there is no tail to re-scope.
 export function appendSubgraphToBranch(templates, branchEntryId, sub) {
-  const branchEntry = templates.find((t) => t.id === branchEntryId);
-  if (!branchEntry) return { templates, diff: emptyDiff() };
+  const branchEntry = requireStep(templates, branchEntryId, 'appendToBranch');
   const byId = new Map(templates.map((t) => [t.id, t]));
   const existing = scopeChain(byId, typeof branchEntry.next === 'string' ? branchEntry.next : null);
   const last = existing[existing.length - 1] ?? null;
@@ -617,9 +616,9 @@ export function insertSubgraphBefore(templates, sub, beforeId, attachTailTo) {
 // after the anchor, inheriting the anchor's scope. Everything is a modifiedStep (no
 // create/delete — the step keeps its id).
 export function moveStep(templates, stepId, afterId) {
-  const step = templates.find((t) => t.id === stepId);
-  const anchor = templates.find((t) => t.id === afterId);
-  if (!step || !anchor || stepId === afterId || anchor.next === stepId) return { templates, diff: emptyDiff() };
+  const step = requireStep(templates, stepId, 'moveStep');
+  const anchor = requireStep(templates, afterId, 'moveStep');
+  if (stepId === afterId || anchor.next === stepId) return { templates, diff: emptyDiff() };
   // Same trap as insertAfter: a container's `next` is its BRANCH ARRAY. Moving a step
   // "after" one would overwrite that array with a scalar id and orphan every branch —
   // silently, since the orphans carry no id in deletedSteps and just ride along in
@@ -650,8 +649,10 @@ export function moveStep(templates, stepId, afterId) {
 // container's next[] and attributes.branches[] BEFORE the else (which stays last), with
 // every branch-entry's sibling[]/order kept in sync. `idGen` mints the new step id.
 export function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
-  const container = templates.find((t) => t.id === containerId && t.nodeType === 'condition-node');
-  if (!container || !Array.isArray(container.next)) return { templates, diff: emptyDiff() };
+  const container = requireStep(templates, containerId, 'addBranch');
+  if (container.nodeType !== 'condition-node' || !Array.isArray(container.next))
+    throw new Error(`addBranch: '${container.name ?? containerId}' is not an if/else container (nodeType `
+      + `${container.nodeType ?? 'none'}) — addBranch takes the CONDITION NODE's id, not a branch entry or a linear step.`);
   const newId = idGen();
   const next = [...container.next];
   const branches = [...(container.attributes?.branches || [])];
@@ -691,8 +692,8 @@ export function addBranch(templates, containerId, { name, conditions = [] }, idG
 // predecessor to null (a container is terminal in its scope — branches don't re-merge).
 // Everything removed goes in deletedSteps.
 export function deleteContainer(templates, containerId) {
+  requireStep(templates, containerId, 'deleteContainer');
   const byId = new Map(templates.map((t) => [t.id, t]));
-  if (!byId.has(containerId)) return { templates, diff: emptyDiff() };
   const remove = new Set([containerId]);
   const queue = [containerId];
   while (queue.length) {

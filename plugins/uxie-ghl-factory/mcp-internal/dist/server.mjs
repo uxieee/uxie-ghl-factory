@@ -72973,6 +72973,7 @@ var SCOPE_OWNERS = {
   target: ["goto"]
 };
 var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", goto: "goto" };
+var WIRE_TYPE_ALIASES = { internal_update_opportunity: "update_opportunity", internal_create_opportunity: "create_opportunity" };
 function checkNodeKeys(n) {
   const bad = Object.keys(n).filter((k) => !KNOWN_NODE_KEYS.has(k));
   if (bad.length)
@@ -73089,6 +73090,7 @@ function parseIR(ir) {
     if ((n.kind === void 0 || n.kind === "action") && KIND_BY_TYPE[n.type] && (n.type !== "goto" || n.target !== void 0)) {
       n.kind = KIND_BY_TYPE[n.type];
     }
+    if (n.kind !== "raw" && WIRE_TYPE_ALIASES[n.type]) n.type = WIRE_TYPE_ALIASES[n.type];
   });
   walkNodes(ir.graph, (n) => checkNodeKeys(n));
   walkNodes(ir.graph, (n, idx, siblings) => {
@@ -135320,6 +135322,16 @@ var TRIGGER_CORRECTIONS = {
   }
 };
 var CATALOG_CORRECTIONS = {
+  // The capabilities index listed the WIRE type with its wire attrs and nothing said "author the
+  // lean name" — pattern-matching from it authored the very door that leaked stage names (T1-1).
+  internal_update_opportunity: {
+    reason: "the wire type name routed around the lean builder and the resolver until parseIR canonicalised it (2026-08-29); the generated index must steer authors at the lean keys, not the wire ones",
+    docNote: "Author as **`update_opportunity`**: `pipeline`/`stage` NAMES on the build path (the resolver turns them into ids) or `pipelineId`/`stageId` on the edit path, plus `status`, `allowBackward`, `updates[]`. `internal_update_opportunity` is accepted as an alias and compiles identically; a NAME that reaches the wire is refused (`UNRESOLVED_NAME`) because GHL stores the word and the step then moves nothing."
+  },
+  internal_create_opportunity: {
+    reason: "same wire/lean split as internal_update_opportunity",
+    docNote: "Author as **`create_opportunity`** (lean keys: `pipeline`/`stage` names on the build path, ids on the edit path, plus `name`, `status`, `value`\u2026). `internal_create_opportunity` is accepted as an alias."
+  },
   // 🔴 The generated keys for this node are WRONG. Authoring the documented
   // `reactivate: false` was accepted, persisted as an unknown key, and left the
   // actually-required `sleepEnabled` unset — so the node kept its error badge. The shape
@@ -136520,9 +136532,7 @@ var ENGINE_ATTR_KEYS = /* @__PURE__ */ new Set([
   "calendar",
   "agent",
   "employee",
-  "assignedEmployeeId",
-  "pipeline",
-  "stage"
+  "assignedEmployeeId"
 ]);
 function checkAttrKeys(node, out, meta3) {
   if (meta3.confidence !== "verified-live" || !Array.isArray(meta3.attrKeys) || meta3.attrKeys.length === 0) return;
@@ -136585,7 +136595,20 @@ var CREATE_OPP_ALIASES = {
   pipeline_id: "pipelineId",
   monetaryValue: "value"
 };
+function refuseUnresolvedOppNames(a, ref, stepType, ctx) {
+  const missing = [];
+  if (a.pipeline != null && a.pipelineId == null) missing.push(`pipeline '${a.pipeline}'`);
+  if (a.stage != null && a.stageId == null) missing.push(`stage '${a.stage}'`);
+  if (!missing.length) return;
+  const detail = `${stepType} '${ref}' names ${missing.join(" and ")} but no id was resolved for it. Names resolve only through build_workflow / scripts/build.mjs, which fetch the account's pipelines; on the edit path author pipelineId/stageId from list_account_entities. A name written to the wire moves nothing.`;
+  if (ctx?.ignoreUnresolved === true) {
+    ctx.warn?.(`UNRESOLVED_NAME (ignored): ${detail}`);
+    return;
+  }
+  throw new IRError("UNRESOLVED_NAME", detail);
+}
 function createOpportunityAttributes(a, ref, ctx) {
+  refuseUnresolvedOppNames(a, ref, "create_opportunity", ctx);
   const bad = Object.keys(a).filter((k) => !CREATE_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError(
@@ -136651,6 +136674,7 @@ function resolveOppUpdateField(u, ref, ctx) {
   return oppField(ff, u.value, u.dataType, u.valueFieldType ?? "string");
 }
 function updateOpportunityAttributes(a, ref, ctx) {
+  refuseUnresolvedOppNames(a, ref, "update_opportunity", ctx);
   const bad = Object.keys(a).filter((k) => !UPDATE_OPP_AUTHOR_KEYS.has(k));
   if (bad.length)
     throw new IRError(
@@ -138509,8 +138533,7 @@ function modifyStep(templates, stepId, attrPatch, stepPatch) {
 }
 var RETYPE_PRESERVED_FIELDS = ["id", "order", "next", "parent", "parentKey"];
 function retypeStep(templates, stepId, compiledEntry) {
-  const old = templates.find((t) => t.id === stepId);
-  if (!old) return { templates, diff: emptyDiff() };
+  const old = requireStep(templates, stepId, "retypeStep");
   if (Array.isArray(old.next))
     throw new Error(`retypeStep: '${old.name ?? stepId}' is a container \u2014 its next[] is branch wiring, not content, and no retype can carry a branch set across types. Delete and rebuild it instead.`);
   const next = { ...compiledEntry };
@@ -138572,6 +138595,7 @@ function setDisabledWhere(templates, matches, disabled) {
   };
 }
 function setStepDisabled(templates, stepId, disabled) {
+  requireStep(templates, stepId, "setStepDisabled");
   return setDisabledWhere(templates, (t) => t.id === stepId, disabled);
 }
 function disableStepsByType(templates, type, disabled) {
@@ -138649,8 +138673,7 @@ function spliceSubgraph(templates, sub, anchorId, position, prepend = false) {
   return { out, entry, created: [entry.id, ...rest.map((t) => t.id)] };
 }
 function insertSubgraphAfter(templates, sub, afterId, attachTailTo) {
-  const anchor = templates.find((t) => t.id === afterId);
-  if (!anchor) return { templates, diff: emptyDiff() };
+  const anchor = requireStep(templates, afterId, "insertAfter");
   if (Array.isArray(anchor.next))
     throw new Error(`insertAfter: '${anchor.name ?? afterId}' is a container \u2014 it is terminal in its scope. Use appendToBranch with one of its branch ids instead.`);
   const tailId = typeof anchor.next === "string" ? anchor.next : null;
@@ -138675,8 +138698,7 @@ function appendSubgraph(templates, sub) {
   return { templates: out, diff: { createdSteps: created, modifiedSteps: tail ? [tail.id] : [], deletedSteps: [] } };
 }
 function appendSubgraphToBranch(templates, branchEntryId, sub) {
-  const branchEntry = templates.find((t) => t.id === branchEntryId);
-  if (!branchEntry) return { templates, diff: emptyDiff() };
+  const branchEntry = requireStep(templates, branchEntryId, "appendToBranch");
   const byId = new Map(templates.map((t) => [t.id, t]));
   const existing = scopeChain(byId, typeof branchEntry.next === "string" ? branchEntry.next : null);
   const last = existing[existing.length - 1] ?? null;
@@ -138746,9 +138768,9 @@ function insertSubgraphBefore(templates, sub, beforeId, attachTailTo) {
   return { templates: templatesOut, diff: { createdSteps: created, modifiedSteps: [...modified], deletedSteps: [] } };
 }
 function moveStep(templates, stepId, afterId) {
-  const step = templates.find((t) => t.id === stepId);
-  const anchor = templates.find((t) => t.id === afterId);
-  if (!step || !anchor || stepId === afterId || anchor.next === stepId) return { templates, diff: emptyDiff() };
+  const step = requireStep(templates, stepId, "moveStep");
+  const anchor = requireStep(templates, afterId, "moveStep");
+  if (stepId === afterId || anchor.next === stepId) return { templates, diff: emptyDiff() };
   if (Array.isArray(anchor.next))
     throw new Error(`moveStep: '${anchor.name ?? afterId}' is a container \u2014 it is terminal in its scope, and moving a step after it would orphan its branches. Move the step into one of its branches instead.`);
   if (Array.isArray(step.next))
@@ -138777,8 +138799,9 @@ function moveStep(templates, stepId, afterId) {
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [...modified], deletedSteps: [] } };
 }
 function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
-  const container = templates.find((t) => t.id === containerId && t.nodeType === "condition-node");
-  if (!container || !Array.isArray(container.next)) return { templates, diff: emptyDiff() };
+  const container = requireStep(templates, containerId, "addBranch");
+  if (container.nodeType !== "condition-node" || !Array.isArray(container.next))
+    throw new Error(`addBranch: '${container.name ?? containerId}' is not an if/else container (nodeType ${container.nodeType ?? "none"}) \u2014 addBranch takes the CONDITION NODE's id, not a branch entry or a linear step.`);
   const newId = idGen();
   const next = [...container.next];
   const branches = [...container.attributes?.branches || []];
@@ -138821,8 +138844,8 @@ function addBranch(templates, containerId, { name, conditions = [] }, idGen) {
   return { templates: out, diff: { createdSteps: [newId], modifiedSteps: modified, deletedSteps: [] } };
 }
 function deleteContainer(templates, containerId) {
+  requireStep(templates, containerId, "deleteContainer");
   const byId = new Map(templates.map((t) => [t.id, t]));
-  if (!byId.has(containerId)) return { templates, diff: emptyDiff() };
   const remove = /* @__PURE__ */ new Set([containerId]);
   const queue = [containerId];
   while (queue.length) {
@@ -138904,6 +138927,17 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const created = new Set(diff.createdSteps ?? []);
   if (opts.assumeAssociated !== true && newTemplates.some((t) => created.has(t.id) && REQUIRES_OPPORTUNITY.has(t.type)))
     checkOpportunityAssociationTemplates(newTemplates, false);
+  const oppTouched = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+  const oppTypes = /* @__PURE__ */ new Set(["internal_update_opportunity", "internal_create_opportunity"]);
+  for (const t of newTemplates) {
+    if (!oppTouched.has(t.id) || !oppTypes.has(t.type)) continue;
+    const leaked = ["pipeline", "stage", "lostReason"].filter((k) => t.attributes?.[k] !== void 0);
+    if (leaked.length)
+      throw new IRError(
+        "UNRESOLVED_NAME",
+        `'${t.name ?? t.id}' (${t.type}) carries name key(s) [${leaked.join(", ")}] \u2014 the edit path does not resolve names to ids, so GHL would store the word and the step would move nothing. Author pipelineId/stageId (from list_account_entities), or rebuild through build_workflow, which resolves names.`
+      );
+  }
   if (opts.catalog) {
     const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
     enforceTemplates(
@@ -139794,6 +139828,8 @@ async function orchestrate(ir, gw, opts = {}) {
       // Deliberate override for STEP_TYPE_UNKNOWN — see compiler.mjs. Off by default:
       // an unrecognised type builds a step the builder cannot render or open.
       skipEnforcement: opts.skipEnforcement,
+      // the caller's deliberate force-build: the opportunity name guard warns instead of throwing
+      ignoreUnresolved: opts.ignoreUnresolved === true,
       allowUnknownStepTypes: opts.allowUnknownStepTypes
     });
   } catch (e) {
@@ -144988,7 +145024,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified."),
+    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -144999,6 +145035,13 @@ var TOOLS2 = [
       // backward to a step it can reach again. Without this the guard names a remedy
       // ("pass allowGotoLoops:true") that no caller could ever reach.
       allowGotoLoops: external_exports.boolean().optional(),
+      // The other three editCommitBody hatches (edit.mjs). Each guard NAMES its hatch as the
+      // remedy, and a hatch the schema does not declare is refused as "unsupported fields" — so
+      // DEAD_BRANCH, dangling parentKeys and dangling step refs were unhatchable from this tool
+      // and the only way past them was the hand-rolled PUT that skips every guard (F5-12).
+      deadBranchAcknowledged: external_exports.boolean().optional(),
+      allowDanglingParentKeys: external_exports.boolean().optional(),
+      allowDanglingStepRefs: external_exports.boolean().optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
@@ -145102,7 +145145,10 @@ var TOOLS2 = [
         catalog: ctx.catalog,
         warn: ctx.warn,
         settingsPatch,
-        allowGotoLoops: args.allowGotoLoops === true
+        allowGotoLoops: args.allowGotoLoops === true,
+        deadBranchAcknowledged: args.deadBranchAcknowledged === true,
+        allowDanglingParentKeys: args.allowDanglingParentKeys === true,
+        allowDanglingStepRefs: args.allowDanglingStepRefs === true
       });
       checkWorkflowRules(
         { templates, triggers: existingTriggers, settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === "published" },

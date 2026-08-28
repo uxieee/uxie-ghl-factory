@@ -2604,7 +2604,7 @@ export const TOOLS = [
   },
   {
     name: 'edit_workflow',
-    description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified.'),
+    description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -2615,6 +2615,13 @@ export const TOOLS = [
       // backward to a step it can reach again. Without this the guard names a remedy
       // ("pass allowGotoLoops:true") that no caller could ever reach.
       allowGotoLoops: z.boolean().optional(),
+      // The other three editCommitBody hatches (edit.mjs). Each guard NAMES its hatch as the
+      // remedy, and a hatch the schema does not declare is refused as "unsupported fields" — so
+      // DEAD_BRANCH, dangling parentKeys and dangling step refs were unhatchable from this tool
+      // and the only way past them was the hand-rolled PUT that skips every guard (F5-12).
+      deadBranchAcknowledged: z.boolean().optional(),
+      allowDanglingParentKeys: z.boolean().optional(),
+      allowDanglingStepRefs: z.boolean().optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
@@ -2748,6 +2755,9 @@ export const TOOLS = [
         catalog: ctx.catalog, warn: ctx.warn,
         settingsPatch,
         allowGotoLoops: args.allowGotoLoops === true,
+        deadBranchAcknowledged: args.deadBranchAcknowledged === true,
+        allowDanglingParentKeys: args.allowDanglingParentKeys === true,
+        allowDanglingStepRefs: args.allowDanglingStepRefs === true,
       });
       // WORKFLOW-level rules (GHL's WorkflowValidator): graph-scoped + trigger-aware, evaluated on
       // the post-edit document with the live trigger set. Hatch: args.skipWorkflowRules.
