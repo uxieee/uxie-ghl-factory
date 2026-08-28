@@ -45,7 +45,20 @@ const SCOPE_OWNERS = {
   onBooked: ['conversationai_book_appointment', 'conversationai_services_booking'],
   onNotBooked: ['conversationai_book_appointment', 'conversationai_services_booking'],
   default: ['ai_decision', 'conversationai_ai_splitter', 'split'],
+  // Branch/path/target keys are scopes too: a `branches` array on an sms node was authored,
+  // never read, and the node compiled as a plain linear step with attributes:{} (F5-14).
+  branches: ['if_else', 'ai_decision', 'conversationai_ai_splitter'],
+  paths: ['split', 'workflow_split'],
+  target: ['goto'],
 };
+
+// The four kind-discriminated containers are ALSO reachable by their wire type. An author who
+// writes {type:'if_else', branches:[…]} with no kind (or kind:'action') used to fall through every
+// kind-gated branch to the linear emit: branches dropped, attributes {}, and the round trip clean
+// because the server echoed exactly what was sent (F5-14). Infer the kind where the type is
+// unambiguous; `goto` only when a target is authored, so a raw goto template carrying
+// attributes.targetNodeId stays a raw step (REF_DANGLING owns that case).
+const KIND_BY_TYPE = { if_else: 'if_else', workflow_split: 'split', ai_decision: 'ai_decision', goto: 'goto' };
 
 // Reject any node-level key the compiler will not read. Attribute keys already had this
 // (ATTR_KEY); node keys did not, which is how `kind:'find_opportunity'`, a typo'd
@@ -194,6 +207,9 @@ export function parseIR(ir) {
   // rest of the pipeline only ever sees the canonical { kind:'action', type:'<container>' }.
   walkNodes(ir.graph, (n) => {
     if (CONTAINER_KINDS.has(n.kind) && n.type === undefined) { n.type = n.kind; n.kind = 'action'; }
+    if ((n.kind === undefined || n.kind === 'action') && KIND_BY_TYPE[n.type] && (n.type !== 'goto' || n.target !== undefined)) {
+      n.kind = KIND_BY_TYPE[n.type];
+    }
   });
   walkNodes(ir.graph, (n) => checkNodeKeys(n));
 

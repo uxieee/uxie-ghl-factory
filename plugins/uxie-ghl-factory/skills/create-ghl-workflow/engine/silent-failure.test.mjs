@@ -18,6 +18,13 @@ const throws = (graph, code, triggers) =>
   assert.throws(() => build(graph, triggers), (e) => e.name === 'IRError' && e.code === code,
     `expected IRError ${code}`);
 
+// Some refusals are legitimately reachable through more than one guard — and which one fires
+// first is an implementation detail that has already moved once. Assert the REFUSAL, and accept
+// any of the guards that own it, rather than pinning the test to the order.
+const throwsOneOf = (graph, codes, triggers) =>
+  assert.throws(() => build(graph, triggers), (e) => e.name === 'IRError' && codes.includes(e.code),
+    `expected IRError one of ${codes.join('/')}`);
+
 // ─── Item 1: find_opportunity authored with kind: (no type:) dropped onFound ──────────
 // The compiler gated the container on n.type === 'find_opportunity'; a node authored as
 // { kind:'find_opportunity' } fell through to the linear path, so the ENTIRE onFound
@@ -67,23 +74,28 @@ test('compile reports the authored node count alongside the compiled count', () 
   assert.ok(built.compiled >= built.authored);
 });
 
-test('a dropped authored node fails the build loudly (NODE_DROPPED)', () => {
-  // `branches` on a node the flattener routes to the LINEAR path: the branch children are
-  // never walked. This is item 1's exact failure mode reproduced through a different door,
-  // and it proves NODE_DROPPED is reachable rather than dead backstop code.
-  throws([{
+test('a dropped authored node fails the build loudly', () => {
+  // `branches` on a node the flattener routes to the LINEAR path: the branch children would
+  // never be walked. This is item 1's exact failure mode through a different door.
+  //
+  // The guard that catches it MOVED EARLIER (2026-08-29, F5-14): SCOPE_OWNERS now owns
+  // `branches`/`paths`/`target` the way it already owned onFound/onEvent/…, so parseIR refuses
+  // the node by NAME before the flattener ever runs — a better error, at a better time, than the
+  // NODE_DROPPED backstop that used to catch it after the fact. NODE_DROPPED stays as the
+  // backstop for a node the flattener fails to visit for a reason no key check can see.
+  throwsOneOf([{
     ref: 'x', kind: 'action', type: 'add_contact_tag', name: 'X', attributes: { tags: ['t'] },
     branches: [{ ref: 'b', name: 'B', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tags', tag: 'y' }],
       then: [{ ref: 'dropped', kind: 'action', type: 'add_contact_tag', name: 'D', attributes: { tags: ['z'] } }] }],
-  }], 'NODE_DROPPED');
+  }], ['NODE_KEY', 'NODE_DROPPED']);
 });
 
-test('NODE_DROPPED names the node that vanished', () => {
+test('the refusal names the offending key (or, via the backstop, the node that vanished)', () => {
   assert.throws(() => build([{
     ref: 'x', kind: 'action', type: 'add_contact_tag', name: 'X', attributes: { tags: ['t'] },
     branches: [{ ref: 'b', name: 'B', conditions: [{ conditionType: 'contact_detail', conditionSubType: 'tags', tag: 'y' }],
       then: [{ ref: 'ghost', kind: 'action', type: 'add_contact_tag', name: 'D', attributes: { tags: ['z'] } }] }],
-  }]), /ghost/);
+  }]), /branches|ghost/);
 });
 
 // Defense in depth: even if the item-1 alias were removed, the drop cannot go quiet.
