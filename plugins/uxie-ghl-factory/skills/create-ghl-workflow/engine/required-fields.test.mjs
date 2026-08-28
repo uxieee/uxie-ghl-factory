@@ -176,12 +176,17 @@ test('every trigger correction is still NEEDED (correctFilterRows still changes 
     // correctFilterRows at all) would otherwise escape the "checked for free" guarantee this
     // loop exists to provide, exactly like the entry it was generalised from.
     if (!fix.correctFilterRows) {
-      assert.fail(
-        `${type}'s TRIGGER_CORRECTIONS entry has no correctFilterRows — this loop only knows `
-        + `how to check that shape for staleness. Extend this loop to cover the new shape `
-        + `(e.g. a generic literal-patch diff, mirroring the CATALOG_CORRECTIONS loop above) `
-        + `before shipping a differently-shaped trigger correction, or add it here yourself.`,
-      );
+      // DOC-ONLY correction: a known, intentional shape since 2026-08-29. It carries guidance the
+      // generated catalog cannot express (call_status: dispositions match BY NAME, so a name absent
+      // from Settings never fires) and patches no data, so there is nothing to go stale — but it
+      // must still be a doc note and nothing else, or it escapes this loop's staleness check.
+      const { reason, docNote, ...rest } = fix;
+      assert.ok(docNote, `${type}'s TRIGGER_CORRECTIONS entry has neither correctFilterRows nor docNote`);
+      assert.deepEqual(Object.keys(rest), [],
+        `${type}'s TRIGGER_CORRECTIONS entry patches ${Object.keys(rest).join('/')} with no `
+        + `correctFilterRows — this loop only knows how to check correctFilterRows and doc-only `
+        + `entries for staleness. Extend it to cover the new shape before shipping this.`);
+      continue;
     }
     const before = generated.filterRows ?? [];
     const after = fix.correctFilterRows(before);

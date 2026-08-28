@@ -36,11 +36,11 @@ export const NAMESPACE_POLICY = Object.freeze({
   allow: new Set(['{{location.id}}']),
 });
 
-// The picker's "Assigned User" sub-menu (childUserMenu(ns), merge_tags.ts:55, used at :699 and
-// :896) is a template-literal site the harvest skipped, so the catalog lacks these 18 static tags.
-// Kept here until the extractor expands them; the staleness test names this list for deletion.
-const CHILD_USER_KEYS = ['id', 'name', 'first_name', 'last_name', 'email', 'phone', 'phone_raw', 'email_signature', 'twilio_phone_number'];
-export const ENGINE_STATIC_TAGS = ['appointment', 'task'].flatMap((ns) => CHILD_USER_KEYS.map((k) => `{{${ns}.user.${k}}}`));
+// RETIRED 2026-08-29 (worked as designed). ENGINE_STATIC_TAGS carried the 18
+// {{appointment.user.*}} / {{task.user.*}} tags because childUserMenu() builds them from a
+// template literal the harvester skipped. extract-merge-tags.mjs now expands that call, and the
+// catalog ships all 18 (plus 4 {{task.*}} tags that a comment-stripper bug had been deleting
+// outright), so the staleness test named this list and it is gone.
 
 const TOKEN = /\{\{\s*([A-Za-z_][\w-]*)((?:\.[^{}]*)?)\s*\}\}/g;
 const compact = (s) => String(s ?? '').replace(/\s+/g, '');
@@ -91,7 +91,7 @@ function perLocationVocabulary(ns, opts) {
 
 export function evaluateMergeTags(templates, mergeTags, opts = {}) {
   if (!mergeTags?.tags) return [];
-  const staticTags = new Set([...mergeTags.tags.map((t) => compact(t.tag)), ...ENGINE_STATIC_TAGS, ...NAMESPACE_POLICY.allow]);
+  const staticTags = new Set([...mergeTags.tags.map((t) => compact(t.tag)), ...NAMESPACE_POLICY.allow]);
   const P = NAMESPACE_POLICY;
   const out = [];
   const walk = (v, cb) => { if (typeof v === 'string') cb(v); else if (Array.isArray(v)) v.forEach((x) => walk(x, cb)); else if (v && typeof v === 'object') Object.values(v).forEach((x) => walk(x, cb)); };
