@@ -11,6 +11,53 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.37.0] — 2026-08-28
+
+Two long-open community pull requests, verified rather than adopted. Every claim was re-tested
+against a live account before anything landed; two were corrected by the testing, one was refuted
+outright, and the refutation root-caused a bug that had been misattributed since July. Contributed
+work is credited with `Co-authored-by` on every commit.
+
+### Added
+
+- **Knowledge Base rich-text UPDATE.** `compileRichTextUpdate()` compiles the
+  `PUT /knowledge-base/rich-text/{id}` full-replace — verified live: byte-identical read-back, the
+  server re-chunks and re-embeds itself (no separate retrain call; poll the status endpoint exactly
+  as for create). Without it the only ways to edit a live rulebook were delete-and-recreate, which
+  leaves an agent with **no** rulebook if the create leg fails, or adding a second document, which
+  cannot remove a contradicting passage.
+- **The compiler now REFUSES a `contentMarkdown` key**, on create as well as update.
+  `contentMarkdown` is server-derived: a direct write returns **200 and changes nothing** (measured
+  in both shapes on an existing document). Silently forwarding it would recreate exactly the
+  "acknowledged but inert" defect class this engine has been eliminating all week. The create-path
+  guard is explicitly marked preventive rather than separately measured.
+
+### Changed
+
+- **`ghl-knowledge-base`** documents the update path, the async retrain, the `contentMarkdown` trap
+  and the newly captured KB-create schema (`POST /knowledge-base/` `{locationId, name}`).
+- **`ghl-conversation-ai`** documents the two workflow-facing conversation-summary outputs —
+  `summary.customFieldId` (writes each summary to a contact custom field) and
+  `summary.workflowIds[]` (enrols workflows when a summary commits). Field existence is corroborated
+  from our own captures; the behavioural details and the UI location are labelled
+  contributor-attested and not independently re-verified.
+- **`ghl-reverse-engineering`** gains the contact smart-list surface, and corrects the contributed
+  claim that it is `services`-only: the same routes answer on **both** hosts, each on its own single
+  credential — `services` + `token-id` (what the browser calls, with no `Authorization` header at
+  all) and `backend` + plain `Bearer`. So a caller already holding the workflow-rail Bearer needs no
+  second credential here. Also adds the 422-schema-recovery technique (re-verified in use), the
+  deep-link-404-partial-shell trap, and the contact-search index lag.
+
+### Not adopted
+
+- The contributed "trigger `_id` registration trap" — that an in-place trigger PUT reuses the `_id`
+  and is never re-subscribed, so tag/stage triggers save but never fire — is **refuted**. Drive-test
+  on four triggers with different life histories, including one carried through ~7 in-place PUTs on
+  the same `_id`: all four fired ~5.5 s after the event. The real cause was the `status: "draft"`
+  clobber fixed in 0.36.0, which silently deactivated every trigger `modifyTrigger` touched. The
+  proposed delete-and-recreate remedy is now actively harmful: it mints a new trigger id, which
+  breaks trigger-identity `if_else` routing, resets stats, and re-mints inbound-webhook URLs.
+
 ## [0.36.0] — 2026-08-28
 
 The 0.35.0 release shipped a limit stated as fact: "a trigger reading inactive on an
