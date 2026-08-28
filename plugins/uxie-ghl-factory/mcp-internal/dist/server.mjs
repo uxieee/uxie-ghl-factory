@@ -143224,7 +143224,6 @@ function returnedResourceId(response) {
 }
 function triggerSemanticExpectation(body = {}, { verifyActive = false } = {}) {
   const keys = [
-    "workflowId",
     "type",
     "masterType",
     "name",

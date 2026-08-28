@@ -22,6 +22,15 @@ const workflow = ({ status = 'draft', version = 7, templates } = {}) => ({
   },
 });
 
+// GHL stores the POSTed trigger with a snake_case `workflow_id` at the root and no `workflowId`
+// (29/29 catalog trigger examples; corpus 06-fields-glossary.md:164). A fixture that stores the
+// WRITE shape lets a verifier that compares the write shape pass — which is how the `workflowId`
+// false-negative (F5-13) stayed green from 2026-07-20 to 0.37.1.
+const toReadShape = (body) => {
+  const { workflowId, ...rest } = structuredClone(body);
+  return workflowId === undefined ? rest : { ...rest, workflow_id: workflowId };
+};
+
 function editGateway({
   initial = workflow(),
   existingTags = [],
@@ -93,7 +102,7 @@ function editGateway({
           // `status` (see edit-driver.mjs's targetStatus), so this derives the same way the
           // real API does instead of hardcoding `active:false`.
           currentTriggers.push({
-            ...structuredClone(body), id: persistedId, _id: persistedId, active: body.status !== 'draft',
+            ...toReadShape(body), id: persistedId, _id: persistedId, active: body.status !== 'draft',
           });
         }
         if (throwAfterTriggerPost) throw new Error('transport lost after trigger POST applied');
