@@ -134,11 +134,17 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     return h;
   };
 
-  const request = async (method, path, body, baseOrOptions = BASE) => {
+  // `baseOrOptions` deliberately has NO default: the four entry points used to pin it to BASE,
+  // which meant `options.base` was always set and the rail-aware default below could never apply.
+  const request = async (method, path, body, baseOrOptions) => {
     const options = typeof baseOrOptions === 'string'
       ? { base: baseOrOptions }
       : (baseOrOptions ?? {});
-    const base = options.base ?? BASE;
+    // The default destination follows the RAIL. An `ai`-rail gateway that defaulted to backend
+    // made its most natural call — no explicit base — throw AI_RAIL_HOST_INVALID by construction
+    // (list_marketplace_apps did exactly that, in both profiles, from 0.23.0 to 0.37.1). An
+    // explicit wrong base is still refused by the SC3 guard in headers().
+    const base = options.base ?? (rail === 'ai' ? AI_HOST : BASE);
     const signedUpload = options.signedUpload === true;
     // Validate the RESOLVED destination, not `base` alone: the fetch target is base+path,
     // so a non-`/` or traversing path could otherwise escape a base-only origin check
@@ -175,7 +181,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     return res;
   };
 
-  const call = async (method, path, body, baseOrOptions = BASE) => {
+  const call = async (method, path, body, baseOrOptions) => {
     const res = await request(method, path, body, baseOrOptions);
     const text = await res.text();
     let json; try { json = JSON.parse(text); } catch { json = text; }
@@ -226,7 +232,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
   // A SEPARATE reader, deliberately not folded into `call`: engine/orchestrate.mjs
   // and every existing tool branch on the exact { status, ok, json } shape, and a
   // widened success object there would change behaviour far outside the audit rail.
-  const callWithMeta = async (method, path, body, baseOrOptions = BASE) => {
+  const callWithMeta = async (method, path, body, baseOrOptions) => {
     const res = await request(method, path, body, baseOrOptions);
     const capturedAt = nowImpl();
     const text = await res.text();
@@ -258,7 +264,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
 
   // Consume an SSE response through the same auth/throttle chokepoint as call().
   // A closed stream is not success on its own: one of terminalEvents must arrive.
-  const stream = async (method, path, body, baseOrOptions = BASE) => {
+  const stream = async (method, path, body, baseOrOptions) => {
     // This is deliberately stderr-only: stdout is the MCP stdio transport.  It
     // records protocol progress, never event payloads (which may contain prompts
     // or generated content).  Enable for a single human-gated live diagnostic.
