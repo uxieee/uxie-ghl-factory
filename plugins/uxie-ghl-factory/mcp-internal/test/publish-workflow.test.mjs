@@ -63,12 +63,12 @@ function publishGateway({
       if (method === 'GET' && path === '/workflow/LOC/trigger?workflowId=WID') {
         return { status: 200, ok: true, json: { triggers: structuredClone(triggers) } };
       }
-      // REPAIR rail (added 2026-08-28): a per-trigger PUT carrying `status:'published'` is
-      // what actually activates a trigger the publish PUT's own cascade missed — see
-      // edit-driver.mjs's REMOVED-2026-08-28 UPDATE for the full measurement. The body's own
-      // `active` key is still ignored (the server never keys off it — only `status` does);
-      // this fixture derives `active` from `status` the same way, gated by `repairActivates`
-      // to model the "silently ignored" pitfall on demand.
+      // REPAIR rail: a per-trigger PUT carrying `status:'published'` is what actually
+      // activates a trigger the publish PUT's own cascade missed — see edit-driver.mjs's
+      // translateActiveToStatus for the full mechanism. The body's own `active` key is still
+      // ignored (the server never keys off it — only `status` does); this fixture derives
+      // `active` from `status` the same way, gated by `repairActivates` to model the
+      // "silently ignored" pitfall on demand.
       if (method === 'PUT' && path.startsWith('/workflow/LOC/trigger/')) {
         const tid = path.split('/').pop();
         const index = triggers.findIndex((trigger) => (trigger.id ?? trigger._id) === tid);
@@ -254,13 +254,11 @@ test('publish_workflow sends no per-trigger activation PUT when the publish PUT 
   assert.ok(noActivationPutSent(calls), 'the cascade already covers this case; the repair rail must not fire needlessly');
 });
 
-// REPLACES the 2026-08-28 test that used to stand here ("...the open, unsolved case"), which
-// asserted a trigger reading inactive after a successful publish PUT could not be fixed by
-// ANY known write. That was correct about `active` and incomplete about `status` — see
-// edit-driver.mjs's REMOVED-2026-08-28 UPDATE. Measured the same day: the trigger's own
-// `status` field is what `active` projects, and a per-trigger PUT carrying
-// `status:'published'` DOES activate it. publish_workflow now REPAIRS exactly this case —
-// one PUT per trigger still reading inactive after the cascade — before reporting failure.
+// This pins the REPAIR case: a trigger the publish PUT's own cascade did NOT reach. The
+// trigger's own `status` field is what `active` projects (`active === (status !== "draft")`
+// — see edit-driver.mjs's translateActiveToStatus), and a per-trigger PUT carrying
+// `status:'published'` DOES activate it. publish_workflow REPAIRS exactly this case — one
+// PUT per trigger still reading inactive after the cascade — before reporting failure.
 test('publish_workflow REPAIRS a trigger that still reads inactive after the publish PUT — one per-trigger status write, verified by read-back', async () => {
   const { gw, calls, current, triggers } = publishGateway({ triggersActivateOnPublish: false });
   const result = await publishTool().handler(

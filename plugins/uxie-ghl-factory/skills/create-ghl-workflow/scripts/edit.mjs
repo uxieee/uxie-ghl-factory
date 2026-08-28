@@ -288,41 +288,21 @@ for (const r of plan) {
     console.log(sv ? `  SERVER VALIDATION (${sv.validationType}): ${describeServerFindings(sv)}` : '  body: ' + JSON.stringify(res.json).slice(0, 240)); }
 }
 
-// Activation check + REPAIR. Two write rails were tried and retired here, in order, before
-// the mechanism was actually found:
-//   1. RETIRED 2026-08-27 (Task 9, workflow save-correctness): a status draft→published
-//      double full-document PUT to "subscribe" them — live-proven INERT, never flipped the
-//      stored `active` flag.
-//   2. RETIRED 2026-08-28 (as a body SHAPE, not as an endpoint — see below): a per-trigger
-//      PUT /workflow/{loc}/trigger/{triggerId} carrying the whole trigger record with
-//      active:true (planTriggerActivation). This looked right for a day — it demonstrably
-//      persists trigger CONTENT (conditions, name, targetActionId) — but measurement
-//      (throwaway probes on the designated test sub-account, 2026-08-28) proved sending
-//      `active` itself never touches it: a publish with ZERO trigger writes still activates
-//      every trigger, sub-second after the publish PUT returns; a per-trigger PUT with
-//      active:false against a published workflow returns 200 and the trigger stays
-//      active:true. `active` is a SERVER-MANAGED PROJECTION of the workflow's publish
-//      state — this endpoint accepts the `active` FIELD and ignores it, in both directions.
+// Activation check + REPAIR. `active` is a SERVER-MANAGED PROJECTION of the workflow's
+// publish state, not a field any PUT body sets directly: a trigger record carries its OWN
+// `status` field ("draft"|"published"), and `active === (status !== "draft")`. Sending
+// `status:"published"` on the per-trigger PUT /workflow/{loc}/trigger/{triggerId} DOES
+// activate a trigger already on a published workflow, verified by read-back; a bogus
+// `status` string is silently accepted and ignored (200, unchanged), so this write is held
+// to the same rule as every other one in this script: never trust the 200, always read
+// `active` back.
 //
-// CORRECTED later the same day: the conclusion drawn from (2) — "there is consequently no
-// known write that activates a trigger against an already-published workflow" — was
-// incomplete, not wrong about `active`. Every experiment above sent (or omitted) `active`,
-// never `status` — and the roster GET that fed them never surfaces `status` at all, only
-// `active`, so the field that actually matters was invisible to the investigation, not
-// absent from the API. A trigger record carries its OWN `status` field ("draft"|
-// "published"), and `active` is a read-only projection of it
-// (`active === (status !== "draft")`). Sending `status:"published"` on the SAME per-trigger
-// PUT (2) already used — just with the one field it never tried — DOES activate a trigger
-// on an already-published workflow, verified by read-back. A bogus `status` string is
-// silently accepted and ignored (200, unchanged), so this write is held to the same rule as
-// every other one in this script: never trust the 200, always read `active` back.
-//
-// So this step now REPAIRS: for any trigger still inactive after the add, send one
-// per-trigger PUT with the full record + status:"published", then re-list and verify again
-// before ever reporting failure. Publishing itself remains a separate, user-confirmed
-// decision this script never takes as a side effect of a trigger edit — this repair only
-// fixes a trigger's OWN activation state on a workflow that was ALREADY published before
-// this edit ran.
+// This step REPAIRS: for any trigger still inactive after the add, send one per-trigger PUT
+// with the full record + status:"published", then re-list and verify again before ever
+// reporting failure. Publishing itself remains a separate, user-confirmed decision this
+// script never takes as a side effect of a trigger edit — this repair only fixes a
+// trigger's OWN activation state on a workflow that was ALREADY published before this edit
+// ran.
 if (plan.length && !triggerFailed) {
   const after = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
   if (after?.status !== 'published') {
