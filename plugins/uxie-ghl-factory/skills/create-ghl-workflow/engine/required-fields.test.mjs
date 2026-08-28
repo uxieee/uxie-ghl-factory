@@ -171,7 +171,18 @@ test('every trigger correction is still NEEDED (correctFilterRows still changes 
     const generated = CATALOG_DATA.triggers[type];
     assert.ok(generated, `${type} vanished from the generated catalog — revisit this correction`);
     assert.ok(fix.reason, `${type} correction must carry a reason`);
-    if (!fix.correctFilterRows) continue;
+    // FAIL LOUDLY on a shape this loop does not know how to check, rather than silently
+    // skipping it — a differently-shaped future correction (e.g. a literal-value patch, no
+    // correctFilterRows at all) would otherwise escape the "checked for free" guarantee this
+    // loop exists to provide, exactly like the entry it was generalised from.
+    if (!fix.correctFilterRows) {
+      assert.fail(
+        `${type}'s TRIGGER_CORRECTIONS entry has no correctFilterRows — this loop only knows `
+        + `how to check that shape for staleness. Extend this loop to cover the new shape `
+        + `(e.g. a generic literal-patch diff, mirroring the CATALOG_CORRECTIONS loop above) `
+        + `before shipping a differently-shaped trigger correction, or add it here yourself.`,
+      );
+    }
     const before = generated.filterRows ?? [];
     const after = fix.correctFilterRows(before);
     assert.notDeepEqual(after, before,
