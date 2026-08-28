@@ -695,6 +695,11 @@
     "path": "/workflow/{loc}/{wid}"
   },
   {
+    "tool": "publish_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/trigger/{tid}"
+  },
+  {
     "tool": "list_workflow_folders",
     "method": "GET",
     "path": "/workflow/{loc}/list"

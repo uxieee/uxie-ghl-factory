@@ -143080,7 +143080,7 @@ async function listWorkflowTriggers(gw, locationId, workflowId) {
   return { response, triggers: recordsFrom(response.json, "triggers", "data") };
 }
 function triggerRequiresPublish(request) {
-  return request.method !== "DELETE" && request.body?.status === "draft";
+  return request.method !== "DELETE" && request.op !== "modifyTrigger" && request.body?.status === "draft";
 }
 function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
@@ -145202,6 +145202,7 @@ var TOOLS2 = [
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
+      const requiresPublish = triggerPlan.some(triggerRequiresPublish);
       const data2 = {
         workflowId: args.workflowId,
         status: roundTripResponse.json?.status,
@@ -145213,8 +145214,8 @@ var TOOLS2 = [
         triggerChangesApplied: partialProgress.triggerWrites.applied,
         stickyNotesApplied: partialProgress.stickyNotes.applied,
         stickyNoteIds: partialProgress.stickyNotes.ids,
-        requiresPublish: triggerPlan.some(triggerRequiresPublish),
-        publishInstruction: triggerPlan.some(triggerRequiresPublish) ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : null,
+        requiresPublish,
+        publishInstruction: requiresPublish ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : null,
         verify,
         warnings,
         partialProgress,
@@ -145236,7 +145237,7 @@ var TOOLS2 = [
   },
   {
     name: "publish_workflow",
-    description: describe3("publish_workflow", "Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified but runtime firing still requires logs."),
+    description: describe3("publish_workflow", "Preview or confirmation-gate a version-safe workflow publish using the full active trigger envelope. Publishing is round-trip verified, and any trigger still inactive after the publish PUT's own draft\u2192published cascade gets a repair write (one per-trigger status PUT, verified by a fresh read-back) before failure is ever reported. Runtime firing still requires logs."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -145245,7 +145246,10 @@ var TOOLS2 = [
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/trigger" },
-      { method: "PUT", path: "/workflow/{loc}/{wid}" }
+      { method: "PUT", path: "/workflow/{loc}/{wid}" },
+      // REPAIR (added 2026-08-28): one per-trigger status write for any trigger still
+      // inactive after the document PUT's own cascade — see the handler's measurement note.
+      { method: "PUT", path: "/workflow/{loc}/trigger/{tid}" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
