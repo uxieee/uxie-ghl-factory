@@ -37,6 +37,11 @@ The shape worth holding in your head: a knowledge base is a record with **source
 source to it. `rich_text` is the exception — it has its own sub-resource,
 `POST /knowledge-base/rich-text/`, and creation is **asynchronous**.
 
+**KB-create schema** (captured 2026-08-28, the designated test sub-account): `POST
+/knowledge-base/` body `{locationId, name}` → 201 `{success, data: {id, name, nameLowerCase, …}}`.
+Read-back list of a KB's rich-text docs: `GET /knowledge-base/rich-text/knowledge-base/{kbId}` →
+`{data: [{id, title, content, contentMarkdown, status, …}]}`.
+
 ## The traps
 
 **1. Rich-text create is asynchronous.** `POST /knowledge-base/rich-text/` returns before the
@@ -65,6 +70,26 @@ and `mode: custom` is a KB the agent will not reach for.
 questions the KB could not answer. That is the fastest read on *why* an agent is answering
 badly — check it before rewriting a prompt.
 
+**5. Editing a rich-text doc is a PUT, not delete-and-recreate.** `PUT
+/knowledge-base/rich-text/:id` is a **live-verified full-replace** (2026-08-28, the designated
+test sub-account): same body shape as create — `{locationId, knowledgeBaseId, title, content}` —
+200, response carries `status: "training"`, and a read-back of the sent `content` came back
+**byte-identical**. It re-chunks and re-embeds automatically, exactly like create: poll `GET
+/knowledge-base/rich-text/:id/status` until `"trained"` (a full retrain took ~4.6s in the proving
+run) — there is no separate retrain call.
+
+Do not delete-and-recreate a doc to edit it, and do not add a second doc alongside the old one
+as a workaround: both orphan or duplicate content — a delete drops any id another object
+references, and a second doc leaves stale content the agent can still draw from, which is a
+worse failure than the one you were trying to fix. PUT the existing id instead.
+
+`content` is HTML; the server derives `contentMarkdown` from it. **A direct `contentMarkdown`
+write 200s and changes nothing** — measured in both a contentMarkdown-only body and an
+unchanged-content-plus-contentMarkdown body. `kb-compiler.mjs`'s `compileRichTextUpdate(id, doc,
+{locationId})` builds this PUT descriptor, and throws rather than silently no-opping if the
+caller's IR carries a `contentMarkdown` key — a caller supplying that key believes something
+false about this API.
+
 ## Limits
 
 Upload ≤10 MB per file · content is capped per document (`characterLimitExceededContent`) ·
@@ -73,10 +98,11 @@ file must be selected to upload · at least one KB must be selected where a bot 
 
 ## Proof status — read before trusting a write
 
-Per `ai-agents/20-api/12-ai-agents-api.md`: **rich-text create is live-proven** (round-tripped,
-including the status poll and delete). **Tables and file upload are capture-derived** —
-best-effort form fields, never live-fired. The other source types have no live proof recorded.
-Treat a first write of an unproven type as a throwaway validation run on a test sub-account.
+Per `ai-agents/20-api/12-ai-agents-api.md`: **rich-text create AND update are live-proven**
+(round-tripped, including the status poll, the full-replace PUT, and delete — see Trap 5).
+**Tables and file upload are capture-derived** — best-effort form fields, never live-fired. The
+other source types have no live proof recorded. Treat a first write of an unproven type as a
+throwaway validation run on a test sub-account.
 
 ## Scope
 

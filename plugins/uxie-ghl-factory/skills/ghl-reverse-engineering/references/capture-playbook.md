@@ -18,6 +18,14 @@ The server 404s every deep path — only `/` is served; the SPA client-routes. S
   Typical path: Sub-Accounts → the sub-account row → "Switch to Sub-Account" → the feature's nav icon.
 - Do NOT `browser_navigate` to `/v2/location/.../...` — it 404s and resets you to the agency view.
 
+**Why this matters more than it looks.** A deep-linked page doesn't just 404 the outer route — it
+renders a partial shell that never fires the XHRs you came to capture. Re-verified 2026-08-28: the
+symptom reads exactly like "this surface has no API," and that reading is wrong. Seeing no
+matching network traffic after a direct navigation is evidence you didn't reach a live view, not
+evidence the surface is API-less. Reach every screen by clicking — `/` → Sub-Accounts → the
+account → "Click here to switch" → the location → the section — before concluding a feature has
+no internal endpoints.
+
 ## 2. Perform the action, then capture
 1. Do ONE config action in the UI (create, edit-a-field, add-an-action, save).
 2. `browser_network_requests({ static:false, filter:"<service-regex>" })` — e.g.
@@ -55,6 +63,8 @@ token (JWTs expire ~1 hr; a stale one 401s). Match the header to the service (se
   action/sub-resource schemas + open items (what you didn't capture, marked clearly).
 
 ## Common pitfalls
+- **A silent deep link is not proof of "no API"** — see step 1: a direct-navigated page renders a
+  partial shell that never fires the XHRs, so "no traffic" usually means "wrong navigation."
 - **Colon-space in YAML frontmatter** breaks skill loading — quote any `description:` containing `: `.
 - **Steps aren't always inline** — the workflow builder stores steps in a versioned Firebase Storage
   blob (`fileUrl`), not in the `PUT /workflow/...` body. Read the blob to see steps.
