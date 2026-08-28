@@ -380,17 +380,10 @@ test('two custom triggers on one target warn rather than throw — legal, but a 
   assert.ok(warnings.some((w) => /targets the same step/.test(w)), JSON.stringify(warnings));
 });
 
-test('the eq->== trigger correction is still NEEDED (delete it when the generator is fixed)', async () => {
-  const raw = (await import('./catalog.data.json', { with: { type: 'json' } })).default;
-  const rows = raw.triggers?.conv_ai_autonomous_trigger?.filterRows ?? [];
-  assert.ok(
-    rows.some((r) => r.operator === 'eq'),
-    'catalog.data.json no longer carries operator "eq" on conv_ai_autonomous_trigger — the '
-    + 'generator has been corrected upstream. Delete conv_ai_autonomous_trigger from '
-    + 'TRIGGER_CORRECTIONS in required-fields.mjs.',
-  );
-});
-
+// The staleness check for this correction (conv_ai_autonomous_trigger's eq->== fix) is now
+// generic — see required-fields.test.mjs's 'every trigger correction is still NEEDED' loop
+// over TRIGGER_CORRECTIONS, which asserts the same thing (correctFilterRows still changes the
+// generated filterRows) for every trigger correction, not just this one.
 test('the loaded catalog serves == for every conv_ai_autonomous_trigger filter row', async () => {
   const { loadCatalog } = await import('./catalog.mjs');
   const rows = loadCatalog().trigger('conv_ai_autonomous_trigger').filterRows;

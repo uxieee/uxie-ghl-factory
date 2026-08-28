@@ -50,6 +50,34 @@ test('markdown index lists EVERY step and trigger type', () => {
   assert.match(md, /advanceCanvasMeta\.isDisabled/);
 });
 
+test('renderMarkdown surfaces a docNote inline for both a step and a trigger', () => {
+  // The sync test above only proves the committed file matches renderMarkdown's OWN output —
+  // if the docNote branch silently dropped the note, both sides of that byte-diff would agree
+  // and it would still pass. This drives renderMarkdown directly with a minimal fixture, so a
+  // regression in the docNote branch itself fails here regardless of what's committed.
+  const fixture = {
+    stepCount: 1,
+    triggerCount: 1,
+    steps: {
+      fake_step: {
+        type: 'fake_step', section: 'test-section', confidence: 'verified-live',
+        docNote: 'STEP_DOC_NOTE_MARKER',
+      },
+    },
+    triggers: {
+      fake_trigger: {
+        type: 'fake_trigger', category: 'test-category', confidence: 'verified-live',
+        masterType: 'internal', docNote: 'TRIGGER_DOC_NOTE_MARKER',
+      },
+    },
+  };
+  const md = renderMarkdown(fixture);
+  assert.match(md, /`fake_step`[^\n]*STEP_DOC_NOTE_MARKER/,
+    'a step docNote must render on its own bullet line, not just live on the catalog entry');
+  assert.match(md, /`fake_trigger`[^\n]*TRIGGER_DOC_NOTE_MARKER/,
+    'a trigger docNote must render on its own bullet line, not just live on the catalog entry');
+});
+
 test('committed references/capabilities.md is in sync with the catalog', () => {
   const p = resolve(dirname(fileURLToPath(import.meta.url)), '../references/capabilities.md');
   assert.ok(existsSync(p), 'references/capabilities.md missing — regenerate it');

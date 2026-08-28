@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { compile } from './compiler.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
-import { CATALOG_CORRECTIONS, REQUIRED_FIELDS, enforceRequiredFields, requiredKeysFor, isSupplied } from './required-fields.mjs';
+import { CATALOG_CORRECTIONS, TRIGGER_CORRECTIONS, REQUIRED_FIELDS, enforceRequiredFields, requiredKeysFor, isSupplied } from './required-fields.mjs';
 import CATALOG_DATA from './catalog.data.json' with { type: 'json' };
 
 const ctx = () => ({ loc: 'LOC', cid: 'CID', uid: 'UID', companyAge: 27, idGen: makeSeededIdGen('a'), catalog: loadCatalog() });
@@ -158,6 +158,25 @@ test('every catalog correction is still NEEDED (the generated data still disagre
       + `CATALOG_CORRECTIONS in required-fields.mjs. This is the expected end state: someone `
       + `captured a real step-example for ${type}, so the overlay is now dead weight. See the `
       + `"HOW TO RETIRE THIS FILE" block at the top of required-fields.mjs.`);
+  }
+});
+
+// Same idea as the step-side loop above, adapted to TRIGGER_CORRECTIONS' shape: a fix here is
+// a MAPPER (correctFilterRows), not a literal-value patch, so staleness means the mapper no
+// longer changes anything when run over the still-generated filterRows. Generalises the
+// bespoke conv_ai_autonomous_trigger eq->== check (convai-nodes.test.mjs) so a second trigger
+// correction gets this staleness guard for free instead of needing its own bespoke test.
+test('every trigger correction is still NEEDED (correctFilterRows still changes something)', () => {
+  for (const [type, fix] of Object.entries(TRIGGER_CORRECTIONS)) {
+    const generated = CATALOG_DATA.triggers[type];
+    assert.ok(generated, `${type} vanished from the generated catalog — revisit this correction`);
+    assert.ok(fix.reason, `${type} correction must carry a reason`);
+    if (!fix.correctFilterRows) continue;
+    const before = generated.filterRows ?? [];
+    const after = fix.correctFilterRows(before);
+    assert.notDeepEqual(after, before,
+      `correctFilterRows for ${type} no longer changes the generated filterRows — DELETE that `
+      + `entry from TRIGGER_CORRECTIONS in required-fields.mjs.`);
   }
 });
 
@@ -647,19 +666,25 @@ test('every dedicated-builder type with a coupled rule enforces it through compi
   }
 });
 
-test('add_to_workflow always ships a boolean input_trigger_params', async () => {
+// Folded from two tests: the first half is a real regression guard (it fails if
+// CONDITIONAL_DEFAULTS.add_to_workflow is deleted outright — out.input_trigger_params would
+// come back undefined, not false); the second half used to live as its own test
+// ('an author-supplied input_trigger_params is respected') but passed even with that whole
+// entry deleted, since nothing else in the pipeline overrides a supplied value either — it
+// pinned a property, not a regression. Kept here instead, where it DOES guard something: a
+// mutation that forces input_trigger_params unconditionally (dropping the `=== undefined`
+// guard) fails this assertion specifically.
+test('add_to_workflow always ships a boolean input_trigger_params, defaulting to false but never overriding a supplied value', async () => {
   const { enforceRequiredFields } = await import('./required-fields.mjs');
   const node = { type: 'add_to_workflow', name: 'Enrol' };
-  const out = enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow' }, {});
-  assert.equal(out.input_trigger_params, false);
-  assert.equal(typeof out.input_trigger_params, 'boolean', 'the UI drawer writes the STRING "False", which the validator rejects with "Expected boolean"');
-});
 
-test('an author-supplied input_trigger_params is respected', async () => {
-  const { enforceRequiredFields } = await import('./required-fields.mjs');
-  const node = { type: 'add_to_workflow', name: 'Enrol' };
-  const out = enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow', input_trigger_params: true }, {});
-  assert.equal(out.input_trigger_params, true);
+  const defaulted = enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow' }, {});
+  assert.equal(defaulted.input_trigger_params, false);
+  assert.equal(typeof defaulted.input_trigger_params, 'boolean', 'the UI drawer writes the STRING "False", which the validator rejects with "Expected boolean"');
+
+  const supplied = enforceRequiredFields(node, { workflow_id: 'wf-1', type: 'add_to_workflow', input_trigger_params: true }, {});
+  assert.equal(supplied.input_trigger_params, true,
+    'CONDITIONAL_DEFAULTS.add_to_workflow must only fill an ABSENT value, never override one the author supplied');
 });
 
 test('a blocking objective without a closing message is refused', async () => {
