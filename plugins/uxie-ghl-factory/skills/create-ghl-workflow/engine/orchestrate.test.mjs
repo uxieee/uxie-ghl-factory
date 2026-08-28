@@ -516,9 +516,8 @@ test('orchestrate --publish fills input_trigger_params on a legacy add_to_workfl
 // and activation happens purely as a side effect of the publish PUT succeeding.
 //
 // This pins the HAPPY PATH ONLY: the workflow-level publish transition's own cascade
-// (measured later, same day) already activates every trigger here, so there is nothing left
-// for the REPAIR rail to do. A trigger that the cascade does NOT reach — the repair rail
-// added 2026-08-28 for exactly that case — is covered separately below
+// already activates every trigger here, so there is nothing left for the REPAIR rail to do.
+// A trigger that the cascade does NOT reach is covered separately below
 // ('...REPAIRS a trigger that still reads inactive...'), where the per-trigger PUT this test
 // forbids is exactly what gets sent.
 test('orchestrate --publish sends no per-trigger activation PUT when the publish PUT alone already activated everything', async () => {
@@ -567,15 +566,12 @@ test('orchestrate --publish sends no per-trigger activation PUT when the publish
   assert.equal(triggersState[0].active, true);
 });
 
-// REPLACES the 2026-08-28 test that used to stand here ("...the open, unsolved case"), which
-// asserted the opposite of what this now pins: that a trigger reading inactive after a
-// successful publish PUT could not be fixed by ANY known write, including a retry of the
-// retired per-trigger PUT. That was correct about `active` (the retired write's body) and
-// incomplete about `status` — see edit-driver.mjs's REMOVED-2026-08-28 UPDATE. Measured the
-// same day: the trigger's own `status` field is what `active` projects, and a per-trigger PUT
-// carrying `status:'published'` DOES activate it. orchestrate --publish now REPAIRS exactly
-// this case — one PUT per trigger still reading inactive after the publish PUT's own cascade
-// — before ever reporting failure.
+// This pins the REPAIR case the test above does not cover: a trigger the publish PUT's own
+// cascade did NOT reach. The trigger's own `status` field is what `active` projects
+// (`active === (status !== "draft")` — see edit-driver.mjs's translateActiveToStatus), and a
+// per-trigger PUT carrying `status:'published'` DOES activate it. orchestrate --publish
+// REPAIRS exactly this case — one PUT per trigger still reading inactive after the publish
+// PUT's own cascade — before ever reporting failure.
 test('orchestrate --publish REPAIRS a trigger that still reads inactive after the publish PUT — one per-trigger status write, verified by read-back', async () => {
   let triggersState = [{ id: 'tr1', _id: 'tr1', type: 'contact_tag', name: 'T', active: false, conditions: [] }];
   const routes = [

@@ -413,12 +413,12 @@ test('modifyTrigger round-trip check ignores an `active` drift unrelated to this
   assert.equal(check.mismatches.length, 0, '`active` must never appear as a mismatch — it is not a compared key');
 });
 
-// ADDED 2026-08-28 (later the same day, item 6 of the status-rail fix): now that a requested
-// `active` change is a real write (translated into `status` — edit-driver.mjs's
-// translateActiveToStatus), the round trip SHOULD verify it, but ONLY for this translated
-// case — see triggerSemanticExpectation's updated comment in tools.mjs. This is the mirror
-// image of the drift test above: THERE active was never requested, so a drift must not fail
-// it; HERE active WAS explicitly requested, so a failure to persist it MUST be caught.
+// Now that a requested `active` change is a real write (translated into `status` —
+// edit-driver.mjs's translateActiveToStatus), the round trip verifies it, but ONLY for this
+// translated case — see triggerSemanticExpectation's comment in tools.mjs. This is the
+// mirror image of the drift test above: THERE active was never requested, so a drift must
+// not fail it; HERE active WAS explicitly requested, so a failure to persist it MUST be
+// caught.
 test('modifyTrigger round-trip check DOES verify an explicitly requested `active` change — a translated write that silently failed to flip it must be caught, never trusted from the 200', async () => {
   const existingTrigger = {
     id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
