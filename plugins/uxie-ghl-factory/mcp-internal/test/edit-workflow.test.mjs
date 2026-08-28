@@ -459,21 +459,16 @@ test('modifyTrigger round-trip check confirms an explicitly requested `active` c
   assert.equal(check.mismatches.length, 0);
 });
 
-// CRITICAL, review round 1: triggerRequiresPublish could not distinguish "a fresh trigger
-// inherited status:'draft' because its workflow is draft" (genuinely needs a publish) from "an
-// existing trigger was just explicitly, verifiably deactivated via modifyTrigger active:false"
-// (also translates to status:'draft' — edit-driver.mjs's translateActiveToStatus — but the
-// write already applied and round-trip verified; there is nothing left for a publish to do).
-// Reproduced: published workflow, stored active:true, modifyTrigger{active:false} → round-trip
-// clean, deactivation succeeded — yet the OLD code reported requiresPublish:true with an
-// instruction to invoke publish_workflow. A caller following that instruction would republish,
-// the publish cascade would set every trigger status:"published", and the trigger the user just
-// turned OFF would come back ON — the exact severity class this branch exists to eliminate,
-// inverted. Fixed: triggerRequiresPublish now excludes request.op === 'modifyTrigger' outright —
-// a modifyTrigger translate is always self-contained in BOTH directions (the status write
-// applies immediately and is round-trip verified), so it never needs a publish; only a CREATE
-// that inherits draft (addTrigger/duplicateTrigger on a draft workflow) leaves something for
-// publish to do.
+// A modifyTrigger status write is self-contained in BOTH directions — it applies immediately
+// and is round-trip verified — so a DEACTIVATION never needs a publish on its own, regardless
+// of the workflow's own status (reproduced: published workflow, stored active:true,
+// modifyTrigger{active:false} → round-trip clean, deactivation succeeded). Telling the caller
+// to publish anyway would be actively harmful: republishing cascades draft→published across
+// every trigger on the workflow and would turn the trigger the caller just turned OFF back
+// ON — the exact severity class this branch exists to eliminate, inverted. The one
+// modifyTrigger case that DOES need a publish — an ACTIVATION landing on a workflow that is
+// itself still draft, which leaves an evaluate-and-match-capable trigger on a workflow that
+// still cannot enrol anyone — is covered separately below.
 test('CRITICAL: modifyTrigger active:false on an already-published workflow must NOT report requiresPublish — the write already applied, and republishing would undo it', async () => {
   const existingTrigger = {
     id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
@@ -538,6 +533,76 @@ test('modifyTrigger active:true against a stored trigger with NO active field at
   const check = result.data.partialProgress.verification.triggers.checks[0];
   assert.equal(check.persisted, true);
   assert.equal(result.data.requiresPublish, false, 'still a modifyTrigger — self-contained either way');
+});
+
+// The gap this closes: a modifyTrigger ACTIVATION lands `status:"published"` on the trigger
+// itself (it will evaluate and match events) even when the WORKFLOW it belongs to is still
+// draft — and a draft workflow cannot enrol anyone no matter how many of its triggers read
+// active (measured: an active trigger on a draft workflow matched its event but produced no
+// enrolment). The old exclusion reported requiresPublish:false for this, telling the caller
+// nothing more was needed — it under-advised. Checked on BOTH preview and confirm, since
+// editPreview and the confirm path must agree.
+test('modifyTrigger activation on a still-DRAFT workflow DOES require publish — the trigger goes live but the workflow cannot enrol anyone until published', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
+    name: 'Original', conditions: [], active: false,
+  };
+  const { gw } = editGateway({
+    initial: workflow({ status: 'draft', version: 20 }),
+    triggers: [existingTrigger],
+  });
+  const op = { op: 'modifyTrigger', triggerId: 'tr-old', trigger: { active: true, filters: [] } };
+
+  const preview = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', ops: [op],
+  }, deps(gw));
+  assert.equal(preview.code, 'CONFIRM_REQUIRED');
+  assert.equal(preview.data.preview.requiresPublish, true,
+    'activating a trigger on a draft workflow must not be reported as fully done');
+  assert.match(preview.data.preview.publishInstruction, /draft/i);
+  assert.match(preview.data.preview.publishInstruction, /enrol/i);
+  assert.match(preview.data.preview.publishInstruction, /publish_workflow.*confirm:true/i);
+
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, ops: [op],
+  }, deps(gw));
+  assert.equal(result.ok, true);
+  assert.equal(result.data.partialProgress.verification.triggers.roundTrip, true,
+    'the activation itself must have applied and round-trip verified');
+  assert.equal(result.data.requiresPublish, true,
+    'the trigger is active but its draft workflow still cannot enrol anyone until published');
+  assert.match(result.data.publishInstruction, /draft/i);
+  assert.match(result.data.publishInstruction, /enrol/i);
+  assert.match(result.data.publishInstruction, /publish_workflow.*confirm:true/i);
+});
+
+// The direction the fix above must not flip: deactivating a trigger that happens to sit on a
+// still-draft workflow is exactly as self-contained as deactivating one on a published
+// workflow (the CRITICAL test above) — there is nothing for a publish to do either way.
+test('modifyTrigger deactivation on a DRAFT workflow still does NOT require publish', async () => {
+  const existingTrigger = {
+    id: 'tr-old', _id: 'tr-old', workflowId: 'WID', type: 'contact_tag',
+    name: 'Original', conditions: [], active: true,
+  };
+  const { gw } = editGateway({
+    initial: workflow({ status: 'draft', version: 20 }),
+    triggers: [existingTrigger],
+  });
+  const op = { op: 'modifyTrigger', triggerId: 'tr-old', trigger: { active: false, filters: [] } };
+
+  const preview = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', ops: [op],
+  }, deps(gw));
+  assert.equal(preview.data.preview.requiresPublish, false);
+  assert.equal(preview.data.preview.publishInstruction, null);
+
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, ops: [op],
+  }, deps(gw));
+  assert.equal(result.ok, true);
+  assert.equal(result.data.requiresPublish, false,
+    "deactivating a trigger never needs a publish, regardless of the workflow's own status");
+  assert.equal(result.data.publishInstruction, null);
 });
 
 const identicalAddTrigger = () => ({
