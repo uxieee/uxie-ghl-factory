@@ -11,6 +11,37 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.37.1] — 2026-08-29
+
+A polish release: one advisory fix, one latent bug caught in review before it ever fired, and a
+documentation-wide rewrite under a new house rule — comments and docs state what is true now;
+git and this file hold the history. Roughly thirty layered "superseded / corrected on <date>"
+comment blocks across the engine, the MCP server and the skills were collapsed into present-tense
+statements, with every measured fact and every "do not do X" kept (the review audited each rewrite
+against the old text for fact loss and found none).
+
+### Fixed
+
+- **`requiresPublish` now flags an activation that lands on a draft workflow.** A `modifyTrigger`
+  setting `active: true` on a trigger whose workflow is still draft genuinely activates the trigger
+  — it will evaluate and match — but a draft workflow does not enrol, so reporting "nothing more to
+  do" under-advised. The response now says the workflow must be published before anything runs.
+- **`modifyTrigger` refuses a `target` ref with a clear message** instead of a misleading
+  `REF_DANGLING` throw. `target` is an IR ref; the edit path has no IR graph to resolve it against —
+  the refusal says so and names `targetActionId` as the field to use.
+- **A supplied non-boolean `input_trigger_params` is refused**, never passed through — the string
+  `"False"` is exactly the value GHL rejects with "Expected boolean".
+- **The spurious `TRIGGER_TARGET: … NO target` warning no longer fires** on every modify of a goto
+  trigger: the stored `targetActionId` is forwarded into the rebuild rather than surviving by
+  spread order. `renameStep` on an unknown id now names `renameStep` in its error.
+
+### Changed
+
+- `CATALOG_CORRECTIONS` `note` evidence now renders into the generated capabilities index alongside
+  `docNote`; the `TRIGGER_CORRECTIONS` staleness check is a generic loop that fails loudly on an
+  entry shape it cannot check; the `docNote` render path and the `input_trigger_params` default
+  each gained a direct regression test.
+
 ## [0.37.0] — 2026-08-28
 
 Two long-open community pull requests, verified rather than adopted. Every claim was re-tested
