@@ -527,21 +527,50 @@ async function listWorkflowTriggers(gw, locationId, workflowId) {
 // `status:'published'`, or no `status` key at all (a pure content edit, delete,
 // replaceTagInTriggers) — does not, by itself, need a publish to take effect.
 //
-// `modifyTrigger` is excluded from that check: a modifyTrigger status write is self-contained
-// in BOTH directions — it applies immediately and is round-trip verified by
+// `modifyTrigger` is mostly excluded from that check: a modifyTrigger status write is
+// self-contained in BOTH directions — it applies immediately and is round-trip verified by
 // verifyTriggerRoundTrip's verifyActive path (see triggerSemanticExpectation) — so an explicit
-// activation OR deactivation through modifyTrigger never needs a publish on its own. (Telling
-// a caller to publish after a deactivation would be actively harmful: republishing cascades
+// DEACTIVATION through modifyTrigger never needs a publish on its own. (Telling a caller to
+// publish after a deactivation would be actively harmful: republishing cascades
 // draft→published across every trigger on the workflow and would turn the just-deactivated
 // trigger back on.)
-function triggerRequiresPublish(request) {
-  return request.method !== 'DELETE' && request.op !== 'modifyTrigger' && request.body?.status === 'draft';
+//
+// The one modifyTrigger case that DOES need a publish: an ACTIVATION (`status:'published'`)
+// landing on a trigger whose WORKFLOW is still `draft`. The trigger itself goes
+// `status:'published'` — it will evaluate and match events — but the workflow cannot enrol
+// anyone until it too is published (measured: an active trigger on a draft workflow matched
+// its event but produced no enrolment). Reporting `requiresPublish:false` here under-advises:
+// it tells the caller nothing more is needed when the workflow still cannot act on the match.
+function triggerRequiresPublish(request, workflowStatus) {
+  if (request.method === 'DELETE') return false;
+  if (request.op === 'modifyTrigger') {
+    return request.body?.status === 'published' && workflowStatus === 'draft';
+  }
+  return request.body?.status === 'draft';
 }
 
-function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate) {
+// Selects the instruction text for whatever in triggerPlan tripped triggerRequiresPublish.
+// The two cases need different wording: a CREATE that inherited draft (addTrigger/
+// duplicateTrigger) has not activated at all yet, while a modifyTrigger ACTIVATION on a draft
+// workflow has already gone active and is waiting on the workflow, not the trigger. `committed`
+// picks the tense — the preview path hasn't written anything yet, the confirm path already has.
+function triggerPublishInstruction(triggerPlan, workflowStatus, { committed }) {
+  const matches = triggerPlan.filter((request) => triggerRequiresPublish(request, workflowStatus));
+  if (matches.length === 0) return null;
+  if (matches.some((request) => request.op === 'modifyTrigger')) {
+    return committed
+      ? 'This trigger is now active, but its workflow is still draft — GHL will not enrol anyone until the workflow itself is published. Invoke publish_workflow with confirm:true to publish it.'
+      : 'This trigger will be active, but its workflow is still draft — GHL will not enrol anyone until the workflow itself is published. After verifying the edit, invoke publish_workflow with confirm:true to publish it.';
+  }
+  return committed
+    ? 'Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.'
+    : 'Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.';
+}
+
+function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
   const afterIds = new Set(templates.map((step) => step.id));
-  const requiresPublish = triggerPlan.some(triggerRequiresPublish);
+  const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, workflowStatus));
   return {
     opsApplied: ops.map((op) => op?.op ?? null),
     stepCount: { before: beforeTemplates.length, after: templates.length },
@@ -550,9 +579,7 @@ function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededT
     diff,
     triggerChanges: triggerPlan.map(({ op, method, path, triggerId }) => ({ op, method, path, ...(triggerId ? { triggerId } : {}) })),
     requiresPublish,
-    publishInstruction: requiresPublish
-      ? 'Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.'
-      : null,
+    publishInstruction: triggerPublishInstruction(triggerPlan, workflowStatus, { committed: false }),
     tagsReferenced: neededTags,
     tagsToCreate,
   };
@@ -2718,6 +2745,7 @@ export const TOOLS = [
       }
       const preview = editPreview(
         args.ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate,
+        fresh.status,
       );
       // Settings-tab changes (updateSettings ops): the exact values the commit body carries,
       // so a preview shows what the UI's Settings drawer would read back after the PUT.
@@ -2926,7 +2954,7 @@ export const TOOLS = [
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
-      const requiresPublish = triggerPlan.some(triggerRequiresPublish);
+      const requiresPublish = triggerPlan.some((request) => triggerRequiresPublish(request, fresh.status));
       const data = {
         workflowId: args.workflowId,
         status: roundTripResponse.json?.status,
@@ -2939,9 +2967,7 @@ export const TOOLS = [
         stickyNotesApplied: partialProgress.stickyNotes.applied,
         stickyNoteIds: partialProgress.stickyNotes.ids,
         requiresPublish,
-        publishInstruction: requiresPublish
-          ? 'Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.'
-          : null,
+        publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
         verify,
         warnings,
         partialProgress,
