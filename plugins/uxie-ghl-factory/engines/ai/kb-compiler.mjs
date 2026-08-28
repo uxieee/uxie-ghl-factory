@@ -51,6 +51,48 @@ export function compileRichTextDoc(doc, { locationId } = {}) {
   };
 }
 
+// PUT /knowledge-base/rich-text/:id — FULL-REPLACE update of an existing document.
+// Live-verified 2026-08-28 on the designated test sub-account: a throwaway document in an
+// unreferenced knowledge base round-tripped byte-identical (~4.6s to `trained`), and both
+// negative shapes were probed directly — a contentMarkdown-only body, and an
+// unchanged-content-plus-contentMarkdown body — each came back 200 and changed nothing.
+// Ported from contributor zedricedwardc's PR #3, corroborated independently before landing.
+//
+// Three things the create path does NOT tell you:
+//   1. The body is the SAME shape as create ({locationId, knowledgeBaseId, title, content})
+//      and it REPLACES the document — there is no partial/merge form.
+//   2. Send `content` (HTML). The server re-derives `contentMarkdown` from it — writing
+//      `contentMarkdown` directly is a measured no-op (200, nothing changes), so a caller
+//      whose IR carries that key believes something false about this API. This compiler
+//      throws rather than silently passing it through, which would recreate the exact
+//      defect class this repo exists to kill.
+//   3. It re-chunks and re-embeds automatically — no separate retrain call. The response
+//      returns `status:"training"`; poll `statusPoll` until `"trained"` exactly as for create.
+export function compileRichTextUpdate(id, doc, { locationId } = {}) {
+  if (typeof id !== 'string' || id.length === 0) throw new IRError('MISSING_FIELD', 'compileRichTextUpdate requires a non-empty id');
+  if (doc && typeof doc === 'object' && 'contentMarkdown' in doc) {
+    throw new IRError(
+      'CONTENT_MARKDOWN_REJECTED',
+      'a direct contentMarkdown write is measured to return 200 and change nothing (verified ' +
+        '2026-08-28: both a contentMarkdown-only body and an unchanged-content-plus-contentMarkdown ' +
+        'body were probed) — send `content` as HTML instead; the server derives contentMarkdown ' +
+        'itself and re-embeds automatically',
+    );
+  }
+  const norm = parseRichTextDocIR(doc);
+  const body = {
+    locationId,
+    knowledgeBaseId: norm.knowledgeBaseId,
+    title: norm.title,
+    content: norm.contentHtml,
+  };
+  return {
+    update: { method: 'PUT', path: `/knowledge-base/rich-text/${id}`, body },
+    statusPoll: { method: 'GET', path: `/knowledge-base/rich-text/${id}/status` },
+    authHeader: AUTH_HEADER,
+  };
+}
+
 // DELETE /knowledge-base/rich-text/:id (knowledge-base-internal.md's delete op).
 export function compileRichTextDelete(id) {
   if (typeof id !== 'string' || id.length === 0) throw new IRError('MISSING_FIELD', 'compileRichTextDelete requires a non-empty id');
