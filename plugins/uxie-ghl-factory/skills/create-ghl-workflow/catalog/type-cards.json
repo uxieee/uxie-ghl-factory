@@ -7790,22 +7790,22 @@
     {
      "label": "Contains phrase",
      "field": "`message.body`",
-     "type": "string",
-     "operator": "`—`",
+     "type": "input",
+     "operator": "`contains` -> `string-contains-any-of` (migrated)",
      "options": "—"
     },
     {
      "label": "Exact match phrase",
      "field": "`message.body`",
      "type": "input",
-     "operator": "`—`",
+     "operator": "`exact` -> `string-matches-any-of` (migrated)",
      "options": "—"
     },
     {
      "label": "Intent type",
      "field": "`message.body`",
      "type": "select",
-     "operator": "`matches_intent`",
+     "operator": "`matches_intent` (never migrated)",
      "options": "`schedule-yes`, `schedule-no`"
     },
     {
@@ -7824,7 +7824,7 @@
     }
    ],
    "validator": "No-op. `customerReplyValidator` returns `[]` regardless of input — anything passes structurally. Per `sniffs/bundle/trigger-validators-summary.json::customerReplyValidator` (`fields_referenced: []`, `result_levels: []`). Filter shape is enforced by the UI, not by the validator.",
-   "notes": "- Three different filter rows reference the same `message.body` field but with different `id` discriminators (`message-contains-phrase`, `message-exact-phrase`, `message-contains-intent`) — the `id` field is what disambiguates which UI row generated a given filter, not the field value.",
+   "notes": "- Three different filter rows reference the same `message.body` field but with different `id` discriminators (`message-contains-phrase`, `message-exact-phrase`, `message-contains-intent`) — the `id` field is what disambiguates which UI row generated a given filter, not the field value. `OperatorOptions['contact_reply']` (`utils/conditions.ts`) is a FIELD menu, not an operator menu: each of the three entries carries its own `operator` (`contains`, `exact`, `matches_intent`) and `type` (`input`, `input`, `select`).",
    "hasCanonicalExample": false
   },
   {

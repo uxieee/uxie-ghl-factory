@@ -11,6 +11,97 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.38.0] — 2026-08-29
+
+Phase-5 guards and data. Every item below is a defect that produced a **clean-looking result** —
+a 200, a green round-trip, a "built successfully" report — while the thing the author asked for
+did not happen. The theme of the release is closing the gap between "GHL kept my keys" and "the
+stored body expresses my intent".
+
+**Live-proven on the designated test sub-account (GROM Digital AUS `wdzEoUZnXO9tB3PPzcot`),
+2026-08-29, against the WORKING TREE — the installed 0.37.1 build still carries these bugs:**
+
+| Finding | Before | Receipt |
+|---|---|---|
+| F5-01 | threw `AI_RAIL_HOST_INVALID` by construction | `ai`-rail `GET /marketplace/core/search/module` with **no explicit base** → `200` on both the actions and triggers legs, hitting `services.leadconnectorhq.com`. The `jwt` rail still reaches `backend.` with `200`, and an explicitly wrong base is still refused. |
+| F5-16 | 0 of 7 `call_status` triggers POSTed (`500` each) | 7 of 7 persisted on workflow `6c3140b3-65fc-4223-a47d-ebe72dcc2681`; every stored filter reads `type: "multiselect"` (a string) with `operator: "contains-any"` — no `__dynamic__` object on the wire. |
+| F5-11 | `ENGINE_ABORT` "did not persist" on a trigger that DID persist; retrying duplicated it | `addTrigger` → `200`, verified clean, trigger count 7 → 8 with exactly one instance of the added trigger. |
+
+Probe artifact left in place for a human to remove, per the standing rule: workflow
+`6c3140b3-65fc-4223-a47d-ebe72dcc2681` on GROM AU, named
+"PROBE 2026-08-29 F5-16 call_status multiselect (safe to delete)", plus the tag `probe-f5-16`.
+
+### Fixed
+
+- **`list_marketplace_apps` threw `AI_RAIL_HOST_INVALID` on every call, in both profiles, from
+  0.23.0 to 0.37.1.** The gateway pinned the request base to the backend host as a *parameter
+  default*, so an `ai`-rail call always carried an explicit wrong base and the rail guard refused
+  its own most natural call. The base now follows the rail. (F5-01)
+- **A failed marketplace read reported "app not installed".** A network or auth failure on the
+  assets/actions/triggers legs was indistinguishable from a genuine absence, so the compiler
+  refused valid marketplace keys with a confident wrong reason. Each leg now reports its own
+  outcome and a read failure raises `MARKETPLACE_READ_FAILED`. (F5-02)
+- **`ValueDataType.MULTI_SELECT` reached the wire as an object.** Four trigger filter rows carried
+  an unresolved enum, and `POST /workflow/{loc}/trigger` returned 500 on all 7 `call_status`
+  triggers while the steps saved fine. Non-string condition `type`/`operator` are now refused
+  (`FILTER_SHAPE`), and the extractor resolves the enum at source. (F5-16)
+- **A trigger that failed to POST left a workflow that looked complete.** The build now re-lists
+  triggers after the POST loop and compares authored / posted / persisted. (F5-03)
+- **`edit_workflow addTrigger` reported `ENGINE_ABORT` "did not persist" on triggers that DID
+  persist.** The verifier read `workflowId` while GHL stores `workflow_id`; retrying on that false
+  negative duplicated the trigger. The verifier now compares the stored shape. (F5-11)
+- **A container authored by its wire type silently dropped its whole subtree.** `kind` is now
+  inferred from the type, wire type aliases are canonicalised at intake, and `branches`/`paths`/
+  `target` on a non-container is refused rather than discarded. (F5-08)
+- **A pipeline or stage NAME could reach the wire on four different doors** — the lean type, the
+  wire type, an edit-op insert, and a `modifyStep` patch — where GHL stores it verbatim as a dead
+  top-level key and the stage move never happens. It reached eight client workflows on 2026-08-28
+  while the build reported clean. All four doors now refuse it (`UNRESOLVED_NAME`), and the
+  documented `ignoreUnresolved` opt-out still works, loudly. (F5-09)
+- **Eight of thirteen edit anchor lookups were silent no-ops on an unknown step id** — including
+  `retypeStep`, `moveStep` and `deleteContainer`. All thirteen now fail closed. (F5-12)
+- **`describe_step_type` served truncated unions, wrong defaults, and inverted required flags.**
+  The type-card generator split markdown table cells on every `|`, escaped or not, so a cell
+  listing a union was cut at its first member *and every column after it shifted left*. 35 cells
+  across 19 cards; 10 fields were reported OPTIONAL that are required, including
+  `remove_from_workflow.workflow_id` — omit it and the step is inert. `custom_webhook.method` was
+  served as optional with default `"PUT" \` against a real default of `"POST"`. (F5-23, F5-20)
+
+### Added
+
+- **`MERGE_TAG_UNKNOWN`** — a merge-tag policy derived from the renderer's own source rather than
+  from corpus counts. A `{{tag}}` GHL cannot resolve renders as literal text to the customer, and
+  nothing in GHL catches it: `{{appointment.date}}` and `{{appointment.time}}` went out for three
+  weeks. The old check read a corpus verdict that called `appointment` an OPEN namespace — a
+  conclusion drawn from a single published typo. Closed namespaces now error; `contact.*`,
+  `opportunity.*` and `custom_values.*` are checked against *this location's* fields and values;
+  gated and unknown namespaces warn. Findings carry suggestions. Hatches: `strictMergeTags:false`,
+  `skipMergeTagCheck`. (F5-27)
+- **`triggerIntegrity` and a top-level `partial` flag** on the `build_workflow` report.
+- **`deadBranchAcknowledged`, `allowDanglingParentKeys`, `allowDanglingStepRefs`** on
+  `edit_workflow`. All three were enforced by the commit layer but absent from the tool schema, so
+  no MCP caller could ever set them — an unreachable hatch is its own defect class.
+- **`WAIT_UNIT`** — wait units are validated against the drawer's own option list
+  (`seconds | minutes | hour | days`). An unknown unit publishes clean and leaves the pause
+  undefined. `hours` is accepted with a warning pending a live probe.
+
+### Changed
+
+- **Ten documentation sites corrected to current truth**, stale text replaced rather than
+  annotated: `eq` vs `==` on custom triggers (the save validator has refused `eq` since GHL's
+  ~2026-08-27 update), marketplace operators are per filter type, `modifyStep` is a raw shallow
+  merge that runs no builder and no lint, calendar availability is schedule-governed and entirely
+  on the PUBLIC rail, the ConvAI partial `PUT` resets omitted agent-level booleans (the "merge"
+  claim came from a capture whose at-risk fields were already `false`), and
+  `list_account_entities` returns 20 entity kinds, not the 6 it advertised.
+- **Catalog regenerated** behind a new `diff-catalog.mjs` gate: 0 lost on every axis, 22 merge tags
+  gained, 15 `document` labels realigned, 4 filter row types resolved. Three generator defects
+  fixed upstream — most seriously a comment stripper that treated a `/*` inside a `//` comment as
+  a block-comment opener and deleted 2,330 characters of live source, taking 13 real picker tags
+  with it and reporting nothing.
+- Both self-retiring overlays (`ENGINE_STATIC_TAGS`, `resolveMultiSelectType`) were named by their
+  own staleness tests and removed.
+
 ## [0.37.1] — 2026-08-29
 
 A polish release: one advisory fix, one latent bug caught in review before it ever fired, and a
