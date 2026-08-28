@@ -85,17 +85,25 @@ inputs, customVars, branchesConfig, info` — no `filters`. The module payload m
 carry `filters[]` at all; only the assets response is confirmed to. Don't infer them from
 `customVars` — see `docs/marketplace-rail.md` §5.
 
-**Operator vocabulary is exactly two values, and there is no equals:**
+**Operators are per FILTER TYPE.** Defaults come from `getDefaultOperatorForFieldType`
+(`MarketplaceFilter.ts:1137-1149`); menus from `OperatorOptions` (`utils/conditions.ts:46`) except
+`string`, which `MarketplaceFilter.ts:1391-1402` overrides with its own two-entry menu:
 
-| Label | Wire value |
-|---|---|
-| Contains phrase | `string-contains-any-of` |
-| Is not empty | (not yet captured as a wire literal) |
+| Filter type | Default | Menu |
+|---|---|---|
+| `string` | `string-contains-any-of` | `string-contains-any-of` ("Contains phrase"), `has_value` ("Is not empty") |
+| `select`, `select_with_pagination` | `==` | `==`, `!=`, `has_value`, `has_no_value` |
+| `multiselect`, `multiselect_with_pagination` | `is-any-of` | `index-of-true`, `index-of-false`, `has_value`, `has_no_value` |
+| anything else | `==` | — |
 
-An operator outside that set (`eq`, or no operator at all) throws
-`MARKETPLACE_FILTER_OPERATOR` — GHL's own filter-row component doesn't offer anything else,
-so an unsupported operator would compile to a filter that can never match: the silent
-dead-branch class this engine exists to prevent.
+There is no plain equals on a `string` filter. On a `multiselect`, `correctOperatorForArrayComparison`
+(`:300-312`) swaps `is-any-of` <-> `contains-any` automatically depending on whether the comparison is
+array-to-array, so both spellings are live for the same intent.
+
+The stored row also carries `type` (the filter type) and `title`. Until the engine derives the type
+from the app's declared filter schema (§4.2-3 of the Phase-5 review), author `operator` explicitly
+from the row above for the type you know the field to be — a `multiselect` customVar written with
+`string-contains-any-of` saves and never matches.
 
 **Every trigger-level match is therefore a substring match.** If two of your build's
 marketplace trigger filter values are substrings of one another (`'Book now'` inside

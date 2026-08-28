@@ -23,7 +23,11 @@ workflow). `--dry-run` computes + prints the diff without sending the PUT. The e
 (each takes a `step: {type,name,attributes}` compiled from IR — a linear step **or a
 container**, see "Adding containers" below), `deleteStep`,
 `modifyStep` (`attrPatch` for `attributes`, plus an optional `stepPatch` for TOP-LEVEL
-fields), `renameStep` (`{stepId,name}`), `retypeStep` (`{stepId,step}` — change what a step
+fields — **a raw shallow merge onto the stored step: it runs no builder, no UI defaults and no
+compile-time lint**, so a wait window patched without `days`, a notification patched with a flat
+`notificationType`, or an opportunity patched with a stage NAME is written as given; the commit
+refuses the name case (`UNRESOLVED_NAME`) and GHL's own guard rules, nothing else — prefer
+`retypeStep`, which replaces the whole attribute set through the compiler), `renameStep` (`{stepId,name}`), `retypeStep` (`{stepId,step}` — change what a step
 IS, see "Retyping a step" below), `moveStep`, `addBranch`
 (`{containerId,name,conditions}`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`

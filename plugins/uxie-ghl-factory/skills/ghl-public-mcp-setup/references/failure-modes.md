@@ -3,6 +3,12 @@
 Every error below is what **GoHighLevel** said, surfaced verbatim by the CLI. Treat them as
 evidence, not as something to work around.
 
+## `execute_action` refusals
+
+| Response | What actually happened | Ask for |
+|---|---|---|
+| `No token configured for location "<id>"` | the accounts file has no PIT for that sub-account; the server never substitutes another account's token | run `/uxie-ghl-factory:public-add-account` with a PIT for that location (and `/uxie-ghl-factory:public-scope` if the folder is scoped), then restart the MCP client — the file is read at startup |
+
 ## `accounts add` refusals
 
 | Response | What actually happened | Ask for |

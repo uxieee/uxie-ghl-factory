@@ -73,8 +73,11 @@ skip straight to booking when the customer asks for it.
   throws `REF_DANGLING` — a goto trigger with no `targetActionId` saves and has nowhere to send
   the contact.
 - All four filters are **required by the drawer**. The compiler expands them to the envelope GHL's
-  own builder writes: `operator: "eq"` — note **`eq`, not `==`**, which is what
-  `conv_ai_trigger`'s `botId` row uses. Two conventions on one document type.
+  own builder writes, with `operator: "=="` on every row — the same operator `conv_ai_trigger`'s
+  `botId` row uses. (`eq` is what the builder wrote before GHL's ~2026-08-27 validator update; the
+  save now refuses it with `trigger-condition-invalid`, one error per row. The engine emits `==`
+  through `TRIGGER_CORRECTIONS`; a hand-authored complete filter row is passed through untouched, so
+  write `==` yourself if you supply `field`+`operator`+`title`+`type`.)
 - `customTriggerPriority` is stored as a **number** (a live per-trigger PUT capture, 2026-08-27 —
   the engine coerces an authored string/number filter value to match; proved non-load-bearing,
   a plain string wrote and read back fine too); `customTriggerDescription`'s condition carries its

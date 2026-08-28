@@ -79,7 +79,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `get_account_workflow_overview` | the Workflow Overview page as data: location counts, weekly enrollment, Needs-Review list + error-email settings, batched enrolled/finished totals |
 | `test_custom_code` | run Custom Code in GHL's sandbox with sample inputData (the builder's Test button) — output validity + console, nothing touched |
 | `pin_webhook_sample` | POST a sample to an inbound_webhook trigger's receiving URL, pin it as the trigger's reference, return its `{{inboundWebhookRequest.*}}` tags — preview + `confirm` (it REPLACES the active reference) |
-| `list_account_entities` | pipelines, calendars, users, forms, custom fields, AI agents |
+| `list_account_entities` | pipelines, calendars, users, forms, custom fields (all models), AI agents, workflows, custom values, trigger links, offers/products, SMS + email templates, store products, coupons, phone numbers, funnels, Facebook pages, document templates, object schemas — the resolver's 20 entity kinds |
 | `list_marketplace_apps` | third-party apps INSTALLED in a location, with each app's triggers/actions — `key`, `version`, `templateId`, full `customVars`/`inputs` schema (`compact:true` by default) |
 | `list_courses` | course summaries with status and available chapter/lesson/offer counts |
 | `build_course` | no-call validation preview; confirmed course build with created IDs, verification and cleanup evidence |

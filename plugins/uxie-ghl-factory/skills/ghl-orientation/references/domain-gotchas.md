@@ -5,12 +5,17 @@ its own specialist skill. Read the section that matches what you're touching.
 
 ## Calendars
 
-- **Availability** is configured per calendar (hours, date ranges, buffers,
-  min-notice, max-booking-window). A calendar with no hours configured, or
-  one that's "business-hours-aware" but has no linked hours, doesn't error —
-  it silently behaves as always-open or never-bookable, depending on the
-  config path. Always check that a calendar actually has hours set before
-  trusting its bookability.
+- **Availability is SCHEDULE-governed, not per-calendar.** A location's default availability
+  schedule (`isDefault`, "Work Hours") auto-binds to every new calendar and overrides the
+  `openHours` you sent on create; `enableOfficeHours` changes nothing while a schedule is bound.
+  Per-calendar hours = a custom schedule bound to that calendar (`PUT /calendars/schedules/{id}`
+  with `calendarIds: [...]`, no `userId`/`locationId` in the body — 422 if sent). Two more traps:
+  `openHours` entries must be ONE day each (`daysOfTheWeek: [1,2,3,4,5]` 422s "must be a valid
+  day of week"), and the unbind endpoint `DELETE .../schedules/{id}/associations/{calendarId}`
+  returns a server-side 400 — unbind by PUTting the schedule without that calendar id. **All of
+  this is on the PUBLIC rail** (`calendars__getAllSchedules` / `createSchedule` /
+  `updateSchedule` / `add-calendar-to-schedule` / `remove-calendar-from-schedule`) — go public
+  first. Only trust free-slot reads over a FULL week.
 - **Round Robin has two distribution modes** and picking the wrong one for
   the business is a common misconfiguration:
   - *Optimize for Availability* — routes to whoever's soonest available.
