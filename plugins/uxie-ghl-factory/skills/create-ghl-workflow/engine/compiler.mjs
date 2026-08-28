@@ -82,7 +82,17 @@ const MARKETPLACE_ENVELOPE_KEYS = new Set([
 // for the split index this depends on.
 export function marketplaceEntry(node, ctx, kind) {
   const entry = ctx?.marketplace?.get?.(node.type, kind);
+  const readFailed = ctx?.marketplace?.readFailed ?? {};
+  const modulesLeg = kind === 'action' ? 'actions' : 'triggers';
   if (!entry) {
+    // A failed ASSETS read is not evidence the key is absent from this location. Saying
+    // "no such key" on a read that never succeeded is the same false-confidence class as
+    // reporting an uninstalled app (F5-11).
+    if (readFailed.assets)
+      throw new IRError('MARKETPLACE_READ_FAILED',
+        `'${node.type}' on '${node.ref}' is flagged marketplace:true, but the marketplace assets read for this `
+        + `location FAILED, so whether the key exists here is UNKNOWN. This is a read failure, not evidence the `
+        + `app is missing — retry; if it persists, check the token and /workflows-marketplace/location/{loc}/assets.`);
     // An author who wrote marketplace:true on a key that belongs to the OTHER kind (a
     // trigger key on a step, or vice versa) gets a message that says so, not the generic
     // "nothing publishes that key" — that collision is exactly what this check exists to
@@ -100,10 +110,19 @@ export function marketplaceEntry(node, ctx, kind) {
           + `this locationId to see what is actually there, or drop the marketplace flag if you `
           + `meant a native step.`);
   }
-  if (!entry.installed)
+  if (!entry.installed) {
+    // A failed INSTALL-TRUTH read is not evidence the app is uninstalled. This is the exact
+    // sentence that sent an operator to install an app that was already there (F5-11).
+    if (readFailed[modulesLeg])
+      throw new IRError('MARKETPLACE_READ_FAILED',
+        `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", but the install-truth read `
+        + `(/marketplace/core/search/module?type=${modulesLeg}) FAILED for this location, so installed / not `
+        + `installed is UNKNOWN. This is a read failure, not evidence the app is uninstalled — retry before `
+        + `installing anything.`);
     throw new IRError('MARKETPLACE_APP_NOT_INSTALLED',
       `'${node.type}' on '${node.ref}' belongs to "${entry.appName}", which is NOT installed in this `
       + `location. The step would save and never run. Install the app in the sub-account first.`);
+  }
   return entry;
 }
 
