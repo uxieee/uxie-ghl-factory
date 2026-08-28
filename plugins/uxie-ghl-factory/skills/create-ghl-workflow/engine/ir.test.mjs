@@ -99,3 +99,37 @@ test('lintConditionShape: a well-formed condition passes through unchanged', () 
   const c = { conditionType: 'contact_detail', conditionSubType: 'tags', conditionOperator: 'index-of-true', conditionValue: ['vip'] };
   assert.deepEqual(lintConditionShape(c), c);
 });
+
+test('type:"if_else" with no kind is inferred as kind:"if_else" and validated like one (F5-14)', () => {
+  const ir = validIR();
+  ir.graph[1] = { ref: 'b', type: 'if_else', name: 'B', branches: [
+    { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail' }], then: [] },
+    { ref: 'n', name: 'No', else: true, then: [] } ] };
+  const out = parseIR(ir);
+  assert.equal(out.graph[1].kind, 'if_else');
+  const ir2 = validIR();
+  ir2.graph[1] = { ref: 'b', type: 'if_else', name: 'B', branches: [
+    { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail' }], then: [] } ] };
+  assert.throws(() => parseIR(ir2), (e) => e.code === 'IFELSE_ARITY', 'the arity rule must now reach a type-spelled if_else');
+});
+
+test('type:"workflow_split" / "ai_decision" / goto-with-target are inferred too', () => {
+  const ir = validIR();
+  ir.graph[1] = { ref: 's', type: 'workflow_split', name: 'S', mode: 'random', paths: [{ ref: 'p1', then: [] }, { ref: 'p2', then: [] }] };
+  assert.equal(parseIR(ir).graph[1].kind, 'split');
+  const ir2 = validIR();
+  ir2.graph[1] = { ref: 'd', type: 'ai_decision', name: 'D', branches: [{ ref: 'x', name: 'X', then: [] }] };
+  assert.equal(parseIR(ir2).graph[1].kind, 'ai_decision');
+  const ir3 = validIR();
+  ir3.graph.push({ ref: 'g', type: 'goto', name: 'Back', target: 'a' });
+  assert.equal(parseIR(ir3).graph.at(-1).kind, 'goto');
+});
+
+test('branches/paths/target on a node no container handler reads are refused (NODE_KEY), not silently dropped', () => {
+  const ir = validIR();
+  ir.graph[0] = { ref: 'a', kind: 'action', type: 'sms', name: 'A', attributes: { body: 'x' }, branches: [{ ref: 'y2', name: 'Y', then: [] }] };
+  assert.throws(() => parseIR(ir), (e) => e.code === 'NODE_KEY' && /branches/.test(e.message));
+  const ir2 = validIR();
+  ir2.graph[0] = { ref: 'a', kind: 'action', type: 'sms', name: 'A', attributes: { body: 'x' }, paths: [] };
+  assert.throws(() => parseIR(ir2), (e) => e.code === 'NODE_KEY' && /paths/.test(e.message));
+});

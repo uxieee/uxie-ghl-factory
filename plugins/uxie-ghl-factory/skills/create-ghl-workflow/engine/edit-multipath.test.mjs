@@ -398,3 +398,16 @@ test('the opportunity invariant accepts an update that the inserted find_opportu
   const fresh = { _id: 'w', id: 'w', status: 'draft', version: 1, workflowData: { templates: linearWf() } };
   assert.doesNotThrow(() => editCommitBody(fresh, templates, diff, 'UID'));
 });
+
+test('insertAfter with {type:"if_else"} and NO kind compiles a real container, not a branchless linear step (F5-14)', () => {
+  const step = { type: 'if_else', name: 'Gate', branches: [
+    { ref: 'yy', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'vip' }], then: [] },
+    { ref: 'nn', name: 'No', else: true, then: [] } ] };
+  const before = linearWf();
+  const tail = before[before.length - 1].id;
+  const { templates, diff } = applyOps(before, [{ op: 'insertAfter', afterId: tail, step }], { ctx: ctx('k'), idGen: makeSeededIdGen('k') });
+  const entry = templates.find((t) => t.type === 'if_else');
+  assert.ok(entry, 'an if_else template must exist');
+  assert.ok(Array.isArray(entry.next) && entry.next.length === 2, `container next must be the 2-branch array, got ${JSON.stringify(entry.next)}`);
+  assert.equal(diff.createdSteps.length, 3, 'entry + two branch entries');
+});

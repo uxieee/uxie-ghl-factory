@@ -72965,8 +72965,14 @@ var SCOPE_OWNERS = {
   // calendar, services_booking into a commerce service. Same two pre-defined branches.
   onBooked: ["conversationai_book_appointment", "conversationai_services_booking"],
   onNotBooked: ["conversationai_book_appointment", "conversationai_services_booking"],
-  default: ["ai_decision", "conversationai_ai_splitter", "split"]
+  default: ["ai_decision", "conversationai_ai_splitter", "split"],
+  // Branch/path/target keys are scopes too: a `branches` array on an sms node was authored,
+  // never read, and the node compiled as a plain linear step with attributes:{} (F5-14).
+  branches: ["if_else", "ai_decision", "conversationai_ai_splitter"],
+  paths: ["split", "workflow_split"],
+  target: ["goto"]
 };
+var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", goto: "goto" };
 function checkNodeKeys(n) {
   const bad = Object.keys(n).filter((k) => !KNOWN_NODE_KEYS.has(k));
   if (bad.length)
@@ -73079,6 +73085,9 @@ function parseIR(ir) {
     if (CONTAINER_KINDS.has(n.kind) && n.type === void 0) {
       n.type = n.kind;
       n.kind = "action";
+    }
+    if ((n.kind === void 0 || n.kind === "action") && KIND_BY_TYPE[n.type] && (n.type !== "goto" || n.target !== void 0)) {
+      n.kind = KIND_BY_TYPE[n.type];
     }
   });
   walkNodes(ir.graph, (n) => checkNodeKeys(n));
