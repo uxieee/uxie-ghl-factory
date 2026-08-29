@@ -69,8 +69,8 @@ export function stepRefsOf(t) {
 }
 
 /** All dangling references in a template set: [{id, name, type, path, missing}]. Pure. */
-export function danglingStepRefs(templates) {
-  const ids = new Set((templates ?? []).map((t) => t.id));
+export function danglingStepRefs(templates, knownIds = []) {
+  const ids = new Set([...(templates ?? []).map((t) => t.id), ...knownIds]);
   const out = [];
   for (const t of templates ?? []) {
     for (const { path, id } of stepRefsOf(t)) {
@@ -85,8 +85,8 @@ export function danglingStepRefs(templates) {
  * resolves to nothing. Runs beside enforceTemplates() so no construction path can bypass it.
  * `errCtor` lets the compiler pass its IRError class without a circular import.
  */
-export function checkStepRefs(templates, errCtor = null) {
-  const bad = danglingStepRefs(templates);
+export function checkStepRefs(templates, errCtor = null, knownIds = []) {
+  const bad = danglingStepRefs(templates, knownIds);
   if (!bad.length) return;
   const lines = bad.map((b) => `  - '${b.name ?? b.id}' (${b.type}) ${b.path} → '${b.missing}' does not exist in this workflow`);
   const msg = `REF_DANGLING: ${bad.length} step reference(s) point at steps that do not exist:\n${lines.join('\n')}\n` +

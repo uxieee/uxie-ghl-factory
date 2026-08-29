@@ -26,6 +26,32 @@ export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigge
 // them out; the commit merges them over the stored values (editCommitBody opts.settingsPatch).
 export const SETTINGS_OPS = new Set(['updateSettings']);
 
+// The LIVE document as a reference universe for a one-node compile: every step id, and every
+// step name that is UNIQUE (a duplicated name maps to null so it can never be guessed). `opRefs`
+// are the refs earlier ops in the SAME call authored, mapped to the ids they minted, so op 2 can
+// target what op 1 created.
+export function externalRefsOf(templates, opRefs = new Map()) {
+  const ids = new Set((templates ?? []).map((t) => t.id));
+  const byName = new Map();
+  for (const t of templates ?? []) {
+    if (typeof t.name !== 'string' || !t.name) continue;
+    byName.set(t.name, byName.has(t.name) ? null : t.id);
+  }
+  // An AUTHORED ref always wins a collision with a live step name — overwrite, never skip.
+  // Skipping let a live step named 'Tag A' shadow the ref 'Tag A' that an earlier op in the
+  // same call had just minted, so op 2 silently targeted the wrong step.
+  for (const [ref, id] of opRefs) { ids.add(id); byName.set(ref, id); }
+  return { ids, byName };
+}
+
+// The same universe as a plain ref->id map, for buildTrigger's `target` resolution.
+const refMapFrom = (externalRefs) => {
+  const m = new Map();
+  for (const id of externalRefs?.ids ?? []) m.set(id, id);
+  for (const [name, id] of externalRefs?.byName ?? []) if (id && !m.has(name)) m.set(name, id);
+  return m;
+};
+
 export function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
   for (const op of ops ?? []) {
@@ -165,7 +191,7 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // to create a DEAD trigger — status:'draft' with nothing that would ever flip it,
         // since publishing (the only known activation path) does not re-run on a workflow
         // that is already published.
-        return { op: op.op, method: 'POST', path: `/workflow/${loc}/trigger`, body: { ...buildTrigger(op.trigger, ctx, wid), status: targetStatus } };
+        return { op: op.op, method: 'POST', path: `/workflow/${loc}/trigger`, body: { ...buildTrigger(op.trigger, ctx, wid, refMapFrom(ctx?.externalRefs)), status: targetStatus } };
       case 'deleteTrigger': {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
@@ -212,13 +238,6 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
         // see `target` set, find no refMap, and unconditionally throw REF_DANGLING regardless
         // of whether the ref was ever valid, coaching the caller to keep retrying refs that
         // can never resolve. Refuse it here instead, naming the real fix.
-        if (op.trigger?.target) {
-          throw new IRError('TARGET_REF_UNSUPPORTED',
-            `modifyTrigger: 'target' ('${op.trigger.target}') is an IR ref and is not usable on `
-            + `the edit path — there is no IR graph here for a ref to resolve against, only the `
-            + `live trigger/step roster. Pass 'targetActionId' (a real, existing step id — e.g. `
-            + `from export_workflow) instead.`);
-        }
         // TRANSLATE an attempted `active` CHANGE into the field that actually controls it —
         // see translateActiveToStatus above for the full mechanism. A value that MATCHES the
         // stored trigger is a harmless no-op echo (common when a caller round-trips a whole
@@ -248,9 +267,13 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
             // targetActionId (a real step id) on the op overrides the stored one. `target` (a
             // ref) is refused above rather than forwarded here — buildTrigger has no refMap on
             // this path to resolve it against.
-            targetActionId: op.trigger?.targetActionId ?? t.targetActionId,
+            // `target` is an id or a UNIQUE NAME of a LIVE step, resolved against the roster the
+            // tool seeds into ctx.externalRefs; `targetActionId` is a literal id. Either works now.
+            ...(op.trigger?.target
+              ? { target: op.trigger.target }
+              : { targetActionId: op.trigger?.targetActionId ?? t.targetActionId }),
             ...(op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}) },
-          ctx, wid,
+          ctx, wid, refMapFrom(ctx?.externalRefs),
         );
         // buildTrigger hardcodes `status:'draft'` (correct ONLY on the BUILD path — see
         // compiler.mjs's own comment). Left in `merged`, that 'draft' would ride EVERY
@@ -308,7 +331,7 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
 // whole workflow graph.
 export function compileSubgraph(node, ctx) {
   const out = compile(
-    { name: '_edit', triggers: [], graph: [{ ...node, ref: '_edit_step', kind: node.kind ?? 'action', assocGuaranteed: true }] },
+    { name: '_edit', triggers: [], graph: [{ ...node, ref: node.ref ?? '_edit_step', kind: node.kind ?? 'action', assocGuaranteed: true }] },
     ctx,
   );
   // `_templates`, not `autoSaveBody.workflowData.templates`: the latter has its terminal
@@ -330,7 +353,7 @@ export function compileSubgraph(node, ctx) {
   if (!isContainer) delete entry.next;
   if (!isContainer && tpls.length !== 1)
     throw new Error(`edit-add: '${node.type}' compiled to ${tpls.length} templates but its entry has no branch array — unsupported shape`);
-  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer };
+  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer, refMap: out._refMap };
 }
 
 // Back-compat: compile a step known to be LINEAR. Container types now have a real path
@@ -421,25 +444,25 @@ export function applyOp(templates, op, { ctx, idGen }) {
     // compile decides which, so callers write the same op either way.
     case 'appendStep': {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? appendSubgraph(templates, sub) : appendStep(templates, sub.entry);
+      return { ...(sub.isContainer ? appendSubgraph(templates, sub) : appendStep(templates, sub.entry)), refMap: sub.refMap };
     }
     case 'insertAfter': {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer
+      return { ...(sub.isContainer
         ? insertSubgraphAfter(templates, sub, op.afterId, op.attachTailTo)
-        : insertAfter(templates, sub.entry, op.afterId);
+        : insertAfter(templates, sub.entry, op.afterId)), refMap: sub.refMap };
     }
     case 'insertBefore': {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer
+      return { ...(sub.isContainer
         ? insertSubgraphBefore(templates, sub, op.beforeId, op.attachTailTo)
-        : insertBefore(templates, sub.entry, op.beforeId);
+        : insertBefore(templates, sub.entry, op.beforeId)), refMap: sub.refMap };
     }
     case 'appendToBranch': {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer
+      return { ...(sub.isContainer
         ? appendSubgraphToBranch(templates, op.branchEntryId, sub)
-        : appendToBranch(templates, op.branchEntryId, sub.entry);
+        : appendToBranch(templates, op.branchEntryId, sub.entry)), refMap: sub.refMap };
     }
     case 'deleteStep': return deleteStep(templates, op.stepId);
     // Find & Replace, TAG mode (exact on tag arrays / tags-subtype conditions; string replace on customTags)
@@ -467,7 +490,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`retypeStep: '${op.step.type}' is a container — it compiles to a whole `
           + `subgraph (entry + branch entries), which cannot replace a single step in place. `
           + `Use deleteStep plus one of the subgraph splices.`);
-      return retypeStep(templates, op.stepId, sub.entry);
+      return { ...retypeStep(templates, op.stepId, sub.entry), refMap: sub.refMap };
     }
     case 'renameStep': return renameStep(templates, op.stepId, op.name);
     case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);
@@ -490,10 +513,20 @@ export function applyOp(templates, op, { ctx, idGen }) {
 export function applyOps(templates, ops, { ctx, idGen }) {
   let tpls = templates;
   let diff = empty();
+  // refs authored by EARLIER ops in this call -> the ids they minted, so op 2 can target op 1.
+  const opRefs = new Map();
   for (const op of ops ?? []) {
-    const r = applyOp(tpls, op, { ctx, idGen });
+    const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs) };
+    const r = applyOp(tpls, op, { ctx: opCtx, idGen });
     tpls = r.templates;
     diff = mergeDiff(diff, r.diff);
+    // Record only refs this op actually MINTED — the seeded live ids/names map to themselves
+    // and re-recording them would let a live name shadow a later authored ref.
+    for (const [ref, id] of r.refMap ?? []) {
+      if (opCtx.externalRefs.ids.has(id) && opCtx.externalRefs.byName.get(ref) === id) continue;
+      if (opCtx.externalRefs.ids.has(ref) && ref === id) continue;
+      opRefs.set(ref, id);
+    }
   }
   const norm = normalizeDiff(diff);
   // A marketplace step's `stepIndex` is a per-action-key occurrence counter over the WHOLE
@@ -513,5 +546,5 @@ export function applyOps(templates, ops, { ctx, idGen }) {
     if (renumbered.changed.length)
       norm.modifiedSteps = [...new Set([...norm.modifiedSteps, ...renumbered.changed])];
   }
-  return { templates: tpls, diff: norm };
+  return { templates: tpls, diff: norm, opRefs };
 }

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as editDriver from './edit-driver.mjs';
-import { partitionOps, planTriggerOps, resolveTrigger, applyOps } from './edit-driver.mjs';
+import { partitionOps, planTriggerOps, resolveTrigger, applyOps, externalRefsOf } from './edit-driver.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { makeSeededIdGen } from './idgen.mjs';
 
@@ -113,14 +113,14 @@ test('modifyTrigger on a conv_ai_autonomous_trigger forwards the stored targetAc
 });
 
 // REVIEW FIX: the object buildTrigger rebuilds from must never carry `target` on the edit
-// path. buildTrigger resolves `target` (an IR ref) through a refMap fourth argument that only
-// exists on the fresh-build path (compile() flattens the graph and hands buildTrigger the
-// resulting ref->id map) — the edit path calls buildTrigger with no refMap at all, because
-// there is no IR graph here, only the live trigger/step roster. Passing `target` through
-// therefore always hit buildTrigger's `if (!targetActionId) throw REF_DANGLING` branch,
-// regardless of whether the ref was ever valid, with a message that coaches the caller to
-// keep trying refs that can never resolve. Refuse the input clearly instead.
-test('modifyTrigger refuses a `target` ref outright — there is no IR on the edit path for it to resolve against', () => {
+// SUPERSEDED by Plan 2 Task 1. `target` used to be refused outright on the edit path: buildTrigger
+// was called with no refMap (there was no IR graph here, only the live roster), so ANY `target`
+// hit its `if (!targetActionId) throw REF_DANGLING` branch whether or not the ref was valid, and
+// the message coached the caller to keep retrying refs that could never resolve. The edit path now
+// HAS a reference universe — the live step roster in ctx.externalRefs — so `target` resolves, and
+// only a genuinely unresolvable one is refused. That refusal is still REF_DANGLING, and it must
+// still name the alternative.
+test('modifyTrigger refuses an UNRESOLVABLE `target`, naming targetActionId as the alternative', () => {
   const ex = [{
     id: 'tr1', _id: 'tr1', type: 'conv_ai_autonomous_trigger', name: 'Custom trigger',
     active: true, conditions: [], targetActionId: 'step-xyz',
@@ -128,10 +128,10 @@ test('modifyTrigger refuses a `target` ref outright — there is no IR on the ed
   assert.throws(
     () => planTriggerOps(
       [{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { target: 'some-ref', filters: [] } }],
-      { ctx: ctx(), wid: WID, uid: 'UID', existing: ex },
+      { ctx: { ...ctx(), externalRefs: externalRefsOf([{ id: 'step-xyz', name: 'Real step' }]) },
+        wid: WID, uid: 'UID', existing: ex },
     ),
-    (e) => e.code === 'TARGET_REF_UNSUPPORTED'
-      && /target/.test(e.message) && /targetActionId/.test(e.message) && /no IR/i.test(e.message),
+    (e) => e.code === 'REF_DANGLING' && /some-ref/.test(e.message),
   );
 });
 
@@ -266,4 +266,19 @@ test('resolveTrigger: a miss names what is actually there', () => {
 test('edit-driver exports no per-trigger activation planner — activation is not a write this module offers', () => {
   assert.equal('planTriggerActivation' in editDriver, false,
     'planTriggerActivation was removed 2026-08-28 as a proven-inert write; do not reintroduce it here');
+});
+
+// Plan 2 Task 1: `target` on the EDIT path used to be refused outright (TARGET_REF_UNSUPPORTED)
+// because buildTrigger had no refMap here. It now resolves against the live step roster the tool
+// seeds into ctx.externalRefs, so a caller can point a goto trigger at a step by id or by name.
+test('modifyTrigger/addTrigger resolve `target` against the live step roster (id or unique name); unknown throws REF_DANGLING', () => {
+  const existing = [{ id: 'tr1', _id: 'tr1', type: 'conv_ai_autonomous_trigger', name: 'Book', conditions: [], active: true, workflow_id: 'WID' }];
+  const live = [{ id: 's9', type: 'conversationai_ai_message', name: 'Ask date', attributes: {} }];
+  const c = { ...ctx(), externalRefs: externalRefsOf(live) };
+  const plan = planTriggerOps([{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { target: 'Ask date' } }], { ctx: c, wid: 'WID', uid: 'U', existing, workflowStatus: 'published' });
+  assert.equal(plan[0].body.targetActionId, 's9');
+  const add = planTriggerOps([{ op: 'addTrigger', trigger: { type: 'conv_ai_autonomous_trigger', name: 'Cancel', filters: [], target: 's9' } }], { ctx: c, wid: 'WID', uid: 'U', existing, workflowStatus: 'published' });
+  assert.equal(add[0].body.targetActionId, 's9');
+  assert.throws(() => planTriggerOps([{ op: 'modifyTrigger', triggerId: 'tr1', trigger: { target: 'nope' } }], { ctx: c, wid: 'WID', uid: 'U', existing, workflowStatus: 'published' }),
+    (e) => e.code === 'REF_DANGLING');
 });

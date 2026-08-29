@@ -106,7 +106,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { editCommitBody } from '../engine/edit.mjs';
-import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps } from '../engine/edit-driver.mjs';
+import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps, externalRefsOf } from '../engine/edit-driver.mjs';
 import { planStickyNoteOp } from '../engine/sticky-notes.mjs';
 import { buildMarketplaceIndex } from '../engine/marketplace.mjs';
 import { fetchMarketplace } from '../engine/orchestrate.mjs';
@@ -205,6 +205,8 @@ const listTriggers = async () => {
 };
 
 const { templates, diff } = applyOps(fresh.workflowData.templates ?? [], stepOps, { ctx, idGen: makeUuidV4 });
+// same as the MCP tool: trigger `target` resolves against the POST-EDIT step roster
+ctx.externalRefs = externalRefsOf(templates);
 const body = editCommitBody(fresh, templates, diff, UID, { assumeAssociated, allowDanglingParentKeys, deadBranchAcknowledged, catalog: ctx.catalog, warn: ctx.warn, settingsPatch, skipSettingsCheck: process.argv.includes('--skip-settings-check') });
 // WORKFLOW-level rules need the trigger set even for step-only edits (an action can be illegal
 // purely because of the trigger above it) — one GET, same oracle GHL's builder runs pre-save.

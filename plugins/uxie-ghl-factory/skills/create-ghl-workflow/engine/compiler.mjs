@@ -1,6 +1,6 @@
 // Deterministic compiler: IR -> GHL builder-API payloads (create/auto-save/trigger).
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
-import { parseIR, IRError, checkOpportunityAssociation, canonicalizeOppStageCondition,
+import { parseIR, IRError, collectRefs, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
 import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
 import { checkGoghlSyntax } from './goghl.mjs';
@@ -1748,8 +1748,22 @@ function checkFlowTriggers(triggers, ctx) {
   }
 }
 
+// EXTERNAL REFS — the edit path compiles one node at a time against a LIVE document. Without
+// this, every reference check inside that compile was a false positive by construction: the
+// refMap was empty and `seen` held one ref, so a goto to a step on the canvas threw
+// REF_DANGLING (F5-12). Live ids resolve to themselves; a UNIQUE live name resolves to its id;
+// an authored ref always wins a collision with a live name.
+function seedRefMap(norm, externalRefs) {
+  const refMap = new Map();
+  if (!externalRefs) return refMap;
+  const authored = new Set(collectRefs(norm));
+  for (const id of externalRefs.ids ?? []) if (!authored.has(id)) refMap.set(id, id);
+  for (const [name, id] of externalRefs.byName ?? []) if (id && !authored.has(name) && !refMap.has(name)) refMap.set(name, id);
+  return refMap;
+}
+
 export function compile(ir, ctx) {
-  const norm = parseIR(ir);
+  const norm = parseIR(ir, { externalRefs: ctx.externalRefs });
   checkMarketplaceFilters(norm.triggers, ctx);
   checkFlowTriggers(norm.triggers, ctx);
   // update_opportunity needs an associated opportunity at runtime — enforce the
@@ -1757,7 +1771,7 @@ export function compile(ir, ctx) {
   const oppTriggerTypes = new Set(
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === 'opportunities'));
   checkOpportunityAssociation(norm, oppTriggerTypes);
-  const refMap = new Map();
+  const refMap = seedRefMap(norm, ctx.externalRefs);
   // ─── Authored-vs-compiled assertion ────────────────────────────────────────────────
   // Round-trip verification only ever proved that what was SENT came back. It never
   // checked that what was AUTHORED was sent — so a dropped subtree reported a clean
@@ -1983,7 +1997,7 @@ export function compile(ir, ctx) {
   // Same chokepoint, third class: every intra-workflow step reference must resolve. The goto
   // emit above already throws with the authored ref name; this sweep catches every OTHER path
   // (wait reply/emailEventSteps/appointmentSpecificStep, workflow_goal ids, edit-composed graphs).
-  checkStepRefs(templates, IRError);
+  checkStepRefs(templates, IRError, [...(ctx.externalRefs?.ids ?? [])]);
 
   // Terminals ship with no `next` key. The graph keeps `next: null` internally because the
   // flattener and every edit op above read it as "end of chain"; it is stripped here, once,
@@ -2013,7 +2027,7 @@ export function compile(ir, ctx) {
   const _templates = templates;
   autoSaveBody.workflowData.templates = stripNullNext(templates);
 
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, authored, compiled: templates.length };
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, authored, compiled: templates.length };
   casingLint(result);
   return result;
 }

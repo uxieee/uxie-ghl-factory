@@ -73073,7 +73073,7 @@ function walkNodes(nodes, visit) {
     for (const k of SCOPE_KEYS) walkNodes(n[k], visit);
   }
 }
-function parseIR(ir) {
+function parseIR(ir, { externalRefs } = {}) {
   if (!ir || typeof ir !== "object" || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph))
     throw new IRError("SCHEMA", "IR must have triggers[] and graph[]");
   const refs = collectRefs(ir);
@@ -73095,7 +73095,16 @@ function parseIR(ir) {
   walkNodes(ir.graph, (n) => checkNodeKeys(n));
   walkNodes(ir.graph, (n, idx, siblings) => {
     if (n.kind === "goto") {
-      if (!seen.has(n.target)) throw new IRError("GOTO_UNRESOLVED", `goto target not found: ${n.target}`);
+      if (!seen.has(n.target)) {
+        const ext = externalRefs;
+        if (ext?.byName?.has(n.target) && ext.byName.get(n.target) === null)
+          throw new IRError(
+            "REF_AMBIGUOUS",
+            `goto '${n.ref}' targets '${n.target}', which names more than one live step \u2014 pass the step id instead`
+          );
+        if (!(ext?.ids?.has(n.target) || ext?.byName?.get(n.target)))
+          throw new IRError("GOTO_UNRESOLVED", `goto target not found: ${n.target}`);
+      }
       if (idx !== siblings.length - 1) throw new IRError("GOTO_NOT_TERMINAL", `goto '${n.ref}' must be last in its branch`);
     }
     if (n.kind === "if_else") {
@@ -136323,8 +136332,8 @@ function stepRefsOf(t) {
   }
   return out;
 }
-function danglingStepRefs(templates) {
-  const ids = new Set((templates ?? []).map((t) => t.id));
+function danglingStepRefs(templates, knownIds = []) {
+  const ids = /* @__PURE__ */ new Set([...(templates ?? []).map((t) => t.id), ...knownIds]);
   const out = [];
   for (const t of templates ?? []) {
     for (const { path, id } of stepRefsOf(t)) {
@@ -136333,8 +136342,8 @@ function danglingStepRefs(templates) {
   }
   return out;
 }
-function checkStepRefs(templates, errCtor = null) {
-  const bad = danglingStepRefs(templates);
+function checkStepRefs(templates, errCtor = null, knownIds = []) {
+  const bad = danglingStepRefs(templates, knownIds);
   if (!bad.length) return;
   const lines = bad.map((b) => `  - '${b.name ?? b.id}' (${b.type}) ${b.path} \u2192 '${b.missing}' does not exist in this workflow`);
   const msg = `REF_DANGLING: ${bad.length} step reference(s) point at steps that do not exist:
@@ -137967,15 +137976,23 @@ function checkFlowTriggers(triggers, ctx) {
     }
   }
 }
+function seedRefMap(norm2, externalRefs) {
+  const refMap = /* @__PURE__ */ new Map();
+  if (!externalRefs) return refMap;
+  const authored = new Set(collectRefs(norm2));
+  for (const id of externalRefs.ids ?? []) if (!authored.has(id)) refMap.set(id, id);
+  for (const [name, id] of externalRefs.byName ?? []) if (id && !authored.has(name) && !refMap.has(name)) refMap.set(name, id);
+  return refMap;
+}
 function compile(ir, ctx) {
-  const norm2 = parseIR(ir);
+  const norm2 = parseIR(ir, { externalRefs: ctx.externalRefs });
   checkMarketplaceFilters(norm2.triggers, ctx);
   checkFlowTriggers(norm2.triggers, ctx);
   const oppTriggerTypes = new Set(
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === "opportunities")
   );
   checkOpportunityAssociation(norm2, oppTriggerTypes);
-  const refMap = /* @__PURE__ */ new Map();
+  const refMap = seedRefMap(norm2, ctx.externalRefs);
   const visited = /* @__PURE__ */ new Set();
   const { templates } = flattenGraph(norm2.graph, { ...ctx, __visited: visited }, refMap, null);
   const missing = [];
@@ -138147,10 +138164,10 @@ function compile(ir, ctx) {
     for (const tb of []) void tb;
   }
   enforceTemplates(templates, ctx?.catalog, ctx);
-  checkStepRefs(templates, IRError);
+  checkStepRefs(templates, IRError, [...ctx.externalRefs?.ids ?? []]);
   const _templates = templates;
   autoSaveBody.workflowData.templates = stripNullNext(templates);
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, authored, compiled: templates.length };
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, authored, compiled: templates.length };
   casingLint(result);
   return result;
 }
@@ -140424,6 +140441,25 @@ init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers"]);
 var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
+function externalRefsOf(templates, opRefs = /* @__PURE__ */ new Map()) {
+  const ids = new Set((templates ?? []).map((t) => t.id));
+  const byName = /* @__PURE__ */ new Map();
+  for (const t of templates ?? []) {
+    if (typeof t.name !== "string" || !t.name) continue;
+    byName.set(t.name, byName.has(t.name) ? null : t.id);
+  }
+  for (const [ref, id] of opRefs) {
+    ids.add(id);
+    byName.set(ref, id);
+  }
+  return { ids, byName };
+}
+var refMapFrom = (externalRefs) => {
+  const m = /* @__PURE__ */ new Map();
+  for (const id of externalRefs?.ids ?? []) m.set(id, id);
+  for (const [name, id] of externalRefs?.byName ?? []) if (id && !m.has(name)) m.set(name, id);
+  return m;
+};
 function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
   for (const op of ops ?? []) {
@@ -140488,7 +140524,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
   return (triggerOps ?? []).flatMap((op) => {
     switch (op.op) {
       case "addTrigger":
-        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: { ...buildTrigger(op.trigger, ctx, wid), status: targetStatus } };
+        return { op: op.op, method: "POST", path: `/workflow/${loc}/trigger`, body: { ...buildTrigger(op.trigger, ctx, wid, refMapFrom(ctx?.externalRefs)), status: targetStatus } };
       case "deleteTrigger": {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
@@ -140524,12 +140560,6 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
-        if (op.trigger?.target) {
-          throw new IRError(
-            "TARGET_REF_UNSUPPORTED",
-            `modifyTrigger: 'target' ('${op.trigger.target}') is an IR ref and is not usable on the edit path \u2014 there is no IR graph here for a ref to resolve against, only the live trigger/step roster. Pass 'targetActionId' (a real, existing step id \u2014 e.g. from export_workflow) instead.`
-          );
-        }
         const requestedActive = op.trigger?.active;
         const storedActive = t.active ?? false;
         const status = translateActiveToStatus(requestedActive, storedActive);
@@ -140553,11 +140583,14 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
             // targetActionId (a real step id) on the op overrides the stored one. `target` (a
             // ref) is refused above rather than forwarded here — buildTrigger has no refMap on
             // this path to resolve it against.
-            targetActionId: op.trigger?.targetActionId ?? t.targetActionId,
+            // `target` is an id or a UNIQUE NAME of a LIVE step, resolved against the roster the
+            // tool seeds into ctx.externalRefs; `targetActionId` is a literal id. Either works now.
+            ...op.trigger?.target ? { target: op.trigger.target } : { targetActionId: op.trigger?.targetActionId ?? t.targetActionId },
             ...op.trigger?.convTriggerBotId ? { convTriggerBotId: op.trigger.convTriggerBotId } : {}
           },
           ctx,
-          wid
+          wid,
+          refMapFrom(ctx?.externalRefs)
         );
         delete merged.status;
         return {
@@ -140575,7 +140608,7 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
 }
 function compileSubgraph(node, ctx) {
   const out = compile(
-    { name: "_edit", triggers: [], graph: [{ ...node, ref: "_edit_step", kind: node.kind ?? "action", assocGuaranteed: true }] },
+    { name: "_edit", triggers: [], graph: [{ ...node, ref: node.ref ?? "_edit_step", kind: node.kind ?? "action", assocGuaranteed: true }] },
     ctx
   );
   const tpls = out._templates;
@@ -140588,7 +140621,7 @@ function compileSubgraph(node, ctx) {
   if (!isContainer) delete entry.next;
   if (!isContainer && tpls.length !== 1)
     throw new Error(`edit-add: '${node.type}' compiled to ${tpls.length} templates but its entry has no branch array \u2014 unsupported shape`);
-  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer };
+  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer, refMap: out._refMap };
 }
 var empty = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
 function mergeDiff(a, b) {
@@ -140664,19 +140697,19 @@ function applyOp(templates, op, { ctx, idGen }) {
     // compile decides which, so callers write the same op either way.
     case "appendStep": {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? appendSubgraph(templates, sub) : appendStep(templates, sub.entry);
+      return { ...sub.isContainer ? appendSubgraph(templates, sub) : appendStep(templates, sub.entry), refMap: sub.refMap };
     }
     case "insertAfter": {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? insertSubgraphAfter(templates, sub, op.afterId, op.attachTailTo) : insertAfter(templates, sub.entry, op.afterId);
+      return { ...sub.isContainer ? insertSubgraphAfter(templates, sub, op.afterId, op.attachTailTo) : insertAfter(templates, sub.entry, op.afterId), refMap: sub.refMap };
     }
     case "insertBefore": {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? insertSubgraphBefore(templates, sub, op.beforeId, op.attachTailTo) : insertBefore(templates, sub.entry, op.beforeId);
+      return { ...sub.isContainer ? insertSubgraphBefore(templates, sub, op.beforeId, op.attachTailTo) : insertBefore(templates, sub.entry, op.beforeId), refMap: sub.refMap };
     }
     case "appendToBranch": {
       const sub = compileSubgraph(op.step, ctx);
-      return sub.isContainer ? appendSubgraphToBranch(templates, op.branchEntryId, sub) : appendToBranch(templates, op.branchEntryId, sub.entry);
+      return { ...sub.isContainer ? appendSubgraphToBranch(templates, op.branchEntryId, sub) : appendToBranch(templates, op.branchEntryId, sub.entry), refMap: sub.refMap };
     }
     case "deleteStep":
       return deleteStep(templates, op.stepId);
@@ -140707,7 +140740,7 @@ function applyOp(templates, op, { ctx, idGen }) {
       const sub = compileSubgraph(op.step, ctx);
       if (sub.isContainer)
         throw new Error(`retypeStep: '${op.step.type}' is a container \u2014 it compiles to a whole subgraph (entry + branch entries), which cannot replace a single step in place. Use deleteStep plus one of the subgraph splices.`);
-      return retypeStep(templates, op.stepId, sub.entry);
+      return { ...retypeStep(templates, op.stepId, sub.entry), refMap: sub.refMap };
     }
     case "renameStep":
       return renameStep(templates, op.stepId, op.name);
@@ -140734,10 +140767,17 @@ function applyOp(templates, op, { ctx, idGen }) {
 function applyOps(templates, ops, { ctx, idGen }) {
   let tpls = templates;
   let diff = empty();
+  const opRefs = /* @__PURE__ */ new Map();
   for (const op of ops ?? []) {
-    const r = applyOp(tpls, op, { ctx, idGen });
+    const opCtx = { ...ctx, externalRefs: externalRefsOf(tpls, opRefs) };
+    const r = applyOp(tpls, op, { ctx: opCtx, idGen });
     tpls = r.templates;
     diff = mergeDiff(diff, r.diff);
+    for (const [ref, id] of r.refMap ?? []) {
+      if (opCtx.externalRefs.ids.has(id) && opCtx.externalRefs.byName.get(ref) === id) continue;
+      if (opCtx.externalRefs.ids.has(ref) && ref === id) continue;
+      opRefs.set(ref, id);
+    }
   }
   const norm2 = normalizeDiff(diff);
   const touched = /* @__PURE__ */ new Set([...norm2.createdSteps, ...norm2.modifiedSteps]);
@@ -140747,7 +140787,7 @@ function applyOps(templates, ops, { ctx, idGen }) {
     if (renumbered.changed.length)
       norm2.modifiedSteps = [.../* @__PURE__ */ new Set([...norm2.modifiedSteps, ...renumbered.changed])];
   }
-  return { templates: tpls, diff: norm2 };
+  return { templates: tpls, diff: norm2, opRefs };
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
@@ -145403,6 +145443,7 @@ var TOOLS2 = [
       const settingsPatch = mergeSettingsOps(settingsOps);
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      ctx.externalRefs = externalRefsOf(templates);
       let existingTriggers = [];
       if (triggerOps.length || rulesNeedTriggers(templates, ctx.catalog?.workflowRules)) {
         const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);

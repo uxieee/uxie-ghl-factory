@@ -198,7 +198,7 @@ export function walkNodes(nodes, visit) {
   }
 }
 
-export function parseIR(ir) {
+export function parseIR(ir, { externalRefs } = {}) {
   if (!ir || typeof ir !== 'object' || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph))
     throw new IRError('SCHEMA', 'IR must have triggers[] and graph[]');
   // triggers: [] is legal — trigger-less workflows are enrolled from another
@@ -225,7 +225,17 @@ export function parseIR(ir) {
 
   walkNodes(ir.graph, (n, idx, siblings) => {
     if (n.kind === 'goto') {
-      if (!seen.has(n.target)) throw new IRError('GOTO_UNRESOLVED', `goto target not found: ${n.target}`);
+      if (!seen.has(n.target)) {
+        // The edit path compiles ONE node against a LIVE document, so a target may be a live step
+        // id or a unique live step name (externalRefs, seeded by edit-driver.applyOps). Without
+        // this the check was a false positive by construction: `seen` held only the authored refs.
+        const ext = externalRefs;
+        if (ext?.byName?.has(n.target) && ext.byName.get(n.target) === null)
+          throw new IRError('REF_AMBIGUOUS',
+            `goto '${n.ref}' targets '${n.target}', which names more than one live step — pass the step id instead`);
+        if (!(ext?.ids?.has(n.target) || ext?.byName?.get(n.target)))
+          throw new IRError('GOTO_UNRESOLVED', `goto target not found: ${n.target}`);
+      }
       if (idx !== siblings.length - 1) throw new IRError('GOTO_NOT_TERMINAL', `goto '${n.ref}' must be last in its branch`);
     }
     if (n.kind === 'if_else') {
