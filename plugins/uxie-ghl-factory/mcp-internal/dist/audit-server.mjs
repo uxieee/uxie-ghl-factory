@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-08-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 863,
+      count: 876,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -12612,8 +12612,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             {
               name: "locationId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -12626,7 +12626,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/OpportunityCustomFieldService.ts:19",
+            "platform/20-api/lost-reasons.md:26",
             "workflows/70-research/ENDPOINTS.md:125"
+          ]
+        },
+        {
+          id: "platform--opportunities-lost-reason-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/opportunities/lost-reason",
+          path: "/opportunities/lost-reason",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/lost-reasons.md:36"
           ]
         },
         {
@@ -12888,7 +12920,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--phone-system-call-dispositions",
+          id: "platform--phone-system-call-dispositions",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
           path: "/phone-system/call-dispositions",
@@ -12902,7 +12934,64 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "includeDeleted",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/call-dispositions.md:23",
+            "workflows/70-research/ENDPOINTS.md:135"
+          ]
+        },
+        {
+          id: "platform--phone-system-call-dispositions-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
+          path: "/phone-system/call-dispositions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
           tree: "documented",
           pathParams: [],
           query: [
@@ -12922,7 +13011,49 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/70-research/ENDPOINTS.md:135"
+            "platform/20-api/call-dispositions.md:40"
+          ]
+        },
+        {
+          id: "platform--phone-system-call-dispositions-delete",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/phone-system/call-dispositions/{id}",
+          path: "/phone-system/call-dispositions/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/call-dispositions.md:52"
           ]
         },
         {
@@ -14353,6 +14484,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -27297,6 +27429,79 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--calendars-schedules",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/calendars/schedules/{id}",
+          path: "/calendars/schedules/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:29"
+          ]
+        },
+        {
+          id: "calendars--schedules-associations",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/calendars/schedules/{id}/associations/{calendarId}",
+          path: "/calendars/schedules/{id}/associations/{calendarId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            },
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:39"
+          ]
+        },
+        {
           id: "services--templates--get-location-id-templates",
           method: "GET",
           url: "https://services.leadconnectorhq.com/certificates/locations/{locationId}/templates",
@@ -28049,6 +28254,54 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:85"
+          ]
+        },
+        {
+          id: "conversations--manual-actions-search",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations/manual-actions/{locationId}/search",
+          path: "/conversations/manual-actions/{locationId}/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "status",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/manual-actions.md:21"
           ]
         },
         {
@@ -36121,6 +36374,285 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "conversations--snippets",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snippets/{locationId}",
+          path: "/snippets/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "all",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/snippets.md:24",
+            "conversations/20-api/snippets.md:32"
+          ]
+        },
+        {
+          id: "conversations--snippets-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/snippets/{locationId}",
+          path: "/snippets/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/snippets.md:40"
+          ]
+        },
+        {
+          id: "conversations--snippets-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/snippets/{locationId}/{id}",
+          path: "/snippets/{locationId}/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/snippets.md:66"
+          ]
+        },
+        {
+          id: "conversations--snippets-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/snippets/{locationId}/{id}",
+          path: "/snippets/{locationId}/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/snippets.md:64"
+          ]
+        },
+        {
+          id: "conversations--bulk-move",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/snippets/{locationId}/bulk/move",
+          path: "/snippets/{locationId}/bulk/move",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/snippets.md:65"
+          ]
+        },
+        {
+          id: "conversations--folders-check",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snippets/{locationId}/folders/check",
+          path: "/snippets/{locationId}/folders/check",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "folderName",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/snippets.md:57"
+          ]
+        },
+        {
+          id: "conversations--folders-list",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snippets/{locationId}/folders/list",
+          path: "/snippets/{locationId}/folders/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "conversations",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "conversations/20-api/snippets.md:58"
+          ]
+        },
+        {
           id: "memberships-courses--templates",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/templates/{id}",
@@ -38394,7 +38926,8 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /snippets/{locationId}": {
-          reach: "proven"
+          reach: "proven",
+          note: "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation."
         },
         "GET /users/search": {
           reach: "refused",
