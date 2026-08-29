@@ -136022,6 +136022,26 @@ var COUPLED_FIELDS = {
     require: ["appointmentSpecificStep"],
     why: `appointmentCondition:"specific-step" means jump to a named step, so the target is not optional. GHL's own validateAppointmentWait requires it.`
   }, {
+    // GHL's OWN checkForSpecificDateError (Wait.ts:1473): a STANDARD specific-date wait needs the
+    // date AND the hour AND the AM/PM period. The builder paints the step red without them; the
+    // API stores it happily and the wait behaves undefined.
+    when: (a) => a.type === "specific_date" && !(a.specificDateInputMode === "dynamic" || a.dynamicSpecificDate !== void 0),
+    require: ["specificDate", "specificTimeHour", "specificTimePeriod"],
+    why: "GHL's checkForSpecificDateError refuses a standard specific-date wait that is missing the date, the hour, or the AM/PM period."
+  }, {
+    // Same validator, dynamic branch: the value must be a merge tag, not prose.
+    when: (a) => a.type === "specific_date" && (a.specificDateInputMode === "dynamic" || a.dynamicSpecificDate !== void 0),
+    check: (a) => {
+      const v = String(a.dynamicSpecificDate ?? "").trim();
+      return !v || !v.startsWith("{{") || !v.endsWith("}}") ? `has dynamicSpecificDate ${JSON.stringify(a.dynamicSpecificDate)}, which is not a merge tag` : null;
+    },
+    why: "A dynamic specific-date wait reads the date from a merge tag \u2014 checkForSpecificDateError requires a value that starts with {{ and ends with }}."
+  }, {
+    // checkForDateOffsetError (Wait.ts:1487): before/after with every offset at zero is just "on".
+    when: (a) => a.type === "specific_date" && (a.specificDateProceed === "before" || a.specificDateProceed === "after"),
+    check: (a) => (a.specificDateOffsetDays ?? 0) === 0 && (a.specificDateOffsetHours ?? 0) === 0 && (a.specificDateOffsetMinutes ?? 0) === 0 ? `proceeds '${a.specificDateProceed}' the date with every offset at 0` : null,
+    why: "Before/after needs a non-zero offset \u2014 otherwise it is just 'on', and GHL's checkForDateOffsetError refuses it."
+  }, {
     // No GHL rule behind this one — stated as ours. Structurally identical to the rule above,
     // on the specific_date variant instead of the appointment variants.
     when: (a) => a.specificDatePassed === "specific_step",
@@ -137331,6 +137351,38 @@ function waitAttributes(node, ctx) {
       base.windowCondition = { field: "", operator: "", value: "" };
     }
     return base;
+  }
+  if (wt === "specific_date") {
+    if (a.timePeriodInputMode !== void 0 || a.dynamicTimePeriod !== void 0) {
+      throw new IRError(
+        "WAIT_SPECIFIC_DATE",
+        `wait '${node.ref}': timePeriodInputMode belongs to TIME delays; a specific_date wait's dynamic mode is specificDateInputMode + dynamicSpecificDate. Author dynamicSpecificDate: "{{merge}}" for a date-field wait.`
+      );
+    }
+    const dynamic = a.dynamicSpecificDate !== void 0 || a.specificDateInputMode === "dynamic";
+    return {
+      type: "specific_date",
+      specificDateInputMode: dynamic ? "dynamic" : "standard",
+      // NO time defaults on the standard path. This builder runs BEFORE enforceRequiredFields, so
+      // defaulting specificTimeHour/Period here would make GHL's own checkForSpecificDateError
+      // rule (ported into COUPLED_FIELDS.wait) unreachable — the engine would bless a step the
+      // builder marks red. Emit only what the author supplied.
+      ...dynamic ? { dynamicSpecificDate: a.dynamicSpecificDate } : {
+        specificDate: a.specificDate,
+        ...a.specificTimeHour !== void 0 ? { specificTimeHour: a.specificTimeHour } : {},
+        ...a.specificTimeMinute !== void 0 ? { specificTimeMinute: a.specificTimeMinute } : {},
+        ...a.specificTimePeriod !== void 0 ? { specificTimePeriod: a.specificTimePeriod } : {}
+      },
+      // setInitialSpecificDate()'s own defaults, verbatim.
+      specificDateProceed: a.specificDateProceed ?? "on",
+      specificDateOffsetDays: a.specificDateOffsetDays ?? 0,
+      specificDateOffsetHours: a.specificDateOffsetHours ?? 0,
+      specificDateOffsetMinutes: a.specificDateOffsetMinutes ?? 0,
+      specificDatePassed: a.specificDatePassed ?? "skip",
+      ...a.specificDateStep !== void 0 ? { specificDateStep: a.specificDateStep } : {},
+      ...a.window ? { window: a.window } : {},
+      ...hybrid
+    };
   }
   return { type: wt, ...a, ...hybrid };
 }

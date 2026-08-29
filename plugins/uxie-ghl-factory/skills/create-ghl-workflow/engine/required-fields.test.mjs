@@ -271,16 +271,21 @@ test('wait: a non-jump appointmentCondition does not demand a target', () => {
   assert.doesNotThrow(() => enforceRequiredFields(waitNode(attrs), attrs));
 });
 
+// Both fixtures now carry a COMPLETE standard specific-date wait around the thing under test:
+// GHL's own checkForSpecificDateError (ported alongside this rule) requires the date, the hour and
+// the AM/PM period, so a bare {type, specificDatePassed} is an invalid wait for a second reason
+// and would no longer isolate this rule.
+const specificDateBase = { type: 'specific_date', specificDate: '2026-09-01', specificTimeHour: 9, specificTimePeriod: 'AM' };
+
 test('wait: specificDatePassed specific_step without a target is refused', () => {
+  const attrs = { ...specificDateBase, specificDatePassed: 'specific_step' };
   assert.throws(
-    () => enforceRequiredFields(waitNode({ type: 'specific_date', specificDatePassed: 'specific_step' }), {
-      type: 'specific_date', specificDatePassed: 'specific_step',
-    }),
+    () => enforceRequiredFields(waitNode(attrs), attrs),
     (e) => e.code === 'REQUIRED_FIELD' && /specificDateStep/.test(e.message));
 });
 
 test('wait: specificDatePassed specific_step WITH a target passes', () => {
-  const attrs = { type: 'specific_date', specificDatePassed: 'specific_step', specificDateStep: 'step-2' };
+  const attrs = { ...specificDateBase, specificDatePassed: 'specific_step', specificDateStep: 'step-2' };
   assert.doesNotThrow(() => enforceRequiredFields(waitNode(attrs), attrs));
 });
 
