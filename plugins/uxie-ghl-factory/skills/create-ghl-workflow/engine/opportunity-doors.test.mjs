@@ -98,3 +98,28 @@ test('the hatch: ignoreUnresolved downgrades the refusal to a loud warning, and 
   // names-only through the hatch: the step is empty, and EMPTY_STEP still refuses it
   assert.throws(() => run({ pipeline: 'Ghost' }), (e) => e.code === 'EMPTY_STEP');
 });
+
+// A lost reason is a nameable account object. Without a resolver kind the author had to find the
+// id by hand, and an update_opportunity with status 'lost' and no lostReasonId records no reason
+// at all — the builder deletes the entry for any other status, so this is the only place it lives.
+test('lostReason resolves by NAME through the account resolver, and is refused when it resolves to nothing', async () => {
+  const { resolveIR } = await import('./resolve.mjs');
+  const { buildResolvers } = await import('./resolve.mjs');
+  const r = buildResolvers({ pipelines: [], lostReasons: [{ id: 'LR1', name: 'Too expensive' }] });
+  const ir = { name: 'W', triggers: [], graph: [{ ref: 'n', kind: 'action', type: 'update_opportunity', name: 'Lose',
+    attributes: { status: 'lost', lostReason: 'Too expensive' } }] };
+  const { unresolved } = resolveIR(ir, r);
+  assert.deepEqual(unresolved, []);
+  assert.equal(ir.graph[0].attributes.lostReasonId, 'LR1');
+  assert.equal(ir.graph[0].attributes.lostReason, undefined, 'the name key never survives to the wire');
+
+  const ghost = { name: 'W', triggers: [], graph: [{ ref: 'n', kind: 'action', type: 'update_opportunity', name: 'Lose',
+    attributes: { status: 'lost', lostReason: 'Nope' } }] };
+  assert.deepEqual(resolveIR(ghost, r).unresolved.map((u) => u.name), ['Nope']);
+});
+
+test('an unresolved lostReason never reaches the wire — the same door guard as pipeline and stage', () => {
+  assert.throws(
+    () => build({ type: 'update_opportunity', attributes: { status: 'lost', lostReason: 'Too expensive', pipelineId: PIPE, stageId: STAGE } }),
+    (e) => e.code === 'UNRESOLVED_NAME' && /lostReason 'Too expensive'/.test(e.message));
+});

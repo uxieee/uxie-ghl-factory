@@ -177,3 +177,27 @@ test('the same custom field resolves by id, by contact.<id>, and by fieldKey —
   assert.throws(() => buildTrigger({ ref: 't', type: 'contact_changed', name: 'C', filters: [{ field: 'Mobile', operator: '==' }] }, c, 'WID', new Map()),
     (e) => e.code === 'FILTER_OPERATOR');
 });
+
+// call_status matches dispositions BY NAME, so a name that does not exist in Settings can never
+// match — the trigger simply never fires and nothing reports it.
+test('a call_status disposition this account does not have warns, naming what it does have', () => {
+  const warns = [];
+  const c = { ...ctx(), callDispositions: [{ id: 'D1', name: 'Booked' }, { id: 'D2', name: 'No Answer' }], warn: (m) => warns.push(m) };
+  buildTrigger({ ref: 't', type: 'call_status', name: 'Dispo', filters: [{ field: 'custom_disposition', value: ['Booked', 'Ghosted'] }] }, c, 'WID', new Map());
+  assert.equal(warns.length, 1, warns.join('\n'));
+  assert.match(warns[0], /TRIGGER_DISPOSITION_UNKNOWN/);
+  assert.match(warns[0], /'Ghosted'/);
+  assert.match(warns[0], /Booked, No Answer/);
+});
+
+test('a disposition the account HAS is silent, and no list at all is silent too', () => {
+  const withList = [];
+  buildTrigger({ ref: 't', type: 'call_status', name: 'D', filters: [{ field: 'custom_disposition', value: ['booked'] }] },
+    { ...ctx(), callDispositions: [{ id: 'D1', name: 'Booked' }], warn: (m) => withList.push(m) }, 'WID', new Map());
+  assert.deepEqual(withList, [], 'matching is case-insensitive');
+
+  const noList = [];
+  buildTrigger({ ref: 't', type: 'call_status', name: 'D', filters: [{ field: 'custom_disposition', value: ['Anything'] }] },
+    { ...ctx(), warn: (m) => noList.push(m) }, 'WID', new Map());
+  assert.deepEqual(noList, [], 'without the account list there is nothing to check against');
+});

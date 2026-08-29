@@ -334,7 +334,7 @@ function enforceLostReasonPrerequisite(f, ref, stepType) {
 const CREATE_OPP_AUTHOR_KEYS = new Set([
   'pipelineId', 'stageId', 'status', 'name', 'source', 'value',
   'lostReasonId', 'forecastExpectedCloseDate', 'forecastProbability',
-  'pipeline', 'stage',    // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+  'pipeline', 'stage', 'lostReason',    // pre-resolve name path (resolve.mjs → *Id)
 ]);
 const CREATE_OPP_ALIASES = {
   pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_stage_id: 'stageId',
@@ -347,6 +347,7 @@ function refuseUnresolvedOppNames(a, ref, stepType, ctx) {
   const missing = [];
   if (a.pipeline != null && a.pipelineId == null) missing.push(`pipeline '${a.pipeline}'`);
   if (a.stage != null && a.stageId == null) missing.push(`stage '${a.stage}'`);
+  if (a.lostReason != null && a.lostReasonId == null) missing.push(`lostReason '${a.lostReason}'`);
   if (!missing.length) return;
   const detail = `${stepType} '${ref}' names ${missing.join(' and ')} but no id was resolved for it. `
     + `Names resolve only through build_workflow / scripts/build.mjs, which fetch the account's pipelines; on the `
@@ -417,7 +418,7 @@ const UPDATE_OPP_AUTHOR_KEYS = new Set([
   'updates', 'pipelineId', 'stageId', 'status', 'name', 'source', 'value', 'allowBackward',
   // added 2026-08-03 — see CREATE_OPP_AUTHOR_KEYS. Author key == emitted filterField.
   'lostReasonId', 'forecastExpectedCloseDate', 'forecastProbability',
-  'pipeline', 'stage',    // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+  'pipeline', 'stage', 'lostReason',    // pre-resolve name path (resolve.mjs → *Id)
 ]);
 const UPDATE_OPP_ALIASES = { pipelineStageId: 'stageId', stage_id: 'stageId', pipeline_id: 'pipelineId', monetaryValue: 'value' };
 
@@ -1823,6 +1824,22 @@ export function buildTrigger(t, ctx, wid, refMap) {
       };
     });
   }
+  // call_status matches dispositions BY NAME, so a name that does not exist in
+  // Settings -> Phone -> Call dispositions can never match — the trigger simply never fires and
+  // nothing reports it. WARN rather than throw: the fetched list may be stale or absent.
+  if (t.type === 'call_status' && Array.isArray(ctx?.callDispositions) && ctx.callDispositions.length) {
+    const known = new Set(ctx.callDispositions.map((d) => String(d.name ?? '').toLowerCase()));
+    for (const c of conditions) {
+      if (c?.field !== 'custom_disposition') continue;
+      for (const v of [].concat(c.value ?? [])) {
+        if (typeof v !== 'string' || !v || known.has(v.toLowerCase())) continue;
+        ctx?.warn?.(`TRIGGER_DISPOSITION_UNKNOWN: '${t.name ?? t.type}' matches disposition '${v}', which is `
+          + `not one of this account's ${ctx.callDispositions.length} dispositions `
+          + `(${ctx.callDispositions.map((d) => d.name).slice(0, 8).join(', ')}) — the trigger will never fire on it.`);
+      }
+    }
+  }
+
   // trigger SHAPE rules from the catalog's filterChecks (extract-trigger-validators):
   // scheduler needs an interval, IVR needs a phone number — the IVR one is also BLOCKED by the
   // backend at save (beDedupeAssetType), so surfacing it here saves a doomed round-trip.

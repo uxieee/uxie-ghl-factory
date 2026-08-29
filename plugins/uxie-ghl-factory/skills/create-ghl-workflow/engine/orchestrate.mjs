@@ -263,6 +263,8 @@ export async function orchestrate(ir, gw, opts = {}) {
       // the per-location half of the {{custom_values.*}} merge-tag vocabulary (merge-tags.mjs);
       // already fetched above for the resolver, it just never reached the compile ctx
       customValues: entities.customValues,
+      // call_status matches dispositions BY NAME — the compiler warns on one this account lacks
+      callDispositions: entities.callDispositions,
       warn: (msg) => report.warnings.push(msg),
       // §5: an account-wide email sender default. Reachable two ways — programmatically via
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
