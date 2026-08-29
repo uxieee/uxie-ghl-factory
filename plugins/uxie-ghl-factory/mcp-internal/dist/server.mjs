@@ -143101,10 +143101,35 @@ function manualStepHoldsChain(list) {
   }
   return out;
 }
+var CREATE_OPP_TYPES = /* @__PURE__ */ new Set(["internal_create_opportunity", "create_opportunity"]);
+var FIND_OPP_TYPES = /* @__PURE__ */ new Set(["find_opportunity", "internal_find_opportunity"]);
+function findAfterCreateRace(list) {
+  const byId = new Map(list.map((t) => [t.id, t]));
+  const out = [];
+  for (const t of list) {
+    if (!t || !CREATE_OPP_TYPES.has(t.type)) continue;
+    let cursor = typeof t.next === "string" ? byId.get(t.next) : null;
+    let hops = 0;
+    let waited = false;
+    while (cursor && hops++ < 12) {
+      if (cursor.type === "wait") {
+        waited = true;
+        break;
+      }
+      if (FIND_OPP_TYPES.has(cursor.type)) {
+        out.push(`'${cursor.name ?? cursor.id}' (${cursor.type}) searches for an opportunity ${hops} step(s) after '${t.name ?? t.id}' created one. The opportunity SEARCH is an INDEX and lags a create by tens of seconds (measured), so this reads a pipeline that does not yet contain the card and silently takes the Not-Found branch. Put a short wait between them.`);
+        break;
+      }
+      cursor = typeof cursor.next === "string" ? byId.get(cursor.next) : null;
+    }
+    void waited;
+  }
+  return out;
+}
 function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {}) {
   if (skipGraphContextRules === true) return [];
   const list = Array.isArray(templates) ? templates : [];
-  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list)];
+  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list), ...findAfterCreateRace(list)];
   for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
   return findings;
 }
@@ -148851,9 +148876,21 @@ var TOOLS2 = [
       }
       const LIFECYCLE_TYPES = /* @__PURE__ */ new Set(["add_to_workflow", "added_to_workflow", "remove_from_workflow"]);
       const rawLogs = logs.json?.logs ?? logs.json ?? [];
-      const labelledLogs = Array.isArray(rawLogs) ? rawLogs.map((r) => LIFECYCLE_TYPES.has(r?.type) ? { ...r, isLifecycleRow: true } : r) : rawLogs;
+      const labelledLogs = Array.isArray(rawLogs) ? rawLogs.map((r) => {
+        if (!LIFECYCLE_TYPES.has(r?.type)) return r;
+        const channel = r?.removedFrom?.channel ?? null;
+        return {
+          ...r,
+          isLifecycleRow: true,
+          ...r.type === "remove_from_workflow" ? { removalOrigin: channel === "OAUTH" ? "external-api" : channel ? "workflow" : "unknown" } : {}
+        };
+      }) : rawLogs;
+      const externalRemovals = Array.isArray(labelledLogs) ? labelledLogs.filter((r) => r?.removalOrigin === "external-api").length : 0;
       return ok({
         logs: labelledLogs,
+        // Counted separately because the roster cannot tell them apart: it says `finished` for a
+        // completed run AND for one an outside call ended.
+        ...externalRemovals ? { externalRemovals } : {},
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
         enrollments,
         // Only meaningful when the caller asked for the full walk; undefined keeps

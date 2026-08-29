@@ -111,10 +111,43 @@ function manualStepHoldsChain(list) {
   return out;
 }
 
+// THE OPPORTUNITY SEARCH IS AN INDEX, AND IT LAGS. Proven live 2026-08-29: a card created with
+// POST /opportunities/ read back by ID immediately, but did NOT appear in
+// GET /opportunities/search for about a minute. Fetch-by-id is the record; search is an index
+// behind it. So a find_opportunity placed seconds after a create reads a pipeline that does not
+// yet contain the card — with no error to say so, it simply takes the Not-Found branch.
+const CREATE_OPP_TYPES = new Set(['internal_create_opportunity', 'create_opportunity']);
+const FIND_OPP_TYPES = new Set(['find_opportunity', 'internal_find_opportunity']);
+
+function findAfterCreateRace(list) {
+  const byId = new Map(list.map((t) => [t.id, t]));
+  const out = [];
+  for (const t of list) {
+    if (!t || !CREATE_OPP_TYPES.has(t.type)) continue;
+    let cursor = typeof t.next === 'string' ? byId.get(t.next) : null;
+    let hops = 0;
+    let waited = false;
+    while (cursor && hops++ < 12) {
+      // any wait between them is the fix, so stop looking
+      if (cursor.type === 'wait') { waited = true; break; }
+      if (FIND_OPP_TYPES.has(cursor.type)) {
+        out.push(`'${cursor.name ?? cursor.id}' (${cursor.type}) searches for an opportunity `
+          + `${hops} step(s) after '${t.name ?? t.id}' created one. The opportunity SEARCH is an INDEX and `
+          + `lags a create by tens of seconds (measured), so this reads a pipeline that does not yet contain `
+          + `the card and silently takes the Not-Found branch. Put a short wait between them.`);
+        break;
+      }
+      cursor = typeof cursor.next === 'string' ? byId.get(cursor.next) : null;
+    }
+    void waited;
+  }
+  return out;
+}
+
 export function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {}) {
   if (skipGraphContextRules === true) return [];
   const list = Array.isArray(templates) ? templates : [];
-  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list)];
+  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list), ...findAfterCreateRace(list)];
   for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
   return findings;
 }
