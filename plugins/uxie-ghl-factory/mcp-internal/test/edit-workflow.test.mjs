@@ -968,3 +968,45 @@ test('tag, step, and trigger transport throws all return urgent per-write ambigu
     assert.equal(Object.hasOwn(result.data.partialProgress, 'recovery'), false, scenario.phase);
   }
 });
+
+// Plan 2 Task 4: the account resolver runs on the edit path, GATED. An edit carrying no name must
+// not fetch entities at all (that sweep is 21 GETs); one carrying a name it cannot resolve must
+// fail UNRESOLVED_DEPS rather than write the name to the wire, where it moves nothing.
+test('an edit with no names fetches no account entities', async () => {
+  const { gw, calls } = editGateway();
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'renameStep', stepId: 's1', name: 'Renamed' }],
+  }, deps(gw));
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls.filter(({ path }) => /\/opportunities\/pipelines|\/calendars\/|\/users\//.test(path)), [],
+    'a name-free edit ran the account sweep it has no use for');
+});
+
+test('an unresolvable name fails UNRESOLVED_DEPS and writes nothing; ignoreUnresolved proceeds', async () => {
+  const withPipelines = (extra = {}) => {
+    const { gw, calls } = editGateway(extra);
+    const inner = gw.call;
+    gw.call = async (method, path, body) => {
+      if (method === 'GET' && path.includes('/opportunities/pipelines')) return { status: 200, ok: true, json: { pipelines: [] } };
+      if (method === 'GET' && (path.includes('/calendars/') || path.includes('/users/') || path.includes('/forms/'))) return { status: 200, ok: true, json: {} };
+      return inner(method, path, body);
+    };
+    return { gw, calls };
+  };
+  // The op must land on a step whose type actually HAS a `stage` intent key, or an earlier guard
+  // (Task 3's normalisation) refuses the patch before the resolver's verdict matters.
+  const oppWorkflow = workflow();
+  oppWorkflow.workflowData.templates = [{
+    id: 'opp1', type: 'internal_update_opportunity', name: 'Move', next: null, order: 0, parentKey: null,
+    attributes: { allowBackward: false, type: 'internal_update_opportunity', __customInputs__: {}, __customInputFields__: [] },
+  }];
+  const a = withPipelines({ initial: oppWorkflow });
+  const blocked = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true,
+    ops: [{ op: 'modifyStep', stepId: 'opp1', attrPatch: { stage: 'Ghost stage' } }],
+  }, deps(a.gw));
+  assert.equal(blocked.ok, false);
+  assert.match(JSON.stringify(blocked), /UNRESOLVED_DEPS|Ghost stage/);
+  assert.deepEqual(a.calls.filter(({ method }) => method === 'PUT'), [], 'nothing may be written when a name did not resolve');
+});

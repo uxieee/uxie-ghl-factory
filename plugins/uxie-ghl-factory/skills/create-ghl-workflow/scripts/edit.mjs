@@ -106,7 +106,10 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { editCommitBody } from '../engine/edit.mjs';
-import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps, externalRefsOf } from '../engine/edit-driver.mjs';
+import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps, externalRefsOf,
+  opsNeedResolution, resolveOps } from '../engine/edit-driver.mjs';
+import { buildResolvers } from '../engine/resolve.mjs';
+import { fetchEntities } from '../engine/orchestrate.mjs';
 import { planStickyNoteOp } from '../engine/sticky-notes.mjs';
 import { buildMarketplaceIndex } from '../engine/marketplace.mjs';
 import { fetchMarketplace } from '../engine/orchestrate.mjs';
@@ -137,7 +140,7 @@ const allowDanglingParentKeys = process.argv.includes('--allow-dangling-parentke
 const deadBranchAcknowledged = process.argv.includes('--ack-dead-branch');
 const dryRun = process.argv.includes('--dry-run');
 if (!LOC || !WID || !specPath) {
-  console.error('usage: node edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--allow-dangling-parentkeys] [--ack-dead-branch] [--dry-run]');
+  console.error('usage: node edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--allow-dangling-parentkeys] [--ack-dead-branch] [--ignore-unresolved] [--dry-run]');
   process.exit(1);
 }
 
@@ -196,7 +199,24 @@ const ctx = { loc: LOC, cid: undefined, uid: UID, companyAge: 0, idGen: makeUuid
 const fresh = (await call('GET', `/workflow/${LOC}/${WID}?includeScheduledPauseInfo=true`)).json;
 if (!fresh || !fresh.workflowData) { console.error('could not GET workflow', WID, '—', JSON.stringify(fresh).slice(0, 200)); process.exit(2); }
 
-const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(ops);
+// THE ACCOUNT RESOLVER, gated exactly as the MCP tool gates it: fetchEntities is 21 GETs, so it
+// runs only when an op actually carries a name. --ignore-unresolved proceeds anyway.
+let editOps = ops;
+if (opsNeedResolution(editOps)) {
+  const entities = await fetchEntities({ call, loc: LOC });
+  const resolved = resolveOps(editOps, buildResolvers(entities), fresh.workflowData.templates ?? []);
+  editOps = resolved.ops;
+  if (resolved.unresolved.length) {
+    const lines = resolved.unresolved.map((u) => `  ${u.where} '${u.name}'`).join('\n');
+    if (!process.argv.includes('--ignore-unresolved')) {
+      console.error(`UNRESOLVED_DEPS: ${resolved.unresolved.length} name(s) matched nothing on this account:\n${lines}\n`
+        + 'Check the spelling against list_account_entities, or pass --ignore-unresolved.');
+      process.exit(1);
+    }
+    console.warn(`UNRESOLVED (ignored):\n${lines}`);
+  }
+}
+const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
 const settingsPatch = mergeSettingsOps(settingsOps);
 const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: LOC, wid: WID, skipStickyCheck: process.argv.includes('--skip-sticky-check') }));   // separate resource: POST/PATCH /workflows/sticky-note   // Settings-tab keys (updateSettings ops), merged over the stored doc at commit
 const listTriggers = async () => {

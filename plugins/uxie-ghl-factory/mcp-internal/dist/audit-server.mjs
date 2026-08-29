@@ -140524,6 +140524,80 @@ var refMapFrom = (externalRefs) => {
   for (const [name, id] of externalRefs?.byName ?? []) if (id && !m.has(name)) m.set(name, id);
   return m;
 };
+var INTENT_KEYS = [
+  "pipeline",
+  "stage",
+  "user",
+  "calendar",
+  "agent",
+  "employee",
+  "workflow",
+  "customValue",
+  "custom_value",
+  "offer",
+  "template",
+  "lostReason"
+];
+var looksLikeId2 = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
+var ID_BEARING_FILTER = /\.(id|pipelineId|pipelineStageId|assignedTo)$/;
+function opsNeedResolution(ops) {
+  let needs = false;
+  const check2 = (attrs) => {
+    if (attrs && INTENT_KEYS.some((k) => attrs[k] !== void 0)) needs = true;
+  };
+  for (const op of ops ?? []) {
+    if (op?.step) {
+      walkNodes([op.step], (n) => {
+        check2(n.attributes);
+        for (const b of n.branches ?? []) for (const c of b.conditions ?? []) if (c?.stage !== void 0 && !looksLikeId2(c.stage)) needs = true;
+      });
+    }
+    check2(op?.attrPatch);
+    for (const f of op?.trigger?.filters ?? []) {
+      if (f?.value !== void 0 && ID_BEARING_FILTER.test(f.field ?? f.on ?? "") && !looksLikeId2(f.value)) needs = true;
+    }
+  }
+  return needs;
+}
+function resolveOps(ops, resolvers, storedTemplates = []) {
+  const LEAN = { internal_update_opportunity: "update_opportunity", internal_create_opportunity: "create_opportunity" };
+  const typeOf = (id) => {
+    const t = (storedTemplates ?? []).find((x) => x.id === id);
+    return LEAN[t?.type] ?? t?.type;
+  };
+  const cloned = JSON.parse(JSON.stringify(ops ?? []));
+  const graph = [], triggers = [];
+  const stepAt = /* @__PURE__ */ new Map(), patchAt = /* @__PURE__ */ new Map(), trigAt = /* @__PURE__ */ new Map();
+  cloned.forEach((op, i) => {
+    if (op.step) {
+      stepAt.set(i, graph.length);
+      graph.push({ ...op.step, ref: op.step.ref ?? `__op${i}` });
+    }
+    if (op.trigger) {
+      trigAt.set(i, triggers.length);
+      triggers.push({ ...op.trigger, ref: op.trigger.ref ?? `__trg${i}` });
+    }
+    if (op.op === "modifyStep" && op.attrPatch) {
+      patchAt.set(i, graph.length);
+      graph.push({ ref: `__patch${i}`, kind: "action", type: typeOf(op.stepId), attributes: op.attrPatch });
+    }
+  });
+  const { unresolved } = resolveIR({ name: "_edit", triggers, graph }, resolvers);
+  cloned.forEach((op, i) => {
+    if (stepAt.has(i)) {
+      const n = graph[stepAt.get(i)];
+      if (String(n.ref ?? "").startsWith("__op")) delete n.ref;
+      op.step = n;
+    }
+    if (patchAt.has(i)) op.attrPatch = graph[patchAt.get(i)].attributes;
+    if (trigAt.has(i)) {
+      const t = triggers[trigAt.get(i)];
+      if (String(t.ref ?? "").startsWith("__trg")) delete t.ref;
+      op.trigger = t;
+    }
+  });
+  return { ops: cloned, unresolved };
+}
 function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
   for (const op of ops ?? []) {
@@ -145432,11 +145506,21 @@ var TOOLS2 = [
       deadBranchAcknowledged: external_exports.boolean().optional(),
       allowDanglingParentKeys: external_exports.boolean().optional(),
       allowDanglingStepRefs: external_exports.boolean().optional(),
+      // Same opt-out build_workflow has: proceed with names that resolved to nothing. Rarely what
+      // you want — a name on the wire moves nothing — but it is the caller's decision to make.
+      ignoreUnresolved: external_exports.boolean().default(false),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
       { method: "GET", path: "/locations/{loc}/customFields/search" },
       { method: "GET", path: "/locations/{loc}/customValues" },
+      // The account entity sweep (the same fetchEntities list_account_entities runs) — read ONLY
+      // when an op carries a NAME the resolver must turn into an id. The name kinds an edit op
+      // can carry are listed here; the sweep itself fetches all 20 in one pass.
+      { method: "GET", path: "/opportunities/pipelines" },
+      { method: "GET", path: "/calendars/" },
+      { method: "GET", path: "/users/" },
+      { method: "GET", path: "/forms/" },
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/trigger" },
       // Marketplace index — read ONLY when an op carries marketplace:true.
@@ -145525,7 +145609,21 @@ var TOOLS2 = [
         ...customValues !== void 0 ? { customValues } : {},
         warn: (message) => warnings.push(message)
       };
-      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(args.ops);
+      let editOps = args.ops;
+      if (opsNeedResolution(editOps)) {
+        const entities = await fetchEntities({ call: (m, path, body) => gw.call(m, path, body), loc: args.locationId });
+        const resolved = resolveOps(editOps, buildResolvers(entities), beforeTemplates);
+        editOps = resolved.ops;
+        if (resolved.unresolved.length && args.ignoreUnresolved !== true) {
+          return fail(
+            CODES.UNRESOLVED_DEPS,
+            `${resolved.unresolved.length} name(s) in these ops matched nothing on this account: ` + resolved.unresolved.map((u) => `${u.where} '${u.name}'`).join(", "),
+            "Check the spelling against list_account_entities, or pass ignoreUnresolved:true to write the op anyway (a name on the wire moves nothing)."
+          );
+        }
+        for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
+      }
+      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
       const settingsPatch = mergeSettingsOps(settingsOps);
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });

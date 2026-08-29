@@ -637,6 +637,26 @@
   {
     "tool": "edit_workflow",
     "method": "GET",
+    "path": "/opportunities/pipelines"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/calendars/"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/users/"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/forms/"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
     "path": "/workflow/{loc}/{wid}"
   },
   {
