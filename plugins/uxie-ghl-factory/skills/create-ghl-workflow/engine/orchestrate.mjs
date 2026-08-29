@@ -25,6 +25,8 @@ import { planStickyNotes } from './sticky-notes.mjs';
 import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
+import { lintOpportunityWrites } from './lints/opportunity.mjs';
+import { lintTriggerRows } from './lints/trigger-rows.mjs';
 import { buildResolvers, resolveIR } from './resolve.mjs';
 import { danglingParentKeys } from './edit.mjs';
 import { requiredKeysFor, isSupplied } from './required-fields.mjs';
@@ -483,10 +485,13 @@ export async function orchestrate(ir, gw, opts = {}) {
   // LOOK at what the server holds. A POST that failed every retry was recorded in `failed`, but the
   // tool still returned ok — 7 of 7 failed trigger POSTs once read as a clean draft with
   // `verify.pass: N, issues: []` (F5-16). A build with no working trigger must say so.
+  let persistedTriggers = [];
   if (built.triggerBodies.length) {
     const listed = await callAt('trigger_list_verify', 'GET', `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: WID })}`);
     if (!listed) return report;
     const rows = Array.isArray(listed.json) ? listed.json : (listed.json?.triggers ?? listed.json?.data ?? null);
+    // Keep the ROWS, not just the count: the intent lint below reads what was actually stored.
+    if (listed.ok && Array.isArray(rows)) persistedTriggers = rows;
     report.triggers.persisted = listed.ok && Array.isArray(rows) ? rows.length : null;
     if (report.triggers.persisted === null) report.warnings.push('triggers: the post-build trigger re-list failed; the persisted count is UNKNOWN');
   } else {
@@ -597,6 +602,30 @@ export async function orchestrate(ir, gw, opts = {}) {
     }
     if (Object.keys(issue).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue });
     else if (st) report.verify.pass++;
+  }
+
+  // 5a-INTENT. The loop above compares what was SENT with what came BACK, which is blind by
+  //     construction to the whole accepted-but-inert class: GHL stores a stage NAME, an empty
+  //     row list or an off-menu operator verbatim and echoes it back, so the comparison passes
+  //     while the step moves nothing. These lints ask a different question — does the STORED
+  //     body express the authored intent?
+  //
+  //     On a FRESH build every step and trigger is this run's own work, so an intent ERROR is a
+  //     build failure, not an advisory. Saying "ok" here is exactly how eight client workflows
+  //     shipped with a live status row and a dead stage move.
+  const intentFindings = [
+    ...lintOpportunityWrites(got, { pipelines: entities.pipelines }),
+    ...lintTriggerRows(persistedTriggers, catalog),
+  ];
+  const intentErrors = intentFindings.filter((f) => f.severity === 'error');
+  if (intentErrors.length) {
+    report.verify.issues.push({
+      intent: intentErrors,
+      note: 'the stored document does not express the authored intent — see each finding',
+    });
+  }
+  for (const f of intentFindings.filter((x) => x.severity === 'warning')) {
+    report.warnings.push(`INTENT: ${f.name ?? f.type}: ${f.msg}`);
   }
 
   // 5b. Cross-check the persisted graph against GHL'S OWN action schema — the same rulebook

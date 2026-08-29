@@ -1010,3 +1010,34 @@ test('an unresolvable name fails UNRESOLVED_DEPS and writes nothing; ignoreUnres
   assert.match(JSON.stringify(blocked), /UNRESOLVED_DEPS|Ghost stage/);
   assert.deepEqual(a.calls.filter(({ method }) => method === 'PUT'), [], 'nothing may be written when a name did not resolve');
 });
+
+// RC-B on the edit path. A rename marks the step MODIFIED, so its stored rows come under intent
+// assertion — and this one carries a stage NAME where an id belongs, which saves clean, renders a
+// half-empty drawer and moves nothing.
+test('an edit whose persisted opportunity step fails intent is ENGINE_ABORT, not ok', async () => {
+  const stored = { id: 's1', type: 'internal_update_opportunity', name: 'Move', next: null, parentKey: null, order: 0,
+    attributes: { allowBackward: false, __customInputs__: {}, __customInputFields__: [
+      { filterField: 'pipelineId', value: 'x2f9dK1mQ84hL0pTzVbn', dataType: 'SINGLE_OPTIONS', valueFieldType: 'select' },
+      { filterField: 'pipelineStageId', value: 'Engaged', dataType: 'SINGLE_OPTIONS', valueFieldType: 'select' } ] } };
+  const { gw } = editGateway({ initial: workflow({ templates: [stored] }) });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, assumeAssociated: true,
+    ops: [{ op: 'renameStep', stepId: 's1', name: 'Move to Engaged' }],
+  }, deps(gw));
+  assert.equal(result.ok, false);
+  assert.equal(result.code, 'ENGINE_ABORT');
+  assert.ok(JSON.stringify(result).includes('OPP_ROW_NOT_ID'), JSON.stringify(result).slice(0, 400));
+});
+
+test('an intent error on an UNTOUCHED legacy step does not fail the edit', async () => {
+  const legacy = { id: 's9', type: 'internal_update_opportunity', name: 'Old move', next: null, parentKey: 's1', order: 1,
+    attributes: { allowBackward: false, __customInputs__: {}, __customInputFields__: [] } };
+  const head = { id: 's1', type: 'add_contact_tag', name: 'Head', next: 's9', parentKey: null, order: 0, attributes: { tags: ['x'] } };
+  const { gw } = editGateway({ initial: workflow({ templates: [head, legacy] }) });
+  const result = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, assumeAssociated: true,
+    ops: [{ op: 'renameStep', stepId: 's1', name: 'Head renamed' }],
+  }, deps(gw));
+  assert.equal(result.ok, true, JSON.stringify(result).slice(0, 300));
+  assert.deepEqual(result.data.verify.intent, [], 'an untouched step is someone else\'s debt, not this edit\'s failure');
+});
