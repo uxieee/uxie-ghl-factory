@@ -135884,7 +135884,41 @@ var handlebarRules = (fields) => [{
   },
   why: "A bracket segment containing [ or ] parses fine and then resolves to the WRONG value at runtime \u2014 ] closes the segment early and [ desynchronises the backend's path splitting. Use {{prefix.[key with spaces].id}}, never a bracket inside a bracket."
 }];
+var NOTE_PALETTE = [
+  "#CCFBEF",
+  "#CFF9FE",
+  "#D1E0FF",
+  "#D3F8DF",
+  "#EAECF5",
+  "#EBE9FE",
+  "#FBE8FF",
+  "#FEF0C7",
+  "#FFE4E8",
+  "#FFE6D5"
+];
+var nearestSwatch = (hex3) => {
+  const v = String(hex3).toUpperCase();
+  let best = null, bestD = Infinity;
+  for (const p of NOTE_PALETTE) {
+    let d = 0;
+    for (let i = 1; i < 7; i++) if (p[i] !== v[i]) d++;
+    if (d < bestD) {
+      bestD = d;
+      best = p;
+    }
+  }
+  return bestD <= 2 ? best : null;
+};
 var COUPLED_FIELDS = {
+  add_notes: [{
+    when: (a) => typeof a.color === "string" && /^#[0-9a-fA-F]{6}$/.test(a.color) && !NOTE_PALETTE.includes(a.color.toUpperCase()),
+    check: (a) => {
+      const near = nearestSwatch(a.color);
+      return `uses colour ${a.color}, which is not one of the drawer's ten swatches` + (near ? ` \u2014 did you mean ${near}?` : ` (palette: ${NOTE_PALETTE.join(", ")})`);
+    },
+    severity: "warn",
+    why: "An off-palette colour saves and renders, but the drawer shows no swatch selected, so a one-digit typo is invisible until someone opens the step."
+  }],
   // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
   // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
   conversationai_end: [{
@@ -137213,9 +137247,33 @@ var NOTIFICATION_EMITTED_KEYS = {
   // notification.type); `notificationType` is the authoring alias the builder accepted first.
   // Without `type` here, re-normalising a STORED notification reported its own real key as
   // dropped — see normalizeStoredAttributes.
-  notification: ["type", "notificationType", "body", "title", "redirectPage", "userType", "selectedUser"],
+  // assignedOwners + the alsoNotify* pair are real drawer keys (Notification.ts:21-23); without
+  // them here the builder reported the drawer's own fields as dropped.
+  notification: [
+    "type",
+    "notificationType",
+    "body",
+    "title",
+    "redirectPage",
+    "userType",
+    "selectedUser",
+    "assignedOwners",
+    "alsoNotifyContactFollowers",
+    "alsoNotifyOpportunityFollowers"
+  ],
   whatsapp: ["body", "userType", "selectedUser", "template_id"]
 };
+var ASSIGNED_OWNERS = /* @__PURE__ */ new Set(["contact_owner", "opportunity_owner"]);
+function assignedOwnerKeys(b, userType) {
+  const out = {};
+  if (userType === "assign") {
+    const authored = Array.isArray(b.assignedOwners) ? b.assignedOwners.map((v) => typeof v === "string" ? v : v?.value).filter((v) => ASSIGNED_OWNERS.has(v)) : [];
+    out.assignedOwners = authored.length ? authored : ["contact_owner"];
+  }
+  if (b.alsoNotifyContactFollowers !== void 0) out.alsoNotifyContactFollowers = b.alsoNotifyContactFollowers;
+  if (b.alsoNotifyOpportunityFollowers !== void 0) out.alsoNotifyOpportunityFollowers = b.alsoNotifyOpportunityFollowers;
+  return out;
+}
 function internalNotificationAttributes(a, ctx) {
   const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null) ?? NOTIFICATION_CHANNELS.find((c) => c in a) ?? "email";
   const b = a[channel] ?? {};
@@ -137262,12 +137320,13 @@ function internalNotificationAttributes(a, ctx) {
   if (channel === "notification") {
     const sel = asUserArray(b.selectedUser);
     return { type: "notification", notification: {
-      type: b.notificationType ?? "send_notification",
+      type: b.type ?? b.notificationType ?? "send_notification",
       body: b.body ?? "",
       title: b.title ?? "",
       redirectPage: b.redirectPage ?? "contact",
       userType,
-      ...wantsUsers ? { selectedUser: sel[0] ?? "" } : {}
+      ...wantsUsers ? { selectedUser: sel[0] ?? "" } : {},
+      ...assignedOwnerKeys(b, userType)
     } };
   }
   return { type: "whatsapp", whatsapp: {

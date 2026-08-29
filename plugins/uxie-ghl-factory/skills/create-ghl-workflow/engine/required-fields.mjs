@@ -474,7 +474,37 @@ const handlebarRules = (fields) => [{
      + 'Use {{prefix.[key with spaces].id}}, never a bracket inside a bracket.',
 }];
 
+// The note drawer's colour swatches (constants/notes-action.ts) — ten values, exactly. An
+// off-palette hex saves and renders, but the builder's swatch row shows nothing selected, so a
+// one-digit typo is invisible until someone opens the step.
+export const NOTE_PALETTE = ['#CCFBEF', '#CFF9FE', '#D1E0FF', '#D3F8DF', '#EAECF5',
+  '#EBE9FE', '#FBE8FF', '#FEF0C7', '#FFE4E8', '#FFE6D5'];
+
+const nearestSwatch = (hex) => {
+  const v = String(hex).toUpperCase();
+  let best = null, bestD = Infinity;
+  for (const p of NOTE_PALETTE) {
+    let d = 0;
+    for (let i = 1; i < 7; i++) if (p[i] !== v[i]) d++;
+    if (d < bestD) { bestD = d; best = p; }
+  }
+  return bestD <= 2 ? best : null;
+};
+
 export const COUPLED_FIELDS = {
+  add_notes: [{
+    when: (a) => typeof a.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(a.color)
+      && !NOTE_PALETTE.includes(a.color.toUpperCase()),
+    check: (a) => {
+      const near = nearestSwatch(a.color);
+      return `uses colour ${a.color}, which is not one of the drawer's ten swatches`
+        + (near ? ` — did you mean ${near}?` : ` (palette: ${NOTE_PALETTE.join(', ')})`);
+    },
+    severity: 'warn',
+    why: 'An off-palette colour saves and renders, but the drawer shows no swatch selected, so a '
+       + 'one-digit typo is invisible until someone opens the step.',
+  }],
+
   // `sleepEnabled: true` is a reactivation SCHEDULE, and the committed capture carried both
   // halves of it. Enabling it without a duration/unit persists an incomplete schedule.
   conversationai_end: [{

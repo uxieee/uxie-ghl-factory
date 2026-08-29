@@ -770,3 +770,35 @@ test("GHL's own specific-date rules are ported: no time, a non-merge-tag dynamic
   // and a complete one compiles
   assert.doesNotThrow(() => build({ specificDate: '2026-09-01', specificTimeHour: 9, specificTimePeriod: 'AM' }));
 });
+
+// T1-4 residue: the drawer's "Assigned owners" block was absent from the allowlist, so the
+// builder's own fields were reported as dropped and could not be authored at all.
+test('in-app notification: assignedOwners defaults on assign, alsoNotify* pass through, nothing warns', () => {
+  const warns = [];
+  const a = (attrs) => {
+    const { autoSaveBody } = compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+      graph: [{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'Ping', attributes: attrs }] }, { ...ctx(), warn: (m) => warns.push(m) });
+    return autoSaveBody.workflowData.templates.find((t) => t.type === 'internal_notification').attributes.notification;
+  };
+  const assign = a({ type: 'notification', notification: { body: 'b', title: 'T', userType: 'assign' } });
+  assert.deepEqual(assign.assignedOwners, ['contact_owner'], 'the drawer defaults Contact owner when switching to assign');
+  const explicit = a({ type: 'notification', notification: { body: 'b', title: 'T', userType: 'assign', assignedOwners: ['opportunity_owner'], alsoNotifyContactFollowers: true } });
+  assert.deepEqual(explicit.assignedOwners, ['opportunity_owner']);
+  assert.equal(explicit.alsoNotifyContactFollowers, true);
+  const all = a({ type: 'notification', notification: { body: 'b', title: 'T', userType: 'all', assignedOwners: ['contact_owner'] } });
+  assert.equal('assignedOwners' in all, false, 'cleared on any other userType so state cannot leak');
+  assert.ok(!warns.some((w) => /NOTIFICATION_KEY_DROPPED/.test(w)), warns.join('\n'));
+});
+
+// F5-29: the note drawer has exactly ten swatches. An off-palette hex saves and renders, but the
+// swatch row shows nothing selected — a one-digit typo is invisible until someone opens the step.
+test('add_notes: an off-palette hex warns with the nearest swatch named; palette members are silent', () => {
+  const warns = [];
+  const build = (color) => compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'n', kind: 'action', type: 'add_notes', name: 'Note', attributes: { html: 'x', color } }] }, { ...ctx(), warn: (m) => warns.push(m) });
+  build('#CEF9FE');
+  assert.ok(warns.some((w) => /COUPLED_SOFT/.test(w) && /#CFF9FE/.test(w)), warns.join('\n'));
+  warns.length = 0;
+  build('#CFF9FE'); build('#FEF0C7');
+  assert.deepEqual(warns, []);
+});
