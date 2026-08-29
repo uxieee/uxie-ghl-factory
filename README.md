@@ -128,7 +128,7 @@ skill carries is what neither can hold: **order, consequence, and when not to.**
 
 ## The internal MCP server
 
-Bundled and local. **41 tools** — the workflow build/edit/publish rail, runtime reads, memberships,
+Bundled and local. **45 tools** — the workflow build/edit/publish rail, runtime reads, memberships,
 AI agent creation, folders, versions — plus `search_endpoints` / `describe_endpoint` over the
 catalogue and `raw_request` as the escape hatch. Every non-GET requires an explicit `confirm`.
 

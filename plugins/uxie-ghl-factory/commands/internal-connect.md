@@ -25,7 +25,7 @@ would ever reach the transcript.
   `mcp-internal/launch.mjs`, so the project config points at a path that survives plugin
   updates (it resolves the newest installed plugin build at run time).
 - **Audit launcher (stable, shared):** `~/.uxie-ghl-internal-mcp/launch-audit.mjs` — the same
-  arrangement for the READ-ONLY audit profile (6 tools, every capability a GET). Two separate
+  arrangement for the READ-ONLY audit profile (7 tools, every capability a GET). Two separate
   files rather than a flag on one: a flag has to default to something, and a full-by-default
   launcher hands an operator who mistyped it every write tool in the registry while they
   believe they are read-only. The audit launcher REFUSES to start if no installed build ships

@@ -54,9 +54,13 @@ const APP_ORIGIN = 'https://app.gohighlevel.com';
 // a full build (POST /workflow, PUT auto-save, 7x POST trigger), an edit PUT and its read-back —
 // every one a 200. So an app-scoped token does NOT 401 on workflow endpoints.
 //
-// The iframe is still PREFERRED where both are seen: it is the narrower scope, and preferring it
-// costs nothing. This function is exported so the rule can be regression-tested without launching
-// a browser — the reason the contradiction survived so long is that neither procedure had a test.
+// The iframe is preferred only for capture-to-capture determinism when both referers appear in one
+// session. It is NOT a narrower scope: a differential on 2026-08-30 across 13 surfaces and all
+// three credential rails found 0 behavioural differences, and the two tokens' claim sets are
+// identical but for exp/iat/jti. Do not rebuild an account-navigation drive to "get the better
+// token" -- there is only one token. This function is exported so the rule can be
+// regression-tested without launching a browser — the reason the contradiction survived so long is
+// that neither procedure had a test.
 export function acceptsBearerFrom(referer) {
   // Compare the PARSED ORIGIN, never a string prefix: `startsWith(APP_ORIGIN)` also accepts
   // https://app.gohighlevel.com.evil.test/ — a domain-suffix match. Caught by this rule's own

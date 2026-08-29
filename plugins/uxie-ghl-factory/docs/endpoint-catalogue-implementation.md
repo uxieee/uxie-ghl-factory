@@ -174,7 +174,7 @@ them verbatim. The online half (did the first `raw_request` succeed) needs a JWT
 ### A1 · Stop the catalogue shadowing hand-written descriptions
 
 `describe(tool, fallback)` is `CATALOG[tool]?.description ?? fallback`, and `CATALOG` has 35
-entries — so for 35 of 41 tools the generated line wins and the hand-written one never ships.
+entries — so for 35 of 45 tools the generated line wins and the hand-written one never ships.
 
 Invert it: the hand-written line is the description; the catalogue contributes only `risk`.
 

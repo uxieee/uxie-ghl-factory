@@ -9,7 +9,7 @@
 | Component | Name | What it does |
 |---|---|---|
 | MCP server (per-project) | `ghl` | Public GHL API v2/v3 — search/describe/execute across 671 distinct operations (contacts, pipelines, calendars, conversations, etc.). Runs locally from npm; added per folder via `/uxie-ghl-factory:setup` and scoped to that client with `/uxie-ghl-factory:public-scope`; the plugin registers nothing globally |
-| MCP server (per-project) | `uxie-ghl-internal-mcp` | GHL **internal** API — 41 stdio tools that execute the internal-API engines (build/edit/publish workflows, fast-forward, memberships, AI agents) behind confirmation gates and round-trip verification. Set up per folder with `/uxie-ghl-factory:internal-connect` (each folder = its own account token). See [`mcp-internal/README.md`](mcp-internal/README.md) |
+| MCP server (per-project) | `uxie-ghl-internal-mcp` | GHL **internal** API — 45 stdio tools that execute the internal-API engines (build/edit/publish workflows, fast-forward, memberships, AI agents) behind confirmation gates and round-trip verification. Set up per folder with `/uxie-ghl-factory:internal-connect` (each folder = its own account token). See [`mcp-internal/README.md`](mcp-internal/README.md) |
 | Skill | `get-ghl-workflow-json` | Read-only export of a workflow's raw JSON from the internal builder API |
 | Skill | `get-ghl-workflow-logs` | Read-only capture of a workflow's runtime — execution logs, enrollment history, per-step contact counts — from the internal builder API |
 | Skill | `ghl-workflow-fast-forward` | Fast-forwards contacts parked at a workflow WAIT step to the next step via the internal API — drives multi-day wait ladders to completion in minutes for end-to-end testing (write) |
