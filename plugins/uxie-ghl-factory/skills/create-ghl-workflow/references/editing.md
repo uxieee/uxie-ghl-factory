@@ -18,7 +18,9 @@ node scripts/edit.mjs <LOC> <WID> <edit-spec.json> [--assume-associated] [--allo
 It GETs the live workflow, applies the ops to `workflowData.templates`, and commits via
 the **plain `PUT /workflow/{loc}/{wid}`** (NOT `/auto-save` — that 422s on an existing
 workflow). `--dry-run` computes + prints the diff without sending the PUT. The edit-spec is
-`{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`,
+`{ "ops": [ … ] }` applied in order; ops: `appendStep`, `insertAfter`, `appendToBranch`
+(anchor by `branchEntryId`, by `containerId` + `branch` — display name, `__branchKey__`, or id —
+or by `branchRef`, a branch `ref` authored earlier in the same call),
 `insertBefore`
 (each takes a `step: {type,name,attributes}` compiled from IR — a linear step **or a
 container**, see "Adding containers" below), `deleteStep`,

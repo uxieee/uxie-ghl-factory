@@ -1289,7 +1289,10 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     // step (conditionType:"default") that its children hang off. Weights live in
     // extras.weightDistribution (a `random` split with no weights defaults to even).
     if (n.kind === 'split') {
-      const pathIds = n.paths.map(() => ctx.idGen());
+      // idForRef records the path's own ref -> its entry id, the way if_else already does for
+      // its branches, so `appendToBranch { branchRef }` can anchor to a path authored earlier
+      // in the same call. An unnamed path still gets a fresh id.
+      const pathIds = n.paths.map((p) => idForRef(refMap, ctx, p.ref));
       const weighted = n.mode === 'weighted' || n.mode === 'random';
       const even = Math.round(100 / n.paths.length);
       const weightDistribution = {};
@@ -1361,7 +1364,7 @@ export function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     if (n.kind === 'ai_decision') {
       const type = n.type ?? 'workflow_ai_decision_maker';
       const defId = ctx.idGen();
-      const branchIds = n.branches.map(() => ctx.idGen());
+      const branchIds = n.branches.map((b) => idForRef(refMap, ctx, b.ref));   // see the split note above
       const transitions = [
         { id: defId, name: 'Default Branch', fields: { description: 'Go in this branch if none of the other branches make sense.', branchKey: 'none' }, meta: { __branchKey__: 'predefined_Default Branch' }, conditionType: 'pre-defined' },
         ...n.branches.map((b, bi) => ({

@@ -11,6 +11,7 @@ import {
   duplicateStep,
   replaceTagInTemplates,
   replaceTagInTriggerConditions,
+  resolveBranchTarget,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
 import { walkNodes, IRError } from './ir.mjs';
@@ -398,7 +399,7 @@ const OP_REQUIRED_ARGS = {
   appendStep: ['step'],
   insertAfter: ['step', 'afterId'],
   insertBefore: ['step', 'beforeId'],
-  appendToBranch: ['step', 'branchEntryId'],
+  appendToBranch: ['step'],   // the ANCHOR is one of three shapes — checked below
   deleteStep: ['stepId'],
   modifyStep: ['stepId'],
   retypeStep: ['stepId', 'step'],
@@ -423,6 +424,17 @@ const OP_ARG_ALIASES = {
 export function checkOpShape(op) {
   const required = OP_REQUIRED_ARGS[op?.op];
   if (!required) return;   // unknown ops fall through to the dispatch default
+  // appendToBranch takes ONE of three anchors, so it cannot be expressed as a required-key list.
+  if (op.op === 'appendToBranch' && !op.branchEntryId && !op.branchRef && !(op.containerId && op.branch)) {
+    // Keep the alias coaching: `branchEntryId` left OP_REQUIRED_ARGS when the anchor became a
+    // choice of three, which silently switched off the "you passed 'branchId'" suggestion.
+    const aliased = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === 'branchEntryId');
+    throw new Error(
+      (aliased ? `you passed '${aliased}' — this op takes 'branchEntryId'. ` : '')
+      + `edit op 'appendToBranch' needs ONE anchor: branchEntryId (a branch entry id), branchRef (a `
+      + `branch ref authored earlier in this call), or containerId + branch (display name, `
+      + `__branchKey__, or id).`);
+  }
   const missing = required.filter((k) => op[k] === undefined);
   if (!missing.length) return;
   const suggestions = missing
@@ -436,6 +448,12 @@ export function checkOpShape(op) {
     + (suggestions.length ? ` — ${suggestions.join('; ')}` : '')
     + `. '${op.op}' takes: ${required.join(', ')}.`);
 }
+
+const requireStepFor = (templates, id, op) => {
+  const hit = (templates ?? []).find((t) => t.id === id);
+  if (!hit) throw new Error(`${op}: no step with id '${id}'`);
+  return hit;
+};
 
 export function applyOp(templates, op, { ctx, idGen }) {
   checkOpShape(op);
@@ -460,9 +478,23 @@ export function applyOp(templates, op, { ctx, idGen }) {
     }
     case 'appendToBranch': {
       const sub = compileSubgraph(op.step, ctx);
+      // Three anchors, one resolution: a branch entry id; a branch REF authored earlier in this
+      // same call (folded into externalRefs.byName by externalRefsOf); or the container plus the
+      // branch's display name / __branchKey__ / id, resolved by the same resolveBranchTarget the
+      // insert splices use — so a wrong name lists the real options instead of failing blankly.
+      let anchorId = op.branchEntryId;
+      if (!anchorId && op.branchRef) {
+        anchorId = ctx.externalRefs?.byName?.get(op.branchRef) ?? null;
+        if (!anchorId)
+          throw new Error(`appendToBranch: branchRef '${op.branchRef}' was not authored by an earlier op in this call`);
+      }
+      if (!anchorId) {
+        const container = requireStepFor(templates, op.containerId, 'appendToBranch');
+        anchorId = resolveBranchTarget(container, templates, op.branch, 'appendToBranch').id;
+      }
       return { ...(sub.isContainer
-        ? appendSubgraphToBranch(templates, op.branchEntryId, sub)
-        : appendToBranch(templates, op.branchEntryId, sub.entry)), refMap: sub.refMap };
+        ? appendSubgraphToBranch(templates, anchorId, sub)
+        : appendToBranch(templates, anchorId, sub.entry)), refMap: sub.refMap };
     }
     case 'deleteStep': return deleteStep(templates, op.stepId);
     // Find & Replace, TAG mode (exact on tag arrays / tags-subtype conditions; string replace on customTags)
