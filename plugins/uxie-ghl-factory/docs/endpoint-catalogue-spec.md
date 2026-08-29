@@ -113,7 +113,7 @@ is actively misleading, since several degenerate rows point at an abstract base 
 
 | # | defect | evidence |
 |---|---|---|
-| D8 | `tool-descriptions.json` **shadows** hand-written descriptions | `describe(tool, fb)` is `CATALOG[tool]?.description ?? fb` (`core/tools.mjs:48-55`) [measured]. `get_workflow_logs`'s real line (`:1303`) never ships. 35 catalogue entries [measured] shadow 35 of 41 tools. |
+| D8 | `tool-descriptions.json` **shadows** hand-written descriptions | `describe(tool, fb)` is `CATALOG[tool]?.description ?? fb` (`core/tools.mjs:48-55`) [measured]. `get_workflow_logs`'s real line (`:1303`) never ships. 35 catalogue entries [measured] shadow 35 of 45 tools. |
 | D9 | **neither** server publishes `instructions` **[r2]** | `stdio.mjs:30-32` **and** `stdio-audit.mjs:52` [measured]. |
 | D10 | writes dominate read-shaped results | [measured, A0 baseline] Across ten read-shaped intents: **18 of 30 top-3 slots are writes**; only **1 of 10** intents has a clean read-only top 3. *"which contacts are sitting at step X"* returns `remove-stuck-statuses` and `requeue-stuck-statuses` at #1 and #2. `scoreEndpoint` (`core/tools.mjs:143-166`) has no method term. |
 | D11 | stale count shipped in two places | `core/tools.mjs:106` and `:3836` say **222**; the file holds **235** [measured]. |
