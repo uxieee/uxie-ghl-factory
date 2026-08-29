@@ -36,6 +36,7 @@ import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
 import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/lints/opportunity.mjs';
 import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
+import { searchMergeTags } from '../../skills/create-ghl-workflow/engine/merge-tags.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
@@ -1499,6 +1500,74 @@ export const TOOLS = [
         stepCount: (workflow.workflowData?.templates ?? []).length,
         updatedAt: workflow.updatedAt,
         note: 'Summary only — use export_workflow for the full graph.',
+      });
+    }, args),
+  },
+  {
+    // The vocabulary is 442 static tags across 27 namespaces plus this location's own fields, and
+    // the only way to find one was to already know its name. That is how {{appointment.date}} came
+    // to be invented and shipped to real customers for three weeks.
+    name: 'search_merge_tags',
+    description: describe('search_merge_tags',
+      'Search the merge-tag inventory by INTENT — proof: engine; risk: read-only. Returns the '
+      + 'builder picker\'s static tags ranked against your phrase, and, given a locationId, this '
+      + 'account\'s own custom FIELDS and custom VALUES joined in. A tag GHL cannot resolve renders '
+      + 'as literal braces to the customer and nothing in GHL catches it, so author from this list '
+      + 'rather than from memory.'),
+    inputSchema: schema({
+      intent: z.string(),
+      namespace: z.string().optional(),
+      locationId: z.string().optional(),
+      limit: z.number().optional(),
+    }),
+    capabilities: [
+      // Both OPTIONAL: without a locationId the handler makes no gateway call at all.
+      { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'GET', path: '/locations/{loc}/customValues' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const catalog = loadCatalog();
+      const extra = [];
+      let perLocation = false;
+      if (args.locationId) {
+        const loc = encodeURIComponent(args.locationId);
+        const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+        try {
+          const cf = await gw.call('GET', `/locations/${loc}/customFields/search?${new URLSearchParams({
+            parentId: '', skip: '0', limit: '10000', documentType: 'field', model: 'all', query: '', includeStandards: 'false',
+          })}`);
+          const rows = Array.isArray(cf?.json) ? cf.json : cf?.json?.customFields;
+          if (cf?.ok && Array.isArray(rows)) {
+            perLocation = true;
+            for (const f of rows) {
+              if (!f?.fieldKey) continue;
+              extra.push({ tag: `{{${String(f.fieldKey).replace(/\s+/g, '')}}}`, label: f.name ?? null,
+                group: f.model === 'opportunity' ? 'opportunity custom fields' : 'contact custom fields',
+                source: 'custom-field' });
+            }
+          }
+          const cv = await gw.call('GET', `/locations/${loc}/customValues`);
+          const vals = Array.isArray(cv?.json) ? cv.json : cv?.json?.customValues;
+          if (cv?.ok && Array.isArray(vals)) {
+            perLocation = true;
+            for (const v of vals) {
+              if (!v?.fieldKey) continue;
+              const k = String(v.fieldKey).replace(/\s+/g, '');
+              extra.push({ tag: k.startsWith('{{') ? k : `{{custom_values.${k.replace(/^custom_values\./, '')}}}`,
+                label: v.name ?? null, group: 'custom values', source: 'custom-value' });
+            }
+          }
+        } catch { /* best effort — the static inventory still answers */ }
+      }
+      const tags = searchMergeTags(catalog.mergeTags?.tags ?? [], args.intent, {
+        namespace: args.namespace, extra, limit: args.limit ?? 10,
+      });
+      return ok({
+        tags,
+        searched: { staticTags: catalog.mergeTags?.tags?.length ?? 0, perLocation: extra.length },
+        note: perLocation
+          ? 'Static picker tags plus this location\'s custom fields and values.'
+          : 'Static picker tags only — pass a locationId to include this account\'s custom fields and values.',
       });
     }, args),
   },

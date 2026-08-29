@@ -136803,6 +136803,39 @@ function suggestTags(full, candidates, limit = 4) {
   }
   return scored.sort((a, b) => a.score - b.score || a.c.localeCompare(b.c)).slice(0, limit).map((x) => x.c);
 }
+function searchMergeTags(catalogTags, query, { namespace, extra = [], limit = 10 } = {}) {
+  const q = String(query ?? "").toLowerCase().trim();
+  if (!q) return [];
+  const words = q.split(/[\s._-]+/).filter(Boolean);
+  const pool = [
+    ...(catalogTags ?? []).map((t) => ({ tag: compact(t.tag), label: typeof t.label === "string" ? t.label : null, group: t.group ?? null, source: "picker" })),
+    ...extra
+  ];
+  const scored = [];
+  for (const item of pool) {
+    const parts = split(item.tag);
+    if (!parts) continue;
+    if (namespace && parts.ns !== namespace) continue;
+    const key = parts.key.toLowerCase();
+    const label2 = String(item.label ?? "").toLowerCase();
+    const hay = `${key} ${label2}`;
+    const keyWords = key.split(/[._-]+/).filter(Boolean);
+    const labelWords = label2.split(/\s+/).filter(Boolean);
+    let score = null;
+    if (key === q || label2 === q) score = -100;
+    else if (words.every((w) => hay.includes(w))) score = -50 + (key.length - q.length) / 100;
+    else {
+      const shared = words.filter((w) => keyWords.includes(w) || labelWords.includes(w)).length;
+      if (shared) score = -20 * shared;
+      else {
+        const d = Math.min(...keyWords.map((kw) => editDistance2(kw, q)), editDistance2(key, q));
+        if (d <= 2) score = d;
+      }
+    }
+    if (score !== null) scored.push({ ...item, _score: score });
+  }
+  return scored.sort((a, b) => a._score - b._score || a.tag.localeCompare(b.tag)).slice(0, limit).map(({ _score, ...rest }) => rest);
+}
 function perLocationVocabulary(ns, opts) {
   const source = NAMESPACE_POLICY.perLocation[ns];
   const list = opts?.[source];
@@ -145718,6 +145751,86 @@ var TOOLS2 = [
         stepCount: (workflow.workflowData?.templates ?? []).length,
         updatedAt: workflow.updatedAt,
         note: "Summary only \u2014 use export_workflow for the full graph."
+      });
+    }, args)
+  },
+  {
+    // The vocabulary is 442 static tags across 27 namespaces plus this location's own fields, and
+    // the only way to find one was to already know its name. That is how {{appointment.date}} came
+    // to be invented and shipped to real customers for three weeks.
+    name: "search_merge_tags",
+    description: describe3(
+      "search_merge_tags",
+      "Search the merge-tag inventory by INTENT \u2014 proof: engine; risk: read-only. Returns the builder picker's static tags ranked against your phrase, and, given a locationId, this account's own custom FIELDS and custom VALUES joined in. A tag GHL cannot resolve renders as literal braces to the customer and nothing in GHL catches it, so author from this list rather than from memory."
+    ),
+    inputSchema: schema({
+      intent: external_exports.string(),
+      namespace: external_exports.string().optional(),
+      locationId: external_exports.string().optional(),
+      limit: external_exports.number().optional()
+    }),
+    capabilities: [
+      // Both OPTIONAL: without a locationId the handler makes no gateway call at all.
+      { method: "GET", path: "/locations/{loc}/customFields/search" },
+      { method: "GET", path: "/locations/{loc}/customValues" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const catalog = loadCatalog();
+      const extra = [];
+      let perLocation = false;
+      if (args.locationId) {
+        const loc = encodeURIComponent(args.locationId);
+        const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+        try {
+          const cf = await gw.call("GET", `/locations/${loc}/customFields/search?${new URLSearchParams({
+            parentId: "",
+            skip: "0",
+            limit: "10000",
+            documentType: "field",
+            model: "all",
+            query: "",
+            includeStandards: "false"
+          })}`);
+          const rows = Array.isArray(cf?.json) ? cf.json : cf?.json?.customFields;
+          if (cf?.ok && Array.isArray(rows)) {
+            perLocation = true;
+            for (const f of rows) {
+              if (!f?.fieldKey) continue;
+              extra.push({
+                tag: `{{${String(f.fieldKey).replace(/\s+/g, "")}}}`,
+                label: f.name ?? null,
+                group: f.model === "opportunity" ? "opportunity custom fields" : "contact custom fields",
+                source: "custom-field"
+              });
+            }
+          }
+          const cv = await gw.call("GET", `/locations/${loc}/customValues`);
+          const vals = Array.isArray(cv?.json) ? cv.json : cv?.json?.customValues;
+          if (cv?.ok && Array.isArray(vals)) {
+            perLocation = true;
+            for (const v of vals) {
+              if (!v?.fieldKey) continue;
+              const k = String(v.fieldKey).replace(/\s+/g, "");
+              extra.push({
+                tag: k.startsWith("{{") ? k : `{{custom_values.${k.replace(/^custom_values\./, "")}}}`,
+                label: v.name ?? null,
+                group: "custom values",
+                source: "custom-value"
+              });
+            }
+          }
+        } catch {
+        }
+      }
+      const tags = searchMergeTags(catalog.mergeTags?.tags ?? [], args.intent, {
+        namespace: args.namespace,
+        extra,
+        limit: args.limit ?? 10
+      });
+      return ok({
+        tags,
+        searched: { staticTags: catalog.mergeTags?.tags?.length ?? 0, perLocation: extra.length },
+        note: perLocation ? "Static picker tags plus this location's custom fields and values." : "Static picker tags only \u2014 pass a locationId to include this account's custom fields and values."
       });
     }, args)
   },
