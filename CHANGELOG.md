@@ -47,12 +47,48 @@ read-after-write lag gets one primitive instead of four hand-rolled loops.
 - **The memberships corpus page named the wrong production host** — the bundle's own constant, the
   recon page, and the live course lifecycle all say backend.
 
+### Fixed — findings recorded after the review was written
+
+- **The runtime enters at `templates[0]`, not at the parentKey-less step** (F5-34). A root wired
+  correctly by parentKey/next but APPENDED to the end of the array **never executes**, and the
+  builder draws it as the head the whole time — proven live by runtime logs, and two workflows
+  shipped that way. `lintEntryStep` names it on a read; `editCommitBody` refuses to commit it.
+- **`appointmentCondition: 'appointment'` saves and cannot be published** (F5-33). The enum is
+  `skip | next | specific-step | exit`; the field is the PAST-TIME behaviour, not which
+  appointment. Refused at compile. 55 legacy steps carry the bad value.
+- **Publish is the only validator that matters** (F5-33): 21 workflows passed `check_workflow`
+  with 0 errors and the publish PUT refused three. `lintPublishRules` adds the two structural
+  rules the marketplace schema cannot see — next/parentKey disagreement, and
+  `update_contact_field` rows missing `title`/`type`.
+- **`custom_date_reminder` needs the config block AND a conditions row** (F5-08). A config with no
+  matching row is DISCARDED on save, which is why it once looked server-derived. The engine had no
+  handling for this trigger at all; it now emits both plus root `match_year` from one lean intent.
+- **The opportunity search is an INDEX and lags a create by tens of seconds** (F5-36) — a
+  `find_opportunity` soon after a `create_opportunity` now warns.
+- **An externally-ended run is indistinguishable from a completed one** in the roster (F5-35).
+  `get_workflow_logs` now labels every removal with `removalOrigin` and counts `externalRemovals`.
+- **The two token-capture procedures contradicted each other** and neither had a test. Both
+  referers work — settled by reading back the referer of the request that produced this
+  programme's own live credential. The rule is one tested function, and writing that test caught
+  two further bugs: importing the module launched a browser, and the referer check was a
+  `startsWith` that accepted `app.gohighlevel.com.evil.test`.
+
+### Added — knowledge
+
+- **Five provisioning corpus pages**: lost reasons, call dispositions, snippets, manual actions
+  and calendar availability schedules, with two new surfaces registered. 473 documented endpoints,
+  zero lost.
+- **`check-app-builds.mjs`** — one unauthenticated GET reports which of GHL's **122 federated
+  front-end apps** has shipped a new build, exit 2 on drift. Verified both ways.
+
 ### Not done in this release
 
-- The five new provisioning corpus pages (plan 6 task 3), the AI-bundle recapture script and its
-  fourth drift tree (task 7), and gateway-side JWT renewal (task 8). The last two need live access
-  to verify — a CDN fetch and a browser session respectively — and shipping either unverified
-  would be the kind of claim this programme exists to stop making.
+- Headless JWT auto-renewal (plan 6 task 8 steps 2–5). Its prerequisite — how long the persistent
+  browser profile stays logged in — is unmeasured, and spawning a browser from inside the MCP
+  server on every 401 is not something to ship on an assumption about the very case it handles.
+- The AI apps ship **no sourcemaps** (`.map` is 404 on appcdn, verified), so there is no
+  TypeScript to recover for them; `check-app-builds.mjs` answers the cheap question instead of
+  pretending to answer the expensive one.
 
 ## [0.40.0] — 2026-08-29
 
