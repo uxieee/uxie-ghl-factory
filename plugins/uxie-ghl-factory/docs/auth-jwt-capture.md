@@ -19,7 +19,17 @@ content-type:    application/json     (POST/PUT only)
 ```
 
 - `version: 2021-07-28` is a GHL API version pin — unrelated to a workflow body's own `version`/`dataVersion` fields.
-- The token must be scoped to the workflow-builder **iframe origin** (`client-app-automation-workflows.leadconnectorhq.com`). A token captured from a request whose `referer` is `https://app.gohighlevel.com/` is unscoped and returns `401` on every workflow endpoint — reject it and re-capture (§2).
+- **Either referer works.** A Bearer captured from the workflow-builder iframe origin
+  (`client-app-automation-workflows.leadconnectorhq.com`) and one captured from
+  `https://app.gohighlevel.com/` both authenticate the workflow endpoints. Settled live
+  2026-08-29: an app-scoped token drove `GET /workflow/{loc}/list`, a full build (create,
+  auto-save, seven trigger POSTs), an edit PUT and its read-back — every one a `200`.
+  Prefer the iframe when you see both, purely because it is the narrower scope.
+
+  > This page previously said an app-scoped token "is unscoped and returns 401 on every
+  > workflow endpoint", while `commands/internal-connect.md` said the referer MUST be
+  > `app.gohighlevel.com`. The two procedures contradicted each other and neither had a
+  > test; `mcp-internal/test/capture-referer.test.mjs` is now that test.
 - Writes (`POST`/`PUT`/`PATCH`/`DELETE`) are additionally CORS-enforced to the iframe origin. Send:
   ```
   origin:   https://client-app-automation-workflows.leadconnectorhq.com
@@ -50,7 +60,7 @@ Preconditions: the user is logged into GHL in a browser profile you can automate
    channel: APP
    version: 2021-07-28
    ```
-   Copy the `authorization` value and strip the leading `Bearer ` — the `eyJ...` remainder is the JWT (`TOKEN`). Reject any candidate whose `referer` is `https://app.gohighlevel.com/` (see §1).
+   Copy the `authorization` value and strip the leading `Bearer ` — the `eyJ...` remainder is the JWT (`TOKEN`). Accept a candidate whose `referer` origin is EITHER the builder iframe or `https://app.gohighlevel.com` (see §1); anything else is refused.
 
    If no `authorization: Bearer` header appears, ask the user to reload the workflow page (or open the workflow manually in their logged-in browser), then inspect again.
 4. **Switch the automated browser to the iframe origin** (same URL as step 2) so subsequent `fetch()` calls satisfy CORS. The page may render blank — that is expected.

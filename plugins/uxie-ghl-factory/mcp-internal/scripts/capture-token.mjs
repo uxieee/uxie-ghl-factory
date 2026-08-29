@@ -41,6 +41,32 @@ const PROFILE_DIR = join(HOME_DIR, 'pw-profile');
 const APP = 'https://app.gohighlevel.com';
 // The builder iframe. A Bearer is only accepted when the request came from here.
 const BUILDER_ORIGIN = 'https://client-app-automation-workflows.leadconnectorhq.com';
+const APP_ORIGIN = 'https://app.gohighlevel.com';
+
+// WHICH REFERER MAY A BEARER COME FROM? Both. Settled live 2026-08-29 and recorded here because
+// the two procedures used to say opposite things: this script insisted on the workflow iframe
+// ("an app.gohighlevel.com-scoped token 401s on every workflow endpoint"), while
+// commands/internal-connect.md insisted the referer "MUST be app.gohighlevel.com, NOT the
+// workflow iframe". One of them had to be wrong.
+//
+// EVIDENCE: a Bearer captured from a credentialed request with `referer: https://app.gohighlevel.com/`
+// (the AI-agents page) then drove, on the designated test sub-account: GET /workflow/{loc}/list,
+// a full build (POST /workflow, PUT auto-save, 7x POST trigger), an edit PUT and its read-back —
+// every one a 200. So an app-scoped token does NOT 401 on workflow endpoints.
+//
+// The iframe is still PREFERRED where both are seen: it is the narrower scope, and preferring it
+// costs nothing. This function is exported so the rule can be regression-tested without launching
+// a browser — the reason the contradiction survived so long is that neither procedure had a test.
+export function acceptsBearerFrom(referer) {
+  // Compare the PARSED ORIGIN, never a string prefix: `startsWith(APP_ORIGIN)` also accepts
+  // https://app.gohighlevel.com.evil.test/ — a domain-suffix match. Caught by this rule's own
+  // first test, which is the whole argument for giving it one.
+  let origin;
+  try { origin = new URL(String(referer ?? '')).origin; } catch { return null; }
+  if (origin === BUILDER_ORIGIN) return 'builder-iframe';
+  if (origin === APP_ORIGIN) return 'app';
+  return null;
+}
 const BACKEND = 'backend.leadconnectorhq.com';
 const AI_HOST = 'services.leadconnectorhq.com';
 
@@ -119,6 +145,7 @@ async function main() {
 
   // These are the ONLY variables the token values ever live in, and neither is ever printed.
   let bearer = null;
+  let bearerScope = null;
   let tokenId = null;
   let bearerOrigin = null;
 
@@ -131,11 +158,13 @@ async function main() {
     const raw = auth.replace(/^Bearer\s+/i, '');
     const from = h.referer || h.origin || '';
 
-    // Bearer: iframe-scoped only. An app.gohighlevel.com-scoped token 401s on every workflow
-    // endpoint, so accepting one here would just move the failure somewhere harder to read.
-    if (!bearer && looksJwt(raw) && from.startsWith(BUILDER_ORIGIN)) {
+    // Bearer: either referer is accepted (see acceptsBearerFrom), with the iframe preferred when
+    // both appear in one session — an app-scoped token is upgraded, never downgraded.
+    const scope = looksJwt(raw) ? acceptsBearerFrom(from) : null;
+    if (scope && (!bearer || (scope === 'builder-iframe' && bearerScope !== 'builder-iframe'))) {
       bearer = raw;
       bearerOrigin = new URL(from).origin;
+      bearerScope = scope;
     }
     // token-id rides alongside the Bearer on the AI services. Take it from any request that
     // carries one; it is a separate credential with its own expiry.
@@ -192,4 +221,10 @@ async function main() {
   await ctx.close();
 }
 
-main().catch((e) => { console.error(String(e.message)); process.exit(1); });
+// RUN ONLY WHEN EXECUTED, never on import. Without this guard, importing the module to test
+// acceptsBearerFrom launches a browser and performs a real capture — which is exactly what
+// happened the first time the rule was given a test, and is why the rule had none before.
+const invokedDirectly = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (invokedDirectly) {
+  main().catch((e) => { console.error(String(e.message)); process.exit(1); });
+}
