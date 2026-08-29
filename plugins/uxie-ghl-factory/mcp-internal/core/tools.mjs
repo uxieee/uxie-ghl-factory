@@ -17,6 +17,7 @@ import {
   validateRosterInput,
 } from './audit-configuration.mjs';
 import { fetchEntities, fetchMarketplace, orchestrate } from '../../skills/create-ghl-workflow/engine/orchestrate.mjs';
+import { buildResolvers } from '../../skills/create-ghl-workflow/engine/resolve.mjs';
 import { editCommitBody } from '../../skills/create-ghl-workflow/engine/edit.mjs';
 import { stripNullNext, fillInputTriggerParams } from '../../skills/create-ghl-workflow/engine/terminals.mjs';
 import { checkWorkflowRules, rulesNeedTriggers } from '../../skills/create-ghl-workflow/engine/graph-rules.mjs';
@@ -24,6 +25,8 @@ import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift 
 import {
   applyOps,
   externalRefsOf,
+  opsNeedResolution,
+  resolveOps,
   mergeSettingsOps,
   opsUseMarketplace,
   partitionOps,
@@ -2629,11 +2632,21 @@ export const TOOLS = [
       deadBranchAcknowledged: z.boolean().optional(),
       allowDanglingParentKeys: z.boolean().optional(),
       allowDanglingStepRefs: z.boolean().optional(),
+      // Same opt-out build_workflow has: proceed with names that resolved to nothing. Rarely what
+      // you want — a name on the wire moves nothing — but it is the caller's decision to make.
+      ignoreUnresolved: z.boolean().default(false),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
       { method: 'GET', path: '/locations/{loc}/customFields/search' },
       { method: 'GET', path: '/locations/{loc}/customValues' },
+      // The account entity sweep (the same fetchEntities list_account_entities runs) — read ONLY
+      // when an op carries a NAME the resolver must turn into an id. The name kinds an edit op
+      // can carry are listed here; the sweep itself fetches all 20 in one pass.
+      { method: 'GET', path: '/opportunities/pipelines' },
+      { method: 'GET', path: '/calendars/' },
+      { method: 'GET', path: '/users/' },
+      { method: 'GET', path: '/forms/' },
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       // Marketplace index — read ONLY when an op carries marketplace:true.
@@ -2749,7 +2762,28 @@ export const TOOLS = [
         ...(customValues !== undefined ? { customValues } : {}),
         warn: (message) => warnings.push(message),
       };
-      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(args.ops);
+      // THE ACCOUNT RESOLVER, gated. resolveIR ran on the build path only, so an edit op naming a
+      // pipeline, stage, user or calendar had nothing behind it — the name reached the wire
+      // verbatim (F5-09) or was refused with no way to satisfy it. Fetching entities is 21 GETs,
+      // so this runs ONLY when an op actually carries a name: a native edit stays
+      // network-identical to what it was before this existed.
+      let editOps = args.ops;
+      if (opsNeedResolution(editOps)) {
+        const entities = await fetchEntities({ call: (m, path, body) => gw.call(m, path, body), loc: args.locationId });
+        const resolved = resolveOps(editOps, buildResolvers(entities), beforeTemplates);
+        editOps = resolved.ops;
+        if (resolved.unresolved.length && args.ignoreUnresolved !== true) {
+          return fail(
+            CODES.UNRESOLVED_DEPS,
+            `${resolved.unresolved.length} name(s) in these ops matched nothing on this account: `
+            + resolved.unresolved.map((u) => `${u.where} '${u.name}'`).join(', '),
+            'Check the spelling against list_account_entities, or pass ignoreUnresolved:true to '
+            + 'write the op anyway (a name on the wire moves nothing).',
+          );
+        }
+        for (const u of resolved.unresolved) warnings.push(`UNRESOLVED (ignored): ${u.where} '${u.name}'`);
+      }
+      const { stepOps, triggerOps, settingsOps, stickyOps } = partitionOps(editOps);
       // Settings-tab keys (updateSettings ops) — merged over the stored document at commit.
       const settingsPatch = mergeSettingsOps(settingsOps);
       // Sticky notes — a SEPARATE resource (POST/PATCH /workflows/sticky-note); planned now so a bad

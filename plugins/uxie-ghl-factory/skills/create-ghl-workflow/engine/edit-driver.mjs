@@ -14,6 +14,7 @@ import {
   resolveBranchTarget,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
+import { resolveIR } from './resolve.mjs';
 import { walkNodes, IRError } from './ir.mjs';
 import { STICKY_OPS } from './sticky-notes.mjs';
 export { STICKY_OPS };
@@ -52,6 +53,65 @@ const refMapFrom = (externalRefs) => {
   for (const [name, id] of externalRefs?.byName ?? []) if (id && !m.has(name)) m.set(name, id);
   return m;
 };
+
+// ── The account resolver on the EDIT path ─────────────────────────────────────────────────
+// resolveIR ran on the BUILD path only, so an edit op naming a pipeline, stage, user or calendar
+// had nothing behind it: the name either reached the wire verbatim (F5-09) or was refused with no
+// way to satisfy it. These two functions let the edit path run the SAME resolver.
+
+const INTENT_KEYS = ['pipeline', 'stage', 'user', 'calendar', 'agent', 'employee', 'workflow',
+  'customValue', 'custom_value', 'offer', 'template', 'lostReason'];
+const looksLikeId = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
+const ID_BEARING_FILTER = /\.(id|pipelineId|pipelineStageId|assignedTo)$/;
+
+// Does any op carry a NAME the account resolver must turn into an id? Gated because resolving
+// means fetchEntities, which is 21 GETs — a native edit with no names must stay network-identical.
+export function opsNeedResolution(ops) {
+  let needs = false;
+  const check = (attrs) => { if (attrs && INTENT_KEYS.some((k) => attrs[k] !== undefined)) needs = true; };
+  for (const op of ops ?? []) {
+    if (op?.step) {
+      walkNodes([op.step], (n) => {
+        check(n.attributes);
+        for (const b of n.branches ?? []) for (const c of b.conditions ?? []) if (c?.stage !== undefined && !looksLikeId(c.stage)) needs = true;
+      });
+    }
+    check(op?.attrPatch);
+    for (const f of op?.trigger?.filters ?? []) {
+      if (f?.value !== undefined && ID_BEARING_FILTER.test(f.field ?? f.on ?? '') && !looksLikeId(f.value)) needs = true;
+    }
+  }
+  return needs;
+}
+
+// Run the build path's resolver over the ops. A modifyStep patch is wrapped as a node of the
+// STORED step's lean type so the same pipeline/stage rules apply to it.
+//
+// Node positions are recorded EXPLICITLY per op rather than walked with a running index: `graph`
+// holds step nodes and patch nodes interleaved, so a patch between two steps would otherwise
+// shift every later step onto the wrong node.
+export function resolveOps(ops, resolvers, storedTemplates = []) {
+  const LEAN = { internal_update_opportunity: 'update_opportunity', internal_create_opportunity: 'create_opportunity' };
+  const typeOf = (id) => { const t = (storedTemplates ?? []).find((x) => x.id === id); return LEAN[t?.type] ?? t?.type; };
+  const cloned = JSON.parse(JSON.stringify(ops ?? []));
+  const graph = [], triggers = [];
+  const stepAt = new Map(), patchAt = new Map(), trigAt = new Map();
+  cloned.forEach((op, i) => {
+    if (op.step) { stepAt.set(i, graph.length); graph.push({ ...op.step, ref: op.step.ref ?? `__op${i}` }); }
+    if (op.trigger) { trigAt.set(i, triggers.length); triggers.push({ ...op.trigger, ref: op.trigger.ref ?? `__trg${i}` }); }
+    if (op.op === 'modifyStep' && op.attrPatch) {
+      patchAt.set(i, graph.length);
+      graph.push({ ref: `__patch${i}`, kind: 'action', type: typeOf(op.stepId), attributes: op.attrPatch });
+    }
+  });
+  const { unresolved } = resolveIR({ name: '_edit', triggers, graph }, resolvers);
+  cloned.forEach((op, i) => {
+    if (stepAt.has(i)) { const n = graph[stepAt.get(i)]; if (String(n.ref ?? '').startsWith('__op')) delete n.ref; op.step = n; }
+    if (patchAt.has(i)) op.attrPatch = graph[patchAt.get(i)].attributes;
+    if (trigAt.has(i)) { const t = triggers[trigAt.get(i)]; if (String(t.ref ?? '').startsWith('__trg')) delete t.ref; op.trigger = t; }
+  });
+  return { ops: cloned, unresolved };
+}
 
 export function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
