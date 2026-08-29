@@ -140692,7 +140692,8 @@ function replaceFieldIdInTriggerConditions(conditions, oldId, newId) {
 }
 function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
-  for (const op of ops ?? []) {
+  for (const raw of ops ?? []) {
+    const op = { ...raw, op: canonicalOpName(raw?.op) };
     (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
     if (op.op === "replaceTag" && op.triggers !== false) triggerOps.push({ op: "replaceTagInTriggers", oldTag: op.oldTag, newTag: op.newTag });
     if (op.op === "replaceFieldId" && op.triggers !== false) triggerOps.push({ op: "replaceFieldIdInTriggers", oldId: op.oldId, newId: op.newId });
@@ -140919,6 +140920,28 @@ var OP_ARG_ALIASES = {
   label: "name",
   title: "name"
 };
+var OP_NAME_ALIASES = {
+  updateStep: "modifyStep",
+  patchStep: "modifyStep",
+  update: "modifyStep",
+  editStep: "modifyStep",
+  removeStep: "deleteStep",
+  addStep: "appendStep",
+  append: "appendStep",
+  insert: "insertAfter",
+  rename: "renameStep",
+  disableStep: "setStepDisabled",
+  move: "moveStep"
+};
+var STEP_OP_NAMES = Object.keys(OP_REQUIRED_ARGS);
+var opDistance = (a, b) => {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1].toLowerCase() === b[j - 1].toLowerCase() ? 0 : 1));
+  return d[a.length][b.length];
+};
+var canonicalOpName = (name) => OP_NAME_ALIASES[name] ?? name;
 function checkOpShape(op) {
   const required2 = OP_REQUIRED_ARGS[op?.op];
   if (!required2) return;
@@ -140944,6 +140967,7 @@ var requireStepFor = (templates, id, op) => {
   return hit;
 };
 function applyOp(templates, op, { ctx, idGen }) {
+  op = { ...op, op: canonicalOpName(op?.op) };
   checkOpShape(op);
   switch (op.op) {
     // The three add ops each take EITHER a linear step or a container subgraph; the
@@ -141028,7 +141052,14 @@ function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`'${op.op}' is a SETTINGS op \u2014 it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() \u2192 editCommitBody({ settingsPatch }).`);
       if (STICKY_OPS.has(op.op))
         throw new Error(`'${op.op}' is a STICKY-NOTE op \u2014 sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
-      throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
+      {
+        const all = [...STEP_OP_NAMES, ...TRIGGER_OPS, ...SETTINGS_OPS, ...STICKY_OPS];
+        const candidates = [...all.map((n) => [n, n]), ...Object.entries(OP_NAME_ALIASES)];
+        const near = candidates.map(([spelling, canonical]) => [opDistance(String(op.op ?? ""), spelling), canonical]).sort((a, b) => a[0] - b[0])[0];
+        throw new Error(
+          `unknown edit op ${JSON.stringify(op.op)}${near && near[0] <= 4 ? ` \u2014 did you mean '${near[1]}'?` : ""}. Step ops: ${STEP_OP_NAMES.join(", ")}. Trigger ops: ${[...TRIGGER_OPS].join(", ")}. Settings: ${[...SETTINGS_OPS].join(", ")}. Sticky notes: ${[...STICKY_OPS].join(", ")}.`
+        );
+      }
   }
 }
 function applyOps(templates, ops, { ctx, idGen }) {
@@ -145595,7 +145626,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs."),
+    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs. Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch, deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger (target = a live step id or unique name), deleteTrigger, duplicateTrigger; settings: updateSettings; notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass)."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
