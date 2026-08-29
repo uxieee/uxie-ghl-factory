@@ -25,11 +25,14 @@ or by `branchRef`, a branch `ref` authored earlier in the same call),
 (each takes a `step: {type,name,attributes}` compiled from IR — a linear step **or a
 container**, see "Adding containers" below), `deleteStep`,
 `modifyStep` (`attrPatch` for `attributes`, plus an optional `stepPatch` for TOP-LEVEL
-fields — **a raw shallow merge onto the stored step: it runs no builder, no UI defaults and no
-compile-time lint**, so a wait window patched without `days`, a notification patched with a flat
-`notificationType`, or an opportunity patched with a stage NAME is written as given; the commit
-refuses the name case (`UNRESOLVED_NAME`) and GHL's own guard rules, nothing else — prefer
-`retypeStep`, which replaces the whole attribute set through the compiler), `renameStep` (`{stepId,name}`), `retypeStep` (`{stepId,step}` — change what a step
+fields). The merged attributes go back through **the same builder dispatch the build path uses**,
+so a patch naming only the keys you care about still lands as a complete drawer shape — a wait
+window patched without `days` comes back with the UI default, and the compiler's own lints fire on
+the op rather than only at commit. Types whose AUTHOR shape is not their WIRE shape (opportunity
+steps, marketplace steps, `email`, `custom_webhook`, `custom_code`) and containers (whose
+attributes carry branch wiring) cannot be re-derived from what is stored: those are merged as
+given and warn `MODIFY_NOT_NORMALISED`, naming `retypeStep` — a full attribute replacement through
+the compiler — as the door), `renameStep` (`{stepId,name}`), `retypeStep` (`{stepId,step}` — change what a step
 IS, see "Retyping a step" below), `moveStep`, `addBranch`
 (`{containerId,name,conditions}`),
 `deleteContainer`, `setStepDisabled` (`{stepId,disabled}`), and `disableStepsByType`

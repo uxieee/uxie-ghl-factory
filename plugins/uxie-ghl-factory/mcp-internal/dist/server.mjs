@@ -136996,7 +136996,11 @@ var NOTIFICATION_EMITTED_KEYS = {
   // into inline mode and made template-mode impossible to author — found by the enforcement tests.
   email: ["from_name", "from_email", "to", "userType", "subject", "html", "attachments", "selectedUser", "cc", "preHeader", "template_id", "templatesource"],
   sms: ["body", "userType", "attachments", "selectedUser", "template_id"],
-  notification: ["notificationType", "body", "title", "redirectPage", "userType", "selectedUser"],
+  // `type` is the DRAWER's own key for the in-app channel (the stored shape reads
+  // notification.type); `notificationType` is the authoring alias the builder accepted first.
+  // Without `type` here, re-normalising a STORED notification reported its own real key as
+  // dropped — see normalizeStoredAttributes.
+  notification: ["type", "notificationType", "body", "title", "redirectPage", "userType", "selectedUser"],
   whatsapp: ["body", "userType", "selectedUser", "template_id"]
 };
 function internalNotificationAttributes(a, ctx) {
@@ -137004,7 +137008,7 @@ function internalNotificationAttributes(a, ctx) {
   const b = a[channel] ?? {};
   const dropped = Object.keys(b).filter((k) => !NOTIFICATION_EMITTED_KEYS[channel].includes(k));
   if (dropped.length) {
-    ctx?.warn?.(`NOTIFICATION_KEY_DROPPED: internal_notification (${channel}) \u2014 authored key(s) [${dropped.join(", ")}] are not emitted by this channel's shape and were discarded. Emitted keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(", ")}. If one of these IS real, harvest a live example and extend the handler rather than assuming it shipped.`);
+    ctx?.warn?.(`NOTIFICATION_KEY_DROPPED: internal_notification (${channel}) \u2014 authored key(s) [${dropped.join(", ")}] are not emitted by this channel's shape and were discarded. Accepted author keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(", ")}. If one of these IS real, harvest a live example and extend the handler rather than assuming it shipped.`);
   }
   const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== "" ? "user" : "all");
   const wantsUsers = userType === "user";
@@ -137159,6 +137163,20 @@ function emailAttributes(node, ctx) {
     base.htmlDefaults = a.htmlDefaults ?? {};
   }
   return base;
+}
+function normalizeStoredAttributes(template, ctx) {
+  const warnings = [];
+  const wctx = { ...ctx, warn: (m) => {
+    warnings.push(m);
+  } };
+  const node = {
+    ref: template.id,
+    kind: template.type === "wait" ? "wait" : "action",
+    type: template.type,
+    name: template.name,
+    attributes: template.attributes ?? {}
+  };
+  return { attributes: attributesFor(node, wctx), warnings };
 }
 function typeFor(node) {
   if (node.kind === "wait") return "wait";
@@ -138703,6 +138721,45 @@ function resolveIR(ir, r) {
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
+
+// ../skills/create-ghl-workflow/engine/template-normalize.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var NORMALIZE_SKIP = /* @__PURE__ */ new Set([
+  // author shape !== wire shape
+  "internal_update_opportunity",
+  "internal_create_opportunity",
+  "update_opportunity",
+  "create_opportunity",
+  "find_opportunity",
+  "email",
+  "custom_webhook",
+  "custom_code",
+  "webhook",
+  "voice_ai_outbound_call",
+  // branch wiring lives in the attributes
+  "if_else",
+  "transition",
+  "workflow_split",
+  "ai_decision",
+  "goto",
+  "loop",
+  "workflow_goal"
+]);
+function normalizeStoredAttributes2(template, ctx) {
+  if (!template?.attributes || template.isMarketplaceAction === true || NORMALIZE_SKIP.has(template.type)) {
+    return {
+      attributes: template?.attributes,
+      warnings: [
+        `MODIFY_NOT_NORMALISED: '${template?.name ?? template?.id}' (${template?.type}): attributes were merged as given \u2014 this type's author shape is not its wire shape (or it carries branch wiring), so it cannot be re-normalised from what is stored. Use retypeStep for a full recompile through the compiler, or author the complete wire shape yourself.`
+      ]
+    };
+  }
+  return normalizeStoredAttributes(template, ctx);
+}
+
+// ../skills/create-ghl-workflow/engine/edit.mjs
 function rootTail(templates) {
   const byId = new Map(templates.map((t) => [t.id, t]));
   let cur = templates.find((t) => t.parentKey === null || t.parentKey === void 0);
@@ -138801,10 +138858,17 @@ function assertPatchableFields(stepPatch, opLabel) {
       `${opLabel}: refusing to patch graph field(s) ${bad.map((k) => `'${k}'`).join(", ")} \u2014 those are the step's wiring, not its content. Use moveStep/insertAfter/insertBefore/deleteStep/repairParentKeys, which keep the graph consistent.`
     );
 }
-function modifyStep(templates, stepId, attrPatch, stepPatch) {
+function modifyStep(templates, stepId, attrPatch, stepPatch, ctx) {
   requireStep(templates, stepId, "modifyStep");
   assertPatchableFields(stepPatch, "modifyStep");
-  const out = templates.map((t) => t.id === stepId ? { ...t, ...stepPatch ?? {}, attributes: { ...t.attributes, ...attrPatch } } : t);
+  const out = templates.map((t) => {
+    if (t.id !== stepId) return t;
+    const merged = { ...t, ...stepPatch ?? {}, attributes: { ...t.attributes, ...attrPatch } };
+    if (!ctx) return merged;
+    const { attributes, warnings } = normalizeStoredAttributes2(merged, ctx);
+    for (const w of warnings) ctx.warn?.(w);
+    return { ...merged, attributes: attributes ?? merged.attributes };
+  });
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
 }
 var RETYPE_PRESERVED_FIELDS = ["id", "order", "next", "parent", "parentKey"];
@@ -140751,7 +140815,7 @@ function applyOp(templates, op, { ctx, idGen }) {
     // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
     // it refuses graph fields — see PROTECTED_STEP_FIELDS.
     case "modifyStep":
-      return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
+      return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch, ctx);
     // A retype REPLACES the step's whole attribute set, so `step.attributes` is
     // MANDATORY — that requirement is the entire reason this is its own op rather than a
     // hole in modifyStep's PROTECTED_STEP_FIELDS. Absent is refused; an explicit `{}` is
