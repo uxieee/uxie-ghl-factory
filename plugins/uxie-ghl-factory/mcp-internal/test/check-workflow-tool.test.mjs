@@ -116,3 +116,44 @@ test('check_workflow: swapping the two schemas at the drift or required-field ca
   assert.equal(res.data.errorCount, 1, 'required-field error must come from the ACTION schema');
   assert.equal(res.data.marketplaceDrift.length, 1, 'drift must come from the TRIGGER schema');
 });
+
+// RC-F: the marketplace schema layer is ONE of about ten. When its fetch failed the tool returned
+// VALIDATION_FAILED and threw away everything the other nine had to say — which is how a recon
+// pass on a live account reported nothing at all while the workflow carried a dead goto.
+test('an assets fetch failure no longer discards every other layer', async () => {
+  const tool = TOOLS.find((t) => t.name === 'check_workflow');
+  const templates = [
+    { id: 'g', type: 'goto', name: 'Dead jump', next: null, parentKey: null, order: 0, attributes: { type: 'goto', targetNodeId: 'ghost' } },
+    { id: 's', type: 'sms', name: 'Text', next: null, parentKey: null, order: 1, attributes: { body: 'See you {{appointment.date}}' } },
+  ];
+  const gw = { loc: 'LOC', uid: 'U', call: async (m, path) => {
+    if (path.includes('/workflows-marketplace/')) return { status: 503, ok: false, json: {} };
+    if (path.includes('/trigger')) return { status: 200, ok: true, json: { triggers: [] } };
+    if (path.includes('/customFields/search')) return { status: 200, ok: true, json: { customFields: [] } };
+    if (path.includes('/customValues')) return { status: 200, ok: true, json: { customValues: [] } };
+    return { status: 200, ok: true, json: { name: 'W', status: 'draft', workflowData: { templates } } };
+  } };
+  const res = await tool.handler({ locationId: 'LOC', workflowId: 'WID' }, { state: {}, makeGw: () => gw });
+  assert.equal(res.ok, true, JSON.stringify(res).slice(0, 200));
+  assert.equal(res.data.errorCount, null, 'unknown, not zero');
+  assert.equal(res.data.schemaChecked, false);
+  assert.match(res.data.headline, /schema unavailable/);
+  assert.ok(res.data.lints.platform.some((f) => f.rule === 'dangling-ref'), 'the dead goto is still found');
+  assert.ok(res.data.lints.platform.some((f) => f.rule === 'merge-tag'), 'the invented merge tag is still found');
+});
+
+test('an inline lintPack produces doctrine findings, and lints never touch errorCount', async () => {
+  const tool = TOOLS.find((t) => t.name === 'check_workflow');
+  const templates = [{ id: 'n', type: 'internal_notification', name: 'Ping', next: null, parentKey: null, order: 0,
+    attributes: { type: 'notification', notification: { body: 'b', title: 't', userType: 'all' } } }];
+  const gw = { loc: 'LOC', uid: 'U', call: async (m, path) => {
+    if (path.includes('/workflows-marketplace/')) return { status: 503, ok: false, json: {} };
+    if (path.includes('/trigger')) return { status: 200, ok: true, json: { triggers: [] } };
+    if (path.includes('/customFields/search')) return { status: 200, ok: true, json: { customFields: [] } };
+    if (path.includes('/customValues')) return { status: 200, ok: true, json: { customValues: [] } };
+    return { status: 200, ok: true, json: { name: 'W', status: 'draft', workflowData: { templates } } };
+  } };
+  const res = await tool.handler({ locationId: 'LOC', workflowId: 'WID', lintPack: { requireRedirectPage: true } }, { state: {}, makeGw: () => gw });
+  assert.ok(res.data.lints.doctrine.some((f) => f.rule === 'requireRedirectPage' && f.severity === 'error'));
+  assert.equal(res.data.errorCount, null, 'a doctrine ERROR is still not an errorCount error');
+});
