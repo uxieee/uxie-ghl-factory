@@ -370,7 +370,14 @@ test('inbound_webhook: the report names the receiving URL from the SERVER-assign
     graph: [{ ref: 'n', kind: 'action', type: 'add_notes', name: 'Note', attributes: { html: '<p>{{inboundWebhookRequest.dealRefId}} {{inboundWebhookRequest.lead.emial}}</p>', type: 'add_notes' } }] };
   const report = await orchestrate(ir, gw);
   assert.equal(report.aborted, null, JSON.stringify(report.aborted));
-  assert.deepEqual(report.triggers.ids, [{ type: 'inbound_webhook', name: 'Inbound Webhook', id: 'TRIG_1' }]);
+  // `predetermined` is the placeholder the document was authored against; `honoured` says whether
+  // the server kept it. The mock always answers TRIG_1, so honoured is false and the repair path
+  // is what makes any trigger-identity routing correct.
+  assert.equal(report.triggers.ids.length, 1);
+  assert.deepEqual(
+    { type: report.triggers.ids[0].type, name: report.triggers.ids[0].name, id: report.triggers.ids[0].id, honoured: report.triggers.ids[0].honoured },
+    { type: 'inbound_webhook', name: 'Inbound Webhook', id: 'TRIG_1', honoured: false });
+  assert.ok(report.triggers.ids[0].predetermined, 'a webhook trigger carries the predeterminedId it sent');
   assert.deepEqual(report.webhookUrls, [{ name: 'Inbound Webhook', triggerId: 'TRIG_1', url: 'https://services.leadconnectorhq.com/hooks/LOC/webhook-trigger/TRIG_1' }]);
   assert.ok(report.warnings.some((w) => /lead\.emial/.test(w) && /did you mean lead\.email/.test(w)), JSON.stringify(report.warnings));
   assert.ok(!report.warnings.some((w) => /dealRefId/.test(w)), 'the valid path does not warn');
@@ -380,7 +387,12 @@ test('a non-webhook build reports no webhook URLs and no trigger-id surprises', 
   const { gw } = mockGateway({ tags: ['new-tag'] });
   const report = await orchestrate(tagIR(), gw);
   assert.deepEqual(report.webhookUrls, []);
-  assert.deepEqual(report.triggers.ids, [{ type: 'contact_tag', name: 'T', id: 'TRIG_1' }]);
+  assert.deepEqual(
+    { type: report.triggers.ids[0].type, name: report.triggers.ids[0].name, id: report.triggers.ids[0].id },
+    { type: 'contact_tag', name: 'T', id: 'TRIG_1' });
+  // Nothing routed on the trigger, so no placeholder appears in the document and nothing is re-PUT.
+  assert.equal(report.triggerRefRepair.rewritten, 0);
+  assert.equal(report.triggerRefRepair.rePut, false);
 });
 
 // ── custom-code sandbox pre-flight + webhook pin (2026-08-22 wiring) ──────────────────────
@@ -670,4 +682,33 @@ test('a dead opportunity write that GHL echoes back FAILS verify with OPP_NO_ROW
     assocGuaranteed: true, attributes: { pipelineId: 'x2f9dK1mQ84hL0pTzVbn', stageId: 'y3g0eL2nR95iM1qUaWco', status: 'open' } }] };
   const report = await orchestrate(ir, gw);
   assert.ok(report.verify.issues.some((i) => i.intent?.some((f) => f.code === 'OPP_NO_ROWS')), JSON.stringify(report.verify.issues));
+});
+
+// The repair half of F5-17: the placeholder the if_else routes on is not the id the server minted,
+// so the document must be rewritten and re-PUT once — otherwise that branch can never match.
+test('a trigger-identity branch is repaired to the SERVER id and the auto-save is re-PUT once', async () => {
+  const { gw, calls } = mockGateway({ tags: [] });
+  const ir = { name: 'Router',
+    triggers: [{ ref: 'booked', type: 'call_status', name: 'Booked', filters: [{ field: 'custom_disposition', value: ['Booked'] }] }],
+    graph: [{ ref: 'r', kind: 'if_else', name: 'Which?', branches: [
+      { ref: 'b1', name: 'Booked', conditions: [{ conditionType: 'trigger', trigger: 'booked' }], then: [] },
+      { ref: 'b2', name: 'Else', else: true, then: [] } ] }] };
+  const report = await orchestrate(ir, gw);
+  assert.equal(report.triggerRefRepair.rewritten, 1, JSON.stringify(report.triggerRefRepair));
+  assert.equal(report.triggerRefRepair.rePut, true);
+  const autoSaves = calls.filter((c) => c.method === 'PUT' && c.path.includes('/auto-save'));
+  assert.equal(autoSaves.length, 2, 'one original auto-save plus exactly one repair re-PUT');
+  const serverId = report.triggers.ids[0].id;
+  const cond = autoSaves[1].body.workflowData.templates.find((t) => t.type === 'if_else')
+    .attributes.branches[0].segments[0].conditions[0];
+  assert.equal(cond.conditionValue, serverId, 'the branch now points at the id the server actually minted');
+});
+
+test('no _placeholderId reaches the wire', async () => {
+  const { gw, calls } = mockGateway({ tags: [] });
+  await orchestrate({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'A', attributes: { tags: ['x'] } }] }, gw);
+  const posted = calls.filter((c) => c.method === 'POST' && c.path.includes('/trigger'));
+  assert.ok(posted.length);
+  for (const p of posted) assert.equal('_placeholderId' in (p.body ?? {}), false, 'engine-only key leaked to the wire');
 });
