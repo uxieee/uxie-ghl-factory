@@ -24,6 +24,7 @@ import { webhookMergeTags } from './webhook-mergetags.mjs';
 import { planStickyNotes } from './sticky-notes.mjs';
 import { makeUuidV4 } from './idgen.mjs';
 import { loadCatalog } from './catalog.mjs';
+import { ENTITY_REGISTRY } from './entities.mjs';
 import { collectRequiredTags, missingTags } from './tags.mjs';
 import { lintOpportunityWrites } from './lints/opportunity.mjs';
 import { lintTriggerRows } from './lints/trigger-rows.mjs';
@@ -76,84 +77,34 @@ function scrubUpstream(value, key = '') {
 // endpoint degrades that resolver to "unresolvable", never throws.
 export async function fetchEntities(gw) {
   const { call, loc } = gw;
-  const g = async (p) => { try { const r = await call('GET', p); return r.ok ? r.json : {}; } catch { return {}; } };
-  const arrayFrom = (...values) => values.find(Array.isArray) ?? [];
-  const recordsFrom = (...values) => arrayFrom(...values)
-    .filter((value) => value && typeof value === 'object' && !Array.isArray(value));
-  const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
-  const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL, obL] = await Promise.all([
-    g(`/opportunities/pipelines?${locationQuery()}`),
-    g(`/calendars/?${locationQuery()}`),
-    g(`/users/?${locationQuery()}`),
-    g(`/forms/?${locationQuery({ limit: '100' })}`),
-    // model=all: the plain /customFields endpoint returns CONTACT fields only, so an
-    // update_opportunity referencing an OPPORTUNITY custom field false-threw OPP_FIELD_UNKNOWN
-    // (live-caught on GROM AU 2026-07-18). The search endpoint returns every model's custom
-    // fields; includeStandards=false keeps it to genuine custom fields (standard opp fields
-    // like name/status are matched by STANDARD_OPP_FIELDS before the custom lookup).
-    g(`/locations/${locationPath}/customFields/search?${new URLSearchParams({
-      parentId: '', skip: '0', limit: '10000', documentType: 'field',
-      model: 'all', query: '', includeStandards: 'false',
-    })}`),
-    g(`/voice-ai/agents?${locationQuery()}`),               // best-effort (may 404)
-    // `/ai-employees/agents` 404s ("Cannot GET ... Not Found", an express route-not-registered)
-    // — always, not just "may". The live discovery route is the search sibling of the
-    // per-agent detail route, used below.
-    g(`/ai-employees/employees/search?${locationQuery()}`), // best-effort (may 404)
-    // SECOND-ORDER resolvers (SURFACE-GAP-ANALYSIS G1–G3, live-proven shapes 2026-08-22):
-    // the account's workflows (add_to_workflow targets by NAME), custom values, trigger links,
-    // membership offers + course products (course/offer trigger filters, grant/revoke offer).
-    g(`/workflow/${locationPath}/list?${new URLSearchParams({ type: 'workflow', limit: '200', offset: '0', sortBy: 'name', sortOrder: 'asc' })}`),
-    g(`/locations/${locationPath}/customValues`),
-    g(`/links/?${locationQuery()}`),
-    g(`/membership/locations/${locationPath}/offers`),                                    // → [{id,title,…}]
-    g(`/membership/locations/${locationPath}/products?doNotIncludeOffers=true&sendCustomizations=true`),
-    // G4/G5/G6/G9 (shapes live-proven 2026-08-22): SMS/WhatsApp template library, email-builder
-    // templates, store products, coupons, phone numbers, funnels (the /funnels prefix answers on
-    // this same Bearer rail — the token-id requirement is the OTHER host's).
-    g(`/locations/${locationPath}/templates?limit=200`),
-    g(`/emails/builder?${locationQuery({ limit: '100', offset: '0' })}`),
-    g(`/products/?${locationQuery({ limit: '100' })}`),
-    g(`/payments/coupon/list?${new URLSearchParams({ altId: String(loc), altType: 'location', limit: '100' })}`),
-    g(`/phone-system/numbers?${locationQuery()}`),
-    g(`/funnels/funnel/list?${locationQuery({ type: 'funnel', offset: '0', limit: '200' })}`),
-    // G7/G18: connected Facebook pages (facebook.pageId trigger filters) + document/estimate templates
-    g(`/integrations/facebook/${locationPath}/pages?getAll=true`),
-    g(`/proposals/templates?${locationQuery({ limit: '100' })}`),
-    g(`/objects/?${locationQuery()}`),                                                    // G8: object schemas
+  const g = async (path) => { try { const r = await call('GET', path); return r.ok ? r.json : {}; } catch { return {}; } };
+
+  // ONE ROW PER ACCOUNT OBJECT (entities.mjs). This was 21 hand-written GETs beside 21 hand-written
+  // projections, so adding an object meant editing three files and a tool description that had
+  // already drifted from both. Every leg stays best-effort and independent: a 404 yields [] for
+  // that key and never fails the sweep, which is what lets an account without Voice AI still build.
+  const legs = await Promise.all(ENTITY_REGISTRY.map(async (e) => {
+    const json = await g(e.path(loc));
+    try { return [e.key, e.pick(json).map(e.project)]; } catch { return [e.key, []]; }
+  }));
+  const out = Object.fromEntries(legs);
+
+  // `agents` is the one key that is a MERGE of two endpoints (Voice AI and Conversation AI), so it
+  // stays hand-written rather than pretending to be a registry row. Both are best-effort: an
+  // account with neither product still builds.
+  const [voice, convai] = await Promise.all([
+    g(`/voice-ai/agents?${new URLSearchParams({ locationId: String(loc) })}`),
+    g(`/ai-employees/employees/search?${new URLSearchParams({ locationId: String(loc) })}`),
   ]);
-  // `employees` is the live key on the search route (`{employees, totalCount, count}`);
-  // `agents` is kept ahead of it because the Voice leg still answers under that key, and a
-  // reader that stopped accepting it would trade one silent empty list for another.
-  const agents = [...recordsFrom(agS?.agents, agS?.data, agS),
-    ...recordsFrom(agC?.employees, agC?.agents, agC?.data, agC)]
+  const agentRows = (j) => (Array.isArray(j?.agents) ? j.agents
+    : Array.isArray(j?.employees) ? j.employees
+      : Array.isArray(j?.data) ? j.data
+        : Array.isArray(j) ? j : [])
+    .filter((a) => a && typeof a === 'object');
+  out.agents = [...agentRows(voice), ...agentRows(convai)]
     .map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
-  return {
-    pipelines: recordsFrom(pl?.pipelines, pl).map((p) => ({
-      id: p.id || p._id, name: p.name,
-      stages: recordsFrom(p.stages).map((s) => ({ id: s.id, name: s.name })),
-    })),
-    calendars: recordsFrom(cl?.calendars, cl).map((c) => ({ id: c.id || c._id, name: c.name })),
-    users: recordsFrom(us?.users, us).map((u) => ({ id: u.id || u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, name: u.name })),
-    forms: recordsFrom(fm?.forms, fm).map((f) => ({ id: f.id || f._id, name: f.name })),
-    customFields: recordsFrom(cf?.customFields, cf).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model })),
-    agents,
-    workflows: recordsFrom(wfL?.rows, wfL).filter((w) => (w.type ?? 'workflow') === 'workflow').map((w) => ({ id: w._id || w.id, name: w.name, status: w.status })),
-    customValues: recordsFrom(cvL?.customValues, cvL).map((v) => ({ id: v.id || v._id, name: v.name, fieldKey: v.fieldKey })),
-    triggerLinks: recordsFrom(lkL?.links, lkL).map((l) => ({ id: l.id || l._id, name: l.name, redirectTo: l.redirectTo })),
-    offers: recordsFrom(ofL).map((o) => ({ id: o.id || o._id, name: o.title ?? o.name })),
-    membershipProducts: recordsFrom(mpL?.products, mpL).map((m) => ({ id: m.id || m._id, name: m.title ?? m.name })),
-    smsTemplates: recordsFrom(tpL?.templates, tpL).filter((t) => (t.type ?? 'sms') !== 'email').map((t) => ({ id: t.id || t._id, name: t.name, type: t.type })),
-    emailTemplates: recordsFrom(ebL?.builders, ebL).map((t) => ({ id: t.id || t._id, name: t.name })),
-    products: recordsFrom(prL?.products, prL).map((x) => ({ id: x._id || x.id, name: x.name })),
-    coupons: recordsFrom(cpL?.data, cpL).map((x) => ({ id: x._id || x.id, name: x.name, code: x.code })),
-    phoneNumbers: recordsFrom(phL?.phoneNumbers, phL).map((x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })),
-    funnels: recordsFrom(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name })),
-    fbPages: recordsFrom(fbL?.pages, fbL).map((x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })),
-    documentTemplates: recordsFrom(dtL?.data, dtL).map((x) => ({ id: x._id || x.id, name: x.name })),
-    objects: recordsFrom(obL?.objects, obL).map((x) => ({ key: x.key, id: x.id || x._id, singular: x.labels?.singular, plural: x.labels?.plural, standard: x.standard ?? (x.type === 'SYSTEM_DEFINED') })),
-  };
+
+  return out;
 }
 
 // Gather both marketplace sources for one location. Never throws — a build must not fail

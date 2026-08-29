@@ -382,8 +382,10 @@ test('list_account_entities reuses the canonical best-effort entity sweep', asyn
   assert.equal(result.data.forms.length, 1);
   assert.equal(result.data.customFields.length, 1);
   assert.deepEqual(result.data.agents, [{ id: 'a1', name: 'Agent' }]);
-  // 7 → 12 (2026-08-22): + workflows list, custom values, trigger links, offers, membership products
-  assert.equal(gw.calls.length, 21);
+  // 7 -> 12 (2026-08-22): + workflows list, custom values, trigger links, offers, membership products
+  // 21 -> 23 (2026-08-29): the sweep is a REGISTRY now (engine/entities.mjs), and Phase 5 added
+  // opportunity lost reasons and call dispositions as rows. 21 registry rows + 2 agent endpoints.
+  assert.equal(gw.calls.length, 23);
 });
 
 test('list_account_entities treats malformed successful payloads as empty best-effort arrays', async () => {
@@ -398,12 +400,17 @@ test('list_account_entities treats malformed successful payloads as empty best-e
   });
   const result = await tool('list_account_entities').handler({ locationId: 'L' }, deps(gw));
 
-  assert.deepEqual(result, { ok: true, data: {
-    pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
-    workflows: [], customValues: [], triggerLinks: [], offers: [], membershipProducts: [],
-    smsTemplates: [], emailTemplates: [], products: [], coupons: [], phoneNumbers: [], funnels: [],
-    fbPages: [], documentTemplates: [], objects: [],
-  } });
+  // Compared as a SET: the registry decides the order, so a literal object would pin something
+  // this test does not mean to assert.
+  assert.equal(result.ok, true);
+  assert.deepEqual(Object.keys(result.data).sort(), [
+    'agents', 'calendars', 'callDispositions', 'coupons', 'customFields', 'customValues',
+    'documentTemplates', 'emailTemplates', 'fbPages', 'forms', 'funnels', 'lostReasons',
+    'membershipProducts', 'objects', 'offers', 'phoneNumbers', 'pipelines', 'products',
+    'smsTemplates', 'triggerLinks', 'users', 'workflows',
+  ].sort());
+  assert.ok(Object.values(result.data).every((v) => Array.isArray(v) && v.length === 0),
+    'every malformed successful payload degrades to an empty array');
 });
 
 test('list_workflows encodes a hostile location id as one path segment', async () => {

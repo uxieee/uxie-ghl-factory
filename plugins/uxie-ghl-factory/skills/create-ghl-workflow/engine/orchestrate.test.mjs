@@ -226,12 +226,17 @@ test('fetchEntities degrades malformed and failed endpoint payloads to empty arr
     return { ok: true, json: { agents: null } };
   };
 
-  assert.deepEqual(await fetchEntities({ call, loc: 'LOC' }), {
-    pipelines: [], calendars: [], users: [], forms: [], customFields: [], agents: [],
-    workflows: [], customValues: [], triggerLinks: [], offers: [], membershipProducts: [],
-    smsTemplates: [], emailTemplates: [], products: [], coupons: [], phoneNumbers: [], funnels: [],
-    fbPages: [], documentTemplates: [], objects: [],
-  });
+  // The key set is the ENTITY_REGISTRY plus `agents`, which merges two endpoints and stays
+  // hand-written. Compared as a SET: the registry decides the order now, not this literal.
+  const degraded = await fetchEntities({ call, loc: 'LOC' });
+  assert.deepEqual(Object.keys(degraded).sort(), [
+    'agents', 'calendars', 'callDispositions', 'coupons', 'customFields', 'customValues',
+    'documentTemplates', 'emailTemplates', 'fbPages', 'forms', 'funnels', 'lostReasons',
+    'membershipProducts', 'objects', 'offers', 'phoneNumbers', 'pipelines', 'products',
+    'smsTemplates', 'triggerLinks', 'users', 'workflows',
+  ].sort());
+  assert.ok(Object.values(degraded).every((v) => Array.isArray(v) && v.length === 0),
+    'every malformed or failed leg degrades to an empty array');
 });
 
 test('fetchEntities URL-encodes hostile location ids in every request', async () => {
@@ -247,7 +252,8 @@ test('fetchEntities URL-encodes hostile location ids in every request', async ()
 
   const queryValue = new URLSearchParams({ locationId }).toString();
   const pathValue = encodeURIComponent(locationId);
-  assert.equal(calls.length, 21);
+  // 21 registry rows + the two agent endpoints. Phase 5 added lostReasons and callDispositions.
+  assert.equal(calls.length, 23);
   // legs that carry the location in the PATH (must be encodeURIComponent'd there)
   const pathLegs = [
     new RegExp(`^/locations/${pathValue}/customFields/search\\?`),
