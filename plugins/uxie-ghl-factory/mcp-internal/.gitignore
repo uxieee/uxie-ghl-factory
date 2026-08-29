@@ -2,7 +2,7 @@
 # Canary receipts name a real account and window — evidence, not source.
 audit-canary-receipt-*.json
 
-# Phase-0 throwaway live gate (task-3-brief.md): .tok holds a live JWT and must
+# Phase-0 throwaway live gate (spec §3, 2026-08-30): .tok holds a live JWT and must
 # never enter git; the .mjs beside it is throwaway too, left in place per the
 # no-delete rule rather than removed.
 .live-gate-phase0.*

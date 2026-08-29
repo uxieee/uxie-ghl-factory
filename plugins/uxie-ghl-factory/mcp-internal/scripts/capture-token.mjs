@@ -18,12 +18,7 @@
 // and prints ONLY claim NAMES, a TTL and which origin the token came from. No value it handles
 // is ever printed, logged, or returned. The agent runs it and reads the summary.
 //
-// THE SCOPING RULE (docs/auth-jwt-capture.md §2)
-// ---------------------------------------------
-// A Bearer captured from a request whose referer is https://app.gohighlevel.com/ is UNSCOPED and
-// returns 401 on every workflow endpoint. Only a token sent by the builder iframe origin
-// (client-app-automation-workflows.leadconnectorhq.com) is usable. This script therefore refuses
-// to accept a Bearer from any other origin rather than writing one that will fail later, opaquely.
+// WHICH REFERER MAY A BEARER COME FROM? Both — see acceptsBearerFrom below.
 //
 //   node scripts/capture-token.mjs --account "GROM Digital AU"
 //   node scripts/capture-token.mjs                 # no auto-drive; you navigate, it watches

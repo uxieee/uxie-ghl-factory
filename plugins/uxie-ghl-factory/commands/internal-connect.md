@@ -47,8 +47,7 @@ would ever reach the transcript.
    Agents** surface so one capture yields both credentials:
    `https://app.gohighlevel.com/v2/location/<LOCATION_ID>/ai-agents/getting-started`
    (**either referer works** — `app.gohighlevel.com` or the workflow iframe; settled live
-   2026-08-29, and the capture script accepts both, preferring the iframe as the narrower
-   scope). Tag `document.title` so the
+   2026-08-29, and the capture script accepts both). Tag `document.title` so the
    user can find the window. Ask the user to log in; wait. Then capture a
    `services.leadconnectorhq.com` request's headers via `browser_network_request`
    `part:"request-headers"`+`filename` → parse `Authorization: Bearer …` and `token-id: …` from
