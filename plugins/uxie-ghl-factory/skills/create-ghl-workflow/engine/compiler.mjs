@@ -1474,11 +1474,48 @@ export function casingLint({ triggerBodies, autoSaveBody }) {
 // matches, so it is fatal rather than advisory.
 const MARKETPLACE_OPERATORS = new Set(['string-contains-any-of', 'is-not-empty']);
 
+// A marketplace filter's operator menu depends on the FILTER TYPE the app declares, not on a
+// single global rule. The old rule ("exactly two operators, and no equals") was a STRING-filter
+// fact applied to every type, so a multiselect customVar could not be filtered at all (F5-19).
+function marketplaceFilterType(entry, field) {
+  return entry?.filters?.find((x) => x.field === field || x.reference === field)?.fieldType
+    ?? entry?.customVars?.find((v) => v.reference === field || v.name === field)?.fieldType
+    ?? 'string';
+}
+function marketplaceMenuFor(table, type) {
+  const key = type === 'multiselect' || type === 'multiselect_with_pagination' ? 'multiselect'
+    : type === 'select_with_pagination' ? 'select'
+      : type;
+  return table.menus[key] ?? table.menus.string;
+}
+
 function checkMarketplaceFilters(triggers, ctx) {
   const values = [];
+  const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
   for (const t of triggers) {
     if (t.marketplace !== true) continue;
+    const entry = ctx?.marketplace?.get?.(t.type, 'trigger') ?? null;
     for (const f of t.filters ?? []) {
+      if (table) {
+        // Per-type: default the operator the way the drawer defaults it, and refuse only what its
+        // menu for THIS type does not offer.
+        const ftype = marketplaceFilterType(entry, f.field);
+        const menu = marketplaceMenuFor(table, ftype);
+        const operator = f.operator ?? table.defaults[ftype] ?? table.defaults.string;
+        if (!operator) {
+          throw new IRError('MARKETPLACE_FILTER_OPERATOR',
+            `trigger '${t.name ?? t.type}' filters '${f.field}' with no operator and this filter type `
+            + `('${ftype}') has no default — pick one of [${menu.join(', ')}].`);
+        }
+        if (!menu.includes(operator)) {
+          throw new IRError('MARKETPLACE_FILTER_OPERATOR',
+            `trigger '${t.name ?? t.type}' filters '${f.field}' with operator '${operator}', which the `
+            + `drawer does not offer for a '${ftype}' filter. Its menu is [${menu.join(', ')}]. An `
+            + `unsupported operator saves and never matches.`);
+        }
+        for (const v of [].concat(f.value ?? [])) if (typeof v === 'string' && v) values.push(v);
+        continue;
+      }
       // A marketplace trigger has no catalog filterRows, so expandFilter never runs to
       // backfill a default operator the way a native trigger's filters do. A missing
       // operator is therefore not "unspecified, fill it in" — it is the exact same fatal
@@ -1520,6 +1557,17 @@ const ARRAY_OPS = new Set(['is-any-of', 'is-in-array', 'contains-any', 'contains
 // dispatcher never subscribes, leaving the trigger permanently inert.
 const SCALAR_OPS = new Set(['index-of-true', 'index-of-false']);
 // Default operator by filter-row type when the row/author didn't specify one.
+// utils/conditions.ts (recovered source) — a custom field's wire condition `type`, by dataType.
+const VALUE_TYPE_BY_DATATYPE = {
+  TEXT: 'string', LARGE_TEXT: 'string', PHONE: 'string', URL: 'string', RICH_TEXT: 'string',
+  NUMERICAL: 'numerical', MONETORY: 'numerical',
+  SINGLE_OPTIONS: 'select', RADIO: 'select',
+  MULTIPLE_OPTIONS: 'multiselect', CHECKBOX: 'multiselect',
+  DATE: 'date', FILE_UPLOAD: 'file', SIGNATURE: 'string', TIME: 'string',
+};
+// The drawer forces `has-changed` on these — there is no value to compare.
+const FORCED_HAS_CHANGED = new Set(['PHONE', 'FILE_UPLOAD', 'SIGNATURE']);
+
 function defaultOp(type) {
   if (type === 'number' || type === 'date') return '==';
   if (type === 'string' || type === 'input') return 'is-any-of';
@@ -1532,7 +1580,59 @@ function defaultOp(type) {
 // operator/title/type/id from the model row. A fully-specified filter (field+operator+
 // title+type) passes through, so hand-authored conditions still work — save for the
 // scalar-op value normalization below, which no shape is allowed to bypass.
-function expandFilter(f, rows) {
+// Instantiate a per-account custom-field row from the catalog's filterRowTemplates. The author
+// may name the field by id, by `contact.<id>`, by display name, or by fieldKey; the account's own
+// field list (ctx.customFields) is the only thing that can turn any of those into a wire row.
+function instantiateRowTemplate(f, key, extra) {
+  const templates = extra?.meta?.filterRowTemplates;
+  const fields = extra?.ctx?.customFields;
+  if (!Array.isArray(templates) || !templates.length || !Array.isArray(fields) || !fields.length) return null;
+  if (key == null || key === '') return null;
+
+  const wanted = String(key).replace(/^(?:contact|opportunity)\./, '');
+  const norm = (x) => String(x ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  for (const tpl of templates) {
+    const model = tpl.source === 'opportunityCustomFields' ? 'opportunity' : 'contact';
+    const field = fields.find((c) => {
+      if ((c.model ?? 'contact') !== model) return false;
+      const keySuffix = String(c.fieldKey ?? '').split('.').pop();
+      return c.id === wanted || norm(c.name) === norm(wanted) || c.fieldKey === key || norm(keySuffix) === norm(wanted);
+    });
+    if (!field) continue;
+
+    const type = VALUE_TYPE_BY_DATATYPE[field.dataType] ?? 'string';
+    const forced = FORCED_HAS_CHANGED.has(field.dataType) ? 'has-changed' : null;
+    const menu = Array.isArray(tpl.operatorMenu) && tpl.operatorMenu.length ? tpl.operatorMenu : null;
+    let operator = f.operator ?? forced ?? tpl.defaultOperator ?? (menu ? null : defaultOp(type));
+    if (operator == null) {
+      throw new IRError('FILTER_OPERATOR_REQUIRED',
+        `custom-field filter '${field.name}' has no default operator — the drawer forces a pick from `
+        + `[${menu.join(', ')}]. Author one.`);
+    }
+    if (forced && f.operator && f.operator !== forced) {
+      throw new IRError('FILTER_OPERATOR',
+        `custom-field filter '${field.name}' is a ${field.dataType} field — the drawer offers only `
+        + `'${forced}' for it (there is no value to compare), not '${f.operator}'.`);
+    }
+    if (menu && !menu.includes(operator) && operator !== forced) {
+      throw new IRError('FILTER_OPERATOR',
+        `custom-field filter '${field.name}' operator '${operator}' is not in the drawer's menu `
+        + `[${menu.join(', ')}].`);
+    }
+    const cond = {
+      operator,
+      field: tpl.valuePattern.replace('{id}', field.id),
+      title: f.title ?? field.name,
+      type,
+      id: field.id,
+    };
+    if (f.value !== undefined) cond.value = f.value;
+    return cond;
+  }
+  return null;
+}
+
+function expandFilter(f, rows, extra = {}) {
   // already complete — but still normalize a scalar-op value, so a hand-authored
   // ['tag'] can't silently reintroduce the inert-trigger bug via this passthrough.
   if (f.field && f.operator && f.title && f.type) {
@@ -1547,9 +1647,33 @@ function expandFilter(f, rows) {
   const key = f.on ?? f.field ?? f.id;
   const norm = (s) => String(s ?? '').toLowerCase().replace(/[\s_-]+/g, '');
   const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm(r.label) === norm(key) || norm(r.value) === norm(key));
-  if (!row) return f; // unknown row — passthrough whatever was given
+  if (!row) {
+    // No STATIC row matched. The drawer may still offer this row PER ACCOUNT FIELD — contact_changed
+    // on a custom field is a row that exists only once the field does, which is why the engine could
+    // not express it at all (F5-26). Instantiate from the catalog's row template.
+    const instantiated = instantiateRowTemplate(f, key, extra);
+    if (instantiated) return instantiated;
+    return f; // unknown row — passthrough whatever was given
+  }
   const type = f.type ?? row.type ?? 'select';
-  let operator = f.operator ?? row.operator ?? defaultOp(type);
+  // TAKE THE DEFAULT OR REQUIRE A MENU MEMBER, NEVER INVENT. Where the drawer offers a menu and no
+  // default, it forces the author to pick; the engine used to invent one from the row's TYPE, which
+  // produced an operator the menu never contained — saves clean, never matches (F5-25).
+  const menu = Array.isArray(row.operatorMenu) && row.operatorMenu.length ? row.operatorMenu : null;
+  let operator = f.operator ?? (row.defaultOperator ?? undefined) ?? row.operator;
+  if (operator === undefined || operator === null) {
+    if (menu) {
+      throw new IRError('FILTER_OPERATOR_REQUIRED',
+        `trigger filter '${row.value}' has NO default operator — the drawer forces a pick from `
+        + `[${menu.join(', ')}]. Author one. An invented operator saves clean and never matches.`);
+    }
+    operator = defaultOp(type);
+  }
+  if (menu && typeof operator === 'string' && !menu.includes(operator)) {
+    throw new IRError('FILTER_OPERATOR',
+      `trigger filter '${row.value}' operator '${operator}' is not in the drawer's menu for this row `
+      + `[${menu.join(', ')}] — an off-menu operator saves clean and never matches.`);
+  }
   // WIRE-SHAPE GUARD: a condition row's type/operator are STRINGS on the wire. An object here is
   // an unresolved catalog artefact (an enum the extractor could not resolve), and GHL answers 500
   // to the trigger POST — the whole build reported ok with every trigger failed (F5-16). Refuse at
@@ -1604,7 +1728,7 @@ function isGotoTriggerType(type, ctx) {
 export function buildTrigger(t, ctx, wid, refMap) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
-  let conditions = (t.filters ?? []).map((f) => (rows.length ? expandFilter(f, rows) : f));
+  let conditions = (t.filters ?? []).map((f) => expandFilter(f, rows, { ctx, meta }));
   // TRIGGER SEEDS — rows the UI adds to this trigger type by itself (TriggerMain.addMandatoryFilters,
   // on creation AND load). Only corpus-CONFIRMED rows are seeded (appointment.eventType == 'normal'
   // is present and FIRST on 95% of stored appointment triggers), with the exact stored shape.
@@ -1623,8 +1747,23 @@ export function buildTrigger(t, ctx, wid, refMap) {
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, 'trigger');
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
     // A marketplace condition addresses the event payload by dotted path, and the stored
-    // shape carries `id` and `field` as the SAME string.
-    conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
+    // shape carries `id` and `field` as the SAME string. It also carries the filter's TYPE and
+    // TITLE, and its operator defaults per type exactly as the drawer pre-selects one — the row
+    // is otherwise emitted with no operator at all, which saves clean and never matches.
+    const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
+    conditions = conditions.map((c) => {
+      const ftype = marketplaceFilterType(entry, c.field);
+      const title = c.title
+        ?? entry?.filters?.find((x) => x.field === c.field || x.reference === c.field)?.name
+        ?? entry?.customVars?.find((v) => v.reference === c.field)?.name;
+      return {
+        ...c,
+        id: c.id ?? c.field,
+        ...(c.type ? {} : { type: ftype }),
+        ...(title ? { title } : {}),
+        ...(c.operator ? {} : (table?.defaults?.[ftype] ? { operator: table.defaults[ftype] } : {})),
+      };
+    });
   }
   // trigger SHAPE rules from the catalog's filterChecks (extract-trigger-validators):
   // scheduler needs an interval, IVR needs a phone number — the IVR one is also BLOCKED by the

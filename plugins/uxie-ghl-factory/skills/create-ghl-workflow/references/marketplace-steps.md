@@ -96,6 +96,15 @@ carry `filters[]` at all; only the assets response is confirmed to. Don't infer 
 | `multiselect`, `multiselect_with_pagination` | `is-any-of` | `index-of-true`, `index-of-false`, `has_value`, `has_no_value` |
 | anything else | `==` | — |
 
+🔴 The wire value for "Is not empty" is **`has_value`** (`MarketplaceFilter.ts:1397-1400`). The
+engine shipped `is-not-empty` in its operator set until 0.39.0 — the i18n KEY fragment
+(`...marketplace.is_not_empty`) transcribed as if it were the value. It is still accepted so
+nothing that compiled before starts failing, but `has_value` is the one to author.
+
+The engine no longer requires you to supply an operator: an omitted one takes the drawer's own
+default for the filter's declared type, exactly as the UI pre-selects it. What is refused is an
+operator that type's menu does not offer.
+
 There is no plain equals on a `string` filter. On a `multiselect`, `correctOperatorForArrayComparison`
 (`:300-312`) swaps `is-any-of` <-> `contains-any` automatically depending on whether the comparison is
 array-to-array, so both spellings are live for the same intent.
