@@ -1,587 +1,588 @@
 {
-  "_note": "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
-  "rows": {
-    "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "GET /ad-publishing/facebook/custom-audience": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /ad-publishing/facebook/pages": {
-      "reach": "proven"
-    },
-    "GET /affiliate-manager/{locationId}/campaigns": {
-      "reach": "proven"
-    },
-    "GET /affiliate-manager/affiliates/workflow-filters": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /ai-employees/beta/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /ai-employees/employees/list": {
-      "reach": "proven"
-    },
-    "GET /appengine/dialogflow/eliza-location-status/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /associations/objectKey/{objectKey}": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /calendars/configuration/location/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /chat-widget/list": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /conversations-ai/intents/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /conversations-reporting/emails": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /conversations-reporting/emails/aggregate": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /conversations-reporting/messages": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /conversations-reporting/messages/aggregate": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /custom-data/conversations": {
-      "reach": "proven"
-    },
-    "GET /emails/builder": {
-      "reach": "proven"
-    },
-    "GET /emails/builder/all": {
-      "reach": "proven"
-    },
-    "GET /emails/builder/settings/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /forms/forms-list": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /funnels/funnel/list": {
-      "reach": "proven"
-    },
-    "GET /hooks/inbound-webhook-request/reference/{triggerId}": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /integrations/facebook/{locationId}/allAdAccounts": {
-      "reach": "proven"
-    },
-    "GET /integrations/facebook/{locationId}/connection": {
-      "reach": "proven"
-    },
-    "GET /integrations/facebook/{locationId}/pages": {
-      "reach": "proven"
-    },
-    "GET /integrations/facebook/{locationId}/trigger/pages": {
-      "reach": "proven"
-    },
-    "GET /integrations/google/connections": {
-      "reach": "proven"
-    },
-    "GET /integrations/tiktok": {
-      "reach": "proven"
-    },
-    "GET /links/search": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /locations/{locationId}/customFields": {
-      "reach": "proven"
-    },
-    "GET /locations/{locationId}/customFields/search": {
-      "reach": "proven"
-    },
-    "GET /locations/{locationId}/customValues": {
-      "reach": "proven"
-    },
-    "GET /locations/{locationId}/customValues/search": {
-      "reach": "proven"
-    },
-    "GET /locations/{locationId}/templates": {
-      "reach": "proven"
-    },
-    "GET /locations/search": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /marketplace/core/search/module": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /medias/files": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /membership/smart-list/categories": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /membership/smart-list/location/{locationId}/workflow": {
-      "reach": "proven"
-    },
-    "GET /membership/smart-list/offers-products/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /oauth/whitelabel/{id}": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /opportunities/lost-reason": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /phone-system/numbers/location/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /phone-system/twilio-accounts": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /phone-system/whatsapp/location/{locationId}/template": {
-      "reach": "proven"
-    },
-    "GET /reputation/integrations/review-link-list": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /reselling/configuration/location/{locationId}/starter_plus_workflow_premium_actions_triggers": {
-      "reach": "proven"
-    },
-    "GET /reselling/configuration/location/{locationId}/workflow_pro_black_friday": {
-      "reach": "proven"
-    },
-    "GET /reselling/product": {
-      "reach": "proven"
-    },
-    "GET /reselling/subscription/location/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /saas_service/isv-mode/status/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
-      "reach": "proven"
-    },
-    "GET /snippets/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /users/search": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /workflow/{locationId}": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/{workflowId}/history": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/{workflowId}/history/v2": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/auto-save/settings": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/eliza-users": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/email/location-email-provider": {
-      "summary": "The sending domain, warm-up state and rate limit behind this account's email steps."
-    },
-    "GET /workflow/{locationId}/error-notification/{workflowId}": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/error-notification/count": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/error-notification/list": {
-      "summary": "Workflows in this account that are currently erroring, and who is notified."
-    },
-    "GET /workflow/{locationId}/error-notification/settings": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/instagram/connected-accounts": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/list": {
-      "summary": "The workflow roster for a location; also lists FOLDERS when asked for them.",
-      "note": "Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as \"this account has no folders\".",
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
-      "summary": "Premium-action CONSUMPTION for one tier on this sub-account.",
-      "note": "Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer \"why did a premium step not run\"."
-    },
-    "GET /workflow/{locationId}/scheduled-pause/config": {
-      "summary": "Whether this workflow is paused on a schedule, and the window if so.",
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/split/isExecuted": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/split/stats": {
-      "summary": "Per-branch results for an A/B split step."
-    },
-    "GET /workflow/{locationId}/workflow-ai/settings": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/workflow-location-setting/settings": {
-      "reach": "proven"
-    },
-    "GET /workflow/{locationId}/workflow-templates": {
-      "reach": "proven"
-    },
-    "GET /workflow/agent/{locationId}/mcp-connections": {
-      "reach": "proven"
-    },
-    "GET /workflow/agent/{locationId}/mcp-connections/oauth2-tokens": {
-      "reach": "proven"
-    },
-    "GET /workflow/agent/{locationId}/models": {
-      "reach": "proven"
-    },
-    "GET /workflow/campaign": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /workflow/flowguard/auth": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "GET /workflow/flowguard/blacklist/contact": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "GET /workflow/flowguard/blacklist/step": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "GET /workflow/flowguard/blacklist/workflow": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "GET /workflow/flowguard/rate-limiting/bypass": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "GET /workflows-marketplace/integration-apps": {
-      "reach": "refused",
-      "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-    },
-    "GET /workflows-marketplace/location/{locationId}/assets": {
-      "reach": "proven"
-    },
-    "GET /workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId": {
-      "reach": "proven"
-    },
-    "GET /workflows/copyWorkflow/internalLogList": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /workflows/copyWorkflow/logList": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /workflows/copyWorkflow/statusList": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /workflows/logs/v2": {
-      "note": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-      "summary": "Execution log rows for one workflow; executionId returns one run's full step trace.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "GET /workflows/logs/weekly-enrollment-data": {
-      "summary": "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
-      "reach": "proven"
-    },
-    "GET /workflows/statistics": {
-      "summary": "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
-      "reach": "proven"
-    },
-    "GET /workflows/status/enroll-stats": {
-      "summary": "Total and active enrolled counts. A workflow with a large total and zero active has finished with everyone.",
-      "note": "Batched: ask for the workflows you want in one call rather than looping per workflow."
-    },
-    "GET /workflows/status/search/count-per-step": {
-      "summary": "How many contacts are sitting at each step right now.",
-      "requiredQuery": [
-        "locationId",
-        "workflowId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs."
-    },
-    "GET /workflows/status/search/details-by-step": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /workflows/status/search/enroll-stats": {
-      "requiredQuery": [
-        "workflowId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /workflows/status/search/workflow-with-filter": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /workflows/sticky-notes-all": {
-      "reach": "proven"
-    },
-    "GET /workflows/trigger/logs/count-by-triggerId": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "GET /workflows/trigger/logs/top-failed-reasons": {
-      "note": "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-      "requiredQuery": [
-        "locationId"
-      ]
-    },
-    "GET /workflows/trigger/logs/triggerId": {
-      "requiredQuery": [
-        "locationId"
-      ],
-      "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
-    },
-    "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
-      "kind": "destructive",
-      "note": "Sends a real email to the agency admin."
-    },
-    "POST /contacts/search/2": {
-      "note": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
-      "summary": "Contact search. Treat its results as unverified — see the note."
-    },
-    "POST /conversations/providers/tiktok/posts": {
-      "kind": "read"
-    },
-    "POST /conversations/providers/tiktok/posts/{id}": {
-      "kind": "read"
-    },
-    "POST /emails/tracking/links": {
-      "kind": "read"
-    },
-    "POST /marketplace/billing/usage/meters/public": {
-      "kind": "read",
-      "summary": "Premium-action and AI billing usage meters for the account."
-    },
-    "POST /marketplace/core/apps/connection-status/bulk": {
-      "kind": "read"
-    },
-    "POST /objects/{objectKey}/records/search": {
-      "kind": "read",
-      "summary": "Search records of a custom object by filter."
-    },
-    "POST /templates/list": {
-      "kind": "read"
-    },
-    "POST /templates/template/load": {
-      "kind": "read"
-    },
-    "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
-      "kind": "destructive"
-    },
-    "POST /workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}": {
-      "kind": "destructive"
-    },
-    "POST /workflow/{locationId}/{workflowId}/start-workflow": {
-      "kind": "destructive"
-    },
-    "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
-      "kind": "destructive"
-    },
-    "POST /workflow/{locationId}/adwords": {
-      "kind": "read"
-    },
-    "POST /workflow/{locationId}/drip-schedule/preview": {
-      "kind": "read"
-    },
-    "POST /workflow/{locationId}/email/send-test-email": {
-      "kind": "destructive"
-    },
-    "POST /workflow/{locationId}/run-single-action": {
-      "kind": "destructive",
-      "note": "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
-    },
-    "POST /workflow/{locationId}/sms/send-test-sms": {
-      "kind": "destructive"
-    },
-    "POST /workflow/flowguard/blacklist/contact/{contactId}": {
-      "kind": "destructive",
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "POST /workflow/flowguard/blacklist/step/{stepId}": {
-      "kind": "destructive",
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "POST /workflow/flowguard/blacklist/workflow/{workflowId}": {
-      "kind": "destructive",
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "POST /workflow/flowguard/loop-lock/{workflowId}": {
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "POST /workflow/flowguard/rate-limiting/bypass": {
-      "kind": "destructive",
-      "reach": "refused",
-      "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
-    },
-    "POST /workflow/ivr/get-mappings-by-phones": {
-      "kind": "read"
-    },
-    "POST /workflow/oauth2/save-token": {
-      "kind": "destructive",
-      "note": "Writes to the OAuth credential rail."
-    },
-    "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
-      "kind": "read"
-    },
-    "POST /workflows-marketplace/actions/{actionType}/branches": {
-      "kind": "read"
-    },
-    "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
-      "kind": "read"
-    },
-    "POST /workflows-marketplace/actions/published/{actionType}/dynamic-fields": {
-      "kind": "read"
-    },
-    "POST /workflows-marketplace/integration-apps/reset-token/{appId}": {
-      "kind": "destructive",
-      "note": "Invalidates the live credential for an installed marketplace app. Anything using it breaks until reconnected."
-    },
-    "POST /workflows-marketplace/integration/{appId}/install": {
-      "kind": "destructive",
-      "note": "Installs a marketplace app INTO an account. Check the locationId query param — it decides which account gets it."
-    },
-    "POST /workflows-marketplace/internal-triggers/integration/webhook-operation": {
-      "kind": "read"
-    },
-    "POST /workflows-marketplace/triggers/dynamic-source-details/{key}": {
-      "kind": "read"
-    },
-    "POST /workflows-marketplace/triggers/published/{triggerType}/dynamic-fields": {
-      "kind": "read"
-    },
-    "POST /workflows/es/search": {
-      "kind": "read",
-      "summary": "Query workflows server-side by trigger type, action type, status, tags or name — the smart-list search.",
-      "note": "Answers \"which workflows contain step type X\" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account. Live-proven 2026-08-26: the body is JUST {locationId} — it 422s on triggerTypes/limit/skip (\"property X should not exist\"), so do not send the obvious paging keys, and it returns 201 for what is a read. The action docs it returns carry the STORED attributes, which is how a marketplace step's real key spelling is discovered.",
-      "reach": "proven"
-    },
-    "POST /workflows/trigger/logs/count": {
-      "summary": "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
-      "note": "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
-    },
-    "PUT /saas-billing-v2/billing-config/{locationId}": {
-      "kind": "destructive",
-      "note": "Changes the sub-account BILLING PLAN. Money."
-    },
-    "PUT /workflow/{companyId}/workflow-company-setting/bulk-location-settings": {
-      "kind": "destructive",
-      "note": "COMPANY-scope bulk write across sub-accounts, not one location."
-    },
-    "PUT /workflow/{locationId}/change-status": {
-      "kind": "destructive"
-    },
-    "PUT /workflow/{locationId}/change-status/{workflowId}": {
-      "kind": "destructive",
-      "note": "Publishes or unpublishes a workflow. A live automation stops or starts."
-    },
-    "PUT /workflow/{locationId}/move": {
-      "kind": "destructive",
-      "note": "Bulk move across workflows. Moving a PUBLISHED workflow is how a live automation ends up filed in a staging folder."
-    },
-    "PUT /workflow/{locationId}/move-directory/{workflowId}": {
-      "summary": "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
-      "note": "The BATCH move cannot reach root -- null, \"\" and \"root\" all 404. Use this per-workflow route instead."
-    },
-    "PUT /workflow/{locationId}/permission/{workflowId}": {
-      "kind": "destructive",
-      "note": "Changes who can see or edit a workflow."
-    },
-    "PUT /workflow/{locationId}/permissions": {
-      "kind": "destructive"
-    },
-    "PUT /workflow/oauth2/update-token": {
-      "kind": "destructive",
-      "note": "Writes to the OAuth credential rail."
-    },
-    "PUT /workflow/{locationId}/only-triggers/{wid}": {
-      "kind": "write",
-      "reach": "proven",
-      "summary": "Accepted with 200 and bumps the workflow version — but does NOT change trigger content. Do not use this to save a trigger edit.",
-      "note": "🔴 Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back — do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) — no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) — never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR — one per trigger still inactive after the publish PUT's own draft→published cascade — before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger — this endpoint is not a fix for that either."
-    },
-    "PUT /workflow/{locationId}/only-triggers/{id}": {
-      "kind": "write",
-      "reach": "proven",
-      "summary": "Same route as the {wid} row — also live-proven INERT for trigger content, see that row.",
-      "note": "Same route as the {wid} row; the miner produced both spellings from different call sites — see that row's note. This does not persist a trigger edit either."
-    }
+ "_note": "Hand-maintained overlay over the source-mined endpoint catalogue. Keyed by WIRE IDENTITY 'METHOD /path' exactly as catalog/internal-endpoints.source.json records it -- not by id, which the source artefact owns. A generator never writes this file.\n\nkind    ranking metadata only (raw_request gates every non-GET on confirm regardless). Absent = defaults by method: GET read, DELETE destructive, else write.\nreach   whether a location-user Bearer actually gets through. 'refused' rows are real endpoints that will 401 from this rail, so surfacing them costs the caller a turn for nothing.\nnote    the one trap worth knowing BEFORE choosing this row.\nsummary what the call returns, in a sentence.\n\nWhen the extractor corrects a path, that key orphans and the build names it. That is intended: a corrected path is exactly when a human should re-check its note.\n\nRE-KEYED 2026-08-25 when the extractor moved to full wire paths and {param} braces. All 34 keys mapped cleanly, 0 ambiguous, 0 orphaned. The two entries that had been parked under  -- logs/v2 dateType and the contacts/search/2 silent-ignore -- now have rows and moved into place.\n\nREACH values from 2026-08-25 come from the F1 differential (knowledge/scripts/probe-reach-differential.mjs) on the designated test sub-account. They are recorded PER ENDPOINT, never per prefix: /workflow/campaign returns 401 while /workflow/{locationId}/list is read successfully every day, so a prefix-level verdict would be flatly wrong.\n\nrequiredQuery entries came from the F2 ledger: the endpoint was CALLED, it returned 400/422, and GHL named the key it wanted. That is knowledge the static extractor cannot produce -- the builder passes those keys through a spread it can only mark open-map.\n\nRequired-key discovery is ITERATIVE. An endpoint answers 400/422 naming one missing key; supply it and the next round names the next. A single probe pass under-reports, and requiredQuery should be treated as a floor rather than a complete list.",
+ "rows": {
+  "DELETE /workflow/flowguard/blacklist/{type}/{id}": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "DELETE /workflow/flowguard/rate-limiting/bypass/{id}": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "GET /ad-publishing/facebook/custom-audience": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /ad-publishing/facebook/pages": {
+   "reach": "proven"
+  },
+  "GET /affiliate-manager/{locationId}/campaigns": {
+   "reach": "proven"
+  },
+  "GET /affiliate-manager/affiliates/workflow-filters": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /ai-employees/beta/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /ai-employees/employees/list": {
+   "reach": "proven"
+  },
+  "GET /appengine/dialogflow/eliza-location-status/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /associations/objectKey/{objectKey}": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /calendars/configuration/location/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /chat-widget/list": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /conversations-ai/intents/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /conversations-reporting/emails": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /conversations-reporting/emails/aggregate": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /conversations-reporting/messages": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /conversations-reporting/messages/aggregate": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /custom-data/conversations": {
+   "reach": "proven"
+  },
+  "GET /emails/builder": {
+   "reach": "proven"
+  },
+  "GET /emails/builder/all": {
+   "reach": "proven"
+  },
+  "GET /emails/builder/settings/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /forms/forms-list": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /funnels/funnel/list": {
+   "reach": "proven"
+  },
+  "GET /hooks/inbound-webhook-request/reference/{triggerId}": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /integrations/facebook/{locationId}/allAdAccounts": {
+   "reach": "proven"
+  },
+  "GET /integrations/facebook/{locationId}/connection": {
+   "reach": "proven"
+  },
+  "GET /integrations/facebook/{locationId}/pages": {
+   "reach": "proven"
+  },
+  "GET /integrations/facebook/{locationId}/trigger/pages": {
+   "reach": "proven"
+  },
+  "GET /integrations/google/connections": {
+   "reach": "proven"
+  },
+  "GET /integrations/tiktok": {
+   "reach": "proven"
+  },
+  "GET /links/search": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /locations/{locationId}/customFields": {
+   "reach": "proven"
+  },
+  "GET /locations/{locationId}/customFields/search": {
+   "reach": "proven"
+  },
+  "GET /locations/{locationId}/customValues": {
+   "reach": "proven"
+  },
+  "GET /locations/{locationId}/customValues/search": {
+   "reach": "proven"
+  },
+  "GET /locations/{locationId}/templates": {
+   "reach": "proven"
+  },
+  "GET /locations/search": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /marketplace/core/search/module": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /medias/files": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /membership/smart-list/categories": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /membership/smart-list/location/{locationId}/workflow": {
+   "reach": "proven"
+  },
+  "GET /membership/smart-list/offers-products/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /oauth/whitelabel/{id}": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /opportunities/lost-reason": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /phone-system/numbers/location/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /phone-system/twilio-accounts": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /phone-system/whatsapp/location/{locationId}/template": {
+   "reach": "proven"
+  },
+  "GET /reputation/integrations/review-link-list": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /reselling/configuration/location/{locationId}/starter_plus_workflow_premium_actions_triggers": {
+   "reach": "proven"
+  },
+  "GET /reselling/configuration/location/{locationId}/workflow_pro_black_friday": {
+   "reach": "proven"
+  },
+  "GET /reselling/product": {
+   "reach": "proven"
+  },
+  "GET /reselling/subscription/location/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /saas_service/isv-mode/status/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
+   "reach": "proven"
+  },
+  "GET /snippets/{locationId}": {
+   "reach": "proven",
+   "note": "TWO catalogue rows exist for this path and they disagree on HOST. The one mined from bundle source (template-service--get-email-snippets-paginated) says backend, but that is almost certainly the app-wide axios default rather than a service prefix \u2014 the same trap the harvester documents for /workflow. The whole snippets surface was captured LIVE 2026-08-29 on services.leadconnectorhq.com (the ai rail: Bearer plus token-id), six calls end to end. USE SERVICES. The mined row is kept, not deleted: it is a real source observation."
+  },
+  "GET /users/search": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /workflow/{locationId}": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/{workflowId}/history": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/{workflowId}/history/v2": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/auto-save/settings": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/eliza-users": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/email/location-email-provider": {
+   "summary": "The sending domain, warm-up state and rate limit behind this account's email steps."
+  },
+  "GET /workflow/{locationId}/error-notification/{workflowId}": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/error-notification/count": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/error-notification/list": {
+   "summary": "Workflows in this account that are currently erroring, and who is notified."
+  },
+  "GET /workflow/{locationId}/error-notification/settings": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/instagram/connected-accounts": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/list": {
+   "summary": "The workflow roster for a location; also lists FOLDERS when asked for them.",
+   "note": "Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as \"this account has no folders\".",
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
+   "summary": "Premium-action CONSUMPTION for one tier on this sub-account.",
+   "note": "Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer \"why did a premium step not run\"."
+  },
+  "GET /workflow/{locationId}/scheduled-pause/config": {
+   "summary": "Whether this workflow is paused on a schedule, and the window if so.",
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/split/isExecuted": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/split/stats": {
+   "summary": "Per-branch results for an A/B split step."
+  },
+  "GET /workflow/{locationId}/workflow-ai/settings": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/workflow-location-setting/settings": {
+   "reach": "proven"
+  },
+  "GET /workflow/{locationId}/workflow-templates": {
+   "reach": "proven"
+  },
+  "GET /workflow/agent/{locationId}/mcp-connections": {
+   "reach": "proven"
+  },
+  "GET /workflow/agent/{locationId}/mcp-connections/oauth2-tokens": {
+   "reach": "proven"
+  },
+  "GET /workflow/agent/{locationId}/models": {
+   "reach": "proven"
+  },
+  "GET /workflow/campaign": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /workflow/flowguard/auth": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "GET /workflow/flowguard/blacklist/contact": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "GET /workflow/flowguard/blacklist/step": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "GET /workflow/flowguard/blacklist/workflow": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "GET /workflow/flowguard/rate-limiting/bypass": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "GET /workflows-marketplace/integration-apps": {
+   "reach": "refused",
+   "note": "Live-probed 2026-08-25: 403 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
+  },
+  "GET /workflows-marketplace/location/{locationId}/assets": {
+   "reach": "proven"
+  },
+  "GET /workflows-marketplace/triggers/options/proposal_estimate_update/documentCreatedByTemplateId": {
+   "reach": "proven"
+  },
+  "GET /workflows/copyWorkflow/internalLogList": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /workflows/copyWorkflow/logList": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /workflows/copyWorkflow/statusList": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /workflows/logs/v2": {
+   "note": "dateType=custom is REQUIRED whenever fromDate/toDate are sent, or the window is IGNORED and you get a day-snapped ~30-day default behind a 200. action=first/next drives the cursor. fromDate=0 for true full history. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+   "summary": "Execution log rows for one workflow; executionId returns one run's full step trace.",
+   "requiredQuery": [
+    "locationId"
+   ]
+  },
+  "GET /workflows/logs/weekly-enrollment-data": {
+   "summary": "Enrollment counts for the last 7 weeks, for the Automation Overview chart.",
+   "reach": "proven"
+  },
+  "GET /workflows/statistics": {
+   "summary": "Account-level automation KPIs: total workflows, published workflows, total enrollments.",
+   "reach": "proven"
+  },
+  "GET /workflows/status/enroll-stats": {
+   "summary": "Total and active enrolled counts. A workflow with a large total and zero active has finished with everyone.",
+   "note": "Batched: ask for the workflows you want in one call rather than looping per workflow."
+  },
+  "GET /workflows/status/search/count-per-step": {
+   "summary": "How many contacts are sitting at each step right now.",
+   "requiredQuery": [
+    "locationId",
+    "workflowId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source. Wants BOTH locationId and workflowId. Discovered iteratively: the endpoint names ONE missing key at a time, so a single probe round under-reports what it needs."
+  },
+  "GET /workflows/status/search/details-by-step": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /workflows/status/search/enroll-stats": {
+   "requiredQuery": [
+    "workflowId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming workflowId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /workflows/status/search/workflow-with-filter": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /workflows/sticky-notes-all": {
+   "reach": "proven"
+  },
+  "GET /workflows/trigger/logs/count-by-triggerId": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "GET /workflows/trigger/logs/top-failed-reasons": {
+   "note": "triggerType is REQUIRED. Without it the call does not fail -- it answers for the wrong scope. Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
+   "requiredQuery": [
+    "locationId"
+   ]
+  },
+  "GET /workflows/trigger/logs/triggerId": {
+   "requiredQuery": [
+    "locationId"
+   ],
+   "note": "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+  },
+  "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
+   "kind": "destructive",
+   "note": "Sends a real email to the agency admin."
+  },
+  "POST /contacts/search/2": {
+   "note": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
+   "summary": "Contact search. Treat its results as unverified \u2014 see the note."
+  },
+  "POST /conversations/providers/tiktok/posts": {
+   "kind": "read"
+  },
+  "POST /conversations/providers/tiktok/posts/{id}": {
+   "kind": "read"
+  },
+  "POST /emails/tracking/links": {
+   "kind": "read"
+  },
+  "POST /marketplace/billing/usage/meters/public": {
+   "kind": "read",
+   "summary": "Premium-action and AI billing usage meters for the account."
+  },
+  "POST /marketplace/core/apps/connection-status/bulk": {
+   "kind": "read"
+  },
+  "POST /objects/{objectKey}/records/search": {
+   "kind": "read",
+   "summary": "Search records of a custom object by filter."
+  },
+  "POST /templates/list": {
+   "kind": "read"
+  },
+  "POST /templates/template/load": {
+   "kind": "read"
+  },
+  "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
+   "kind": "destructive"
+  },
+  "POST /workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}": {
+   "kind": "destructive"
+  },
+  "POST /workflow/{locationId}/{workflowId}/start-workflow": {
+   "kind": "destructive"
+  },
+  "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
+   "kind": "destructive"
+  },
+  "POST /workflow/{locationId}/adwords": {
+   "kind": "read"
+  },
+  "POST /workflow/{locationId}/drip-schedule/preview": {
+   "kind": "read"
+  },
+  "POST /workflow/{locationId}/email/send-test-email": {
+   "kind": "destructive"
+  },
+  "POST /workflow/{locationId}/run-single-action": {
+   "kind": "destructive",
+   "note": "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
+  },
+  "POST /workflow/{locationId}/sms/send-test-sms": {
+   "kind": "destructive"
+  },
+  "POST /workflow/flowguard/blacklist/contact/{contactId}": {
+   "kind": "destructive",
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "POST /workflow/flowguard/blacklist/step/{stepId}": {
+   "kind": "destructive",
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "POST /workflow/flowguard/blacklist/workflow/{workflowId}": {
+   "kind": "destructive",
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "POST /workflow/flowguard/loop-lock/{workflowId}": {
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "POST /workflow/flowguard/rate-limiting/bypass": {
+   "kind": "destructive",
+   "reach": "refused",
+   "note": "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+  },
+  "POST /workflow/ivr/get-mappings-by-phones": {
+   "kind": "read"
+  },
+  "POST /workflow/oauth2/save-token": {
+   "kind": "destructive",
+   "note": "Writes to the OAuth credential rail."
+  },
+  "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
+   "kind": "read"
+  },
+  "POST /workflows-marketplace/actions/{actionType}/branches": {
+   "kind": "read"
+  },
+  "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
+   "kind": "read"
+  },
+  "POST /workflows-marketplace/actions/published/{actionType}/dynamic-fields": {
+   "kind": "read"
+  },
+  "POST /workflows-marketplace/integration-apps/reset-token/{appId}": {
+   "kind": "destructive",
+   "note": "Invalidates the live credential for an installed marketplace app. Anything using it breaks until reconnected."
+  },
+  "POST /workflows-marketplace/integration/{appId}/install": {
+   "kind": "destructive",
+   "note": "Installs a marketplace app INTO an account. Check the locationId query param \u2014 it decides which account gets it."
+  },
+  "POST /workflows-marketplace/internal-triggers/integration/webhook-operation": {
+   "kind": "read"
+  },
+  "POST /workflows-marketplace/triggers/dynamic-source-details/{key}": {
+   "kind": "read"
+  },
+  "POST /workflows-marketplace/triggers/published/{triggerType}/dynamic-fields": {
+   "kind": "read"
+  },
+  "POST /workflows/es/search": {
+   "kind": "read",
+   "summary": "Query workflows server-side by trigger type, action type, status, tags or name \u2014 the smart-list search.",
+   "note": "Answers \"which workflows contain step type X\" in ONE request. The alternative is exporting every workflow and searching templates, which is hundreds of requests on a real account. Live-proven 2026-08-26: the body is JUST {locationId} \u2014 it 422s on triggerTypes/limit/skip (\"property X should not exist\"), so do not send the obvious paging keys, and it returns 201 for what is a read. The action docs it returns carry the STORED attributes, which is how a marketplace step's real key spelling is discovered.",
+   "reach": "proven"
+  },
+  "POST /workflows/trigger/logs/count": {
+   "summary": "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
+   "note": "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
+  },
+  "PUT /saas-billing-v2/billing-config/{locationId}": {
+   "kind": "destructive",
+   "note": "Changes the sub-account BILLING PLAN. Money."
+  },
+  "PUT /workflow/{companyId}/workflow-company-setting/bulk-location-settings": {
+   "kind": "destructive",
+   "note": "COMPANY-scope bulk write across sub-accounts, not one location."
+  },
+  "PUT /workflow/{locationId}/change-status": {
+   "kind": "destructive"
+  },
+  "PUT /workflow/{locationId}/change-status/{workflowId}": {
+   "kind": "destructive",
+   "note": "Publishes or unpublishes a workflow. A live automation stops or starts."
+  },
+  "PUT /workflow/{locationId}/move": {
+   "kind": "destructive",
+   "note": "Bulk move across workflows. Moving a PUBLISHED workflow is how a live automation ends up filed in a staging folder."
+  },
+  "PUT /workflow/{locationId}/move-directory/{workflowId}": {
+   "summary": "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
+   "note": "The BATCH move cannot reach root -- null, \"\" and \"root\" all 404. Use this per-workflow route instead."
+  },
+  "PUT /workflow/{locationId}/permission/{workflowId}": {
+   "kind": "destructive",
+   "note": "Changes who can see or edit a workflow."
+  },
+  "PUT /workflow/{locationId}/permissions": {
+   "kind": "destructive"
+  },
+  "PUT /workflow/oauth2/update-token": {
+   "kind": "destructive",
+   "note": "Writes to the OAuth credential rail."
+  },
+  "PUT /workflow/{locationId}/only-triggers/{wid}": {
+   "kind": "write",
+   "reach": "proven",
+   "summary": "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
+   "note": "\ud83d\udd34 Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either."
+  },
+  "PUT /workflow/{locationId}/only-triggers/{id}": {
+   "kind": "write",
+   "reach": "proven",
+   "summary": "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
+   "note": "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either."
   }
+ }
 }

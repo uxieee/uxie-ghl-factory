@@ -20,16 +20,16 @@
     {
       "tree": "documented",
       "dir": "corpus",
-      "capturedAt": "2026-08-29T01:17:15.772Z",
+      "capturedAt": "2026-08-29T02:11:54.433Z",
       "hash": "corpus",
-      "fileCount": 461,
-      "endpoints": 461
+      "fileCount": 474,
+      "endpoints": 474
     }
   ],
   "note": "SOURCE-DERIVED ONLY, merged from every mined front-end. `tree` on each row says which app calls it. The plugin owns kind/note/summary/reach/coveredBy and merges them at read time. A row proves a GHL front-end calls that path — not that your token reaches it, and not that calling it is safe.",
-  "discoveredCallSites": 921,
+  "discoveredCallSites": 934,
   "skippedCallSites": 256,
-  "count": 849,
+  "count": 862,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -9384,7 +9384,14 @@
       ],
       "operation": "getLostReasonCustomFieldOptions",
       "service": "OpportunityCustomFieldService",
-      "query": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
@@ -9395,7 +9402,33 @@
       },
       "sources": [
         "services/marketplaceServices/OpportunityCustomFieldService.ts:19",
+        "platform/20-api/lost-reasons.md:26",
         "workflows/70-research/ENDPOINTS.md:125"
+      ]
+    },
+    {
+      "id": "platform--opportunities-lost-reason-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/opportunities/lost-reason",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/lost-reasons.md:36"
       ]
     },
     {
@@ -9603,7 +9636,7 @@
       ]
     },
     {
-      "id": "workflows--phone-system-call-dispositions",
+      "id": "platform--phone-system-call-dispositions",
       "method": "GET",
       "origin": "https://backend.leadconnectorhq.com",
       "path": "/phone-system/call-dispositions",
@@ -9613,7 +9646,58 @@
       "extraHeaders": [],
       "tree": "documented",
       "operation": null,
-      "service": "workflows",
+      "service": "platform",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "includeDeleted",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/call-dispositions.md:23",
+        "workflows/70-research/ENDPOINTS.md:135"
+      ]
+    },
+    {
+      "id": "platform--phone-system-call-dispositions-post",
+      "method": "POST",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/phone-system/call-dispositions",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
       "query": [
         {
           "name": "locationId",
@@ -9631,7 +9715,39 @@
         "returns": "unresolved"
       },
       "sources": [
-        "workflows/70-research/ENDPOINTS.md:135"
+        "platform/20-api/call-dispositions.md:40"
+      ]
+    },
+    {
+      "id": "platform--phone-system-call-dispositions-delete",
+      "method": "DELETE",
+      "origin": "https://backend.leadconnectorhq.com",
+      "path": "/phone-system/call-dispositions/{id}",
+      "authRail": "bearer",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "platform",
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/call-dispositions.md:52"
       ]
     },
     {
@@ -20859,6 +20975,56 @@
       ]
     },
     {
+      "id": "calendars--calendars-schedules",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/calendars/schedules/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "calendars",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/schedules.md:29"
+      ]
+    },
+    {
+      "id": "calendars--schedules-associations",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/calendars/schedules/{id}/associations/{calendarId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "calendars",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/schedules.md:39"
+      ]
+    },
+    {
       "id": "services--templates--get-location-id-templates",
       "method": "GET",
       "origin": "https://services.leadconnectorhq.com",
@@ -21457,6 +21623,44 @@
       },
       "sources": [
         "ai-agents/20-api/knowledge-base.md:85"
+      ]
+    },
+    {
+      "id": "conversations--manual-actions-search",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/conversations/manual-actions/{locationId}/search",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [
+        {
+          "name": "status",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/manual-actions.md:21"
       ]
     },
     {
@@ -27441,6 +27645,208 @@
       },
       "sources": [
         "restAgent.ts:166"
+      ]
+    },
+    {
+      "id": "conversations--snippets",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snippets/{locationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [
+        {
+          "name": "skip",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "all",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/snippets.md:24",
+        "conversations/20-api/snippets.md:32"
+      ]
+    },
+    {
+      "id": "conversations--snippets-post",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snippets/{locationId}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/snippets.md:40"
+      ]
+    },
+    {
+      "id": "conversations--snippets-delete",
+      "method": "DELETE",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snippets/{locationId}/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/snippets.md:66"
+      ]
+    },
+    {
+      "id": "conversations--snippets-put",
+      "method": "PUT",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snippets/{locationId}/{id}",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/snippets.md:64"
+      ]
+    },
+    {
+      "id": "conversations--bulk-move",
+      "method": "POST",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snippets/{locationId}/bulk/move",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/snippets.md:65"
+      ]
+    },
+    {
+      "id": "conversations--folders-check",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snippets/{locationId}/folders/check",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [
+        {
+          "name": "folderName",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/snippets.md:57"
+      ]
+    },
+    {
+      "id": "conversations--folders-list",
+      "method": "GET",
+      "origin": "https://services.leadconnectorhq.com",
+      "path": "/snippets/{locationId}/folders/list",
+      "authRail": "bearer+token-id",
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "tree": "documented",
+      "operation": null,
+      "service": "conversations",
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "conversations/20-api/snippets.md:58"
       ]
     },
     {
