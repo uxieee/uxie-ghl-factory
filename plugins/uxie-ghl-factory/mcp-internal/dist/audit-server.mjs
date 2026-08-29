@@ -38602,7 +38602,7 @@ var require_util = __commonJS({
     }
     exports.evaluatedPropsToName = evaluatedPropsToName;
     function setEvaluated(gen, props, ps) {
-      Object.keys(ps).forEach((p) => gen.assign((0, codegen_1._)`${props}${(0, codegen_1.getProperty)(p)}`, true));
+      Object.keys(ps).forEach((p2) => gen.assign((0, codegen_1._)`${props}${(0, codegen_1.getProperty)(p2)}`, true));
     }
     exports.setEvaluated = setEvaluated;
     var snippets = {};
@@ -39199,11 +39199,11 @@ var require_code2 = __commonJS({
     }
     exports.noPropertyInData = noPropertyInData;
     function allSchemaProperties(schemaMap) {
-      return schemaMap ? Object.keys(schemaMap).filter((p) => p !== "__proto__") : [];
+      return schemaMap ? Object.keys(schemaMap).filter((p2) => p2 !== "__proto__") : [];
     }
     exports.allSchemaProperties = allSchemaProperties;
     function schemaProperties(it, schemaMap) {
-      return allSchemaProperties(schemaMap).filter((p) => !(0, util_1.alwaysValidSchema)(it, schemaMap[p]));
+      return allSchemaProperties(schemaMap).filter((p2) => !(0, util_1.alwaysValidSchema)(it, schemaMap[p2]));
     }
     exports.schemaProperties = schemaProperties;
     function callValidateCode({ schemaCode, data: data2, it: { gen, topSchemaRef, schemaPath, errorPath }, it }, func, context, passSchema) {
@@ -39696,12 +39696,12 @@ var require_resolve = __commonJS({
     function getFullPath(resolver, id = "", normalize) {
       if (normalize !== false)
         id = normalizeId(id);
-      const p = resolver.parse(id);
-      return _getFullPath(resolver, p);
+      const p2 = resolver.parse(id);
+      return _getFullPath(resolver, p2);
     }
     exports.getFullPath = getFullPath;
-    function _getFullPath(resolver, p) {
-      const serialized = resolver.serialize(p);
+    function _getFullPath(resolver, p2) {
+      const serialized = resolver.serialize(p2);
       return serialized.split("#")[0] + "#";
     }
     exports._getFullPath = _getFullPath;
@@ -40488,11 +40488,11 @@ var require_compile = __commonJS({
       return sch || this.schemas[ref] || resolveSchema.call(this, root, ref);
     }
     function resolveSchema(root, ref) {
-      const p = this.opts.uriResolver.parse(ref);
-      const refPath = (0, resolve_1._getFullPath)(this.opts.uriResolver, p);
+      const p2 = this.opts.uriResolver.parse(ref);
+      const refPath = (0, resolve_1._getFullPath)(this.opts.uriResolver, p2);
       let baseId = (0, resolve_1.getFullPath)(this.opts.uriResolver, root.baseId, void 0);
       if (Object.keys(root.schema).length > 0 && refPath === baseId) {
-        return getJsonPointer.call(this, p, root);
+        return getJsonPointer.call(this, p2, root);
       }
       const id = (0, resolve_1.normalizeId)(refPath);
       const schOrRef = this.refs[id] || this.schemas[id];
@@ -40500,7 +40500,7 @@ var require_compile = __commonJS({
         const sch = resolveSchema.call(this, root, schOrRef);
         if (typeof (sch === null || sch === void 0 ? void 0 : sch.schema) !== "object")
           return;
-        return getJsonPointer.call(this, p, sch);
+        return getJsonPointer.call(this, p2, sch);
       }
       if (typeof (schOrRef === null || schOrRef === void 0 ? void 0 : schOrRef.schema) !== "object")
         return;
@@ -40514,7 +40514,7 @@ var require_compile = __commonJS({
           baseId = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, schId);
         return new SchemaEnv({ schema: schema2, schemaId, root, baseId });
       }
-      return getJsonPointer.call(this, p, schOrRef);
+      return getJsonPointer.call(this, p2, schOrRef);
     }
     exports.resolveSchema = resolveSchema;
     var PREVENT_SCOPE_CHANGE = /* @__PURE__ */ new Set([
@@ -41627,9 +41627,9 @@ var require_core = __commonJS({
             this.addSchema(_schema, ref, meta3);
         }
         async function _loadSchema(ref) {
-          const p = this._loading[ref];
-          if (p)
-            return p;
+          const p2 = this._loading[ref];
+          if (p2)
+            return p2;
           try {
             return await (this._loading[ref] = loadSchema(ref));
           } finally {
@@ -43183,12 +43183,12 @@ var require_additionalProperties = __commonJS({
             const propsSchema = (0, util_1.schemaRefOrVal)(it, parentSchema.properties, "properties");
             definedProp = (0, code_1.isOwnProperty)(gen, propsSchema, key);
           } else if (props.length) {
-            definedProp = (0, codegen_1.or)(...props.map((p) => (0, codegen_1._)`${key} === ${p}`));
+            definedProp = (0, codegen_1.or)(...props.map((p2) => (0, codegen_1._)`${key} === ${p2}`));
           } else {
             definedProp = codegen_1.nil;
           }
           if (patProps.length) {
-            definedProp = (0, codegen_1.or)(definedProp, ...patProps.map((p) => (0, codegen_1._)`${(0, code_1.usePattern)(cxt, p)}.test(${key})`));
+            definedProp = (0, codegen_1.or)(definedProp, ...patProps.map((p2) => (0, codegen_1._)`${(0, code_1.usePattern)(cxt, p2)}.test(${key})`));
           }
           return (0, codegen_1.not)(definedProp);
         }
@@ -43271,7 +43271,7 @@ var require_properties = __commonJS({
         if (it.opts.unevaluated && allProps.length && it.props !== true) {
           it.props = util_1.mergeEvaluated.props(gen, (0, util_1.toHash)(allProps), it.props);
         }
-        const properties = allProps.filter((p) => !(0, util_1.alwaysValidSchema)(it, schema2[p]));
+        const properties = allProps.filter((p2) => !(0, util_1.alwaysValidSchema)(it, schema2[p2]));
         if (properties.length === 0)
           return;
         const valid = gen.name("valid");
@@ -43324,7 +43324,7 @@ var require_patternProperties = __commonJS({
         const { gen, schema: schema2, data: data2, parentSchema, it } = cxt;
         const { opts } = it;
         const patterns = (0, code_1.allSchemaProperties)(schema2);
-        const alwaysValidPatterns = patterns.filter((p) => (0, util_1.alwaysValidSchema)(it, schema2[p]));
+        const alwaysValidPatterns = patterns.filter((p2) => (0, util_1.alwaysValidSchema)(it, schema2[p2]));
         if (patterns.length === 0 || alwaysValidPatterns.length === patterns.length && (!it.opts.unevaluated || it.props === true)) {
           return;
         }
@@ -51472,7 +51472,7 @@ var $ZodUnion = /* @__PURE__ */ $constructor("$ZodUnion", (inst, def) => {
   defineLazy(inst._zod, "pattern", () => {
     if (def.options.every((o) => o._zod.pattern)) {
       const patterns = def.options.map((o) => o._zod.pattern);
-      return new RegExp(`^(${patterns.map((p) => cleanRegex(p.source)).join("|")})$`);
+      return new RegExp(`^(${patterns.map((p2) => cleanRegex(p2.source)).join("|")})$`);
     }
     return void 0;
   });
@@ -58756,9 +58756,9 @@ var $ZodRegistry = class {
     return this;
   }
   get(schema2) {
-    const p = schema2._zod.parent;
-    if (p) {
-      const pm = { ...this.get(p) ?? {} };
+    const p2 = schema2._zod.parent;
+    if (p2) {
+      const pm = { ...this.get(p2) ?? {} };
       delete pm.id;
       const f = { ...pm, ...this._map.get(schema2) };
       return Object.keys(f).length ? f : void 0;
@@ -59672,13 +59672,13 @@ function _promise(Class2, innerType) {
 }
 // @__NO_SIDE_EFFECTS__
 function _custom(Class2, fn, _params) {
-  const norm2 = normalizeParams(_params);
-  norm2.abort ?? (norm2.abort = true);
+  const norm3 = normalizeParams(_params);
+  norm3.abort ?? (norm3.abort = true);
   const schema2 = new Class2({
     type: "custom",
     check: "custom",
     fn,
-    ...norm2
+    ...norm3
   });
   return schema2;
 }
@@ -73054,9 +73054,9 @@ function collectRefs(ir) {
         if (b.ref !== void 0) refs.push(b.ref);
         walk2(b.then);
       }
-      for (const p of n.paths ?? []) {
-        if (p.ref !== void 0) refs.push(p.ref);
-        walk2(p.then);
+      for (const p2 of n.paths ?? []) {
+        if (p2.ref !== void 0) refs.push(p2.ref);
+        walk2(p2.then);
       }
       for (const k of SCOPE_KEYS) walk2(n[k]);
     }
@@ -73069,7 +73069,7 @@ function walkNodes(nodes, visit) {
     const n = nodes[i];
     visit(n, i, nodes);
     for (const b of n.branches ?? []) walkNodes(b.then, visit);
-    for (const p of n.paths ?? []) walkNodes(p.then, visit);
+    for (const p2 of n.paths ?? []) walkNodes(p2.then, visit);
     for (const k of SCOPE_KEYS) walkNodes(n[k], visit);
   }
 }
@@ -73119,7 +73119,7 @@ function parseIR(ir, { externalRefs } = {}) {
     }
     if (n.kind === "split") {
       if ((n.paths ?? []).length < 2) throw new IRError("SPLIT_ARITY", `split '${n.ref}' needs >=2 paths`);
-      if (n.mode === "weighted" && n.paths.some((p) => typeof p.weight !== "number"))
+      if (n.mode === "weighted" && n.paths.some((p2) => typeof p2.weight !== "number"))
         throw new IRError("SPLIT_WEIGHT", `split '${n.ref}' weighted requires weight per path`);
     }
     if (n.kind === "ai_decision") {
@@ -73135,8 +73135,8 @@ function parseIR(ir, { externalRefs } = {}) {
 }
 var REQUIRES_OPPORTUNITY = /* @__PURE__ */ new Set(["update_opportunity", "internal_update_opportunity"]);
 var CREATES_OPPORTUNITY = /* @__PURE__ */ new Set(["create_opportunity", "internal_create_opportunity"]);
-function checkOpportunityAssociation(norm2, oppTriggerTypes) {
-  const rootAssoc = norm2.triggers.length > 0 && norm2.triggers.every((t) => oppTriggerTypes.has(t.type));
+function checkOpportunityAssociation(norm3, oppTriggerTypes) {
+  const rootAssoc = norm3.triggers.length > 0 && norm3.triggers.every((t) => oppTriggerTypes.has(t.type));
   const walk2 = (nodes, assoc) => {
     for (const n of nodes ?? []) {
       if (REQUIRES_OPPORTUNITY.has(n.type) && !assoc && n.assocGuaranteed !== true)
@@ -73146,7 +73146,7 @@ function checkOpportunityAssociation(norm2, oppTriggerTypes) {
         );
       if (CREATES_OPPORTUNITY.has(n.type)) assoc = true;
       for (const b of n.branches ?? []) walk2(b.then, b.assocGuaranteed === true || assoc);
-      for (const p of n.paths ?? []) walk2(p.then, p.assocGuaranteed === true || assoc);
+      for (const p2 of n.paths ?? []) walk2(p2.then, p2.assocGuaranteed === true || assoc);
       walk2(n.onEvent, assoc);
       walk2(n.onTimeout, assoc);
       walk2(n.default, assoc);
@@ -73156,7 +73156,7 @@ function checkOpportunityAssociation(norm2, oppTriggerTypes) {
       walk2(n.onNotBooked, assoc);
     }
   };
-  walk2(norm2.graph, rootAssoc);
+  walk2(norm3.graph, rootAssoc);
 }
 
 // ../skills/create-ghl-workflow/engine/opp-shapes.mjs
@@ -73562,7 +73562,7 @@ function checkStepOutputRefs(templates, ctx = {}) {
     walk2(t?.attributes);
     for (const s of texts) for (const ref of findOutputRefs(s)) {
       const list = producers.get(ref.type) ?? [];
-      const hit = list.find((p) => p.n === ref.n);
+      const hit = list.find((p2) => p2.n === ref.n);
       if (!hit) {
         findings.push(ref);
         warn(`step output ${ref.raw} on '${t.name ?? t.id}': no ${ref.type} step with stepIndex ${ref.n} exists in this workflow \u2014 the reference renders literally/empty at runtime. N is the per-type stepIndex (see references/step-outputs).`);
@@ -135899,12 +135899,12 @@ var NOTE_PALETTE = [
 var nearestSwatch = (hex3) => {
   const v = String(hex3).toUpperCase();
   let best = null, bestD = Infinity;
-  for (const p of NOTE_PALETTE) {
+  for (const p2 of NOTE_PALETTE) {
     let d = 0;
-    for (let i = 1; i < 7; i++) if (p[i] !== v[i]) d++;
+    for (let i = 1; i < 7; i++) if (p2[i] !== v[i]) d++;
     if (d < bestD) {
       bestD = d;
-      best = p;
+      best = p2;
     }
   }
   return bestD <= 2 ? best : null;
@@ -136133,7 +136133,7 @@ var COUPLED_FIELDS = {
     when: (a) => a.condition === "random-split",
     check: (a) => {
       const dist = a.extras?.weightDistribution ?? {};
-      const total = Math.round((a.paths ?? []).reduce((n, p) => n + (dist[p?.id] || 0), 0) * 10) / 10;
+      const total = Math.round((a.paths ?? []).reduce((n, p2) => n + (dist[p2?.id] || 0), 0) * 10) / 10;
       return total === 100 ? null : `has random-split weights totalling ${total}, not 100`;
     },
     severity: "warn",
@@ -136410,7 +136410,7 @@ async function fetchActionSchema(call, loc) {
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-var get = (o, p) => p === "" ? o : p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
+var get = (o, p2) => p2 === "" ? o : p2.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
 var RE_CACHE = /* @__PURE__ */ new Map();
 var cachedRe = (src, flags) => {
   const k = `${src} ${flags}`;
@@ -136549,7 +136549,7 @@ var STEP_REF_FIELDS = [
   ["workflow_goal", "segments[].conditions[].extras.stepIds", "array"],
   ["workflow_goal", "segments[].conditions[].extras.invoiceStepId", "single"]
 ];
-var get2 = (o, p) => p.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
+var get2 = (o, p2) => p2.split(".").reduce((a, k) => a == null ? void 0 : a[k], o);
 var getAll = (o, path) => {
   let cur = [o];
   for (const seg of path.split(".")) {
@@ -136788,14 +136788,14 @@ function editDistance2(a, b) {
   return dp[a.length][b.length];
 }
 function suggestTags(full, candidates, limit = 4) {
-  const q = split(full);
-  if (!q) return [];
-  const words = q.key.split(/[._]/).filter(Boolean);
+  const q2 = split(full);
+  if (!q2) return [];
+  const words = q2.key.split(/[._]/).filter(Boolean);
   const scored = [];
   for (const c of candidates) {
     const s = split(c);
-    if (!s || s.ns !== q.ns || c === full) continue;
-    const d = editDistance2(q.key, s.key);
+    if (!s || s.ns !== q2.ns || c === full) continue;
+    const d = editDistance2(q2.key, s.key);
     const cw = s.key.split(/[._]/).filter(Boolean);
     const shared = cw.filter((w) => words.includes(w)).length;
     const prefix = words.some((w) => cw.some((x) => x.startsWith(w) || w.startsWith(x)));
@@ -136804,9 +136804,9 @@ function suggestTags(full, candidates, limit = 4) {
   return scored.sort((a, b) => a.score - b.score || a.c.localeCompare(b.c)).slice(0, limit).map((x) => x.c);
 }
 function searchMergeTags(catalogTags, query, { namespace, extra = [], limit = 10 } = {}) {
-  const q = String(query ?? "").toLowerCase().trim();
-  if (!q) return [];
-  const words = q.split(/[\s._-]+/).filter(Boolean);
+  const q2 = String(query ?? "").toLowerCase().trim();
+  if (!q2) return [];
+  const words = q2.split(/[\s._-]+/).filter(Boolean);
   const pool = [
     ...(catalogTags ?? []).map((t) => ({ tag: compact(t.tag), label: typeof t.label === "string" ? t.label : null, group: t.group ?? null, source: "picker" })),
     ...extra
@@ -136822,13 +136822,13 @@ function searchMergeTags(catalogTags, query, { namespace, extra = [], limit = 10
     const keyWords = key.split(/[._-]+/).filter(Boolean);
     const labelWords = label2.split(/\s+/).filter(Boolean);
     let score = null;
-    if (key === q || label2 === q) score = -100;
-    else if (words.every((w) => hay.includes(w))) score = -50 + (key.length - q.length) / 100;
+    if (key === q2 || label2 === q2) score = -100;
+    else if (words.every((w) => hay.includes(w))) score = -50 + (key.length - q2.length) / 100;
     else {
       const shared = words.filter((w) => keyWords.includes(w) || labelWords.includes(w)).length;
       if (shared) score = -20 * shared;
       else {
-        const d = Math.min(...keyWords.map((kw) => editDistance2(kw, q)), editDistance2(key, q));
+        const d = Math.min(...keyWords.map((kw) => editDistance2(kw, q2)), editDistance2(key, q2));
         if (d <= 2) score = d;
       }
     }
@@ -137960,12 +137960,12 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     if (n.kind === "split") {
-      const pathIds = n.paths.map((p) => idForRef(refMap, ctx, p.ref));
+      const pathIds = n.paths.map((p2) => idForRef(refMap, ctx, p2.ref));
       const weighted = n.mode === "weighted" || n.mode === "random";
       const even = Math.round(100 / n.paths.length);
       const weightDistribution = {};
-      n.paths.forEach((p, pi) => {
-        weightDistribution[pathIds[pi]] = weighted ? p.weight ?? even : even;
+      n.paths.forEach((p2, pi) => {
+        weightDistribution[pathIds[pi]] = weighted ? p2.weight ?? even : even;
       });
       const container = {
         id,
@@ -137979,28 +137979,28 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
           name: n.name ?? "Split",
           cat: "multi-path",
           type: "workflow_split",
-          transitions: n.paths.map((p, pi) => ({
+          transitions: n.paths.map((p2, pi) => ({
             id: pathIds[pi],
-            name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
-            condition: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+            name: p2.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+            condition: p2.name ?? `Path ${String.fromCharCode(65 + pi)}`,
             conditionType: "default",
             isPrimaryBranch: false,
             description: "",
             attributes: {}
           })),
-          paths: n.paths.map((p, pi) => ({ name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`, id: pathIds[pi] })),
+          paths: n.paths.map((p2, pi) => ({ name: p2.name ?? `Path ${String.fromCharCode(65 + pi)}`, id: pathIds[pi] })),
           condition: n.condition ?? "random-split",
           extras: { weightDistribution }
         }
       };
       if (parentScopeId !== null) container.parent = parentScopeId;
       templates.push(withStepDisabled(n, container, ctx));
-      n.paths.forEach((p, pi) => {
-        const child = flattenGraph(p.then ?? [], ctx, refMap, pathIds[pi]);
+      n.paths.forEach((p2, pi) => {
+        const child = flattenGraph(p2.then ?? [], ctx, refMap, pathIds[pi]);
         templates.push({
           id: pathIds[pi],
           type: "transition",
-          name: p.name ?? `Path ${String.fromCharCode(65 + pi)}`,
+          name: p2.name ?? `Path ${String.fromCharCode(65 + pi)}`,
           cat: "transition",
           parentKey: id,
           parent: id,
@@ -138214,13 +138214,13 @@ function instantiateRowTemplate(f, key, extra) {
   if (!Array.isArray(templates) || !templates.length || !Array.isArray(fields) || !fields.length) return null;
   if (key == null || key === "") return null;
   const wanted = String(key).replace(/^(?:contact|opportunity)\./, "");
-  const norm2 = (x) => String(x ?? "").toLowerCase().replace(/[\s_-]+/g, "");
+  const norm3 = (x) => String(x ?? "").toLowerCase().replace(/[\s_-]+/g, "");
   for (const tpl of templates) {
     const model = tpl.source === "opportunityCustomFields" ? "opportunity" : "contact";
     const field = fields.find((c) => {
       if ((c.model ?? "contact") !== model) return false;
       const keySuffix = String(c.fieldKey ?? "").split(".").pop();
-      return c.id === wanted || norm2(c.name) === norm2(wanted) || c.fieldKey === key || norm2(keySuffix) === norm2(wanted);
+      return c.id === wanted || norm3(c.name) === norm3(wanted) || c.fieldKey === key || norm3(keySuffix) === norm3(wanted);
     });
     if (!field) continue;
     const type = VALUE_TYPE_BY_DATATYPE[field.dataType] ?? "string";
@@ -138267,8 +138267,8 @@ function expandFilter(f, rows, extra = {}) {
     return SCALAR_OPS.has(f.operator) && Array.isArray(f.value) && f.value.length === 1 ? { ...f, value: f.value[0] } : f;
   }
   const key = f.on ?? f.field ?? f.id;
-  const norm2 = (s) => String(s ?? "").toLowerCase().replace(/[\s_-]+/g, "");
-  const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm2(r.label) === norm2(key) || norm2(r.value) === norm2(key));
+  const norm3 = (s) => String(s ?? "").toLowerCase().replace(/[\s_-]+/g, "");
+  const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm3(r.label) === norm3(key) || norm3(r.value) === norm3(key));
   if (!row) {
     const instantiated = instantiateRowTemplate(f, key, extra);
     if (instantiated) return instantiated;
@@ -138470,30 +138470,30 @@ function checkFlowTriggers(triggers, ctx) {
     }
   }
 }
-function seedRefMap(norm2, externalRefs) {
+function seedRefMap(norm3, externalRefs) {
   const refMap = /* @__PURE__ */ new Map();
   if (!externalRefs) return refMap;
-  const authored = new Set(collectRefs(norm2));
+  const authored = new Set(collectRefs(norm3));
   for (const id of externalRefs.ids ?? []) if (!authored.has(id)) refMap.set(id, id);
   for (const [name, id] of externalRefs.byName ?? []) if (id && !authored.has(name) && !refMap.has(name)) refMap.set(name, id);
   return refMap;
 }
 function compile(ir, ctx) {
-  const norm2 = parseIR(ir, { externalRefs: ctx.externalRefs });
-  checkMarketplaceFilters(norm2.triggers, ctx);
-  checkFlowTriggers(norm2.triggers, ctx);
+  const norm3 = parseIR(ir, { externalRefs: ctx.externalRefs });
+  checkMarketplaceFilters(norm3.triggers, ctx);
+  checkFlowTriggers(norm3.triggers, ctx);
   const oppTriggerTypes = new Set(
     ctx.catalog.allTriggers().filter((t) => ctx.catalog.trigger(t)?.category === "opportunities")
   );
-  checkOpportunityAssociation(norm2, oppTriggerTypes);
-  const refMap = seedRefMap(norm2, ctx.externalRefs);
+  checkOpportunityAssociation(norm3, oppTriggerTypes);
+  const refMap = seedRefMap(norm3, ctx.externalRefs);
   const visited = /* @__PURE__ */ new Set();
   const triggerRefs = /* @__PURE__ */ new Map();
-  norm2.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`, ctx.idGen()));
-  const { templates } = flattenGraph(norm2.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs }, refMap, null);
+  norm3.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`, ctx.idGen()));
+  const { templates } = flattenGraph(norm3.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs }, refMap, null);
   const missing = [];
   let authored = 0;
-  walkNodes(norm2.graph, (n) => {
+  walkNodes(norm3.graph, (n) => {
     authored += 1;
     if (!visited.has(n)) missing.push(n.ref ?? `<${n.type ?? n.kind} "${n.name ?? "?"}">`);
   });
@@ -138530,13 +138530,13 @@ function compile(ir, ctx) {
   const wid = ctx.idGen();
   const sessionId = ctx.idGen();
   const createdSteps = templates.map((t) => t.id);
-  const S = normalizeSettings(norm2.settings, ctx).body;
+  const S = normalizeSettings(norm3.settings, ctx).body;
   const createBody = {
-    name: norm2.name,
+    name: norm3.name,
     status: "draft",
     parentId: null,
     updatedBy: ctx.uid,
-    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
+    ...norm3.customObjectType ? { customObjectType: norm3.customObjectType } : {},
     modifiedSteps: [],
     deletedSteps: [],
     createdSteps: [],
@@ -138558,7 +138558,7 @@ function compile(ir, ctx) {
     locationId: ctx.loc,
     companyId: ctx.cid,
     companyAge: ctx.companyAge,
-    name: norm2.name,
+    name: norm3.name,
     status: "draft",
     version: 1,
     dataVersion: 7,
@@ -138566,10 +138566,10 @@ function compile(ir, ctx) {
     parentId: null,
     // A FLOW_BUILDER_BOT's flow workflow persists with workflowType:"agent" (live capture
     // recon-flow-workflow-full.json). Plain workflows omit it. type stays "workflow".
-    ...norm2.workflowType ? { workflowType: norm2.workflowType } : {},
+    ...norm3.workflowType ? { workflowType: norm3.workflowType } : {},
     // OBJECT-BASED workflow (G8): the create/save carry the schema key top-level
     // (utils/create-workflow-blank.ts; isObjectBasedWF tests startsWith('custom_objects.')).
-    ...norm2.customObjectType ? { customObjectType: norm2.customObjectType } : {},
+    ...norm3.customObjectType ? { customObjectType: norm3.customObjectType } : {},
     permission: 380,
     permissionMeta: { canRead: true, canWrite: true },
     creationSource: "builder",
@@ -138609,7 +138609,7 @@ function compile(ir, ctx) {
     // above for what this map records and why it's per-key.
     ...marketplaceStepIndexCounter2.size > 0 || S.statsView ? { meta: { ...marketplaceStepIndexCounter2.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
   };
-  const triggerBodies = norm2.triggers.map((t, i) => {
+  const triggerBodies = norm3.triggers.map((t, i) => {
     const body = buildTrigger(t, ctx, wid, refMap);
     const placeholder = triggerRefs.get(t.ref ?? `__trigger_${i}`);
     return {
@@ -138642,8 +138642,8 @@ function compile(ir, ctx) {
   checkMergeTags(templates, ctx?.catalog, ctx);
   checkStepOutputRefs(templates, ctx);
   checkGoghlSyntax(templates, ctx);
-  checkWebhookRefs(templates, ctx?.sampleWebhookPayload ?? norm2?.sampleWebhookPayload ?? ir?.sampleWebhookPayload, ctx);
-  if (norm2.customObjectType && ctx?.skipObjectRules !== true) {
+  checkWebhookRefs(templates, ctx?.sampleWebhookPayload ?? norm3?.sampleWebhookPayload ?? ir?.sampleWebhookPayload, ctx);
+  if (norm3.customObjectType && ctx?.skipObjectRules !== true) {
     const OBJECT_ALLOWED = /* @__PURE__ */ new Set([
       "if_else",
       "email",
@@ -138667,7 +138667,7 @@ function compile(ir, ctx) {
     if (bad.length)
       throw new IRError(
         "OBJECT_STEP",
-        `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm2.customObjectType}): ` + bad.map((t) => `'${t.name ?? t.id}' (${t.type})`).join(", ") + `. The builder's picker offers only: ${[...OBJECT_ALLOWED].filter((x) => x !== "transition").join(", ")}. Remove them, target a contact workflow instead, or pass skipObjectRules: true.`
+        `OBJECT_STEP: ${bad.length} step(s) not available in an object-based workflow (customObjectType ${norm3.customObjectType}): ` + bad.map((t) => `'${t.name ?? t.id}' (${t.type})`).join(", ") + `. The builder's picker offers only: ${[...OBJECT_ALLOWED].filter((x) => x !== "transition").join(", ")}. Remove them, target a contact workflow instead, or pass skipObjectRules: true.`
       );
     for (const tb of []) void tb;
   }
@@ -138718,9 +138718,9 @@ function planReadinessChecks({ templates = [], triggerTypes = [], settings = {},
   return [...plan.values()];
 }
 async function runReadinessChecks(plan, { call, loc }) {
-  const g = async (p) => {
+  const g = async (p2) => {
     try {
-      const r = await call("GET", p);
+      const r = await call("GET", p2);
       return r?.ok ? r.json : null;
     } catch {
       return null;
@@ -138927,6 +138927,184 @@ function loadCatalog() {
   };
 }
 
+// ../skills/create-ghl-workflow/engine/entities.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var arrayFrom = (...values) => values.find(Array.isArray) ?? [];
+var recordsFrom = (...values) => arrayFrom(...values).filter((v) => v && typeof v === "object" && !Array.isArray(v));
+var q = (loc, extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
+var p = (loc) => encodeURIComponent(String(loc));
+var norm = (s) => String(s ?? "").trim().toLowerCase();
+var ENTITY_REGISTRY = [
+  {
+    key: "pipelines",
+    path: (loc) => `/opportunities/pipelines?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.pipelines, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name, stages: recordsFrom(x.stages).map((s) => ({ id: s.id, name: s.name })) })
+  },
+  {
+    key: "calendars",
+    path: (loc) => `/calendars/?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.calendars, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name })
+  },
+  {
+    key: "users",
+    path: (loc) => `/users/?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.users, j),
+    project: (x) => ({ id: x.id || x._id, firstName: x.firstName, lastName: x.lastName, email: x.email, name: x.name })
+  },
+  {
+    key: "forms",
+    path: (loc) => `/forms/?${q(loc, { limit: "100" })}`,
+    pick: (j) => recordsFrom(j?.forms, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name })
+  },
+  // model=all: the plain /customFields endpoint returns CONTACT fields only, so an opportunity
+  // field would resolve to nothing.
+  {
+    key: "customFields",
+    path: (loc) => `/locations/${p(loc)}/customFields/search?${new URLSearchParams({
+      parentId: "",
+      skip: "0",
+      limit: "10000",
+      documentType: "field",
+      model: "all",
+      query: "",
+      includeStandards: "false"
+    })}`,
+    pick: (j) => recordsFrom(j?.customFields, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name, fieldKey: x.fieldKey, dataType: x.dataType, model: x.model })
+  },
+  {
+    key: "workflows",
+    path: (loc) => `/workflow/${p(loc)}/list?${new URLSearchParams({ type: "workflow", limit: "200", offset: "0", sortBy: "name", sortOrder: "asc" })}`,
+    pick: (j) => recordsFrom(j?.rows, j).filter((w) => (w.type ?? "workflow") === "workflow"),
+    project: (x) => ({ id: x._id || x.id, name: x.name, status: x.status })
+  },
+  {
+    key: "customValues",
+    path: (loc) => `/locations/${p(loc)}/customValues`,
+    pick: (j) => recordsFrom(j?.customValues, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name, fieldKey: x.fieldKey })
+  },
+  {
+    key: "triggerLinks",
+    path: (loc) => `/links/?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.links, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name, redirectTo: x.redirectTo })
+  },
+  {
+    key: "offers",
+    path: (loc) => `/membership/locations/${p(loc)}/offers`,
+    pick: (j) => recordsFrom(j),
+    project: (x) => ({ id: x.id || x._id, name: x.title ?? x.name })
+  },
+  {
+    key: "membershipProducts",
+    path: (loc) => `/membership/locations/${p(loc)}/products?doNotIncludeOffers=true&sendCustomizations=true`,
+    pick: (j) => recordsFrom(j?.products, j),
+    project: (x) => ({ id: x.id || x._id, name: x.title ?? x.name })
+  },
+  {
+    key: "smsTemplates",
+    path: (loc) => `/locations/${p(loc)}/templates?limit=200`,
+    pick: (j) => recordsFrom(j?.templates, j).filter((t) => (t.type ?? "sms") !== "email"),
+    project: (x) => ({ id: x.id || x._id, name: x.name, type: x.type })
+  },
+  {
+    key: "emailTemplates",
+    path: (loc) => `/emails/builder?${q(loc, { limit: "100", offset: "0" })}`,
+    pick: (j) => recordsFrom(j?.builders, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name })
+  },
+  {
+    key: "products",
+    path: (loc) => `/products/?${q(loc, { limit: "100" })}`,
+    pick: (j) => recordsFrom(j?.products, j),
+    project: (x) => ({ id: x._id || x.id, name: x.name })
+  },
+  {
+    key: "coupons",
+    path: (loc) => `/payments/coupon/list?${new URLSearchParams({ altId: String(loc), altType: "location", limit: "100" })}`,
+    pick: (j) => recordsFrom(j?.data, j),
+    project: (x) => ({ id: x._id || x.id, name: x.name, code: x.code })
+  },
+  {
+    key: "phoneNumbers",
+    path: (loc) => `/phone-system/numbers?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.phoneNumbers, j),
+    project: (x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })
+  },
+  {
+    key: "funnels",
+    path: (loc) => `/funnels/funnel/list?${q(loc, { type: "funnel", offset: "0", limit: "200" })}`,
+    pick: (j) => recordsFrom(j?.funnels, j),
+    project: (x) => ({ id: x._id || x.id, name: x.name })
+  },
+  {
+    key: "fbPages",
+    path: (loc) => `/integrations/facebook/${p(loc)}/pages?getAll=true`,
+    pick: (j) => recordsFrom(j?.pages, j),
+    project: (x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })
+  },
+  {
+    key: "documentTemplates",
+    path: (loc) => `/proposals/templates?${q(loc, { limit: "100" })}`,
+    pick: (j) => recordsFrom(j?.data, j),
+    project: (x) => ({ id: x._id || x.id, name: x.name })
+  },
+  {
+    key: "objects",
+    path: (loc) => `/objects/?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.objects, j),
+    project: (x) => ({
+      key: x.key,
+      id: x.id || x._id,
+      singular: x.labels?.singular,
+      plural: x.labels?.plural,
+      standard: x.standard ?? x.type === "SYSTEM_DEFINED"
+    })
+  },
+  // ── Added by Phase 5. Both are NAMEABLE things a workflow step refers to, and neither was
+  //    fetched, so neither could be authored by name.
+  //
+  // lostReasonId is required by an update_opportunity whose status is 'lost' — the builder
+  // DELETES the entry when the status is anything else, so an id that matches nothing is a step
+  // that saves and records no reason.
+  {
+    key: "lostReasons",
+    path: (loc) => `/opportunities/lost-reason?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.data, j?.lostReasons, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name ?? x.reason }),
+    resolver: { name: "lostReasonId", match: (r) => [r.name], value: (r) => r.id }
+  },
+  // Call dispositions are matched BY NAME at runtime, so a disposition that does not exist in
+  // Settings means the trigger can never fire — the resolver returns the canonical NAME, not an id.
+  {
+    key: "callDispositions",
+    path: (loc) => `/phone-system/call-dispositions?${q(loc)}`,
+    pick: (j) => recordsFrom(j?.data, j?.dispositions, j),
+    project: (x) => ({ id: x.id || x._id, name: x.name ?? x.title }),
+    resolver: { name: "callDisposition", match: (r) => [r.name], value: (r) => r.name }
+  }
+];
+function registryResolvers(raw = {}) {
+  const out = {};
+  for (const e of ENTITY_REGISTRY) {
+    if (!e.resolver) continue;
+    const rows = Array.isArray(raw[e.key]) ? raw[e.key] : [];
+    out[e.resolver.name] = (query) => {
+      const wanted = norm(query);
+      if (!wanted) return void 0;
+      const hit = rows.find((r) => e.resolver.match(r).some((m) => norm(m) === wanted));
+      return hit ? e.resolver.value ? e.resolver.value(hit) : hit.id : void 0;
+    };
+  }
+  return out;
+}
+
 // ../skills/create-ghl-workflow/engine/tags.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -138962,7 +139140,7 @@ function collectRequiredTags(ir) {
         }
         walk2(b.then);
       }
-      for (const p of n.paths ?? []) walk2(p.then);
+      for (const p2 of n.paths ?? []) walk2(p2.then);
       walk2(n.onEvent);
       walk2(n.onTimeout);
       walk2(n.onFound);
@@ -139003,8 +139181,8 @@ var isMergeTag2 = (v) => typeof v === "string" && v.includes("{{");
 function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null } = {}) {
   const out = [];
   const known = pipelines && {
-    pipelineId: new Set(pipelines.map((p) => p.id)),
-    pipelineStageId: new Set(pipelines.flatMap((p) => (p.stages ?? []).map((s) => s.id))),
+    pipelineId: new Set(pipelines.map((p2) => p2.id)),
+    pipelineStageId: new Set(pipelines.flatMap((p2) => (p2.stages ?? []).map((s) => s.id))),
     lostReasonId: lostReasons ? new Set(lostReasons.map((r) => r.id ?? r._id)) : null
   };
   for (const t of templates ?? []) {
@@ -139115,7 +139293,7 @@ function lintTriggerRows(triggers, catalog) {
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-var norm = (s) => String(s ?? "").trim().toLowerCase();
+var norm2 = (s) => String(s ?? "").trim().toLowerCase();
 var STANDARD_CONTACT_FIELDS = /* @__PURE__ */ new Set([
   "phone",
   "email",
@@ -139142,49 +139320,51 @@ var STANDARD_CONTACT_FIELDS = /* @__PURE__ */ new Set([
   "assignedTo"
 ]);
 function buildResolvers(raw = {}) {
+  const fromRegistry = registryResolvers(raw);
   const pipelines = raw.pipelines ?? [];
-  const byName = (list, keyFns) => (q) => {
-    const n = norm(q);
-    return (list ?? []).find((x) => keyFns.some((f) => norm(f(x)) === n));
+  const byName = (list, keyFns) => (q2) => {
+    const n = norm2(q2);
+    return (list ?? []).find((x) => keyFns.some((f) => norm2(f(x)) === n));
   };
-  const pipeline = byName(pipelines, [(p) => p.name]);
+  const pipeline = byName(pipelines, [(p2) => p2.name]);
   return {
+    ...fromRegistry,
     pipeline,
-    pipelineId: (q) => pipeline(q)?.id,
+    pipelineId: (q2) => pipeline(q2)?.id,
     // stage lookup: within a named pipeline if given, else across all pipelines
     stageId: (stageName, pipeName) => {
       const scope = pipeName ? [pipeline(pipeName)].filter(Boolean) : pipelines;
-      for (const p of scope) {
-        const s = (p.stages ?? []).find((x) => norm(x.name) === norm(stageName));
+      for (const p2 of scope) {
+        const s = (p2.stages ?? []).find((x) => norm2(x.name) === norm2(stageName));
         if (s) return s.id;
       }
       return void 0;
     },
-    calendarId: (q) => byName(raw.calendars, [(c) => c.name])(q)?.id,
-    formId: (q) => byName(raw.forms, [(f) => f.name])(q)?.id,
-    surveyId: (q) => byName(raw.surveys, [(s) => s.name])(q)?.id,
-    userId: (q) => byName(raw.users, [(u) => u.email, (u) => u.name, (u) => `${u.firstName ?? ""} ${u.lastName ?? ""}`])(q)?.id,
-    customFieldId: (q) => byName(raw.customFields, [(c) => c.name, (c) => c.fieldKey])(q)?.id,
+    calendarId: (q2) => byName(raw.calendars, [(c) => c.name])(q2)?.id,
+    formId: (q2) => byName(raw.forms, [(f) => f.name])(q2)?.id,
+    surveyId: (q2) => byName(raw.surveys, [(s) => s.name])(q2)?.id,
+    userId: (q2) => byName(raw.users, [(u) => u.email, (u) => u.name, (u) => `${u.firstName ?? ""} ${u.lastName ?? ""}`])(q2)?.id,
+    customFieldId: (q2) => byName(raw.customFields, [(c) => c.name, (c) => c.fieldKey])(q2)?.id,
     // AI agents (voice + conversation AI), matched by name
-    agentId: (q) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q)?.id,
+    agentId: (q2) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q2)?.id,
     // SECOND-ORDER (G1–G3): workflows / custom values / trigger links / offers / course products
-    workflowId: (q) => byName(raw.workflows, [(w) => w.name])(q)?.id,
-    customValueId: (q) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? "").replace(/^\{\{\s*custom_values\./, "").replace(/\s*\}\}$/, "")])(q)?.id,
-    triggerLinkId: (q) => byName(raw.triggerLinks, [(l) => l.name])(q)?.id,
-    offerId: (q) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q)?.id,
-    membershipProductId: (q) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q)?.id,
+    workflowId: (q2) => byName(raw.workflows, [(w) => w.name])(q2)?.id,
+    customValueId: (q2) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? "").replace(/^\{\{\s*custom_values\./, "").replace(/\s*\}\}$/, "")])(q2)?.id,
+    triggerLinkId: (q2) => byName(raw.triggerLinks, [(l) => l.name])(q2)?.id,
+    offerId: (q2) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q2)?.id,
+    membershipProductId: (q2) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q2)?.id,
     // G4/G5/G6/G9
-    smsTemplateId: (q) => byName(raw.smsTemplates, [(t) => t.name])(q)?.id,
-    emailTemplateId: (q) => byName(raw.emailTemplates, [(t) => t.name])(q)?.id,
-    productId: (q) => byName(raw.products, [(x) => x.name])(q)?.id,
-    couponId: (q) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q)?.id,
-    phoneNumber: (q) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q)?.number,
-    funnelId: (q) => byName(raw.funnels, [(x) => x.name])(q)?.id,
-    fbPageId: (q) => byName(raw.fbPages, [(x) => x.name])(q)?.id,
-    documentTemplateId: (q) => byName(raw.documentTemplates, [(x) => x.name])(q)?.id,
+    smsTemplateId: (q2) => byName(raw.smsTemplates, [(t) => t.name])(q2)?.id,
+    emailTemplateId: (q2) => byName(raw.emailTemplates, [(t) => t.name])(q2)?.id,
+    productId: (q2) => byName(raw.products, [(x) => x.name])(q2)?.id,
+    couponId: (q2) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q2)?.id,
+    phoneNumber: (q2) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q2)?.number,
+    funnelId: (q2) => byName(raw.funnels, [(x) => x.name])(q2)?.id,
+    fbPageId: (q2) => byName(raw.fbPages, [(x) => x.name])(q2)?.id,
+    documentTemplateId: (q2) => byName(raw.documentTemplates, [(x) => x.name])(q2)?.id,
     // G8: object schema key by key ('custom_objects.pet' or 'pet') or label ('Pet'/'Pets')
-    customObjectKey: (q) => {
-      const hit = byName(raw.objects, [(o) => o.key, (o) => String(o.key ?? "").replace(/^custom_objects\./, ""), (o) => o.singular, (o) => o.plural])(q);
+    customObjectKey: (q2) => {
+      const hit = byName(raw.objects, [(o) => o.key, (o) => String(o.key ?? "").replace(/^custom_objects\./, ""), (o) => o.singular, (o) => o.plural])(q2);
       return hit?.key;
     }
   };
@@ -139216,7 +139396,7 @@ function walk(nodes, visit) {
   for (const n of nodes ?? []) {
     visit(n);
     for (const b of n.branches ?? []) walk(b.then, visit);
-    for (const p of n.paths ?? []) walk(p.then, visit);
+    for (const p2 of n.paths ?? []) walk(p2.then, visit);
     for (const k of SCOPE_KEYS2) walk(n[k], visit);
   }
 }
@@ -139272,11 +139452,11 @@ function resolveIR(ir, r) {
       if (a.workflow_id) delete a.workflow;
     }
     if (type === "update_custom_value" && (a.customValue ?? a.custom_value) && !a.custom_value_id) {
-      const q = a.customValue ?? a.custom_value;
-      a.custom_value_id = need(r.customValueId(q), "update_custom_value.customValue", q);
+      const q2 = a.customValue ?? a.custom_value;
+      a.custom_value_id = need(r.customValueId(q2), "update_custom_value.customValue", q2);
       delete a.customValue;
       delete a.custom_value;
-      if (a.custom_value_id && !a.name) a.name = q;
+      if (a.custom_value_id && !a.name) a.name = q2;
     }
     if ((type === "membership_grant_offer" || type === "membership_revoke_offer") && a.offer && !a.offer_id) {
       a.offer_id = need(r.offerId(a.offer), `${type}.offer`, a.offer);
@@ -139610,9 +139790,9 @@ function reScopeTailOntoBranch(templates, branchEntryId, tailId, modified) {
   modified.add(anchorId);
   let order = existing.length;
   scopeChain(byId, tailId).forEach((n, i) => {
-    const p = { ...patch.get(n.id) ?? {}, parent: branchEntryId, order: order++ };
-    if (i === 0) p.parentKey = anchorId;
-    patch.set(n.id, p);
+    const p2 = { ...patch.get(n.id) ?? {}, parent: branchEntryId, order: order++ };
+    if (i === 0) p2.parentKey = anchorId;
+    patch.set(n.id, p2);
     modified.add(n.id);
   });
   return templates.map((t) => patch.has(t.id) ? { ...t, ...patch.get(t.id) } : t);
@@ -140514,7 +140694,7 @@ function gotoPlacement(templates) {
   const byId = new Map(templates.map((t) => [t.id, t]));
   for (const t of templates) {
     if (t.type !== "goto") continue;
-    const parent = [...byId.values()].find((p) => p.next === t.id);
+    const parent = [...byId.values()].find((p2) => p2.next === t.id);
     if (!parent) continue;
     if (typeof t.next === "string" && t.next) {
       out.push(`goto '${t.name ?? t.id}' has a step after it. A goto jumps away, so anything below it in the same branch is unreachable \u2014 move it to the end of the branch.`);
@@ -140608,98 +140788,30 @@ function scrubUpstream(value, key = "") {
 }
 async function fetchEntities(gw) {
   const { call, loc } = gw;
-  const g = async (p) => {
+  const g = async (path) => {
     try {
-      const r = await call("GET", p);
+      const r = await call("GET", path);
       return r.ok ? r.json : {};
     } catch {
       return {};
     }
   };
-  const arrayFrom = (...values) => values.find(Array.isArray) ?? [];
-  const recordsFrom2 = (...values) => arrayFrom(...values).filter((value) => value && typeof value === "object" && !Array.isArray(value));
-  const locationQuery = (extra = {}) => new URLSearchParams({ locationId: String(loc), ...extra });
-  const locationPath = encodeURIComponent(String(loc));
-  const [pl, cl, us, fm, cf, agS, agC, wfL, cvL, lkL, ofL, mpL, tpL, ebL, prL, cpL, phL, fnL, fbL, dtL, obL] = await Promise.all([
-    g(`/opportunities/pipelines?${locationQuery()}`),
-    g(`/calendars/?${locationQuery()}`),
-    g(`/users/?${locationQuery()}`),
-    g(`/forms/?${locationQuery({ limit: "100" })}`),
-    // model=all: the plain /customFields endpoint returns CONTACT fields only, so an
-    // update_opportunity referencing an OPPORTUNITY custom field false-threw OPP_FIELD_UNKNOWN
-    // (live-caught on GROM AU 2026-07-18). The search endpoint returns every model's custom
-    // fields; includeStandards=false keeps it to genuine custom fields (standard opp fields
-    // like name/status are matched by STANDARD_OPP_FIELDS before the custom lookup).
-    g(`/locations/${locationPath}/customFields/search?${new URLSearchParams({
-      parentId: "",
-      skip: "0",
-      limit: "10000",
-      documentType: "field",
-      model: "all",
-      query: "",
-      includeStandards: "false"
-    })}`),
-    g(`/voice-ai/agents?${locationQuery()}`),
-    // best-effort (may 404)
-    // `/ai-employees/agents` 404s ("Cannot GET ... Not Found", an express route-not-registered)
-    // — always, not just "may". The live discovery route is the search sibling of the
-    // per-agent detail route, used below.
-    g(`/ai-employees/employees/search?${locationQuery()}`),
-    // best-effort (may 404)
-    // SECOND-ORDER resolvers (SURFACE-GAP-ANALYSIS G1–G3, live-proven shapes 2026-08-22):
-    // the account's workflows (add_to_workflow targets by NAME), custom values, trigger links,
-    // membership offers + course products (course/offer trigger filters, grant/revoke offer).
-    g(`/workflow/${locationPath}/list?${new URLSearchParams({ type: "workflow", limit: "200", offset: "0", sortBy: "name", sortOrder: "asc" })}`),
-    g(`/locations/${locationPath}/customValues`),
-    g(`/links/?${locationQuery()}`),
-    g(`/membership/locations/${locationPath}/offers`),
-    // → [{id,title,…}]
-    g(`/membership/locations/${locationPath}/products?doNotIncludeOffers=true&sendCustomizations=true`),
-    // G4/G5/G6/G9 (shapes live-proven 2026-08-22): SMS/WhatsApp template library, email-builder
-    // templates, store products, coupons, phone numbers, funnels (the /funnels prefix answers on
-    // this same Bearer rail — the token-id requirement is the OTHER host's).
-    g(`/locations/${locationPath}/templates?limit=200`),
-    g(`/emails/builder?${locationQuery({ limit: "100", offset: "0" })}`),
-    g(`/products/?${locationQuery({ limit: "100" })}`),
-    g(`/payments/coupon/list?${new URLSearchParams({ altId: String(loc), altType: "location", limit: "100" })}`),
-    g(`/phone-system/numbers?${locationQuery()}`),
-    g(`/funnels/funnel/list?${locationQuery({ type: "funnel", offset: "0", limit: "200" })}`),
-    // G7/G18: connected Facebook pages (facebook.pageId trigger filters) + document/estimate templates
-    g(`/integrations/facebook/${locationPath}/pages?getAll=true`),
-    g(`/proposals/templates?${locationQuery({ limit: "100" })}`),
-    g(`/objects/?${locationQuery()}`)
-    // G8: object schemas
+  const legs = await Promise.all(ENTITY_REGISTRY.map(async (e) => {
+    const json2 = await g(e.path(loc));
+    try {
+      return [e.key, e.pick(json2).map(e.project)];
+    } catch {
+      return [e.key, []];
+    }
+  }));
+  const out = Object.fromEntries(legs);
+  const [voice, convai] = await Promise.all([
+    g(`/voice-ai/agents?${new URLSearchParams({ locationId: String(loc) })}`),
+    g(`/ai-employees/employees/search?${new URLSearchParams({ locationId: String(loc) })}`)
   ]);
-  const agents = [
-    ...recordsFrom2(agS?.agents, agS?.data, agS),
-    ...recordsFrom2(agC?.employees, agC?.agents, agC?.data, agC)
-  ].map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
-  return {
-    pipelines: recordsFrom2(pl?.pipelines, pl).map((p) => ({
-      id: p.id || p._id,
-      name: p.name,
-      stages: recordsFrom2(p.stages).map((s) => ({ id: s.id, name: s.name }))
-    })),
-    calendars: recordsFrom2(cl?.calendars, cl).map((c) => ({ id: c.id || c._id, name: c.name })),
-    users: recordsFrom2(us?.users, us).map((u) => ({ id: u.id || u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, name: u.name })),
-    forms: recordsFrom2(fm?.forms, fm).map((f) => ({ id: f.id || f._id, name: f.name })),
-    customFields: recordsFrom2(cf?.customFields, cf).map((c) => ({ id: c.id || c._id, name: c.name, fieldKey: c.fieldKey, dataType: c.dataType, model: c.model })),
-    agents,
-    workflows: recordsFrom2(wfL?.rows, wfL).filter((w) => (w.type ?? "workflow") === "workflow").map((w) => ({ id: w._id || w.id, name: w.name, status: w.status })),
-    customValues: recordsFrom2(cvL?.customValues, cvL).map((v) => ({ id: v.id || v._id, name: v.name, fieldKey: v.fieldKey })),
-    triggerLinks: recordsFrom2(lkL?.links, lkL).map((l) => ({ id: l.id || l._id, name: l.name, redirectTo: l.redirectTo })),
-    offers: recordsFrom2(ofL).map((o) => ({ id: o.id || o._id, name: o.title ?? o.name })),
-    membershipProducts: recordsFrom2(mpL?.products, mpL).map((m) => ({ id: m.id || m._id, name: m.title ?? m.name })),
-    smsTemplates: recordsFrom2(tpL?.templates, tpL).filter((t) => (t.type ?? "sms") !== "email").map((t) => ({ id: t.id || t._id, name: t.name, type: t.type })),
-    emailTemplates: recordsFrom2(ebL?.builders, ebL).map((t) => ({ id: t.id || t._id, name: t.name })),
-    products: recordsFrom2(prL?.products, prL).map((x) => ({ id: x._id || x.id, name: x.name })),
-    coupons: recordsFrom2(cpL?.data, cpL).map((x) => ({ id: x._id || x.id, name: x.name, code: x.code })),
-    phoneNumbers: recordsFrom2(phL?.phoneNumbers, phL).map((x) => ({ number: x.value ?? x.phoneNumber, title: x.title ?? x.name })),
-    funnels: recordsFrom2(fnL?.funnels, fnL).map((x) => ({ id: x._id || x.id, name: x.name })),
-    fbPages: recordsFrom2(fbL?.pages, fbL).map((x) => ({ id: x.facebookPageId || x.id, name: x.facebookPageName || x.name })),
-    documentTemplates: recordsFrom2(dtL?.data, dtL).map((x) => ({ id: x._id || x.id, name: x.name })),
-    objects: recordsFrom2(obL?.objects, obL).map((x) => ({ key: x.key, id: x.id || x._id, singular: x.labels?.singular, plural: x.labels?.plural, standard: x.standard ?? x.type === "SYSTEM_DEFINED" }))
-  };
+  const agentRows = (j) => (Array.isArray(j?.agents) ? j.agents : Array.isArray(j?.employees) ? j.employees : Array.isArray(j?.data) ? j.data : Array.isArray(j) ? j : []).filter((a) => a && typeof a === "object");
+  out.agents = [...agentRows(voice), ...agentRows(convai)].map((a) => ({ id: a.id || a._id, name: a.name || a.agentName || a.title }));
+  return out;
 }
 async function fetchMarketplace(call, loc) {
   const legs = { assets: "failed", actions: "failed", triggers: "failed" };
@@ -140737,7 +140849,7 @@ function collectEmailTemplates(ir) {
     for (const n of nodes ?? []) {
       if (n.type === "email" && n.attributes?._template) out.push(n);
       for (const b of n.branches ?? []) walk2(b.then);
-      for (const p of n.paths ?? []) walk2(p.then);
+      for (const p2 of n.paths ?? []) walk2(p2.then);
       for (const k of ["onEvent", "onTimeout", "onFound", "onNotFound", "default"]) walk2(n[k]);
     }
   };
@@ -141083,11 +141195,11 @@ async function orchestrate(ir, gw, opts = {}) {
       const sig = canon(sample);
       for (const w of report.webhookUrls) {
         const pin = { triggerId: w.triggerId, url: w.url, posted: null, requestId: null, referenceId: null, tagCount: null, mergeTags: null, error: null };
-        const p = await callAt("webhook_pin_post", "POST", `/hooks/${loc}/webhook-trigger/${w.triggerId}`, sample);
-        if (!p) return report;
-        pin.posted = p.status;
-        if (!p.ok) {
-          pin.error = `sample POST \u2192 ${p.status}`;
+        const p2 = await callAt("webhook_pin_post", "POST", `/hooks/${loc}/webhook-trigger/${w.triggerId}`, sample);
+        if (!p2) return report;
+        pin.posted = p2.status;
+        if (!p2.ok) {
+          pin.error = `sample POST \u2192 ${p2.status}`;
           report.warnings.push(`webhook pin (${w.triggerId}): ${pin.error}`);
           report.webhookPins.push(pin);
           continue;
@@ -141763,15 +141875,15 @@ function applyOps(templates, ops, { ctx, idGen }) {
       opRefs.set(ref, id);
     }
   }
-  const norm2 = normalizeDiff(diff);
-  const touched = /* @__PURE__ */ new Set([...norm2.createdSteps, ...norm2.modifiedSteps]);
+  const norm3 = normalizeDiff(diff);
+  const touched = /* @__PURE__ */ new Set([...norm3.createdSteps, ...norm3.modifiedSteps]);
   if (tpls.some((t) => t?.isMarketplaceAction === true && touched.has(t.id))) {
     const renumbered = assignMarketplaceStepIndexes(tpls);
     tpls = renumbered.templates;
     if (renumbered.changed.length)
-      norm2.modifiedSteps = [.../* @__PURE__ */ new Set([...norm2.modifiedSteps, ...renumbered.changed])];
+      norm3.modifiedSteps = [.../* @__PURE__ */ new Set([...norm3.modifiedSteps, ...renumbered.changed])];
   }
-  return { templates: tpls, diff: norm2, opRefs };
+  return { templates: tpls, diff: norm3, opRefs };
 }
 
 // ../skills/create-ghl-workflow/engine/digest.mjs
@@ -141928,8 +142040,8 @@ function readCache(state2) {
     read(locationId, workflowId) {
       try {
         if (!enabled || !locationId || !workflowId) return null;
-        const p = pathFor(locationId, workflowId);
-        return existsSync2(p) ? JSON.parse(readFileSync2(p, "utf8")) : null;
+        const p2 = pathFor(locationId, workflowId);
+        return existsSync2(p2) ? JSON.parse(readFileSync2(p2, "utf8")) : null;
       } catch {
         return null;
       }
@@ -141937,9 +142049,9 @@ function readCache(state2) {
     write(locationId, workflowId, snapshot) {
       try {
         if (!enabled || !locationId || !workflowId || !snapshot) return false;
-        const p = pathFor(locationId, workflowId);
-        mkdirSync(dirname(p), { recursive: true, mode: 448 });
-        writeFileSync(p, JSON.stringify(scrubUpstream2(snapshot), null, 1), { mode: 384 });
+        const p2 = pathFor(locationId, workflowId);
+        mkdirSync(dirname(p2), { recursive: true, mode: 448 });
+        writeFileSync(p2, JSON.stringify(scrubUpstream2(snapshot), null, 1), { mode: 384 });
         return true;
       } catch {
         return false;
@@ -142652,13 +142764,13 @@ var Assessments = class {
    * @param {Array<{title,questionType,explanation?,options:Array<{statement,isCorrect}>}>} questions
    */
   addQuestions(quizId, questions) {
-    const payload = questions.map((q, i) => ({
+    const payload = questions.map((q2, i) => ({
       quizId,
-      title: q.title,
-      questionType: q.questionType || "single",
-      sequenceNumber: q.sequenceNumber ?? i + 1,
-      explanation: q.explanation ?? null,
-      options: (q.options || []).map((o, j) => ({
+      title: q2.title,
+      questionType: q2.questionType || "single",
+      sequenceNumber: q2.sequenceNumber ?? i + 1,
+      explanation: q2.explanation ?? null,
+      options: (q2.options || []).map((o, j) => ({
         sequence: o.sequence ?? j + 1,
         isCorrect: !!o.isCorrect,
         statement: o.statement
@@ -143851,8 +143963,8 @@ function uiSaveViolations(body, botType) {
 }
 var FATAL_FOR_FLOW_BOT = /* @__PURE__ */ new Set(["toneEmpty", "errorMaxTones", "selectChannel"]);
 function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
-  const norm2 = parseConvaiIR(ir);
-  const body = buildCreateBody(norm2, { locationId });
+  const norm3 = parseConvaiIR(ir);
+  const body = buildCreateBody(norm3, { locationId });
   const violations = uiSaveViolations(body, body.botType);
   const fatal = body.botType === "FLOW_BUILDER_BOT" ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
   if (fatal.length && allowUiUnsaveable !== true) {
@@ -143866,7 +143978,7 @@ function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
     warn?.(`UI_SAVE: ${x.field} \u2014 ${x.msg} (the API accepts this body; the UI will refuse to save the agent)`);
   }
   const create = { method: "POST", path: "/ai-employees/employees", body };
-  const actions = (norm2.actions ?? []).map((a) => compileConvaiAction(a, { agentId: null, locationId }));
+  const actions = (norm3.actions ?? []).map((a) => compileConvaiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER };
 }
 var UPDATE_FIELD_MAP = {
@@ -143916,20 +144028,20 @@ function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId
       "compileConvaiUpdateFromRecord requires the CURRENT record \u2014 GET it first. A partial PUT resets omitted agent-level booleans (measured live 2026-08-28)."
     );
   }
-  const norm2 = parseConvaiPartialIR(partialIr);
+  const norm3 = parseConvaiPartialIR(partialIr);
   const body = {};
   for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== "name") body[k] = v;
   body.locationId = locationId ?? current.locationId;
   body.employeeName = current.employeeName ?? current.name;
   const setKeys = /* @__PURE__ */ new Set(["locationId"]);
   for (const [irKey, wireKey] of Object.entries(UPDATE_FIELD_MAP)) {
-    if (norm2[irKey] !== void 0) {
-      body[wireKey] = norm2[irKey];
+    if (norm3[irKey] !== void 0) {
+      body[wireKey] = norm3[irKey];
       setKeys.add(wireKey);
     }
   }
-  if (norm2.name !== void 0) {
-    body.employeeName = norm2.name;
+  if (norm3.name !== void 0) {
+    body.employeeName = norm3.name;
     setKeys.add("employeeName");
   }
   body.actions = null;
@@ -144234,22 +144346,22 @@ function assertRequiredParam(v, field, type) {
     );
   }
 }
-function buildWorkflowTriggerParams(p) {
-  assertRequiredParam(p.workflowId, "workflowId", "WORKFLOW_TRIGGER");
-  assertRequiredParam(p.triggerPrompt, "triggerPrompt", "WORKFLOW_TRIGGER");
-  assertRequiredParam(p.triggerMessage, "triggerMessage", "WORKFLOW_TRIGGER");
-  assertRequiredParam(p.triggerMessageType, "triggerMessageType", "WORKFLOW_TRIGGER");
-  return { ...p };
+function buildWorkflowTriggerParams(p2) {
+  assertRequiredParam(p2.workflowId, "workflowId", "WORKFLOW_TRIGGER");
+  assertRequiredParam(p2.triggerPrompt, "triggerPrompt", "WORKFLOW_TRIGGER");
+  assertRequiredParam(p2.triggerMessage, "triggerMessage", "WORKFLOW_TRIGGER");
+  assertRequiredParam(p2.triggerMessageType, "triggerMessageType", "WORKFLOW_TRIGGER");
+  return { ...p2 };
 }
-function buildSmsParams(p) {
-  assertRequiredParam(p.messageBody, "messageBody", "SMS");
-  return { ...p };
+function buildSmsParams(p2) {
+  assertRequiredParam(p2.messageBody, "messageBody", "SMS");
+  return { ...p2 };
 }
-function buildDataExtractionParams(p) {
-  assertRequiredParam(p.contactFieldId, "contactFieldId", "DATA_EXTRACTION");
-  assertRequiredParam(p.contactFieldKey, "contactFieldKey", "DATA_EXTRACTION");
-  assertRequiredParam(p.contactFieldDataType, "contactFieldDataType", "DATA_EXTRACTION");
-  return { ...p };
+function buildDataExtractionParams(p2) {
+  assertRequiredParam(p2.contactFieldId, "contactFieldId", "DATA_EXTRACTION");
+  assertRequiredParam(p2.contactFieldKey, "contactFieldKey", "DATA_EXTRACTION");
+  assertRequiredParam(p2.contactFieldDataType, "contactFieldDataType", "DATA_EXTRACTION");
+  return { ...p2 };
 }
 var APPOINTMENT_BOOKING_PARAM_DEFAULTS = {
   calendarIds: null,
@@ -144283,84 +144395,84 @@ function normalizeCalendarItem(c, i) {
     throw new IRError2("SCHEMA", `APPOINTMENT_BOOKING calendarIds[${i}].triggerCondition must be <=80 chars, got ${c.triggerCondition.length}`);
   return { id: c.id, triggerCondition: c.triggerCondition };
 }
-function buildMultiCalendarBooking(p) {
-  if (!Array.isArray(p.calendarIds) || p.calendarIds.length < 2)
+function buildMultiCalendarBooking(p2) {
+  if (!Array.isArray(p2.calendarIds) || p2.calendarIds.length < 2)
     throw new IRError2(
       "SCHEMA",
-      `APPOINTMENT_BOOKING multi-calendar (calendarActionType:'multiple') requires calendarIds: an array of >=2 { id, triggerCondition } items, got: ${JSON.stringify(p.calendarIds)}`
+      `APPOINTMENT_BOOKING multi-calendar (calendarActionType:'multiple') requires calendarIds: an array of >=2 { id, triggerCondition } items, got: ${JSON.stringify(p2.calendarIds)}`
     );
-  const calendarIds = p.calendarIds.map(normalizeCalendarItem);
-  assertRequiredParam(p.aiDescription, "aiDescription", "APPOINTMENT_BOOKING");
-  if (p.aiDescription.length > 500)
-    throw new IRError2("SCHEMA", `APPOINTMENT_BOOKING aiDescription must be <=500 chars, got ${p.aiDescription.length}`);
-  const fallbackCalendar = p.fallbackCalendar ?? false;
-  let fallbackCalendarId = p.fallbackCalendarId ?? null;
+  const calendarIds = p2.calendarIds.map(normalizeCalendarItem);
+  assertRequiredParam(p2.aiDescription, "aiDescription", "APPOINTMENT_BOOKING");
+  if (p2.aiDescription.length > 500)
+    throw new IRError2("SCHEMA", `APPOINTMENT_BOOKING aiDescription must be <=500 chars, got ${p2.aiDescription.length}`);
+  const fallbackCalendar = p2.fallbackCalendar ?? false;
+  let fallbackCalendarId = p2.fallbackCalendarId ?? null;
   if (fallbackCalendar === true) {
-    assertRequiredParam(p.fallbackCalendarId, "fallbackCalendarId", "APPOINTMENT_BOOKING");
+    assertRequiredParam(p2.fallbackCalendarId, "fallbackCalendarId", "APPOINTMENT_BOOKING");
     const ids = calendarIds.map((c) => c.id);
-    if (!ids.includes(p.fallbackCalendarId))
+    if (!ids.includes(p2.fallbackCalendarId))
       throw new IRError2(
         "SCHEMA",
-        `APPOINTMENT_BOOKING fallbackCalendarId '${p.fallbackCalendarId}' must be one of the calendarIds ids [${ids.join(", ")}]`
+        `APPOINTMENT_BOOKING fallbackCalendarId '${p2.fallbackCalendarId}' must be one of the calendarIds ids [${ids.join(", ")}]`
       );
-    fallbackCalendarId = p.fallbackCalendarId;
+    fallbackCalendarId = p2.fallbackCalendarId;
   }
   return {
     ...APPOINTMENT_BOOKING_PARAM_DEFAULTS,
-    ...p,
+    ...p2,
     calendarId: null,
     calendarIds,
     calendarActionType: "multiple",
-    aiDescription: p.aiDescription,
+    aiDescription: p2.aiDescription,
     fallbackCalendar,
     fallbackCalendarId
   };
 }
-function buildAppointmentBookingParams(p) {
-  const isMulti = p.calendarActionType === "multiple" || Array.isArray(p.calendarIds) && p.calendarIds.length > 0;
-  if (isMulti) return buildMultiCalendarBooking(p);
-  assertRequiredParam(p.calendarId, "calendarId", "APPOINTMENT_BOOKING");
-  return { ...APPOINTMENT_BOOKING_PARAM_DEFAULTS, ...p };
+function buildAppointmentBookingParams(p2) {
+  const isMulti = p2.calendarActionType === "multiple" || Array.isArray(p2.calendarIds) && p2.calendarIds.length > 0;
+  if (isMulti) return buildMultiCalendarBooking(p2);
+  assertRequiredParam(p2.calendarId, "calendarId", "APPOINTMENT_BOOKING");
+  return { ...APPOINTMENT_BOOKING_PARAM_DEFAULTS, ...p2 };
 }
-function buildCapParams(p) {
-  assertRequiredParam(p.capActionId, "capActionId", "CAP");
-  assertRequiredParam(p.triggerPrompt, "triggerPrompt", "CAP");
-  assertRequiredParam(p.triggerMessage, "triggerMessage", "CAP");
-  const webhookUrl = p.schemaValues?.requestBodyValues?.webhookUrl?.value;
+function buildCapParams(p2) {
+  assertRequiredParam(p2.capActionId, "capActionId", "CAP");
+  assertRequiredParam(p2.triggerPrompt, "triggerPrompt", "CAP");
+  assertRequiredParam(p2.triggerMessage, "triggerMessage", "CAP");
+  const webhookUrl = p2.schemaValues?.requestBodyValues?.webhookUrl?.value;
   if (typeof webhookUrl !== "string" || !webhookUrl.startsWith("https://")) {
     throw new IRError2(
       "SCHEMA",
       `CAP action.actionParameters.schemaValues.requestBodyValues.webhookUrl.value must be an https:// URL (API-required per voiceai-actions-all.json), got: ${JSON.stringify(webhookUrl)}`
     );
   }
-  return { capActionName: "customApi", ...p };
+  return { capActionName: "customApi", ...p2 };
 }
-function buildAgentTransferChildParams(p) {
-  assertRequiredParam(p.destinationAgentMongoId, "destinationAgentMongoId", "AGENT_TRANSFER_CHILD");
-  assertRequiredParam(p.triggerPrompt, "triggerPrompt", "AGENT_TRANSFER_CHILD");
+function buildAgentTransferChildParams(p2) {
+  assertRequiredParam(p2.destinationAgentMongoId, "destinationAgentMongoId", "AGENT_TRANSFER_CHILD");
+  assertRequiredParam(p2.triggerPrompt, "triggerPrompt", "AGENT_TRANSFER_CHILD");
   return {
     speakDuringExecution: false,
     triggerWorkflowsPostCall: true,
-    ...p
+    ...p2
   };
 }
 function buildActionParameters(action) {
-  const p = action.actionParameters ?? {};
+  const p2 = action.actionParameters ?? {};
   switch (action.actionType) {
     case "WORKFLOW_TRIGGER":
-      return buildWorkflowTriggerParams(p);
+      return buildWorkflowTriggerParams(p2);
     case "SMS":
-      return buildSmsParams(p);
+      return buildSmsParams(p2);
     case "DATA_EXTRACTION":
-      return buildDataExtractionParams(p);
+      return buildDataExtractionParams(p2);
     case "APPOINTMENT_BOOKING":
-      return buildAppointmentBookingParams(p);
+      return buildAppointmentBookingParams(p2);
     case "CAP":
-      return buildCapParams(p);
+      return buildCapParams(p2);
     case "AGENT_TRANSFER_CHILD":
-      return buildAgentTransferChildParams(p);
+      return buildAgentTransferChildParams(p2);
     default:
-      return p;
+      return p2;
   }
 }
 function compileVoiceAiAction(action, { agentId = null, locationId } = {}) {
@@ -144379,16 +144491,16 @@ function compileVoiceAiAction(action, { agentId = null, locationId } = {}) {
   return { method: "POST", path: "/voice-ai/actions", body };
 }
 function compileVoiceAiAgent(ir, { locationId } = {}) {
-  const norm2 = parseVoiceAiIR(ir);
+  const norm3 = parseVoiceAiIR(ir);
   const create = { method: "POST", path: "/voice-ai/agents", body: { locationId } };
-  const actions = (norm2.actions ?? []).map((a) => compileVoiceAiAction(a, { agentId: null, locationId }));
+  const actions = (norm3.actions ?? []).map((a) => compileVoiceAiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER2 };
 }
 var OMIT_WHEN_EMPTY = ["businessName", "welcomeMessage", "timezone"];
 function compileVoiceAiUpdate(fullIr, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError2("MISSING_FIELD", "compileVoiceAiUpdate requires agentId");
-  const norm2 = parseVoiceAiIR(fullIr);
-  const body = buildUpdateBody(norm2, { locationId });
+  const norm3 = parseVoiceAiIR(fullIr);
+  const body = buildUpdateBody(norm3, { locationId });
   for (const key of OMIT_WHEN_EMPTY) {
     if (body[key] === "" || body[key] == null) delete body[key];
   }
@@ -144459,10 +144571,10 @@ function checkKnowledgeBaseIds2(ids) {
 function checkStarterPrompts(prompts) {
   if (prompts === void 0) return;
   if (!Array.isArray(prompts)) throw new IRError2("SCHEMA", "starterPrompts must be an array");
-  for (const p of prompts) {
-    if (!p || typeof p !== "object") throw new IRError2("SCHEMA", "each starterPrompt must be an object");
-    assertNonEmptyString3(p.label, "starterPrompt.label");
-    assertNonEmptyString3(p.prompt, "starterPrompt.prompt");
+  for (const p2 of prompts) {
+    if (!p2 || typeof p2 !== "object") throw new IRError2("SCHEMA", "each starterPrompt must be an object");
+    assertNonEmptyString3(p2.label, "starterPrompt.label");
+    assertNonEmptyString3(p2.prompt, "starterPrompt.prompt");
   }
 }
 function parseSuperAgentIR(ir) {
@@ -144487,8 +144599,8 @@ var DEFAULTS3 = {
   plugins: [{ slug: "default", name: "Default", description: "Built-in crm skills for your agent", skills: [], allSkills: true }],
   description: ""
 };
-function buildTriggers(norm2) {
-  const t = norm2.trigger ?? (Array.isArray(norm2.triggers) ? norm2.triggers[0] : void 0);
+function buildTriggers(norm3) {
+  const t = norm3.trigger ?? (Array.isArray(norm3.triggers) ? norm3.triggers[0] : void 0);
   if (!t) return [];
   return [{
     type: t.type,
@@ -144498,29 +144610,29 @@ function buildTriggers(norm2) {
     triggerMessage: t.triggerMessage ?? ""
   }];
 }
-function buildConfig(norm2) {
-  const tools = new Set(norm2.tools ?? []);
-  const knowledgeBaseIds = norm2.knowledgeBaseIds !== void 0 ? norm2.knowledgeBaseIds : null;
+function buildConfig(norm3) {
+  const tools = new Set(norm3.tools ?? []);
+  const knowledgeBaseIds = norm3.knowledgeBaseIds !== void 0 ? norm3.knowledgeBaseIds : null;
   if (Array.isArray(knowledgeBaseIds) && knowledgeBaseIds.length > 0) tools.add("kb_search");
   return {
-    name: norm2.name,
-    description: norm2.description ?? DEFAULTS3.description,
-    model: norm2.model,
-    systemPrompt: norm2.systemPrompt,
+    name: norm3.name,
+    description: norm3.description ?? DEFAULTS3.description,
+    model: norm3.model,
+    systemPrompt: norm3.systemPrompt,
     tools: Array.from(tools),
-    triggers: buildTriggers(norm2),
+    triggers: buildTriggers(norm3),
     contextManagement: DEFAULTS3.contextManagement,
-    reasoning: { effort: norm2.reasoningEffort ?? DEFAULTS3.reasoningEffort },
+    reasoning: { effort: norm3.reasoningEffort ?? DEFAULTS3.reasoningEffort },
     plugins: DEFAULTS3.plugins,
-    starterPrompts: norm2.starterPrompts ?? [],
+    starterPrompts: norm3.starterPrompts ?? [],
     knowledgeBaseIds,
     actions: []
   };
 }
 function compileSuperAgentUpdate(ir, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError2("MISSING_FIELD", "compileSuperAgentUpdate requires agentId");
-  const norm2 = parseSuperAgentIR(ir);
-  const config2 = buildConfig(norm2);
+  const norm3 = parseSuperAgentIR(ir);
+  const config2 = buildConfig(norm3);
   return {
     method: "PUT",
     path: `/agent-studio/super-agent/agents/${agentId}`,
@@ -145027,8 +145139,8 @@ function readProjectLintPack(state2, locationId) {
     if (process.env.GHL_READ_CACHE === "0") return null;
     const dir = state2?.tokenFile ? dirname2(state2.tokenFile) : null;
     if (!dir || !locationId) return null;
-    const p = join3(dir, String(locationId), "lint-pack.json");
-    return existsSync3(p) ? JSON.parse(readFileSync3(p, "utf8")) : null;
+    const p2 = join3(dir, String(locationId), "lint-pack.json");
+    return existsSync3(p2) ? JSON.parse(readFileSync3(p2, "utf8")) : null;
   } catch {
     return null;
   }
@@ -145096,7 +145208,7 @@ function buildWorkflowData(report, locationId) {
     publicationNote: report.statusReadBack === "draft" ? "Draft-only operation: nothing was published; read back as draft." : report.statusReadBack == null ? "Draft-only operation: nothing was published; status could not be read back to confirm." : `\u26A0 read back as '${report.statusReadBack}' although no publish was requested \u2014 investigate before relying on draft state.`
   }).data;
 }
-var recordsFrom = (payload, ...keys) => {
+var recordsFrom2 = (payload, ...keys) => {
   if (Array.isArray(payload)) return payload;
   for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
   return [];
@@ -145120,7 +145232,7 @@ var summarizeCourse = (course) => ({
   }
 });
 var countCourseTree = (payload) => {
-  const roots = recordsFrom(payload, "categories", "data", "rows");
+  const roots = recordsFrom2(payload, "categories", "data", "rows");
   const seen = /* @__PURE__ */ new WeakSet();
   let chapters = 0;
   let lessons = 0;
@@ -145128,10 +145240,10 @@ var countCourseTree = (payload) => {
     if (!category || typeof category !== "object" || seen.has(category)) return;
     seen.add(category);
     chapters++;
-    lessons += recordsFrom(category?.posts, "posts", "lessons", "data").length;
-    for (const child of recordsFrom(category?.children, "categories", "children", "subCategories")) visit(child);
-    for (const child of recordsFrom(category?.subCategories, "categories", "children", "subCategories")) visit(child);
-    for (const child of recordsFrom(category?.categories, "categories", "children", "subCategories")) visit(child);
+    lessons += recordsFrom2(category?.posts, "posts", "lessons", "data").length;
+    for (const child of recordsFrom2(category?.children, "categories", "children", "subCategories")) visit(child);
+    for (const child of recordsFrom2(category?.subCategories, "categories", "children", "subCategories")) visit(child);
+    for (const child of recordsFrom2(category?.categories, "categories", "children", "subCategories")) visit(child);
   };
   for (const root of roots) visit(root);
   return { chapters, lessons };
@@ -145146,7 +145258,7 @@ async function listWorkflowTriggers(gw, locationId, workflowId) {
     "GET",
     `/workflow/${encodeURIComponent(locationId)}/trigger?${query}`
   );
-  return { response, triggers: recordsFrom(response.json, "triggers", "data") };
+  return { response, triggers: recordsFrom2(response.json, "triggers", "data") };
 }
 function triggerRequiresPublish(request, workflowStatus) {
   if (request.method === "DELETE") return false;
@@ -145883,7 +145995,7 @@ var TOOLS2 = [
         );
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const q = new URLSearchParams({
+      const q2 = new URLSearchParams({
         type: "workflow",
         limit: String(args.limit ?? 100),
         offset: String(args.offset ?? 0),
@@ -145892,9 +146004,9 @@ var TOOLS2 = [
         includeCustomObjects: "true",
         includeObjectiveBuilder: "true"
       });
-      if (args.status) q.set("status", args.status);
-      if (args.search) q.set("search", args.search);
-      const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/list?${q}`);
+      if (args.status) q2.set("status", args.status);
+      if (args.search) q2.set("search", args.search);
+      const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/list?${q2}`);
       if (!r.ok) return fromHttp(r.status, r.json);
       const rows = (r.json.rows ?? []).map((w) => ({ id: w._id ?? w.id, name: w.name, status: w.status, version: w.version, updatedAt: w.updatedAt }));
       return ok({ count: r.json.count ?? rows.length, workflows: rows });
@@ -146258,9 +146370,9 @@ var TOOLS2 = [
       if (Number.isFinite(args.toDate)) filters.toDate = String(args.toDate);
       if (typeof args.eventType === "string" && args.eventType.length) filters.eventType = args.eventType;
       const withFilters = (params) => {
-        const q = new URLSearchParams(params);
-        for (const [key, value] of Object.entries(filters)) q.set(key, value);
-        return q;
+        const q2 = new URLSearchParams(params);
+        for (const [key, value] of Object.entries(filters)) q2.set(key, value);
+        return q2;
       };
       const logsQuery = withFilters(base);
       logsQuery.set("limit", String(limit));
@@ -146282,13 +146394,13 @@ var TOOLS2 = [
       let enrollmentsComplete = true;
       let rateLimited = false;
       for (; ; ) {
-        const q = withFilters(base);
-        q.set("action", action);
-        q.set("limit", String(rosterLimit));
-        if (cursor?.referenceId) q.set("referenceId", cursor.referenceId);
-        if (cursor?.referenceCreatedAt) q.set("referenceCreatedAt", String(cursor.referenceCreatedAt));
-        if (cursor?.referenceSid) q.set("referenceSid", cursor.referenceSid);
-        const page = await gw.call("GET", `/workflows/status/search/workflow-with-filter?${q}`);
+        const q2 = withFilters(base);
+        q2.set("action", action);
+        q2.set("limit", String(rosterLimit));
+        if (cursor?.referenceId) q2.set("referenceId", cursor.referenceId);
+        if (cursor?.referenceCreatedAt) q2.set("referenceCreatedAt", String(cursor.referenceCreatedAt));
+        if (cursor?.referenceSid) q2.set("referenceSid", cursor.referenceSid);
+        const page = await gw.call("GET", `/workflows/status/search/workflow-with-filter?${q2}`);
         if (!page.ok) return fromHttp(page.status, page.json);
         const batch = rosterOf(page.json);
         let fresh = 0;
@@ -146597,8 +146709,8 @@ var TOOLS2 = [
       for (const t of templates) {
         if (!t || !stepTypes.has(t.type)) continue;
         const channel = t.type === "email" ? "emails" : "messages";
-        const q = new URLSearchParams({ startDate: window.startDate, endDate: window.endDate, source: "workflow", sourceId: args.workflowId, subSourceId: t.id, locationId: args.locationId });
-        const r = await gw.call("GET", `/conversations-reporting/${channel}/aggregate?${q}`);
+        const q2 = new URLSearchParams({ startDate: window.startDate, endDate: window.endDate, source: "workflow", sourceId: args.workflowId, subSourceId: t.id, locationId: args.locationId });
+        const r = await gw.call("GET", `/conversations-reporting/${channel}/aggregate?${q2}`);
         if (!r.ok) {
           steps.push({ id: t.id, name: t.name ?? null, type: t.type, channel, error: { status: r.status } });
           continue;
@@ -146613,8 +146725,8 @@ var TOOLS2 = [
         if (!tr.ok) return fromHttp(tr.status, tr.json);
         const list = Array.isArray(tr.json) ? tr.json : tr.json?.triggers ?? tr.json?.data ?? [];
         for (const trig of list) {
-          const q = new URLSearchParams({ triggerId: trig.id, locationId: args.locationId, fromDate: String(window.fromDate), toDate: String(window.toDate), recordId: "", dateType: "custom" });
-          const r = await gw.call("GET", `/workflows/trigger/logs/count-by-triggerId?${q}`);
+          const q2 = new URLSearchParams({ triggerId: trig.id, locationId: args.locationId, fromDate: String(window.fromDate), toDate: String(window.toDate), recordId: "", dateType: "custom" });
+          const r = await gw.call("GET", `/workflows/trigger/logs/count-by-triggerId?${q2}`);
           const row = Array.isArray(r.json) ? r.json[0] ?? null : r.json && typeof r.json === "object" ? r.json : null;
           const attempted = Number(row?.total ?? 0), matched = Number(row?.matched ?? 0);
           triggers.push({ id: trig.id, name: trig.name ?? null, type: trig.type, active: trig.active ?? null, attempted, matched, unmatched: Math.max(0, attempted - matched), ...r.ok ? {} : { error: { status: r.status } } });
@@ -146623,7 +146735,7 @@ var TOOLS2 = [
       let contactsPerStep = null;
       if (args.includeContactsPerStep !== false) {
         const r = await gw.call("GET", `/workflows/status/search/count-per-step?${new URLSearchParams({ workflowId: args.workflowId, locationId: args.locationId })}`);
-        if (r.ok) contactsPerStep = recordsFrom(r.json, "data", "rows").map((x) => ({ stepId: x.currentStepId ?? x.stepId ?? null, total: x.total ?? null }));
+        if (r.ok) contactsPerStep = recordsFrom2(r.json, "data", "rows").map((x) => ({ stepId: x.currentStepId ?? x.stepId ?? null, total: x.total ?? null }));
       }
       return ok({
         workflowId: args.workflowId,
@@ -146659,7 +146771,7 @@ var TOOLS2 = [
       const loc = encodeURIComponent(args.locationId), wid = encodeURIComponent(args.workflowId);
       const r = await gw.call("GET", args.all ? `/workflow/${loc}/${wid}/history` : `/workflow/${loc}/${wid}/history/v2?${new URLSearchParams({ limit: String(args.limit ?? 20) })}`);
       if (!r.ok) return fromHttp(r.status, r.json);
-      const rows = recordsFrom(r.json, "data", "versions");
+      const rows = recordsFrom2(r.json, "data", "versions");
       const versions = rows.map((v) => ({
         versionId: v._id ?? v.id ?? null,
         version: v.version ?? null,
@@ -146787,7 +146899,7 @@ var TOOLS2 = [
         if (typeof args.qualified === "boolean") lq.set("qualified", String(args.qualified));
         const l = await gw.call("GET", `/workflows/trigger/logs/triggerId?${lq}`);
         if (l.ok) {
-          const rows = Array.isArray(l.json) ? l.json : recordsFrom(l.json, "rows", "data");
+          const rows = Array.isArray(l.json) ? l.json : recordsFrom2(l.json, "rows", "data");
           item.attempts = rows.map((r) => ({
             id: r._id ?? r.id ?? null,
             at: r.createdAt ?? null,
@@ -146851,11 +146963,11 @@ var TOOLS2 = [
       const ids = Array.isArray(args.workflowIds) ? args.workflowIds.filter(Boolean) : [];
       for (let i = 0; i < ids.length; i += 20) {
         const chunk = ids.slice(i, i + 20);
-        const q = new URLSearchParams({ locationId: args.locationId });
-        for (const id of chunk) q.append("workflowIds[]", id);
+        const q2 = new URLSearchParams({ locationId: args.locationId });
+        for (const id of chunk) q2.append("workflowIds[]", id);
         const [live, cache] = await Promise.all([
-          gw.call("GET", `/workflows/status/search/enroll-stats?${q}`),
-          gw.call("GET", `/workflows/status/search/enroll-stats-cache?${q}`)
+          gw.call("GET", `/workflows/status/search/enroll-stats?${q2}`),
+          gw.call("GET", `/workflows/status/search/enroll-stats-cache?${q2}`)
         ]);
         const byId = /* @__PURE__ */ new Map();
         for (const r of cache.ok && Array.isArray(cache.json) ? cache.json : []) byId.set(r.workflowId, { workflowId: r.workflowId, total: Number(r.total ?? 0), finished: Number(r.finished ?? 0), source: "cache" });
@@ -146864,7 +146976,7 @@ var TOOLS2 = [
       }
       return ok({
         statistics,
-        weeklyEnrollment: weekly.ok ? Array.isArray(weekly.json) ? weekly.json : recordsFrom(weekly.json, "data") : null,
+        weeklyEnrollment: weekly.ok ? Array.isArray(weekly.json) ? weekly.json : recordsFrom2(weekly.json, "data") : null,
         needsReview: {
           count: count.ok ? typeof count.json === "number" ? count.json : Number(count.json?.count ?? count.json ?? 0) : null,
           totalCount: list.ok ? list.json?.totalCount ?? null : null,
@@ -146922,7 +147034,7 @@ var TOOLS2 = [
     name: "list_account_entities",
     description: describe3(
       "list_account_entities",
-      "Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers + products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, funnels, Facebook pages, document templates and custom-object schemas \u2014 the same 20 entity kinds the build resolver uses (21 requests; custom fields take two)."
+      "Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers + products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, funnels, Facebook pages, document templates, custom-object schemas, opportunity LOST REASONS and call DISPOSITIONS \u2014 the same entity kinds the build resolver uses. One row per kind in engine/entities.mjs, so the list here cannot drift from what the sweep actually returns."
     ),
     inputSchema: schema({ locationId: external_exports.string() }),
     capabilities: [
@@ -147029,7 +147141,7 @@ var TOOLS2 = [
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const api = new GhlMembershipsApi({ gw });
       const payload = await api.listProducts();
-      const rows = recordsFrom(payload, "products", "data", "rows");
+      const rows = recordsFrom2(payload, "products", "data", "rows");
       const courses = [];
       for (const row of rows) {
         const summary = summarizeCourse(row);
@@ -147423,7 +147535,7 @@ var TOOLS2 = [
       if (neededTags.length) {
         const tagResponse = await gw.call("GET", `/locations/${locationPath}/tags`);
         if (!tagResponse.ok) return fromHttp(tagResponse.status, tagResponse.json);
-        const existingNames = recordsFrom(tagResponse.json, "tags").map((tag) => tag.name);
+        const existingNames = recordsFrom2(tagResponse.json, "tags").map((tag) => tag.name);
         tagsToCreate = missingTags(neededTags, existingNames);
       }
       const preview = editPreview(
@@ -147609,7 +147721,7 @@ var TOOLS2 = [
         );
       }
       const roundTripResponse = roundTripCall.value;
-      const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
+      const gotTemplates = recordsFrom2(roundTripResponse.json?.workflowData?.templates);
       readCache(deps.state).write(args.locationId, args.workflowId, {
         readAt: (/* @__PURE__ */ new Date()).toISOString(),
         version: roundTripResponse.json?.version ?? null,
@@ -147719,7 +147831,7 @@ var TOOLS2 = [
       const initialResponse = await getWorkflow(gw, args.locationId, args.workflowId);
       if (!initialResponse.ok) return fromHttp(initialResponse.status, initialResponse.json);
       const fresh = initialResponse.json;
-      const beforeTemplates = recordsFrom(fresh?.workflowData?.templates);
+      const beforeTemplates = recordsFrom2(fresh?.workflowData?.templates);
       if (!Array.isArray(beforeTemplates)) {
         return fail(
           CODES.ENGINE_ABORT,
@@ -147778,7 +147890,7 @@ var TOOLS2 = [
           "Re-read the workflow and inspect the canvas before editing further."
         ), { preview });
       }
-      const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
+      const gotTemplates = recordsFrom2(roundTripResponse.json?.workflowData?.templates);
       const verify = verifyEditRoundTrip(stripNullNext(args.templates), beforeTemplates, stripNullNext(gotTemplates));
       const data2 = {
         workflowId: args.workflowId,
@@ -148135,15 +148247,15 @@ var TOOLS2 = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
-      const q = new URLSearchParams({
+      const q2 = new URLSearchParams({
         limit: String(args.limit ?? 100),
         offset: String(args.offset ?? 0),
         sortBy: "name",
         sortOrder: "asc"
       });
-      if (args.parentId === void 0) q.set("type", "directory");
-      else q.set("parentId", args.parentId);
-      const r = await gw.call("GET", `/workflow/${loc}/list?${q}`);
+      if (args.parentId === void 0) q2.set("type", "directory");
+      else q2.set("parentId", args.parentId);
+      const r = await gw.call("GET", `/workflow/${loc}/list?${q2}`);
       if (!r.ok) return fromHttp(r.status, r.json);
       const rows = (r.json?.rows ?? []).map((row) => ({
         id: row.id ?? row._id,
@@ -148503,7 +148615,7 @@ var TOOLS2 = [
           void 0,
           { base: AI_BASE2 }
         );
-        return { response, folders: recordsFrom(response.json, "customFieldFolders") };
+        return { response, folders: recordsFrom2(response.json, "customFieldFolders") };
       };
       const existingList = await listFolders(model);
       if (!existingList.response.ok) return fromHttp(existingList.response.status, existingList.response.json);
@@ -148615,9 +148727,9 @@ var TOOLS2 = [
       const lq = new URLSearchParams({ locationId: loc });
       let posted = null;
       if (args.pinLatestExisting !== true) {
-        const p = await gw.call("POST", `/hooks/${encodeURIComponent(loc)}/webhook-trigger/${tid}`, args.samplePayload, "https://services.leadconnectorhq.com");
-        posted = { status: p.status, body: p.json ?? null };
-        if (!p.ok) return fromHttp(p.status, p.json);
+        const p2 = await gw.call("POST", `/hooks/${encodeURIComponent(loc)}/webhook-trigger/${tid}`, args.samplePayload, "https://services.leadconnectorhq.com");
+        posted = { status: p2.status, body: p2.json ?? null };
+        if (!p2.ok) return fromHttp(p2.status, p2.json);
       }
       const sortKeysDeep2 = (o) => Array.isArray(o) ? o.map(sortKeysDeep2) : o && typeof o === "object" ? Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortKeysDeep2(o[k])])) : o;
       const canon = (o) => JSON.stringify(sortKeysDeep2(o));
@@ -148939,8 +149051,8 @@ var TOOLS2 = [
       let hit = args.id ? pool.find((e) => e.id === args.id) : null;
       if (!hit && args.method && args.path) {
         const want = String(args.method).toUpperCase();
-        const norm2 = (p) => String(p).replace(/\{[A-Za-z0-9_]+\}/g, "{p}");
-        hit = pool.find((e) => e.method === want && e.path === args.path) ?? pool.find((e) => e.method === want && norm2(e.path) === norm2(args.path));
+        const norm3 = (p2) => String(p2).replace(/\{[A-Za-z0-9_]+\}/g, "{p}");
+        hit = pool.find((e) => e.method === want && e.path === args.path) ?? pool.find((e) => e.method === want && norm3(e.path) === norm3(args.path));
       }
       if (!hit) {
         return fail(
@@ -148950,8 +149062,8 @@ var TOOLS2 = [
         );
       }
       const w = endpointWords(hit);
-      const query = (hit.query ?? []).filter((q) => q.name !== "\u2026spread");
-      const qs = query.length ? `?${query.map((q) => `${q.name}=<${q.name}>`).join("&")}` : "";
+      const query = (hit.query ?? []).filter((q2) => q2.name !== "\u2026spread");
+      const qs = query.length ? `?${query.map((q2) => `${q2.name}=<${q2.name}>`).join("&")}` : "";
       return { ok: true, data: {
         id: hit.id,
         method: hit.method,

@@ -38,6 +38,7 @@ import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/l
 import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
 import { searchMergeTags } from '../../skills/create-ghl-workflow/engine/merge-tags.mjs';
 import { digestWorkflow, fingerprintWorkflow } from '../../skills/create-ghl-workflow/engine/digest.mjs';
+import { entityCapabilities } from '../../skills/create-ghl-workflow/engine/entities.mjs';
 import { readCache } from './read-cache.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
@@ -2561,8 +2562,9 @@ export const TOOLS = [
       'Sweep the account objects a workflow spec may name: pipelines (+stages), calendars, users, forms, '
       + 'custom fields (all models), AI agents, workflows, custom values, trigger links, membership offers '
       + '+ products, SMS/WhatsApp templates, email-builder templates, store products, coupons, phone numbers, '
-      + 'funnels, Facebook pages, document templates and custom-object schemas — the same 20 entity kinds the '
-      + 'build resolver uses (21 requests; custom fields take two).',
+      + 'funnels, Facebook pages, document templates, custom-object schemas, opportunity LOST REASONS '
+      + 'and call DISPOSITIONS — the same entity kinds the build resolver uses. One row per kind in '
+      + "engine/entities.mjs, so the list here cannot drift from what the sweep actually returns.",
     ),
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [

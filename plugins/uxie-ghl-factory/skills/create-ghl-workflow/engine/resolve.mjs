@@ -22,7 +22,13 @@ const STANDARD_CONTACT_FIELDS = new Set([
 //         surveys:[{id,name}], customFields:[{id,name,fieldKey}], workflows:[{id,name,status}],
 //         customValues:[{id,name,fieldKey}], triggerLinks:[{id,name}], offers:[{id,name}],
 //         membershipProducts:[{id,name}] }
+import { registryResolvers } from './entities.mjs';
+
 export function buildResolvers(raw = {}) {
+  // Registry-derived kinds first, so a hand-written entry below still wins for the shapes that
+  // need custom matching (a pipeline stage, a user by email). Adding a NAMEABLE account object is
+  // now a row in entities.mjs, not an edit here.
+  const fromRegistry = registryResolvers(raw);
   const pipelines = raw.pipelines ?? [];
   const byName = (list, keyFns) => (q) => {
     const n = norm(q);
@@ -30,6 +36,7 @@ export function buildResolvers(raw = {}) {
   };
   const pipeline = byName(pipelines, [(p) => p.name]);
   return {
+    ...fromRegistry,
     pipeline,
     pipelineId: (q) => pipeline(q)?.id,
     // stage lookup: within a named pipeline if given, else across all pipelines
