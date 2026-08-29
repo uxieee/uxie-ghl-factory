@@ -1096,6 +1096,78 @@ export function replaceTagInTemplates(templates, oldTag, newTag) {
   return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, replaced: modified.length };
 }
 /** Trigger side: conditions[].value — array → exact swap, string → case-sensitive replace. Returns the rewritten conditions or null when untouched. */
+// Find & Replace for a CUSTOM FIELD ID — the re-pointing half of a field-type conversion (F5-18:
+// dataType is immutable, so a converted field is a NEW id and every reference to the old one must
+// move). Only the places a field id actually lives are touched. Merge tags are deliberately NOT:
+// they key off fieldKey, which the new field regenerates from its name, so prose is left alone.
+export function replaceFieldIdInTemplates(templates, oldId, newId) {
+  if (typeof oldId !== 'string' || !oldId || typeof newId !== 'string' || !newId)
+    throw new Error("replaceFieldId needs non-empty 'oldId' and 'newId' strings");
+  if (oldId === newId) throw new Error(`replaceFieldId: oldId and newId are the same ('${oldId}')`);
+  const modified = [];
+  let replaced = 0;
+  const out = (templates ?? []).map((t) => {
+    if (!t?.attributes || typeof t.attributes !== 'object') return t;
+    const attrs = { ...t.attributes };
+    let changed = false;
+    const hit = () => { changed = true; replaced++; };
+    // update_contact_field / create_update_contact
+    if (Array.isArray(attrs.fields))
+      attrs.fields = attrs.fields.map((f) => (f && f.field === oldId ? (hit(), { ...f, field: newId }) : f));
+    // opportunity wire rows
+    if (Array.isArray(attrs.__customInputFields__))
+      attrs.__customInputFields__ = attrs.__customInputFields__.map((r) => (r && r.filterField === oldId ? (hit(), { ...r, filterField: newId }) : r));
+    // if_else conditions
+    if (Array.isArray(attrs.branches))
+      attrs.branches = attrs.branches.map((b) => (!Array.isArray(b?.segments) ? b : ({
+        ...b,
+        segments: b.segments.map((sg) => (!Array.isArray(sg?.conditions) ? sg : ({
+          ...sg,
+          conditions: sg.conditions.map((c) => (c && c.conditionSubType === oldId ? (hit(), { ...c, conditionSubType: newId }) : c)),
+        }))),
+      })));
+    if (!changed) return t;
+    modified.push(t.id);
+    return { ...t, attributes: attrs };
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, replaced };
+}
+
+// A literal string replace at ONE attribute path (dotted; a `[]` suffix expands an array level),
+// optionally scoped to a step type. No regex and no path guessing: the caller says exactly where,
+// so a rename in an SMS body cannot silently rewrite a webhook URL.
+export function replaceInAttributes(templates, { type, path, find, replace } = {}) {
+  if (typeof path !== 'string' || !path) throw new Error('replaceInAttributes needs a path');
+  if (typeof find !== 'string' || !find) throw new Error('replaceInAttributes needs a non-empty find string');
+  if (typeof replace !== 'string') throw new Error('replaceInAttributes needs a replace string');
+  const modified = [];
+  let replaced = 0;
+  const out = (templates ?? []).map((t) => {
+    if (type && t.type !== type) return t;
+    if (!t?.attributes || typeof t.attributes !== 'object') return t;
+    const attrs = JSON.parse(JSON.stringify(t.attributes));
+    let changed = false;
+    const visit = (obj, segs) => {
+      const [head, ...rest] = segs;
+      if (head.endsWith('[]')) {
+        const arr = obj?.[head.slice(0, -2)];
+        if (Array.isArray(arr)) arr.forEach((x) => visit(x, rest));
+        return;
+      }
+      if (rest.length) { if (obj?.[head] && typeof obj[head] === 'object') visit(obj[head], rest); return; }
+      if (typeof obj?.[head] === 'string' && obj[head].includes(find)) {
+        obj[head] = obj[head].split(find).join(replace);
+        changed = true; replaced++;
+      }
+    };
+    visit(attrs, path.split('.'));
+    if (!changed) return t;
+    modified.push(t.id);
+    return { ...t, attributes: attrs };
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, replaced };
+}
+
 export function replaceTagInTriggerConditions(conditions, oldTag, newTag) {
   if (!Array.isArray(conditions)) return null;
   let changed = false;

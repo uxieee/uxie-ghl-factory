@@ -139468,6 +139468,73 @@ function replaceTagInTemplates(templates, oldTag, newTag) {
   });
   return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, replaced: modified.length };
 }
+function replaceFieldIdInTemplates(templates, oldId, newId) {
+  if (typeof oldId !== "string" || !oldId || typeof newId !== "string" || !newId)
+    throw new Error("replaceFieldId needs non-empty 'oldId' and 'newId' strings");
+  if (oldId === newId) throw new Error(`replaceFieldId: oldId and newId are the same ('${oldId}')`);
+  const modified = [];
+  let replaced = 0;
+  const out = (templates ?? []).map((t) => {
+    if (!t?.attributes || typeof t.attributes !== "object") return t;
+    const attrs = { ...t.attributes };
+    let changed = false;
+    const hit = () => {
+      changed = true;
+      replaced++;
+    };
+    if (Array.isArray(attrs.fields))
+      attrs.fields = attrs.fields.map((f) => f && f.field === oldId ? (hit(), { ...f, field: newId }) : f);
+    if (Array.isArray(attrs.__customInputFields__))
+      attrs.__customInputFields__ = attrs.__customInputFields__.map((r) => r && r.filterField === oldId ? (hit(), { ...r, filterField: newId }) : r);
+    if (Array.isArray(attrs.branches))
+      attrs.branches = attrs.branches.map((b) => !Array.isArray(b?.segments) ? b : {
+        ...b,
+        segments: b.segments.map((sg) => !Array.isArray(sg?.conditions) ? sg : {
+          ...sg,
+          conditions: sg.conditions.map((c) => c && c.conditionSubType === oldId ? (hit(), { ...c, conditionSubType: newId }) : c)
+        })
+      });
+    if (!changed) return t;
+    modified.push(t.id);
+    return { ...t, attributes: attrs };
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, replaced };
+}
+function replaceInAttributes(templates, { type, path, find, replace } = {}) {
+  if (typeof path !== "string" || !path) throw new Error("replaceInAttributes needs a path");
+  if (typeof find !== "string" || !find) throw new Error("replaceInAttributes needs a non-empty find string");
+  if (typeof replace !== "string") throw new Error("replaceInAttributes needs a replace string");
+  const modified = [];
+  let replaced = 0;
+  const out = (templates ?? []).map((t) => {
+    if (type && t.type !== type) return t;
+    if (!t?.attributes || typeof t.attributes !== "object") return t;
+    const attrs = JSON.parse(JSON.stringify(t.attributes));
+    let changed = false;
+    const visit = (obj, segs) => {
+      const [head, ...rest] = segs;
+      if (head.endsWith("[]")) {
+        const arr = obj?.[head.slice(0, -2)];
+        if (Array.isArray(arr)) arr.forEach((x) => visit(x, rest));
+        return;
+      }
+      if (rest.length) {
+        if (obj?.[head] && typeof obj[head] === "object") visit(obj[head], rest);
+        return;
+      }
+      if (typeof obj?.[head] === "string" && obj[head].includes(find)) {
+        obj[head] = obj[head].split(find).join(replace);
+        changed = true;
+        replaced++;
+      }
+    };
+    visit(attrs, path.split("."));
+    if (!changed) return t;
+    modified.push(t.id);
+    return { ...t, attributes: attrs };
+  });
+  return { templates: out, diff: { createdSteps: [], modifiedSteps: modified, deletedSteps: [] }, replaced };
+}
 function replaceTagInTriggerConditions(conditions, oldTag, newTag) {
   if (!Array.isArray(conditions)) return null;
   let changed = false;
@@ -140503,7 +140570,7 @@ function sortKeysDeep(o) {
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers"]);
+var TRIGGER_OPS = /* @__PURE__ */ new Set(["addTrigger", "deleteTrigger", "modifyTrigger", "duplicateTrigger", "replaceTagInTriggers", "replaceFieldIdInTriggers"]);
 var SETTINGS_OPS = /* @__PURE__ */ new Set(["updateSettings"]);
 function externalRefsOf(templates, opRefs = /* @__PURE__ */ new Map()) {
   const ids = new Set((templates ?? []).map((t) => t.id));
@@ -140598,11 +140665,37 @@ function resolveOps(ops, resolvers, storedTemplates = []) {
   });
   return { ops: cloned, unresolved };
 }
+function replaceFieldIdInTriggerConditions(conditions, oldId, newId) {
+  if (!Array.isArray(conditions)) return null;
+  let changed = false;
+  const out = conditions.map((c) => {
+    if (!c || typeof c !== "object") return c;
+    const next = { ...c };
+    let hit = false;
+    if (typeof c.field === "string" && c.field === `contact.${oldId}`) {
+      next.field = `contact.${newId}`;
+      hit = true;
+    }
+    if (c.id === oldId) {
+      next.id = newId;
+      hit = true;
+    }
+    if (typeof c.value === "string" && c.value === oldId) {
+      next.value = newId;
+      hit = true;
+    }
+    if (!hit) return c;
+    changed = true;
+    return next;
+  });
+  return changed ? out : null;
+}
 function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
   for (const op of ops ?? []) {
     (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
     if (op.op === "replaceTag" && op.triggers !== false) triggerOps.push({ op: "replaceTagInTriggers", oldTag: op.oldTag, newTag: op.newTag });
+    if (op.op === "replaceFieldId" && op.triggers !== false) triggerOps.push({ op: "replaceFieldIdInTriggers", oldId: op.oldId, newId: op.newId });
   }
   return { stepOps, triggerOps, settingsOps, stickyOps };
 }
@@ -140689,6 +140782,14 @@ function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workflowStat
       case "replaceTagInTriggers": {
         return existing.flatMap((t) => {
           const conditions = replaceTagInTriggerConditions(t.conditions, op.oldTag, op.newTag);
+          if (!conditions) return [];
+          const tid = t.id ?? t._id;
+          return [{ op: op.op, method: "PUT", path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+        });
+      }
+      case "replaceFieldIdInTriggers": {
+        return existing.flatMap((t) => {
+          const conditions = replaceFieldIdInTriggerConditions(t.conditions, op.oldId, op.newId);
           if (!conditions) return [];
           const tid = t.id ?? t._id;
           return [{ op: op.op, method: "PUT", path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
@@ -140799,6 +140900,8 @@ var OP_REQUIRED_ARGS = {
   moveStep: ["stepId", "afterId"],
   addBranch: ["containerId"],
   deleteContainer: ["containerId"],
+  replaceFieldId: ["oldId", "newId"],
+  replaceInAttributes: ["path", "find", "replace"],
   repairParentKeys: []
 };
 var OP_ARG_ALIASES = {
@@ -140902,6 +141005,10 @@ function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`retypeStep: '${op.step.type}' is a container \u2014 it compiles to a whole subgraph (entry + branch entries), which cannot replace a single step in place. Use deleteStep plus one of the subgraph splices.`);
       return { ...retypeStep(templates, op.stepId, sub.entry), refMap: sub.refMap };
     }
+    case "replaceFieldId":
+      return replaceFieldIdInTemplates(templates, op.oldId, op.newId);
+    case "replaceInAttributes":
+      return replaceInAttributes(templates, { type: op.type, path: op.path, find: op.find, replace: op.replace });
     case "renameStep":
       return renameStep(templates, op.stepId, op.name);
     case "setStepDisabled":
