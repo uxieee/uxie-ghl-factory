@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compileConvaiAgent, compileConvaiAction, compileConvaiUpdate, compileLinkFlowWorkflow, compileFlowBuilderBot, AUTH_HEADER } from './convai-compiler.mjs';
+import { compileConvaiAgent, compileConvaiAction, compileConvaiUpdate, compileLinkFlowWorkflow, compileFlowBuilderBot, AUTH_HEADER, uiSaveViolations } from './convai-compiler.mjs';
 import { IRError } from './convai-ir.mjs';
 
 // Mirrors captures/convai-create.json's request_body 1:1 (values changed only where the
@@ -8,6 +8,10 @@ import { IRError } from './convai-ir.mjs';
 const fullIR = {
   name: 'TEST-CAP-CONVAI',
   mode: 'suggestive',
+  // The capture predates the UI's tone requirement; a currently-valid agent carries tones, and
+  // without them a FLOW_BUILDER_BOT is created over the API and then cannot be saved from the UI.
+  // The field-for-field assertions below do not pin `tones`, so this changes nothing they check.
+  tones: ['professional'],
   channels: ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp'],
   wait: { value: 2, unit: 'seconds' },
   sleep: { enabled: false, onManualMessage: false, onWorkflowMessage: false, time: 2, timeUnit: 'hours' },
@@ -478,4 +482,43 @@ test('compileFlowBuilderBot: flowWorkflow honors an injected create-ghl-workflow
   assert.equal(out.compiled, true);
   assert.equal(out.triggerBot, 'AG1');
   assert.deepEqual(out.ctx, { loc: 'LOC' });
+});
+
+// F5-31: tones are required by the UI's save validator, and an agent built over the API without
+// them saves fine and then cannot be saved from the builder at all.
+test('tones: emitted on create, validated against the 7-value enum, max 3; empty tones on a FLOW bot is refused', () => {
+  const base = { name: 'Bot', mode: 'suggestive', channels: ['SMS'], personality: 'p', goal: 'g', instructions: 'i' };
+  const ok = compileConvaiAgent({ ...base, tones: ['friendly', 'empathetic'] }, { locationId: 'LOC' });
+  assert.deepEqual(ok.create.body.tones, ['friendly', 'empathetic']);
+  assert.throws(() => compileConvaiAgent({ ...base, tones: ['zen'] }, { locationId: 'LOC' }), (e) => e.code === 'BAD_TONES');
+  assert.throws(() => compileConvaiAgent({ ...base, tones: ['friendly', 'empathetic', 'confident', 'engaging'] }, { locationId: 'LOC' }), (e) => e.code === 'BAD_TONES');
+  assert.throws(() => compileConvaiAgent({ ...base, botType: 'FLOW_BUILDER_BOT' }, { locationId: 'LOC' }),
+    (e) => e.code === 'UI_SAVE_BLOCKED' && /Tone/.test(e.message));
+  assert.doesNotThrow(() => compileConvaiAgent({ ...base, botType: 'FLOW_BUILDER_BOT', tones: ['friendly'] }, { locationId: 'LOC' }));
+});
+
+test('a PROMPT bot with blank personality/goal/instructions warns; allowUiUnsaveable silences the flow-bot throw', () => {
+  const warns = [];
+  compileConvaiAgent({ name: 'Bot', mode: 'suggestive', channels: ['SMS'] }, { locationId: 'LOC', warn: (m) => warns.push(m) });
+  assert.ok(warns.some((w) => /UI_SAVE/.test(w) && /personality/i.test(w)), JSON.stringify(warns));
+  assert.doesNotThrow(() => compileConvaiAgent({ name: 'B', mode: 'suggestive', channels: ['SMS'], botType: 'FLOW_BUILDER_BOT' },
+    { locationId: 'LOC', allowUiUnsaveable: true }));
+});
+
+test('summary knobs land on the create body; defaults are unchanged when absent', () => {
+  const full = { name: 'Bot', mode: 'suggestive', channels: ['SMS'], personality: 'p', goal: 'g', instructions: 'i', tones: ['friendly'] };
+  const out = compileConvaiAgent({ ...full, summary: { enabled: true, workflowIds: ['WF1'], customFieldId: 'CF1', minimumMessages: 5 } }, { locationId: 'LOC' });
+  assert.equal(out.create.body.summary.enabled, true);
+  assert.deepEqual(out.create.body.summary.workflowIds, ['WF1']);
+  assert.equal(out.create.body.summary.customFieldId, 'CF1');
+  assert.equal(out.create.body.summary.minimumMessages, 5);
+  const dflt = compileConvaiAgent(full, { locationId: 'LOC' });
+  assert.equal(dflt.create.body.summary.enabled, false);
+  assert.equal('customFieldId' in dflt.create.body.summary, false,
+    'the captured create body has no customFieldId — the engine must not invent one');
+});
+
+test('the wait-time bounds come from the shipped validator strings, verbatim', () => {
+  const v = uiSaveViolations({ channels: ['SMS'], personality: 'p', goal: 'g', instructions: 'i', tones: ['friendly'], waitTime: { unit: 'hours', value: 9 } });
+  assert.deepEqual(v.map((x) => x.msg), ['Wait time must be between 1 and 6 hours']);
 });

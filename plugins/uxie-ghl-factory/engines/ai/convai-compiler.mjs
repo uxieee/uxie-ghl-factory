@@ -22,6 +22,9 @@ function defaultSummary() {
     inactivity: { value: 15, unit: 'minutes' },
     minimumMessages: 3,
     workflowIds: [],
+    // NO customFieldId here: the captured create body does not carry one, and inventing a key on
+    // every create is the failure class this engine exists to prevent. An author who wants a
+    // summary written to a contact field supplies summary.customFieldId and the spread carries it.
     emailNotifications: { admins: false, allUsers: false, contactAssignedUser: false, specificUsers: [], customEmail: '' },
   };
 }
@@ -53,10 +56,11 @@ function buildCreateBody(ir, { locationId }) {
     personality: ir.personality ?? '',
     goal: ir.goal ?? '',
     instructions: ir.instructions ?? '',
+    tones: ir.tones ?? [],
     botType: ir.botType ?? 'PROMPT_BASED_BOT',
     knowledgeBaseIds: ir.knowledgeBaseIds ?? [],
     knowledgeBaseTriggers: [],
-    summary: defaultSummary(),
+    summary: { ...defaultSummary(), ...(ir.summary ?? {}) },
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
     // Flow-Based Builder linkage. A FLOW_BUILDER_BOT's logic lives in a workflow whose
@@ -298,9 +302,60 @@ export function compileConvaiAction(action, { agentId = null, locationId } = {})
 
 // POST /ai-employees/employees — full create. Returns the create descriptor plus the
 // (employeeId-less) action descriptors for anything in ir.actions[].
-export function compileConvaiAgent(ir, { locationId } = {}) {
+// THE UI-SAVE RULE TABLE — the tier between "the API 422s" and "the API accepts but the write is
+// inert". These bodies are accepted over the API and the UI then REFUSES to save the agent, so an
+// operator who opens it can change nothing until the missing field is supplied. Ported verbatim
+// from the shipped validator strings (conversation-ai-2026-08-25/i18n/cai-validators.json).
+//
+// The tone rule is bot-type-split because the bundle carries BOTH
+//   "Personality, Instructions, and Goal should not be empty."
+//   "Personality, Instructions, Goal, and Tone should not be empty."
+// Only the second names Tone, so an empty tone list is a hard block for the flow builder and an
+// advisory everywhere else until a live differential says otherwise.
+const WAIT_BOUNDS = { seconds: [1, 21600], minutes: [1, 360], hours: [1, 6] };
+
+export function uiSaveViolations(body, botType) {
+  const v = [];
+  const push = (field, rule, msg) => v.push({ field, rule, msg });
+  if (!Array.isArray(body.channels) || !body.channels.length) push('channels', 'selectChannel', 'Please select at least one channel');
+  for (const f of ['personality', 'goal', 'instructions']) {
+    if (typeof body[f] !== 'string' || !body[f].trim()) {
+      push(f, 'notEmpty', 'Personality, Instructions, and Goal should not be empty.');
+    }
+  }
+  if (!Array.isArray(body.tones) || !body.tones.length) {
+    push('tones', 'toneEmpty', 'Personality, Instructions, Goal, and Tone should not be empty.');
+  }
+  if (Array.isArray(body.tones) && body.tones.length > 3) push('tones', 'errorMaxTones', 'You can select maximum of 3 tones.');
+  const unit = body.waitTime?.unit ?? body.wait?.unit;
+  const value = body.waitTime?.value ?? body.wait?.value;
+  const bounds = WAIT_BOUNDS[unit];
+  if (bounds && typeof value === 'number' && (value < bounds[0] || value > bounds[1])) {
+    push('waitTime', `${unit}Error`, `Wait time must be between ${bounds[0]} and ${bounds[1]} ${unit}`);
+  }
+  return v;
+}
+
+// A violation is fatal only where it is PROVEN fatal. Everything else warns, because refusing a
+// body the UI would in fact accept is its own kind of wrong.
+const FATAL_FOR_FLOW_BOT = new Set(['toneEmpty', 'errorMaxTones', 'selectChannel']);
+
+export function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   const norm = parseConvaiIR(ir);
-  const create = { method: 'POST', path: '/ai-employees/employees', body: buildCreateBody(norm, { locationId }) };
+  const body = buildCreateBody(norm, { locationId });
+  const violations = uiSaveViolations(body, body.botType);
+  const fatal = body.botType === 'FLOW_BUILDER_BOT' ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
+  if (fatal.length && allowUiUnsaveable !== true) {
+    throw new IRError('UI_SAVE_BLOCKED',
+      `this agent would be created over the API and then be UNSAVEABLE from the UI: `
+      + fatal.map((x) => `${x.field} — ${x.msg}`).join('; ')
+      + '. Fix the field, or pass allowUiUnsaveable:true to create it anyway.');
+  }
+  for (const x of violations) {
+    if (fatal.includes(x)) continue;
+    warn?.(`UI_SAVE: ${x.field} — ${x.msg} (the API accepts this body; the UI will refuse to save the agent)`);
+  }
+  const create = { method: 'POST', path: '/ai-employees/employees', body };
   const actions = (norm.actions ?? []).map((a) => compileConvaiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER };
 }
@@ -316,6 +371,8 @@ const UPDATE_FIELD_MAP = {
   autoPilotMaxMessages: 'autoPilotMaxMessages',
   knowledgeBaseIds: 'knowledgeBaseIds',
   knowledgeBaseTriggers: 'knowledgeBaseTriggers',
+  tones: 'tones',
+  summary: 'summary',
   respondToImages: 'respondToImages',
   respondToAudio: 'respondToAudio',
   botType: 'botType',
