@@ -46,10 +46,241 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-08-25",
+      generated: "2026-08-29",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 806,
+      count: 863,
       endpoints: [
+        {
+          id: "workflows--actions-branches",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/actions/{type}/branches",
+          path: "/actions/{type}/branches",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "type"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:235"
+          ]
+        },
+        {
+          id: "workflows--actions-custom-input-fields",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/actions/{type}/custom-input-fields",
+          path: "/actions/{type}/custom-input-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "type"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:238"
+          ]
+        },
+        {
+          id: "workflows--actions-dynamic-source-details",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/actions/dynamic-source-details/{key}",
+          path: "/actions/dynamic-source-details/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:237"
+          ]
+        },
+        {
+          id: "workflows--actions-published",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/actions/published/{key}",
+          path: "/actions/published/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:233"
+          ]
+        },
+        {
+          id: "workflows--published-dynamic-fields",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/actions/published/{type}/dynamic-fields",
+          path: "/actions/published/{type}/dynamic-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "type"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:234"
+          ]
+        },
+        {
+          id: "workflows--actions-stats",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/actions/stats/{actionKey}",
+          path: "/actions/stats/{actionKey}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "actionKey"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:205",
+            "workflows/70-research/RAIL.md:114"
+          ]
+        },
         {
           id: "facebook-service--get-ad-account-by-id",
           method: "GET",
@@ -581,7 +812,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "create_convai_agent",
-            "get_ai_configuration_bundle"
+            "get_ai_configuration_bundle",
+            "update_convai_agent"
           ],
           rawCallable: true,
           transport: "json",
@@ -621,7 +853,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "update_convai_agent"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -1034,7 +1268,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/AssociationsService.ts:17"
+            "services/marketplaceServices/AssociationsService.ts:17",
+            "workflows/70-research/ENDPOINTS.md:146"
           ]
         },
         {
@@ -1155,6 +1390,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "proven",
           coveredBy: [
             "build_workflow",
+            "edit_workflow",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -1175,7 +1411,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (list_account_entities, build_workflow)"
+            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow)"
           ]
         },
         {
@@ -1215,6 +1451,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/CalendarService.ts:11"
+          ]
+        },
+        {
+          id: "workflows--calendars-groups",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/groups",
+          path: "/calendars/groups",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:132"
           ]
         },
         {
@@ -1366,7 +1640,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:79"
+            "memberships-courses/20-api/endpoints.md:94"
           ]
         },
         {
@@ -1392,8 +1666,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             {
               name: "locationId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "chatType",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -1409,7 +1689,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "erased"
           },
           sources: [
-            "services/api/chat-widget-service.ts:35"
+            "services/api/chat-widget-service.ts:35",
+            "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
         {
@@ -1444,7 +1725,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:82"
+            "memberships-courses/20-api/endpoints.md:97"
           ]
         },
         {
@@ -1513,7 +1794,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:82"
+            "memberships-courses/20-api/endpoints.md:97"
           ]
         },
         {
@@ -1604,6 +1885,165 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:317"
+          ]
+        },
+        {
+          id: "memberships-courses--groups-channels",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/communities/{locationId}/groups/{gid}/channels",
+          path: "/communities/{locationId}/groups/{gid}/channels",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "gid"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/build-api.md:342"
+          ]
+        },
+        {
+          id: "memberships-courses--channels-posts",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/communities/{locationId}/groups/{gid}/channels/{cid}/posts",
+          path: "/communities/{locationId}/groups/{gid}/channels/{cid}/posts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "gid"
+            },
+            {
+              name: "cid"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/build-api.md:341"
+          ]
+        },
+        {
+          id: "memberships-courses--groups-users",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/communities/{locationId}/groups/{gid}/users",
+          path: "/communities/{locationId}/groups/{gid}/users",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "gid"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/build-api.md:340"
+          ]
+        },
+        {
+          id: "memberships-courses--users-groups",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/communities/{locationId}/users/groups",
+          path: "/communities/{locationId}/users/groups",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "contactId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/build-api.md:345"
           ]
         },
         {
@@ -1779,6 +2219,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/contact-service.ts:36",
+            "platform/20-api/smart-lists.md:58",
             "workflows/50-runtime/forcing-and-removing-contacts.md:128",
             "workflows/70-research/WALK-CHECKLIST-2026-08-25.md:53"
           ]
@@ -1812,6 +2253,165 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "events/20-api/events-management-api.md:291"
+          ]
+        },
+        {
+          id: "platform--contacts-smartlist",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/contacts/smartlist/",
+          path: "/contacts/smartlist/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/smart-lists.md:27",
+            "platform/20-api/smart-lists.md:38",
+            "platform/20-api/smart-lists.md:99"
+          ]
+        },
+        {
+          id: "platform--contacts-smartlist-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/contacts/smartlist/{id}",
+          path: "/contacts/smartlist/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/smart-lists.md:26"
+          ]
+        },
+        {
+          id: "platform--contacts-smartlist-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/contacts/smartlist/{id}",
+          path: "/contacts/smartlist/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/smart-lists.md:28"
+          ]
+        },
+        {
+          id: "platform--smartlist-search",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/contacts/smartlist/search",
+          path: "/contacts/smartlist/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "userId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "globals",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "transform",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/smart-lists.md:25"
           ]
         },
         {
@@ -1938,6 +2538,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/EmailStatsReportService.ts:10",
             "services/api/email-stats-service.ts:14",
+            "workflows/70-research/ENDPOINTS.md:204",
+            "workflows/70-research/RAIL.md:108",
             "workflows/70-research/STATS-RAILS.md:38"
           ]
         },
@@ -1998,7 +2600,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/EmailStatsReportService.ts:14",
             "services/api/email-stats-service.ts:9",
             "services/marketplaceServices/WorkflowStatsService.ts:28",
-            "workflows/70-research/STATS-RAILS.md:25"
+            "workflows/70-research/RAIL.md:109",
+            "workflows/70-research/STATS-RAILS.md:25",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:302"
           ]
         },
         {
@@ -2042,7 +2646,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/SmsStatsReportService.ts:12",
-            "services/api/sms-stats-service.ts:13"
+            "services/api/sms-stats-service.ts:13",
+            "workflows/70-research/RAIL.md:113"
           ]
         },
         {
@@ -2103,7 +2708,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/api/sms-stats-service.ts:8",
             "services/marketplaceServices/WorkflowStatsService.ts:37",
             "workflows/50-runtime/observed-query-shapes.md:75",
-            "workflows/70-research/STATS-RAILS.md:26"
+            "workflows/70-research/STATS-RAILS.md:26",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:303"
           ]
         },
         {
@@ -2247,7 +2853,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TikTokService.ts:19"
+            "services/marketplaceServices/TikTokService.ts:19",
+            "workflows/70-research/ENDPOINTS.md:173"
           ]
         },
         {
@@ -2402,7 +3009,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:80"
+            "memberships-courses/20-api/endpoints.md:95"
           ]
         },
         {
@@ -2437,7 +3044,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:80"
+            "memberships-courses/20-api/endpoints.md:95"
           ]
         },
         {
@@ -2675,7 +3282,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/CustomDataService.ts:37"
+            "services/marketplaceServices/CustomDataService.ts:37",
+            "workflows/70-research/ENDPOINTS.md:147"
           ]
         },
         {
@@ -2879,7 +3487,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:633"
+            "services/marketplaceServices/TemplateService.ts:633",
+            "workflows/70-research/ENDPOINTS.md:160"
           ]
         },
         {
@@ -2933,7 +3542,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:474"
+            "services/marketplaceServices/TemplateService.ts:474",
+            "workflows/70-research/ENDPOINTS.md:160"
           ]
         },
         {
@@ -3019,7 +3629,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/TemplateService.ts:688",
-            "workflows/70-research/ACTION-DRAWERS-2.md:5553"
+            "workflows/70-research/ACTION-DRAWERS-2.md:5553",
+            "workflows/70-research/INVENTORY.md:214"
           ]
         },
         {
@@ -3188,7 +3799,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:596"
+            "services/marketplaceServices/TemplateService.ts:596",
+            "workflows/70-research/ENDPOINTS.md:162"
           ]
         },
         {
@@ -3316,7 +3928,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:546"
+            "services/marketplaceServices/TemplateService.ts:546",
+            "workflows/70-research/ENDPOINTS.md:161"
           ]
         },
         {
@@ -3371,7 +3984,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:652"
+            "services/marketplaceServices/TemplateService.ts:652",
+            "workflows/70-research/ENDPOINTS.md:163"
           ]
         },
         {
@@ -4134,7 +4748,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "events/20-api/events-management-api.md:311"
+            "events/20-api/events-management-api.md:311",
+            "workflows/70-research/ENDPOINTS.md:166"
           ]
         },
         {
@@ -4544,6 +5159,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--facebook-connection",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/facebook/{locationId}/connection",
+          path: "/facebook/{locationId}/connection",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:167"
+          ]
+        },
+        {
           id: "forms-service--get-forms",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/forms",
@@ -4554,6 +5204,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "build_workflow",
+            "edit_workflow",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -4629,6 +5280,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/FormsService.ts:25"
+          ]
+        },
+        {
+          id: "workflows--funnel-list",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/funnel/list",
+          path: "/funnel/list",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:152"
           ]
         },
         {
@@ -5698,6 +6380,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--google-connections",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/google/connections",
+          path: "/google/connections",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:113",
+            "workflows/70-research/ENDPOINTS.md:174"
+          ]
+        },
+        {
           id: "typed--build_workflow--hooks-webhook-trigger",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/hooks/{locationId}/webhook-trigger/{triggerId}",
@@ -5739,6 +6460,42 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--iatf-preview-proxy",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/iatf-preview/proxy/{resource}",
+          path: "/iatf-preview/proxy/{resource}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "resource"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:241",
+            "workflows/70-research/INVENTORY.md:192"
+          ]
+        },
+        {
           id: "workflows--inbound-webhook-request-reference",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/inbound-webhook-request/reference/{triggerId}",
@@ -5770,6 +6527,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/70-research/ENDPOINTS.md:101",
             "workflows/70-research/STEP-OUTPUTS.md:92"
           ]
         },
@@ -5805,7 +6563,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "workflows/70-research/ENDPOINTS.md:102",
             "workflows/70-research/STEP-OUTPUTS.md:92"
+          ]
+        },
+        {
+          id: "workflows--inbound-webhook-request-trigger",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/inbound-webhook-request/trigger/{triggerId}",
+          path: "/inbound-webhook-request/trigger/{triggerId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "triggerId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:100"
           ]
         },
         {
@@ -5936,7 +6730,70 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/70-research/ACTION-DRAWERS-2.md:6244"
+            "workflows/70-research/ACTION-DRAWERS-2.md:6244",
+            "workflows/70-research/ENDPOINTS.md:240"
+          ]
+        },
+        {
+          id: "workflows--google-sheets-drives",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integration/google-sheets/drives",
+          path: "/integration/google-sheets/drives",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:175"
+          ]
+        },
+        {
+          id: "workflows--oauth-start",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/integration/slack/oauth/start",
+          path: "/integration/slack/oauth/start",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:176"
           ]
         },
         {
@@ -6030,7 +6887,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/FacebookService.ts:49",
-            "services/marketplaceServices/FacebookService.ts:30"
+            "services/marketplaceServices/FacebookService.ts:30",
+            "workflows/70-research/ENDPOINTS.md:170"
           ]
         },
         {
@@ -6111,7 +6969,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/FacebookService.ts:122"
+            "services/FacebookService.ts:122",
+            "workflows/70-research/ENDPOINTS.md:169"
           ]
         },
         {
@@ -6552,6 +7411,193 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--internal-actions-test-action",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/internal-actions/test-action",
+          path: "/internal-actions/test-action",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:209",
+            "workflows/70-research/RAIL.md:250"
+          ]
+        },
+        {
+          id: "workflows--internal-triggers-deregister-test-webhook",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/internal-triggers/deregister-test-webhook",
+          path: "/internal-triggers/deregister-test-webhook",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:97"
+          ]
+        },
+        {
+          id: "workflows--integration-webhook-operation",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/internal-triggers/integration/webhook-operation",
+          path: "/internal-triggers/integration/webhook-operation",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:99"
+          ]
+        },
+        {
+          id: "workflows--internal-triggers-register-test-polling",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/internal-triggers/register-test-polling",
+          path: "/internal-triggers/register-test-polling",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:96"
+          ]
+        },
+        {
+          id: "workflows--internal-triggers-register-test-webhook",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/internal-triggers/register-test-webhook",
+          path: "/internal-triggers/register-test-webhook",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:95"
+          ]
+        },
+        {
+          id: "workflows--internal-triggers-test-trigger",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/internal-triggers/test-trigger",
+          path: "/internal-triggers/test-trigger",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:98"
+          ]
+        },
+        {
           id: "workflows--ivr-get-mappings-by-phones",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/ivr/get-mappings-by-phones",
@@ -6625,7 +7671,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/LinksService.ts:29"
+            "services/marketplaceServices/LinksService.ts:29",
+            "workflows/70-research/ENDPOINTS.md:149"
           ]
         },
         {
@@ -6668,7 +7715,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/LinksService.ts:64"
+            "services/marketplaceServices/LinksService.ts:64",
+            "workflows/70-research/ENDPOINTS.md:148"
           ]
         },
         {
@@ -6779,7 +7827,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--lists-dynamic",
+          id: "platform--lists-dynamic",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}",
           path: "/lists/dynamic/{locationId}",
@@ -6793,7 +7841,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "workflows",
+          service: "platform",
           tree: "documented",
           pathParams: [
             {
@@ -6835,12 +7883,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "platform/20-api/smart-lists.md:25",
+            "platform/20-api/smart-lists.md:79",
             "workflows/20-api/03-endpoints.md:344",
             "workflows/20-api/smart-lists.md:69"
           ]
         },
         {
-          id: "workflows--lists-dynamic-post",
+          id: "workflows--lists-dynamic",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}",
           path: "/lists/dynamic/{locationId}",
@@ -6871,7 +7921,47 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:71"
+            "workflows/20-api/smart-lists.md:71",
+            "workflows/70-research/ENDPOINTS.md:79"
+          ]
+        },
+        {
+          id: "platform--lists-dynamic-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/lists/dynamic/{locationId}/{id}",
+          path: "/lists/dynamic/{locationId}/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/smart-lists.md:26",
+            "platform/20-api/smart-lists.md:89"
           ]
         },
         {
@@ -6909,7 +7999,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:73"
+            "workflows/20-api/smart-lists.md:73",
+            "workflows/70-research/ENDPOINTS.md:81"
           ]
         },
         {
@@ -6947,7 +8038,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:70"
+            "workflows/20-api/smart-lists.md:70",
+            "workflows/70-research/ENDPOINTS.md:78"
           ]
         },
         {
@@ -6985,7 +8077,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/20-api/smart-lists.md:72"
+            "workflows/20-api/smart-lists.md:72",
+            "workflows/70-research/ENDPOINTS.md:80"
           ]
         },
         {
@@ -7115,6 +8208,48 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "components/smart-lists/services/smart-list-service.ts:46"
+          ]
+        },
+        {
+          id: "workflows--location-assets",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/location/{locationId}/assets",
+          path: "/location/{locationId}/assets",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "workflowTypes",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:89"
           ]
         },
         {
@@ -7399,7 +8534,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
             "workflows/10-anatomy/07-id-resolution.md:85",
-            "workflows/10-anatomy/07-id-resolution.md:185"
+            "workflows/10-anatomy/07-id-resolution.md:185",
+            "workflows/70-research/ENDPOINTS.md:124"
           ]
         },
         {
@@ -7450,9 +8586,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "proven",
           coveredBy: [
             "build_workflow",
+            "check_workflow",
             "create_custom_field_folder",
             "edit_workflow",
-            "list_account_entities"
+            "list_account_entities",
+            "repair_workflow",
+            "search_merge_tags"
           ],
           rawCallable: true,
           transport: "json",
@@ -7502,7 +8641,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/CustomFieldService.ts:14",
-            "services/CustomFieldService.ts:32"
+            "services/CustomFieldService.ts:32",
+            "workflows/70-research/ENDPOINTS.md:123"
           ]
         },
         {
@@ -7514,7 +8654,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "build_workflow",
+            "check_workflow",
+            "edit_workflow",
+            "list_account_entities",
+            "repair_workflow",
+            "search_merge_tags"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -8000,7 +9147,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:81"
+            "memberships-courses/20-api/endpoints.md:96"
           ]
         },
         {
@@ -8038,7 +9185,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "workflows/10-anatomy/07-id-resolution.md:192"
+            "workflows/10-anatomy/07-id-resolution.md:192",
+            "workflows/70-research/ENDPOINTS.md:126"
           ]
         },
         {
@@ -8087,7 +9235,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/EmailService.ts:218",
-            "workflows/70-research/ACTION-DRAWERS-2.md:5463"
+            "workflows/70-research/ACTION-DRAWERS-2.md:5463",
+            "workflows/70-research/ENDPOINTS.md:128"
           ]
         },
         {
@@ -8147,7 +9296,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/EmailService.ts:201"
+            "services/EmailService.ts:201",
+            "workflows/70-research/ENDPOINTS.md:127"
           ]
         },
         {
@@ -8240,7 +9390,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/TemplateService.ts:282"
+            "services/marketplaceServices/TemplateService.ts:282",
+            "workflows/70-research/ENDPOINTS.md:157"
           ]
         },
         {
@@ -8458,7 +9609,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/LocationsService.ts:15",
-            "services/marketplaceServices/SubLocationsService.ts:14"
+            "services/marketplaceServices/SubLocationsService.ts:14",
+            "workflows/70-research/ENDPOINTS.md:155"
           ]
         },
         {
@@ -8746,6 +9898,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: false,
               source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -8760,7 +9924,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowMarketplaceService.ts:377",
             "marketplace-apps/10-anatomy/marketplace-rail.md:46",
             "marketplace-apps/10-anatomy/marketplace-rail.md:233",
-            "workflows/10-anatomy/07-id-resolution.md:205"
+            "workflows/10-anatomy/07-id-resolution.md:205",
+            "workflows/40-rules/flow-bot-action-compatibility.md:52"
           ]
         },
         {
@@ -8869,7 +10034,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/MediaService.ts:11"
+            "services/marketplaceServices/MediaService.ts:11",
+            "workflows/70-research/ENDPOINTS.md:156"
           ]
         },
         {
@@ -9332,6 +10498,173 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/build-api.md:172"
+          ]
+        },
+        {
+          id: "memberships-courses--membership",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/membership/{id}",
+          path: "/membership/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:55"
+          ]
+        },
+        {
+          id: "memberships-courses--membership-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/{id}",
+          path: "/membership/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:52"
+          ]
+        },
+        {
+          id: "memberships-courses--membership-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/membership/{id}",
+          path: "/membership/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:54"
+          ]
+        },
+        {
+          id: "memberships-courses--membership-check-domain-linked",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/check-domain-linked/",
+          path: "/membership/check-domain-linked/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:70"
+          ]
+        },
+        {
+          id: "memberships-courses--membership-filtered",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/membership/filtered",
+          path: "/membership/filtered",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:56"
           ]
         },
         {
@@ -10301,6 +11634,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "memberships-courses--membership-multiple",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/membership/multiple",
+          path: "/membership/multiple",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:57"
+          ]
+        },
+        {
           id: "typed--build_course--smart-list-attach-offer-user",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/membership/smart-list/attach-offer-user",
@@ -10500,6 +11864,37 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "memberships-courses--user-hl-user-details",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/membership/user/hl-user-details",
+          path: "/membership/user/hl-user-details",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "memberships-courses",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "memberships-courses/20-api/endpoints.md:83"
+          ]
+        },
+        {
           id: "backend--set-firebase-auth",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/oauth/2/login/signin/refresh",
@@ -10592,7 +11987,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/api/slack-marketplace-install-service.ts:129"
+            "services/api/slack-marketplace-install-service.ts:129",
+            "workflows/70-research/ENDPOINTS.md:243"
           ]
         },
         {
@@ -11033,6 +12429,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--objects",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/objects/{objectKey}/",
+          path: "/objects/{objectKey}/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "objectKey"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:143"
+          ]
+        },
+        {
           id: "custom-objects-service--fetch-records-by-filter",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/objects/{objectKey}/records/search",
@@ -11073,7 +12504,85 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/CustomObjectsService.ts:41"
+            "services/marketplaceServices/CustomObjectsService.ts:41",
+            "workflows/70-research/ENDPOINTS.md:145"
+          ]
+        },
+        {
+          id: "workflows--objects-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/objects/{workflowType}/",
+          path: "/objects/{workflowType}/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "workflowType"
+            }
+          ],
+          query: [
+            {
+              name: "fetchProperties",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:144"
+          ]
+        },
+        {
+          id: "workflows--objects-enabled",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/objects/{workflowType}/enabled",
+          path: "/objects/{workflowType}/enabled",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "workflowType"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/INVENTORY.md:213"
           ]
         },
         {
@@ -11116,7 +12625,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/OpportunityCustomFieldService.ts:19"
+            "services/marketplaceServices/OpportunityCustomFieldService.ts:19",
+            "workflows/70-research/ENDPOINTS.md:125"
           ]
         },
         {
@@ -11130,6 +12640,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "build_workflow",
+            "edit_workflow",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -11140,7 +12651,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "platform",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
@@ -11150,7 +12668,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/api-gap-matrix.md:25"
+            "platform/20-api/api-gap-matrix.md:25",
+            "workflows/70-research/ENDPOINTS.md:130"
           ]
         },
         {
@@ -11164,6 +12683,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "build_workflow",
+            "edit_workflow",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -11295,7 +12815,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:81"
+            "memberships-courses/20-api/endpoints.md:96"
           ]
         },
         {
@@ -11368,6 +12888,44 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--phone-system-call-dispositions",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
+          path: "/phone-system/call-dispositions",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:135"
+          ]
+        },
+        {
           id: "ivrservice--get-recording",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/location/{locationId}/recordings/{recordingSid}",
@@ -11403,6 +12961,82 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/IVRService.ts:38"
+          ]
+        },
+        {
+          id: "workflows--phone-system-number-pools",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/number-pools",
+          path: "/phone-system/number-pools",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:134"
+          ]
+        },
+        {
+          id: "workflows--phone-system-numbers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/numbers",
+          path: "/phone-system/numbers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:133"
           ]
         },
         {
@@ -11614,6 +13248,76 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--location-phone-numbers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/whatsapp/location/{id}/phone-numbers",
+          path: "/phone-system/whatsapp/location/{id}/phone-numbers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:136"
+          ]
+        },
+        {
+          id: "workflows--location-template",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/phone-system/whatsapp/location/{id}/template",
+          path: "/phone-system/whatsapp/location/{id}/template",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:159"
+          ]
+        },
+        {
           id: "template-service--get-all-whats-app-templates",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/whatsapp/location/{locationId}/template",
@@ -11763,7 +13467,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "memberships-courses/20-api/endpoints.md:81"
+            "memberships-courses/20-api/endpoints.md:96"
           ]
         },
         {
@@ -12046,7 +13750,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowResellerService.ts:36"
+            "services/marketplaceServices/WorkflowResellerService.ts:36",
+            "workflows/70-research/ENDPOINTS.md:182"
           ]
         },
         {
@@ -12214,7 +13919,39 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/SaasTwilioService.ts:7"
+            "services/SaasTwilioService.ts:7",
+            "workflows/70-research/ENDPOINTS.md:180"
+          ]
+        },
+        {
+          id: "workflows--billing-config",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/saas-billing-v2/billing-config/..",
+          path: "/saas-billing-v2/billing-config/..",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:181"
           ]
         },
         {
@@ -12574,6 +14311,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--smart-list-offers-products",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/smart-list/offers-products/{locationId}",
+          path: "/smart-list/offers-products/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:164"
+          ]
+        },
+        {
           id: "template-service--get-email-snippets-paginated",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/snippets/{locationId}",
@@ -12610,7 +14382,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/TemplateService.ts:330",
-            "services/api/sms-template-service.ts:66"
+            "services/api/sms-template-service.ts:66",
+            "workflows/70-research/ENDPOINTS.md:158"
           ]
         },
         {
@@ -12865,7 +14638,195 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/SurveysService.ts:20"
+            "services/marketplaceServices/SurveysService.ts:20",
+            "workflows/70-research/ENDPOINTS.md:150"
+          ]
+        },
+        {
+          id: "workflows--triggers-dynamic-source-details",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/triggers/dynamic-source-details/{key}",
+          path: "/triggers/dynamic-source-details/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:93"
+          ]
+        },
+        {
+          id: "workflows--triggers-dynamic-source",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/triggers/dynamic-source/{key}",
+          path: "/triggers/dynamic-source/{key}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "key"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:94"
+          ]
+        },
+        {
+          id: "workflows--triggers-options",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/triggers/options/{key}/{field}",
+          path: "/triggers/options/{key}/{field}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "key"
+            },
+            {
+              name: "field"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "optionType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:92"
+          ]
+        },
+        {
+          id: "workflows--proposal-estimate-update-document-created-by-template-id",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/triggers/options/proposal_estimate_update/documentCreatedByTemplateId",
+          path: "/triggers/options/proposal_estimate_update/documentCreatedByTemplateId",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:103"
+          ]
+        },
+        {
+          id: "workflows--published-dynamic-fields-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/triggers/published/{type}/dynamic-fields",
+          path: "/triggers/published/{type}/dynamic-fields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "type"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:91"
           ]
         },
         {
@@ -12879,6 +14840,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "proven",
           coveredBy: [
             "build_workflow",
+            "edit_workflow",
             "list_account_entities"
           ],
           rawCallable: true,
@@ -12899,7 +14861,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "capability-manifest.json (list_account_entities, build_workflow)"
+            "capability-manifest.json (list_account_entities, build_workflow, edit_workflow)"
           ]
         },
         {
@@ -12971,7 +14933,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "resolved"
           },
           sources: [
-            "services/api/fetch-users.ts:15"
+            "services/api/fetch-users.ts:15",
+            "workflows/70-research/ENDPOINTS.md:129"
           ]
         },
         {
@@ -13466,10 +15429,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "edit_workflow",
             "export_workflow",
             "get_workflow",
+            "get_workflow_digest",
             "get_workflow_runtime_window",
             "get_workflow_stats",
             "move_workflows",
-            "publish_workflow"
+            "publish_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -13510,7 +15475,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "edit_workflow",
-            "publish_workflow"
+            "publish_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -13688,10 +15654,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "edit_workflow",
             "export_workflow",
             "get_workflow",
+            "get_workflow_digest",
             "get_workflow_runtime_window",
             "get_workflow_stats",
             "move_workflows",
-            "publish_workflow"
+            "publish_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -13735,7 +15703,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "edit_workflow",
-            "publish_workflow"
+            "publish_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -14066,6 +16035,49 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/50-runtime/forcing-and-removing-contacts.md:18"
+          ]
+        },
+        {
+          id: "workflows--workflow-put-put-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/{workflowId}",
+          path: "/workflow/{locationId}/{workflowId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [
+            "edit_workflow",
+            "publish_workflow",
+            "repair_workflow"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "workflowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:203",
+            "workflows/70-research/2026-08-26-flow-bot-probe.md:150"
           ]
         },
         {
@@ -16079,6 +18091,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--instagram-connected-accounts",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflow/{locationId}/instagram/connected-accounts",
+          path: "/workflow/{locationId}/instagram/connected-accounts",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:171"
+          ]
+        },
+        {
           id: "workflow-service--get-folders-and-workflows",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/workflow/{locationId}/list",
@@ -16275,8 +18322,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          summary: "Save ONLY a workflow's triggers ({id} spelling of the same route).",
-          note: "Same route as the {wid} row; the miner produced both spellings from different call sites.",
+          summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
+          note: "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -16319,8 +18366,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
-          summary: "Save ONLY a workflow's triggers, leaving workflowData untouched. What the builder calls when the edit touched triggers and nothing else.",
-          note: "Live-proven 2026-08-25. Matters because the FULL workflow PUT validates triggers and can 400 with INVALID_TRIGGER_CONDITION (ruleId trigger-condition-invalid) on a conv_ai_autonomous_trigger the builder itself created \u2014 this path accepted the same stored conditions. If a flow workflow will not save from the UI, its triggers are the suspect, and this is the endpoint that still works.",
+          summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
+          note: "\u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -16349,7 +18396,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/10-anatomy/04-workflow-anatomy.md:31",
-            "workflows/40-rules/09-gotchas.md:225"
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233",
+            "workflows/40-rules/09-gotchas.md:225",
+            "workflows/70-research/2026-08-26-flow-bot-probe.md:171"
           ]
         },
         {
@@ -17358,9 +19407,11 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "edit_workflow",
             "export_workflow",
             "get_trigger_logs",
+            "get_workflow_digest",
             "get_workflow_runtime_window",
             "get_workflow_stats",
-            "publish_workflow"
+            "publish_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -17539,7 +19590,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "write",
           reach: "source-only",
           coveredBy: [
-            "edit_workflow"
+            "edit_workflow",
+            "publish_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -17570,7 +19622,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:46"
+            "services/BaseService.ts:46",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:233"
           ]
         },
         {
@@ -17612,7 +19665,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/BaseService.ts:42"
+            "services/BaseService.ts:42",
+            "workflows/70-research/2026-08-26-flow-bot-probe.md:192"
           ]
         },
         {
@@ -18150,7 +20204,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/workflow-asset-validation.ts:33",
-            "workflows/30-types/steps/if_else.md:31"
+            "workflows/30-types/steps/if_else.md:31",
+            "workflows/40-rules/server-side-validation.md:146",
+            "workflows/40-rules/server-side-validation.md:228"
           ]
         },
         {
@@ -21183,6 +23239,56 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--options-conversationai-services-booking",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/options/conversationai_services_booking",
+          path: "/workflows-marketplace/actions/options/conversationai_services_booking",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "optionType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "workflowId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/30-types/steps/conversationai_services_booking.md:61"
+          ]
+        },
+        {
           id: "workflows-marketplace-platform-service--get-action-dynamic-fields",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/workflows-marketplace/actions/published/{actionType}/dynamic-fields",
@@ -21307,7 +23413,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:321"
+            "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:321",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:305"
           ]
         },
         {
@@ -21392,7 +23499,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowsMarketplacePlatformService.ts:651",
             "services/McpConnectionService.ts:154",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:392",
-            "workflows/20-api/03-endpoints.md:343"
+            "workflows/20-api/03-endpoints.md:343",
+            "workflows/70-research/ENDPOINTS.md:242"
           ]
         },
         {
@@ -22463,6 +24571,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowMarketplaceService.ts:138",
             "workflows/20-api/smart-lists.md:13",
             "workflows/20-api/smart-lists.md:75",
+            "workflows/70-research/ENDPOINTS.md:76",
             "workflows/70-research/RUNTIME-DATA-2.md:72"
           ]
         },
@@ -22661,7 +24770,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
             "workflows/50-runtime/11-runtime-logs.md:158",
-            "workflows/50-runtime/11-runtime-logs.md:214"
+            "workflows/50-runtime/11-runtime-logs.md:214",
+            "workflows/70-research/RAIL.md:120"
           ]
         },
         {
@@ -22715,7 +24825,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
             "workflows/20-api/03-endpoints.md:353",
             "workflows/50-runtime/11-runtime-logs.md:113",
-            "workflows/50-runtime/11-runtime-logs.md:210"
+            "workflows/50-runtime/11-runtime-logs.md:210",
+            "workflows/70-research/ENDPOINTS.md:193"
           ]
         },
         {
@@ -22791,7 +24902,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
             "workflows/50-runtime/11-runtime-logs.md:171",
-            "workflows/50-runtime/11-runtime-logs.md:212"
+            "workflows/50-runtime/11-runtime-logs.md:212",
+            "workflows/70-research/ENDPOINTS.md:196"
           ]
         },
         {
@@ -23096,7 +25208,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:203",
-            "workflows/50-runtime/11-runtime-logs.md:156"
+            "workflows/50-runtime/11-runtime-logs.md:156",
+            "workflows/70-research/ENDPOINTS.md:194",
+            "workflows/70-research/RAIL.md:120"
           ]
         },
         {
@@ -23462,7 +25576,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
             "workflows/50-runtime/11-runtime-logs.md:127",
             "workflows/50-runtime/11-runtime-logs.md:211",
-            "workflows/50-runtime/observed-query-shapes.md:43"
+            "workflows/50-runtime/observed-query-shapes.md:43",
+            "workflows/70-research/ENDPOINTS.md:195"
           ]
         },
         {
@@ -23510,7 +25625,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "erased"
           },
           sources: [
-            "services/api/sticky-notes.ts:38"
+            "services/api/sticky-notes.ts:38",
+            "workflows/70-research/SETTINGS-NOTES.md:267"
           ]
         },
         {
@@ -23558,7 +25674,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "erased"
           },
           sources: [
-            "services/api/sticky-notes.ts:18"
+            "services/api/sticky-notes.ts:18",
+            "workflows/70-research/SETTINGS-NOTES.md:264"
           ]
         },
         {
@@ -23612,7 +25729,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "erased"
           },
           sources: [
-            "services/api/sticky-notes.ts:31"
+            "services/api/sticky-notes.ts:31",
+            "workflows/70-research/SETTINGS-NOTES.md:266"
           ]
         },
         {
@@ -23652,7 +25770,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/api/sticky-notes.ts:9"
+            "services/api/sticky-notes.ts:9",
+            "workflows/70-research/SETTINGS-NOTES.md:263"
           ]
         },
         {
@@ -23704,7 +25823,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/sticky-notes.ts:23",
-            "workflows/20-api/03-endpoints.md:352"
+            "workflows/20-api/03-endpoints.md:352",
+            "workflows/70-research/SETTINGS-NOTES.md:265"
           ]
         },
         {
@@ -23826,7 +25946,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/api/trigger-stats-service.ts:15"
+            "services/api/trigger-stats-service.ts:15",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:301",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:401"
           ]
         },
         {
@@ -23867,7 +25989,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/api/trigger-stats-service.ts:25"
+            "services/api/trigger-stats-service.ts:25",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:435"
           ]
         },
         {
@@ -23908,7 +26031,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/api/trigger-stats-service.ts:20"
+            "services/api/trigger-stats-service.ts:20",
+            "workflows/70-research/VERSIONS-STATS-LOGS.md:416"
           ]
         },
         {
@@ -24553,7 +26677,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/conversation-ai-boundary.md:77",
-            "ai-agents/30-types/conversation-ai-actions.md:46"
+            "ai-agents/30-types/conversation-ai-actions.md:46",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:110",
+            "workflows/30-types/triggers/conv_ai_autonomous_trigger.md:265"
           ]
         },
         {
@@ -24700,7 +26826,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "create_convai_agent",
-            "get_ai_configuration_bundle"
+            "get_ai_configuration_bundle",
+            "update_convai_agent"
           ],
           rawCallable: true,
           transport: "json",
@@ -24738,7 +26865,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "update_convai_agent"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -24774,7 +26903,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "update_convai_agent"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -25713,6 +27844,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "workflows--conversations-ai-intents",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/conversations-ai/intents/{locationId}",
+          path: "/conversations-ai/intents/{locationId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "workflows",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "workflows/70-research/ENDPOINTS.md:177"
+          ]
+        },
+        {
           id: "ai-agents--conversations-ai-prompt",
           method: "POST",
           url: "https://services.leadconnectorhq.com/conversations-ai/prompt",
@@ -26258,7 +28424,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/knowledge-base.md:59",
-            "ai-agents/20-api/knowledge-base.md:109"
+            "ai-agents/20-api/knowledge-base.md:104"
           ]
         },
         {
@@ -26698,7 +28864,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:277",
             "ai-agents/20-api/12-ai-agents-api.md:344",
-            "ai-agents/20-api/knowledge-base.md:105"
+            "ai-agents/20-api/knowledge-base.md:110"
           ]
         },
         {
@@ -26733,7 +28899,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:279"
+            "ai-agents/20-api/12-ai-agents-api.md:279",
+            "ai-agents/20-api/knowledge-base.md:114"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-rich-text-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/knowledge-base/rich-text/{id}",
+          path: "/knowledge-base/rich-text/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:111"
           ]
         },
         {
@@ -26768,7 +28970,43 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:278"
+            "ai-agents/20-api/12-ai-agents-api.md:278",
+            "ai-agents/20-api/knowledge-base.md:112"
+          ]
+        },
+        {
+          id: "ai-agents--rich-text-knowledge-base",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/rich-text/knowledge-base/{knowledgeBaseId}",
+          path: "/knowledge-base/rich-text/knowledge-base/{knowledgeBaseId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "knowledgeBaseId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/knowledge-base.md:113"
           ]
         },
         {
@@ -27129,37 +29367,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "restAgent.ts:204"
-          ]
-        },
-        {
-          id: "memberships-courses--membership-check-domain-linked",
-          method: "GET",
-          url: "https://services.leadconnectorhq.com/membership/check-domain-linked/",
-          path: "/membership/check-domain-linked/",
-          origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "memberships-courses",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "memberships-courses/20-api/endpoints.md:55"
           ]
         },
         {
@@ -33713,8 +35920,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/UserService.ts:6",
-            "memberships-courses/20-api/endpoints.md:68"
+            "services/UserService.ts:6"
           ]
         },
         {
