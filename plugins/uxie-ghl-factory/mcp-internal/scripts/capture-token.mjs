@@ -127,6 +127,20 @@ async function loadPlaywright() {
     + '\nor point PLAYWRIGHT_PATH at a playwright package whose browser is installed.');
 }
 
+// THE FILE FORMAT IS A CONTRACT WITH core/auth.mjs:69,72, and it went unhonoured because the write
+// had no test. This script used to emit bare lines (`${bearer}\n${tokenId}\n`); readCredentials
+// matches /Bearer\s+(ey…)/i and /token-id:\s*(…)/i, so every file this script ever wrote failed to
+// parse while the script reported success. Exported as a pure function so the round trip can be
+// tested without launching a browser -- the same reason acceptsBearerFrom is exported.
+//
+// An absent token-id omits the LINE. Writing `token-id: ` with an empty value would match the
+// reader's regex group as empty and hand the AI rail a blank credential.
+export function formatTokenFile({ bearer, tokenId }) {
+  const lines = [`Bearer ${bearer}`];
+  if (tokenId) lines.push(`token-id: ${tokenId}`);
+  return `${lines.join('\n')}\n`;
+}
+
 const claimNames = (jwt) => {
   const c = JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString());
   return { keys: Object.keys(c).sort(), ttlMin: Math.round((c.exp - Date.now() / 1000) / 60),
