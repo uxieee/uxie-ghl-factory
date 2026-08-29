@@ -11,7 +11,7 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [Unreleased]
+## [0.40.0] — 2026-08-29
 
 Phase-5 plan 4 — **drawer parity**. Everything below is a place the engine INVENTED where the
 builder offers a choice, or had no way to express a shape the drawer writes.
@@ -43,6 +43,28 @@ builder offers a choice, or had no way to express a shape the drawer writes.
   a human, so an outbound send below it does not go out on a schedule.
 - **The note colour palette** as an advisory — an off-palette hex renders, but the drawer shows no
   swatch selected, so a one-digit typo is invisible until someone opens the step.
+
+### Added (plan 5 — the read side)
+
+- **A whole-document lint runner** with three packs. `check_workflow` ran exactly ONE layer (the
+  marketplace action schema) while the build path ran about ten, so recon on a live account found
+  nothing the build path alone checks — a client shipped a literal `{{appointment.date}}` for three
+  weeks under a clean `check_workflow` (RC-F). `platform` mirrors GHL and the engine's own guards,
+  `hygiene` names shapes that are legal and almost always a mistake, and `doctrine` evaluates CLIENT
+  policy the engine never defines, supplied as declarative JSON from
+  `.ghl/<locationId>/lint-pack.json` or inline.
+- **`check_workflow` survives an assets outage.** When the schema fetch fails it now returns
+  `errorCount: null` — unknown, not zero — with `schemaChecked: false`, and every other layer still
+  reports. It used to return `VALIDATION_FAILED` and discard all of it.
+- **`search_merge_tags`** — the picker's 442 static tags ranked by intent, plus this account's own
+  custom fields and values when a `locationId` is given. The vocabulary was previously findable only
+  by already knowing the name, which is how `{{appointment.date}}` came to be invented.
+- **`get_workflow_digest`** — a compact read of one workflow (identity, version, a structural
+  fingerprint, the trigger set, one line per step, the linear chains), roughly a tenth of
+  `export_workflow`. The read half of every edit.
+- **`expectedVersion` and `acknowledgeDrift` on `edit_workflow`**, backed by a per-project read
+  cache. A workflow PUT carries the whole templates array, so an edit authored against a graph
+  someone else has since changed erases the other edit silently; that window was unguarded.
 
 ### Fixed
 
