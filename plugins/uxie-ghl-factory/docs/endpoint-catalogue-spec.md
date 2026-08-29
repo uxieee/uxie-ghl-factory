@@ -277,7 +277,7 @@ not about GHL.
 
 ### 2.7 `coveredBy` — the join **[r2 — scope corrected]**
 
-34 of 41 typed tools carry `capabilities: [{method, path}]` — 158 entries. Three notations exist
+34 of 45 typed tools carry `capabilities: [{method, path}]` — 158 entries. Three notations exist
 today (`{loc}` vs `:locationId`; query kept vs stripped; prefix folded vs split), so the exact join
 is **17 of 158**, normalised **58 of 158** covering 30 rows [review].
 

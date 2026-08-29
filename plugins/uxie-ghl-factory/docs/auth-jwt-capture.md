@@ -24,7 +24,7 @@ content-type:    application/json     (POST/PUT only)
   `https://app.gohighlevel.com/` both authenticate the workflow endpoints. Settled live
   2026-08-29: an app-scoped token drove `GET /workflow/{loc}/list`, a full build (create,
   auto-save, seven trigger POSTs), an edit PUT and its read-back — every one a `200`.
-  Prefer the iframe when you see both, purely because it is the narrower scope.
+  Either is usable when you see both.
 
   > This page previously said an app-scoped token "is unscoped and returns 401 on every
   > workflow endpoint", while `commands/internal-connect.md` said the referer MUST be
