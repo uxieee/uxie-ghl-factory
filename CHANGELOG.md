@@ -11,6 +11,54 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+Phase-5 plan 2 — **one compile pipeline behind every door** (RC-A). The engine had one guarded
+path (`build_workflow`) and four unguarded ones. Every change below moves a door onto the guarded
+path, or removes the reason someone reached for the hand-rolled PUT instead.
+
+### Added
+
+- **References resolve against the LIVE document.** An edit op compiles ONE node, so every
+  reference check inside it was a false positive by construction — a `goto` pointing at a step
+  sitting on the canvas threw `GOTO_UNRESOLVED`. The compiler now takes `ctx.externalRefs`, seeded
+  from the live templates plus the refs earlier ops in the same call minted. A unique live NAME
+  resolves; a name shared by two steps raises `REF_AMBIGUOUS` rather than guessing. (F5-12)
+- **`appendToBranch` takes three anchors**: `branchEntryId`, `containerId` + `branch` (display
+  name, `__branchKey__`, or id), or `branchRef` — a branch ref authored earlier in the same call.
+  It previously demanded an id obtainable only by exporting the workflow and reading `next[]` by
+  position.
+- **The account resolver runs on the edit path**, gated on an op actually carrying a name so a
+  native edit stays network-identical. An unresolved name fails `UNRESOLVED_DEPS` exactly as
+  `build_workflow` does, with the same `ignoreUnresolved` opt-out. (F5-09)
+- **`replaceFieldId`** — a custom field's `dataType` is immutable, so converting one produces a
+  NEW id and every reference must move, across both documents. Merge tags are deliberately left
+  alone: they key off `fieldKey`, which the new field regenerates from its name. (F5-18)
+- **`replaceInAttributes`** — a literal string replace at ONE dotted attribute path, optionally
+  scoped to a step type. No regex, no path guessing.
+- **`repair_workflow`** — the full-document PUT with every edit guard and a round-trip verify.
+  The sanctioned replacement for the hand-rolled PUT that skips all of them; `expectedVersion`
+  refuses a stale read with `VERSION_CONFLICT` instead of overwriting another edit.
+- **Op-name aliases and a nearest-match unknown-op error.** `unknown edit op: X` named nothing,
+  which is how the escape hatch became the default. The error now lists all four op families and
+  suggests the nearest match, comparing against aliases as well as canonical names.
+
+### Changed
+
+- **`modifyStep` runs the builder dispatch instead of a raw shallow merge.** A wait window patched
+  without `days` and a notification patched with a flat `notificationType` were written exactly as
+  given while the build path's builders knew the full drawer shape all along. Types whose author
+  shape is not their wire shape, and containers, still merge as given and warn
+  `MODIFY_NOT_NORMALISED` naming `retypeStep`. Guarded by a loss test over all 70 shipped step
+  examples. (F5-20)
+- **A trigger `target` may be a live step id or a unique step name**, resolved against the
+  post-edit roster — so a goto trigger can point at a step the same call just created.
+
+### Removed
+
+- **The `TARGET_REF_UNSUPPORTED` refusal.** It existed only because `buildTrigger` had no refMap
+  on the edit path; it does now, so only a genuinely unresolvable target is refused.
+
 ## [0.38.0] — 2026-08-29
 
 Phase-5 guards and data. Every item below is a defect that produced a **clean-looking result** —
