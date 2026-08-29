@@ -1,0 +1,8 @@
+{
+  "_source": "LIVE-CAPTURED on the designated test sub-account 2026-08-29 (workflow 6c3140b3): 7/7 call_status triggers persisted with type 'multiselect' as a STRING and operator 'contains-any'. The stored row carries no id (F5-16).",
+  "trigger": { "type": "call_status", "conditions": [
+    { "operator": "contains-any", "field": "call_status", "value": ["completed", "no-answer"], "title": "Call status", "type": "multiselect" } ] },
+  "lean": { "type": "call_status", "name": "Call ended", "filters": [
+    { "field": "call_status", "value": ["completed", "no-answer"] } ] },
+  "resolver": { "customFields": [] }
+}

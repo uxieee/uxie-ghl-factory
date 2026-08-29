@@ -1,0 +1,9 @@
+{
+  "_source": "UI-written trigger, anonymised. A contact_changed row on a CUSTOM field exists only once the field does — the engine could not express it before the row templates landed (F5-26).",
+  "trigger": { "type": "contact_changed", "conditions": [
+    { "operator": "has-changed", "field": "contact.<uuid-001>", "title": "Next Callback On", "type": "date", "id": "<uuid-001>" } ] },
+  "lean": { "type": "contact_changed", "name": "Callback set", "filters": [
+    { "field": "Next Callback On", "operator": "has-changed" } ] },
+  "resolver": { "customFields": [
+    { "id": "<uuid-001>", "name": "Next Callback On", "fieldKey": "contact.next_callback_on", "dataType": "DATE", "model": "contact" } ] }
+}

@@ -1,0 +1,8 @@
+{
+  "_source": "Source-derived from the drawer's own row model (ContactChangedFilter.getOperatorOptions): contact.tags is the one contact_changed row with its own operator menu, and it carries id 'tag' with type 'select'.",
+  "trigger": { "type": "contact_changed", "conditions": [
+    { "operator": "add-index-of-true", "field": "contact.tags", "value": ["vip"], "title": "Tags", "type": "select", "id": "tag" } ] },
+  "lean": { "type": "contact_changed", "name": "Tag added", "filters": [
+    { "field": "contact.tags", "operator": "add-index-of-true", "value": ["vip"] } ] },
+  "resolver": { "customFields": [] }
+}

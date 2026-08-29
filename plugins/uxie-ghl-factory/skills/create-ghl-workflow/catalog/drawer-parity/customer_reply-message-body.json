@@ -1,0 +1,8 @@
+{
+  "_source": "UI-written trigger, anonymised (ids -> <uuid-00N>, names -> placeholders). The drawer's message.body row has NO default operator — it forces a pick from five (F5-25).",
+  "trigger": { "type": "customer_reply", "conditions": [
+    { "operator": "string-contains-any-of", "field": "message.body", "value": ["stop", "unsubscribe"], "title": "Message body", "type": "string", "id": "message-body" } ] },
+  "lean": { "type": "customer_reply", "name": "Reply words", "filters": [
+    { "field": "message.body", "operator": "string-contains-any-of", "value": ["stop", "unsubscribe"] } ] },
+  "resolver": { "customFields": [] }
+}
