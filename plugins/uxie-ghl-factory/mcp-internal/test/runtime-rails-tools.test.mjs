@@ -142,3 +142,27 @@ test('pin_webhook_sample: previews without confirm; with confirm POSTs to the ho
   assert.equal(r.data.headerTagsOmitted, 1);
   assert.ok(calls.some((c) => c.method === 'PUT' && c.path.includes('set-as-reference/reqNew')));
 });
+
+// F5-35: DELETE /contacts/{id}/workflow/{wid} on the PUBLIC rail ends a live run, and the roster
+// says `finished` for that exactly as it does for a completed run. Only the lifecycle row's
+// removedFrom.channel tells them apart, so an exit reason read from the roster alone is a guess.
+test('get_workflow_logs labels a removal by ORIGIN and counts the external ones', async () => {
+  const tool = TOOLS.find((t) => t.name === 'get_workflow_logs');
+  const logs = [
+    { type: 'added_to_workflow', stepName: 'Add to workflow' },
+    { type: 'remove_from_workflow', stepName: 'Remove', removedFrom: { channel: 'OAUTH', source: 'INTEGRATION' } },
+    { type: 'remove_from_workflow', stepName: 'Remove', removedFrom: { channel: 'WORKFLOW' } },
+    { type: 'sms', stepName: 'Text' },
+  ];
+  const gw = { loc: 'LOC', call: async (m, p) => {
+    if (p.includes('/logs')) return { ok: true, status: 200, json: { logs } };
+    return { ok: true, status: 200, json: {} };
+  } };
+  const res = await tool.handler({ locationId: 'LOC', workflowId: 'WID' }, { state: {}, makeGw: () => gw });
+  assert.equal(res.ok, true, JSON.stringify(res).slice(0, 200));
+  const rows = res.data.logs;
+  assert.equal(rows[1].removalOrigin, 'external-api');
+  assert.equal(rows[2].removalOrigin, 'workflow');
+  assert.equal(rows[3].removalOrigin, undefined, 'a step row is not a removal');
+  assert.equal(res.data.externalRemovals, 1);
+});

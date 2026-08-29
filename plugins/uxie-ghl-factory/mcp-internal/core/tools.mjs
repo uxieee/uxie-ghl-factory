@@ -1994,12 +1994,33 @@ export const TOOLS = [
       // from a step row without knowing the vocabulary.
       const LIFECYCLE_TYPES = new Set(['add_to_workflow', 'added_to_workflow', 'remove_from_workflow']);
       const rawLogs = logs.json?.logs ?? logs.json ?? [];
+      // A removal's CHANNEL is the only thing that distinguishes an outside API call from the
+      // workflow removing the contact itself: the roster says `finished` for both completion and
+      // removal (F5-35, proven live 2026-08-29 with a private integration token). So an exit
+      // reason read from the roster alone is unknowable, and a run ended by an integration looks
+      // exactly like one that ran to the end.
       const labelledLogs = Array.isArray(rawLogs)
-        ? rawLogs.map((r) => (LIFECYCLE_TYPES.has(r?.type) ? { ...r, isLifecycleRow: true } : r))
+        ? rawLogs.map((r) => {
+          if (!LIFECYCLE_TYPES.has(r?.type)) return r;
+          const channel = r?.removedFrom?.channel ?? null;
+          return {
+            ...r,
+            isLifecycleRow: true,
+            ...(r.type === 'remove_from_workflow'
+              ? { removalOrigin: channel === 'OAUTH' ? 'external-api' : (channel ? 'workflow' : 'unknown') }
+              : {}),
+          };
+        })
         : rawLogs;
+      const externalRemovals = Array.isArray(labelledLogs)
+        ? labelledLogs.filter((r) => r?.removalOrigin === 'external-api').length
+        : 0;
 
       return ok({
         logs: labelledLogs,
+        // Counted separately because the roster cannot tell them apart: it says `finished` for a
+        // completed run AND for one an outside call ended.
+        ...(externalRemovals ? { externalRemovals } : {}),
         perStepCounts: counts.json?.counts ?? counts.json ?? [],
         enrollments,
         // Only meaningful when the caller asked for the full walk; undefined keeps

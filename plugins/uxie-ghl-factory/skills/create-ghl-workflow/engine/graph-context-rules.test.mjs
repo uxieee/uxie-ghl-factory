@@ -112,3 +112,30 @@ test('a send ABOVE the manual step is fine, and an unrelated chain is silent', (
   ], { warn: (m) => warns.push(m) });
   assert.deepEqual(warns.filter((w) => /HOLDS the run/.test(w)), []);
 });
+
+// F5-36, measured live: a card created with POST /opportunities/ read back by ID immediately but
+// did not appear in GET /opportunities/search for about a minute. Fetch-by-id is the record;
+// search is an index behind it.
+test('a find_opportunity soon after a create_opportunity warns about the index lag', () => {
+  const warns = [];
+  checkGraphContextRules([
+    { id: 'a', type: 'internal_create_opportunity', name: 'Create card', next: 'b', parentKey: null, order: 0, attributes: {} },
+    { id: 'b', type: 'find_opportunity', name: 'Find it', next: null, parentKey: 'a', order: 1, attributes: {} },
+  ], { warn: (m) => warns.push(m) });
+  assert.ok(warns.some((w) => /GRAPH_CONTEXT/.test(w) && /INDEX and lags/.test(w) && /Find it/.test(w)), warns.join('\n'));
+});
+
+test('a wait between them silences it, and a find with no create above is silent', () => {
+  const withWait = [];
+  checkGraphContextRules([
+    { id: 'a', type: 'internal_create_opportunity', name: 'Create', next: 'w', parentKey: null, order: 0, attributes: {} },
+    { id: 'w', type: 'wait', name: 'Settle', next: 'b', parentKey: 'a', order: 1, attributes: { type: 'time' } },
+    { id: 'b', type: 'find_opportunity', name: 'Find', next: null, parentKey: 'w', order: 2, attributes: {} },
+  ], { warn: (m) => withWait.push(m) });
+  assert.deepEqual(withWait.filter((w) => /INDEX and lags/.test(w)), [], 'a wait is the fix');
+
+  const alone = [];
+  checkGraphContextRules([{ id: 'b', type: 'find_opportunity', name: 'Find', next: null, parentKey: null, order: 0, attributes: {} }],
+    { warn: (m) => alone.push(m) });
+  assert.deepEqual(alone.filter((w) => /INDEX and lags/.test(w)), []);
+});
