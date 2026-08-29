@@ -219,7 +219,7 @@ async function main() {
     process.exit(1);
   }
 
-  writeFileSync(TOKEN_FILE, tokenId ? `${bearer}\n${tokenId}\n` : `${bearer}\n`, { mode: 0o600 });
+  writeFileSync(TOKEN_FILE, formatTokenFile({ bearer, tokenId }), { mode: 0o600 });
   chmodSync(TOKEN_FILE, 0o600);
 
   const b = claimNames(bearer);
