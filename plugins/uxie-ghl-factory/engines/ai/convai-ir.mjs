@@ -41,6 +41,33 @@ function assertNonEmptyString(v, field) {
   if (typeof v !== 'string' || v.length === 0) throw new IRError('SCHEMA', `${field} must be a non-empty string`);
 }
 
+// Tones — the Bot Goals tab's "Tone of Bot Replies". All seven values are present in the shipped
+// label bundle (conversation-ai-2026-08-25/i18n/cai-labels-full.json), and the save validator
+// carries BOTH "Personality, Instructions, and Goal should not be empty." and the variant that
+// also names Tone — so an empty tone list blocks the UI save for at least one bot type. An
+// API-built agent without tones saves fine over the API and then CANNOT be saved from the UI.
+export const TONES = ['professional', 'friendly', 'trustworthy', 'confident', 'engaging', 'empathetic', 'innovative'];
+
+function checkTones(tones) {
+  if (tones === undefined) return;
+  if (!Array.isArray(tones) || tones.some((t) => !TONES.includes(t))) {
+    throw new IRError('BAD_TONES', `tones must be an array drawn from ${TONES.join(', ')} — got ${JSON.stringify(tones)}`);
+  }
+  // "You can select maximum of 3 tones." — cai-validators.json errorMaxTones, verbatim.
+  if (tones.length > 3) throw new IRError('BAD_TONES', 'you can select a maximum of 3 tones (the UI validator errorMaxTones)');
+}
+
+function checkSummary(summary) {
+  if (summary === undefined) return;
+  if (!summary || typeof summary !== 'object' || Array.isArray(summary)) throw new IRError('SCHEMA', 'summary must be an object');
+  if (summary.workflowIds !== undefined && !Array.isArray(summary.workflowIds)) {
+    throw new IRError('SCHEMA', 'summary.workflowIds must be an array — NOTE: the picker offers PUBLISHED workflows only, and the index lags a publish by about a minute');
+  }
+  if (summary.customFieldId !== undefined && typeof summary.customFieldId !== 'string') {
+    throw new IRError('SCHEMA', 'summary.customFieldId must be a string (a contact custom-field id)');
+  }
+}
+
 function checkMode(mode) {
   if (!MODES.includes(mode)) throw new IRError('BAD_MODE', `mode must be one of ${MODES.join(', ')}, got: ${JSON.stringify(mode)}`);
 }
@@ -108,6 +135,8 @@ export function parseConvaiIR(ir) {
   checkMode(ir.mode);
   checkChannels(ir.channels);
   checkActions(ir.actions);
+  checkTones(ir.tones);
+  checkSummary(ir.summary);
   checkWait(ir.wait);
   checkSleep(ir.sleep);
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
@@ -125,6 +154,8 @@ export function parseConvaiPartialIR(ir) {
   if (ir.mode !== undefined) checkMode(ir.mode);
   if (ir.channels !== undefined) checkChannels(ir.channels);
   checkActions(ir.actions);
+  checkTones(ir.tones);
+  checkSummary(ir.summary);
   checkWait(ir.wait);
   checkSleep(ir.sleep);
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);

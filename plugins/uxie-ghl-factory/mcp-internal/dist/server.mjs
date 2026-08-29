@@ -142569,6 +142569,24 @@ var CHANNELS = ["SMS", "IG", "FB", "WebChat", "Live_Chat", "WhatsApp"];
 function assertNonEmptyString(v, field) {
   if (typeof v !== "string" || v.length === 0) throw new IRError2("SCHEMA", `${field} must be a non-empty string`);
 }
+var TONES = ["professional", "friendly", "trustworthy", "confident", "engaging", "empathetic", "innovative"];
+function checkTones(tones) {
+  if (tones === void 0) return;
+  if (!Array.isArray(tones) || tones.some((t) => !TONES.includes(t))) {
+    throw new IRError2("BAD_TONES", `tones must be an array drawn from ${TONES.join(", ")} \u2014 got ${JSON.stringify(tones)}`);
+  }
+  if (tones.length > 3) throw new IRError2("BAD_TONES", "you can select a maximum of 3 tones (the UI validator errorMaxTones)");
+}
+function checkSummary(summary) {
+  if (summary === void 0) return;
+  if (!summary || typeof summary !== "object" || Array.isArray(summary)) throw new IRError2("SCHEMA", "summary must be an object");
+  if (summary.workflowIds !== void 0 && !Array.isArray(summary.workflowIds)) {
+    throw new IRError2("SCHEMA", "summary.workflowIds must be an array \u2014 NOTE: the picker offers PUBLISHED workflows only, and the index lags a publish by about a minute");
+  }
+  if (summary.customFieldId !== void 0 && typeof summary.customFieldId !== "string") {
+    throw new IRError2("SCHEMA", "summary.customFieldId must be a string (a contact custom-field id)");
+  }
+}
 function checkMode(mode) {
   if (!MODES.includes(mode)) throw new IRError2("BAD_MODE", `mode must be one of ${MODES.join(", ")}, got: ${JSON.stringify(mode)}`);
 }
@@ -142625,6 +142643,8 @@ function parseConvaiIR(ir) {
   checkMode(ir.mode);
   checkChannels(ir.channels);
   checkActions(ir.actions);
+  checkTones(ir.tones);
+  checkSummary(ir.summary);
   checkWait(ir.wait);
   checkSleep(ir.sleep);
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
@@ -142644,6 +142664,9 @@ function defaultSummary() {
     inactivity: { value: 15, unit: "minutes" },
     minimumMessages: 3,
     workflowIds: [],
+    // NO customFieldId here: the captured create body does not carry one, and inventing a key on
+    // every create is the failure class this engine exists to prevent. An author who wants a
+    // summary written to a contact field supplies summary.customFieldId and the spread carries it.
     emailNotifications: { admins: false, allUsers: false, contactAssignedUser: false, specificUsers: [], customEmail: "" }
   };
 }
@@ -142672,10 +142695,11 @@ function buildCreateBody(ir, { locationId }) {
     personality: ir.personality ?? "",
     goal: ir.goal ?? "",
     instructions: ir.instructions ?? "",
+    tones: ir.tones ?? [],
     botType: ir.botType ?? "PROMPT_BASED_BOT",
     knowledgeBaseIds: ir.knowledgeBaseIds ?? [],
     knowledgeBaseTriggers: [],
-    summary: defaultSummary(),
+    summary: { ...defaultSummary(), ...ir.summary ?? {} },
     respondToImages: ir.respondToImages ?? false,
     respondToAudio: ir.respondToAudio ?? false,
     // Flow-Based Builder linkage. A FLOW_BUILDER_BOT's logic lives in a workflow whose
@@ -142845,9 +142869,45 @@ function compileConvaiAction(action, { agentId = null, locationId } = {}) {
   };
   return { method: "POST", path: "/ai-employees/actions", body };
 }
-function compileConvaiAgent(ir, { locationId } = {}) {
+var WAIT_BOUNDS = { seconds: [1, 21600], minutes: [1, 360], hours: [1, 6] };
+function uiSaveViolations(body, botType) {
+  const v = [];
+  const push = (field, rule, msg) => v.push({ field, rule, msg });
+  if (!Array.isArray(body.channels) || !body.channels.length) push("channels", "selectChannel", "Please select at least one channel");
+  for (const f of ["personality", "goal", "instructions"]) {
+    if (typeof body[f] !== "string" || !body[f].trim()) {
+      push(f, "notEmpty", "Personality, Instructions, and Goal should not be empty.");
+    }
+  }
+  if (!Array.isArray(body.tones) || !body.tones.length) {
+    push("tones", "toneEmpty", "Personality, Instructions, Goal, and Tone should not be empty.");
+  }
+  if (Array.isArray(body.tones) && body.tones.length > 3) push("tones", "errorMaxTones", "You can select maximum of 3 tones.");
+  const unit = body.waitTime?.unit ?? body.wait?.unit;
+  const value = body.waitTime?.value ?? body.wait?.value;
+  const bounds = WAIT_BOUNDS[unit];
+  if (bounds && typeof value === "number" && (value < bounds[0] || value > bounds[1])) {
+    push("waitTime", `${unit}Error`, `Wait time must be between ${bounds[0]} and ${bounds[1]} ${unit}`);
+  }
+  return v;
+}
+var FATAL_FOR_FLOW_BOT = /* @__PURE__ */ new Set(["toneEmpty", "errorMaxTones", "selectChannel"]);
+function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   const norm2 = parseConvaiIR(ir);
-  const create = { method: "POST", path: "/ai-employees/employees", body: buildCreateBody(norm2, { locationId }) };
+  const body = buildCreateBody(norm2, { locationId });
+  const violations = uiSaveViolations(body, body.botType);
+  const fatal = body.botType === "FLOW_BUILDER_BOT" ? violations.filter((x) => FATAL_FOR_FLOW_BOT.has(x.rule)) : [];
+  if (fatal.length && allowUiUnsaveable !== true) {
+    throw new IRError2(
+      "UI_SAVE_BLOCKED",
+      `this agent would be created over the API and then be UNSAVEABLE from the UI: ` + fatal.map((x) => `${x.field} \u2014 ${x.msg}`).join("; ") + ". Fix the field, or pass allowUiUnsaveable:true to create it anyway."
+    );
+  }
+  for (const x of violations) {
+    if (fatal.includes(x)) continue;
+    warn?.(`UI_SAVE: ${x.field} \u2014 ${x.msg} (the API accepts this body; the UI will refuse to save the agent)`);
+  }
+  const create = { method: "POST", path: "/ai-employees/employees", body };
   const actions = (norm2.actions ?? []).map((a) => compileConvaiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER };
 }
