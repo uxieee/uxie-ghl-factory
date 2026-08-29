@@ -1,8 +1,8 @@
 // Transport-blind tool definitions. Descriptions are pulled from the generated
 // tool-description catalog so proof status and risk reach the agent verbatim.
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
@@ -36,6 +36,8 @@ import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
 import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/lints/opportunity.mjs';
 import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
+import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
+import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
@@ -394,6 +396,18 @@ const descriptorPreview = (descriptor) => ({
   path: descriptor.path,
   payload: payloadSummary(descriptor.body),
 });
+
+// A project's own lint pack, read from the same `.ghl/` seam the token lives in. Client policy
+// travels with the project, never with the engine.
+function readProjectLintPack(state, locationId) {
+  try {
+    if (process.env.GHL_READ_CACHE === '0') return null;
+    const dir = state?.tokenFile ? dirname(state.tokenFile) : null;
+    if (!dir || !locationId) return null;
+    const p = join(dir, String(locationId), 'lint-pack.json');
+    return existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : null;
+  } catch { return null; }
+}
 
 export function compileAiAgentPlan(kind, args) {
   if (kind === 'convai') {
@@ -1501,15 +1515,25 @@ export const TOOLS = [
       + 'installed now — TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all '
       + '(live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, '
       + 'isMarketplaceAction — nothing to compare an action against). Always a separate key, never folded '
-      + 'into `errorCount`.'),
+      + 'into `errorCount`. It also returns `lints`: the engine\'s OWN layers run over the live '
+      + 'document (platform), generic authoring hygiene, and this project\'s doctrine pack from '
+      + '.ghl/<locationId>/lint-pack.json or an inline lintPack — advisory, never part of '
+      + 'errorCount. When the marketplace assets fetch fails the schema layer is skipped and '
+      + 'errorCount is null (unknown, not zero) while every other layer still reports.'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
+          // Client policy, inline. Without it the handler looks for .ghl/<locationId>/lint-pack.json.
+      lintPack: z.object({}).passthrough().optional(),
     }),
     capabilities: [
       { method: 'GET', path: '/workflow/{loc}/{wid}' },
       { method: 'GET', path: '/workflow/{loc}/trigger' },
       { method: 'GET', path: '/workflows-marketplace/location/{loc}/assets' },
+      // Best-effort, for the merge-tag lint's per-location vocabulary. Their absence only
+      // demotes that one check to "unverifiable"; it never blocks the read.
+      { method: 'GET', path: '/locations/{loc}/customFields/search' },
+      { method: 'GET', path: '/locations/{loc}/customValues' },
     ],
     handler: async (args, deps) => guard(async () => {
       const loc = encodeURIComponent(args.locationId);
@@ -1540,14 +1564,70 @@ export const TOOLS = [
       } catch {
         actionSchema = null;
       }
+      // Per-location merge-tag vocabulary, best-effort — an unavailable list only demotes the
+      // merge-tag lint to "unverifiable".
+      let customFields;
+      let customValues;
+      try {
+        const cf = await gw.call('GET', `/locations/${loc}/customFields/search?${new URLSearchParams({
+          parentId: '', skip: '0', limit: '10000', documentType: 'field', model: 'all', query: '', includeStandards: 'false',
+        })}`);
+        const rows = Array.isArray(cf?.json) ? cf.json : cf?.json?.customFields;
+        if (cf?.ok && Array.isArray(rows)) {
+          customFields = rows.filter((f) => f && typeof f === 'object')
+            .map((f) => ({ id: f.id ?? f._id, name: f.name, fieldKey: f.fieldKey, dataType: f.dataType, model: f.model }));
+        }
+        const cv = await gw.call('GET', `/locations/${loc}/customValues`);
+        const vals = Array.isArray(cv?.json) ? cv.json : cv?.json?.customValues;
+        if (cv?.ok && Array.isArray(vals)) {
+          customValues = vals.filter((v) => v && typeof v === 'object')
+            .map((v) => ({ id: v.id ?? v._id, name: v.name, fieldKey: v.fieldKey }));
+        }
+      } catch { /* best effort */ }
+
+      // THE LINT PACKS. These are the engine's own layers, run over a LIVE document — the whole
+      // point of RC-F. They are advisory findings under their own key and NEVER counted into
+      // errorCount, the same contract marketplaceDrift already has.
+      const doctrineInput = args.lintPack ?? readProjectLintPack(deps.state, args.locationId);
+      const doctrine = doctrineInput ? loadDoctrinePack(doctrineInput) : { rules: null, errors: [] };
+      const lints = runLints(
+        { templates, triggers: triggerList, settings: { window: body.json?.window }, status: body.json?.status },
+        { catalog: loadCatalog(), customFields, customValues,
+          doctrinePack: doctrine.rules,
+          packs: doctrine.rules ? ['platform', 'hygiene', 'doctrine'] : ['platform', 'hygiene'] },
+      );
+      for (const e of doctrine.errors) lints.notEvaluable.push(`doctrine pack: ${e}`);
+
+      const lintKeys = {
+        lints,
+        lintNote: 'lints are ADVISORY findings from the engine\'s own layers (platform), generic '
+          + 'authoring hygiene, and this project\'s lint pack — a separate key, never part of '
+          + 'errorCount. notEvaluable names what could NOT be checked, which is not the same as clean.',
+      };
+
+      // The marketplace schema layer is ONE of ten. When its fetch fails the other nine still have
+      // something to say, and returning VALIDATION_FAILED threw all of it away — which is how a
+      // recon pass on a live account reported nothing at all.
       if (!actionSchema || !actionSchema.size) {
-        return fail(CODES.VALIDATION_FAILED,
-          'Could not fetch the action schema, so no check was performed.',
-          'Retry; if it persists the assets endpoint may be unavailable for this location.');
+        return ok({
+          workflowId: args.workflowId,
+          name: body.json?.name,
+          status: body.json?.status,
+          steps: templates.length,
+          errorCount: null,
+          errors: [],
+          headline: 'Resolve ? Errors (schema unavailable)',
+          schemaChecked: false,
+          note: 'The marketplace action schema could not be fetched, so the SCHEMA layer did not run. '
+            + 'errorCount is null — unknown, not zero. Every other lint layer below did run.',
+          ...lintKeys,
+        });
       }
 
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
       return ok({
+        schemaChecked: true,
+        ...lintKeys,
         workflowId: args.workflowId,
         name: body.json?.name,
         status: body.json?.status,

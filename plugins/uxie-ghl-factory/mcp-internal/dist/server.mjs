@@ -69073,9 +69073,9 @@ import { dirname as dirname2, resolve as resolve3 } from "node:path";
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-import { readFileSync as readFileSync2 } from "node:fs";
+import { readFileSync as readFileSync2, existsSync as existsSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve as resolve2 } from "node:path";
+import { dirname, resolve as resolve2, join as join2 } from "node:path";
 import { createHash as createHash4 } from "node:crypto";
 
 // core/errors.mjs
@@ -140208,7 +140208,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     for (const key of app.actionKeys) appIdByKind.action.set(key, app.appId);
     for (const key of app.triggerKeys) appIdByKind.trigger.set(key, app.appId);
   }
-  const join2 = (schema2, kind) => {
+  const join3 = (schema2, kind) => {
     const appIdByKey = appIdByKind[kind];
     const joined = /* @__PURE__ */ new Map();
     for (const [key, entry] of schema2) {
@@ -140218,7 +140218,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     }
     return joined;
   };
-  const byKind = { action: join2(actionSchema, "action"), trigger: join2(triggerSchema, "trigger") };
+  const byKind = { action: join3(actionSchema, "action"), trigger: join3(triggerSchema, "trigger") };
   return {
     // WHICH READS FAILED. A key missing from the assets schema, or an app reading installed:false,
     // means nothing when the read behind it did not succeed — the compiler must say "unknown",
@@ -140517,10 +140517,37 @@ function mathUpstreamRefs(templates) {
   }
   return out;
 }
+var MANUAL_STEP_TYPES = /* @__PURE__ */ new Set(["manual-call", "manual-sms", "manual_call", "manual_sms"]);
+var OUTBOUND_SEND_TYPES = /* @__PURE__ */ new Set([
+  "sms",
+  "email",
+  "send_outbound_whatsapp_message",
+  "messenger",
+  "instagram-dm",
+  "whatsapp",
+  "internal_notification"
+]);
+function manualStepHoldsChain(list) {
+  const byId = new Map(list.map((t) => [t.id, t]));
+  const out = [];
+  for (const t of list) {
+    if (!t || !MANUAL_STEP_TYPES.has(t.type)) continue;
+    let cursor = typeof t.next === "string" ? byId.get(t.next) : null;
+    let hops = 0;
+    while (cursor && hops++ < 50) {
+      if (OUTBOUND_SEND_TYPES.has(cursor.type)) {
+        out.push(`'${t.name ?? t.id}' (${t.type}) is a manual TASK \u2014 the queue HOLDS the run there until a human completes it, so '${cursor.name ?? cursor.id}' (${cursor.type}) below it does not send on a schedule. Put the send BEFORE the manual step, or accept that it waits.`);
+        break;
+      }
+      cursor = typeof cursor.next === "string" ? byId.get(cursor.next) : null;
+    }
+  }
+  return out;
+}
 function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {}) {
   if (skipGraphContextRules === true) return [];
   const list = Array.isArray(templates) ? templates : [];
-  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list)];
+  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list)];
   for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
   return findings;
 }
@@ -141712,6 +141739,272 @@ function applyOps(templates, ops, { ctx, idGen }) {
       norm2.modifiedSteps = [.../* @__PURE__ */ new Set([...norm2.modifiedSteps, ...renumbered.changed])];
   }
   return { templates: tpls, diff: norm2, opRefs };
+}
+
+// ../skills/create-ghl-workflow/engine/lints/runner.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+
+// ../skills/create-ghl-workflow/engine/lints/hygiene.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var isType = (t, ...types) => types.includes(t?.type);
+var consecutiveRemoves = (templates) => {
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const out = [];
+  for (const t of templates) {
+    if (!isType(t, "remove_from_workflow")) continue;
+    const next = typeof t.next === "string" ? byId.get(t.next) : null;
+    if (isType(next, "remove_from_workflow")) {
+      out.push({
+        stepId: t.id,
+        name: t.name ?? t.id,
+        msg: `'${t.name ?? t.id}' is followed by another remove_from_workflow \u2014 one step takes an ARRAY of workflows, so a chain is almost always an accident`
+      });
+    }
+  }
+  return out;
+};
+var HYGIENE_RULES = [
+  {
+    rule: "notification-no-redirect",
+    severity: "warning",
+    run: (doc) => (doc.templates ?? []).filter((t) => isType(t, "internal_notification") && t.attributes?.notification && !t.attributes.notification.redirectPage).map((t) => ({
+      stepId: t.id,
+      name: t.name ?? t.id,
+      msg: `in-app notification '${t.name ?? t.id}' has no redirectPage \u2014 the recipient taps it and lands nowhere useful`
+    }))
+  },
+  {
+    rule: "remove-chain",
+    severity: "warning",
+    run: (doc) => consecutiveRemoves(doc.templates ?? [])
+  },
+  {
+    rule: "hybrid-wait-no-timeout",
+    severity: "warning",
+    run: (doc) => (doc.templates ?? []).filter((t) => isType(t, "wait") && ["reply", "email_event"].includes(t.attributes?.type) && t.attributes?.convertToMultipath === false).map((t) => ({
+      stepId: t.id,
+      name: t.name ?? t.id,
+      msg: `wait '${t.name ?? t.id}' waits on a ${t.attributes.type} with convertToMultipath:false \u2014 there is no timeout leg, so a contact who never replies waits forever`
+    }))
+  },
+  {
+    rule: "missing-else-leg",
+    severity: "warning",
+    run: (doc) => {
+      const templates = doc.templates ?? [];
+      const byId = new Map(templates.map((t) => [t.id, t]));
+      const out = [];
+      for (const t of templates) {
+        if (!isType(t, "if_else") || !Array.isArray(t.next) || t.next.length < 2) continue;
+        if (t.attributes?.transitions?.some((x) => x?.conditionType === "pre-defined")) continue;
+        const legs = t.next.map((id) => byId.get(id)).filter(Boolean);
+        if (legs.length < 2) continue;
+        const elseLeg = legs[legs.length - 1];
+        const conditioned = legs.slice(0, -1);
+        const elseEmpty = elseLeg.next === null || elseLeg.next === void 0;
+        if (elseEmpty && conditioned.some((b) => typeof b.next === "string")) {
+          out.push({
+            stepId: t.id,
+            name: t.name ?? t.id,
+            msg: `'${t.name ?? t.id}' has steps on a conditioned branch but an EMPTY else leg \u2014 everyone who does not match falls out of the workflow silently`
+          });
+        }
+      }
+      return out;
+    }
+  }
+];
+
+// ../skills/create-ghl-workflow/engine/lints/doctrine.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var HHMM2 = /^([01]\d|2[0-3]):[0-5]\d$/;
+function loadDoctrinePack(json2) {
+  const errors = [];
+  let raw = json2;
+  if (typeof json2 === "string") {
+    try {
+      raw = JSON.parse(json2);
+    } catch (e) {
+      return { rules: null, errors: [`not valid JSON: ${e.message}`] };
+    }
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { rules: null, errors: ["a doctrine pack must be a JSON object"] };
+  const rules = {};
+  if (raw.sendWindow !== void 0) {
+    const w = raw.sendWindow;
+    if (!w || typeof w !== "object") errors.push("sendWindow must be an object");
+    else if (!HHMM2.test(w.start ?? "") || !HHMM2.test(w.end ?? "")) errors.push("sendWindow.start/end must be HH:MM");
+    else rules.sendWindow = { start: w.start, end: w.end, days: Array.isArray(w.days) ? w.days : null };
+  }
+  if (raw.requireRedirectPage !== void 0) {
+    if (typeof raw.requireRedirectPage !== "boolean") errors.push("requireRedirectPage must be a boolean");
+    else rules.requireRedirectPage = raw.requireRedirectPage;
+  }
+  if (raw.noteColors !== void 0) {
+    if (!raw.noteColors || typeof raw.noteColors !== "object") errors.push("noteColors must be an object of name -> #RRGGBB");
+    else rules.noteColors = Object.values(raw.noteColors).filter((v) => typeof v === "string");
+  }
+  if (raw.captureDependentFields !== void 0) {
+    if (raw.captureDependentFields !== "allCustomFields" && !Array.isArray(raw.captureDependentFields)) {
+      errors.push("captureDependentFields must be an array of fieldKeys or the string 'allCustomFields'");
+    } else rules.captureDependentFields = raw.captureDependentFields;
+  }
+  return { rules: Object.keys(rules).length ? rules : null, errors };
+}
+var toMinutes = (hhmm) => {
+  const [h, m] = String(hhmm).split(":").map(Number);
+  return h * 60 + m;
+};
+function runDoctrine(doc, rules) {
+  if (!rules) return [];
+  const out = [];
+  const templates = doc?.templates ?? [];
+  const add = (rule, severity, msg, ids = {}) => out.push({ pack: "doctrine", rule, severity, msg, ...ids });
+  if (rules.sendWindow) {
+    const { start, end } = rules.sendWindow;
+    for (const t of templates) {
+      const w = t?.attributes?.window;
+      if (!w || w.condition !== "when" || !w.start || !w.end) continue;
+      if (toMinutes(w.start) < toMinutes(start) || toMinutes(w.end) > toMinutes(end)) {
+        add(
+          "sendWindow",
+          "error",
+          `'${t.name ?? t.id}' has a send window ${w.start}-${w.end}, outside this account's policy ${start}-${end}`,
+          { stepId: t.id }
+        );
+      }
+    }
+  }
+  if (rules.requireRedirectPage) {
+    for (const t of templates) {
+      if (t?.type !== "internal_notification" || !t.attributes?.notification) continue;
+      if (!t.attributes.notification.redirectPage) {
+        add(
+          "requireRedirectPage",
+          "error",
+          `in-app notification '${t.name ?? t.id}' has no redirectPage, which this account requires`,
+          { stepId: t.id }
+        );
+      }
+    }
+  }
+  if (rules.noteColors) {
+    const allowed = rules.noteColors.map((c) => c.toUpperCase());
+    for (const t of templates) {
+      if (t?.type !== "add_notes" || typeof t.attributes?.color !== "string") continue;
+      if (!allowed.includes(t.attributes.color.toUpperCase())) {
+        add(
+          "noteColors",
+          "warning",
+          `note '${t.name ?? t.id}' uses ${t.attributes.color}; this account's palette is ${allowed.join(", ")}`,
+          { stepId: t.id }
+        );
+      }
+    }
+  }
+  return out;
+}
+
+// ../skills/create-ghl-workflow/engine/lints/runner.mjs
+function runLints(doc, {
+  packs = ["platform", "hygiene"],
+  catalog = null,
+  customFields,
+  customValues,
+  doctrinePack = null
+} = {}) {
+  const out = { platform: [], hygiene: [], doctrine: [], notEvaluable: [] };
+  const T = Array.isArray(doc?.templates) ? doc.templates.filter(Boolean) : [];
+  const triggers = Array.isArray(doc?.triggers) ? doc.triggers.filter(Boolean) : [];
+  const F = (pack, rule, severity, msg, ids = {}) => out[pack].push({ pack, rule, severity, msg, ...ids });
+  if (packs.includes("platform")) {
+    try {
+      if (catalog?.workflowRules) {
+        const wr = evaluateWorkflowRules(
+          { templates: T, triggers, settings: doc?.settings ?? {}, publishing: false },
+          catalog.workflowRules
+        );
+        for (const f of wr.findings ?? []) F("platform", f.rule ?? "workflow-rule", "error", f.message ?? String(f));
+        for (const a of wr.advisories ?? []) F("platform", a.rule ?? "workflow-rule", "warning", a.message ?? String(a));
+        for (const r of wr.notEvaluable ?? []) out.notEvaluable.push(`workflowRules:${r.rule ?? r}`);
+      } else {
+        out.notEvaluable.push("workflowRules (no catalog supplied)");
+      }
+      checkGraphContextRules(T, { warn: (m) => F("platform", "graph-context", "warning", m) });
+      for (const l of gotoLoops(T)) {
+        F(
+          "platform",
+          "goto-loop",
+          "error",
+          `goto '${l.name ?? l.id}' closes a cycle to '${l.targetName ?? l.target}' \u2014 GHL demotes the workflow to draft`,
+          { stepId: l.id }
+        );
+      }
+      for (const d of danglingStepRefs(T)) {
+        F(
+          "platform",
+          "dangling-ref",
+          "error",
+          `'${d.name ?? d.id}' (${d.type}) ${d.path} \u2192 '${d.missing}' does not exist \u2014 the builder shows a broken link and "0 Errors"`,
+          { stepId: d.id }
+        );
+      }
+      for (const d of danglingParentKeys(T)) {
+        F(
+          "platform",
+          "dangling-parentkey",
+          "warning",
+          `'${d.name ?? d.id}' parentKey \u2192 '${d.parentKey}' is missing (builder hygiene; the runtime walks next)`,
+          { stepId: d.id }
+        );
+      }
+      if (catalog?.mergeTags) {
+        for (const f of evaluateMergeTags(T, catalog.mergeTags, { customFields, customValues })) {
+          F("platform", "merge-tag", f.severity, `${f.where}: ${f.msg}`);
+        }
+      } else {
+        out.notEvaluable.push("mergeTags (no catalog supplied)");
+      }
+      if (catalog?.ifElseConditions) {
+        for (const f of evaluateIfElseVocab(T, catalog.ifElseConditions, { customFields })) {
+          F("platform", "ifelse-vocab", "warning", `${f.where}${f.branch ? ` [${f.branch}]` : ""}: ${f.msg}`);
+        }
+      }
+      lintContactFieldTemplates(T, T.map((t) => t.id), { warn: (m) => F("platform", "contact-field-shape", "warning", m) });
+      for (const f of lintOpportunityWrites(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
+      for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
+    } catch (e) {
+      out.notEvaluable.push(`platform crashed: ${e.message}`);
+    }
+  }
+  if (packs.includes("hygiene")) {
+    for (const r of HYGIENE_RULES) {
+      try {
+        for (const hit of r.run({ templates: T, triggers }) ?? []) {
+          F("hygiene", r.rule, r.severity, hit.msg, hit.stepId ? { stepId: hit.stepId, name: hit.name } : {});
+        }
+      } catch (e) {
+        out.notEvaluable.push(`hygiene:${r.rule} crashed: ${e.message}`);
+      }
+    }
+  }
+  if (packs.includes("doctrine")) {
+    if (!doctrinePack) out.notEvaluable.push("doctrine (no pack supplied)");
+    else {
+      try {
+        out.doctrine.push(...runDoctrine({ templates: T, triggers }, doctrinePack));
+      } catch (e) {
+        out.notEvaluable.push(`doctrine crashed: ${e.message}`);
+      }
+    }
+  }
+  return out;
 }
 
 // ../skills/ghl-workflow-fast-forward/engine/ff.mjs
@@ -144521,6 +144814,17 @@ var descriptorPreview = (descriptor2) => ({
   path: descriptor2.path,
   payload: payloadSummary(descriptor2.body)
 });
+function readProjectLintPack(state2, locationId) {
+  try {
+    if (process.env.GHL_READ_CACHE === "0") return null;
+    const dir = state2?.tokenFile ? dirname(state2.tokenFile) : null;
+    if (!dir || !locationId) return null;
+    const p = join2(dir, String(locationId), "lint-pack.json");
+    return existsSync2(p) ? JSON.parse(readFileSync2(p, "utf8")) : null;
+  } catch {
+    return null;
+  }
+}
 function compileAiAgentPlan(kind, args) {
   if (kind === "convai") {
     const compiled = compileConvaiAgent(args.spec, { locationId: args.locationId });
@@ -145421,16 +145725,22 @@ var TOOLS2 = [
     name: "check_workflow",
     description: describe3(
       "check_workflow",
-      'Read-only pre-flight: reproduce the workflow builder\'s "Resolve N Errors" list for an existing workflow, without opening the UI (proof: live-reproduction 2026-07-27 \u2014 matched the builder exactly on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets catalog the builder itself validates against). NOTE: that catalog omits core native actions (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means "nothing found in the 240 types it describes", not "provably publishable". Also reports `marketplaceDrift`: whether a stored marketplace TRIGGER\'s version/templateId matches what is installed now \u2014 TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all (live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, isMarketplaceAction \u2014 nothing to compare an action against). Always a separate key, never folded into `errorCount`.'
+      'Read-only pre-flight: reproduce the workflow builder\'s "Resolve N Errors" list for an existing workflow, without opening the UI (proof: live-reproduction 2026-07-27 \u2014 matched the builder exactly on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets catalog the builder itself validates against). NOTE: that catalog omits core native actions (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means "nothing found in the 240 types it describes", not "provably publishable". Also reports `marketplaceDrift`: whether a stored marketplace TRIGGER\'s version/templateId matches what is installed now \u2014 TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all (live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, isMarketplaceAction \u2014 nothing to compare an action against). Always a separate key, never folded into `errorCount`. It also returns `lints`: the engine\'s OWN layers run over the live document (platform), generic authoring hygiene, and this project\'s doctrine pack from .ghl/<locationId>/lint-pack.json or an inline lintPack \u2014 advisory, never part of errorCount. When the marketplace assets fetch fails the schema layer is skipped and errorCount is null (unknown, not zero) while every other layer still reports.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
-      workflowId: external_exports.string()
+      workflowId: external_exports.string(),
+      // Client policy, inline. Without it the handler looks for .ghl/<locationId>/lint-pack.json.
+      lintPack: external_exports.object({}).passthrough().optional()
     }),
     capabilities: [
       { method: "GET", path: "/workflow/{loc}/{wid}" },
       { method: "GET", path: "/workflow/{loc}/trigger" },
-      { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" }
+      { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
+      // Best-effort, for the merge-tag lint's per-location vocabulary. Their absence only
+      // demotes that one check to "unverifiable"; it never blocks the read.
+      { method: "GET", path: "/locations/{loc}/customFields/search" },
+      { method: "GET", path: "/locations/{loc}/customValues" }
     ],
     handler: async (args, deps) => guard(async () => {
       const loc = encodeURIComponent(args.locationId);
@@ -145456,15 +145766,64 @@ var TOOLS2 = [
       } catch {
         actionSchema = null;
       }
+      let customFields;
+      let customValues;
+      try {
+        const cf = await gw.call("GET", `/locations/${loc}/customFields/search?${new URLSearchParams({
+          parentId: "",
+          skip: "0",
+          limit: "10000",
+          documentType: "field",
+          model: "all",
+          query: "",
+          includeStandards: "false"
+        })}`);
+        const rows = Array.isArray(cf?.json) ? cf.json : cf?.json?.customFields;
+        if (cf?.ok && Array.isArray(rows)) {
+          customFields = rows.filter((f) => f && typeof f === "object").map((f) => ({ id: f.id ?? f._id, name: f.name, fieldKey: f.fieldKey, dataType: f.dataType, model: f.model }));
+        }
+        const cv = await gw.call("GET", `/locations/${loc}/customValues`);
+        const vals = Array.isArray(cv?.json) ? cv.json : cv?.json?.customValues;
+        if (cv?.ok && Array.isArray(vals)) {
+          customValues = vals.filter((v) => v && typeof v === "object").map((v) => ({ id: v.id ?? v._id, name: v.name, fieldKey: v.fieldKey }));
+        }
+      } catch {
+      }
+      const doctrineInput = args.lintPack ?? readProjectLintPack(deps.state, args.locationId);
+      const doctrine = doctrineInput ? loadDoctrinePack(doctrineInput) : { rules: null, errors: [] };
+      const lints = runLints(
+        { templates, triggers: triggerList, settings: { window: body.json?.window }, status: body.json?.status },
+        {
+          catalog: loadCatalog(),
+          customFields,
+          customValues,
+          doctrinePack: doctrine.rules,
+          packs: doctrine.rules ? ["platform", "hygiene", "doctrine"] : ["platform", "hygiene"]
+        }
+      );
+      for (const e of doctrine.errors) lints.notEvaluable.push(`doctrine pack: ${e}`);
+      const lintKeys = {
+        lints,
+        lintNote: "lints are ADVISORY findings from the engine's own layers (platform), generic authoring hygiene, and this project's lint pack \u2014 a separate key, never part of errorCount. notEvaluable names what could NOT be checked, which is not the same as clean."
+      };
       if (!actionSchema || !actionSchema.size) {
-        return fail(
-          CODES.VALIDATION_FAILED,
-          "Could not fetch the action schema, so no check was performed.",
-          "Retry; if it persists the assets endpoint may be unavailable for this location."
-        );
+        return ok({
+          workflowId: args.workflowId,
+          name: body.json?.name,
+          status: body.json?.status,
+          steps: templates.length,
+          errorCount: null,
+          errors: [],
+          headline: "Resolve ? Errors (schema unavailable)",
+          schemaChecked: false,
+          note: "The marketplace action schema could not be fetched, so the SCHEMA layer did not run. errorCount is null \u2014 unknown, not zero. Every other lint layer below did run.",
+          ...lintKeys
+        });
       }
       const errors = checkWorkflow(templates, actionSchema, triggerTypes.length ? { triggerTypes } : {});
       return ok({
+        schemaChecked: true,
+        ...lintKeys,
         workflowId: args.workflowId,
         name: body.json?.name,
         status: body.json?.status,
