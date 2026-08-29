@@ -201,3 +201,35 @@ test('a disposition the account HAS is silent, and no list at all is silent too'
     { ...ctx(), warn: (m) => noList.push(m) }, 'WID', new Map());
   assert.deepEqual(noList, [], 'without the account list there is nothing to check against');
 });
+
+// F5-08 (settled 2026-08-29 by picking the field in the drawer and reading it back): a
+// custom_date_reminder needs the config block AND a conditions row. A write that sent only the
+// config was silently DISCARDED by the server — "Custom Date Field is required" at publish was
+// about the missing row, not the config.
+test('custom_date_reminder emits the config block, the conditions row, and root match_year from one lean intent', () => {
+  const c = { ...ctx(), customFields: [{ id: 'x2f9dK1mQ84hL0pTzVbn', name: 'Next Callback On', fieldKey: 'contact.next_callback_on', dataType: 'DATE', model: 'contact' }] };
+  const b = buildTrigger({ ref: 't', type: 'custom_date_reminder', name: 'Callback due',
+    config: { field: 'Next Callback On', runHour: 9, offsetDays: 0 }, filters: [] }, c, 'WID', new Map());
+  assert.deepEqual(b.custom_date_reminder_config, {
+    recordType: 'contact', customDateFieldId: 'x2f9dK1mQ84hL0pTzVbn', customDateFieldType: 'DATE',
+    matchYear: true, offsetDays: 0, runHour: '9', timezone: '', last_run: '',
+  });
+  assert.equal(typeof b.custom_date_reminder_config.runHour, 'string', 'runHour is a STRING on the wire');
+  assert.equal(b.match_year, true);
+  assert.deepEqual(b.conditions.find((x) => x.id === 'custom-field'), {
+    operator: 'custom-field-eq', field: 'contact.customFields', value: 'x2f9dK1mQ84hL0pTzVbn',
+    title: 'Contact date field', type: 'select', id: 'custom-field',
+  });
+});
+
+test('custom_date_reminder resolves the field by id, fieldKey or name, and refuses a ghost', () => {
+  const c = { ...ctx(), customFields: [{ id: 'x2f9dK1mQ84hL0pTzVbn', name: 'Next Callback On', fieldKey: 'contact.next_callback_on', dataType: 'DATE', model: 'contact' }] };
+  for (const field of ['x2f9dK1mQ84hL0pTzVbn', 'contact.next_callback_on', 'Next Callback On']) {
+    const b = buildTrigger({ ref: 't', type: 'custom_date_reminder', name: 'D', config: { field }, filters: [] }, c, 'WID', new Map());
+    assert.equal(b.custom_date_reminder_config.customDateFieldId, 'x2f9dK1mQ84hL0pTzVbn', field);
+  }
+  assert.throws(() => buildTrigger({ ref: 't', type: 'custom_date_reminder', name: 'D', config: { field: 'Nope' }, filters: [] }, c, 'WID', new Map()),
+    (e) => e.code === 'UNRESOLVED_NAME' && /watches nothing/.test(e.message));
+  assert.throws(() => buildTrigger({ ref: 't', type: 'custom_date_reminder', name: 'D', config: {}, filters: [] }, c, 'WID', new Map()),
+    (e) => e.code === 'MISSING_FIELD' && /Custom Date Field is required/.test(e.message));
+});
