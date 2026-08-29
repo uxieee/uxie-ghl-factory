@@ -140556,6 +140556,50 @@ function isGotoTriggerType(type, ctx) {
   if (meta3 && "isGotoTrigger" in meta3) return Boolean(meta3.isGotoTrigger);
   return type === "conv_ai_autonomous_trigger";
 }
+function customDateReminderParts(t, ctx) {
+  const a = t.config ?? t.attributes ?? {};
+  const wanted = a.field ?? a.customDateFieldId ?? a.fieldId;
+  if (wanted === void 0 || wanted === null || wanted === "") {
+    throw new IRError(
+      "MISSING_FIELD",
+      `custom_date_reminder '${t.name ?? t.ref}' needs the contact DATE field to watch \u2014 author { field: "<name | fieldKey | id>", runHour, offsetDays }. Without it GHL refuses the publish with "Custom Date Field is required".`
+    );
+  }
+  const norm3 = (x) => String(x ?? "").trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const fields = Array.isArray(ctx?.customFields) ? ctx.customFields : [];
+  const hit = fields.find((f) => (f.model ?? "contact") === "contact" && (f.id === wanted || f.fieldKey === wanted || norm3(f.name) === norm3(wanted) || norm3(String(f.fieldKey ?? "").split(".").pop()) === norm3(wanted)));
+  if (!hit && !/^[A-Za-z0-9_-]{16,}$/.test(String(wanted))) {
+    throw new IRError(
+      "UNRESOLVED_NAME",
+      `custom_date_reminder '${t.name ?? t.ref}' names date field '${wanted}', which is not one of this account's ${fields.length} custom fields. A name written to the wire watches nothing.`
+    );
+  }
+  const fieldId = hit?.id ?? wanted;
+  const matchYear = a.matchYear ?? true;
+  return {
+    config: {
+      recordType: a.recordType ?? "contact",
+      customDateFieldId: fieldId,
+      customDateFieldType: hit?.dataType ?? a.customDateFieldType ?? "DATE",
+      matchYear,
+      offsetDays: a.offsetDays ?? 0,
+      // a STRING on the wire, not a number
+      runHour: String(a.runHour ?? 8),
+      // empty means "the account's timezone"
+      timezone: a.timezone ?? "",
+      last_run: ""
+    },
+    matchYear,
+    condition: {
+      operator: "custom-field-eq",
+      field: "contact.customFields",
+      value: fieldId,
+      title: a.title ?? "Contact date field",
+      type: "select",
+      id: "custom-field"
+    }
+  };
+}
 function buildTrigger(t, ctx, wid, refMap) {
   const meta3 = ctx.catalog.trigger(t.type);
   const rows = meta3?.filterRows ?? [];
@@ -140629,6 +140673,11 @@ function buildTrigger(t, ctx, wid, refMap) {
   if (targetActionId && isGotoTriggerType(t.type, ctx)) {
     ctx?.warn?.(`GOTO_TRIGGER_RACE: '${t.name ?? t.type}' re-enters the flow at a step via targetActionId. GHL can deliver the SAME trigger event twice ~15s apart (different workflowTraceIds, at-least-once delivery). The second firing's remove-from-run lands on the run the first one created, and its re-enrol never arrives: the run dies mid-conversation with no reply and no field writes. Reproduced 3/3 on 2026-08-27 (goto-kill-evidence.md). The fatal case is a remove hitting a run WAITING at an interactive step, so a targeted section that only derives and records is survivable while one that asks a question is not. GHL's own pattern avoids the jump entirely: land every trigger at the flow HEAD and route on trigger identity with a head if_else ({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} \u2014 conditionSubType is mandatory).`);
   }
+  let cdr = null;
+  if (t.type === "custom_date_reminder") {
+    cdr = customDateReminderParts(t, ctx);
+    if (!conditions.some((c) => c?.id === "custom-field")) conditions = [...conditions, cdr.condition];
+  }
   return {
     // `status` ("draft"|"published") is the ACTIVATION FIELD — measured 2026-08-28 (throwaway
     // workflows on the designated test sub-account): a trigger's `active` flag is a READ-ONLY
@@ -140647,6 +140696,7 @@ function buildTrigger(t, ctx, wid, refMap) {
     workflowId: wid,
     schedule_config: {},
     ...targetActionId ? { targetActionId } : {},
+    ...cdr ? { custom_date_reminder_config: cdr.config, match_year: cdr.matchYear } : {},
     conditions,
     type: t.type,
     masterType: t.marketplace === true ? "marketplace" : t.masterType ?? meta3?.masterType ?? "highlevel",

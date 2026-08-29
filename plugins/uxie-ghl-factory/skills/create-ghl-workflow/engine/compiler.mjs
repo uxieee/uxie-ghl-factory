@@ -1799,6 +1799,62 @@ function isGotoTriggerType(type, ctx) {
   return type === 'conv_ai_autonomous_trigger';
 }
 
+// custom_date_reminder needs TWO things, and an API write that sent only the first was silently
+// dropped by the server (F5-08, settled 2026-08-29 by picking the field in the drawer and reading
+// the result back):
+//   1. `custom_date_reminder_config` — the schedule block. NOTE `runHour` is a STRING and an empty
+//      `timezone` means "the account's".
+//   2. a `conditions` ROW the validator actually reads. "Custom Date Field is required" was about
+//      THIS, not about the config; a config with no matching row is discarded on save.
+// Plus a root `match_year`. The engine takes one lean {field, runHour, offsetDays, matchYear} and
+// emits all three, resolving the field by name/key/id against the account's own custom fields.
+function customDateReminderParts(t, ctx) {
+  const a = t.config ?? t.attributes ?? {};
+  const wanted = a.field ?? a.customDateFieldId ?? a.fieldId;
+  if (wanted === undefined || wanted === null || wanted === '') {
+    throw new IRError('MISSING_FIELD',
+      `custom_date_reminder '${t.name ?? t.ref}' needs the contact DATE field to watch — author `
+      + `{ field: "<name | fieldKey | id>", runHour, offsetDays }. Without it GHL refuses the publish `
+      + 'with "Custom Date Field is required".');
+  }
+  const norm = (x) => String(x ?? '').trim().toLowerCase().replace(/[\s_-]+/g, '');
+  const fields = Array.isArray(ctx?.customFields) ? ctx.customFields : [];
+  const hit = fields.find((f) => (f.model ?? 'contact') === 'contact'
+    && (f.id === wanted || f.fieldKey === wanted
+      || norm(f.name) === norm(wanted)
+      || norm(String(f.fieldKey ?? '').split('.').pop()) === norm(wanted)));
+  if (!hit && !/^[A-Za-z0-9_-]{16,}$/.test(String(wanted))) {
+    throw new IRError('UNRESOLVED_NAME',
+      `custom_date_reminder '${t.name ?? t.ref}' names date field '${wanted}', which is not one of this `
+      + `account's ${fields.length} custom fields. A name written to the wire watches nothing.`);
+  }
+  const fieldId = hit?.id ?? wanted;
+  const matchYear = a.matchYear ?? true;
+  return {
+    config: {
+      recordType: a.recordType ?? 'contact',
+      customDateFieldId: fieldId,
+      customDateFieldType: hit?.dataType ?? a.customDateFieldType ?? 'DATE',
+      matchYear,
+      offsetDays: a.offsetDays ?? 0,
+      // a STRING on the wire, not a number
+      runHour: String(a.runHour ?? 8),
+      // empty means "the account's timezone"
+      timezone: a.timezone ?? '',
+      last_run: '',
+    },
+    matchYear,
+    condition: {
+      operator: 'custom-field-eq',
+      field: 'contact.customFields',
+      value: fieldId,
+      title: a.title ?? 'Contact date field',
+      type: 'select',
+      id: 'custom-field',
+    },
+  };
+}
+
 export function buildTrigger(t, ctx, wid, refMap) {
   const meta = ctx.catalog.trigger(t.type);
   const rows = meta?.filterRows ?? [];
@@ -1930,6 +1986,13 @@ export function buildTrigger(t, ctx, wid, refMap) {
       + '({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} '
       + '— conditionSubType is mandatory).');
   }
+  // custom_date_reminder: the config block AND the conditions row the validator reads.
+  let cdr = null;
+  if (t.type === 'custom_date_reminder') {
+    cdr = customDateReminderParts(t, ctx);
+    if (!conditions.some((c) => c?.id === 'custom-field')) conditions = [...conditions, cdr.condition];
+  }
+
   return {
     // `status` ("draft"|"published") is the ACTIVATION FIELD — measured 2026-08-28 (throwaway
     // workflows on the designated test sub-account): a trigger's `active` flag is a READ-ONLY
@@ -1946,6 +2009,7 @@ export function buildTrigger(t, ctx, wid, refMap) {
     // each edit-path caller decides `status` for itself.
     status: 'draft', workflowId: wid, schedule_config: {},
     ...(targetActionId ? { targetActionId } : {}),
+    ...(cdr ? { custom_date_reminder_config: cdr.config, match_year: cdr.matchYear } : {}),
     conditions,
     type: t.type,
     masterType: t.marketplace === true ? 'marketplace' : (t.masterType ?? meta?.masterType ?? 'highlevel'),
