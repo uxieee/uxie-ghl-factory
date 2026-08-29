@@ -464,7 +464,11 @@ export async function orchestrate(ir, gw, opts = {}) {
   // bug in the id nobody remembers. See corpus/workflows/20-api/trigger-create.md.
   report.triggers.authored = built.triggerBodies.length;
   const backoff = opts.triggerBackoffMs ?? [0, 700, 2000];
-  for (const tb of built.triggerBodies.map(swap)) {
+  // `_placeholderId` is ENGINE-ONLY: the id the auto-saved document already routes on. Strip it
+  // before the wire — an undeclared key would be stored verbatim like any other.
+  const triggerRefRepair = { rewritten: 0, rePut: false, mismatches: [] };
+  for (const raw of built.triggerBodies.map(swap)) {
+    const { _placeholderId: placeholderId, ...tb } = raw;
     let r;
     for (const delay of backoff) {
       if (delay) await new Promise((res) => setTimeout(res, delay));
@@ -477,10 +481,39 @@ export async function orchestrate(ir, gw, opts = {}) {
       // Trigger ids are SERVER-assigned on POST (no predeterminedId is sent) — record them so the
       // report can name the inbound-webhook receiving URL, knowable only from here on.
       const id = r.json?.id ?? r.json?._id ?? null;
-      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id });
+      // Did the server keep the id the document is already pointing at? For inbound_webhook we
+      // sent predeterminedId, so it should. For every other type nothing was predetermined, so a
+      // placeholder that appears in a condition has to be rewritten to the real id below.
+      const honoured = placeholderId != null && id === placeholderId;
+      if (placeholderId != null && !honoured) triggerRefRepair.mismatches.push({ placeholderId, id });
+      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id, predetermined: placeholderId ?? null, honoured });
     } else report.triggers.failed.push({ type: tb.type, name: tb.name, status: r?.status,
       error: JSON.stringify(r?.json ?? '').slice(0, 160) });
   }
+  // TRIGGER-REF REPAIR (F5-17). A trigger id is server-assigned on POST, which happens AFTER the
+  // auto-save that carries the graph — so an if_else routing on trigger identity was authored
+  // against a placeholder. Rewrite only the placeholders the document ACTUALLY references (a
+  // routing condition), then re-PUT the auto-save once. A build with no trigger-identity
+  // condition rewrites nothing and sends no extra request.
+  if (triggerRefRepair.mismatches.length) {
+    let body = JSON.stringify(sent);
+    for (const { placeholderId, id } of triggerRefRepair.mismatches) {
+      if (id == null || !body.includes(placeholderId)) continue;
+      body = body.split(placeholderId).join(id);
+      triggerRefRepair.rewritten++;
+    }
+    if (triggerRefRepair.rewritten) {
+      const rePut = await callAt('workflow_auto_save_trigger_refs', 'PUT', `/workflow/${loc}/${WID}/auto-save`, JSON.parse(body));
+      if (!rePut) return report;
+      triggerRefRepair.rePut = rePut.ok === true;
+      if (!rePut.ok) {
+        report.warnings.push(`🔴 TRIGGER REFS UNREPAIRED: ${triggerRefRepair.rewritten} if_else condition(s) still point at `
+          + 'placeholder trigger ids; those branches can never match. The re-PUT failed — re-run the build.');
+      }
+    }
+  }
+  report.triggerRefRepair = triggerRefRepair;
+
   // COUNT INTEGRITY for triggers, the way authored/compiled/steps already does it for steps: go and
   // LOOK at what the server holds. A POST that failed every retry was recorded in `failed`, but the
   // tool still returned ok — 7 of 7 failed trigger POSTs once read as a clean draft with

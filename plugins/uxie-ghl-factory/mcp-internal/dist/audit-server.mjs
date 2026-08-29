@@ -137241,7 +137241,7 @@ function conditionExtras(c) {
   for (const k of Object.keys(c)) if (!CONDITION_INTENT_KEYS.has(k)) out[k] = c[k];
   return out;
 }
-function normalizeCondition(rawC) {
+function normalizeCondition(rawC, ctx) {
   const c = canonicalizeOppStageCondition(rawC);
   const extras = conditionExtras(c);
   const type = c.conditionType;
@@ -137269,12 +137269,25 @@ function normalizeCondition(rawC) {
     };
   }
   if (type === "trigger") {
+    const refs = ctx?.__triggerRefs;
+    let value = c.conditionValue ?? c.trigger;
+    if (c.trigger !== void 0) {
+      value = refs?.get(c.trigger);
+      if (!value) {
+        throw new IRError(
+          "REF_DANGLING",
+          `REF_DANGLING: if_else condition targets trigger ref '${c.trigger}', which names no trigger in this IR. Give the trigger a \`ref\` and use the same string here, or pass a literal trigger id.`
+        );
+      }
+    } else if (refs?.has(value)) {
+      value = refs.get(value);
+    }
     return {
       ...extras,
       conditionType: "trigger",
       conditionSubType: c.conditionSubType,
       conditionOperator: "==",
-      conditionValue: c.conditionValue ?? c.trigger
+      conditionValue: value
     };
   }
   if (type === "contact_detail") {
@@ -137292,7 +137305,7 @@ function normalizeCondition(rawC) {
   };
 }
 function expandCondition(c, ctx) {
-  const n = lintConditionShape(normalizeCondition(c));
+  const n = lintConditionShape(normalizeCondition(c, ctx));
   const out = {
     conditionType: n.conditionType,
     conditionSubType: n.conditionSubType,
@@ -138012,7 +138025,9 @@ function compile(ir, ctx) {
   checkOpportunityAssociation(norm2, oppTriggerTypes);
   const refMap = seedRefMap(norm2, ctx.externalRefs);
   const visited = /* @__PURE__ */ new Set();
-  const { templates } = flattenGraph(norm2.graph, { ...ctx, __visited: visited }, refMap, null);
+  const triggerRefs = /* @__PURE__ */ new Map();
+  norm2.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`, ctx.idGen()));
+  const { templates } = flattenGraph(norm2.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs }, refMap, null);
   const missing = [];
   let authored = 0;
   walkNodes(norm2.graph, (n) => {
@@ -138131,7 +138146,19 @@ function compile(ir, ctx) {
     // above for what this map records and why it's per-key.
     ...marketplaceStepIndexCounter2.size > 0 || S.statsView ? { meta: { ...marketplaceStepIndexCounter2.size > 0 ? { stepIndexCounter: Object.fromEntries(marketplaceStepIndexCounter2) } : {}, ...S.statsView ? { statsView: true } : {} } } : {}
   };
-  const triggerBodies = norm2.triggers.map((t) => buildTrigger(t, ctx, wid, refMap));
+  const triggerBodies = norm2.triggers.map((t, i) => {
+    const body = buildTrigger(t, ctx, wid, refMap);
+    const placeholder = triggerRefs.get(t.ref ?? `__trigger_${i}`);
+    return {
+      ...body,
+      // `_placeholderId` is ENGINE-ONLY (stripped before the wire by orchestrate) — it is how the
+      // POST result is matched back to the id the document already points at.
+      _placeholderId: placeholder,
+      // inbound_webhook is the one type the builder itself predetermines, so the receiving URL can
+      // be shown before save. Matching it exactly means the id we routed on IS the id GHL keeps.
+      ...t.type === "inbound_webhook" ? { predeterminedId: placeholder } : {}
+    };
+  });
   applyUiDefaults(templates, ctx?.catalog, ctx);
   const loops = gotoLoops(templates);
   if (loops.length) {
@@ -138185,7 +138212,7 @@ function compile(ir, ctx) {
   checkStepRefs(templates, IRError, [...ctx.externalRefs?.ids ?? []]);
   const _templates = templates;
   autoSaveBody.workflowData.templates = stripNullNext(templates);
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, authored, compiled: templates.length };
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, _triggerRefs: triggerRefs, authored, compiled: templates.length };
   casingLint(result);
   return result;
 }
@@ -140490,7 +140517,9 @@ async function orchestrate(ir, gw, opts = {}) {
   }
   report.triggers.authored = built.triggerBodies.length;
   const backoff = opts.triggerBackoffMs ?? [0, 700, 2e3];
-  for (const tb of built.triggerBodies.map(swap)) {
+  const triggerRefRepair = { rewritten: 0, rePut: false, mismatches: [] };
+  for (const raw of built.triggerBodies.map(swap)) {
+    const { _placeholderId: placeholderId, ...tb } = raw;
     let r;
     for (const delay of backoff) {
       if (delay) await new Promise((res) => setTimeout(res, delay));
@@ -140501,7 +140530,9 @@ async function orchestrate(ir, gw, opts = {}) {
     if (r?.ok) {
       report.triggers.posted++;
       const id = r.json?.id ?? r.json?._id ?? null;
-      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id });
+      const honoured = placeholderId != null && id === placeholderId;
+      if (placeholderId != null && !honoured) triggerRefRepair.mismatches.push({ placeholderId, id });
+      report.triggers.ids.push({ type: tb.type, name: tb.name ?? null, id, predetermined: placeholderId ?? null, honoured });
     } else report.triggers.failed.push({
       type: tb.type,
       name: tb.name,
@@ -140509,6 +140540,23 @@ async function orchestrate(ir, gw, opts = {}) {
       error: JSON.stringify(r?.json ?? "").slice(0, 160)
     });
   }
+  if (triggerRefRepair.mismatches.length) {
+    let body = JSON.stringify(sent);
+    for (const { placeholderId, id } of triggerRefRepair.mismatches) {
+      if (id == null || !body.includes(placeholderId)) continue;
+      body = body.split(placeholderId).join(id);
+      triggerRefRepair.rewritten++;
+    }
+    if (triggerRefRepair.rewritten) {
+      const rePut = await callAt("workflow_auto_save_trigger_refs", "PUT", `/workflow/${loc}/${WID}/auto-save`, JSON.parse(body));
+      if (!rePut) return report;
+      triggerRefRepair.rePut = rePut.ok === true;
+      if (!rePut.ok) {
+        report.warnings.push(`\u{1F534} TRIGGER REFS UNREPAIRED: ${triggerRefRepair.rewritten} if_else condition(s) still point at placeholder trigger ids; those branches can never match. The re-PUT failed \u2014 re-run the build.`);
+      }
+    }
+  }
+  report.triggerRefRepair = triggerRefRepair;
   let persistedTriggers = [];
   if (built.triggerBodies.length) {
     const listed = await callAt("trigger_list_verify", "GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: WID })}`);

@@ -894,7 +894,7 @@ function conditionExtras(c) {
 //
 // A full author-supplied shape round-trips unchanged (idempotent); a WRONG legacy tag shape
 // ({conditionSubType:'tag', conditionOperator:'contains'}) is REWRITTEN to the correct one.
-export function normalizeCondition(rawC) {
+export function normalizeCondition(rawC, ctx) {
   // Canonicalize opp-stage aliases FIRST so the per-type dispatch below (and the
   // resolver, which shares this helper) only ever sees the one true spelling.
   const c = canonicalizeOppStageCondition(rawC);
@@ -931,14 +931,30 @@ export function normalizeCondition(rawC) {
     };
   }
 
-  // Trigger identity.
+  // Trigger identity. The value is a trigger ID, which used to be server-minted AFTER the
+  // auto-save — so an if_else routing on which trigger fired could not be authored in one pass
+  // (F5-17). The IR may now name the trigger by REF: `{ conditionType:'trigger', trigger:'<ref>' }`
+  // resolves through the placeholder ids compile() mints up front. A literal id passes straight
+  // through, which is what an edit against a live trigger roster sends.
   if (type === 'trigger') {
+    const refs = ctx?.__triggerRefs;
+    let value = c.conditionValue ?? c.trigger;
+    if (c.trigger !== undefined) {
+      value = refs?.get(c.trigger);
+      if (!value) {
+        throw new IRError('REF_DANGLING',
+          `REF_DANGLING: if_else condition targets trigger ref '${c.trigger}', which names no trigger `
+          + 'in this IR. Give the trigger a `ref` and use the same string here, or pass a literal trigger id.');
+      }
+    } else if (refs?.has(value)) {
+      value = refs.get(value);
+    }
     return {
       ...extras,
       conditionType: 'trigger',
       conditionSubType: c.conditionSubType,
       conditionOperator: '==',
-      conditionValue: c.conditionValue ?? c.trigger,
+      conditionValue: value,
     };
   }
 
@@ -969,7 +985,7 @@ export function expandCondition(c, ctx) {
   // normalizeCondition canonicalizes every alias it recognizes; the lint is the
   // fail-closed backstop for a shape it could not (e.g. an opp type paired with an
   // unrecognized subType), which would otherwise be stored as a silently-dead branch.
-  const n = lintConditionShape(normalizeCondition(c));
+  const n = lintConditionShape(normalizeCondition(c, ctx));
   const out = {
     conditionType: n.conditionType,
     conditionSubType: n.conditionSubType,
@@ -1811,7 +1827,21 @@ export function compile(ir, ctx) {
   // be provable too. Counts are NOT expected to match — containers legitimately add
   // transition/None steps, so compiled >= authored is normal and fine.
   const visited = new Set();
-  const { templates } = flattenGraph(norm.graph, { ...ctx, __visited: visited }, refMap, null);
+  // TRIGGER REFS (F5-17). Trigger ids are server-minted on the POST, which happens AFTER the
+  // auto-save that carries the graph — so an if_else routing on trigger identity had no id to
+  // point at while the document was being written. Mint a placeholder per trigger here, let the
+  // conditions resolve against it, and reconcile with the server's real ids after the POST loop
+  // (orchestrate swaps and re-PUTs once).
+  //
+  // We deliberately do NOT send predeterminedId for every trigger. The builder's own
+  // addPredeterminedIdIfRequired() (TriggerMain.ts:701-706) sets it ONLY for `inbound_webhook`
+  // and resets it to '' otherwise, with the comment "make sure it's reset so we dont declare it
+  // for all new triggers". Emitting it everywhere would be exactly the off-dialect guess this
+  // engine exists to prevent.
+  const triggerRefs = new Map();
+  norm.triggers.forEach((t, i) => triggerRefs.set(t.ref ?? `__trigger_${i}`, ctx.idGen()));
+
+  const { templates } = flattenGraph(norm.graph, { ...ctx, __visited: visited, __triggerRefs: triggerRefs }, refMap, null);
 
   const missing = [];
   let authored = 0;
@@ -1955,7 +1985,19 @@ export function compile(ir, ctx) {
       : {}),
   };
 
-  const triggerBodies = norm.triggers.map((t) => buildTrigger(t, ctx, wid, refMap));
+  const triggerBodies = norm.triggers.map((t, i) => {
+    const body = buildTrigger(t, ctx, wid, refMap);
+    const placeholder = triggerRefs.get(t.ref ?? `__trigger_${i}`);
+    return {
+      ...body,
+      // `_placeholderId` is ENGINE-ONLY (stripped before the wire by orchestrate) — it is how the
+      // POST result is matched back to the id the document already points at.
+      _placeholderId: placeholder,
+      // inbound_webhook is the one type the builder itself predetermines, so the receiving URL can
+      // be shown before save. Matching it exactly means the id we routed on IS the id GHL keeps.
+      ...(t.type === 'inbound_webhook' ? { predeterminedId: placeholder } : {}),
+    };
+  });
   // authored/compiled travel with the payload so the caller can report
   // `authored N → compiled M → round-tripped M` instead of a bare step count.
   // Enforcement chokepoint: every emitted node, whatever path built it (linear, wait containers,
@@ -2057,7 +2099,7 @@ export function compile(ir, ctx) {
   const _templates = templates;
   autoSaveBody.workflowData.templates = stripNullNext(templates);
 
-  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, authored, compiled: templates.length };
+  const result = { createBody, autoSaveBody, triggerBodies, _wid: wid, _templates, _refMap: refMap, _triggerRefs: triggerRefs, authored, compiled: templates.length };
   casingLint(result);
   return result;
 }

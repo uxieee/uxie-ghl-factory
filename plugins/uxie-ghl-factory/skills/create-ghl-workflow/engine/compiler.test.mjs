@@ -693,3 +693,46 @@ test('wait units: seconds/minutes/hour/days accepted; hours warns; anything else
   assert.ok(warns.some((w) => /WAIT_UNIT_SOFT/.test(w)), JSON.stringify(warns));
   assert.throws(() => compile(ir('fortnights'), ctx()), (e) => e.code === 'WAIT_UNIT');
 });
+
+// F5-17: a trigger's id is server-minted on the POST, which happens AFTER the auto-save carrying
+// the graph — so an if_else routing on "which trigger fired" had no id to point at and could not
+// be authored in one build. The IR can now name the trigger by ref.
+test('trigger-identity routing: {conditionType:"trigger", trigger:"<ref>"} resolves to a minted placeholder id', () => {
+  const ir = { name: 'Router', triggers: [
+    { ref: 'booked', type: 'call_status', name: 'Booked', filters: [{ field: 'custom_disposition', value: ['Booked'] }] },
+    { ref: 'na', type: 'call_status', name: 'No Answer', filters: [{ field: 'custom_disposition', value: ['No Answer'] }] } ],
+    graph: [{ ref: 'r', kind: 'if_else', name: 'Which call?', branches: [
+      { ref: 'b1', name: 'Booked', conditions: [{ conditionType: 'trigger', trigger: 'booked' }], then: [] },
+      { ref: 'b2', name: 'Else', else: true, then: [] } ] }] };
+  const out = compile(ir, ctx());
+  const booked = out.triggerBodies.find((t) => t.name === 'Booked');
+  assert.ok(booked._placeholderId, 'every trigger body carries the placeholder it was minted');
+  assert.equal(out._triggerRefs.get('booked'), booked._placeholderId);
+  const cond = out._templates.find((t) => t.type === 'if_else').attributes.branches[0].segments[0].conditions[0];
+  assert.equal(cond.conditionType, 'trigger');
+  assert.equal(cond.conditionValue, booked._placeholderId);
+});
+
+test('a trigger ref that names no trigger is REF_DANGLING, not a silently dead branch', () => {
+  const ir = { name: 'R', triggers: [{ ref: 'booked', type: 'call_status', name: 'B', filters: [] }],
+    graph: [{ ref: 'r', kind: 'if_else', name: 'G', branches: [
+      { ref: 'b1', name: 'B', conditions: [{ conditionType: 'trigger', trigger: 'ghost' }], then: [] },
+      { ref: 'b2', name: 'E', else: true, then: [] } ] }] };
+  assert.throws(() => compile(ir, ctx()), (e) => e.code === 'REF_DANGLING' && /ghost/.test(e.message));
+});
+
+// The builder's addPredeterminedIdIfRequired (TriggerMain.ts:701) sets predeterminedId ONLY for
+// inbound_webhook and resets it to '' for everything else. Sending it everywhere would be an
+// off-dialect guess, so the engine matches the builder exactly.
+test('predeterminedId is sent for inbound_webhook only — the one type the builder predetermines', () => {
+  const ir = { name: 'W', triggers: [
+    { ref: 'hook', type: 'inbound_webhook', name: 'Hook', filters: [] },
+    { ref: 'tag', type: 'contact_tag', name: 'Tagged', filters: [] } ],
+    graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'T', attributes: { tags: ['x'] } }] };
+  const out = compile(ir, ctx());
+  const hook = out.triggerBodies.find((t) => t.name === 'Hook');
+  const tag = out.triggerBodies.find((t) => t.name === 'Tagged');
+  assert.equal(hook.predeterminedId, hook._placeholderId);
+  assert.equal(tag.predeterminedId, undefined, 'a non-webhook trigger must not declare one');
+  assert.ok(tag._placeholderId, 'but it still gets a placeholder for routing');
+});
