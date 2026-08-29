@@ -11,6 +11,49 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.41.0] — 2026-08-29
+
+Phase-5 plan 6 — **surfaces and lifecycle**. Endpoint and entity knowledge becomes DATA, and the
+read-after-write lag gets one primitive instead of four hand-rolled loops.
+
+### Added
+
+- **An account-object REGISTRY** (`engine/entities.mjs`). The sweep was 21 hand-written GETs beside
+  21 hand-written projections, so adding an object meant editing three files — and a tool
+  description that had already drifted from both, advertising six kinds while returning twenty.
+  Adding one is now a row. `agents` stays hand-written and says so: it is the one key that MERGES
+  two endpoints.
+- **Opportunity LOST REASONS and call DISPOSITIONS** are fetched, resolvable, and validated. A lost
+  reason now authors by NAME through the same resolver every other nameable kind uses; an
+  unresolved one is refused by the same door guard as pipeline and stage. `call_status` matches
+  dispositions BY NAME, so a name absent from Settings can never match — the compiler now warns,
+  naming what the account actually has.
+- **`gw.readBackUntil`** — one polled read-back primitive. GHL's list indexes lag a write by a
+  second or two, so a single immediate read reported `verified: false` on folders that HAD been
+  created, and a flag that cries wolf is one callers learn to ignore.
+- **A tool/catalogue host-parity test.** F5-01 shipped because a tool named a rail the catalogue
+  disagreed with and nothing compared them. The test found 37 disagreements across 7 families on
+  its first run; where the TOOL is live-proven on the host it uses, that is recorded as a reviewed
+  ledger entry with its evidence, and anything outside the ledger fails.
+
+### Fixed
+
+- **The harvester could not see `{mp}`-prefixed endpoint lines**, so a corpus page could document a
+  surface completely and harvest nothing from it: 93 endpoints appeared once the placeholder was
+  allowed, with zero rows lost.
+- **A path-prefix guess outranked a page's stated base.** That is backwards, and it is how every
+  `/hooks/*` row was forced onto the services host while the inbound-webhook rail was live-proven
+  on backend.
+- **The memberships corpus page named the wrong production host** — the bundle's own constant, the
+  recon page, and the live course lifecycle all say backend.
+
+### Not done in this release
+
+- The five new provisioning corpus pages (plan 6 task 3), the AI-bundle recapture script and its
+  fourth drift tree (task 7), and gateway-side JWT renewal (task 8). The last two need live access
+  to verify — a CDN fetch and a browser session respectively — and shipping either unverified
+  would be the kind of claim this programme exists to stop making.
+
 ## [0.40.0] — 2026-08-29
 
 Phase-5 plan 4 — **drawer parity**. Everything below is a place the engine INVENTED where the
