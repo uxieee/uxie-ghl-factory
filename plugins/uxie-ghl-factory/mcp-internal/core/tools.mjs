@@ -37,7 +37,8 @@ import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engi
 import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/lints/opportunity.mjs';
 import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
 import { searchMergeTags } from '../../skills/create-ghl-workflow/engine/merge-tags.mjs';
-import { digestWorkflow } from '../../skills/create-ghl-workflow/engine/digest.mjs';
+import { digestWorkflow, fingerprintWorkflow } from '../../skills/create-ghl-workflow/engine/digest.mjs';
+import { readCache } from './read-cache.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
@@ -1533,6 +1534,15 @@ export const TOOLS = [
       const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       const triggers = listed?.response?.ok ? (listed.triggers ?? []) : [];
       const digest = digestWorkflow({ doc: doc.json, triggers, include: args.include ?? [] });
+      // Record what this agent actually saw, so a later write can tell whether the graph moved.
+      readCache(deps.state).write(args.locationId, args.workflowId, {
+        readAt: new Date().toISOString(),
+        version: doc.json?.version ?? null,
+        updatedAt: doc.json?.dateUpdated ?? null,
+        fingerprint: digest.fingerprint,
+        templates: doc.json?.workflowData?.templates ?? [],
+        triggers,
+      });
       return ok({
         ...digest,
         triggersRead: listed?.response?.ok === true,
@@ -2911,6 +2921,10 @@ export const TOOLS = [
       // Same opt-out build_workflow has: proceed with names that resolved to nothing. Rarely what
       // you want — a name on the wire moves nothing — but it is the caller's decision to make.
       ignoreUnresolved: z.boolean().default(false),
+      // Optimistic concurrency. The stale-read window is silent: the PUT carries the whole
+      // templates array, so an edit authored against an old graph simply erases the newer one.
+      expectedVersion: z.number().int().positive().optional(),
+      acknowledgeDrift: z.boolean().optional(),
       confirm: z.boolean().default(false),
     }),
     capabilities: [
@@ -3008,6 +3022,37 @@ export const TOOLS = [
           'workflow GET did not return workflowData.templates',
           'Confirm the workflow id and retry; no edit was written.',
         );
+      }
+
+      // VERSION GATE. An explicit expectedVersion is a hard refusal; a cached read that has since
+      // been overtaken is a refusal the caller can acknowledge, the same hatch grammar as
+      // deadBranchAcknowledged.
+      const cache = readCache(deps.state);
+      const lastRead = cache.read(args.locationId, args.workflowId);
+      const driftOf = () => {
+        if (!lastRead?.templates) return null;
+        const d = diffTemplates(lastRead.templates, beforeTemplates);
+        return {
+          versions: [lastRead.version ?? null, fresh.version ?? null],
+          readAt: lastRead.readAt ?? null,
+          added: d.createdSteps,
+          removed: d.deletedSteps,
+          modified: d.modifiedSteps,
+        };
+      };
+      if (args.expectedVersion !== undefined && fresh.version !== args.expectedVersion) {
+        return withFailureData(fail(CODES.VERSION_CONFLICT,
+          `workflow version is ${fresh.version}, not the expected ${args.expectedVersion} — it changed after you read it.`,
+          'Re-read the workflow (get_workflow_digest / export_workflow), rebase your ops on the current '
+          + 'version, then retry with the new expectedVersion.'), { driftSinceLastRead: driftOf() });
+      }
+      if (args.expectedVersion === undefined && lastRead?.version != null
+          && fresh.version != null && lastRead.version < fresh.version && args.acknowledgeDrift !== true) {
+        return withFailureData(fail(CODES.PREVIEW_STALE,
+          `this project last read version ${lastRead.version}; the workflow is now at ${fresh.version}, `
+          + 'so it changed after you looked.',
+          'Re-read it, or pass acknowledgeDrift:true to edit the CURRENT graph anyway. '
+          + 'data.driftSinceLastRead lists what moved.'), { driftSinceLastRead: driftOf() });
       }
 
       const idGen = boundEditIdGen(
@@ -3329,6 +3374,15 @@ export const TOOLS = [
       // unstripped graph against an UNTOUCHED-but-unstripped store works, but only by accident.
       // Stripping BOTH sides is correct either way: it makes the comparison blind to whether
       // this particular edit happened to touch the wire boundary at all.
+      // The write succeeded, so what this agent last SAW is now the post-edit graph.
+      readCache(deps.state).write(args.locationId, args.workflowId, {
+        readAt: new Date().toISOString(),
+        version: roundTripResponse.json?.version ?? null,
+        updatedAt: roundTripResponse.json?.dateUpdated ?? null,
+        fingerprint: fingerprintWorkflow(gotTemplates, roundTripTriggers),
+        templates: gotTemplates,
+        triggers: roundTripTriggers,
+      });
       const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
       // INTENT, not echo. The round-trip above proves GHL kept the keys; it cannot see a stage
       // NAME, an empty row list or an off-menu operator, because GHL stores those verbatim and

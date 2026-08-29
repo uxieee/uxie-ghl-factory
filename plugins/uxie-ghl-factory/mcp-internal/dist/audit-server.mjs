@@ -69067,15 +69067,15 @@ var StdioServerTransport = class {
 
 // stdio-audit.mjs
 import { fileURLToPath as fileURLToPath2 } from "node:url";
-import { dirname as dirname2, resolve as resolve3 } from "node:path";
+import { dirname as dirname3, resolve as resolve3 } from "node:path";
 
 // core/tools.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-import { readFileSync as readFileSync2, existsSync as existsSync2 } from "node:fs";
+import { readFileSync as readFileSync3, existsSync as existsSync3 } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve as resolve2, join as join2 } from "node:path";
+import { dirname as dirname2, resolve as resolve2, join as join3 } from "node:path";
 import { createHash as createHash5 } from "node:crypto";
 
 // core/errors.mjs
@@ -140241,7 +140241,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     for (const key of app.actionKeys) appIdByKind.action.set(key, app.appId);
     for (const key of app.triggerKeys) appIdByKind.trigger.set(key, app.appId);
   }
-  const join3 = (schema2, kind) => {
+  const join4 = (schema2, kind) => {
     const appIdByKey = appIdByKind[kind];
     const joined = /* @__PURE__ */ new Map();
     for (const [key, entry] of schema2) {
@@ -140251,7 +140251,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     }
     return joined;
   };
-  const byKind = { action: join3(actionSchema, "action"), trigger: join3(triggerSchema, "trigger") };
+  const byKind = { action: join4(actionSchema, "action"), trigger: join4(triggerSchema, "trigger") };
   return {
     // WHICH READS FAILED. A key missing from the assets schema, or an app reading installed:false,
     // means nothing when the read behind it did not succeed — the compiler must say "unknown",
@@ -141898,6 +141898,54 @@ function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [] } =
     chains,
     ...stickyNotes?.length ? { stickyNotes: stickyNotes.map((n) => ({ id: n.id ?? n._id, text: n.text ?? n.note ?? null })) } : {},
     ...include.includes("raw") ? { raw: doc } : {}
+  };
+}
+
+// core/read-cache.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+import { existsSync as existsSync2, mkdirSync, readFileSync as readFileSync2, writeFileSync } from "node:fs";
+import { dirname, join as join2 } from "node:path";
+import { homedir as homedir2 } from "node:os";
+var JWT = /\b(?:Bearer\s+)?ey[A-Za-z0-9._-]{20,}/g;
+function scrubUpstream2(value) {
+  if (typeof value === "string") return value.replace(JWT, "<redacted>");
+  if (Array.isArray(value)) return value.map(scrubUpstream2);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) out[k] = scrubUpstream2(v);
+    return out;
+  }
+  return value;
+}
+function readCache(state2) {
+  const enabled = process.env.GHL_READ_CACHE !== "0";
+  const root = state2?.tokenFile ? dirname(state2.tokenFile) : join2(homedir2(), ".uxie-ghl-internal-mcp", "cache");
+  const pathFor = (locationId, workflowId) => join2(root, String(locationId), "workflows", String(workflowId), "last-read.json");
+  return {
+    enabled,
+    read(locationId, workflowId) {
+      try {
+        if (!enabled || !locationId || !workflowId) return null;
+        const p = pathFor(locationId, workflowId);
+        return existsSync2(p) ? JSON.parse(readFileSync2(p, "utf8")) : null;
+      } catch {
+        return null;
+      }
+    },
+    write(locationId, workflowId, snapshot) {
+      try {
+        if (!enabled || !locationId || !workflowId || !snapshot) return false;
+        const p = pathFor(locationId, workflowId);
+        mkdirSync(dirname(p), { recursive: true, mode: 448 });
+        writeFileSync(p, JSON.stringify(scrubUpstream2(snapshot), null, 1), { mode: 384 });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    pathFor
   };
 }
 
@@ -144728,10 +144776,10 @@ async function executeAgentUpdate({ plan, gw } = {}) {
 }
 
 // core/tools.mjs
-var HERE = dirname(fileURLToPath(import.meta.url));
+var HERE = dirname2(fileURLToPath(import.meta.url));
 var CATALOG = true ? define_TOOL_CATALOG_default : (() => {
   try {
-    return JSON.parse(readFileSync2(resolve2(HERE, "../tool-descriptions.json"), "utf8"));
+    return JSON.parse(readFileSync3(resolve2(HERE, "../tool-descriptions.json"), "utf8"));
   } catch {
     return {};
   }
@@ -144765,7 +144813,7 @@ var TYPE_CARDS = null;
 var typeCards = () => {
   if (TYPE_CARDS) return TYPE_CARDS;
   try {
-    TYPE_CARDS = JSON.parse(readFileSync2(resolve2(HERE, "../../skills/create-ghl-workflow/catalog/type-cards.json"), "utf8")).cards ?? [];
+    TYPE_CARDS = JSON.parse(readFileSync3(resolve2(HERE, "../../skills/create-ghl-workflow/catalog/type-cards.json"), "utf8")).cards ?? [];
   } catch {
     TYPE_CARDS = [];
   }
@@ -144779,7 +144827,7 @@ var endpoints = () => {
     return ENDPOINTS;
   }
   try {
-    ENDPOINTS = JSON.parse(readFileSync2(resolve2(HERE, "../catalog/internal-endpoints.json"), "utf8")).endpoints ?? [];
+    ENDPOINTS = JSON.parse(readFileSync3(resolve2(HERE, "../catalog/internal-endpoints.json"), "utf8")).endpoints ?? [];
   } catch {
     ENDPOINTS = [];
   }
@@ -144793,7 +144841,7 @@ var overlay = () => {
     return OVERLAY;
   }
   try {
-    OVERLAY = JSON.parse(readFileSync2(resolve2(HERE, "../catalog/endpoint-overlay.json"), "utf8")).rows ?? {};
+    OVERLAY = JSON.parse(readFileSync3(resolve2(HERE, "../catalog/endpoint-overlay.json"), "utf8")).rows ?? {};
   } catch {
     OVERLAY = {};
   }
@@ -144977,10 +145025,10 @@ var descriptorPreview = (descriptor2) => ({
 function readProjectLintPack(state2, locationId) {
   try {
     if (process.env.GHL_READ_CACHE === "0") return null;
-    const dir = state2?.tokenFile ? dirname(state2.tokenFile) : null;
+    const dir = state2?.tokenFile ? dirname2(state2.tokenFile) : null;
     if (!dir || !locationId) return null;
-    const p = join2(dir, String(locationId), "lint-pack.json");
-    return existsSync2(p) ? JSON.parse(readFileSync2(p, "utf8")) : null;
+    const p = join3(dir, String(locationId), "lint-pack.json");
+    return existsSync3(p) ? JSON.parse(readFileSync3(p, "utf8")) : null;
   } catch {
     return null;
   }
@@ -145907,6 +145955,14 @@ var TOOLS2 = [
       const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
       const triggers = listed?.response?.ok ? listed.triggers ?? [] : [];
       const digest = digestWorkflow({ doc: doc.json, triggers, include: args.include ?? [] });
+      readCache(deps.state).write(args.locationId, args.workflowId, {
+        readAt: (/* @__PURE__ */ new Date()).toISOString(),
+        version: doc.json?.version ?? null,
+        updatedAt: doc.json?.dateUpdated ?? null,
+        fingerprint: digest.fingerprint,
+        templates: doc.json?.workflowData?.templates ?? [],
+        triggers
+      });
       return ok({
         ...digest,
         triggersRead: listed?.response?.ok === true,
@@ -147178,6 +147234,10 @@ var TOOLS2 = [
       // Same opt-out build_workflow has: proceed with names that resolved to nothing. Rarely what
       // you want — a name on the wire moves nothing — but it is the caller's decision to make.
       ignoreUnresolved: external_exports.boolean().default(false),
+      // Optimistic concurrency. The stale-read window is silent: the PUT carries the whole
+      // templates array, so an edit authored against an old graph simply erases the newer one.
+      expectedVersion: external_exports.number().int().positive().optional(),
+      acknowledgeDrift: external_exports.boolean().optional(),
       confirm: external_exports.boolean().default(false)
     }),
     capabilities: [
@@ -147257,6 +147317,33 @@ var TOOLS2 = [
           "workflow GET did not return workflowData.templates",
           "Confirm the workflow id and retry; no edit was written."
         );
+      }
+      const cache = readCache(deps.state);
+      const lastRead = cache.read(args.locationId, args.workflowId);
+      const driftOf = () => {
+        if (!lastRead?.templates) return null;
+        const d = diffTemplates(lastRead.templates, beforeTemplates);
+        return {
+          versions: [lastRead.version ?? null, fresh.version ?? null],
+          readAt: lastRead.readAt ?? null,
+          added: d.createdSteps,
+          removed: d.deletedSteps,
+          modified: d.modifiedSteps
+        };
+      };
+      if (args.expectedVersion !== void 0 && fresh.version !== args.expectedVersion) {
+        return withFailureData(fail(
+          CODES.VERSION_CONFLICT,
+          `workflow version is ${fresh.version}, not the expected ${args.expectedVersion} \u2014 it changed after you read it.`,
+          "Re-read the workflow (get_workflow_digest / export_workflow), rebase your ops on the current version, then retry with the new expectedVersion."
+        ), { driftSinceLastRead: driftOf() });
+      }
+      if (args.expectedVersion === void 0 && lastRead?.version != null && fresh.version != null && lastRead.version < fresh.version && args.acknowledgeDrift !== true) {
+        return withFailureData(fail(
+          CODES.PREVIEW_STALE,
+          `this project last read version ${lastRead.version}; the workflow is now at ${fresh.version}, so it changed after you looked.`,
+          "Re-read it, or pass acknowledgeDrift:true to edit the CURRENT graph anyway. data.driftSinceLastRead lists what moved."
+        ), { driftSinceLastRead: driftOf() });
       }
       const idGen = boundEditIdGen(
         args.locationId,
@@ -147523,6 +147610,14 @@ var TOOLS2 = [
       }
       const roundTripResponse = roundTripCall.value;
       const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
+      readCache(deps.state).write(args.locationId, args.workflowId, {
+        readAt: (/* @__PURE__ */ new Date()).toISOString(),
+        version: roundTripResponse.json?.version ?? null,
+        updatedAt: roundTripResponse.json?.dateUpdated ?? null,
+        fingerprint: fingerprintWorkflow(gotTemplates, roundTripTriggers),
+        templates: gotTemplates,
+        triggers: roundTripTriggers
+      });
       const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
       const touchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
       const intentFindings = [
@@ -149010,7 +149105,7 @@ function readOnlyGateway(gateway) {
 }
 
 // stdio-audit.mjs
-var HERE2 = dirname2(fileURLToPath2(import.meta.url));
+var HERE2 = dirname3(fileURLToPath2(import.meta.url));
 var pkgVersion = true ? "0.1.0" : (() => {
   try {
     return JSON.parse(readFileSync(resolve3(HERE2, "package.json"), "utf8")).version;

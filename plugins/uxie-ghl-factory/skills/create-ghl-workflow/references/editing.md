@@ -73,6 +73,22 @@ workflow stayed published).
 ] }
 ```
 
+### The stale-read window: `expectedVersion` and `acknowledgeDrift`
+
+A workflow PUT carries the WHOLE templates array, so an edit authored against a graph someone else
+has since changed does not conflict — it erases the other edit, silently. Two guards close that:
+
+- Pass `expectedVersion` (the `version` from `get_workflow_digest` or `export_workflow`) and a
+  version that has moved is refused with `VERSION_CONFLICT` before anything is written.
+- Even without it, read tools record what this project last saw under `.ghl/<locationId>/workflows/
+  <workflowId>/last-read.json`. If the live version is newer than that snapshot the edit is refused
+  with `PREVIEW_STALE`, and `data.driftSinceLastRead` lists what was added, removed and modified in
+  between. `acknowledgeDrift: true` proceeds against the current graph.
+
+The cache is a convenience, never a source of truth: it is scrubbed of anything credential-shaped,
+written 0600, and any failure to read or write it degrades to "no cache" rather than to an error.
+`GHL_READ_CACHE=0` disables it.
+
 ### When the ops cannot express it: `repair_workflow`
 
 Reach for `repair_workflow` only when no op above can express the change. It takes the WHOLE

@@ -1041,3 +1041,26 @@ test('an intent error on an UNTOUCHED legacy step does not fail the edit', async
   assert.equal(result.ok, true, JSON.stringify(result).slice(0, 300));
   assert.deepEqual(result.data.verify.intent, [], 'an untouched step is someone else\'s debt, not this edit\'s failure');
 });
+
+// The version gate. An edit authored against a graph that has since moved does not conflict — the
+// PUT carries the whole templates array, so the newer edit is simply erased.
+test('an explicit stale expectedVersion is VERSION_CONFLICT and writes nothing', async () => {
+  const { gw, calls } = editGateway();     // workflow() is version 7
+  const res = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, expectedVersion: 6,
+    ops: [{ op: 'renameStep', stepId: 's1', name: 'X' }],
+  }, deps(gw));
+  assert.equal(res.ok, false);
+  assert.equal(res.code, 'VERSION_CONFLICT');
+  assert.match(res.detail, /version is 7/);
+  assert.deepEqual(calls.filter(({ method }) => method === 'PUT'), []);
+});
+
+test('a matching expectedVersion proceeds', async () => {
+  const { gw } = editGateway();
+  const res = await editTool().handler({
+    locationId: 'LOC', workflowId: 'WID', confirm: true, expectedVersion: 7,
+    ops: [{ op: 'renameStep', stepId: 's1', name: 'X' }],
+  }, deps(gw));
+  assert.equal(res.ok, true, JSON.stringify(res).slice(0, 200));
+});
