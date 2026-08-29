@@ -77,6 +77,47 @@ export function suggestTags(full, candidates, limit = 4) {
   return scored.sort((a, b) => a.score - b.score || a.c.localeCompare(b.c)).slice(0, limit).map((x) => x.c);
 }
 
+// Search the picker inventory by INTENT. The vocabulary is 442 tags across 27 namespaces and the
+// only way to find one was to already know its name — which is how {{appointment.date}} got
+// invented in the first place. Ranking: an exact key hit first, then a shared whole word, then a
+// near-miss on edit distance, over both the tag and its human label.
+export function searchMergeTags(catalogTags, query, { namespace, extra = [], limit = 10 } = {}) {
+  const q = String(query ?? '').toLowerCase().trim();
+  if (!q) return [];
+  const words = q.split(/[\s._-]+/).filter(Boolean);
+  const pool = [
+    ...(catalogTags ?? []).map((t) => ({ tag: compact(t.tag), label: typeof t.label === 'string' ? t.label : null, group: t.group ?? null, source: 'picker' })),
+    ...extra,
+  ];
+  const scored = [];
+  for (const item of pool) {
+    const parts = split(item.tag);
+    if (!parts) continue;
+    if (namespace && parts.ns !== namespace) continue;
+    const key = parts.key.toLowerCase();
+    const label = String(item.label ?? '').toLowerCase();
+    const hay = `${key} ${label}`;
+    const keyWords = key.split(/[._-]+/).filter(Boolean);
+    const labelWords = label.split(/\s+/).filter(Boolean);
+
+    let score = null;
+    if (key === q || label === q) score = -100;
+    else if (words.every((w) => hay.includes(w))) score = -50 + (key.length - q.length) / 100;
+    else {
+      const shared = words.filter((w) => keyWords.includes(w) || labelWords.includes(w)).length;
+      if (shared) score = -20 * shared;
+      else {
+        const d = Math.min(...keyWords.map((kw) => editDistance(kw, q)), editDistance(key, q));
+        if (d <= 2) score = d;
+      }
+    }
+    if (score !== null) scored.push({ ...item, _score: score });
+  }
+  return scored.sort((a, b) => a._score - b._score || a.tag.localeCompare(b.tag))
+    .slice(0, limit)
+    .map(({ _score, ...rest }) => rest);
+}
+
 function perLocationVocabulary(ns, opts) {
   const source = NAMESPACE_POLICY.perLocation[ns];
   const list = opts?.[source];

@@ -494,3 +494,40 @@ test('every handler returns the stable contract for undefined direct arguments',
     assert.equal(typeof result?.ok, 'boolean', `${candidate.name} did not return the stable contract`);
   }
 });
+
+// The merge-tag vocabulary is 442 static tags across 27 namespaces plus the account's own fields,
+// and the only way to find one was to already know its name — which is how {{appointment.date}}
+// came to be invented and shipped to real customers for three weeks.
+test('search_merge_tags ranks the picker inventory by intent, with NO gateway call when no location is given', async () => {
+  const tool = TOOLS.find((t) => t.name === 'search_merge_tags');
+  const calls = [];
+  const gw = { loc: 'LOC', call: async (m, p) => { calls.push(p); return { ok: false, status: 500, json: {} }; } };
+  const res = await tool.handler({ intent: 'appointment time' }, { state: {}, makeGw: () => gw });
+  assert.equal(res.ok, true);
+  assert.deepEqual(calls, [], 'no locationId means no network at all');
+  assert.ok(res.data.tags.slice(0, 3).some((t) => t.tag === '{{appointment.only_start_time}}'), JSON.stringify(res.data.tags));
+  assert.match(res.data.note, /pass a locationId/);
+});
+
+test("search_merge_tags joins this account's custom fields and values when given a location", async () => {
+  const tool = TOOLS.find((t) => t.name === 'search_merge_tags');
+  const gw = { loc: 'LOC', call: async (m, p) => {
+    if (p.includes('/customFields/search')) {
+      return { ok: true, status: 200, json: { customFields: [{ id: 'F1', name: 'Treatment Interest', fieldKey: 'contact.treatment_interest', dataType: 'TEXT', model: 'contact' }] } };
+    }
+    if (p.includes('/customValues')) return { ok: true, status: 200, json: { customValues: [] } };
+    return { ok: false, status: 404, json: {} };
+  } };
+  const res = await tool.handler({ intent: 'treatment', locationId: 'LOC' }, { state: {}, makeGw: () => gw });
+  const hit = res.data.tags.find((t) => t.tag === '{{contact.treatment_interest}}');
+  assert.ok(hit, JSON.stringify(res.data.tags));
+  assert.equal(hit.source, 'custom-field');
+  assert.match(res.data.note, /custom fields and values/);
+});
+
+test('search_merge_tags filters by namespace', async () => {
+  const tool = TOOLS.find((t) => t.name === 'search_merge_tags');
+  const res = await tool.handler({ intent: 'name', namespace: 'user' }, { state: {}, makeGw: () => ({ call: async () => ({ ok: false }) }) });
+  assert.ok(res.data.tags.length);
+  assert.deepEqual(res.data.tags.filter((t) => !t.tag.startsWith('{{user.')), []);
+});
