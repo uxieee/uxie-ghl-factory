@@ -155,6 +155,11 @@ export function resolveIR(ir, r) {
     if (type === 'create_opportunity' || type === 'update_opportunity' || type === 'find_opportunity') {
       if (a.pipeline && !a.pipelineId) a.pipelineId = need(r.pipelineId(a.pipeline), `${type}.pipeline`, a.pipeline);
       if (a.stage && !a.stageId) a.stageId = need(r.stageId(a.stage, a.pipeline), `${type}.stage`, a.stage);
+      // A lost reason is a nameable account object (entities.mjs). Without this the author had to
+      // find the id by hand, and an update_opportunity with status 'lost' and no lostReasonId
+      // records no reason at all.
+      if (a.lostReason && !a.lostReasonId) a.lostReasonId = need(r.lostReasonId(a.lostReason), `${type}.lostReason`, a.lostReason);
+      if (a.lostReasonId) delete a.lostReason;
     }
     // assign_user: user name/email → user_list
     if (type === 'assign_user' && a.user && !a.user_list) {

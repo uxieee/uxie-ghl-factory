@@ -137125,8 +137125,9 @@ var CREATE_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
   "forecastExpectedCloseDate",
   "forecastProbability",
   "pipeline",
-  "stage"
-  // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+  "stage",
+  "lostReason"
+  // pre-resolve name path (resolve.mjs → *Id)
 ]);
 var CREATE_OPP_ALIASES = {
   pipelineStageId: "stageId",
@@ -137139,6 +137140,7 @@ function refuseUnresolvedOppNames(a, ref, stepType, ctx) {
   const missing = [];
   if (a.pipeline != null && a.pipelineId == null) missing.push(`pipeline '${a.pipeline}'`);
   if (a.stage != null && a.stageId == null) missing.push(`stage '${a.stage}'`);
+  if (a.lostReason != null && a.lostReasonId == null) missing.push(`lostReason '${a.lostReason}'`);
   if (!missing.length) return;
   const detail = `${stepType} '${ref}' names ${missing.join(" and ")} but no id was resolved for it. Names resolve only through build_workflow / scripts/build.mjs, which fetch the account's pipelines; on the edit path author pipelineId/stageId from list_account_entities. A name written to the wire moves nothing.`;
   if (ctx?.ignoreUnresolved === true) {
@@ -137187,8 +137189,9 @@ var UPDATE_OPP_AUTHOR_KEYS = /* @__PURE__ */ new Set([
   "forecastExpectedCloseDate",
   "forecastProbability",
   "pipeline",
-  "stage"
-  // pre-resolve name path (resolve.mjs → pipelineId/stageId)
+  "stage",
+  "lostReason"
+  // pre-resolve name path (resolve.mjs → *Id)
 ]);
 var UPDATE_OPP_ALIASES = { pipelineStageId: "stageId", stage_id: "stageId", pipeline_id: "pipelineId", monetaryValue: "value" };
 function resolveOppUpdateField(u, ref, ctx) {
@@ -138354,6 +138357,16 @@ function buildTrigger(t, ctx, wid, refMap) {
       };
     });
   }
+  if (t.type === "call_status" && Array.isArray(ctx?.callDispositions) && ctx.callDispositions.length) {
+    const known = new Set(ctx.callDispositions.map((d) => String(d.name ?? "").toLowerCase()));
+    for (const c of conditions) {
+      if (c?.field !== "custom_disposition") continue;
+      for (const v of [].concat(c.value ?? [])) {
+        if (typeof v !== "string" || !v || known.has(v.toLowerCase())) continue;
+        ctx?.warn?.(`TRIGGER_DISPOSITION_UNKNOWN: '${t.name ?? t.type}' matches disposition '${v}', which is not one of this account's ${ctx.callDispositions.length} dispositions (${ctx.callDispositions.map((d) => d.name).slice(0, 8).join(", ")}) \u2014 the trigger will never fire on it.`);
+      }
+    }
+  }
   for (const r of meta3?.filterChecks?.shapeRules ?? []) {
     const row = conditions.find((c) => c.field === r.field);
     const empty2 = !row || row.value == null || row.value === "" || Array.isArray(row.value) && !row.value.length;
@@ -139436,6 +139449,8 @@ function resolveIR(ir, r) {
     if (type === "create_opportunity" || type === "update_opportunity" || type === "find_opportunity") {
       if (a.pipeline && !a.pipelineId) a.pipelineId = need(r.pipelineId(a.pipeline), `${type}.pipeline`, a.pipeline);
       if (a.stage && !a.stageId) a.stageId = need(r.stageId(a.stage, a.pipeline), `${type}.stage`, a.stage);
+      if (a.lostReason && !a.lostReasonId) a.lostReasonId = need(r.lostReasonId(a.lostReason), `${type}.lostReason`, a.lostReason);
+      if (a.lostReasonId) delete a.lostReason;
     }
     if (type === "assign_user" && a.user && !a.user_list) {
       const id = need(r.userId(a.user), "assign_user.user", a.user);
@@ -140981,6 +140996,8 @@ async function orchestrate(ir, gw, opts = {}) {
       // the per-location half of the {{custom_values.*}} merge-tag vocabulary (merge-tags.mjs);
       // already fetched above for the resolver, it just never reached the compile ctx
       customValues: entities.customValues,
+      // call_status matches dispositions BY NAME — the compiler warns on one this account lacks
+      callDispositions: entities.callDispositions,
       warn: (msg) => report.warnings.push(msg),
       // §5: an account-wide email sender default. Reachable two ways — programmatically via
       // opts.senderDefault, or declaratively as a top-level `senderDefault` on the IR (which
