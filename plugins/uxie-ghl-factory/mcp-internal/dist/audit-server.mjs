@@ -70753,7 +70753,22 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
     }
     return { status: res.status, ok: res.ok, events, terminal };
   };
-  return { call, callWithMeta, stream, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
+  const readBackUntil = async (fn, { pollMs = 1500, maxPolls = 8, sleepImpl: sleepOverride } = {}) => {
+    const nap = sleepOverride ?? sleepImpl;
+    let last = null;
+    for (let attempt = 1; attempt <= maxPolls; attempt++) {
+      if (attempt > 1) await nap(pollMs);
+      try {
+        const hit = await fn(attempt);
+        if (hit !== null && hit !== void 0 && hit !== false) return { hit, attempts: attempt, last: hit };
+        last = hit ?? null;
+      } catch (error51) {
+        last = { error: String(error51?.message ?? error51) };
+      }
+    }
+    return { hit: null, attempts: maxPolls, last };
+  };
+  return { call, callWithMeta, stream, readBackUntil, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
 }
 
 // core/workflow-runtime-window.mjs
@@ -148339,13 +148354,17 @@ var TOOLS2 = [
           { preview, response: created.json ?? null }
         );
       }
-      const listed = await gw.call("GET", `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
-      const hit = (listed.json?.rows ?? []).find((row) => (row.id ?? row._id) === folderId);
+      const found = await gw.readBackUntil(async () => {
+        const listed = await gw.call("GET", `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
+        return (listed.json?.rows ?? []).find((row) => (row.id ?? row._id) === folderId) ?? null;
+      }, { pollMs: 1e3, maxPolls: 3 });
+      const hit = found.hit;
       return ok({
         folderId,
         verified: Boolean(hit),
+        readBackAttempts: found.attempts,
         folder: hit ? { id: folderId, name: hit.name, parentId: hit.parentId ?? null } : null,
-        ...hit ? {} : { note: "Created, but the folder did not appear in the folder list on read-back. Confirm before filing anything into it." }
+        ...hit ? {} : { note: `Created, but the folder did not appear in the folder list after ${found.attempts} read-backs. Confirm before filing anything into it.` }
       });
     }, args)
   },

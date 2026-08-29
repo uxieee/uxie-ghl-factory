@@ -368,5 +368,27 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
   // jwt-rail gateway asked for a services capability would send the location Bearer to
   // the AI host with no token-id, and an ai-rail gateway asked for a backend capability
   // throws AI_RAIL_HOST_INVALID outside the audit error taxonomy.
-  return { call, callWithMeta, stream, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
+  // ONE POLLED READ-BACK PRIMITIVE. Four places hand-rolled this loop — both folder tools and two
+  // webhook-pin paths — each with its own delay, its own attempt count, and its own idea of what a
+  // miss meant. GHL's list indexes lag a write by a second or two, so a single immediate read-back
+  // reported `verified: false` on writes that had in fact applied, and callers learned to ignore
+  // the flag. Sleeps BEFORE each retry, never before the first attempt; a thrown predicate counts
+  // as a miss and is recorded rather than escaping.
+  const readBackUntil = async (fn, { pollMs = 1500, maxPolls = 8, sleepImpl: sleepOverride } = {}) => {
+    const nap = sleepOverride ?? sleepImpl;
+    let last = null;
+    for (let attempt = 1; attempt <= maxPolls; attempt++) {
+      if (attempt > 1) await nap(pollMs);
+      try {
+        const hit = await fn(attempt);
+        if (hit !== null && hit !== undefined && hit !== false) return { hit, attempts: attempt, last: hit };
+        last = hit ?? null;
+      } catch (error) {
+        last = { error: String(error?.message ?? error) };
+      }
+    }
+    return { hit: null, attempts: maxPolls, last };
+  };
+
+  return { call, callWithMeta, stream, readBackUntil, loc, rail, uid: creds.uid, capabilities: { unauthenticatedRawUpload: true } };
 }

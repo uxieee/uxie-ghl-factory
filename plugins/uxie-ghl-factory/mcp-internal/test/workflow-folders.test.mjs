@@ -90,6 +90,19 @@ function gateway({
       return { status: 404, ok: false, json: { message: `no fixture for ${method} ${path}` } };
     },
   };
+  // The real gateway exposes readBackUntil (core/gateway.mjs); the stub must too, or a tool that
+  // polls its read-back silently reports verified:false. No sleeping in tests.
+  gw.readBackUntil = async (fn, { maxPolls = 8 } = {}) => {
+    let last = null;
+    for (let attempt = 1; attempt <= maxPolls; attempt++) {
+      try {
+        const hit = await fn(attempt);
+        if (hit !== null && hit !== undefined && hit !== false) return { hit, attempts: attempt, last: hit };
+        last = hit ?? null;
+      } catch (error) { last = { error: String(error?.message ?? error) }; }
+    }
+    return { hit: null, attempts: maxPolls, last };
+  };
   return { gw, calls, store: () => store, dirs: () => dirs };
 }
 

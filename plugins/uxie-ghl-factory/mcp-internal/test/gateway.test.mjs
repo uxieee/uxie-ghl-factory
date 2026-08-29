@@ -349,3 +349,28 @@ test('jwt rail: a call with NO explicit base still goes to backend and never car
   assert.ok(calls[0].url.startsWith('https://backend.leadconnectorhq.com/workflow/L/list'), calls[0].url);
   assert.equal(calls[0].init.headers['token-id'], undefined);
 });
+
+// Four places hand-rolled this loop — both folder tools and two webhook-pin paths — each with its
+// own delay, attempt count, and idea of what a miss meant. GHL's list indexes lag a write by a
+// second or two, so a single immediate read-back reported verified:false on writes that HAD
+// applied, and callers learned to ignore the flag.
+test('readBackUntil: sleeps only between attempts, returns the first hit, and never throws', async () => {
+  const sleeps = [];
+  const gw = makeGateway({ tokenFile: fixture(), loc: 'LOC', sleepImpl: async (ms) => { sleeps.push(ms); } });
+
+  let n = 0;
+  const found = await gw.readBackUntil(async () => (++n < 3 ? null : { id: 'X' }), { pollMs: 10, maxPolls: 5 });
+  assert.deepEqual(found.hit, { id: 'X' });
+  assert.equal(found.attempts, 3);
+  assert.deepEqual(sleeps, [10, 10], 'two sleeps for three attempts — never before the first');
+
+  sleeps.length = 0;
+  const missed = await gw.readBackUntil(async () => null, { pollMs: 5, maxPolls: 4 });
+  assert.equal(missed.hit, null);
+  assert.equal(missed.attempts, 4);
+  assert.equal(sleeps.length, 3);
+
+  const threw = await gw.readBackUntil(async () => { throw new Error('index still cold'); }, { pollMs: 1, maxPolls: 2 });
+  assert.equal(threw.hit, null, 'a thrown predicate is a miss, not an escape');
+  assert.match(threw.last.error, /index still cold/);
+});
