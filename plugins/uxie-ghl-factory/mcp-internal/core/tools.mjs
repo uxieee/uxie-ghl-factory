@@ -34,6 +34,8 @@ import {
 } from '../../skills/create-ghl-workflow/engine/edit-driver.mjs';
 import { planStickyNoteOp } from '../../skills/create-ghl-workflow/engine/sticky-notes.mjs';
 import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engine/contact-field-shapes.mjs';
+import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/lints/opportunity.mjs';
+import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
 import { makeDeterministicIdGen } from '../../skills/create-ghl-workflow/engine/idgen.mjs';
 import { collectOpTags, missingTags } from '../../skills/create-ghl-workflow/engine/tags.mjs';
@@ -2991,6 +2993,9 @@ export const TOOLS = [
         triggerExpectations.push({ request, returnedId: returnedResourceId(responseCall.value) });
       }
 
+      // Hoisted: the intent lint below reads the round-tripped trigger rows, which are otherwise
+      // scoped to this block.
+      let roundTripTriggers = [];
       if (triggerExpectations.length) {
         partialProgress.verification.triggers.attempted = true;
         const triggerRoundTripCall = await safeGatewayCall(
@@ -3009,6 +3014,7 @@ export const TOOLS = [
             { requiresPublish: false, publishInstruction: null },
           );
         }
+        roundTripTriggers = triggerRoundTripCall.value.triggers ?? [];
         const triggerVerify = verifyTriggerRoundTrip(
           triggerExpectations,
           triggerRoundTripCall.value.triggers,
@@ -3074,6 +3080,19 @@ export const TOOLS = [
       // Stripping BOTH sides is correct either way: it makes the comparison blind to whether
       // this particular edit happened to touch the wire boundary at all.
       const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
+      // INTENT, not echo. The round-trip above proves GHL kept the keys; it cannot see a stage
+      // NAME, an empty row list or an off-menu operator, because GHL stores those verbatim and
+      // echoes them back. Scoped to the steps THIS edit touched: an intent error on an untouched
+      // legacy step is someone else's debt and must not fail this caller's edit, but an error on
+      // a step this edit wrote is a live-but-wrong document, and reporting ok is how eight dead
+      // stage moves shipped.
+      const touchedIds = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
+      const intentFindings = [
+        ...lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id))),
+        ...lintTriggerRows(roundTripTriggers, ctx.catalog),
+      ];
+      verify.intent = intentFindings;
+      const intentErrors = intentFindings.filter((f) => f.severity === 'error');
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
@@ -3098,12 +3117,15 @@ export const TOOLS = [
         runtimeProofNote: 'edit_workflow never publishes. After confirmed publish_workflow, only added_to_workflow in runtime logs proves that a trigger fired.',
       };
 
-      if (!verify.roundTrip) {
+      if (!verify.roundTrip || intentErrors.length) {
         return editWriteFailure(
           fail(
             CODES.ENGINE_ABORT,
-            'Workflow PUT returned but the edited graph did not round-trip cleanly.',
-            'Inspect data.verify and the workflow canvas before making further edits.',
+            intentErrors.length
+              ? `The write persisted, but the stored document does not express the intent: `
+                + intentErrors.map((f) => `${f.code} on '${f.name}' — ${f.msg}`).join('; ')
+              : 'Workflow PUT returned but the edited graph did not round-trip cleanly.',
+            'Inspect data.verify (including verify.intent) and the workflow canvas before making further edits.',
           ),
           data,
         );

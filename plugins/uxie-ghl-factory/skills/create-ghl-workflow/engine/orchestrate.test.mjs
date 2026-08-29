@@ -650,3 +650,24 @@ test('orchestrate: a trigger that failed every retry leaves persisted < authored
   assert.equal(report.triggers.failed.length, 1);
   assert.ok(report.warnings.some((w) => /TRIGGERS FAILED/.test(w)), report.warnings.join('\n'));
 });
+
+// RC-B: sent-vs-stored comparison cannot see a dead opportunity write, because GHL echoes back
+// exactly what it stored. The build must fail on what the document EXPRESSES, not on whether the
+// keys survived the round trip.
+test('a dead opportunity write that GHL echoes back FAILS verify with OPP_NO_ROWS', async () => {
+  const { gw } = mockGateway({ tags: ['new-tag'], pipelines: [] });
+  const inner = gw.call;
+  gw.call = async (m, p, b) => {
+    if (m === 'GET' && p.includes('/workflow/') && !p.includes('/trigger')) {
+      return { ok: true, json: { status: 'draft', workflowData: { templates: [
+        { id: 'WID_1', type: 'internal_update_opportunity', name: 'Move',
+          attributes: { allowBackward: false, __customInputFields__: [], __customInputs__: {} } },
+      ] } } };
+    }
+    return inner(m, p, b);
+  };
+  const ir = { name: 'W', triggers: [], graph: [{ ref: 'a', kind: 'action', type: 'update_opportunity', name: 'Move',
+    assocGuaranteed: true, attributes: { pipelineId: 'x2f9dK1mQ84hL0pTzVbn', stageId: 'y3g0eL2nR95iM1qUaWco', status: 'open' } }] };
+  const report = await orchestrate(ir, gw);
+  assert.ok(report.verify.issues.some((i) => i.intent?.some((f) => f.code === 'OPP_NO_ROWS')), JSON.stringify(report.verify.issues));
+});

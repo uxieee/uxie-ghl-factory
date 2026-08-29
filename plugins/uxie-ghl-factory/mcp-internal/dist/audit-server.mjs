@@ -138498,6 +138498,126 @@ function missingTags(requiredNames, existingNames) {
   return requiredNames.filter((n) => !have.has(n.toLowerCase()));
 }
 
+// ../skills/create-ghl-workflow/engine/lints/opportunity.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var OPP_TYPES = /* @__PURE__ */ new Set(["internal_update_opportunity", "internal_create_opportunity"]);
+var ID_ROWS = /* @__PURE__ */ new Set(["pipelineId", "pipelineStageId", "lostReasonId"]);
+var NAME_KEYS = ["pipeline", "stage", "lostReason"];
+var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
+var isMergeTag2 = (v) => typeof v === "string" && v.includes("{{");
+function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null } = {}) {
+  const out = [];
+  const known = pipelines && {
+    pipelineId: new Set(pipelines.map((p) => p.id)),
+    pipelineStageId: new Set(pipelines.flatMap((p) => (p.stages ?? []).map((s) => s.id))),
+    lostReasonId: lostReasons ? new Set(lostReasons.map((r) => r.id ?? r._id)) : null
+  };
+  for (const t of templates ?? []) {
+    if (!t || !OPP_TYPES.has(t.type)) continue;
+    const a = t.attributes ?? {};
+    const push = (code, severity, msg) => out.push({ stepId: t.id, name: t.name ?? t.id, type: t.type, code, severity, msg });
+    const leaked = NAME_KEYS.filter((k) => a[k] !== void 0);
+    if (leaked.length) {
+      push(
+        "OPP_NAME_KEY",
+        "error",
+        `carries name key(s) [${leaked.join(", ")}] at the top level \u2014 GHL stores the word and the write moves nothing; the value belongs in an id-bearing __customInputFields__ row`
+      );
+    }
+    const rows = Array.isArray(a.__customInputFields__) ? a.__customInputFields__ : [];
+    if (!rows.length) {
+      push(
+        "OPP_NO_ROWS",
+        "error",
+        "__customInputFields__ is missing or empty \u2014 the step saves, round-trips clean, and no-ops at runtime"
+      );
+      continue;
+    }
+    let hasStage = false, hasPipe = false;
+    for (const r of rows) {
+      if (!r || typeof r !== "object") continue;
+      if (r.filterField === "pipelineStageId") hasStage = true;
+      if (r.filterField === "pipelineId") hasPipe = true;
+      if (!ID_ROWS.has(r.filterField)) continue;
+      if (isMergeTag2(r.value)) continue;
+      if (!looksLikeId(r.value)) {
+        push(
+          "OPP_ROW_NOT_ID",
+          "error",
+          `row '${r.filterField}' carries '${r.value}' \u2014 not an id; a NAME here saves clean and moves nothing`
+        );
+        continue;
+      }
+      const list = known?.[r.filterField];
+      if (list && !list.has(r.value)) {
+        push(
+          "OPP_UNKNOWN_ID",
+          "warning",
+          `row '${r.filterField}' id '${r.value}' matches nothing in this account's ${r.filterField === "lostReasonId" ? "lost reasons" : "pipelines"}`
+        );
+      }
+    }
+    if (hasStage && !hasPipe) {
+      push(
+        "OPP_STAGE_NO_PIPELINE_ROW",
+        "error",
+        "a pipelineStageId row without a pipelineId row renders the step DISABLED in the builder and it never runs"
+      );
+    }
+  }
+  return out;
+}
+
+// ../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+function lintTriggerRows(triggers, catalog) {
+  const out = [];
+  for (const t of triggers ?? []) {
+    if (!t) continue;
+    const meta3 = catalog?.trigger?.(t.type);
+    const rows = meta3?.filterRows ?? [];
+    const rowFor = (field) => rows.find((r) => r.value === field || r.field === field || r.id === field);
+    for (const c of t.conditions ?? []) {
+      if (!c || typeof c !== "object") continue;
+      const push = (code, severity, msg) => out.push({
+        triggerId: t.id ?? t._id,
+        name: t.name ?? t.type,
+        type: t.type,
+        code,
+        severity,
+        msg
+      });
+      for (const k of ["operator", "type"]) {
+        if (c[k] !== void 0 && c[k] !== null && typeof c[k] !== "string") {
+          push(
+            "TRIGGER_ROW_NOT_STRING",
+            "error",
+            `condition '${c.field}' has a non-string ${k} (${JSON.stringify(c[k])}) \u2014 the trigger POST 500s on this shape and a stored one never matches`
+          );
+        }
+      }
+      const row = rowFor(c.field);
+      if (!row) continue;
+      const menu = Array.isArray(row.operatorMenu) && row.operatorMenu.length ? row.operatorMenu : row.operator ? [row.operator] : null;
+      if (menu && typeof c.operator === "string" && !menu.includes(c.operator)) {
+        push(
+          "TRIGGER_ROW_OPERATOR",
+          "warning",
+          `condition '${c.field}' stores operator '${c.operator}' \u2014 the drawer's set for this row is [${menu.join(", ")}]; an off-menu operator saves clean and may never match`
+        );
+      }
+      if (row.required === true && (c.value === void 0 || c.value === "" || Array.isArray(c.value) && !c.value.length)) {
+        push("TRIGGER_ROW_EMPTY_VALUE", "warning", `required condition '${c.field}' has no value`);
+      }
+    }
+  }
+  return out;
+}
+
 // ../skills/create-ghl-workflow/engine/resolve.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -138576,10 +138696,10 @@ function buildResolvers(raw = {}) {
     }
   };
 }
-var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
+var looksLikeId2 = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
 function resolveFilterValue(field, value, r) {
   const one = (v) => {
-    if (looksLikeId(v)) return v;
+    if (looksLikeId2(v)) return v;
     if (field === "opportunity.pipelineId") return r.pipelineId(v) ?? v;
     if (field === "opportunity.pipelineStageId") return r.stageId(v) ?? v;
     if (field === "calendar.id") return r.calendarId(v) ?? v;
@@ -138632,7 +138752,7 @@ function resolveIR(ir, r) {
       const field = f.field ?? f.on;
       const before = JSON.stringify(f.value);
       f.value = resolveFilterValue(field ?? "", f.value, r);
-      if (JSON.stringify(f.value) === before && /\.(id|pipelineId|pipelineStageId|assignedTo)$/.test(field ?? "") && !Array.isArray(f.value) && !looksLikeId(f.value)) {
+      if (JSON.stringify(f.value) === before && /\.(id|pipelineId|pipelineStageId|assignedTo)$/.test(field ?? "") && !Array.isArray(f.value) && !looksLikeId2(f.value)) {
         unresolved.push({ where: `trigger ${t.type} filter ${field}`, name: f.value });
       }
     }
@@ -138648,7 +138768,7 @@ function resolveIR(ir, r) {
       const id = need(r.userId(a.user), "assign_user.user", a.user);
       if (id) a.user_list = [id];
     }
-    if (type === "task-notification" && a.assignedTo && !looksLikeId(a.assignedTo) && !/_/.test(a.assignedTo)) {
+    if (type === "task-notification" && a.assignedTo && !looksLikeId2(a.assignedTo) && !/_/.test(a.assignedTo)) {
       a.assignedTo = need(r.userId(a.assignedTo), "task.assignedTo", a.assignedTo) ?? a.assignedTo;
     }
     if (type === "appointment_booking" && a.calendar && !a.calendarId) {
@@ -138686,7 +138806,7 @@ function resolveIR(ir, r) {
     }
     if ((type === "update_contact_field" || type === "create_update_contact") && Array.isArray(a.fields)) {
       for (const f of a.fields) {
-        if (!f || f.field == null || STANDARD_CONTACT_FIELDS.has(f.field) || looksLikeId(f.field)) continue;
+        if (!f || f.field == null || STANDARD_CONTACT_FIELDS.has(f.field) || looksLikeId2(f.field)) continue;
         const id = r.customFieldId(f.field);
         if (id) {
           if (!f.title) f.title = f.field;
@@ -138704,7 +138824,7 @@ function resolveIR(ir, r) {
     for (const b of n.branches ?? []) {
       for (const cond of b.conditions ?? []) {
         if (!cond || !isOppStageCondition(cond) || cond.stage == null) continue;
-        if (looksLikeId(cond.stage)) {
+        if (looksLikeId2(cond.stage)) {
           cond.conditionValue = cond.stage;
           continue;
         }
@@ -140389,10 +140509,12 @@ async function orchestrate(ir, gw, opts = {}) {
       error: JSON.stringify(r?.json ?? "").slice(0, 160)
     });
   }
+  let persistedTriggers = [];
   if (built.triggerBodies.length) {
     const listed = await callAt("trigger_list_verify", "GET", `/workflow/${loc}/trigger?${new URLSearchParams({ workflowId: WID })}`);
     if (!listed) return report;
     const rows = Array.isArray(listed.json) ? listed.json : listed.json?.triggers ?? listed.json?.data ?? null;
+    if (listed.ok && Array.isArray(rows)) persistedTriggers = rows;
     report.triggers.persisted = listed.ok && Array.isArray(rows) ? rows.length : null;
     if (report.triggers.persisted === null) report.warnings.push("triggers: the post-build trigger re-list failed; the persisted count is UNKNOWN");
   } else {
@@ -140494,6 +140616,20 @@ async function orchestrate(ir, gw, opts = {}) {
     }
     if (Object.keys(issue2).length) report.verify.issues.push({ type: gt.type, id: gt.id, name: gt.name, ...issue2 });
     else if (st) report.verify.pass++;
+  }
+  const intentFindings = [
+    ...lintOpportunityWrites(got, { pipelines: entities.pipelines }),
+    ...lintTriggerRows(persistedTriggers, catalog)
+  ];
+  const intentErrors = intentFindings.filter((f) => f.severity === "error");
+  if (intentErrors.length) {
+    report.verify.issues.push({
+      intent: intentErrors,
+      note: "the stored document does not express the authored intent \u2014 see each finding"
+    });
+  }
+  for (const f of intentFindings.filter((x) => x.severity === "warning")) {
+    report.warnings.push(`INTENT: ${f.name ?? f.type}: ${f.msg}`);
   }
   const actionSchema = await fetchActionSchema(call, loc);
   if (actionSchema) {
@@ -140605,7 +140741,7 @@ var INTENT_KEYS = [
   "template",
   "lostReason"
 ];
-var looksLikeId2 = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
+var looksLikeId3 = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
 var ID_BEARING_FILTER = /\.(id|pipelineId|pipelineStageId|assignedTo)$/;
 function opsNeedResolution(ops) {
   let needs = false;
@@ -140616,12 +140752,12 @@ function opsNeedResolution(ops) {
     if (op?.step) {
       walkNodes([op.step], (n) => {
         check2(n.attributes);
-        for (const b of n.branches ?? []) for (const c of b.conditions ?? []) if (c?.stage !== void 0 && !looksLikeId2(c.stage)) needs = true;
+        for (const b of n.branches ?? []) for (const c of b.conditions ?? []) if (c?.stage !== void 0 && !looksLikeId3(c.stage)) needs = true;
       });
     }
     check2(op?.attrPatch);
     for (const f of op?.trigger?.filters ?? []) {
-      if (f?.value !== void 0 && ID_BEARING_FILTER.test(f.field ?? f.on ?? "") && !looksLikeId2(f.value)) needs = true;
+      if (f?.value !== void 0 && ID_BEARING_FILTER.test(f.field ?? f.on ?? "") && !looksLikeId3(f.value)) needs = true;
     }
   }
   return needs;
@@ -145933,6 +146069,7 @@ var TOOLS2 = [
         partialProgress.triggerWrites.applied++;
         triggerExpectations.push({ request, returnedId: returnedResourceId(responseCall.value) });
       }
+      let roundTripTriggers = [];
       if (triggerExpectations.length) {
         partialProgress.verification.triggers.attempted = true;
         const triggerRoundTripCall = await safeGatewayCall(
@@ -145949,6 +146086,7 @@ var TOOLS2 = [
             { requiresPublish: false, publishInstruction: null }
           );
         }
+        roundTripTriggers = triggerRoundTripCall.value.triggers ?? [];
         const triggerVerify = verifyTriggerRoundTrip(
           triggerExpectations,
           triggerRoundTripCall.value.triggers,
@@ -146000,6 +146138,13 @@ var TOOLS2 = [
       const roundTripResponse = roundTripCall.value;
       const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
       const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
+      const touchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+      const intentFindings = [
+        ...lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id))),
+        ...lintTriggerRows(roundTripTriggers, ctx.catalog)
+      ];
+      verify.intent = intentFindings;
+      const intentErrors = intentFindings.filter((f) => f.severity === "error");
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
       partialProgress.verification.workflowStatus = roundTripResponse.json?.status ?? null;
@@ -146023,12 +146168,12 @@ var TOOLS2 = [
         builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
         runtimeProofNote: "edit_workflow never publishes. After confirmed publish_workflow, only added_to_workflow in runtime logs proves that a trigger fired."
       };
-      if (!verify.roundTrip) {
+      if (!verify.roundTrip || intentErrors.length) {
         return editWriteFailure(
           fail(
             CODES.ENGINE_ABORT,
-            "Workflow PUT returned but the edited graph did not round-trip cleanly.",
-            "Inspect data.verify and the workflow canvas before making further edits."
+            intentErrors.length ? `The write persisted, but the stored document does not express the intent: ` + intentErrors.map((f) => `${f.code} on '${f.name}' \u2014 ${f.msg}`).join("; ") : "Workflow PUT returned but the edited graph did not round-trip cleanly.",
+            "Inspect data.verify (including verify.intent) and the workflow canvas before making further edits."
           ),
           data2
         );
