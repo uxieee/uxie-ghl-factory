@@ -133,3 +133,47 @@ test('call_status: the drawer shape — contains-any + array value + type multis
   const dir = body.conditions.find((c) => c.field === 'message.direction');
   assert.deepEqual({ operator: dir.operator, value: dir.value, type: dir.type }, { operator: '==', value: 'outbound', type: 'select' });
 });
+
+// F5-25: where the drawer offers a MENU and no default, it forces the author to pick. The engine
+// used to invent one from the row's TYPE — producing an operator the menu never contained, which
+// saves clean and never matches.
+test('customer_reply message-body: no invented operator — authoring without one is refused naming the menu', () => {
+  assert.throws(
+    () => buildTrigger({ ref: 't', type: 'customer_reply', name: 'Reply', filters: [{ field: 'message.body', value: ['stop'] }] }, ctx(), 'WID', new Map()),
+    (e) => e.code === 'FILTER_OPERATOR_REQUIRED' && /string-contains-any-of/.test(e.message) && /string-matches-any-of/.test(e.message));
+
+  const body = buildTrigger({ ref: 't', type: 'customer_reply', name: 'Reply', filters: [{ field: 'message.body', operator: 'string-contains-any-of', value: ['stop'] }] }, ctx(), 'WID', new Map());
+  const row = body.conditions.find((c) => c.field === 'message.body');
+  assert.equal(row.operator, 'string-contains-any-of');
+  assert.equal(row.id, 'message-body');
+
+  assert.throws(
+    () => buildTrigger({ ref: 't', type: 'customer_reply', name: 'R', filters: [{ field: 'message.body', operator: 'is-any-of', value: ['x'] }] }, ctx(), 'WID', new Map()),
+    (e) => e.code === 'FILTER_OPERATOR' && /is-any-of/.test(e.message));
+});
+
+// F5-26: a contact_changed row on a CUSTOM field exists only once the field does, so it could not
+// be expressed at all. The catalog now carries the drawer's row template and the account's own
+// field list turns it into a wire row.
+test('contact_changed on a CUSTOM field instantiates the drawer template through ctx.customFields', () => {
+  const c = { ...ctx(), customFields: [{ id: 'x2f9dK1mQ84hL0pTzVbn', name: 'Next Callback On', fieldKey: 'contact.next_callback_on', dataType: 'DATE', model: 'contact' }] };
+  const body = buildTrigger({ ref: 't', type: 'contact_changed', name: 'Callback set', filters: [{ field: 'Next Callback On', operator: 'has-changed' }] }, c, 'WID', new Map());
+  const row = body.conditions[0];
+  assert.deepEqual(row, { operator: 'has-changed', field: 'contact.x2f9dK1mQ84hL0pTzVbn', title: 'Next Callback On', type: 'date', id: 'x2f9dK1mQ84hL0pTzVbn' });
+});
+
+test('the same custom field resolves by id, by contact.<id>, and by fieldKey — and a PHONE field forces has-changed', () => {
+  const fields = [
+    { id: 'x2f9dK1mQ84hL0pTzVbn', name: 'Next Callback On', fieldKey: 'contact.next_callback_on', dataType: 'DATE', model: 'contact' },
+    { id: 'p7h3aQ9zW21kR8mNvXcd', name: 'Mobile', fieldKey: 'contact.mobile', dataType: 'PHONE', model: 'contact' },
+  ];
+  const c = { ...ctx(), customFields: fields };
+  for (const key of ['x2f9dK1mQ84hL0pTzVbn', 'contact.x2f9dK1mQ84hL0pTzVbn', 'contact.next_callback_on']) {
+    const body = buildTrigger({ ref: 't', type: 'contact_changed', name: 'C', filters: [{ field: key, operator: 'has-changed' }] }, c, 'WID', new Map());
+    assert.equal(body.conditions[0].field, 'contact.x2f9dK1mQ84hL0pTzVbn', key);
+  }
+  const phone = buildTrigger({ ref: 't', type: 'contact_changed', name: 'C', filters: [{ field: 'Mobile' }] }, c, 'WID', new Map());
+  assert.equal(phone.conditions[0].operator, 'has-changed', 'a PHONE field has no value to compare');
+  assert.throws(() => buildTrigger({ ref: 't', type: 'contact_changed', name: 'C', filters: [{ field: 'Mobile', operator: '==' }] }, c, 'WID', new Map()),
+    (e) => e.code === 'FILTER_OPERATOR');
+});

@@ -73874,6 +73874,47 @@ function illegalSmsWords(body, vocab) {
 
 // ../skills/create-ghl-workflow/engine/catalog.data.json
 var catalog_data_default = {
+  marketplaceFilterOperators: {
+    _source: "recovered-source MarketplaceFilter.ts:1137-1149 (defaults), :1386-1450 (menus); conditions.ts:46 (OperatorOptions)",
+    legacyAccepted: [
+      "is-not-empty"
+    ],
+    defaults: {
+      multiselect: "is-any-of",
+      multiselect_with_pagination: "is-any-of",
+      select: "==",
+      select_with_pagination: "==",
+      string: "string-contains-any-of"
+    },
+    menus: {
+      string: [
+        "string-contains-any-of",
+        "has_value",
+        "is-not-empty"
+      ],
+      select: [
+        "==",
+        "!=",
+        "has_value",
+        "has_no_value"
+      ],
+      multiselect: [
+        "index-of-true",
+        "index-of-false",
+        "has_value",
+        "has_no_value"
+      ],
+      multiselectArrayToArray: [
+        "contains-any",
+        "is-none-of",
+        "has_value",
+        "has_no_value"
+      ],
+      integrationAiExtra: [
+        "array-contains-substring"
+      ]
+    }
+  },
   _generated: "gen-catalog.mjs",
   _sources: [
     "catalog/step-examples",
@@ -120101,7 +120142,12 @@ Rules to Follow:
           operator: "add-index-of-true",
           type: "select",
           optionsSource: "dynamic",
-          id: "tag"
+          id: "tag",
+          operatorMenu: [
+            "add-index-of-true",
+            "remove-index-of-true"
+          ],
+          defaultOperator: "add-index-of-true"
         },
         {
           label: "DND",
@@ -120215,6 +120261,24 @@ Rules to Follow:
           type: "input",
           optionsSource: "none"
         }
+      ],
+      filterRowTemplates: [
+        {
+          source: "customFields",
+          valuePattern: "contact.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [
+            "has-changed",
+            "=="
+          ],
+          defaultOperator: null
+        }
+      ],
+      filterOperatorMenuDefault: [
+        "has-changed",
+        "=="
       ],
       filterRowsDynamic: [
         {
@@ -120386,6 +120450,17 @@ Rules to Follow:
           type: "select",
           optionsSource: "dynamic",
           id: "tag"
+        }
+      ],
+      filterRowTemplates: [
+        {
+          source: "customFields",
+          valuePattern: "contact.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null
         }
       ],
       filterRowsDynamic: [
@@ -121839,7 +121914,15 @@ Rules to Follow:
           field: "message.body",
           type: "string",
           optionsSource: "none",
-          id: "message-body"
+          id: "message-body",
+          operatorMenu: [
+            "string-contains-any-of",
+            "string-contains-none-of",
+            "string-matches-any-of",
+            "has_no_value",
+            "has_value"
+          ],
+          defaultOperator: null
         },
         {
           label: "Intent type",
@@ -123064,6 +123147,28 @@ Rules to Follow:
           optionsSource: "dynamic"
         }
       ],
+      filterRowTemplates: [
+        {
+          source: "opportunityCustomFields",
+          valuePattern: "opportunity.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
+        },
+        {
+          source: "customFields",
+          valuePattern: "contact.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
+        }
+      ],
       filterChecks: {
         validator: "opportunityValidator",
         assetChecks: [
@@ -123197,6 +123302,28 @@ Rules to Follow:
           field: "opportunity.lostReasonId",
           type: "select",
           optionsSource: "dynamic"
+        }
+      ],
+      filterRowTemplates: [
+        {
+          source: "opportunityCustomFields",
+          valuePattern: "opportunity.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
+        },
+        {
+          source: "customFields",
+          valuePattern: "contact.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
         }
       ],
       filterRowsDynamic: [
@@ -123353,6 +123480,28 @@ Rules to Follow:
           field: "opportunity.lostReasonId",
           type: "select",
           optionsSource: "dynamic"
+        }
+      ],
+      filterRowTemplates: [
+        {
+          source: "opportunityCustomFields",
+          valuePattern: "opportunity.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
+        },
+        {
+          source: "customFields",
+          valuePattern: "contact.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
         }
       ],
       filterRowsDynamic: [
@@ -123546,6 +123695,28 @@ Rules to Follow:
           optionsSource: "dynamic"
         }
       ],
+      filterRowTemplates: [
+        {
+          source: "opportunityCustomFields",
+          valuePattern: "opportunity.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
+        },
+        {
+          source: "customFields",
+          valuePattern: "contact.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
+        }
+      ],
       filterRowsDynamic: [
         {
           label: {
@@ -123719,6 +123890,28 @@ Rules to Follow:
           field: "opportunity.lostReasonId",
           type: "select",
           optionsSource: "dynamic"
+        }
+      ],
+      filterRowTemplates: [
+        {
+          source: "opportunityCustomFields",
+          valuePattern: "opportunity.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
+        },
+        {
+          source: "customFields",
+          valuePattern: "contact.{id}",
+          idFrom: "id",
+          titleFrom: "name",
+          typeFrom: "dataType",
+          operatorMenu: [],
+          defaultOperator: null,
+          via: "${type} interpolation"
         }
       ],
       filterRowsDynamic: [
@@ -137786,11 +137979,39 @@ function casingLint({ triggerBodies, autoSaveBody }) {
     throw new IRError("CASING", "workflow body must use camelCase locationId/companyId");
 }
 var MARKETPLACE_OPERATORS = /* @__PURE__ */ new Set(["string-contains-any-of", "is-not-empty"]);
+function marketplaceFilterType(entry, field) {
+  return entry?.filters?.find((x) => x.field === field || x.reference === field)?.fieldType ?? entry?.customVars?.find((v) => v.reference === field || v.name === field)?.fieldType ?? "string";
+}
+function marketplaceMenuFor(table, type) {
+  const key = type === "multiselect" || type === "multiselect_with_pagination" ? "multiselect" : type === "select_with_pagination" ? "select" : type;
+  return table.menus[key] ?? table.menus.string;
+}
 function checkMarketplaceFilters(triggers, ctx) {
   const values = [];
+  const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
   for (const t of triggers) {
     if (t.marketplace !== true) continue;
+    const entry = ctx?.marketplace?.get?.(t.type, "trigger") ?? null;
     for (const f of t.filters ?? []) {
+      if (table) {
+        const ftype = marketplaceFilterType(entry, f.field);
+        const menu = marketplaceMenuFor(table, ftype);
+        const operator = f.operator ?? table.defaults[ftype] ?? table.defaults.string;
+        if (!operator) {
+          throw new IRError(
+            "MARKETPLACE_FILTER_OPERATOR",
+            `trigger '${t.name ?? t.type}' filters '${f.field}' with no operator and this filter type ('${ftype}') has no default \u2014 pick one of [${menu.join(", ")}].`
+          );
+        }
+        if (!menu.includes(operator)) {
+          throw new IRError(
+            "MARKETPLACE_FILTER_OPERATOR",
+            `trigger '${t.name ?? t.type}' filters '${f.field}' with operator '${operator}', which the drawer does not offer for a '${ftype}' filter. Its menu is [${menu.join(", ")}]. An unsupported operator saves and never matches.`
+          );
+        }
+        for (const v of [].concat(f.value ?? [])) if (typeof v === "string" && v) values.push(v);
+        continue;
+      }
       if (!f.operator)
         throw new IRError(
           "MARKETPLACE_FILTER_OPERATOR",
@@ -137820,12 +138041,79 @@ var ARRAY_OPS = /* @__PURE__ */ new Set([
   "string-matches-any-of"
 ]);
 var SCALAR_OPS = /* @__PURE__ */ new Set(["index-of-true", "index-of-false"]);
+var VALUE_TYPE_BY_DATATYPE = {
+  TEXT: "string",
+  LARGE_TEXT: "string",
+  PHONE: "string",
+  URL: "string",
+  RICH_TEXT: "string",
+  NUMERICAL: "numerical",
+  MONETORY: "numerical",
+  SINGLE_OPTIONS: "select",
+  RADIO: "select",
+  MULTIPLE_OPTIONS: "multiselect",
+  CHECKBOX: "multiselect",
+  DATE: "date",
+  FILE_UPLOAD: "file",
+  SIGNATURE: "string",
+  TIME: "string"
+};
+var FORCED_HAS_CHANGED = /* @__PURE__ */ new Set(["PHONE", "FILE_UPLOAD", "SIGNATURE"]);
 function defaultOp(type) {
   if (type === "number" || type === "date") return "==";
   if (type === "string" || type === "input") return "is-any-of";
   return "==";
 }
-function expandFilter(f, rows) {
+function instantiateRowTemplate(f, key, extra) {
+  const templates = extra?.meta?.filterRowTemplates;
+  const fields = extra?.ctx?.customFields;
+  if (!Array.isArray(templates) || !templates.length || !Array.isArray(fields) || !fields.length) return null;
+  if (key == null || key === "") return null;
+  const wanted = String(key).replace(/^(?:contact|opportunity)\./, "");
+  const norm2 = (x) => String(x ?? "").toLowerCase().replace(/[\s_-]+/g, "");
+  for (const tpl of templates) {
+    const model = tpl.source === "opportunityCustomFields" ? "opportunity" : "contact";
+    const field = fields.find((c) => {
+      if ((c.model ?? "contact") !== model) return false;
+      const keySuffix = String(c.fieldKey ?? "").split(".").pop();
+      return c.id === wanted || norm2(c.name) === norm2(wanted) || c.fieldKey === key || norm2(keySuffix) === norm2(wanted);
+    });
+    if (!field) continue;
+    const type = VALUE_TYPE_BY_DATATYPE[field.dataType] ?? "string";
+    const forced = FORCED_HAS_CHANGED.has(field.dataType) ? "has-changed" : null;
+    const menu = Array.isArray(tpl.operatorMenu) && tpl.operatorMenu.length ? tpl.operatorMenu : null;
+    let operator = f.operator ?? forced ?? tpl.defaultOperator ?? (menu ? null : defaultOp(type));
+    if (operator == null) {
+      throw new IRError(
+        "FILTER_OPERATOR_REQUIRED",
+        `custom-field filter '${field.name}' has no default operator \u2014 the drawer forces a pick from [${menu.join(", ")}]. Author one.`
+      );
+    }
+    if (forced && f.operator && f.operator !== forced) {
+      throw new IRError(
+        "FILTER_OPERATOR",
+        `custom-field filter '${field.name}' is a ${field.dataType} field \u2014 the drawer offers only '${forced}' for it (there is no value to compare), not '${f.operator}'.`
+      );
+    }
+    if (menu && !menu.includes(operator) && operator !== forced) {
+      throw new IRError(
+        "FILTER_OPERATOR",
+        `custom-field filter '${field.name}' operator '${operator}' is not in the drawer's menu [${menu.join(", ")}].`
+      );
+    }
+    const cond = {
+      operator,
+      field: tpl.valuePattern.replace("{id}", field.id),
+      title: f.title ?? field.name,
+      type,
+      id: field.id
+    };
+    if (f.value !== void 0) cond.value = f.value;
+    return cond;
+  }
+  return null;
+}
+function expandFilter(f, rows, extra = {}) {
   if (f.field && f.operator && f.title && f.type) {
     if (typeof f.type !== "string" || typeof f.operator !== "string")
       throw new IRError(
@@ -137837,9 +138125,29 @@ function expandFilter(f, rows) {
   const key = f.on ?? f.field ?? f.id;
   const norm2 = (s) => String(s ?? "").toLowerCase().replace(/[\s_-]+/g, "");
   const row = rows.find((r) => r.id === key || r.value === key || r.label === key || norm2(r.label) === norm2(key) || norm2(r.value) === norm2(key));
-  if (!row) return f;
+  if (!row) {
+    const instantiated = instantiateRowTemplate(f, key, extra);
+    if (instantiated) return instantiated;
+    return f;
+  }
   const type = f.type ?? row.type ?? "select";
-  let operator = f.operator ?? row.operator ?? defaultOp(type);
+  const menu = Array.isArray(row.operatorMenu) && row.operatorMenu.length ? row.operatorMenu : null;
+  let operator = f.operator ?? (row.defaultOperator ?? void 0) ?? row.operator;
+  if (operator === void 0 || operator === null) {
+    if (menu) {
+      throw new IRError(
+        "FILTER_OPERATOR_REQUIRED",
+        `trigger filter '${row.value}' has NO default operator \u2014 the drawer forces a pick from [${menu.join(", ")}]. Author one. An invented operator saves clean and never matches.`
+      );
+    }
+    operator = defaultOp(type);
+  }
+  if (menu && typeof operator === "string" && !menu.includes(operator)) {
+    throw new IRError(
+      "FILTER_OPERATOR",
+      `trigger filter '${row.value}' operator '${operator}' is not in the drawer's menu for this row [${menu.join(", ")}] \u2014 an off-menu operator saves clean and never matches.`
+    );
+  }
   if (typeof type !== "string" || typeof operator !== "string") {
     const which = typeof type !== "string" ? `type (${JSON.stringify(type)})` : `operator (${JSON.stringify(operator)})`;
     throw new IRError(
@@ -137876,7 +138184,7 @@ function isGotoTriggerType(type, ctx) {
 function buildTrigger(t, ctx, wid, refMap) {
   const meta3 = ctx.catalog.trigger(t.type);
   const rows = meta3?.filterRows ?? [];
-  let conditions = (t.filters ?? []).map((f) => rows.length ? expandFilter(f, rows) : f);
+  let conditions = (t.filters ?? []).map((f) => expandFilter(f, rows, { ctx, meta: meta3 }));
   if (ctx?.skipTriggerSeeds !== true) {
     const seedRows = (ctx?.catalog?.trigger?.(t.type)?.seededFilters?.rows ?? []).filter((r) => r.verdict === "seed-confirmed" && r.seedRow?.field);
     for (const r of seedRows.reverse()) {
@@ -137889,7 +138197,18 @@ function buildTrigger(t, ctx, wid, refMap) {
   if (t.marketplace === true) {
     const entry = marketplaceEntry({ type: t.type, ref: t.name ?? t.type }, ctx, "trigger");
     marketplaceFields = { version: entry.version, templateId: entry.templateId };
-    conditions = conditions.map((c) => ({ ...c, id: c.id ?? c.field }));
+    const table = ctx?.catalog?.marketplaceFilterOperators ?? null;
+    conditions = conditions.map((c) => {
+      const ftype = marketplaceFilterType(entry, c.field);
+      const title = c.title ?? entry?.filters?.find((x) => x.field === c.field || x.reference === c.field)?.name ?? entry?.customVars?.find((v) => v.reference === c.field)?.name;
+      return {
+        ...c,
+        id: c.id ?? c.field,
+        ...c.type ? {} : { type: ftype },
+        ...title ? { title } : {},
+        ...c.operator ? {} : table?.defaults?.[ftype] ? { operator: table.defaults[ftype] } : {}
+      };
+    });
   }
   for (const r of meta3?.filterChecks?.shapeRules ?? []) {
     const row = conditions.find((c) => c.field === r.field);
@@ -138444,6 +138763,9 @@ function loadCatalog() {
     // GHL's WORKFLOW-level validator (graph-scoped, trigger-aware rules + the vocab they test
     // against) — consumed by graph-rules.mjs at every write path. null on a pre-sweep catalog.
     workflowRules: d.workflowRules ?? null,
+    // Per-TYPE marketplace filter operators, from the drawer itself. The old engine rule
+    // ("two operators, no equals") was a string-filter fact applied to every type.
+    marketplaceFilterOperators: d.marketplaceFilterOperators ?? null,
     // sweep round 2: the if/else picker vocabulary (engine's ONLY guard for if/else), the static
     // merge-tag vocabulary, and GHL's own English strings for the keys the catalog references
     ifElseConditions: d.ifElseConditions ?? null,
@@ -139716,6 +140038,9 @@ var entryFrom = (kind, appName, raw) => ({
   templateId: raw.templateId,
   inputs: Array.isArray(raw.inputs) ? raw.inputs : [],
   customVars: Array.isArray(raw.customVars) ? raw.customVars : [],
+  // The app's own declared filter schema — where a filter's fieldType lives, which is what
+  // decides its operator menu. Without it every marketplace filter was treated as a string.
+  filters: Array.isArray(raw.filters) ? raw.filters : [],
   branchesConfig: raw.branchesConfig ?? null,
   info: raw.info ?? null
 });

@@ -188,13 +188,22 @@ test('an operator GHL does not offer is fatal', () => {
   }), ctx()), (e) => e.code === 'MARKETPLACE_FILTER_OPERATOR' && /eq/.test(e.message));
 });
 
-test('a marketplace filter with no operator is fatal, not silently unmatched', () => {
+// SUPERSEDED by Plan 4 Task 3. This used to throw because the engine had no idea what a
+// marketplace filter's default operator should be, so filling one in would have invented author
+// intent. The catalog now carries the DRAWER's own per-type defaults
+// (marketplaceFilterOperators, transcribed from MarketplaceFilter.ts), so taking the default is
+// parity with the UI rather than a guess — the drawer shows that operator pre-selected the moment
+// you pick the field. What stays fatal is an operator the type's menu does not offer, and a type
+// that genuinely has no default.
+test('a marketplace filter with no operator takes the DRAWER default for its type', () => {
   n = 0;
-  assert.throws(() => compile(irTrigger({
+  const built = compile(irTrigger({
     marketplace: true, type: 'imessage_t', name: 'iMessage In',
     filters: [{ field: 'payload.message.text', title: 'Message', type: 'string',
                 value: ['Book now'] }],
-  }), ctx()), (e) => e.code === 'MARKETPLACE_FILTER_OPERATOR' && /operator/i.test(e.message));
+  }), ctx());
+  const cond = built.triggerBodies[0].conditions.find((c) => c.field === 'payload.message.text');
+  assert.equal(cond.operator, 'string-contains-any-of', 'the string default, as the drawer pre-selects it');
 });
 
 test('substring-colliding filter values warn but still build', () => {

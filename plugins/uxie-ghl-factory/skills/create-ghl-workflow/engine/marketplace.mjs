@@ -19,6 +19,9 @@ const entryFrom = (kind, appName, raw) => ({
   templateId: raw.templateId,
   inputs: Array.isArray(raw.inputs) ? raw.inputs : [],
   customVars: Array.isArray(raw.customVars) ? raw.customVars : [],
+  // The app's own declared filter schema — where a filter's fieldType lives, which is what
+  // decides its operator menu. Without it every marketplace filter was treated as a string.
+  filters: Array.isArray(raw.filters) ? raw.filters : [],
   branchesConfig: raw.branchesConfig ?? null,
   info: raw.info ?? null,
 });
