@@ -11,6 +11,55 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+Phase-5 plan 4 — **drawer parity**. Everything below is a place the engine INVENTED where the
+builder offers a choice, or had no way to express a shape the drawer writes.
+
+### Added
+
+- **Operator MENUS are enforced, never invented** (F5-25). Where a row has a menu and no default,
+  the drawer forces the author to pick; the engine used to invent one from the row's TYPE, so a
+  `message.body` filter got an operator its menu never contained — saves clean, never matches.
+  `FILTER_OPERATOR_REQUIRED` now names the menu, and `FILTER_OPERATOR` refuses an off-menu choice.
+- **Custom-field row templates** (F5-26). A `contact_changed` row on a custom field exists only
+  once the field does, so it could not be expressed at all. The catalog now carries the drawer's
+  row template and the account's own field list instantiates it — the author may name the field by
+  id, `contact.<id>`, display name, or fieldKey. `PHONE`/`FILE_UPLOAD`/`SIGNATURE` force
+  `has-changed`, because there is no value to compare.
+- **Marketplace operators per FILTER TYPE** (F5-19). "Exactly two operators, and no equals" was a
+  string-filter fact applied to every type, so a multiselect customVar could not be filtered at
+  all. Marketplace conditions also finally carry `type` and `title`.
+- **A real `specific_date` wait branch** plus GHL's own `checkForSpecificDateError` and
+  `checkForDateOffsetError`, ported. A date-field wait previously had to be written as raw
+  attributes, and one real build authored `timePeriodInputMode` — a TIME-delay key — producing a
+  wait that stored clean and did nothing.
+- **The notification "Assigned owners" block.** `assignedOwners`, `alsoNotifyContactFollowers` and
+  `alsoNotifyOpportunityFollowers` were absent from the emitted-key allowlist, so the drawer's own
+  fields were reported dropped and could not be authored.
+- **Drawer-parity fixtures** — five UI shapes diffed against `buildTrigger` on every run, so a
+  generator change that breaks a drawer shape fails a named fixture instead of shipping.
+- **A manual-step warning**: a `manual-call` / `manual-sms` is a TASK, and the run WAITS there for
+  a human, so an outbound send below it does not go out on a schedule.
+- **The note colour palette** as an advisory — an off-palette hex renders, but the drawer shows no
+  swatch selected, so a one-digit typo is invisible until someone opens the step.
+
+### Fixed
+
+- **`is-not-empty` was a label transcribed as a wire value.** The marketplace "Is not empty"
+  operator is `has_value` (`MarketplaceFilter.ts:1397-1400`); the engine shipped the i18n key
+  fragment instead, so it accepted a value GHL never writes and would have refused the real one.
+  Both are accepted now, with `is-not-empty` marked legacy.
+- **A duplicate `wait` key in `COUPLED_FIELDS`** silently discarded a whole rule set — a duplicate
+  key in a large object literal is invisible. Found while adding the specific-date rules.
+- **`BOT_TYPES` listed two of three** — `FORM_BASED_BOT` ships in the builder's own enum.
+
+### Changed
+
+- A marketplace filter with no operator now takes the drawer's own per-type default instead of
+  being fatal. The old refusal existed because the engine had no idea what the default should be;
+  it now knows, and the drawer shows that operator pre-selected the moment you pick the field.
+
 ## [0.39.0] — 2026-08-29
 
 **Live-proven on GROM Digital AUS (`wdzEoUZnXO9tB3PPzcot`), 2026-08-29, against the working tree:**
