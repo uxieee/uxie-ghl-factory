@@ -11,6 +11,8 @@ import {
   duplicateStep,
   replaceTagInTemplates,
   replaceTagInTriggerConditions,
+  replaceFieldIdInTemplates,
+  replaceInAttributes,
   resolveBranchTarget,
 } from './edit.mjs';
 import { compile, buildTrigger } from './compiler.mjs';
@@ -22,7 +24,7 @@ export { STICKY_OPS };
 // Triggers live in a SEPARATE document from workflowData.templates, with their own CRUD
 // endpoints — so a trigger op can't be a templates→templates function like the step ops.
 // These ops are partitioned out and planned into request intents instead.
-export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigger', 'duplicateTrigger', 'replaceTagInTriggers']);
+export const TRIGGER_OPS = new Set(['addTrigger', 'deleteTrigger', 'modifyTrigger', 'duplicateTrigger', 'replaceTagInTriggers', 'replaceFieldIdInTriggers']);
 // Workflow-LEVEL settings (the Settings tab) live on the workflow document's top level, not in
 // workflowData.templates — so they are neither step ops nor trigger ops. partitionOps() lifts
 // them out; the commit merges them over the stored values (editCommitBody opts.settingsPatch).
@@ -113,6 +115,26 @@ export function resolveOps(ops, resolvers, storedTemplates = []) {
   return { ops: cloned, unresolved };
 }
 
+// Trigger-side of replaceFieldId. A custom field id appears in a trigger condition three ways:
+// the `contact.<id>` field path, a bare `id`, and (for the generic custom-field row) the `value`.
+// Returns null when nothing changed, matching replaceTagInTriggerConditions' convention.
+export function replaceFieldIdInTriggerConditions(conditions, oldId, newId) {
+  if (!Array.isArray(conditions)) return null;
+  let changed = false;
+  const out = conditions.map((c) => {
+    if (!c || typeof c !== 'object') return c;
+    const next = { ...c };
+    let hit = false;
+    if (typeof c.field === 'string' && c.field === `contact.${oldId}`) { next.field = `contact.${newId}`; hit = true; }
+    if (c.id === oldId) { next.id = newId; hit = true; }
+    if (typeof c.value === 'string' && c.value === oldId) { next.value = newId; hit = true; }
+    if (!hit) return c;
+    changed = true;
+    return next;
+  });
+  return changed ? out : null;
+}
+
 export function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
   for (const op of ops ?? []) {
@@ -120,6 +142,8 @@ export function partitionOps(ops) {
     // Find & Replace (tag mode) spans BOTH documents like the UI's "Replace All": the step op
     // rewrites templates; a derived trigger op rewrites every trigger condition carrying the tag.
     if (op.op === 'replaceTag' && op.triggers !== false) triggerOps.push({ op: 'replaceTagInTriggers', oldTag: op.oldTag, newTag: op.newTag });
+    // A field id lives in BOTH documents, like a tag — derive the trigger half the same way.
+    if (op.op === 'replaceFieldId' && op.triggers !== false) triggerOps.push({ op: 'replaceFieldIdInTriggers', oldId: op.oldId, newId: op.newId });
   }
   return { stepOps, triggerOps, settingsOps, stickyOps };
 }
@@ -288,17 +312,23 @@ export function planTriggerOps(triggerOps, { ctx, wid, uid, existing = [], workf
           return [{ op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
         });
       }
+      case 'replaceFieldIdInTriggers': {
+        return existing.flatMap((t) => {
+          const conditions = replaceFieldIdInTriggerConditions(t.conditions, op.oldId, op.newId);
+          if (!conditions) return [];
+          const tid = t.id ?? t._id;
+          return [{ op: op.op, method: 'PUT', path: `/workflow/${loc}/trigger/${tid}`, triggerId: tid, body: { ...t, conditions, id: tid, _id: t._id ?? tid } }];
+        });
+      }
       case 'modifyTrigger': {
         const t = resolveTrigger(op, existing);
         guardFlowEntry(op, t, ctx);
         const tid = t.id ?? t._id;
-        // `target` (an IR ref) resolves through buildTrigger's refMap argument, which only
-        // exists on the fresh-build path (compile() flattens the graph first and hands
-        // buildTrigger the resulting ref->id map). The edit path has no IR graph here, only
-        // the live trigger/step roster, so it never has a refMap to pass — buildTrigger would
-        // see `target` set, find no refMap, and unconditionally throw REF_DANGLING regardless
-        // of whether the ref was ever valid, coaching the caller to keep retrying refs that
-        // can never resolve. Refuse it here instead, naming the real fix.
+        // `target` resolves through buildTrigger's refMap argument, which the edit path now
+        // supplies from the LIVE step roster (refMapFrom(ctx.externalRefs)) — an id or a unique
+        // step name. It used to be refused outright here because there was no refMap on this
+        // path at all, so every `target` hit buildTrigger's REF_DANGLING branch whether or not
+        // the ref was valid.
         // TRANSLATE an attempted `active` CHANGE into the field that actually controls it —
         // see translateActiveToStatus above for the full mechanism. A value that MATCHES the
         // stored trigger is a harmless no-op echo (common when a caller round-trips a whole
@@ -469,6 +499,8 @@ const OP_REQUIRED_ARGS = {
   moveStep: ['stepId', 'afterId'],
   addBranch: ['containerId'],
   deleteContainer: ['containerId'],
+  replaceFieldId: ['oldId', 'newId'],
+  replaceInAttributes: ['path', 'find', 'replace'],
   repairParentKeys: [],
 };
 
@@ -584,6 +616,8 @@ export function applyOp(templates, op, { ctx, idGen }) {
           + `Use deleteStep plus one of the subgraph splices.`);
       return { ...retypeStep(templates, op.stepId, sub.entry), refMap: sub.refMap };
     }
+    case 'replaceFieldId': return replaceFieldIdInTemplates(templates, op.oldId, op.newId);
+    case 'replaceInAttributes': return replaceInAttributes(templates, { type: op.type, path: op.path, find: op.find, replace: op.replace });
     case 'renameStep': return renameStep(templates, op.stepId, op.name);
     case 'setStepDisabled': return setStepDisabled(templates, op.stepId, op.disabled);
     case 'disableStepsByType': return disableStepsByType(templates, op.type, op.disabled);
