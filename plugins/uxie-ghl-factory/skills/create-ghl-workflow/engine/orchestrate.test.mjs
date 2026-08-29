@@ -686,8 +686,20 @@ test('a dead opportunity write that GHL echoes back FAILS verify with OPP_NO_ROW
 
 // The repair half of F5-17: the placeholder the if_else routes on is not the id the server minted,
 // so the document must be rewritten and re-PUT once — otherwise that branch can never match.
-test('a trigger-identity branch is repaired to the SERVER id and the auto-save is re-PUT once', async () => {
+test('a trigger-identity branch is repaired to the SERVER id, against the CURRENT document', async () => {
+  // The mock must model a server that RETURNS WHAT IT STORED: the repair re-reads before writing,
+  // because the trigger POSTs advance the version and replaying the original auto-save body is
+  // refused 422 "Looks like your previous changes were not committed" (measured live 2026-08-29).
   const { gw, calls } = mockGateway({ tags: [] });
+  const inner = gw.call;
+  let stored = null;
+  gw.call = async (m, p, b) => {
+    calls.push({ method: m, path: p, body: b });   // the override answers some calls itself
+    if (m === 'PUT' && p.includes('/auto-save')) { stored = JSON.parse(JSON.stringify(b)); return { ok: true, json: {} }; }
+    if (m === 'PUT' && /\/workflow\/[^/]+\/[^/?]+$/.test(p)) { stored = JSON.parse(JSON.stringify(b)); return { ok: true, json: {} }; }
+    if (m === 'GET' && p.includes('/workflow/') && !p.includes('/trigger') && stored) return { ok: true, json: stored };
+    return inner(m, p, b);
+  };
   const ir = { name: 'Router',
     triggers: [{ ref: 'booked', type: 'call_status', name: 'Booked', filters: [{ field: 'custom_disposition', value: ['Booked'] }] }],
     graph: [{ ref: 'r', kind: 'if_else', name: 'Which?', branches: [
@@ -696,12 +708,12 @@ test('a trigger-identity branch is repaired to the SERVER id and the auto-save i
   const report = await orchestrate(ir, gw);
   assert.equal(report.triggerRefRepair.rewritten, 1, JSON.stringify(report.triggerRefRepair));
   assert.equal(report.triggerRefRepair.rePut, true);
-  const autoSaves = calls.filter((c) => c.method === 'PUT' && c.path.includes('/auto-save'));
-  assert.equal(autoSaves.length, 2, 'one original auto-save plus exactly one repair re-PUT');
   const serverId = report.triggers.ids[0].id;
-  const cond = autoSaves[1].body.workflowData.templates.find((t) => t.type === 'if_else')
+  const cond = stored.workflowData.templates.find((t) => t.type === 'if_else')
     .attributes.branches[0].segments[0].conditions[0];
   assert.equal(cond.conditionValue, serverId, 'the branch now points at the id the server actually minted');
+  // and the repair read the CURRENT document rather than replaying the original body
+  assert.ok(calls.some((c) => c.method === 'GET' && c.path.includes('includeScheduledPauseInfo')));
 });
 
 test('no _placeholderId reaches the wire', async () => {

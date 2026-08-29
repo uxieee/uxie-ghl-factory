@@ -11,7 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [Unreleased]
+## [0.39.0] — 2026-08-29
+
+**Live-proven on GROM Digital AUS (`wdzEoUZnXO9tB3PPzcot`), 2026-08-29, against the working tree:**
+
+| Finding | Receipt |
+|---|---|
+| F5-17 | A build authored `{ conditionType: 'trigger', trigger: 'booked' }` and the STORED condition reads `YtUYRKq8va8quhnUJnbb` — exactly the live "Booked" trigger id (workflow `84cf461e`). The branch can match. |
+| F5-12 | An `appendToBranch` anchored by `containerId` + the branch NAME "Booked path" added a `goto` whose `target` was the step NAME "Tag other"; the stored `targetNodeId` resolves to that step. Both were impossible before this release. |
+
+The first attempt at the F5-17 repair FAILED live, and the guard said so rather than reporting
+clean: `TRIGGER REFS UNREPAIRED`. The diagnosis is now in the code — replaying the original
+auto-save body is refused `422 "Looks like your previous changes were not committed"` because the
+trigger POSTs advance the document version, so the repair re-reads the current document and
+commits with the plain workflow PUT. Probe artifacts left in place for a human to remove:
+workflows `6c3140b3`, `92e3802f` (the failed first attempt, kept as evidence) and `84cf461e`.
+
+`update_convai_agent`'s live gate has NOT been run — it needs a disposable agent on the test
+sub-account, and the credential expired before it could be created.
+
 
 Phase-5 plan 2 — **one compile pipeline behind every door** (RC-A). The engine had one guarded
 path (`build_workflow`) and four unguarded ones. Every change below moves a door onto the guarded
@@ -53,6 +71,40 @@ path, or removes the reason someone reached for the hand-rolled PUT instead.
   examples. (F5-20)
 - **A trigger `target` may be a live step id or a unique step name**, resolved against the
   post-edit roster — so a goto trigger can point at a step the same call just created.
+
+### Added (plan 3 — intent verification)
+
+- **Two intent lints over the STORED document.** `lintOpportunityWrites` names an empty
+  `__customInputFields__`, a top-level name key, a row whose value is not id-shaped, and a stage
+  row with no pipeline row — each a step that saves, round-trips clean, renders half-empty and
+  moves nothing. `lintTriggerRows` requires string `operator`/`type` universally and, where the
+  catalog models the row, warns on an off-menu operator.
+- **Both verifiers now assert intent, not echo.** On a build every step and trigger is that run's
+  own work, so an intent error fails the build. On an edit the assertion is scoped to the steps
+  the edit TOUCHED — an error there returns `ENGINE_ABORT` naming the finding, while an untouched
+  legacy step is reported and never fails the caller's edit.
+- **`if_else` can route on trigger identity in one build** (F5-17). A trigger may carry a `ref`,
+  and a branch may say `{ conditionType: 'trigger', trigger: '<ref>' }`. Placeholder ids are
+  minted before the graph is flattened and reconciled against the server's ids after the POST
+  loop, rewriting only the placeholders the document actually references.
+- **ConvAI `tones`, the UI-save rule table, and summary knobs** (F5-31). The tier between "the API
+  422s" and "the API accepts but the write is inert" is *the API accepts it and the builder then
+  refuses to save the agent*. Rules are ported verbatim from the shipped validator bundle.
+- **`update_convai_agent`** — read-merge-write with a collateral diff.
+
+### Fixed (plan 3)
+
+- **A ConvAI partial `PUT` resets omitted agent-level booleans** (F5-04). The "it merges" claim
+  came from a capture whose at-risk fields were already `false`, so a reset was invisible in it.
+  Updates now GET the record, overlay, apply the builder's own bot-type cleanup, PUT the WHOLE
+  record, re-read, and diff every field the update did not set — because it is precisely the
+  fields we did not set that a bad PUT silently resets. Any movement fails
+  `AGENT_COLLATERAL_CHANGED`.
+- **`BOT_TYPES` listed two of three.** `FORM_BASED_BOT` ships in the builder's own enum and has
+  its own pre-PUT cleanup branch.
+- **`predeterminedId` is sent for `inbound_webhook` only.** The builder's
+  `addPredeterminedIdIfRequired` sets it for that type and resets it to `''` for every other —
+  emitting it everywhere would have been exactly the off-dialect guess this release removes.
 
 ### Removed
 

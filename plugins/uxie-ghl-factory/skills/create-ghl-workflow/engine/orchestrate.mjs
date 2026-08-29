@@ -496,19 +496,30 @@ export async function orchestrate(ir, gw, opts = {}) {
   // routing condition), then re-PUT the auto-save once. A build with no trigger-identity
   // condition rewrites nothing and sends no extra request.
   if (triggerRefRepair.mismatches.length) {
-    let body = JSON.stringify(sent);
-    for (const { placeholderId, id } of triggerRefRepair.mismatches) {
-      if (id == null || !body.includes(placeholderId)) continue;
-      body = body.split(placeholderId).join(id);
-      triggerRefRepair.rewritten++;
-    }
-    if (triggerRefRepair.rewritten) {
-      const rePut = await callAt('workflow_auto_save_trigger_refs', 'PUT', `/workflow/${loc}/${WID}/auto-save`, JSON.parse(body));
-      if (!rePut) return report;
-      triggerRefRepair.rePut = rePut.ok === true;
-      if (!rePut.ok) {
-        report.warnings.push(`🔴 TRIGGER REFS UNREPAIRED: ${triggerRefRepair.rewritten} if_else condition(s) still point at `
-          + 'placeholder trigger ids; those branches can never match. The re-PUT failed — re-run the build.');
+    // RE-READ FIRST. The trigger POSTs advance the stored document's version, so replaying the
+    // original auto-save body is stale: the endpoint answers 422 "Looks like your previous changes
+    // were not committed" (measured live 2026-08-29 on GROM AU). Swap the ids into the CURRENT
+    // document and commit it with the plain workflow PUT, the same write the edit path uses.
+    const fresh = await callAt('workflow_get_for_trigger_refs', 'GET', `/workflow/${loc}/${WID}?includeScheduledPauseInfo=true`);
+    if (!fresh) return report;
+    if (!fresh.ok) {
+      report.warnings.push('🔴 TRIGGER REFS UNREPAIRED: could not re-read the workflow to repair '
+        + 'placeholder trigger ids; those branches can never match. Re-run the build.');
+    } else {
+      let body = JSON.stringify(fresh.json);
+      for (const { placeholderId, id } of triggerRefRepair.mismatches) {
+        if (id == null || !body.includes(placeholderId)) continue;
+        body = body.split(placeholderId).join(id);
+        triggerRefRepair.rewritten++;
+      }
+      if (triggerRefRepair.rewritten) {
+        const rePut = await callAt('workflow_put_trigger_refs', 'PUT', `/workflow/${loc}/${WID}`, JSON.parse(body));
+        if (!rePut) return report;
+        triggerRefRepair.rePut = rePut.ok === true;
+        if (!rePut.ok) {
+          report.warnings.push(`🔴 TRIGGER REFS UNREPAIRED: ${triggerRefRepair.rewritten} if_else condition(s) still point at `
+            + `placeholder trigger ids; those branches can never match. The repair PUT failed (${rePut.status}) — re-run the build.`);
+        }
       }
     }
   }
