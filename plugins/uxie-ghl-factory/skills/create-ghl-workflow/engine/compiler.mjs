@@ -556,9 +556,29 @@ const NOTIFICATION_EMITTED_KEYS = {
   // notification.type); `notificationType` is the authoring alias the builder accepted first.
   // Without `type` here, re-normalising a STORED notification reported its own real key as
   // dropped — see normalizeStoredAttributes.
-  notification: ['type', 'notificationType', 'body', 'title', 'redirectPage', 'userType', 'selectedUser'],
+  // assignedOwners + the alsoNotify* pair are real drawer keys (Notification.ts:21-23); without
+  // them here the builder reported the drawer's own fields as dropped.
+  notification: ['type', 'notificationType', 'body', 'title', 'redirectPage', 'userType', 'selectedUser',
+    'assignedOwners', 'alsoNotifyContactFollowers', 'alsoNotifyOpportunityFollowers'],
   whatsapp: ['body', 'userType', 'selectedUser', 'template_id'],
 };
+
+// The drawer's "Assigned owners" block (Notification.ts:56-64, assigned-owners.ts). Switching
+// userType to `assign` defaults the list to Contact owner; switching to anything else CLEARS it,
+// so stale state cannot leak onto a notification that no longer routes by owner.
+const ASSIGNED_OWNERS = new Set(['contact_owner', 'opportunity_owner']);
+function assignedOwnerKeys(b, userType) {
+  const out = {};
+  if (userType === 'assign') {
+    const authored = Array.isArray(b.assignedOwners)
+      ? b.assignedOwners.map((v) => (typeof v === 'string' ? v : v?.value)).filter((v) => ASSIGNED_OWNERS.has(v))
+      : [];
+    out.assignedOwners = authored.length ? authored : ['contact_owner'];
+  }
+  if (b.alsoNotifyContactFollowers !== undefined) out.alsoNotifyContactFollowers = b.alsoNotifyContactFollowers;
+  if (b.alsoNotifyOpportunityFollowers !== undefined) out.alsoNotifyOpportunityFollowers = b.alsoNotifyOpportunityFollowers;
+  return out;
+}
 
 function internalNotificationAttributes(a, ctx) {
   const channel = (a.type && NOTIFICATION_CHANNELS.includes(a.type) ? a.type : null)
@@ -619,12 +639,13 @@ function internalNotificationAttributes(a, ctx) {
     // nested `type` (send_notification) plus title/redirectPage the editor requires.
     const sel = asUserArray(b.selectedUser);
     return { type: 'notification', notification: {
-      type: b.notificationType ?? 'send_notification',
+      type: b.type ?? b.notificationType ?? 'send_notification',
       body: b.body ?? '',
       title: b.title ?? '',
       redirectPage: b.redirectPage ?? 'contact',
       userType,
       ...(wantsUsers ? { selectedUser: sel[0] ?? '' } : {}),
+      ...assignedOwnerKeys(b, userType),
     } };
   }
   // whatsapp — the staff-facing channel of internal_notification (not the native action)
