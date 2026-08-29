@@ -40,7 +40,7 @@ import { gotoLoops } from './goto-loops.mjs';
 
 // Find the root-scope tail: start at the head (parentKey null) and follow scalar
 // `next` pointers until one is null (or a branch container, whose next is an array).
-function rootTail(templates) {
+export function rootTail(templates) {
   const byId = new Map(templates.map((t) => [t.id, t]));
   let cur = templates.find((t) => t.parentKey === null || t.parentKey === undefined);
   if (!cur) return templates[templates.length - 1] ?? null;
@@ -392,7 +392,7 @@ export function appendToBranch(templates, branchEntryId, newStep) {
 // Walk the TOP-LEVEL chain of one scope from `startId`, following scalar `next`.
 // Stops AT a container (array next) — a container is terminal in its scope; its
 // branch children live in their own scopes and are not part of this chain.
-function scopeChain(byId, startId) {
+export function scopeChain(byId, startId) {
   const out = [];
   const seen = new Set();
   let cur = startId ? byId.get(startId) : null;
@@ -552,7 +552,7 @@ export function appendSubgraphToBranch(templates, branchEntryId, sub) {
 
 // Who points AT `id`. A container reaches its branch entries through its `next` ARRAY —
 // that is structural wiring, not a chain edge, so it is reported separately and refused.
-function inboundOf(templates, id) {
+export function inboundOf(templates, id) {
   const viaBranch = templates.find((t) => Array.isArray(t.next) && t.next.includes(id));
   if (viaBranch) return { pred: viaBranch, viaBranchArray: true };
   return { pred: templates.find((t) => t.next === id) ?? null, viaBranchArray: false };

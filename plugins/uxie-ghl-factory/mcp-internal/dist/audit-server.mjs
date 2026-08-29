@@ -69076,7 +69076,7 @@ init_define_TOOL_CATALOG();
 import { readFileSync as readFileSync2, existsSync as existsSync2 } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve as resolve2, join as join2 } from "node:path";
-import { createHash as createHash4 } from "node:crypto";
+import { createHash as createHash5 } from "node:crypto";
 
 // core/errors.mjs
 init_define_ENDPOINT_CATALOG();
@@ -141774,6 +141774,133 @@ function applyOps(templates, ops, { ctx, idGen }) {
   return { templates: tpls, diff: norm2, opRefs };
 }
 
+// ../skills/create-ghl-workflow/engine/digest.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+import { createHash as createHash4 } from "node:crypto";
+var MERGE_TAG = /\{\{\s*[A-Za-z_][\w.-]*\s*\}\}/g;
+function mergeTagsOf(attrs) {
+  const found = /* @__PURE__ */ new Set();
+  const walk2 = (v) => {
+    if (typeof v === "string") {
+      for (const m of v.match(MERGE_TAG) ?? []) found.add(m.replace(/\s+/g, ""));
+    } else if (Array.isArray(v)) v.forEach(walk2);
+    else if (v && typeof v === "object") Object.values(v).forEach(walk2);
+  };
+  walk2(attrs);
+  return [...found];
+}
+function textOf(t) {
+  const a = t?.attributes ?? {};
+  const pick2 = a.body ?? a.subject ?? a.message ?? a.html ?? null;
+  if (typeof pick2 === "string" && pick2.trim()) return pick2.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+  if (Array.isArray(a.tags) && a.tags.length) return `tags: ${a.tags.slice(0, 6).join(", ")}`;
+  return void 0;
+}
+function flagsOf(t) {
+  const f = [];
+  if (t.next === null || t.next === void 0) f.push("terminal");
+  if (t.disabled === true) f.push("disabled");
+  if (t.isMarketplaceAction === true) f.push("marketplace");
+  if (Array.isArray(t.next)) f.push("container");
+  return f;
+}
+function fingerprintWorkflow(templates, triggers) {
+  const steps = stripNullNext(templates ?? []).map((t) => ({
+    id: t.id,
+    type: t.type,
+    next: t.next,
+    parentKey: t.parentKey ?? null,
+    attributes: t.attributes
+  }));
+  const trg = (triggers ?? []).map((t) => ({
+    id: t.id ?? t._id,
+    type: t.type,
+    conditions: (t.conditions ?? []).map((c) => [c.field, c.operator, c.value])
+  })).sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  return createHash4("sha256").update(JSON.stringify({ steps, trg })).digest("hex").slice(0, 16);
+}
+function digestWorkflow({ doc, triggers = [], stickyNotes = [], include = [] } = {}) {
+  const templates = (doc?.workflowData?.templates ?? doc?.templates ?? []).filter(Boolean);
+  const byId = new Map(templates.map((t) => [t.id, t]));
+  const branchNameById = /* @__PURE__ */ new Map();
+  for (const t of templates) {
+    if (!Array.isArray(t.next)) continue;
+    for (const target of branchTargets(t, templates) ?? []) {
+      branchNameById.set(target.id, `${t.name ?? t.id}/${target.name ?? target.id}`);
+    }
+  }
+  const branchOf = (t) => {
+    let cursor = t, hops = 0;
+    while (cursor && hops++ < 200) {
+      if (branchNameById.has(cursor.id)) return branchNameById.get(cursor.id);
+      const parent = cursor.parent ?? cursor.parentKey;
+      cursor = typeof parent === "string" ? byId.get(parent) : null;
+    }
+    return void 0;
+  };
+  const steps = templates.map((t) => {
+    const refs = {};
+    for (const { path, id } of stepRefsOf(t)) refs[path] = id;
+    const tags = mergeTagsOf(t.attributes);
+    const text = textOf(t);
+    const branch = branchOf(t);
+    return {
+      id: t.id,
+      name: t.name ?? null,
+      type: t.type,
+      order: t.order ?? null,
+      parentKey: t.parentKey ?? null,
+      ...branch ? { branch } : {},
+      next: t.next ?? null,
+      ...Object.keys(refs).length ? { refs } : {},
+      ...tags.length ? { mergeTags: tags } : {},
+      ...text ? { text } : {},
+      flags: flagsOf(t)
+    };
+  });
+  const chains = [];
+  const chainFrom = (label2, startId) => {
+    const path = [];
+    let cursor = byId.get(startId), hops = 0;
+    while (cursor && hops++ < 500) {
+      path.push(cursor.id);
+      cursor = typeof cursor.next === "string" ? byId.get(cursor.next) : null;
+    }
+    if (path.length) chains.push({ from: label2, path });
+  };
+  const root = templates.find((t) => (t.parentKey === null || t.parentKey === void 0) && t.parent == null);
+  if (root) chainFrom("ROOT", root.id);
+  for (const [id, label2] of branchNameById) chainFrom(label2, id);
+  return {
+    workflowId: doc?.id ?? doc?._id ?? null,
+    name: doc?.name ?? null,
+    status: doc?.status ?? null,
+    version: doc?.version ?? null,
+    updatedAt: doc?.dateUpdated ?? doc?.updatedAt ?? null,
+    fingerprint: fingerprintWorkflow(templates, triggers),
+    settings: {
+      allowMultiple: doc?.allowMultiple ?? null,
+      timezone: doc?.timezone ?? null,
+      window: doc?.window ?? null,
+      stopOnResponse: doc?.stopOnResponse ?? null
+    },
+    triggers: (triggers ?? []).map((t) => ({
+      id: t.id ?? t._id ?? null,
+      type: t.type,
+      name: t.name ?? null,
+      active: t.active ?? null,
+      conditions: (t.conditions ?? []).map((c) => ({ field: c.field, operator: c.operator, value: c.value }))
+    })),
+    stepCount: steps.length,
+    steps,
+    chains,
+    ...stickyNotes?.length ? { stickyNotes: stickyNotes.map((n) => ({ id: n.id ?? n._id, text: n.text ?? n.note ?? null })) } : {},
+    ...include.includes("raw") ? { raw: doc } : {}
+  };
+}
+
 // ../skills/create-ghl-workflow/engine/lints/runner.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -145286,7 +145413,7 @@ function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) 
   const sample = rows.slice(0, 10);
   const statusIds = rows.map((row) => row._id);
   const canonicalRows = rows.map((row) => ({ statusId: row._id, contactId: row.contactId ?? null })).sort((left, right) => String(left.statusId).localeCompare(String(right.statusId)) || String(left.contactId).localeCompare(String(right.contactId)));
-  const previewToken = createHash4("sha256").update(JSON.stringify(canonicalize3({
+  const previewToken = createHash5("sha256").update(JSON.stringify(canonicalize3({
     locationId,
     workflowId,
     stepId,
@@ -145751,6 +145878,39 @@ var TOOLS2 = [
         stepCount: (workflow.workflowData?.templates ?? []).length,
         updatedAt: workflow.updatedAt,
         note: "Summary only \u2014 use export_workflow for the full graph."
+      });
+    }, args)
+  },
+  {
+    // export_workflow returns the raw wire document. For a real workflow that is tens of kilobytes
+    // of __customInputFields__ rows and frozen UI-hint arrays, so an agent either burns its context
+    // reading it or skips the read — and skipping the read is how an edit gets authored against a
+    // graph nobody actually looked at.
+    name: "get_workflow_digest",
+    description: describe3(
+      "get_workflow_digest",
+      "A COMPACT read of one workflow \u2014 proof: engine; risk: read-only. Identity, version and a structural fingerprint, the trigger set with its conditions, ONE line per step (wiring, outgoing references, merge tags, a text preview, flags, and which branch it sits on), and the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of an edit: pass the version back as expectedVersion so a concurrent change is refused rather than overwritten."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      include: external_exports.array(external_exports.string()).optional()
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/trigger" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const doc = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!doc.ok) return fromHttp(doc.status, doc.json);
+      const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      const triggers = listed?.response?.ok ? listed.triggers ?? [] : [];
+      const digest = digestWorkflow({ doc: doc.json, triggers, include: args.include ?? [] });
+      return ok({
+        ...digest,
+        triggersRead: listed?.response?.ok === true,
+        note: listed?.response?.ok ? "Pass `version` back as edit_workflow/repair_workflow expectedVersion to make the write concurrency-safe." : "The trigger list could not be read, so `triggers` is EMPTY rather than known-empty."
       });
     }, args)
   },

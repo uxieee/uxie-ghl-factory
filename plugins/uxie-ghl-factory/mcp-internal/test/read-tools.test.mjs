@@ -531,3 +531,33 @@ test('search_merge_tags filters by namespace', async () => {
   assert.ok(res.data.tags.length);
   assert.deepEqual(res.data.tags.filter((t) => !t.tag.startsWith('{{user.')), []);
 });
+
+test('get_workflow_digest is a compact read and says whether the triggers were actually read', async () => {
+  const tool = TOOLS.find((t) => t.name === 'get_workflow_digest');
+  const templates = [
+    { id: 's1', type: 'add_contact_tag', name: 'Tag', next: 's2', parentKey: null, order: 0, attributes: { tags: ['lead'] } },
+    { id: 's2', type: 'sms', name: 'Text', next: null, parentKey: 's1', order: 1, attributes: { body: 'Hi {{contact.first_name}}' } },
+  ];
+  const gw = { loc: 'LOC', call: async (m, p) => {
+    if (p.includes('/trigger')) return { ok: true, status: 200, json: { triggers: [{ id: 'tr1', type: 'contact_tag', name: 'T', active: true, conditions: [] }] } };
+    return { ok: true, status: 200, json: { id: 'WID', name: 'W', status: 'draft', version: 7, workflowData: { templates } } };
+  } };
+  const res = await tool.handler({ locationId: 'LOC', workflowId: 'WID' }, { state: {}, makeGw: () => gw });
+  assert.equal(res.ok, true, JSON.stringify(res).slice(0, 200));
+  assert.equal(res.data.version, 7);
+  assert.equal(res.data.stepCount, 2);
+  assert.equal(res.data.triggersRead, true);
+  assert.deepEqual(res.data.steps[1].mergeTags, ['{{contact.first_name}}']);
+  assert.ok(res.data.fingerprint && res.data.fingerprint.length === 16);
+});
+
+test('a failed trigger read is reported as UNKNOWN, never as an empty trigger set', async () => {
+  const tool = TOOLS.find((t) => t.name === 'get_workflow_digest');
+  const gw = { loc: 'LOC', call: async (m, p) => {
+    if (p.includes('/trigger')) return { ok: false, status: 503, json: {} };
+    return { ok: true, status: 200, json: { id: 'WID', name: 'W', status: 'draft', version: 1, workflowData: { templates: [] } } };
+  } };
+  const res = await tool.handler({ locationId: 'LOC', workflowId: 'WID' }, { state: {}, makeGw: () => gw });
+  assert.equal(res.data.triggersRead, false);
+  assert.match(res.data.note, /EMPTY rather than known-empty/);
+});

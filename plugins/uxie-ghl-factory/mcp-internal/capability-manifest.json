@@ -85,6 +85,16 @@
     "path": "/workflow/{loc}/{wid}"
   },
   {
+    "tool": "get_workflow_digest",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "get_workflow_digest",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
     "tool": "search_merge_tags",
     "method": "GET",
     "path": "/locations/{loc}/customFields/search"

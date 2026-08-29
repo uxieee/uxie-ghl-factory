@@ -37,6 +37,7 @@ import { lintContactFieldTemplates } from '../../skills/create-ghl-workflow/engi
 import { lintOpportunityWrites } from '../../skills/create-ghl-workflow/engine/lints/opportunity.mjs';
 import { lintTriggerRows } from '../../skills/create-ghl-workflow/engine/lints/trigger-rows.mjs';
 import { searchMergeTags } from '../../skills/create-ghl-workflow/engine/merge-tags.mjs';
+import { digestWorkflow } from '../../skills/create-ghl-workflow/engine/digest.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
@@ -1500,6 +1501,44 @@ export const TOOLS = [
         stepCount: (workflow.workflowData?.templates ?? []).length,
         updatedAt: workflow.updatedAt,
         note: 'Summary only — use export_workflow for the full graph.',
+      });
+    }, args),
+  },
+  {
+    // export_workflow returns the raw wire document. For a real workflow that is tens of kilobytes
+    // of __customInputFields__ rows and frozen UI-hint arrays, so an agent either burns its context
+    // reading it or skips the read — and skipping the read is how an edit gets authored against a
+    // graph nobody actually looked at.
+    name: 'get_workflow_digest',
+    description: describe('get_workflow_digest',
+      'A COMPACT read of one workflow — proof: engine; risk: read-only. Identity, version and a '
+      + 'structural fingerprint, the trigger set with its conditions, ONE line per step (wiring, '
+      + 'outgoing references, merge tags, a text preview, flags, and which branch it sits on), and '
+      + 'the linear chains. Roughly a tenth the size of export_workflow. Use it as the READ half of '
+      + 'an edit: pass the version back as expectedVersion so a concurrent change is refused rather '
+      + 'than overwritten.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      workflowId: z.string(),
+      include: z.array(z.string()).optional(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/workflow/{loc}/{wid}' },
+      { method: 'GET', path: '/workflow/{loc}/trigger' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const doc = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!doc.ok) return fromHttp(doc.status, doc.json);
+      const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+      const triggers = listed?.response?.ok ? (listed.triggers ?? []) : [];
+      const digest = digestWorkflow({ doc: doc.json, triggers, include: args.include ?? [] });
+      return ok({
+        ...digest,
+        triggersRead: listed?.response?.ok === true,
+        note: listed?.response?.ok
+          ? 'Pass `version` back as edit_workflow/repair_workflow expectedVersion to make the write concurrency-safe.'
+          : 'The trigger list could not be read, so `triggers` is EMPTY rather than known-empty.',
       });
     }, args),
   },

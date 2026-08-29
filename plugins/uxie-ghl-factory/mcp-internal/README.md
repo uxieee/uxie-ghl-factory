@@ -66,6 +66,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `set_token_file` / `auth_status` | — (credential state; claims only, never the token) |
 | `list_workflows` | `GET /workflow/{loc}/list` |
 | `get_workflow` | summary + step count (use `export_workflow` for the graph) |
+| `get_workflow_digest` | a compact read of one workflow: identity, version, a structural fingerprint, the trigger set, ONE line per step (wiring, refs, merge tags, text preview, owning branch) and the linear chains — roughly a tenth of `export_workflow` |
 | `search_merge_tags` | the builder picker's 442 static merge tags ranked against a phrase, plus this account's own custom fields and values when a `locationId` is given (no network without one) |
 | `export_workflow` | workflow body + triggers + sticky notes |
 | `get_workflow_logs` | executions, per-step counts, enrollment roster; `executionId` = one run's full step trace |
