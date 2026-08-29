@@ -530,7 +530,7 @@ test('stdio-audit.mjs uses the spreading gateway factory and forwards no descrip
   // Only the names that are not substrings of an ALLOWED tool name, so this stays a real
   // check rather than a trap (`list_workflows` lives inside `list_workflows_complete`).
   for (const forbidden of ['raw_request', 'set_token_file', 'list_courses', 'build_course',
-    'edit_workflow', 'publish_workflow', 'fast_forward_contacts', 'list_account_entities']) {
+    'edit_workflow', 'repair_workflow', 'publish_workflow', 'fast_forward_contacts', 'list_account_entities']) {
     assert.equal(code.includes(forbidden), false, `stdio-audit.mjs names the forbidden tool ${forbidden}`);
   }
 });
@@ -560,7 +560,7 @@ test('processAuditPacing hands out the SAME limiter and circuit for the life of 
 // 4. the normal server is untouched
 // ---------------------------------------------------------------------------
 
-test('the full 25-tool registry and the normal stdio entry point are unchanged', () => {
+test('the full 42-tool registry and the normal stdio entry point are unchanged', () => {
   // 21 -> 22 when this branch merged main at 0.14.0, which added `check_workflow`.
   // 22 -> 23 for Task 7, which added `list_marketplace_apps` (read-only, registered
   // immediately after `list_account_entities`).
@@ -599,7 +599,11 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
   // reads of a shipped data file, no gateway, no auth, no locationId, `capabilities: []`, so
   // outside the audit profile by the same construction. Registered last, after `raw_request`,
   // because they hand the caller TO it — there is deliberately no `execute_endpoint`.
-  assert.equal(TOOLS.length, 41, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 41 -> 42: `repair_workflow` — the full-document PUT with every edit guard, registered
+  // immediately after `edit_workflow` and before `publish_workflow`. It is the sanctioned
+  // replacement for the hand-rolled PUT that skipped every guard (RC-A); a WRITE, and
+  // confirm-gated, so outside the audit profile.
+  assert.equal(TOOLS.length, 42, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -608,7 +612,7 @@ test('the full 25-tool registry and the normal stdio entry point are unchanged',
     'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_workflow_versions', 'get_workflow_version',
     'get_trigger_logs', 'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
-    'publish_workflow', 'search_step_types', 'describe_step_type',
+    'repair_workflow', 'publish_workflow', 'search_step_types', 'describe_step_type',
     'list_workflow_folders', 'create_workflow_folder',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',
     'pin_webhook_sample', 'fast_forward_contacts', 'raw_request',

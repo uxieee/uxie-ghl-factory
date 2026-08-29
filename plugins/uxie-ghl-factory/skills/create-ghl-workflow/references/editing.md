@@ -73,6 +73,22 @@ workflow stayed published).
 ] }
 ```
 
+### When the ops cannot express it: `repair_workflow`
+
+Reach for `repair_workflow` only when no op above can express the change. It takes the WHOLE
+`workflowData.templates` array — the same thing a hand-rolled PUT would send — and runs every guard
+the op path runs before sending it: opportunity association, required fields, dangling step
+references and parentKeys, goto loops, dead branches, workflow rules and merge tags, followed by the
+plain PUT and a round-trip verify. Each guard names its own hatch (`allowDanglingStepRefs`,
+`allowGotoLoops`, `deadBranchAcknowledged`, `allowDanglingParentKeys`).
+
+Pass `expectedVersion` (the `version` from your read) and a repair built on a graph that has since
+moved is refused with `VERSION_CONFLICT` rather than silently overwriting the other edit.
+
+This exists because the UNguarded version of it — GET, hand-edit the JSON, PUT it back — was the
+only way to express some changes, and it skips every check above. Eight client workflows carried a
+dead pipeline-stage NAME to the wire through that route while the build reported clean.
+
 ### Retyping a step (including native → marketplace)
 
 `retypeStep` changes what an EXISTING step is, in place, without touching the graph:
