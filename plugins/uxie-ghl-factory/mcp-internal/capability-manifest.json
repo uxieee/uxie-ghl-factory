@@ -715,6 +715,31 @@
     "path": "/workflows/sticky-note"
   },
   {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/trigger"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/customFields/search"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/locations/{loc}/customValues"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "PUT",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
     "tool": "publish_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"

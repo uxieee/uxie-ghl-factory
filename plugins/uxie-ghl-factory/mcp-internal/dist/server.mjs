@@ -143944,6 +143944,15 @@ function verifyTriggerRoundTrip(expectations, actualTriggers, beforeTriggers = [
   });
   return { roundTrip: checks.every((check2) => check2.persisted), checks };
 }
+function diffTemplates(before, after) {
+  const b = new Map((before ?? []).map((t) => [t.id, t]));
+  const a = new Map((after ?? []).map((t) => [t.id, t]));
+  return {
+    createdSteps: [...a.keys()].filter((id) => !b.has(id)),
+    modifiedSteps: [...a.keys()].filter((id) => b.has(id) && JSON.stringify(b.get(id)) !== JSON.stringify(a.get(id))),
+    deletedSteps: [...b.keys()].filter((id) => !a.has(id))
+  };
+}
 function verifyEditRoundTrip(expectedTemplates, beforeTemplates, gotTemplates) {
   const expectedById = new Map(expectedTemplates.map((step) => [step.id, step]));
   const gotById = new Map(gotTemplates.map((step) => [step.id, step]));
@@ -146023,6 +146032,144 @@ var TOOLS2 = [
           ),
           data2
         );
+      }
+      return ok(data2);
+    }, args)
+  },
+  {
+    // THE SANCTIONED REPLACEMENT FOR A HAND-ROLLED PUT (RC-A). When the ops cannot express a
+    // change, the fallback was always "GET the workflow, edit the JSON, PUT it back" — which
+    // skips every guard the edit path has: opportunity association, required fields, dangling
+    // refs and parentKeys, goto loops, dead branches, workflow rules, merge tags. Eight client
+    // workflows carried a dead stage NAME through exactly that route. This tool takes the same
+    // whole document and runs all of it.
+    name: "repair_workflow",
+    description: describe3(
+      "repair_workflow",
+      "Full-document REPAIR of workflowData.templates \u2014 proof: engine; risk: write. Runs every edit guard: opportunity association, required fields, dangling refs/parentKeys, goto loops, dead branches, workflow rules and merge tags \u2014 then the plain PUT and a round-trip verify. The sanctioned replacement for a hand-rolled PUT when the ops in edit_workflow cannot express the change; prefer edit_workflow when they can. Previews by default; confirm:true writes. expectedVersion refuses a stale read (VERSION_CONFLICT). Guard hatches: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      workflowId: external_exports.string(),
+      templates: external_exports.array(external_exports.object({}).passthrough()),
+      // Optimistic concurrency: a repair is written against a document the caller has already
+      // read and edited, so a version that moved underneath means their edit was built on a
+      // stale graph. Optional — omitted, the tool trusts the caller's read.
+      expectedVersion: external_exports.number().optional(),
+      assumeAssociated: external_exports.boolean().default(false),
+      skipWorkflowRules: external_exports.union([external_exports.boolean(), external_exports.array(external_exports.string())]).optional(),
+      allowGotoLoops: external_exports.boolean().optional(),
+      deadBranchAcknowledged: external_exports.boolean().optional(),
+      allowDanglingParentKeys: external_exports.boolean().optional(),
+      allowDanglingStepRefs: external_exports.boolean().optional(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/workflow/{loc}/{wid}" },
+      { method: "GET", path: "/workflow/{loc}/trigger" },
+      { method: "GET", path: "/locations/{loc}/customFields/search" },
+      { method: "GET", path: "/locations/{loc}/customValues" },
+      { method: "PUT", path: "/workflow/{loc}/{wid}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const warnings = [];
+      const warn = (message) => warnings.push(message);
+      if (!Array.isArray(args.templates) || !args.templates.length) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "templates must be a non-empty array of step objects.",
+          "Pass the full workflowData.templates you want stored. To empty a workflow, delete its steps with edit_workflow."
+        );
+      }
+      const badIds = args.templates.filter((t) => !t || typeof t !== "object" || typeof t.id !== "string" || !t.id);
+      if (badIds.length) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          `${badIds.length} template(s) have no string 'id'.`,
+          "Every step needs the id GHL stores it under; copy them from export_workflow rather than minting new ones."
+        );
+      }
+      const initialResponse = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!initialResponse.ok) return fromHttp(initialResponse.status, initialResponse.json);
+      const fresh = initialResponse.json;
+      const beforeTemplates = recordsFrom(fresh?.workflowData?.templates);
+      if (!Array.isArray(beforeTemplates)) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "workflow GET did not return workflowData.templates",
+          "Confirm the workflow id and retry; nothing was written."
+        );
+      }
+      if (args.expectedVersion !== void 0 && fresh.version !== args.expectedVersion) {
+        return fail(
+          CODES.VERSION_CONFLICT,
+          `workflow version is ${fresh.version}, not the expected ${args.expectedVersion} \u2014 it changed after you read it.`,
+          "Re-read the workflow, re-apply your change to the current graph, and retry."
+        );
+      }
+      const diff = diffTemplates(beforeTemplates, args.templates);
+      const catalog = loadCatalog();
+      let commitBody;
+      try {
+        commitBody = editCommitBody(fresh, args.templates, diff, gw.uid, {
+          assumeAssociated: args.assumeAssociated,
+          allowGotoLoops: args.allowGotoLoops,
+          deadBranchAcknowledged: args.deadBranchAcknowledged,
+          allowDanglingParentKeys: args.allowDanglingParentKeys,
+          allowDanglingStepRefs: args.allowDanglingStepRefs,
+          catalog,
+          warn
+        });
+      } catch (error51) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          `repair rejected (${error51.code ?? "ENGINE_ABORT"}): ${error51.message}`,
+          "The document was rejected before any request was sent \u2014 nothing was written."
+        );
+      }
+      lintContactFieldTemplates(args.templates, [...diff.createdSteps, ...diff.modifiedSteps], { warn });
+      const preview = {
+        diff,
+        stepCount: { before: beforeTemplates.length, after: args.templates.length },
+        version: fresh.version,
+        warnings
+      };
+      if (args.confirm !== true) {
+        return withFailureData(fail(
+          CODES.CONFIRM_REQUIRED,
+          "Repair preview is ready; no write was made.",
+          "Review data.preview.diff and data.preview.warnings, then repeat with confirm:true to write."
+        ), { preview });
+      }
+      const putResponse = await gw.call("PUT", workflowPath(args.locationId, args.workflowId), commitBody);
+      if (!putResponse.ok) return fromHttp(putResponse.status, putResponse.json);
+      const roundTripResponse = await getWorkflow(gw, args.locationId, args.workflowId);
+      if (!roundTripResponse.ok) {
+        return withFailureData(fail(
+          CODES.ENGINE_ABORT,
+          "The repair PUT succeeded but the verification GET did not.",
+          "Re-read the workflow and inspect the canvas before editing further."
+        ), { preview });
+      }
+      const gotTemplates = recordsFrom(roundTripResponse.json?.workflowData?.templates);
+      const verify = verifyEditRoundTrip(stripNullNext(args.templates), beforeTemplates, stripNullNext(gotTemplates));
+      const data2 = {
+        workflowId: args.workflowId,
+        status: roundTripResponse.json?.status,
+        stepCount: { before: beforeTemplates.length, after: gotTemplates.length },
+        diff,
+        verify,
+        warnings,
+        builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
+        runtimeProofNote: "repair_workflow never publishes. A clean round trip proves the document stored, not that anything fires."
+      };
+      if (!verify.roundTrip) {
+        return withFailureData(fail(
+          CODES.ENGINE_ABORT,
+          "Workflow PUT returned but the repaired graph did not round-trip cleanly.",
+          "Inspect data.verify and the workflow canvas before making further edits."
+        ), data2);
       }
       return ok(data2);
     }, args)
