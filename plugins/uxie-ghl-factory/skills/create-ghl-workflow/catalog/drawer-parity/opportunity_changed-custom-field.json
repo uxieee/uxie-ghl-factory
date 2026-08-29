@@ -1,0 +1,9 @@
+{
+  "_source": "UI-written trigger, anonymised. The opportunity-side row builders interpolate ${type}.${field.id}, so the row template resolves against model:'opportunity' fields.",
+  "trigger": { "type": "opportunity_changed", "conditions": [
+    { "operator": "has-changed", "field": "opportunity.<uuid-002>", "title": "Deal Source", "type": "string", "id": "<uuid-002>" } ] },
+  "lean": { "type": "opportunity_changed", "name": "Source changed", "filters": [
+    { "field": "Deal Source", "operator": "has-changed" } ] },
+  "resolver": { "customFields": [
+    { "id": "<uuid-002>", "name": "Deal Source", "fieldKey": "opportunity.deal_source", "dataType": "TEXT", "model": "opportunity" } ] }
+}
