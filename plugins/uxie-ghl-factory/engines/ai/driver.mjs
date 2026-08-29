@@ -263,3 +263,52 @@ export async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   if (confirmed.length === 0) return failure('AGENT_VERIFY_INCONCLUSIVE', 'verify', report);
   return { ok: true, ...report };
 }
+
+// READ-MERGE-WRITE for an existing agent, with a COLLATERAL DIFF.
+//
+// A partial PUT to /ai-employees/employees/:agentId resets omitted agent-level booleans — measured
+// live on 2026-08-28, after a capture-derived claim that the endpoint "merges" had stood for
+// months (the capture's at-risk fields were already false, so a reset was invisible in it).
+// The UI never sends a partial; it PUTs the whole record. So the plan carries the whole record.
+//
+// Verifying only what we SET would repeat the original mistake: it is precisely the fields we did
+// NOT set that a bad PUT silently resets. `collateralKeys` is that list, and any movement in it
+// fails the update loudly rather than reporting a clean write.
+export async function executeAgentUpdate({ plan, gw } = {}) {
+  const { update, collateralKeys = [], before = {}, expected = {} } = plan ?? {};
+  if (!update) return { ok: false, code: 'AGENT_PLAN_INVALID', phase: 'plan', detail: 'no update in the plan' };
+
+  const put = await gw.call(update.method ?? 'PUT', update.path, update.body);
+  if (!put?.ok) {
+    return { ok: false, code: 'AGENT_UPDATE_FAILED', phase: 'update', status: put?.status ?? null,
+      detail: JSON.stringify(put?.json ?? '').slice(0, 300) };
+  }
+
+  const reread = await gw.call('GET', update.path);
+  if (!reread?.ok) {
+    return { ok: false, code: 'AGENT_VERIFY_UNREACHABLE', phase: 'verify',
+      detail: 'the PUT succeeded but the record could not be re-read, so nothing is proven' };
+  }
+  const after = reread.json ?? {};
+  const { mismatches, unverified, confirmed } = partitionVerification(after, expected);
+
+  const changed = [];
+  for (const key of collateralKeys) {
+    const b = before?.[key];
+    const a = after?.[key];
+    if (JSON.stringify(b) !== JSON.stringify(a)) changed.push({ key, before: b, after: a });
+  }
+
+  const report = {
+    agentId: update.path.split('/').pop(),
+    verification: { verified: mismatches.length === 0, mismatches, unverified, confirmed },
+    collateral: { unchanged: changed.length === 0, changed },
+  };
+  if (changed.length) {
+    return { ok: false, code: 'AGENT_COLLATERAL_CHANGED', phase: 'verify', ...report,
+      detail: `the update moved ${changed.length} field(s) it was not asked to touch: `
+        + changed.map((c) => `${c.key} ${JSON.stringify(c.before)} -> ${JSON.stringify(c.after)}`).join('; ') };
+  }
+  if (mismatches.length) return { ok: false, code: 'AGENT_VERIFY_MISMATCH', phase: 'verify', ...report };
+  return { ok: true, ...report };
+}

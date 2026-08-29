@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compileConvaiAgent, compileConvaiAction, compileConvaiUpdate, compileLinkFlowWorkflow, compileFlowBuilderBot, AUTH_HEADER, uiSaveViolations } from './convai-compiler.mjs';
+import { compileConvaiAgent, compileConvaiAction, compileConvaiUpdate, compileLinkFlowWorkflow, compileFlowBuilderBot, AUTH_HEADER, uiSaveViolations, compileConvaiUpdateFromRecord, applyBotTypeCleanup } from './convai-compiler.mjs';
 import { IRError } from './convai-ir.mjs';
 
 // Mirrors captures/convai-create.json's request_body 1:1 (values changed only where the
@@ -521,4 +521,46 @@ test('summary knobs land on the create body; defaults are unchanged when absent'
 test('the wait-time bounds come from the shipped validator strings, verbatim', () => {
   const v = uiSaveViolations({ channels: ['SMS'], personality: 'p', goal: 'g', instructions: 'i', tones: ['friendly'], waitTime: { unit: 'hours', value: 9 } });
   assert.deepEqual(v.map((x) => x.msg), ['Wait time must be between 1 and 6 hours']);
+});
+
+// F5-04: the "PUT merges" claim came from a capture whose at-risk booleans were already false, so
+// a reset could not have been visible in it. A live partial PUT reset cancelEnabled and
+// rescheduleEnabled. The UI never sends a partial — it PUTs the whole record.
+test('compileConvaiUpdateFromRecord: full record, overlay, bot-type cleanup, actions:null, collateralKeys', () => {
+  const current = { id: 'A1', locationId: 'LOC', name: 'Bot', employeeName: 'Bot', mode: 'suggestive', channels: ['SMS'],
+    personality: 'p', goal: 'g', instructions: 'i', botType: 'FLOW_BUILDER_BOT', cancelEnabled: true, rescheduleEnabled: true,
+    tones: ['friendly'], knowledgeBaseIds: ['KB1'], knowledgeBaseTriggers: [], sleepEnabled: false, waitTime: 2,
+    summary: { enabled: false }, dateAdded: 'x', dateUpdated: 'y', actions: [{ id: 'ACT1' }] };
+  const out = compileConvaiUpdateFromRecord(current, { knowledgeBaseIds: ['KB1', 'KB2'] }, { agentId: 'A1', locationId: 'LOC' });
+  assert.equal(out.method, 'PUT');
+  assert.deepEqual(out.body.knowledgeBaseIds, ['KB1', 'KB2']);
+  assert.equal(out.body.cancelEnabled, true, 'a FLOW bot keeps its toggles — the partial-PUT reset is the exact defect this closes');
+  assert.equal(out.body.rescheduleEnabled, true);
+  assert.deepEqual(out.body.tones, ['friendly']);
+  assert.equal(out.body.actions, null, 'the UI sends actions:null on the record PUT');
+  assert.equal(out.body.dateAdded, undefined);
+  assert.ok(out.collateralKeys.includes('cancelEnabled'));
+  assert.ok(!out.collateralKeys.includes('knowledgeBaseIds'), 'a key this update SETS is not collateral');
+  assert.throws(() => compileConvaiUpdateFromRecord(null, {}, { agentId: 'A1' }), (e) => e.code === 'SCHEMA' && /GET it first/.test(e.message));
+});
+
+// Ported verbatim from useAIEmployee's `eo`, including the FORM_BASED_BOT branch and the llm
+// pruning the review's plan did not mention.
+test('applyBotTypeCleanup matches the UI: flow-only keys, the FORM branch, and llm pruning', () => {
+  assert.equal('tones' in applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', tones: ['friendly'], cancelEnabled: true }), false);
+  assert.equal('cancelEnabled' in applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', cancelEnabled: true }), false);
+  assert.deepEqual(applyBotTypeCleanup({ botType: 'FLOW_BUILDER_BOT', tones: ['friendly'] }).tones, ['friendly']);
+
+  const form = applyBotTypeCleanup({ botType: 'FORM_BASED_BOT', personality: 'p', goal: 'g', steps: [1], brandId: 'B' });
+  assert.equal('personality' in form, false);
+  assert.equal('goal' in form, false);
+  assert.deepEqual(form.steps, [1], 'the FORM branch keeps the form-only keys');
+
+  const prompt = applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', steps: [1], brandId: 'B', botInitialMessage: 'hi', personality: 'p' });
+  assert.equal('steps' in prompt, false);
+  assert.equal('brandId' in prompt, false);
+  assert.equal(prompt.personality, 'p');
+
+  assert.equal('llm' in applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', llm: { primary: '', secondary: '' } }), false);
+  assert.deepEqual(applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', llm: { primary: 'gpt', secondary: '' } }).llm, { primary: 'gpt' });
 });

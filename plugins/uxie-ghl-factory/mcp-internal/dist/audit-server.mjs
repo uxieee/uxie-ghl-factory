@@ -142564,7 +142564,7 @@ var IRError2 = class extends Error {
   }
 };
 var MODES = ["off", "suggestive", "autoPilot"];
-var BOT_TYPES = ["PROMPT_BASED_BOT", "FLOW_BUILDER_BOT"];
+var BOT_TYPES = ["PROMPT_BASED_BOT", "FLOW_BUILDER_BOT", "FORM_BASED_BOT"];
 var CHANNELS = ["SMS", "IG", "FB", "WebChat", "Live_Chat", "WhatsApp"];
 function assertNonEmptyString(v, field) {
   if (typeof v !== "string" || v.length === 0) throw new IRError2("SCHEMA", `${field} must be a non-empty string`);
@@ -142642,6 +142642,21 @@ function parseConvaiIR(ir) {
   assertNonEmptyString(ir.name, "name");
   checkMode(ir.mode);
   checkChannels(ir.channels);
+  checkActions(ir.actions);
+  checkTones(ir.tones);
+  checkSummary(ir.summary);
+  checkWait(ir.wait);
+  checkSleep(ir.sleep);
+  checkKnowledgeBaseIds(ir.knowledgeBaseIds);
+  checkBotType(ir.botType);
+  checkFlowFields(ir);
+  return { ...ir };
+}
+function parseConvaiPartialIR(ir) {
+  if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
+  if (ir.name !== void 0) assertNonEmptyString(ir.name, "name");
+  if (ir.mode !== void 0) checkMode(ir.mode);
+  if (ir.channels !== void 0) checkChannels(ir.channels);
   checkActions(ir.actions);
   checkTones(ir.tones);
   checkSummary(ir.summary);
@@ -142910,6 +142925,81 @@ function compileConvaiAgent(ir, { locationId, warn, allowUiUnsaveable } = {}) {
   const create = { method: "POST", path: "/ai-employees/employees", body };
   const actions = (norm2.actions ?? []).map((a) => compileConvaiAction(a, { agentId: null, locationId }));
   return { create, actions, authHeader: AUTH_HEADER };
+}
+var UPDATE_FIELD_MAP = {
+  name: "employeeName",
+  mode: "mode",
+  channels: "channels",
+  personality: "personality",
+  goal: "goal",
+  instructions: "instructions",
+  autoPilotMaxMessages: "autoPilotMaxMessages",
+  knowledgeBaseIds: "knowledgeBaseIds",
+  knowledgeBaseTriggers: "knowledgeBaseTriggers",
+  tones: "tones",
+  summary: "summary",
+  respondToImages: "respondToImages",
+  respondToAudio: "respondToAudio",
+  botType: "botType",
+  isObjectiveBuilderEnabled: "isObjectiveBuilderEnabled",
+  objectiveBuilderWorkflowId: "objectiveBuilderWorkflowId"
+};
+var FLOW_ONLY_KEYS = ["cancelEnabled", "rescheduleEnabled", "tones"];
+var NON_FORM_KEYS = ["skipIfAlreadyFilled", "botInitialMessage", "steps", "notificationSettings", "brandId"];
+var SERVER_KEYS = /* @__PURE__ */ new Set(["id", "_id", "dateAdded", "dateUpdated", "createdAt", "updatedAt", "deleted", "traceId"]);
+function applyBotTypeCleanup(body) {
+  const b = { ...body };
+  if (b.botType !== "FLOW_BUILDER_BOT") for (const k of FLOW_ONLY_KEYS) delete b[k];
+  if (b.botType === "FORM_BASED_BOT") {
+    delete b.personality;
+    delete b.goal;
+  } else {
+    for (const k of NON_FORM_KEYS) delete b[k];
+    if (b.llm) {
+      const llm = { ...b.llm };
+      if (!llm.primary) delete llm.primary;
+      if (!llm.secondary) delete llm.secondary;
+      if (!llm.primary && !llm.secondary) delete b.llm;
+      else b.llm = llm;
+    }
+  }
+  return b;
+}
+function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId } = {}) {
+  if (!agentId) throw new IRError2("MISSING_FIELD", "compileConvaiUpdateFromRecord requires agentId");
+  if (!current || typeof current !== "object" || Array.isArray(current)) {
+    throw new IRError2(
+      "SCHEMA",
+      "compileConvaiUpdateFromRecord requires the CURRENT record \u2014 GET it first. A partial PUT resets omitted agent-level booleans (measured live 2026-08-28)."
+    );
+  }
+  const norm2 = parseConvaiPartialIR(partialIr);
+  const body = {};
+  for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== "name") body[k] = v;
+  body.locationId = locationId ?? current.locationId;
+  body.employeeName = current.employeeName ?? current.name;
+  const setKeys = /* @__PURE__ */ new Set(["locationId"]);
+  for (const [irKey, wireKey] of Object.entries(UPDATE_FIELD_MAP)) {
+    if (norm2[irKey] !== void 0) {
+      body[wireKey] = norm2[irKey];
+      setKeys.add(wireKey);
+    }
+  }
+  if (norm2.name !== void 0) {
+    body.employeeName = norm2.name;
+    setKeys.add("employeeName");
+  }
+  body.actions = null;
+  setKeys.add("actions");
+  const cleaned = applyBotTypeCleanup(body);
+  const collateralKeys = Object.keys(cleaned).filter((k) => !setKeys.has(k));
+  return {
+    method: "PUT",
+    path: `/ai-employees/employees/${agentId}`,
+    body: cleaned,
+    authHeader: AUTH_HEADER,
+    collateralKeys
+  };
 }
 
 // ../engines/ai/voiceai-compiler.mjs
@@ -143692,6 +143782,53 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   };
   if (mismatches.length) return failure("AGENT_VERIFICATION_FAILED", "verify", report);
   if (confirmed.length === 0) return failure("AGENT_VERIFY_INCONCLUSIVE", "verify", report);
+  return { ok: true, ...report };
+}
+async function executeAgentUpdate({ plan, gw } = {}) {
+  const { update, collateralKeys = [], before = {}, expected = {} } = plan ?? {};
+  if (!update) return { ok: false, code: "AGENT_PLAN_INVALID", phase: "plan", detail: "no update in the plan" };
+  const put = await gw.call(update.method ?? "PUT", update.path, update.body);
+  if (!put?.ok) {
+    return {
+      ok: false,
+      code: "AGENT_UPDATE_FAILED",
+      phase: "update",
+      status: put?.status ?? null,
+      detail: JSON.stringify(put?.json ?? "").slice(0, 300)
+    };
+  }
+  const reread = await gw.call("GET", update.path);
+  if (!reread?.ok) {
+    return {
+      ok: false,
+      code: "AGENT_VERIFY_UNREACHABLE",
+      phase: "verify",
+      detail: "the PUT succeeded but the record could not be re-read, so nothing is proven"
+    };
+  }
+  const after = reread.json ?? {};
+  const { mismatches, unverified, confirmed } = partitionVerification(after, expected);
+  const changed = [];
+  for (const key of collateralKeys) {
+    const b = before?.[key];
+    const a = after?.[key];
+    if (JSON.stringify(b) !== JSON.stringify(a)) changed.push({ key, before: b, after: a });
+  }
+  const report = {
+    agentId: update.path.split("/").pop(),
+    verification: { verified: mismatches.length === 0, mismatches, unverified, confirmed },
+    collateral: { unchanged: changed.length === 0, changed }
+  };
+  if (changed.length) {
+    return {
+      ok: false,
+      code: "AGENT_COLLATERAL_CHANGED",
+      phase: "verify",
+      ...report,
+      detail: `the update moved ${changed.length} field(s) it was not asked to touch: ` + changed.map((c) => `${c.key} ${JSON.stringify(c.before)} -> ${JSON.stringify(c.after)}`).join("; ")
+    };
+  }
+  if (mismatches.length) return { ok: false, code: "AGENT_VERIFY_MISMATCH", phase: "verify", ...report };
   return { ok: true, ...report };
 }
 
@@ -144522,6 +144659,73 @@ var TOOLS2 = [
         report.code,
         "Conversation AI creation did not complete and verify.",
         "Inspect data.created and data.verification before retrying; remove any unintended canary agent manually."
+      ), data2);
+    }, args)
+  },
+  {
+    // F5-04. A partial PUT to this endpoint RESETS omitted agent-level booleans — measured live
+    // 2026-08-28, after a capture-derived "it merges" claim had stood for months (that capture's
+    // at-risk fields were already false, so a reset was invisible in it). The UI never sends a
+    // partial; it PUTs the whole record. This tool does the same, and then proves it: the keys
+    // the update did NOT set are diffed before/after, and any movement fails the call.
+    name: "update_convai_agent",
+    description: describe3(
+      "update_convai_agent",
+      "Update a Conversation AI agent by READ-MERGE-WRITE \u2014 proof: engine; risk: write. GETs the current record, overlays your spec, applies the builder's own bot-type cleanup, PUTs the WHOLE record, re-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any collateral change fails with AGENT_COLLATERAL_CHANGED. Previews by default; confirm:true writes."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      agentId: external_exports.string(),
+      spec: external_exports.object({}).passthrough(),
+      confirm: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/ai-employees/employees/{agentId}" },
+      { method: "PUT", path: "/ai-employees/employees/{agentId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const path = `/ai-employees/employees/${args.agentId}`;
+      const current = await gw.call("GET", path);
+      if (!current?.ok) return fromHttp(current?.status ?? 502, current?.json);
+      const record2 = current.json?.employee ?? current.json;
+      if (!record2 || typeof record2 !== "object") {
+        return fail(
+          CODES.ENGINE_ABORT,
+          "the agent GET returned no record to merge onto.",
+          "Confirm the agentId with get_ai_configuration_bundle; nothing was written."
+        );
+      }
+      let plan;
+      try {
+        plan = compileConvaiUpdateFromRecord(record2, args.spec, { agentId: args.agentId, locationId: args.locationId });
+      } catch (error51) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          `update rejected (${error51.code ?? "ENGINE_ABORT"}): ${error51.message}`,
+          "The spec was rejected before any request was sent \u2014 nothing was written."
+        );
+      }
+      const changingKeys = Object.keys(plan.body).filter((k) => !plan.collateralKeys.includes(k));
+      const preview = { body: plan.body, changingKeys, collateralKeys: plan.collateralKeys };
+      if (args.confirm !== true) {
+        return withFailureData(fail(
+          CODES.CONFIRM_REQUIRED,
+          "Agent update preview is ready; no write was made.",
+          "Review data.preview.changingKeys and data.preview.collateralKeys, then repeat with confirm:true."
+        ), { preview });
+      }
+      const expected = {};
+      for (const k of changingKeys) expected[k] = plan.body[k];
+      const report = await executeAgentUpdate({
+        plan: { update: { method: "PUT", path, body: plan.body }, collateralKeys: plan.collateralKeys, before: record2, expected },
+        gw
+      });
+      const data2 = { preview, verification: report.verification, collateral: report.collateral };
+      return report.ok ? ok(data2) : withFailureData(fail(
+        report.code ?? CODES.ENGINE_ABORT,
+        report.detail ?? "The agent update did not verify.",
+        "Inspect data.collateral and data.verification; the record is live, so re-read before retrying."
       ), data2);
     }, args)
   },
