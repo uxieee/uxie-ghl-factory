@@ -91,3 +91,24 @@ test('findings reach the caller through warn, prefixed', () => {
   assert.equal(warns.length, 1);
   assert.match(warns[0], /^GRAPH_CONTEXT: /);
 });
+
+// T3-9: a manual step is a TASK. The run waits there for a human, so an outbound send below it
+// does not go out on a schedule — a sequencing surprise that only shows up in runtime logs.
+test('a manual-call ahead of an outbound send in the same chain warns — the queue HOLDS the run', () => {
+  const templates = [
+    { id: 'a', type: 'manual-call', name: 'Call task', next: 'b', parentKey: null, order: 0, attributes: {} },
+    { id: 'b', type: 'sms', name: 'Text', next: null, parentKey: 'a', order: 1, attributes: { body: 'hi' } },
+  ];
+  const warns = [];
+  checkGraphContextRules(templates, { warn: (m) => warns.push(m) });
+  assert.ok(warns.some((w) => /GRAPH_CONTEXT/.test(w) && /HOLDS the run/.test(w) && /Text/.test(w)), warns.join('\n'));
+});
+
+test('a send ABOVE the manual step is fine, and an unrelated chain is silent', () => {
+  const warns = [];
+  checkGraphContextRules([
+    { id: 'a', type: 'sms', name: 'Text first', next: 'b', parentKey: null, order: 0, attributes: { body: 'hi' } },
+    { id: 'b', type: 'manual-call', name: 'Call task', next: null, parentKey: 'a', order: 1, attributes: {} },
+  ], { warn: (m) => warns.push(m) });
+  assert.deepEqual(warns.filter((w) => /HOLDS the run/.test(w)), []);
+});

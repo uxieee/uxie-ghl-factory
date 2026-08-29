@@ -82,10 +82,39 @@ function mathUpstreamRefs(templates) {
  * are result:'warning' in GHL, and promoting one would refuse a document the builder opens.
  * Returns the findings so a caller can assert on them.
  */
+// A MANUAL step (manual-call, manual-sms) creates a TASK and the run WAITS there until a human
+// completes it. Anything downstream — an SMS, an email — does not go out "shortly after"; it goes
+// out whenever someone gets round to the task, which may be never. Authors read these as
+// "notify a rep, then continue", and the sequencing surprise only shows up in runtime logs.
+const MANUAL_STEP_TYPES = new Set(['manual-call', 'manual-sms', 'manual_call', 'manual_sms']);
+const OUTBOUND_SEND_TYPES = new Set(['sms', 'email', 'send_outbound_whatsapp_message',
+  'messenger', 'instagram-dm', 'whatsapp', 'internal_notification']);
+
+function manualStepHoldsChain(list) {
+  const byId = new Map(list.map((t) => [t.id, t]));
+  const out = [];
+  for (const t of list) {
+    if (!t || !MANUAL_STEP_TYPES.has(t.type)) continue;
+    // walk the LINEAR chain after it; a container ends the simple case
+    let cursor = typeof t.next === 'string' ? byId.get(t.next) : null;
+    let hops = 0;
+    while (cursor && hops++ < 50) {
+      if (OUTBOUND_SEND_TYPES.has(cursor.type)) {
+        out.push(`'${t.name ?? t.id}' (${t.type}) is a manual TASK — the queue HOLDS the run there `
+          + `until a human completes it, so '${cursor.name ?? cursor.id}' (${cursor.type}) below it does `
+          + `not send on a schedule. Put the send BEFORE the manual step, or accept that it waits.`);
+        break;
+      }
+      cursor = typeof cursor.next === 'string' ? byId.get(cursor.next) : null;
+    }
+  }
+  return out;
+}
+
 export function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {}) {
   if (skipGraphContextRules === true) return [];
   const list = Array.isArray(templates) ? templates : [];
-  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list)];
+  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list)];
   for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
   return findings;
 }
