@@ -386,6 +386,78 @@ const UPDATE_FIELD_MAP = {
 // partial PUT on 2026-08-28 did reset both agent-level toggles (F5-04). Until the read-merge-write
 // update lands (Phase-5 plan 3), callers must resend every agent-level field they care about and
 // read the echo back. Only keys present on `partialIr` are emitted; no defaults (unlike create).
+// THE UI'S OWN PRE-PUT CLEANUP, ported verbatim from useAIEmployee's `eo`
+// (conversation-ai-2026-08-25/js/ai-employees.9a1987ebd670b158.js):
+//
+//   botType !== FLOW_BUILDER_BOT  -> delete cancelEnabled, rescheduleEnabled, tones
+//   botType === FORM_BASED_BOT    -> delete personality, goal
+//   otherwise                     -> delete skipIfAlreadyFilled, botInitialMessage, steps,
+//                                    notificationSettings, brandId; prune empty llm.primary /
+//                                    llm.secondary, and drop llm entirely when both are empty
+//
+// Sending a field the UI strips for this bot type is the same off-dialect guess that produced
+// every other accepted-but-inert defect in this programme.
+const FLOW_ONLY_KEYS = ['cancelEnabled', 'rescheduleEnabled', 'tones'];
+const NON_FORM_KEYS = ['skipIfAlreadyFilled', 'botInitialMessage', 'steps', 'notificationSettings', 'brandId'];
+const SERVER_KEYS = new Set(['id', '_id', 'dateAdded', 'dateUpdated', 'createdAt', 'updatedAt', 'deleted', 'traceId']);
+
+export function applyBotTypeCleanup(body) {
+  const b = { ...body };
+  if (b.botType !== 'FLOW_BUILDER_BOT') for (const k of FLOW_ONLY_KEYS) delete b[k];
+  if (b.botType === 'FORM_BASED_BOT') {
+    delete b.personality; delete b.goal;
+  } else {
+    for (const k of NON_FORM_KEYS) delete b[k];
+    if (b.llm) {
+      const llm = { ...b.llm };
+      if (!llm.primary) delete llm.primary;
+      if (!llm.secondary) delete llm.secondary;
+      if (!llm.primary && !llm.secondary) delete b.llm; else b.llm = llm;
+    }
+  }
+  return b;
+}
+
+// READ-MERGE-WRITE. `PUT /ai-employees/employees/:agentId` takes a partial body, and the old
+// claim that it MERGES came from a capture whose at-risk booleans were already false — so a
+// reset could not have been seen. A live partial PUT reset cancelEnabled and rescheduleEnabled
+// (2026-08-28, F5-04). The UI never sends a partial: it PUTs the whole record. So do we.
+//
+// `collateralKeys` is every writable key this update does NOT set — the keys the caller must
+// prove unchanged after the write, which is the only way to know a reset did not happen.
+export function compileConvaiUpdateFromRecord(current, partialIr, { agentId, locationId } = {}) {
+  if (!agentId) throw new IRError('MISSING_FIELD', 'compileConvaiUpdateFromRecord requires agentId');
+  if (!current || typeof current !== 'object' || Array.isArray(current)) {
+    throw new IRError('SCHEMA',
+      'compileConvaiUpdateFromRecord requires the CURRENT record — GET it first. A partial PUT '
+      + 'resets omitted agent-level booleans (measured live 2026-08-28).');
+  }
+  const norm = parseConvaiPartialIR(partialIr);
+  const body = {};
+  for (const [k, v] of Object.entries(current)) if (!SERVER_KEYS.has(k) && k !== 'name') body[k] = v;
+  body.locationId = locationId ?? current.locationId;
+  body.employeeName = current.employeeName ?? current.name;
+
+  const setKeys = new Set(['locationId']);
+  for (const [irKey, wireKey] of Object.entries(UPDATE_FIELD_MAP)) {
+    if (norm[irKey] !== undefined) { body[wireKey] = norm[irKey]; setKeys.add(wireKey); }
+  }
+  if (norm.name !== undefined) { body.employeeName = norm.name; setKeys.add('employeeName'); }
+  // Actions are their own resource; the record PUT always sends null, as the UI does.
+  body.actions = null;
+  setKeys.add('actions');
+
+  const cleaned = applyBotTypeCleanup(body);
+  const collateralKeys = Object.keys(cleaned).filter((k) => !setKeys.has(k));
+  return {
+    method: 'PUT',
+    path: `/ai-employees/employees/${agentId}`,
+    body: cleaned,
+    authHeader: AUTH_HEADER,
+    collateralKeys,
+  };
+}
+
 export function compileConvaiUpdate(partialIr, { agentId, locationId } = {}) {
   if (!agentId) throw new IRError('MISSING_FIELD', 'compileConvaiUpdate requires agentId');
   const norm = parseConvaiPartialIR(partialIr);

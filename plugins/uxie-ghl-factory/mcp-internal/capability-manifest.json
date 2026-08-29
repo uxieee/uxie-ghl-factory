@@ -15,6 +15,16 @@
     "path": "/ai-employees/employees/{agentId}"
   },
   {
+    "tool": "update_convai_agent",
+    "method": "GET",
+    "path": "/ai-employees/employees/{agentId}"
+  },
+  {
+    "tool": "update_convai_agent",
+    "method": "PUT",
+    "path": "/ai-employees/employees/{agentId}"
+  },
+  {
     "tool": "create_voiceai_agent",
     "method": "POST",
     "path": "/voice-ai/agents"

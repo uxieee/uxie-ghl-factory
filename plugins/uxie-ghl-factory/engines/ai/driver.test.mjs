@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { executeAgentPlan, extractAgentId } from './driver.mjs';
+import { executeAgentPlan, extractAgentId, executeAgentUpdate } from './driver.mjs';
 
 const callResponse = (json, status = 200) => ({ status, ok: status >= 200 && status < 300, json });
 
@@ -213,4 +213,36 @@ test('normalising is voiceai-only — convai reads are untouched', async () => {
   const out = await executeAgentPlan({ plan, gw });
   assert.ok(out.verification.unverified.includes('voiceModel'),
     'convai must NOT be flattened — its agentSettings is not the same contract');
+});
+
+// The collateral diff is the whole point: verifying only what we SET would repeat the original
+// mistake, because it is the fields we did NOT set that a bad PUT silently resets.
+test('executeAgentUpdate PUTs the full body, re-reads, and fails loudly when an unset key changed', async () => {
+  const record = { id: 'A1', cancelEnabled: true, goal: 'g' };
+  const plan = {
+    update: { method: 'PUT', path: '/ai-employees/employees/A1', body: { locationId: 'LOC', employeeName: 'Bot', goal: 'g2', cancelEnabled: true, actions: null } },
+    collateralKeys: ['cancelEnabled'], before: record, expected: { goal: 'g2' },
+  };
+  const okGw = { loc: 'LOC', call: async (m) => (m === 'PUT'
+    ? { ok: true, status: 200, json: {} }
+    : { ok: true, status: 200, json: { id: 'A1', cancelEnabled: true, goal: 'g2' } }) };
+  const good = await executeAgentUpdate({ plan, gw: okGw });
+  assert.equal(good.ok, true, JSON.stringify(good));
+  assert.deepEqual(good.collateral.changed, []);
+
+  const badGw = { loc: 'LOC', call: async (m) => (m === 'PUT'
+    ? { ok: true, status: 200, json: {} }
+    : { ok: true, status: 200, json: { id: 'A1', cancelEnabled: false, goal: 'g2' } }) };
+  const bad = await executeAgentUpdate({ plan, gw: badGw });
+  assert.equal(bad.ok, false);
+  assert.equal(bad.code, 'AGENT_COLLATERAL_CHANGED');
+  assert.deepEqual(bad.collateral.changed, [{ key: 'cancelEnabled', before: true, after: false }]);
+  assert.match(bad.detail, /cancelEnabled true -> false/);
+});
+
+test('executeAgentUpdate reports an unreachable re-read as unproven, never as success', async () => {
+  const gw = { loc: 'LOC', call: async (m) => (m === 'PUT' ? { ok: true, status: 200, json: {} } : { ok: false, status: 500, json: {} }) };
+  const out = await executeAgentUpdate({ plan: { update: { method: 'PUT', path: '/ai-employees/employees/A1', body: {} }, before: {}, expected: {} }, gw });
+  assert.equal(out.ok, false);
+  assert.equal(out.code, 'AGENT_VERIFY_UNREACHABLE');
 });

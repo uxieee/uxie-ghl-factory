@@ -86,6 +86,7 @@ commit `dist/` — a test rebuilds-and-diffs so a stale bundle can't ship.
 | `build_workflow` | draft creation and verification; never publishes; runs every custom_code step in GHL's sandbox first (saves the real output; `strictCustomCode` aborts on failure); `pinWebhookSample` pins `spec.sampleWebhookPayload` as each inbound_webhook trigger's reference |
 | `edit_workflow` | read-only preview; writes require `confirm: true` and never publish |
 | `repair_workflow` | full-document replacement of `workflowData.templates` with EVERY edit guard (association, required fields, dangling refs/parentKeys, goto loops, dead branches, workflow rules, merge tags), then the plain PUT and a round-trip verify — the sanctioned replacement for a hand-rolled PUT; `expectedVersion` refuses a stale read |
+| `update_convai_agent` | READ-MERGE-WRITE for an existing Conversation AI agent: `GET` the record, overlay the spec, apply the builder's own bot-type cleanup, `PUT` the WHOLE record, re-read, and diff every field the update did not set — a partial PUT resets omitted agent-level booleans, so a partial is never sent |
 | `publish_workflow` | read-only publish preview; publishing requires `confirm: true` |
 | `list_workflow_folders` | workflow folders (`type=directory`), or one folder's contents plus its own name |
 | `create_workflow_folder` | read-only preview; creation requires `confirm: true`, verified by read-back |

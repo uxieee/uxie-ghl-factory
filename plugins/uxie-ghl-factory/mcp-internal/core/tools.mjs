@@ -46,7 +46,8 @@ import { buildCourse, previewCourseSpec } from '../../skills/ghl-memberships/eng
 import { compileConvaiAgent } from '../../engines/ai/convai-compiler.mjs';
 import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../engines/ai/voiceai-compiler.mjs';
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
-import { executeAgentPlan } from '../../engines/ai/driver.mjs';
+import { executeAgentPlan, executeAgentUpdate } from '../../engines/ai/driver.mjs';
+import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
 
 // In the bundle the catalog is inlined via esbuild --define (__HAS_CATALOG__/__TOOL_CATALOG__,
 // see scripts/esbuild-config.mjs), so descriptions work on a user's machine with no external
@@ -1167,6 +1168,67 @@ export const TOOLS = [
       const data = { preview, created: { agentId: report.agentId, actionIds: report.actionIds }, followUps: report.followUps, actions: report.actions, verification: report.verification };
       return report.ok ? ok(data) : withFailureData(fail(report.code, 'Conversation AI creation did not complete and verify.',
         'Inspect data.created and data.verification before retrying; remove any unintended canary agent manually.'), data);
+    }, args),
+  },
+  {
+    // F5-04. A partial PUT to this endpoint RESETS omitted agent-level booleans — measured live
+    // 2026-08-28, after a capture-derived "it merges" claim had stood for months (that capture's
+    // at-risk fields were already false, so a reset was invisible in it). The UI never sends a
+    // partial; it PUTs the whole record. This tool does the same, and then proves it: the keys
+    // the update did NOT set are diffed before/after, and any movement fails the call.
+    name: 'update_convai_agent',
+    description: describe('update_convai_agent',
+      'Update a Conversation AI agent by READ-MERGE-WRITE — proof: engine; risk: write. GETs the current '
+      + 'record, overlays your spec, applies the builder\'s own bot-type cleanup, PUTs the WHOLE record, '
+      + 're-reads, and diffs every field the update did not set. A partial PUT resets omitted agent-level '
+      + 'booleans (cancelEnabled/rescheduleEnabled measured live), so a partial is never sent. Any '
+      + 'collateral change fails with AGENT_COLLATERAL_CHANGED. Previews by default; confirm:true writes.'),
+    inputSchema: schema({
+      locationId: z.string(),
+      agentId: z.string(),
+      spec: z.object({}).passthrough(),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/ai-employees/employees/{agentId}' },
+      { method: 'PUT', path: '/ai-employees/employees/{agentId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const path = `/ai-employees/employees/${args.agentId}`;
+      const current = await gw.call('GET', path);
+      if (!current?.ok) return fromHttp(current?.status ?? 502, current?.json);
+      const record = current.json?.employee ?? current.json;
+      if (!record || typeof record !== 'object') {
+        return fail(CODES.ENGINE_ABORT, 'the agent GET returned no record to merge onto.',
+          'Confirm the agentId with get_ai_configuration_bundle; nothing was written.');
+      }
+      let plan;
+      try {
+        plan = compileConvaiUpdateFromRecord(record, args.spec, { agentId: args.agentId, locationId: args.locationId });
+      } catch (error) {
+        return fail(CODES.ENGINE_ABORT, `update rejected (${error.code ?? 'ENGINE_ABORT'}): ${error.message}`,
+          'The spec was rejected before any request was sent — nothing was written.');
+      }
+      const changingKeys = Object.keys(plan.body).filter((k) => !plan.collateralKeys.includes(k));
+      const preview = { body: plan.body, changingKeys, collateralKeys: plan.collateralKeys };
+      if (args.confirm !== true) {
+        return withFailureData(fail(CODES.CONFIRM_REQUIRED,
+          'Agent update preview is ready; no write was made.',
+          'Review data.preview.changingKeys and data.preview.collateralKeys, then repeat with confirm:true.'), { preview });
+      }
+      const expected = {};
+      for (const k of changingKeys) expected[k] = plan.body[k];
+      const report = await executeAgentUpdate({
+        plan: { update: { method: 'PUT', path, body: plan.body }, collateralKeys: plan.collateralKeys, before: record, expected },
+        gw,
+      });
+      const data = { preview, verification: report.verification, collateral: report.collateral };
+      return report.ok
+        ? ok(data)
+        : withFailureData(fail(report.code ?? CODES.ENGINE_ABORT,
+          report.detail ?? 'The agent update did not verify.',
+          'Inspect data.collateral and data.verification; the record is live, so re-read before retrying.'), data);
     }, args),
   },
   {

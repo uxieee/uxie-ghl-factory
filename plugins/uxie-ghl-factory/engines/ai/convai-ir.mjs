@@ -17,7 +17,11 @@ export const MODES = ['off', 'suggestive', 'autoPilot'];
 // (conv_ai_trigger bound to the agent via convTriggerBotId; the agent carries
 // isObjectiveBuilderEnabled:true + objectiveBuilderWorkflowId = that workflow's id).
 // Verified live 2026-07-14 (flow-builder-recon.md).
-export const BOT_TYPES = ['PROMPT_BASED_BOT', 'FLOW_BUILDER_BOT'];
+// Three, not two: FORM_BASED_BOT ships in the bundle's own enum
+// (conversation-ai-2026-08-25/js/ai-employees.9d15ae76d92308da.js: FORM_BASED_BOT:"FORM_BASED_BOT")
+// and the UI's pre-PUT cleanup has a dedicated branch for it. Nothing in this engine builds one
+// yet, but refusing the type outright would be wrong.
+export const BOT_TYPES = ['PROMPT_BASED_BOT', 'FLOW_BUILDER_BOT', 'FORM_BASED_BOT'];
 // channels enum — observed live on create + update.
 export const CHANNELS = ['SMS', 'IG', 'FB', 'WebChat', 'Live_Chat', 'WhatsApp'];
 // humanHandOver was the first live-verified type (convai-action.json). The other 6 UI
