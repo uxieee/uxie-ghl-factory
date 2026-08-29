@@ -9,6 +9,7 @@
 // an edit apply cleanly without disturbing untouched steps.
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
 import { normalizeStoredAttributes } from './template-normalize.mjs';
+import { lintEntryStep } from './lints/entry-step.mjs';
 import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
 import { stripNullNext, fillInputTriggerParams } from './terminals.mjs';
 import { stepNoteRecord } from './step-notes.mjs';
@@ -887,6 +888,19 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   // clean it. Runtime walks `next`, so this is builder hygiene, not a live corruptor
   // (finding 2026-07-17f) — but the builder/validator may not stay forgiving, and a
   // dangling parentKey makes a graph unreadable. Pass allowDanglingParentKeys to override.
+  // THE ENTRY STEP MUST BE templates[0]. The runtime enters at array index 0, NOT at the
+  // parentKey-less step — proven live 2026-08-29 by runtime logs (F5-34): a root wired correctly
+  // by parentKey/next but APPENDED to the end of the array never executed, and the builder drew it
+  // as the head the whole time. This is unhatched on purpose where the edit CREATED the problem:
+  // there is no legitimate reason to commit a document whose first element is not its entry.
+  {
+    const entryFindings = lintEntryStep(newTemplates).filter((f) => f.code === 'ENTRY_NOT_FIRST');
+    if (entryFindings.length && opts.allowEntryNotFirst !== true) {
+      throw new IRError('ENTRY_NOT_FIRST',
+        `${entryFindings[0].msg} Move it to index 0 (an insert before the root must unshift, not push), `
+        + 'or pass allowEntryNotFirst:true if you are deliberately committing a document the runtime will enter elsewhere.');
+    }
+  }
   if (opts.allowDanglingParentKeys !== true) {
     const touched = new Set([...(diff.createdSteps ?? []), ...(diff.modifiedSteps ?? [])]);
     const bad = danglingParentKeys(newTemplates).filter((d) => touched.has(d.id));

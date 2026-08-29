@@ -16,6 +16,8 @@ import { evaluateIfElseVocab } from '../ifelse-vocab.mjs';
 import { lintContactFieldTemplates } from '../contact-field-shapes.mjs';
 import { lintOpportunityWrites } from './opportunity.mjs';
 import { lintTriggerRows } from './trigger-rows.mjs';
+import { lintEntryStep } from './entry-step.mjs';
+import { lintPublishRules } from './publish-rules.mjs';
 import { HYGIENE_RULES } from './hygiene.mjs';
 import { runDoctrine } from './doctrine.mjs';
 
@@ -78,6 +80,10 @@ export function runLints(doc, {
         }
       }
       lintContactFieldTemplates(T, T.map((t) => t.id), { warn: (m) => F('platform', 'contact-field-shape', 'warning', m) });
+      for (const f of lintEntryStep(T)) F('platform', f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : {});
+      // The publish validator's STRUCTURAL rules. Publish is the only validator that matters:
+      // 21 workflows passed check_workflow with 0 errors and the PUT refused three of them.
+      for (const f of lintPublishRules(T)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintOpportunityWrites(T)) F('platform', f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F('platform', f.code, f.severity, f.msg, { triggerId: f.triggerId });
     } catch (e) {

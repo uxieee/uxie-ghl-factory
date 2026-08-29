@@ -354,3 +354,31 @@ test('a real stepId still works exactly as before', async () => {
   assert.equal(out[0].attributes.body, 'new');
   assert.deepEqual(diff.modifiedSteps, ['real']);
 });
+
+// F5-34: the runtime enters at templates[0], not at the parentKey-less step. A root APPENDED to
+// the end of the array never executes, and the builder draws it as the head the whole time.
+test('a commit whose entry step is not templates[0] is refused', () => {
+  const stored = [
+    { id: 'a', type: 'add_contact_tag', name: 'Head', next: null, parentKey: null, order: 0, attributes: { tags: ['x'] } },
+  ];
+  const fresh = { status: 'draft', version: 1, workflowData: { templates: stored } };
+  // a root appended AFTER its successor — wired right, ordered wrong
+  const bad = [
+    { id: 'b', type: 'sms', name: 'Text', next: null, parentKey: 'a2', order: 1, attributes: { body: 'hi' } },
+    { id: 'a2', type: 'remove_from_workflow', name: 'Remove', next: 'b', parentKey: null, order: 0, attributes: {} },
+  ];
+  const diff = { createdSteps: ['a2', 'b'], modifiedSteps: [], deletedSteps: ['a'] };
+  assert.throws(() => editCommitBody(fresh, bad, diff, 'uid', { assumeAssociated: true }),
+    (e) => e.code === 'ENTRY_NOT_FIRST' && /index 1/.test(e.message));
+  assert.doesNotThrow(() => editCommitBody(fresh, bad, diff, 'uid', { assumeAssociated: true, allowEntryNotFirst: true }));
+});
+
+test('the same document with the entry FIRST commits cleanly', () => {
+  const stored = [{ id: 'a', type: 'add_contact_tag', name: 'Head', next: null, parentKey: null, order: 0, attributes: { tags: ['x'] } }];
+  const fresh = { status: 'draft', version: 1, workflowData: { templates: stored } };
+  const good = [
+    { id: 'a2', type: 'remove_from_workflow', name: 'Remove', next: 'b', parentKey: null, order: 0, attributes: {} },
+    { id: 'b', type: 'sms', name: 'Text', next: null, parentKey: 'a2', order: 1, attributes: { body: 'hi' } },
+  ];
+  assert.doesNotThrow(() => editCommitBody(fresh, good, { createdSteps: ['a2', 'b'], modifiedSteps: [], deletedSteps: ['a'] }, 'uid', { assumeAssociated: true }));
+});

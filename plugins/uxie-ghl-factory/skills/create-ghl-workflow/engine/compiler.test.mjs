@@ -802,3 +802,17 @@ test('add_notes: an off-palette hex warns with the nearest swatch named; palette
   build('#CFF9FE'); build('#FEF0C7');
   assert.deepEqual(warns, []);
 });
+
+// F5-33: three workflows passed check_workflow with 0 errors and were refused by the publish PUT.
+// One reason was appointmentCondition:'appointment' — a natural-looking guess that saves and then
+// cannot be published. It is the PAST-TIME behaviour, not "which appointment".
+test("appointmentCondition: 'appointment' is refused at compile, naming the real four values", () => {
+  const build = (appointmentCondition) => compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'w', kind: 'wait', name: 'W', waitType: 'appointment',
+      attributes: { type: 'appointment', appointmentCondition, appointmentStartAfter: { when: 'before', type: 'hours', value: 1 } } }] }, ctx());
+  assert.throws(() => build('appointment'),
+    (e) => e.code === 'WAIT_APPOINTMENT_CONDITION'
+        && /skip \| next \| specific-step \| exit/.test(e.message)
+        && /PAST-TIME behaviour/.test(e.message));
+  for (const ok of ['skip', 'next', 'exit']) assert.doesNotThrow(() => build(ok), ok);
+});
