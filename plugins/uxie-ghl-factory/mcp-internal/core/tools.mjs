@@ -4063,13 +4063,20 @@ export const TOOLS = [
       }
       // The POST echoes ONLY the id, so it proves nothing about the stored record. Read the
       // folder back and confirm the name that actually landed.
-      const listed = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
-      const hit = (listed.json?.rows ?? []).find((row) => (row.id ?? row._id) === folderId);
+      // POLLED read-back. The folder index lags the POST by a second or two, so a single immediate
+      // read reported verified:false on folders that had in fact been created — and a flag that
+      // cries wolf is a flag callers learn to ignore.
+      const found = await gw.readBackUntil(async () => {
+        const listed = await gw.call('GET', `/workflow/${loc}/list?type=directory&limit=200&offset=0`);
+        return (listed.json?.rows ?? []).find((row) => (row.id ?? row._id) === folderId) ?? null;
+      }, { pollMs: 1000, maxPolls: 3 });
+      const hit = found.hit;
       return ok({
         folderId,
         verified: Boolean(hit),
+        readBackAttempts: found.attempts,
         folder: hit ? { id: folderId, name: hit.name, parentId: hit.parentId ?? null } : null,
-        ...(hit ? {} : { note: 'Created, but the folder did not appear in the folder list on read-back. Confirm before filing anything into it.' }),
+        ...(hit ? {} : { note: `Created, but the folder did not appear in the folder list after ${found.attempts} read-backs. Confirm before filing anything into it.` }),
       });
     }, args),
   },
