@@ -506,7 +506,7 @@ export function applyOp(templates, op, { ctx, idGen }) {
     case 'repairParentKeys': { const { templates: t, diff } = repairParentKeys(templates); return { templates: t, diff }; }
     // `stepPatch` is the TOP-LEVEL merge (name lives beside attributes, not inside it);
     // it refuses graph fields — see PROTECTED_STEP_FIELDS.
-    case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch);
+    case 'modifyStep': return modifyStep(templates, op.stepId, op.attrPatch ?? {}, op.stepPatch, ctx);
     // A retype REPLACES the step's whole attribute set, so `step.attributes` is
     // MANDATORY — that requirement is the entire reason this is its own op rather than a
     // hole in modifyStep's PROTECTED_STEP_FIELDS. Absent is refused; an explicit `{}` is

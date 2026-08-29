@@ -552,7 +552,11 @@ const NOTIFICATION_EMITTED_KEYS = {
   // into inline mode and made template-mode impossible to author — found by the enforcement tests.
   email: ['from_name', 'from_email', 'to', 'userType', 'subject', 'html', 'attachments', 'selectedUser', 'cc', 'preHeader', 'template_id', 'templatesource'],
   sms: ['body', 'userType', 'attachments', 'selectedUser', 'template_id'],
-  notification: ['notificationType', 'body', 'title', 'redirectPage', 'userType', 'selectedUser'],
+  // `type` is the DRAWER's own key for the in-app channel (the stored shape reads
+  // notification.type); `notificationType` is the authoring alias the builder accepted first.
+  // Without `type` here, re-normalising a STORED notification reported its own real key as
+  // dropped — see normalizeStoredAttributes.
+  notification: ['type', 'notificationType', 'body', 'title', 'redirectPage', 'userType', 'selectedUser'],
   whatsapp: ['body', 'userType', 'selectedUser', 'template_id'],
 };
 
@@ -564,7 +568,7 @@ function internalNotificationAttributes(a, ctx) {
   if (dropped.length) {
     ctx?.warn?.(`NOTIFICATION_KEY_DROPPED: internal_notification (${channel}) — authored key(s) `
       + `[${dropped.join(', ')}] are not emitted by this channel's shape and were discarded. `
-      + `Emitted keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(', ')}. If one of these IS real, `
+      + `Accepted author keys: ${NOTIFICATION_EMITTED_KEYS[channel].join(', ')}. If one of these IS real, `
       + 'harvest a live example and extend the handler rather than assuming it shipped.');
   }
   const userType = b.userType ?? (b.selectedUser != null && b.selectedUser !== '' ? 'user' : 'all');
@@ -783,6 +787,29 @@ function emailAttributes(node, ctx) {
     base.htmlDefaults = a.htmlDefaults ?? {};
   }
   return base;
+}
+
+// Re-run a STORED template's attributes through the same dispatch the BUILD path uses.
+// modifyStep was a raw shallow merge — the long-known bypass: a wait window patched without
+// `days`, a notification patched with a flat notificationType, were written as given while
+// these builders knew the full shape all along (F5-20). This deliberately calls attributesFor,
+// the one dispatch, rather than re-listing the dedicated builders here: a second copy of that
+// table is exactly the divergence this whole change exists to remove.
+// Only types whose AUTHOR shape is their WIRE shape can be re-run; template-normalize.mjs's
+// NORMALIZE_SKIP holds the rest and routes them to retypeStep.
+export function normalizeStoredAttributes(template, ctx) {
+  const warnings = [];
+  // COLLECT only — do not forward to ctx.warn here. The caller re-emits what it wants, and
+  // forwarding as well reported every warning twice.
+  const wctx = { ...ctx, warn: (m) => { warnings.push(m); } };
+  const node = {
+    ref: template.id,
+    kind: template.type === 'wait' ? 'wait' : 'action',
+    type: template.type,
+    name: template.name,
+    attributes: template.attributes ?? {},
+  };
+  return { attributes: attributesFor(node, wctx), warnings };
 }
 
 function typeFor(node) {

@@ -8,6 +8,7 @@
 // full templates[] with correct createdSteps/modifiedSteps/deletedSteps is what makes
 // an edit apply cleanly without disturbing untouched steps.
 import { IRError, REQUIRES_OPPORTUNITY, CREATES_OPPORTUNITY } from './ir.mjs';
+import { normalizeStoredAttributes } from './template-normalize.mjs';
 import { normalizeSettings, KNOWN_SETTINGS_KEYS } from './settings.mjs';
 import { stripNullNext, fillInputTriggerParams } from './terminals.mjs';
 import { stepNoteRecord } from './step-notes.mjs';
@@ -198,12 +199,20 @@ function assertPatchableFields(stepPatch, opLabel) {
 // vocabulary could rename a step, and an edit that repointed an "Update opportunity,
 // Signed Won" step at a different stage could not fix the now-lying label it left behind.
 // Graph fields are refused (see PROTECTED_STEP_FIELDS); everything else merges shallowly.
-export function modifyStep(templates, stepId, attrPatch, stepPatch) {
+export function modifyStep(templates, stepId, attrPatch, stepPatch, ctx) {
   requireStep(templates, stepId, 'modifyStep');
   assertPatchableFields(stepPatch, 'modifyStep');
-  const out = templates.map((t) => (t.id === stepId
-    ? { ...t, ...(stepPatch ?? {}), attributes: { ...t.attributes, ...attrPatch } }
-    : t));
+  const out = templates.map((t) => {
+    if (t.id !== stepId) return t;
+    const merged = { ...t, ...(stepPatch ?? {}), attributes: { ...t.attributes, ...attrPatch } };
+    // The merged attributes go back through the SAME dispatch the build path uses, so a patch
+    // that names only the keys the author cares about still lands as a complete drawer shape.
+    // Without a ctx (a caller that has no catalog) this stays the raw merge it always was.
+    if (!ctx) return merged;
+    const { attributes, warnings } = normalizeStoredAttributes(merged, ctx);
+    for (const w of warnings) ctx.warn?.(w);
+    return { ...merged, attributes: attributes ?? merged.attributes };
+  });
   return { templates: out, diff: { createdSteps: [], modifiedSteps: [stepId], deletedSteps: [] } };
 }
 

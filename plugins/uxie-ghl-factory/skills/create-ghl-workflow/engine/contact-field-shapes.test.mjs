@@ -154,8 +154,12 @@ test('edit appendStep warns through the compiler', () => {
   assert.deepEqual(codes(warn), ['CONTACT_FIELD_CLEAR_MISMATCH']);
 });
 
-// modifyStep never reaches the compiler — this is the path lintContactFieldTemplates covers.
-test('modifyStep flipping a clear into an empty write is caught by the templates lint', () => {
+// modifyStep used to bypass the compiler entirely, so this warning could only come from the
+// separate lintContactFieldTemplates pass at commit time. Plan 2 Task 3 routes the merged
+// attributes back through the same dispatch the build path uses, so the compiler's own lint now
+// fires DURING the op — and the commit-time pass still catches it independently. Both paths are
+// asserted: the point of the change is that the earlier one stopped being silent.
+test('modifyStep flipping a clear into an empty write warns at the op AND at the commit lint', () => {
   const warn = sink();
   const before = [{ id: 'S1', type: 'update_contact_field', name: 'Blank call outcome', order: 0,
     parentKey: null, next: null,
@@ -163,9 +167,11 @@ test('modifyStep flipping a clear into an empty write is caught by the templates
   const { templates, diff } = applyOps(before,
     [{ op: 'modifyStep', stepId: 'S1', attrPatch: { actionType: 'update_field_data' } }],
     { ctx: editCtx(warn), idGen: makeSeededIdGen('c') });
-  assert.deepEqual(warn.messages, [], 'modifyStep alone is silent — it bypasses the compiler');
-  lintContactFieldTemplates(templates, diff.modifiedSteps, warn);
-  assert.deepEqual(codes(warn), ['CONTACT_FIELD_CLEAR_MISMATCH']);
+  assert.deepEqual(codes(warn), ['CONTACT_FIELD_CLEAR_MISMATCH'],
+    'modifyStep now runs the compiler dispatch, so the op itself warns exactly once');
+  const commit = sink();
+  lintContactFieldTemplates(templates, diff.modifiedSteps, commit);
+  assert.deepEqual(codes(commit), ['CONTACT_FIELD_CLEAR_MISMATCH']);
 });
 
 test('the templates lint is scoped to the ids it is given', () => {
