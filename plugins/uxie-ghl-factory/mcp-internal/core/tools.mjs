@@ -2614,7 +2614,18 @@ export const TOOLS = [
   },
   {
     name: 'edit_workflow',
-    description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs.'),
+    description: describe('edit_workflow', 'Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. '
+      + 'Confirmed step edits use only the plain workflow PUT and are round-trip verified. '
+      + 'Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, '
+      + 'allowDanglingParentKeys, allowDanglingStepRefs. '
+      + 'Ops — steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | '
+      + 'containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch; re-normalised '
+      + 'through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, '
+      + 'disableStepsByType, moveStep, addBranch, deleteContainer, repairParentKeys, addStepNote, '
+      + 'duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, '
+      + 'modifyTrigger (target = a live step id or unique name), deleteTrigger, duplicateTrigger; '
+      + 'settings: updateSettings; notes: addStickyNote, updateStickyNote. '
+      + 'Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass).'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),

@@ -126,3 +126,15 @@ test('disableStepsByType op round-trips through the published commit body withou
     original.filter((t) => t.id !== 's2' && t.id !== 's3'));
   assert.deepEqual(body.workflowData.templates.find((t) => t.id === 's3'), s3Untouched);
 });
+
+// Plan 2 Task 6: "unknown edit op: X" named nothing, so a caller who guessed a plausible name got
+// no route to the real one — and the hand-rolled PUT was right there. The error now names the
+// whole vocabulary and the nearest match, and unambiguous aliases are simply accepted.
+test('an unknown op names the vocabulary and the nearest match; common aliases are accepted', () => {
+  assert.throws(() => applyOps(chain(), [{ op: 'updateStepp', stepId: 's2', attrPatch: { body: 'x' } }], { ctx: ctx(), idGen: () => 'x' }),
+    (e) => /unknown edit op "updateStepp"/.test(e.message)
+        && /did you mean 'modifyStep'|did you mean 'setStepDisabled'|did you mean '\w+'/.test(e.message)
+        && /Step ops: /.test(e.message) && /Trigger ops: /.test(e.message));
+  const { templates } = applyOps(chain(), [{ op: 'patchStep', stepId: 's2', attrPatch: { body: 'y' } }], { ctx: ctx(), idGen: () => 'x' });
+  assert.equal(templates[1].attributes.body, 'y');
+});

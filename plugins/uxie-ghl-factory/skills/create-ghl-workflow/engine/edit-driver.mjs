@@ -137,7 +137,8 @@ export function replaceFieldIdInTriggerConditions(conditions, oldId, newId) {
 
 export function partitionOps(ops) {
   const stepOps = [], triggerOps = [], settingsOps = [], stickyOps = [];
-  for (const op of ops ?? []) {
+  for (const raw of ops ?? []) {
+    const op = { ...raw, op: canonicalOpName(raw?.op) };
     (TRIGGER_OPS.has(op.op) ? triggerOps : SETTINGS_OPS.has(op.op) ? settingsOps : STICKY_OPS.has(op.op) ? stickyOps : stepOps).push(op);
     // Find & Replace (tag mode) spans BOTH documents like the UI's "Replace All": the step op
     // rewrites templates; a derived trigger op rewrites every trigger condition carrying the tag.
@@ -513,6 +514,22 @@ const OP_ARG_ALIASES = {
   newName: 'name', stepName: 'name', label: 'name', title: 'name',
 };
 
+// Names people reach for that mean an op here. Accepted silently — each is unambiguous.
+const OP_NAME_ALIASES = {
+  updateStep: 'modifyStep', patchStep: 'modifyStep', update: 'modifyStep', editStep: 'modifyStep',
+  removeStep: 'deleteStep', addStep: 'appendStep', append: 'appendStep', insert: 'insertAfter',
+  rename: 'renameStep', disableStep: 'setStepDisabled', move: 'moveStep',
+};
+const STEP_OP_NAMES = Object.keys(OP_REQUIRED_ARGS);
+const opDistance = (a, b) => {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1].toLowerCase() === b[j - 1].toLowerCase() ? 0 : 1));
+  return d[a.length][b.length];
+};
+export const canonicalOpName = (name) => OP_NAME_ALIASES[name] ?? name;
+
 export function checkOpShape(op) {
   const required = OP_REQUIRED_ARGS[op?.op];
   if (!required) return;   // unknown ops fall through to the dispatch default
@@ -548,6 +565,7 @@ const requireStepFor = (templates, id, op) => {
 };
 
 export function applyOp(templates, op, { ctx, idGen }) {
+  op = { ...op, op: canonicalOpName(op?.op) };
   checkOpShape(op);
   switch (op.op) {
     // The three add ops each take EITHER a linear step or a container subgraph; the
@@ -631,7 +649,22 @@ export function applyOp(templates, op, { ctx, idGen }) {
         throw new Error(`'${op.op}' is a SETTINGS op — it edits the workflow document's top level, not workflowData.templates. Route it through partitionOps()/mergeSettingsOps() → editCommitBody({ settingsPatch }).`);
       if (STICKY_OPS.has(op.op))
         throw new Error(`'${op.op}' is a STICKY-NOTE op — sticky notes are a separate resource (/workflows/sticky-note), not workflowData.templates. Route it through partitionOps()/planStickyNoteOp().`);
-      throw new Error(`unknown edit op: ${JSON.stringify(op.op)}`);
+      {
+        // Name the whole vocabulary AND the nearest match. "unknown edit op" on its own sent
+        // callers to the hand-rolled PUT rather than to the op they actually wanted.
+        const all = [...STEP_OP_NAMES, ...TRIGGER_OPS, ...SETTINGS_OPS, ...STICKY_OPS];
+        // Match against the ALIASES too, and suggest what they canonicalise to: a typo is far more
+        // likely to be one character off the name the caller reached for ('updateStepp') than off
+        // the canonical one ('modifyStep').
+        const candidates = [...all.map((n) => [n, n]), ...Object.entries(OP_NAME_ALIASES)];
+        const near = candidates
+          .map(([spelling, canonical]) => [opDistance(String(op.op ?? ''), spelling), canonical])
+          .sort((a, b) => a[0] - b[0])[0];
+        throw new Error(
+          `unknown edit op ${JSON.stringify(op.op)}${near && near[0] <= 4 ? ` — did you mean '${near[1]}'?` : ''}. `
+          + `Step ops: ${STEP_OP_NAMES.join(', ')}. Trigger ops: ${[...TRIGGER_OPS].join(', ')}. `
+          + `Settings: ${[...SETTINGS_OPS].join(', ')}. Sticky notes: ${[...STICKY_OPS].join(', ')}.`);
+      }
   }
 }
 
