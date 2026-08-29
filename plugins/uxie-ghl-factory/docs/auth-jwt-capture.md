@@ -24,12 +24,10 @@ content-type:    application/json     (POST/PUT only)
   `https://app.gohighlevel.com/` both authenticate the workflow endpoints. Settled live
   2026-08-29: an app-scoped token drove `GET /workflow/{loc}/list`, a full build (create,
   auto-save, seven trigger POSTs), an edit PUT and its read-back — every one a `200`.
-  Either is usable when you see both.
-
-  > This page previously said an app-scoped token "is unscoped and returns 401 on every
-  > workflow endpoint", while `commands/internal-connect.md` said the referer MUST be
-  > `app.gohighlevel.com`. The two procedures contradicted each other and neither had a
-  > test; `mcp-internal/test/capture-referer.test.mjs` is now that test.
+  Either is usable when you see both. The rule is regression-tested in
+  `mcp-internal/test/capture-referer.test.mjs`, and `acceptsBearerFrom()` in
+  `mcp-internal/scripts/capture-token.mjs` is its single implementation — change neither
+  without the other.
 - Writes (`POST`/`PUT`/`PATCH`/`DELETE`) are additionally CORS-enforced to the iframe origin. Send:
   ```
   origin:   https://client-app-automation-workflows.leadconnectorhq.com
