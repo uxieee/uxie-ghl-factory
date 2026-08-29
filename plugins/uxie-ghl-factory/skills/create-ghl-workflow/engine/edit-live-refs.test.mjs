@@ -63,3 +63,13 @@ test('compile() on a fresh build is unchanged: no externalRefs, a dangling ref s
     graph: [{ ref: 'a', kind: 'action', type: 'add_contact_tag', name: 'A', attributes: { tags: ['a'] } }, { ref: 'g', kind: 'goto', name: 'G', target: 'nope' }] };
   assert.throws(() => compile(ir, ctx()), (e) => e.code === 'GOTO_UNRESOLVED');
 });
+
+test('compile() records branch refs in _refMap', () => {
+  const ir = { name: 'W', triggers: [], graph: [{ ref: 'g', kind: 'if_else', name: 'G', branches: [
+    { ref: 'yes', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'x' }], then: [] },
+    { ref: 'no', name: 'No', else: true, then: [] } ] }] };
+  const out = compile(ir, ctx());
+  const container = out._templates.find((t) => t.type === 'if_else');
+  assert.equal(out._refMap.get('yes'), container.next[0]);
+  assert.equal(out._refMap.get('no'), container.next[1]);
+});

@@ -137592,7 +137592,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
       return;
     }
     if (n.kind === "split") {
-      const pathIds = n.paths.map(() => ctx.idGen());
+      const pathIds = n.paths.map((p) => idForRef(refMap, ctx, p.ref));
       const weighted = n.mode === "weighted" || n.mode === "random";
       const even = Math.round(100 / n.paths.length);
       const weightDistribution = {};
@@ -137694,7 +137694,7 @@ function flattenGraph(nodes, ctx, refMap, parentScopeId = null) {
     if (n.kind === "ai_decision") {
       const type = n.type ?? "workflow_ai_decision_maker";
       const defId = ctx.idGen();
-      const branchIds = n.branches.map(() => ctx.idGen());
+      const branchIds = n.branches.map((b) => idForRef(refMap, ctx, b.ref));
       const transitions = [
         { id: defId, name: "Default Branch", fields: { description: "Go in this branch if none of the other branches make sense.", branchKey: "none" }, meta: { __branchKey__: "predefined_Default Branch" }, conditionType: "pre-defined" },
         ...n.branches.map((b, bi) => ({
@@ -140650,7 +140650,8 @@ var OP_REQUIRED_ARGS = {
   appendStep: ["step"],
   insertAfter: ["step", "afterId"],
   insertBefore: ["step", "beforeId"],
-  appendToBranch: ["step", "branchEntryId"],
+  appendToBranch: ["step"],
+  // the ANCHOR is one of three shapes — checked below
   deleteStep: ["stepId"],
   modifyStep: ["stepId"],
   retypeStep: ["stepId", "step"],
@@ -140680,6 +140681,12 @@ var OP_ARG_ALIASES = {
 function checkOpShape(op) {
   const required2 = OP_REQUIRED_ARGS[op?.op];
   if (!required2) return;
+  if (op.op === "appendToBranch" && !op.branchEntryId && !op.branchRef && !(op.containerId && op.branch)) {
+    const aliased = Object.keys(op).find((k) => OP_ARG_ALIASES[k] === "branchEntryId");
+    throw new Error(
+      (aliased ? `you passed '${aliased}' \u2014 this op takes 'branchEntryId'. ` : "") + `edit op 'appendToBranch' needs ONE anchor: branchEntryId (a branch entry id), branchRef (a branch ref authored earlier in this call), or containerId + branch (display name, __branchKey__, or id).`
+    );
+  }
   const missing = required2.filter((k) => op[k] === void 0);
   if (!missing.length) return;
   const suggestions = missing.map((want) => {
@@ -140690,6 +140697,11 @@ function checkOpShape(op) {
     `edit op '${op.op}' is missing required argument(s) [${missing.join(", ")}]` + (suggestions.length ? ` \u2014 ${suggestions.join("; ")}` : "") + `. '${op.op}' takes: ${required2.join(", ")}.`
   );
 }
+var requireStepFor = (templates, id, op) => {
+  const hit = (templates ?? []).find((t) => t.id === id);
+  if (!hit) throw new Error(`${op}: no step with id '${id}'`);
+  return hit;
+};
 function applyOp(templates, op, { ctx, idGen }) {
   checkOpShape(op);
   switch (op.op) {
@@ -140709,7 +140721,17 @@ function applyOp(templates, op, { ctx, idGen }) {
     }
     case "appendToBranch": {
       const sub = compileSubgraph(op.step, ctx);
-      return { ...sub.isContainer ? appendSubgraphToBranch(templates, op.branchEntryId, sub) : appendToBranch(templates, op.branchEntryId, sub.entry), refMap: sub.refMap };
+      let anchorId = op.branchEntryId;
+      if (!anchorId && op.branchRef) {
+        anchorId = ctx.externalRefs?.byName?.get(op.branchRef) ?? null;
+        if (!anchorId)
+          throw new Error(`appendToBranch: branchRef '${op.branchRef}' was not authored by an earlier op in this call`);
+      }
+      if (!anchorId) {
+        const container = requireStepFor(templates, op.containerId, "appendToBranch");
+        anchorId = resolveBranchTarget(container, templates, op.branch, "appendToBranch").id;
+      }
+      return { ...sub.isContainer ? appendSubgraphToBranch(templates, anchorId, sub) : appendToBranch(templates, anchorId, sub.entry), refMap: sub.refMap };
     }
     case "deleteStep":
       return deleteStep(templates, op.stepId);

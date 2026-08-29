@@ -411,3 +411,40 @@ test('insertAfter with {type:"if_else"} and NO kind compiles a real container, n
   assert.ok(Array.isArray(entry.next) && entry.next.length === 2, `container next must be the 2-branch array, got ${JSON.stringify(entry.next)}`);
   assert.equal(diff.createdSteps.length, 3, 'entry + two branch entries');
 });
+
+// Plan 2 Task 2: appendToBranch used to demand a branchEntryId — an id the caller could only get
+// by exporting the workflow and reading the container's next[] by position. Two more anchors now
+// resolve to the same place: the container plus the branch's display name, and a branch REF
+// authored earlier in the same call.
+test('appendToBranch by container + branch NAME resolves through resolveBranchTarget; a wrong name lists the options', () => {
+  const gate = { kind: 'if_else', name: 'Gate', branches: [
+    { ref: 'y', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'vip' }], then: [] },
+    { ref: 'n', name: 'No', else: true, then: [] } ] };
+  const first = applyOps(linearWf(), [{ op: 'appendStep', step: gate }], { ctx: ctx('b'), idGen: makeSeededIdGen('b') });
+  const container = first.templates.find((t) => t.type === 'if_else');
+  const { templates } = applyOps(first.templates, [{ op: 'appendToBranch', containerId: container.id, branch: 'Yes',
+    step: { type: 'sms', name: 'Yes text', attributes: { body: 'yes' } } }], { ctx: ctx('c'), idGen: makeSeededIdGen('c') });
+  const yesEntry = templates.find((t) => t.id === container.next[0]);
+  assert.equal(templates.find((t) => t.name === 'Yes text').parent, yesEntry.id);
+  assert.throws(() => applyOps(first.templates, [{ op: 'appendToBranch', containerId: container.id, branch: 'Maybe',
+    step: { type: 'sms', name: 'x', attributes: { body: 'x' } } }], { ctx: ctx('c'), idGen: makeSeededIdGen('c') }),
+    /appendToBranch: no branch 'Maybe'|'Yes'/);
+});
+
+test('appendToBranch by branchRef targets a branch authored earlier in the SAME call', () => {
+  const gate = { kind: 'if_else', name: 'Gate', branches: [
+    { ref: 'yes', name: 'Yes', conditions: [{ conditionType: 'contact_detail', tag: 'vip' }], then: [] },
+    { ref: 'no', name: 'No', else: true, then: [] } ] };
+  const { templates } = applyOps(linearWf(), [
+    { op: 'appendStep', step: gate },
+    { op: 'appendToBranch', branchRef: 'no', step: { type: 'sms', name: 'No text', attributes: { body: 'no' } } },
+  ], { ctx: ctx('d'), idGen: makeSeededIdGen('d') });
+  const container = templates.find((t) => t.type === 'if_else');
+  assert.equal(templates.find((t) => t.name === 'No text').parent, container.next[1]);
+});
+
+test('appendToBranch with NO anchor names all three shapes', () => {
+  assert.throws(() => applyOps(linearWf(), [{ op: 'appendToBranch', step: { type: 'sms', name: 'x', attributes: { body: 'x' } } }],
+    { ctx: ctx('e'), idGen: makeSeededIdGen('e') }),
+    /needs ONE anchor: branchEntryId.*branchRef.*containerId \+ branch/s);
+});
