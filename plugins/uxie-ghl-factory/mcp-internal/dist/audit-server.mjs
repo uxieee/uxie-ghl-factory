@@ -139637,6 +139637,7 @@ function codeAttributes(a, ref) {
   };
 }
 var WAIT_UNITS = /* @__PURE__ */ new Set(["seconds", "minutes", "hour", "hours", "days"]);
+var APPOINTMENT_CONDITIONS = /* @__PURE__ */ new Set(["skip", "next", "specific-step", "exit"]);
 function waitAttributes(node, ctx) {
   const a = node.attributes ?? {};
   const hybrid = { cat: "", isHybridAction: true, hybridActionType: "wait", convertToMultipath: false, transitions: [] };
@@ -139667,6 +139668,12 @@ function waitAttributes(node, ctx) {
       base.windowCondition = { field: "", operator: "", value: "" };
     }
     return base;
+  }
+  if (a.appointmentCondition !== void 0 && !APPOINTMENT_CONDITIONS.has(a.appointmentCondition)) {
+    throw new IRError(
+      "WAIT_APPOINTMENT_CONDITION",
+      `wait '${node.ref}' has appointmentCondition '${a.appointmentCondition}', which is not one of ${[...APPOINTMENT_CONDITIONS].join(" | ")}. It is the PAST-TIME behaviour (what to do when the appointment time has already passed), not which appointment to wait for \u2014 the wait always targets the appointment in the workflow's context. A wrong value SAVES and then fails the publish validator with "invalid value".`
+    );
   }
   if (wt === "specific_date") {
     if (a.timePeriodInputMode !== void 0 || a.dynamicTimePeriod !== void 0) {
@@ -141788,6 +141795,48 @@ function normalizeStoredAttributes2(template, ctx) {
   return normalizeStoredAttributes(template, ctx);
 }
 
+// ../skills/create-ghl-workflow/engine/lints/entry-step.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var isRootish = (t) => t && (t.parentKey === null || t.parentKey === void 0) && (t.parent === null || t.parent === void 0);
+function lintEntryStep(templates) {
+  const list = Array.isArray(templates) ? templates.filter(Boolean) : [];
+  if (!list.length) return [];
+  const roots = list.filter(isRootish);
+  if (!roots.length) {
+    return [{
+      code: "ENTRY_MISSING",
+      severity: "error",
+      stepId: null,
+      name: null,
+      msg: "no step has a null/absent parentKey, so the workflow has no entry step at all \u2014 the runtime still starts at templates[0], but nothing in the document says that is intentional."
+    }];
+  }
+  const out = [];
+  if (roots.length > 1) {
+    out.push({
+      code: "ENTRY_AMBIGUOUS",
+      severity: "error",
+      stepId: roots[0].id,
+      name: roots[0].name ?? roots[0].id,
+      msg: `${roots.length} steps have no parentKey (${roots.map((r) => `'${r.name ?? r.id}'`).join(", ")}) \u2014 the builder picks one to draw and the runtime starts at templates[0]; they need not be the same step.`
+    });
+  }
+  const first = list[0];
+  const entry = roots[0];
+  if (!isRootish(first)) {
+    out.push({
+      code: "ENTRY_NOT_FIRST",
+      severity: "error",
+      stepId: entry.id,
+      name: entry.name ?? entry.id,
+      msg: `the entry step '${entry.name ?? entry.id}' is at array index ${list.indexOf(entry)}, but the runtime enters at templates[0], which is '${first.name ?? first.id}' (${first.type}). Everything before the entry in the array is skipped \u2014 proven live 2026-08-29. Move the entry step to index 0.`
+    });
+  }
+  return out;
+}
+
 // ../skills/create-ghl-workflow/engine/edit.mjs
 function rootTail(templates) {
   const byId = new Map(templates.map((t) => [t.id, t]));
@@ -142321,6 +142370,15 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
     const bad = danglingStepRefs(newTemplates).filter((d) => touchedIds.has(d.id) || deletedIds.has(d.missing));
     if (bad.length)
       throw new Error(`edit would leave ${bad.length} dangling step reference(s): ` + bad.map((b) => `'${b.name ?? b.id}' (${b.type}) ${b.path} \u2192 missing '${b.missing}'`).join("; ") + `. GHL reports 0 errors on this and renders a broken link. Repoint the reference, or pass allowDanglingStepRefs:true.`);
+  }
+  {
+    const entryFindings = lintEntryStep(newTemplates).filter((f) => f.code === "ENTRY_NOT_FIRST");
+    if (entryFindings.length && opts.allowEntryNotFirst !== true) {
+      throw new IRError(
+        "ENTRY_NOT_FIRST",
+        `${entryFindings[0].msg} Move it to index 0 (an insert before the root must unshift, not push), or pass allowEntryNotFirst:true if you are deliberately committing a document the runtime will enter elsewhere.`
+      );
+    }
   }
   if (opts.allowDanglingParentKeys !== true) {
     const touched2 = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
@@ -144304,6 +144362,50 @@ init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 
+// ../skills/create-ghl-workflow/engine/lints/publish-rules.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+function lintPublishRules(templates) {
+  const list = Array.isArray(templates) ? templates.filter(Boolean) : [];
+  const out = [];
+  const byId = new Map(list.map((t) => [t.id, t]));
+  const inbound = /* @__PURE__ */ new Map();
+  for (const t of list) if (typeof t.next === "string" && t.next) inbound.set(t.next, t.id);
+  for (const t of list) {
+    if (!t.id) continue;
+    const pk = t.parentKey;
+    const pred = inbound.get(t.id);
+    if (pk == null || pred === void 0) continue;
+    if (pk !== pred && byId.has(pk)) {
+      out.push({
+        code: "NEXT_PARENTKEY_MISMATCH",
+        severity: "warning",
+        stepId: t.id,
+        name: t.name ?? t.id,
+        msg: `'${t.name ?? t.id}' has parentKey '${byId.get(pk)?.name ?? pk}' but the step whose next points at it is '${byId.get(pred)?.name ?? pred}'. GHL's publish validator refuses this as "next-parentkey-mismatch"; the builder renders it fine, so it survives until someone tries to publish.`
+      });
+    }
+  }
+  for (const t of list) {
+    if (t.type !== "update_contact_field") continue;
+    const rows = Array.isArray(t.attributes?.fields) ? t.attributes.fields : [];
+    rows.forEach((r, i) => {
+      if (!r || typeof r !== "object") return;
+      const missing = ["title", "type"].filter((k) => r[k] === void 0 || r[k] === null || r[k] === "");
+      if (!missing.length) return;
+      out.push({
+        code: "FIELD_ROW_INCOMPLETE",
+        severity: "warning",
+        stepId: t.id,
+        name: t.name ?? t.id,
+        msg: `'${t.name ?? t.id}' field row ${i} (${r.field ?? "unnamed"}) is missing [${missing.join(", ")}] \u2014 GHL's publish validator answers "Title is required" / "Type is required". A working clear row is { field, value: "", title, type: "string", date: "" }.`
+      });
+    });
+  }
+  return out;
+}
+
 // ../skills/create-ghl-workflow/engine/lints/hygiene.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -144535,6 +144637,8 @@ function runLints(doc, {
         }
       }
       lintContactFieldTemplates(T, T.map((t) => t.id), { warn: (m) => F("platform", "contact-field-shape", "warning", m) });
+      for (const f of lintEntryStep(T)) F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : {});
+      for (const f of lintPublishRules(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintOpportunityWrites(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
     } catch (e) {

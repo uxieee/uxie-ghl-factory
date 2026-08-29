@@ -734,6 +734,13 @@ function codeAttributes(a, ref) {
 // unknown unit saves clean and leaves the pause undefined.
 const WAIT_UNITS = new Set(['seconds', 'minutes', 'hour', 'hours', 'days']);
 
+// appointmentCondition is the PAST-TIME behaviour, not "which appointment" — the wait always
+// targets the appointment in the workflow's context. Its enum is exactly these four
+// (Wait.ts:44 appointmentConditionType). The value 'appointment' is a natural-looking guess that
+// SAVES and then cannot be published: GHL's publish validator answers "invalid value", and 55
+// legacy steps carry it. Refuse it at compile with the real vocabulary named (F5-33).
+const APPOINTMENT_CONDITIONS = new Set(['skip', 'next', 'specific-step', 'exit']);
+
 function waitAttributes(node, ctx) {
   const a = node.attributes ?? {};
   const hybrid = { cat: '', isHybridAction: true, hybridActionType: 'wait', convertToMultipath: false, transitions: [] };
@@ -778,6 +785,14 @@ function waitAttributes(node, ctx) {
   }
   // other subtypes (appointment, email_event, link_clicked, condition, ...): the IR supplies
   // the subtype-specific fields in node.attributes; we set type + hybrid flags.
+  if (a.appointmentCondition !== undefined && !APPOINTMENT_CONDITIONS.has(a.appointmentCondition)) {
+    throw new IRError('WAIT_APPOINTMENT_CONDITION',
+      `wait '${node.ref}' has appointmentCondition '${a.appointmentCondition}', which is not one of `
+      + `${[...APPOINTMENT_CONDITIONS].join(' | ')}. It is the PAST-TIME behaviour (what to do when the `
+      + `appointment time has already passed), not which appointment to wait for — the wait always targets `
+      + `the appointment in the workflow's context. A wrong value SAVES and then fails the publish `
+      + `validator with "invalid value".`);
+  }
   if (wt === 'specific_date') {
     // The drawer's shape (Wait.ts: the specificDate* key block; setInitialSpecificDate() at :607
     // for the defaults; checkForSpecificDateError() at :1473 for what it refuses). A build once

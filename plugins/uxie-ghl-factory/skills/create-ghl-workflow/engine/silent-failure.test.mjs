@@ -153,12 +153,15 @@ test('appointment-anchored wait passes its subtype fields through', () => {
     attributes: {
       type: 'appointment',
       appointmentStartAfter: { when: 'before', type: 'hours', value: 24, distributed: {} },
-      appointmentCondition: 'appointment',
+      // 'skip' — the PAST-TIME behaviour. 'appointment' was here until 2026-08-29: it saves and
+      // then fails the publish validator with "invalid value" (F5-33), and the compiler now
+      // refuses it. This test is about subtype fields passing through, not about that value.
+      appointmentCondition: 'skip',
     },
   }]);
   assert.equal(t[0].attributes.type, 'appointment');
   assert.deepEqual(t[0].attributes.appointmentStartAfter, { when: 'before', type: 'hours', value: 24, distributed: {} });
-  assert.equal(t[0].attributes.appointmentCondition, 'appointment');
+  assert.equal(t[0].attributes.appointmentCondition, 'skip');
 });
 
 // ─── Item 3: update_opportunity ignored the resolved pipeline/stage → EMPTY step ──────
