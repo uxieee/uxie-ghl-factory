@@ -736,3 +736,37 @@ test('predeterminedId is sent for inbound_webhook only — the one type the buil
   assert.equal(tag.predeterminedId, undefined, 'a non-webhook trigger must not declare one');
   assert.ok(tag._placeholderId, 'but it still gets a placeholder for routing');
 });
+
+// The specific_date wait had no builder branch at all, so a date-field wait could only be written
+// as raw attributes — and a real build authored `timePeriodInputMode`, which belongs to TIME
+// delays, producing a wait that stored clean and did nothing.
+test('specific_date wait: dynamic mode compiles the drawer shape from a lean intent; the wrong-mode key is refused', () => {
+  const ir = (attrs) => ({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'w', kind: 'wait', name: 'Until callback', waitType: 'specific_date', attributes: attrs }] });
+  const { autoSaveBody } = compile(ir({ dynamicSpecificDate: '{{contact.next_callback_on}}', specificDateProceed: 'before', specificDateOffsetHours: 1 }), ctx());
+  const a = autoSaveBody.workflowData.templates.find((t) => t.type === 'wait').attributes;
+  assert.deepEqual(
+    { mode: a.specificDateInputMode, dyn: a.dynamicSpecificDate, proceed: a.specificDateProceed,
+      d: a.specificDateOffsetDays, h: a.specificDateOffsetHours, m: a.specificDateOffsetMinutes, passed: a.specificDatePassed },
+    { mode: 'dynamic', dyn: '{{contact.next_callback_on}}', proceed: 'before', d: 0, h: 1, m: 0, passed: 'skip' });
+  assert.throws(() => compile(ir({ specificDate: '2026-09-01', timePeriodInputMode: 'dynamic' }), ctx()),
+    (e) => e.code === 'WAIT_SPECIFIC_DATE' && /timePeriodInputMode belongs to TIME delays/.test(e.message));
+});
+
+test("GHL's own specific-date rules are ported: no time, a non-merge-tag dynamic date, and a zero offset are all refused", () => {
+  const build = (attrs) => compile({ name: 'W', triggers: [{ ref: 't', type: 'contact_tag', name: 'T', filters: [] }],
+    graph: [{ ref: 'w', kind: 'wait', name: 'W', waitType: 'specific_date', attributes: attrs }] }, ctx());
+  // standard mode with no hour/period — checkForSpecificDateError
+  assert.throws(() => build({ specificDate: '2026-09-01' }), (e) => e.code === 'REQUIRED_FIELD');
+  // dynamic mode whose value is not a merge tag
+  assert.throws(() => build({ dynamicSpecificDate: 'next tuesday' }), (e) => e.code === 'REQUIRED_FIELD' || /merge tag/.test(e.message));
+  // before/after with every offset zero — checkForDateOffsetError
+  assert.throws(() => build({ dynamicSpecificDate: '{{x}}', specificDateProceed: 'before',
+    specificDateOffsetDays: 0, specificDateOffsetHours: 0, specificDateOffsetMinutes: 0 }),
+    (e) => /offset/.test(e.message));
+  // specific_step with no step
+  assert.throws(() => build({ dynamicSpecificDate: '{{x}}', specificDatePassed: 'specific_step' }),
+    (e) => e.code === 'REQUIRED_FIELD');
+  // and a complete one compiles
+  assert.doesNotThrow(() => build({ specificDate: '2026-09-01', specificTimeHour: 9, specificTimePeriod: 'AM' }));
+});

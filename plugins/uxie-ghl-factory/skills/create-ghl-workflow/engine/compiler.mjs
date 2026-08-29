@@ -756,6 +756,43 @@ function waitAttributes(node, ctx) {
   }
   // other subtypes (appointment, email_event, link_clicked, condition, ...): the IR supplies
   // the subtype-specific fields in node.attributes; we set type + hybrid flags.
+  if (wt === 'specific_date') {
+    // The drawer's shape (Wait.ts: the specificDate* key block; setInitialSpecificDate() at :607
+    // for the defaults; checkForSpecificDateError() at :1473 for what it refuses). A build once
+    // authored `timePeriodInputMode` here — that key belongs to TIME delays, and the load-bearing
+    // key for a date-field wait is `dynamicSpecificDate`.
+    if (a.timePeriodInputMode !== undefined || a.dynamicTimePeriod !== undefined) {
+      throw new IRError('WAIT_SPECIFIC_DATE',
+        `wait '${node.ref}': timePeriodInputMode belongs to TIME delays; a specific_date wait's dynamic `
+        + 'mode is specificDateInputMode + dynamicSpecificDate. Author dynamicSpecificDate: "{{merge}}" '
+        + 'for a date-field wait.');
+    }
+    const dynamic = a.dynamicSpecificDate !== undefined || a.specificDateInputMode === 'dynamic';
+    return {
+      type: 'specific_date',
+      specificDateInputMode: dynamic ? 'dynamic' : 'standard',
+      // NO time defaults on the standard path. This builder runs BEFORE enforceRequiredFields, so
+      // defaulting specificTimeHour/Period here would make GHL's own checkForSpecificDateError
+      // rule (ported into COUPLED_FIELDS.wait) unreachable — the engine would bless a step the
+      // builder marks red. Emit only what the author supplied.
+      ...(dynamic
+        ? { dynamicSpecificDate: a.dynamicSpecificDate }
+        : { specificDate: a.specificDate,
+            ...(a.specificTimeHour !== undefined ? { specificTimeHour: a.specificTimeHour } : {}),
+            ...(a.specificTimeMinute !== undefined ? { specificTimeMinute: a.specificTimeMinute } : {}),
+            ...(a.specificTimePeriod !== undefined ? { specificTimePeriod: a.specificTimePeriod } : {}) }),
+      // setInitialSpecificDate()'s own defaults, verbatim.
+      specificDateProceed: a.specificDateProceed ?? 'on',
+      specificDateOffsetDays: a.specificDateOffsetDays ?? 0,
+      specificDateOffsetHours: a.specificDateOffsetHours ?? 0,
+      specificDateOffsetMinutes: a.specificDateOffsetMinutes ?? 0,
+      specificDatePassed: a.specificDatePassed ?? 'skip',
+      ...(a.specificDateStep !== undefined ? { specificDateStep: a.specificDateStep } : {}),
+      ...(a.window ? { window: a.window } : {}),
+      ...hybrid,
+    };
+  }
+
   return { type: wt, ...a, ...hybrid };
 }
 

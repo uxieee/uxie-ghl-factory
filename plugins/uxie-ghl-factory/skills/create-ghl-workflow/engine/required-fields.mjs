@@ -636,6 +636,37 @@ export const COUPLED_FIELDS = {
     why: 'appointmentCondition:"specific-step" means jump to a named step, so the target is not '
        + 'optional. GHL\'s own validateAppointmentWait requires it.',
   }, {
+    // GHL's OWN checkForSpecificDateError (Wait.ts:1473): a STANDARD specific-date wait needs the
+    // date AND the hour AND the AM/PM period. The builder paints the step red without them; the
+    // API stores it happily and the wait behaves undefined.
+    when: (a) => a.type === 'specific_date'
+      && !(a.specificDateInputMode === 'dynamic' || a.dynamicSpecificDate !== undefined),
+    require: ['specificDate', 'specificTimeHour', 'specificTimePeriod'],
+    why: "GHL's checkForSpecificDateError refuses a standard specific-date wait that is missing "
+       + 'the date, the hour, or the AM/PM period.',
+  }, {
+    // Same validator, dynamic branch: the value must be a merge tag, not prose.
+    when: (a) => a.type === 'specific_date'
+      && (a.specificDateInputMode === 'dynamic' || a.dynamicSpecificDate !== undefined),
+    check: (a) => {
+      const v = String(a.dynamicSpecificDate ?? '').trim();
+      return (!v || !v.startsWith('{{') || !v.endsWith('}}'))
+        ? `has dynamicSpecificDate ${JSON.stringify(a.dynamicSpecificDate)}, which is not a merge tag`
+        : null;
+    },
+    why: 'A dynamic specific-date wait reads the date from a merge tag — checkForSpecificDateError '
+       + 'requires a value that starts with {{ and ends with }}.',
+  }, {
+    // checkForDateOffsetError (Wait.ts:1487): before/after with every offset at zero is just "on".
+    when: (a) => a.type === 'specific_date'
+      && (a.specificDateProceed === 'before' || a.specificDateProceed === 'after'),
+    check: (a) => (((a.specificDateOffsetDays ?? 0) === 0 && (a.specificDateOffsetHours ?? 0) === 0
+      && (a.specificDateOffsetMinutes ?? 0) === 0)
+      ? `proceeds '${a.specificDateProceed}' the date with every offset at 0`
+      : null),
+    why: "Before/after needs a non-zero offset — otherwise it is just 'on', and GHL's "
+       + 'checkForDateOffsetError refuses it.',
+  }, {
     // No GHL rule behind this one — stated as ours. Structurally identical to the rule above,
     // on the specific_date variant instead of the appointment variants.
     when: (a) => a.specificDatePassed === 'specific_step',
