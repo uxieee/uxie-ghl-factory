@@ -23,6 +23,7 @@ import { checkWorkflowRules, rulesNeedTriggers } from '../../skills/create-ghl-w
 import { parseActionSchema, parseTriggerSchema, checkWorkflow, marketplaceDrift } from '../../skills/create-ghl-workflow/engine/action-schema.mjs';
 import {
   applyOps,
+  externalRefsOf,
   mergeSettingsOps,
   opsUseMarketplace,
   partitionOps,
@@ -2755,6 +2756,9 @@ export const TOOLS = [
       // note fails the preview, written after the step commit and trigger writes.
       const stickyPlan = stickyOps.map((op) => planStickyNoteOp(op, { loc: args.locationId, wid: args.workflowId }));
       const { templates, diff } = applyOps(beforeTemplates, stepOps, { ctx, idGen });
+      // Trigger ops are planned AFTER the step ops land, so a trigger `target` resolves against
+      // the POST-EDIT roster — it can point at a step this same call just created.
+      ctx.externalRefs = externalRefsOf(templates);
       // triggers are needed for trigger ops AND for the trigger-aware workflow-level rules (an
       // action can be illegal purely because of the trigger above it) — but only when the
       // post-edit document holds a type those rules care about, so plain edits stay network-identical
