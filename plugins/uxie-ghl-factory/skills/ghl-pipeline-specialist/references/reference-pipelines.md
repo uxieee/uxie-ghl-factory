@@ -203,3 +203,24 @@ event. This makes the design independent of recurrence behaviour entirely.
 
 Chat is proven; **voice remains genuinely open**. Do not extrapolate the ConvAI result to Voice
 AI without testing it.
+
+## Lost reasons are API-provisionable
+
+`GET /opportunities/lost-reason?locationId={loc}` lists them; `POST /opportunities/lost-reason`
+with `{locationId, name}` creates one (201, returns `_id`).
+
+> 🔴 The path is **SINGULAR**. `/opportunities/lost-reasons` 404s — the router reads the trailing
+> segment as an opportunity id, and that 404 was recorded for months as "lost reasons are not
+> writable". They are.
+
+A workflow consumes one as an id, in an `update_opportunity` step's `__customInputFields__` row
+`{filterField: "lostReasonId", value: <_id>, dataType: "SINGLE_OPTIONS", valueFieldType: "select"}`.
+Two behaviours to design around:
+
+- the builder **deletes** that row when `status` is anything other than `lost`, so a lost reason
+  attached to a won step silently disappears on open;
+- `status: 'lost'` with no `lostReasonId` saves and records **no reason at all**.
+
+The workflow engine resolves `lostReason` by NAME (`list_account_entities` → `lostReasons`), so a
+spec can say "Too expensive" and the compiler supplies the id — or refuses if the account has no
+such reason.

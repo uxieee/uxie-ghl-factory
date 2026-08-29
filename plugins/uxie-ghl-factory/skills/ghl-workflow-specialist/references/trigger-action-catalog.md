@@ -201,3 +201,24 @@ Two things worth flagging because older research (this repo, and `ghl-specialist
 - Live MCP: `mcp__uxie-ghl-mcp__list_categories`,
   `mcp__uxie-ghl-mcp__search_actions` on `workflows`, `contacts`/`contacts-v3`,
   `opportunities-v3`, `conversation-ai-v3` (called during authoring, 2026-07-11)
+
+## Call dispositions and the manual-actions queue
+
+**`call_status` matches dispositions BY NAME.** They are account configuration
+(`GET /phone-system/call-dispositions?locationId=`), every account ships six defaults (No Answer,
+Voicemail, Follow Up, Requested Appointment, Not Interested, Incorrect Number), and a trigger that
+names one the account does not have can never fire — nothing reports it. Creating a disposition
+needs `locationId` in the **query string**; in the body alone it answers 403.
+
+**A `manual-call` / `manual-sms` step HOLDS the run.** It creates a task in Conversations →
+Manual Actions and the workflow waits there until a human completes it. Anything below it in the
+same chain does not go out on a schedule — it goes out whenever someone works the queue, which may
+be never. Nothing on the step's card says so.
+
+Two things about that queue worth designing around:
+
+- the Date Added column header **looks** sortable and is not, and the **default order is
+  unverified** — so a priority like "engaged first, then new" has to be enforced by filtering to
+  one workflow at a time, not by ordering;
+- the list endpoint **silently accepts unknown query keys** (`sortBy`, `sort`, `workflowId` all
+  return 200 and do nothing), so a 200 there is not evidence a parameter was honoured.
