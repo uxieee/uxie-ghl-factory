@@ -3,10 +3,10 @@
 // live-proven 2026-07-17f: drove a 120h deposit-chase ladder (3h+21h+24h+24h+48h) to
 // end_of_workflow in ~3 min, every SMS/email firing.
 //
-//   GHL_TOK_FILE=/path/to/token.txt node ff.mjs <LOC> <WID> peek [stepId]
-//   GHL_TOK_FILE=… node ff.mjs <LOC> <WID> move <stepId> --contact <cid>
-//   GHL_TOK_FILE=… node ff.mjs <LOC> <WID> move <stepId> --status <id,id,...>
-//   GHL_TOK_FILE=… node ff.mjs <LOC> <WID> move <stepId> --all --confirm
+//   GHL_INTERNAL_TOK_FILE=/path/to/token.txt node ff.mjs <LOC> <WID> peek [stepId]
+//   GHL_INTERNAL_TOK_FILE=… node ff.mjs <LOC> <WID> move <stepId> --contact <cid>
+//   GHL_INTERNAL_TOK_FILE=… node ff.mjs <LOC> <WID> move <stepId> --status <id,id,...>
+//   GHL_INTERNAL_TOK_FILE=… node ff.mjs <LOC> <WID> move <stepId> --all --confirm
 //
 // This MUTATES live enrollments — moving a contact fires whatever step comes after the wait
 // (real SMS/email/pipeline moves). It is read-only unless you use `move`, and `move --all`
@@ -20,8 +20,8 @@ const BASE = 'https://backend.leadconnectorhq.com';
 const IFRAME = 'https://client-app-automation-workflows.leadconnectorhq.com';
 
 function readToken() {
-  const f = process.env.GHL_TOK_FILE;
-  if (!f) throw new Error('set GHL_TOK_FILE to a file containing the captured "Authorization: Bearer <jwt>" header');
+  const f = process.env.GHL_INTERNAL_TOK_FILE;
+  if (!f) throw new Error('set GHL_INTERNAL_TOK_FILE to a file containing the captured "Authorization: Bearer <jwt>" header');
   const tok = (fs.readFileSync(f, 'utf8').match(/Bearer\s+(ey[A-Za-z0-9._-]+)/) || [])[1];
   if (!tok) throw new Error(`no "Bearer ey…" JWT found in ${f}`);
   return tok;

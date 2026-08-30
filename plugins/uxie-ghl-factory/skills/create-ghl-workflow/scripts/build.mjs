@@ -1,7 +1,7 @@
 // Canonical build entry for the create-ghl-workflow skill. Run:
 //   node scripts/build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved]
 //
-// Reads the Bearer JWT from ../.playwright-mcp/tok.txt (or $GHL_TOK_FILE), then
+// Reads the Bearer JWT from ../.playwright-mcp/tok.txt (or $GHL_INTERNAL_TOK_FILE), then
 // routes the IR through the dependency-aware orchestrator — which pre-creates
 // tags + email templates, resolves every human name to the account's real ID,
 // ABORTS if an account dependency is missing, builds a DRAFT, and round-trip
@@ -21,7 +21,7 @@ const publish = process.argv.includes('--publish');
 const ignoreUnresolved = process.argv.includes('--ignore-unresolved');
 if (!irPath || !LOC) { console.error('usage: node build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved]'); process.exit(1); }
 
-const tokFile = process.env.GHL_TOK_FILE || resolve(HERE, '../../../../.playwright-mcp/tok.txt');
+const tokFile = process.env.GHL_INTERNAL_TOK_FILE || resolve(HERE, '../../../../.playwright-mcp/tok.txt');
 const T = (readFileSync(tokFile, 'utf8').match(/Bearer (ey[A-Za-z0-9._-]+)/) || [])[1];
 if (!T) { console.error('no Bearer token in', tokFile); process.exit(1); }
 const decoded = JSON.parse(Buffer.from(T.split('.')[1], 'base64url').toString());

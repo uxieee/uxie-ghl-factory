@@ -148,7 +148,7 @@ const spec = JSON.parse(readFileSync(specPath, 'utf8'));
 const ops = spec.ops ?? [];
 if (!ops.length) { console.error('edit-spec has no ops[]'); process.exit(1); }
 
-const tokFile = process.env.GHL_TOK_FILE || resolve(HERE, '../../../../.playwright-mcp/tok.txt');
+const tokFile = process.env.GHL_INTERNAL_TOK_FILE || resolve(HERE, '../../../../.playwright-mcp/tok.txt');
 const T = (readFileSync(tokFile, 'utf8').match(/Bearer (ey[A-Za-z0-9._-]+)/) || [])[1];
 if (!T) { console.error('no Bearer token in', tokFile); process.exit(1); }
 const decoded = JSON.parse(Buffer.from(T.split('.')[1], 'base64url').toString());
