@@ -33,9 +33,12 @@ account and another's beyond the caller not making a mistake.
   or `..`) segment or one that resolves off the expected origin, rather than reasoning about where
   it would actually land; `LOCATION_DENYLISTED` refuses the one endpoint that writes settings
   across every location under the agency, because no per-location allowlist can sanction it. The
-  request body is scanned for `locationId`/`location_id` keys (string or array-of-string values
-  only; any other shape at that key is refused) up to a bounded depth/node budget, so a nested or
-  array-shaped foreign location can't slip past a check that only looked at the top level.
+  request body is scanned for `locationId`/`location_id`/`locations`/`locationIds` keys (string or
+  array-of-string values only; any other shape at that key is refused) up to a bounded depth/node
+  budget, so a nested or array-shaped foreign location can't slip past a check that only looked at
+  the top level — including the account list that `POST .../membership/locations/{locationId}/
+  products/clone/{productId}` clones a course product **into**, which arrives under `locations`
+  rather than `locationId`.
 - **`core/instructions.mjs`** now tells the agent that `LOCATION_UNBOUND` and `LOCATION_FORBIDDEN`
   are not credential problems and that re-capturing a token will not help — without it, a refusal
   reads as an auth failure and burns a re-capture loop against a guard that is working correctly.
@@ -50,6 +53,14 @@ account and another's beyond the caller not making a mistake.
   `skills/create-ghl-workflow/scripts/build.mjs`, `skills/ghl-workflow-fast-forward/scripts/ff.mjs`,
   and `skills/ghl-memberships/scripts/cli-gateway.mjs`. A documented one-command path around the
   guard, available to the same agent. Closing it is separate, unstarted work.
+- **A `%2f`-encoded path segment is not decoded by WHATWG URL parsing**, so a location hidden that
+  way in a `raw_request` path is not seen by the path-rewrite check. It falls to the next limit
+  below rather than being caught.
+- **A path the catalogue does not recognise cannot have its location verified.** `raw_request`
+  exists for endpoints outside the catalogue, so an unmatched path is not refused outright; when
+  bound, such a call is **allowed** rather than refused. Both residuals are stated limits of the
+  design (spec §5.3, §5.4), not vulnerabilities discovered after the fact. The `locationVerified:
+  false` advisory flag designed for this case was deferred to a follow-up.
 
 ## [0.41.0] — 2026-08-29
 
