@@ -200,6 +200,38 @@ test('rule 3: an array of permitted strings is allowed', () => {
   assert.equal(checkLocationBinding(raw({ method: 'POST', body: { locationId: [PERMITTED] } })), null);
 });
 
+test('rule 3: the membership product-clone bypass — a foreign target under `locations` is refused', () => {
+  // POST /membership/locations/{locationId}/products/clone/{productId}, body: { locations: string[] }.
+  // `locations` names the accounts the product is cloned INTO. Rule 1 sees only the (permitted)
+  // source locationId argument, rule 2 sees only {locationId} in the path template (also
+  // permitted), and rule 3 previously matched only `locationId`/`location_id` -- so this endpoint,
+  // rawCallable with coveredBy:[], let a foreign target through silently. This pins the real
+  // catalogue path, not an abstraction of it.
+  const r = checkLocationBinding(raw({
+    method: 'POST',
+    path: `/membership/locations/${PERMITTED}/products/clone/PRODUCT0000000000001`,
+    body: { locations: [FOREIGN] },
+  }));
+  assert.equal(r.code, CODES.LOCATION_FORBIDDEN);
+});
+
+test('rule 3: a permitted id under `locations` still passes', () => {
+  const r = checkLocationBinding(raw({
+    method: 'POST',
+    path: `/membership/locations/${PERMITTED}/products/clone/PRODUCT0000000000001`,
+    body: { locations: [PERMITTED] },
+  }));
+  assert.equal(r, null);
+});
+
+test('rule 3: `locationIds` is matched the same way as `locationId`', () => {
+  // Not observed in any catalogued body today, but the same shape (a bulk list of accounts) could
+  // land uncatalogued -- belt-and-braces, same direction as the clone-endpoint fix.
+  const foreign = checkLocationBinding(raw({ method: 'POST', body: { locationIds: [FOREIGN] } }));
+  assert.equal(foreign.code, CODES.LOCATION_FORBIDDEN);
+  assert.equal(checkLocationBinding(raw({ method: 'POST', body: { locationIds: [PERMITTED] } })), null);
+});
+
 test('rule 3: an over-deep body reports a cap hit, never a location violation', () => {
   let deep = { locationId: PERMITTED };
   for (let i = 0; i < 40; i++) deep = { nested: deep };
