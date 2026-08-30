@@ -36,9 +36,14 @@ accepted as a tool argument, never logged, and never echoed in a response or err
   renewal is shared by concurrent calls and attempts are at least 60s apart (rapid repeats were
   measured to log the browser profile out). `GHL_INTERNAL_AUTO_RENEW=0` disables it. A renewal
   failure never fails the call; the call proceeds on the credentials it has.
-- `TOKEN_EXPIRED` therefore now means the token died **before any call could renew it** — a
-  server that idled past the hour. An expired bearer cannot refresh (measured: `401 Invalid JWT`),
-  so that case still needs `/uxie-ghl-factory:internal-connect`.
+- **After an idle, the chain restarts itself (0.46.0).** The same session call also hands back a
+  **30-day** refresh token, kept as a `refresh-token:` line in the token file and replaced with a
+  fresh one on every renewal. When a call finds the hourly token already dead, the gateway
+  exchanges the 30-day token at GHL's own `POST /oauth/2/login/token` for a fresh hourly one,
+  then runs the hourly path on it to renew the AI-side token too. No browser. Any use inside 30
+  days resets the clock, so `TOKEN_EXPIRED` now means one of two things: the token file predates
+  0.46.0 and has no refresh line yet (one capture fixes that for good), or the plugin sat unused
+  for over 30 days. Both still need `/uxie-ghl-factory:internal-connect`, once.
 - A renewal also records the agency's `companyId` in `agency.json` beside the token file if none
   exists yet — the value `internal-connect`'s `bind`/`audit` modes need and cannot read from a JWT.
 - Capture is from the **AI Agents surface** (`app.gohighlevel.com`), which yields a Bearer

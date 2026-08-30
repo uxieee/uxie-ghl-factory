@@ -152354,11 +152354,12 @@ re-capturing the token will not help.
 host:"ai" is ONE decision, not two: it switches the origin to services.leadconnectorhq.com AND
 attaches the second credential (token-id). Do not reach for it just to change host.
 
-CREDENTIALS RENEW THEMSELVES WHILE YOU WORK. The JWT lasts about an hour; when a call finds it
-within 5 minutes of expiry the server refreshes BOTH credentials in the token file before sending
-the call -- no browser, no restart, nothing for you to do. You will only see TOKEN_EXPIRED when the
-token died before any call could renew it (the server sat idle past the hour), and TOKEN_MISSING
-when there is no token file at all. Both are still yours to fix: invoke the
+CREDENTIALS RENEW THEMSELVES. The JWT lasts about an hour; when a call finds it within 5 minutes
+of expiry the server refreshes BOTH credentials in the token file before sending the call, and
+when a call finds it already dead the server restarts the chain from a 30-day refresh token --
+no browser, no restart, nothing for you to do. You will only see TOKEN_EXPIRED when the token file
+has no refresh token yet (it predates 0.46.0; one capture fixes that for good) or the plugin sat
+unused for over 30 days, and TOKEN_MISSING when there is no token file at all. Both are still yours to fix: invoke the
 uxie-ghl-factory:internal-connect skill yourself, then retry the call that failed. Do not stop and
 do not ask -- the skill drives the browser, writes a fresh token to this project, and the server
 re-reads that file on every call. The user only has to act if the browser session itself has
@@ -152387,9 +152388,11 @@ import { renameSync, writeFileSync as writeFileSync2, chmodSync, existsSync as e
 import { dirname as dirname3, join as join4 } from "node:path";
 var BACKEND5 = "https://backend.leadconnectorhq.com";
 var REFRESH_PATH = "/oauth/2/login/current";
+var EXCHANGE_PATH = "/oauth/2/login/token";
 var FIREBASE_KEY_ENV = "GHL_INTERNAL_FIREBASE_KEY";
 var RENEW_THRESHOLD_SEC = 300;
 var RENEW_MIN_INTERVAL_MS = 6e4;
+var STD_HEADERS = { channel: "APP", source: "WEB_USER", version: "2021-07-28", accept: "application/json, text/plain, */*" };
 var looksJwt = (v) => typeof v === "string" && v.split(".").length === 3 && v.length > 80;
 var looksFirebaseKey = (v) => typeof v === "string" && /^AIza[0-9A-Za-z_-]{35}$/.test(v);
 var fail2 = (message) => {
@@ -152397,6 +152400,7 @@ var fail2 = (message) => {
   e.code = "RENEW_FAILED";
   return e;
 };
+var lineOf = (raw, label2) => (raw.match(new RegExp(`${label2}:\\s*([A-Za-z0-9._-]+)`, "i")) || [])[1] ?? null;
 function autoRenewEnabled(env = process.env) {
   const v = String(env.GHL_INTERNAL_AUTO_RENEW ?? "").trim().toLowerCase();
   return !["0", "false", "off", "no"].includes(v);
@@ -152405,36 +152409,36 @@ function readFirebaseKey({ tokenFile, env = process.env }) {
   const fromEnv = env?.[FIREBASE_KEY_ENV];
   if (looksFirebaseKey(fromEnv)) return fromEnv;
   if (!tokenFile || !existsSync4(tokenFile)) return null;
-  const fromFile = (readFileSync4(tokenFile, "utf8").match(/firebase-key:\s*([A-Za-z0-9_-]+)/i) || [])[1];
+  const fromFile = lineOf(readFileSync4(tokenFile, "utf8"), "firebase-key");
   return looksFirebaseKey(fromFile) ? fromFile : null;
+}
+function readRefreshToken({ tokenFile }) {
+  if (!tokenFile || !existsSync4(tokenFile)) return null;
+  const v = lineOf(readFileSync4(tokenFile, "utf8"), "refresh-token");
+  return looksJwt(v) ? v : null;
 }
 function needsRenewal({ jwtSecondsRemaining, tokenIdSecondsRemaining = null, thresholdSec = RENEW_THRESHOLD_SEC }) {
   if (!Number.isFinite(jwtSecondsRemaining) || jwtSecondsRemaining <= 0) return false;
   if (jwtSecondsRemaining <= thresholdSec) return true;
   return Number.isFinite(tokenIdSecondsRemaining) && tokenIdSecondsRemaining <= thresholdSec;
 }
-function formatTokenFile({ bearer, tokenId, firebaseKey }) {
+function formatTokenFile({ bearer, tokenId, firebaseKey, refreshToken }) {
   const lines = [`Bearer ${bearer}`];
   if (tokenId) lines.push(`token-id: ${tokenId}`);
   if (firebaseKey) lines.push(`firebase-key: ${firebaseKey}`);
+  if (refreshToken) lines.push(`refresh-token: ${refreshToken}`);
   return `${lines.join("\n")}
 `;
 }
-async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = null, base = BACKEND5 }) {
-  const res = await fetchImpl(`${base}${REFRESH_PATH}`, {
-    method: "GET",
-    headers: {
-      authorization: `Bearer ${jwt2}`,
-      channel: "APP",
-      source: "WEB_USER",
-      version: "2021-07-28",
-      accept: "application/json, text/plain, */*"
-    }
-  });
+async function fetchLoginCurrent({ jwt: jwt2, fetchImpl = fetch, base = BACKEND5 }) {
+  const res = await fetchImpl(`${base}${REFRESH_PATH}`, { method: "GET", headers: { ...STD_HEADERS, authorization: `Bearer ${jwt2}` } });
   if (res.status !== 200) throw fail2(`refresh endpoint returned ${res.status}`);
   const body = await res.json().catch(() => null);
-  const authToken = body?.authToken;
-  if (!looksJwt(authToken)) throw fail2("refresh response carried no usable authToken");
+  if (!looksJwt(body?.authToken)) throw fail2("refresh response carried no usable authToken");
+  return body;
+}
+async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = null, base = BACKEND5 }) {
+  const body = await fetchLoginCurrent({ jwt: jwt2, fetchImpl, base });
   const warnings = [];
   let tokenId = null;
   if (!looksJwt(body.token)) {
@@ -152459,25 +152463,44 @@ async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = nu
       warnings.push(`firebase exchange threw (${e?.message ?? e}); token-id not renewed`);
     }
   }
-  return { jwt: authToken, tokenId, companyId: typeof body.companyId === "string" ? body.companyId : null, warnings };
+  return {
+    jwt: body.authToken,
+    tokenId,
+    companyId: typeof body.companyId === "string" ? body.companyId : null,
+    refreshToken: looksJwt(body.refreshToken) ? body.refreshToken : null,
+    warnings
+  };
 }
-function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey }) {
+async function exchangeRefreshToken({ refreshToken, fetchImpl = fetch, base = BACKEND5 }) {
+  const res = await fetchImpl(`${base}${EXCHANGE_PATH}`, {
+    method: "POST",
+    headers: { ...STD_HEADERS, "content-type": "application/json", "refresh-token": refreshToken },
+    body: JSON.stringify({ refreshTokenV2: refreshToken })
+  });
+  if (res.status < 200 || res.status >= 300) throw fail2(`refresh-token exchange returned ${res.status}`);
+  const body = await res.json().catch(() => null);
+  if (!looksJwt(body?.authToken)) throw fail2("refresh-token exchange carried no usable authToken");
+  return { jwt: body.authToken, refreshToken: looksJwt(body.refreshToken) ? body.refreshToken : refreshToken };
+}
+function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey, refreshToken }) {
   let keepTid = tokenId;
   let keepKey = firebaseKey;
-  if ((!keepTid || keepKey === void 0) && existsSync4(tokenFile)) {
+  let keepRt = refreshToken;
+  if ((!keepTid || keepKey === void 0 || keepRt === void 0) && existsSync4(tokenFile)) {
     const raw = readFileSync4(tokenFile, "utf8");
-    if (!keepTid) keepTid = (raw.match(/token-id:\s*([A-Za-z0-9._-]+)/i) || [])[1] ?? null;
-    if (keepKey === void 0) keepKey = (raw.match(/firebase-key:\s*([A-Za-z0-9_-]+)/i) || [])[1] ?? null;
+    if (!keepTid) keepTid = lineOf(raw, "token-id");
+    if (keepKey === void 0) keepKey = lineOf(raw, "firebase-key");
+    if (keepRt === void 0) keepRt = lineOf(raw, "refresh-token");
   }
   const tmp = `${tokenFile}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync2(tmp, formatTokenFile({ bearer, tokenId: keepTid, firebaseKey: keepKey ?? null }), { mode: 384 });
+  writeFileSync2(tmp, formatTokenFile({ bearer, tokenId: keepTid, firebaseKey: keepKey ?? null, refreshToken: keepRt ?? null }), { mode: 384 });
   chmodSync(tmp, 384);
   renameSync(tmp, tokenFile);
 }
-function writeAgencyJsonIfAbsent({ tokenFile, companyId, nowMs }) {
+function writeAgencyJsonIfAbsent({ tokenFile, companyId, nowMs = Date.now(), source = "token-renewal" }) {
   const path = join4(dirname3(tokenFile), "agency.json");
   if (existsSync4(path)) return false;
-  writeFileSync2(path, `${JSON.stringify({ companyId, source: "token-renewal", capturedAt: new Date(nowMs).toISOString() }, null, 2)}
+  writeFileSync2(path, `${JSON.stringify({ companyId, source, capturedAt: new Date(nowMs).toISOString() }, null, 2)}
 `, { mode: 384 });
   return true;
 }
@@ -152498,9 +152521,60 @@ function makeRenewer({
     if (!slots.has(tokenFile)) slots.set(tokenFile, { inFlight: null, lastAttemptAt: -Infinity });
     return slots.get(tokenFile);
   };
+  const guarded = (slot, work) => {
+    if (slot.inFlight) return slot.inFlight;
+    if (nowImpl() - slot.lastAttemptAt < minIntervalMs) return Promise.resolve({ renewed: false, reason: "backoff" });
+    slot.lastAttemptAt = nowImpl();
+    slot.inFlight = work().finally(() => {
+      slot.inFlight = null;
+    });
+    return slot.inFlight;
+  };
+  const hourly = async (tokenFile, creds) => {
+    try {
+      const key = firebaseKey !== void 0 ? firebaseKey : readFirebaseKey({ tokenFile, env });
+      const out = await renewCredentials({ jwt: creds.jwt, fetchImpl, firebaseKey: key });
+      writeTokenFile({ tokenFile, bearer: out.jwt, tokenId: out.tokenId, refreshToken: out.refreshToken ?? void 0 });
+      if (out.companyId) writeAgencyJsonIfAbsent({ tokenFile, companyId: out.companyId, nowMs: nowImpl() });
+      for (const w of out.warnings) log(`[token-renewal] ${w}`);
+      log(`[token-renewal] renewed ${out.tokenId ? "both credentials" : "the bearer only"} (had ${Math.round(creds.secondsRemaining / 60)}min left)`);
+      return { renewed: true, coldStart: false, tokenIdRenewed: Boolean(out.tokenId) };
+    } catch (e) {
+      log(`[token-renewal] renewal failed: ${e?.code ? `${e.code} ` : ""}${e?.message ?? e}`);
+      return { renewed: false, reason: "failed" };
+    }
+  };
+  const coldStart = async (tokenFile, refreshToken) => {
+    let restored;
+    try {
+      restored = await exchangeRefreshToken({ refreshToken, fetchImpl });
+      writeTokenFile({ tokenFile, bearer: restored.jwt, tokenId: null, refreshToken: restored.refreshToken });
+    } catch (e) {
+      log(`[token-renewal] cold start failed: ${e?.code ? `${e.code} ` : ""}${e?.message ?? e} \u2014 the browser capture is required`);
+      return { renewed: false, reason: "failed" };
+    }
+    try {
+      const key = firebaseKey !== void 0 ? firebaseKey : readFirebaseKey({ tokenFile, env });
+      const out = await renewCredentials({ jwt: restored.jwt, fetchImpl, firebaseKey: key });
+      writeTokenFile({ tokenFile, bearer: out.jwt, tokenId: out.tokenId, refreshToken: out.refreshToken ?? void 0 });
+      if (out.companyId) writeAgencyJsonIfAbsent({ tokenFile, companyId: out.companyId, nowMs: nowImpl() });
+      for (const w of out.warnings) log(`[token-renewal] ${w}`);
+      log(`[token-renewal] cold start: chain restarted from the 30-day token, ${out.tokenId ? "both credentials" : "bearer"} renewed`);
+      return { renewed: true, coldStart: true, tokenIdRenewed: Boolean(out.tokenId) };
+    } catch (e) {
+      log(`[token-renewal] cold start: bearer restored from the 30-day token, but the hourly step failed (${e?.message ?? e}); token-id not renewed`);
+      return { renewed: true, coldStart: true, tokenIdRenewed: false };
+    }
+  };
   const maybeRenew = (creds) => {
     const tokenFile = getTokenFile();
     if (!tokenFile || !creds || !Number.isFinite(creds.secondsRemaining)) return Promise.resolve({ renewed: false, reason: "no-credentials" });
+    const slot = slotFor(tokenFile);
+    if (creds.secondsRemaining <= 0) {
+      const rt = readRefreshToken({ tokenFile });
+      if (!rt) return Promise.resolve({ renewed: false, reason: "no-refresh-token" });
+      return guarded(slot, () => coldStart(tokenFile, rt));
+    }
     let tokenIdSecondsRemaining = null;
     if (creds.tokenId) {
       try {
@@ -152512,27 +152586,7 @@ function makeRenewer({
     if (!needsRenewal({ jwtSecondsRemaining: creds.secondsRemaining, tokenIdSecondsRemaining, thresholdSec })) {
       return Promise.resolve({ renewed: false, reason: "healthy" });
     }
-    const slot = slotFor(tokenFile);
-    if (slot.inFlight) return slot.inFlight;
-    if (nowImpl() - slot.lastAttemptAt < minIntervalMs) return Promise.resolve({ renewed: false, reason: "backoff" });
-    slot.lastAttemptAt = nowImpl();
-    slot.inFlight = (async () => {
-      try {
-        const key = firebaseKey !== void 0 ? firebaseKey : readFirebaseKey({ tokenFile, env });
-        const out = await renewCredentials({ jwt: creds.jwt, fetchImpl, firebaseKey: key });
-        writeTokenFile({ tokenFile, bearer: out.jwt, tokenId: out.tokenId });
-        if (out.companyId) writeAgencyJsonIfAbsent({ tokenFile, companyId: out.companyId, nowMs: nowImpl() });
-        for (const w of out.warnings) log(`[token-renewal] ${w}`);
-        log(`[token-renewal] renewed ${out.tokenId ? "both credentials" : "the bearer only"} (had ${Math.round(creds.secondsRemaining / 60)}min left)`);
-        return { renewed: true, tokenIdRenewed: Boolean(out.tokenId) };
-      } catch (e) {
-        log(`[token-renewal] renewal failed: ${e?.code ? `${e.code} ` : ""}${e?.message ?? e}`);
-        return { renewed: false, reason: "failed" };
-      } finally {
-        slot.inFlight = null;
-      }
-    })();
-    return slot.inFlight;
+    return guarded(slot, () => hourly(tokenFile, creds));
   };
   return { maybeRenew };
 }

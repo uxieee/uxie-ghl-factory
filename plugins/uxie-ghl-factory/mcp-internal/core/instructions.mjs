@@ -29,11 +29,12 @@ re-capturing the token will not help.
 host:"ai" is ONE decision, not two: it switches the origin to services.leadconnectorhq.com AND
 attaches the second credential (token-id). Do not reach for it just to change host.
 
-CREDENTIALS RENEW THEMSELVES WHILE YOU WORK. The JWT lasts about an hour; when a call finds it
-within 5 minutes of expiry the server refreshes BOTH credentials in the token file before sending
-the call -- no browser, no restart, nothing for you to do. You will only see TOKEN_EXPIRED when the
-token died before any call could renew it (the server sat idle past the hour), and TOKEN_MISSING
-when there is no token file at all. Both are still yours to fix: invoke the
+CREDENTIALS RENEW THEMSELVES. The JWT lasts about an hour; when a call finds it within 5 minutes
+of expiry the server refreshes BOTH credentials in the token file before sending the call, and
+when a call finds it already dead the server restarts the chain from a 30-day refresh token --
+no browser, no restart, nothing for you to do. You will only see TOKEN_EXPIRED when the token file
+has no refresh token yet (it predates 0.46.0; one capture fixes that for good) or the plugin sat
+unused for over 30 days, and TOKEN_MISSING when there is no token file at all. Both are still yours to fix: invoke the
 uxie-ghl-factory:internal-connect skill yourself, then retry the call that failed. Do not stop and
 do not ask -- the skill drives the browser, writes a fresh token to this project, and the server
 re-reads that file on every call. The user only has to act if the browser session itself has

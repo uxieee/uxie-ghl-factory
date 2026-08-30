@@ -11,6 +11,45 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.46.0] — 2026-08-31
+
+The browser login becomes a monthly event at most. 0.45.0 kept a live session's credentials fresh;
+this restarts them after an idle of any length up to 30 days, from a token the plugin already
+receives on every renewal. Measured live before it was written (probes 19-21): the app's own
+cold-start exchange, caught on the wire, then replayed from plain node with no browser and proven
+by an authenticated read.
+
+### Added
+
+- **Cold start from the 30-day refresh token.** `GET /oauth/2/login/current` has always handed back
+  a `refreshToken` with a 30-day lifetime beside the hourly one. The plugin now stores it as a
+  fourth `refresh-token:` line in the 0600 token file, replacing it with the fresh one every
+  renewal returns. When a call finds the hourly token already dead, the gateway exchanges the
+  30-day token at `POST /oauth/2/login/token` (the token rides both as a `refresh-token` header
+  and as body `{refreshTokenV2}`, exactly as the app sends it), writes the bearer it buys at once,
+  then runs the existing hourly path on that fresh bearer so the AI-rail `token-id`, the Firebase
+  key exchange, `companyId` and the newest refresh token all come along. Same discipline as the
+  hourly path: one shared in-flight attempt, 60-second back-off, failures to stderr only, and any
+  failure falls through to today's `TOKEN_EXPIRED` and the browser capture.
+- **The capture records the refresh token too.** One session call on the captured bearer writes
+  the 30-day token and, where none exists, `agency.json` with the agency's `companyId` — so a
+  folder is cold-start-ready from its first capture, not its first hourly renewal.
+- 14 offline tests: the exchange's exact request shape, that no bearer is sent with it, that the
+  hourly step runs on the EXCHANGED bearer, that a hourly-step failure still leaves a working file
+  with the still-valid `token-id` kept, that a pre-0.46.0 file makes no network call and still
+  gets `TOKEN_EXPIRED`, one shared exchange for concurrent callers, back-off after failure, and
+  the gateway sending a fresh bearer where it used to throw.
+
+### Known limits
+
+- **Removing the access token is not the same as it expiring.** Measured: the app treats a missing
+  access cookie as logged-out and wipes its session; only an expired one is refreshed. The plugin
+  never deletes a token line, so this is a note for anyone hand-editing the file.
+- An expired **30-day** token was not measured (that takes 30 days). The exchange is assumed to
+  fail like the hourly one does, and the design falls through to the browser either way.
+- Token files written before 0.46.0 gain the `refresh-token:` line at their first hourly renewal
+  or next capture; until then an idle past the hour still needs the browser once.
+
 ## [0.45.1] — 2026-08-31
 
 ### Fixed

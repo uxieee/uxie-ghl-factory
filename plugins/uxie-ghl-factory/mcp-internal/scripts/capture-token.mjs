@@ -136,7 +136,7 @@ async function loadPlaywright() {
 // reader's regex group as empty and hand the AI rail a blank credential.
 // 0.45.0: the formatter moved to core/token-renewal.mjs, which is the SECOND writer of this file
 // (auto-renewal). One definition, re-exported here, so the two writers cannot drift apart.
-import { formatTokenFile } from '../core/token-renewal.mjs';
+import { formatTokenFile, fetchLoginCurrent, writeAgencyJsonIfAbsent } from '../core/token-renewal.mjs';
 export { formatTokenFile };
 
 const claimNames = (jwt) => {
@@ -227,7 +227,16 @@ async function main() {
     process.exit(1);
   }
 
-  writeFileSync(TOKEN_FILE, formatTokenFile({ bearer, tokenId, firebaseKey }), { mode: 0o600 });
+  // 0.46.0: one call on the captured bearer records the 30-DAY refresh token (so the server can
+  // restart the chain after an idle without a browser) and the agency's companyId (which the
+  // audit needs and no JWT carries). Best effort — a failure here still writes a working file.
+  let refreshToken = null;
+  try {
+    const body = await fetchLoginCurrent({ jwt: bearer });
+    refreshToken = body.refreshToken ?? null;
+    if (typeof body.companyId === 'string') writeAgencyJsonIfAbsent({ tokenFile: TOKEN_FILE, companyId: body.companyId, source: 'capture' });
+  } catch { /* recorded below as not captured; the hourly renewal will fill it in later */ }
+  writeFileSync(TOKEN_FILE, formatTokenFile({ bearer, tokenId, firebaseKey, refreshToken }), { mode: 0o600 });
   chmodSync(TOKEN_FILE, 0o600);
 
   const b = claimNames(bearer);
@@ -237,6 +246,7 @@ async function main() {
     const t = claimNames(tokenId);
     console.log(`  token-id ttl=${t.ttlMin}min type=${t.type} role=${t.role} locations=${t.locations}`);
     console.log(`  firebase-key ${firebaseKey ? 'recorded (token-id will auto-renew)' : 'NOT observed — token-id will not auto-renew until a capture sees it'}`);
+    console.log(`  refresh-token ${refreshToken ? 'recorded (30-day: idle restarts need no browser)' : 'NOT recorded — the first hourly renewal will add it'}`);
   } else {
     console.log('  token-id NOT captured — AI-surface calls will need a second run that opens an AI screen.');
   }
