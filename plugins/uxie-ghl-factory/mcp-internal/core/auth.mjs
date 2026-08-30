@@ -8,12 +8,25 @@ import { CODES } from './errors.mjs';
 
 // Absolute + stable so the auto-registered server and the capture flow agree on ONE path,
 // and it survives plugin updates (never under the plugin cache root). Overridable via the
-// GHL_TOK_FILE env or the set_token_file tool.
+// GHL_INTERNAL_TOK_FILE env or the set_token_file tool.
 export const DEFAULT_TOKEN_FILE = join(homedir(), '.uxie-ghl-internal-mcp', 'tok.txt');
 
 export class AuthError extends Error {
   constructor(code, detail, remediation) { super(detail); this.code = code; this.detail = detail; this.remediation = remediation; }
 }
+
+// 0.43.0 hard-renamed GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE (see CHANGELOG). Only the NEW name
+// is ever read AS A VALUE — there is deliberately no fallback that reads the old one. But a
+// registration that still sets only the OLD name would see GHL_INTERNAL_TOK_FILE as simply
+// unset and fall through to DEFAULT_TOKEN_FILE above, silently authenticating as whatever login
+// owns that shared file. That is a silent wrong-account failure, so entry points compute this
+// flag from the OLD name's PRESENCE ONLY (never its value) and hand it to readCredentials,
+// which refuses loudly instead.
+const LEGACY_TOKEN_FILE_REMEDIATION = 'Rename the env var on this registration, then retry — same '
+  + 'value, new name:\n'
+  + '  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_TOK_FILE="<same path you '
+  + 'had after -e GHL_TOK_FILE=...>" ... (GHL_INTERNAL_TOK_FILE replaces GHL_TOK_FILE; keep any '
+  + '-e GHL_INTERNAL_LOCATIONS=... flag and the same server name)';
 
 // PHRASED AT THE AGENT, NOT AT THE USER, and that is the whole point of these two strings.
 //
@@ -58,7 +71,19 @@ export function safeTokenIdClaims(tokenId) {
   };
 }
 
-export function readCredentials({ tokenFile, allowExpired = false }) {
+export function readCredentials({ tokenFile, allowExpired = false, legacyTokenFileEnv = false }) {
+  // Checked BEFORE the file lookup: a stale env var means this registration was never going
+  // to reach the right file at all, so naming that is more useful than "no token file at
+  // ~/.uxie-ghl-internal-mcp/tok.txt" — the default path a caller has no reason to suspect.
+  if (legacyTokenFileEnv) {
+    throw new AuthError(
+      CODES.LEGACY_TOKEN_FILE_ENV,
+      'GHL_TOK_FILE is set but GHL_INTERNAL_TOK_FILE is not. GHL_TOK_FILE no longer does '
+      + 'anything (renamed in 0.43.0), so this registration would silently fall back to the '
+      + 'shared default token file and could authenticate as the wrong account.',
+      LEGACY_TOKEN_FILE_REMEDIATION,
+    );
+  }
   if (!tokenFile || !existsSync(tokenFile)) {
     throw new AuthError(CODES.TOKEN_MISSING, `no token file at ${tokenFile ?? '(unset)'}`,
       'NO CREDENTIAL YET — set one up yourself rather than asking. Invoke the '
@@ -76,7 +101,7 @@ export function readCredentials({ tokenFile, allowExpired = false }) {
 
 export function authStatus(state) {
   try {
-    const c = readCredentials({ tokenFile: state.tokenFile, allowExpired: true });
+    const c = readCredentials({ tokenFile: state.tokenFile, allowExpired: true, legacyTokenFileEnv: state.legacyTokenFileEnv });
     const s = safeClaims(c.jwt);
     let tokenId = { present: false, note: 'AI tools need a token-id line captured from the AI Agents app surface.' };
     if (c.tokenId) {

@@ -9,7 +9,7 @@ import { fail, CODES } from './errors.mjs';
 
 // `null` means UNBOUND, which is not the same as "permits nothing" — see checkLocationBinding.
 // Empty and whitespace-only strings are unset, not an empty allowlist: a registration that sets
-// GHL_LOCATIONS="" has said nothing, not "permit no locations".
+// GHL_INTERNAL_LOCATIONS="" has said nothing, not "permit no locations".
 export function parseAllowedLocations(raw) {
   if (typeof raw !== 'string') return null;
   const ids = raw.split(',').map((s) => s.trim()).filter(Boolean);
@@ -34,8 +34,8 @@ export function classifyCall(tool, args) {
 
 const bindCommand = (locationId) =>
   'Bind this registration to the accounts it may touch, then retry:\n'
-  + `  claude mcp add --transport stdio --scope local -e GHL_LOCATIONS="${locationId}" ... `
-  + '(keep the existing -e GHL_TOK_FILE=... and the same server name)';
+  + `  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="${locationId}" ... `
+  + '(keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)';
 
 const DEFAULT_BASE = 'https://backend.leadconnectorhq.com';
 const AI_BASE = 'https://services.leadconnectorhq.com';
@@ -147,7 +147,7 @@ export function checkLocationBinding({ tool, args, allowed, ...opts }) {
     return fail(
       CODES.LOCATION_FORBIDDEN,
       `this registration is not permitted to act on ${declared}`,
-      'Target an account this registration is bound to, or rebind it with -e GHL_LOCATIONS=... '
+      'Target an account this registration is bound to, or rebind it with -e GHL_INTERNAL_LOCATIONS=... '
       + 'if it should legitimately serve this one.',
     );
   }

@@ -369,7 +369,7 @@ export function processAuditPacing() {
 // SHARED limiter can own pacing. The result was the double-throttle Task 2's carry-forward
 // warns about: the per-gateway 300-450ms delay AND the limiter's, on every audit read.
 export function makeGatewayFactory({ state, gatewayImpl = makeGateway }) {
-  return (options = {}) => gatewayImpl({ tokenFile: state.tokenFile, ...options });
+  return (options = {}) => gatewayImpl({ tokenFile: state.tokenFile, legacyTokenFileEnv: state.legacyTokenFileEnv, ...options });
 }
 
 function validateRegisteredArgs(tool, args) {

@@ -71826,6 +71826,11 @@ var CODES = Object.freeze({
   TOKEN_EXPIRED: "TOKEN_EXPIRED",
   TOKEN_ID_MISSING: "TOKEN_ID_MISSING",
   TOKEN_ID_EXPIRED: "TOKEN_ID_EXPIRED",
+  // 0.43.0 hard-renamed GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE. A registration that still sets
+  // only the OLD name would otherwise see the NEW one as simply unset and silently fall back to
+  // DEFAULT_TOKEN_FILE — authenticating as whatever login owns that shared file. Refused instead
+  // of guessed; see core/auth.mjs.
+  LEGACY_TOKEN_FILE_ENV: "LEGACY_TOKEN_FILE_ENV",
   SSE_EXPECTED: "SSE_EXPECTED",
   SSE_INCOMPLETE: "SSE_INCOMPLETE",
   CONFIRM_REQUIRED: "CONFIRM_REQUIRED",
@@ -72085,6 +72090,7 @@ var AuthError = class extends Error {
     this.remediation = remediation;
   }
 };
+var LEGACY_TOKEN_FILE_REMEDIATION = 'Rename the env var on this registration, then retry \u2014 same value, new name:\n  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_TOK_FILE="<same path you had after -e GHL_TOK_FILE=...>" ... (GHL_INTERNAL_TOK_FILE replaces GHL_TOK_FILE; keep any -e GHL_INTERNAL_LOCATIONS=... flag and the same server name)';
 var RECAPTURE = "EXPIRED CREDENTIAL \u2014 RE-CAPTURE IT YOURSELF, do not ask and do not stop. Invoke the `uxie-ghl-factory:internal-connect` skill: it drives the browser and writes a fresh token to this project. The server re-reads the file on every call, so nothing restarts. The user only has to act if the browser session itself has lapsed. Then retry the call that failed. ONE re-capture per failure: if the retry fails the same way, stop and report it.";
 var AI_RECAPTURE = "EXPIRED CREDENTIAL \u2014 RE-CAPTURE IT YOURSELF, do not ask and do not stop. Invoke the `uxie-ghl-factory:internal-connect` skill: one capture on the AI surface yields BOTH the Bearer JWT and the token-id this rail needs. The server re-reads the file on every call, so nothing restarts. Then retry the call that failed. ONE re-capture per failure: if the retry fails the same way, stop and report it.";
 function decode3(jwt2) {
@@ -72109,7 +72115,14 @@ function safeTokenIdClaims(tokenId) {
     secondsRemaining: Number.isFinite(c.exp) ? c.exp - Math.floor(Date.now() / 1e3) : null
   };
 }
-function readCredentials({ tokenFile, allowExpired = false }) {
+function readCredentials({ tokenFile, allowExpired = false, legacyTokenFileEnv = false }) {
+  if (legacyTokenFileEnv) {
+    throw new AuthError(
+      CODES.LEGACY_TOKEN_FILE_ENV,
+      "GHL_TOK_FILE is set but GHL_INTERNAL_TOK_FILE is not. GHL_TOK_FILE no longer does anything (renamed in 0.43.0), so this registration would silently fall back to the shared default token file and could authenticate as the wrong account.",
+      LEGACY_TOKEN_FILE_REMEDIATION
+    );
+  }
   if (!tokenFile || !existsSync(tokenFile)) {
     throw new AuthError(
       CODES.TOKEN_MISSING,
@@ -72127,7 +72140,7 @@ function readCredentials({ tokenFile, allowExpired = false }) {
 }
 function authStatus(state2) {
   try {
-    const c = readCredentials({ tokenFile: state2.tokenFile, allowExpired: true });
+    const c = readCredentials({ tokenFile: state2.tokenFile, allowExpired: true, legacyTokenFileEnv: state2.legacyTokenFileEnv });
     const s = safeClaims(c.jwt);
     let tokenId = { present: false, note: "AI tools need a token-id line captured from the AI Agents app surface." };
     if (c.tokenId) {
@@ -72189,7 +72202,7 @@ function classifyCall(tool, args) {
   return tool.capabilities?.some((c) => c.method !== "GET") ? "write" : "read";
 }
 var bindCommand = (locationId) => `Bind this registration to the accounts it may touch, then retry:
-  claude mcp add --transport stdio --scope local -e GHL_LOCATIONS="${locationId}" ... (keep the existing -e GHL_TOK_FILE=... and the same server name)`;
+  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="${locationId}" ... (keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)`;
 var DEFAULT_BASE = "https://backend.leadconnectorhq.com";
 var AI_BASE = "https://services.leadconnectorhq.com";
 var DOT_SEGMENT = /(^|\/)(\.|%2e|\.\.|%2e%2e|\.%2e|%2e\.)(\/|$)/i;
@@ -72278,7 +72291,7 @@ function checkLocationBinding({ tool, args, allowed, ...opts }) {
     return fail(
       CODES.LOCATION_FORBIDDEN,
       `this registration is not permitted to act on ${declared}`,
-      "Target an account this registration is bound to, or rebind it with -e GHL_LOCATIONS=... if it should legitimately serve this one."
+      "Target an account this registration is bound to, or rebind it with -e GHL_INTERNAL_LOCATIONS=... if it should legitimately serve this one."
     );
   }
   if (tool.name === "raw_request") {
@@ -73446,8 +73459,8 @@ var parseAsctimeGmt = (text) => {
 var MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
 var RECAPTURE2 = "Re-capture the token: invoke the uxie-ghl-factory:internal-connect skill yourself, then retry the call. No restart needed; the server re-reads the token file on every call.";
 var defaultSleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
-function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep2, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
-  const creds = readCredentials({ tokenFile, allowExpired: true });
+function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep2, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS, legacyTokenFileEnv = false }) {
+  const creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });
   const headers = (isWrite, overrides = {}, base = BASE) => {
     const h = { channel: "APP", source: "WEB_USER", version: "2021-07-28", accept: "application/json, text/plain, */*" };
     if (isWrite) {
@@ -148269,7 +148282,7 @@ function processAuditPacing() {
   return { limiter: sharedAuditLimiter, circuit: sharedAuditCircuit };
 }
 function makeGatewayFactory({ state: state2, gatewayImpl = makeGateway }) {
-  return (options = {}) => gatewayImpl({ tokenFile: state2.tokenFile, ...options });
+  return (options = {}) => gatewayImpl({ tokenFile: state2.tokenFile, legacyTokenFileEnv: state2.legacyTokenFileEnv, ...options });
 }
 function validateRegisteredArgs(tool, args) {
   if (containsSecrets(args)) {
@@ -152403,7 +152416,11 @@ var pkgVersion = true ? "0.1.0" : (() => {
     return "0.0.0-dev";
   }
 })();
-var state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
+var state = {
+  tokenFile: process.env.GHL_INTERNAL_TOK_FILE ?? DEFAULT_TOKEN_FILE,
+  legacyTokenFileEnv: Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE,
+  engineVersion: pkgVersion
+};
 var { limiter, circuit } = processAuditPacing();
 var makeGw = makeGatewayFactory({
   state,

@@ -5,8 +5,9 @@
 // (~/.uxie-ghl-internal-mcp/launch.mjs), written by /uxie-ghl-factory:internal-connect — so a plugin
 // version update never breaks the path the way pointing straight at the versioned plugin
 // cache (…/plugins/cache/uxieee/uxie-ghl-factory/<version>/…) would. At launch it resolves
-// the NEWEST installed plugin build and runs its bundled server, inheriting env (GHL_TOK_FILE)
-// from the project config. Result: per-project config + token, but always the latest server.
+// the NEWEST installed plugin build and runs its bundled server, inheriting env
+// (GHL_INTERNAL_TOK_FILE) from the project config. Result: per-project config + token, but
+// always the latest server.
 import { readdirSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
