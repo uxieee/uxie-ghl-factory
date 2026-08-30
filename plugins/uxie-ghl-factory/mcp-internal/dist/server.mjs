@@ -72213,8 +72213,10 @@ function classifyCall(tool, args) {
   if (tool.name === "raw_request") return (args?.method ?? "GET") === "GET" ? "read" : "write";
   return tool.capabilities?.some((c) => c.method !== "GET") ? "write" : "read";
 }
-var bindCommand = (locationId) => `Bind this registration to the accounts it may touch, then retry:
-  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="${locationId}" ... (keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)`;
+var bindCommand = (locationId) => `Bind this registration to the accounts it may touch (this call targeted ${locationId}), then retry:
+  run /uxie-ghl-factory:internal-connect \u2014 bind mode discovers the agency, proposes
+  GHL_INTERNAL_LOCATIONS, and writes it additively. Do NOT rebind with a bare \`claude mcp add\`:
+  on an existing registration it rewrites the server entry and drops the sibling env vars.`;
 var LEGACY_LOCATIONS_REMEDIATION = 'Rename the env var on this registration, then retry \u2014 same value, new name:\n  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="<same value you had after -e GHL_LOCATIONS=...>" ... (GHL_INTERNAL_LOCATIONS replaces GHL_LOCATIONS; keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)';
 var DEFAULT_BASE = "https://backend.leadconnectorhq.com";
 var AI_BASE = "https://services.leadconnectorhq.com";
@@ -72311,7 +72313,7 @@ function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = fal
     return fail(
       CODES.LOCATION_FORBIDDEN,
       `this registration is not permitted to act on ${declared}`,
-      "Target an account this registration is bound to, or rebind it with -e GHL_INTERNAL_LOCATIONS=... if it should legitimately serve this one."
+      "Target an account this registration is bound to. If it should legitimately serve this one, run /uxie-ghl-factory:internal-connect (bind mode) to extend GHL_INTERNAL_LOCATIONS additively \u2014 never a bare `claude mcp add`, which rewrites the entry."
     );
   }
   if (tool.name === "raw_request") {
@@ -152364,9 +152366,11 @@ and it does not prove calling it is safe.
 
 LOCATION_UNBOUND AND LOCATION_FORBIDDEN ARE NOT CREDENTIAL PROBLEMS. Re-capturing a token will not
 help either one. LOCATION_UNBOUND means this project has not declared which GHL accounts it may
-write to; LOCATION_FORBIDDEN means the call targeted an account outside that declared set. Both
-name the fix in their remediation -- surface it to the user rather than retrying or re-running
-internal-connect.`;
+write to; LOCATION_FORBIDDEN means the call targeted an account outside that declared set. The fix
+is /uxie-ghl-factory:internal-connect's BIND mode, which discovers the agency, proposes the
+binding, and writes it additively with the user's confirmation. Never rebind with a bare
+\`claude mcp add\`: on an existing registration it rewrites the whole server entry and drops every
+env var not on that command line. Do not retry the refused call until the binding is confirmed.`;
 
 // stdio.mjs
 var HERE2 = dirname3(fileURLToPath2(import.meta.url));

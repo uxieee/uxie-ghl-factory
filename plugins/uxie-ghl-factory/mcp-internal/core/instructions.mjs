@@ -45,9 +45,11 @@ and it does not prove calling it is safe.
 
 LOCATION_UNBOUND AND LOCATION_FORBIDDEN ARE NOT CREDENTIAL PROBLEMS. Re-capturing a token will not
 help either one. LOCATION_UNBOUND means this project has not declared which GHL accounts it may
-write to; LOCATION_FORBIDDEN means the call targeted an account outside that declared set. Both
-name the fix in their remediation -- surface it to the user rather than retrying or re-running
-internal-connect.`;
+write to; LOCATION_FORBIDDEN means the call targeted an account outside that declared set. The fix
+is /uxie-ghl-factory:internal-connect's BIND mode, which discovers the agency, proposes the
+binding, and writes it additively with the user's confirmation. Never rebind with a bare
+\`claude mcp add\`: on an existing registration it rewrites the whole server entry and drops every
+env var not on that command line. Do not retry the refused call until the binding is confirmed.`;
 
 export const AUDIT_INSTRUCTIONS = `GoHighLevel internal API — READ-ONLY audit profile.
 

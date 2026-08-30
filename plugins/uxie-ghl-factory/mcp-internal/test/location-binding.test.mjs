@@ -45,7 +45,8 @@ test('unbound: reads pass, writes refuse with the binding command', () => {
   const r = checkLocationBinding({ tool: tool('build_workflow'), args: { locationId: PERMITTED }, allowed: null });
   assert.equal(r.code, CODES.LOCATION_UNBOUND);
   assert.match(r.remediation, /GHL_INTERNAL_LOCATIONS/);
-  assert.match(r.remediation, new RegExp(PERMITTED), 'the refusal must name the attempted location so it is one copy-paste to fix');
+  assert.match(r.remediation, new RegExp(PERMITTED), 'the refusal must name the attempted location so the user knows which account the bind proposal should include');
+  assert.match(r.remediation, /internal-connect/, 'the remediation routes to bind mode, never a bare `claude mcp add` (which rewrites the entry)');
 });
 
 test('unbound: a raw GET is still usable, a raw DELETE is not', () => {

@@ -11,6 +11,35 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.44.1] — 2026-08-31
+
+Pays the follow-up 0.44.0's Known limits promised: the refusal guidance now routes to `bind`
+mode, and the two contracts the command file restates are pinned by tests. This one DOES touch
+`core/` and rebuilds `dist/` — that is the point.
+
+### Fixed
+
+- **`LOCATION_UNBOUND`/`LOCATION_FORBIDDEN` no longer route agents to the entry-clobbering
+  command.** `core/instructions.mjs` and both remediations in `core/location-binding.mjs` now
+  point at `/uxie-ghl-factory:internal-connect`'s `bind` mode — discover, propose, write
+  additively — and say outright never to rebind with a bare `claude mcp add`, which rewrites the
+  whole server entry and drops every env var not on that command line. The location-binding tests
+  pin the new routing (`remediation` must name `internal-connect`).
+- **`parseLocations` counts the rows it drops** (`skipped` on its return) instead of hiding them,
+  and the discovery snippet's roster gate now separates the two causes a short list can have:
+  malformed rows the parser dropped versus rows the fixed `limit=200` request never received.
+  Previously either cause reported as pagination truncation.
+
+### Added
+
+- **`test/internal-connect-doc-contract.test.mjs`** — pins `commands/internal-connect.md` to the
+  code it restates: every `scripts/*.mjs` module the command imports must exist on disk, and the
+  hand-copied discovery headers must match `core/gateway.mjs`'s literal character-for-character
+  (read from the source at test time, so the two cannot drift apart silently). Proven
+  fails-on-reintroduction: corrupting the header in the command makes it fail. This is the same
+  failure this file has already had once — it and `capture-token.mjs` asserted opposite referer
+  rules for months until `capture-referer.test.mjs` pinned them together.
+
 ## [0.44.0] — 2026-08-31
 
 `internal-connect` gains two modes — `bind` and `audit` — beside the existing `connect`, so a
