@@ -6,3 +6,7 @@ audits/
 docs/superpowers/
 plugins/*/skills/*-workspace/
 .worktrees/
+
+# Founder-facing status reports — keep future ones out of the public repo.
+# (The two already tracked stay tracked; gitignore does not untrack.)
+STATUS-*.md
