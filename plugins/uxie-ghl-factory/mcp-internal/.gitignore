@@ -6,3 +6,7 @@ audit-canary-receipt-*.json
 # never enter git; the .mjs beside it is throwaway too, left in place per the
 # no-delete rule rather than removed.
 .live-gate-phase0.*
+
+# Location-binding throwaway live gate (spec §5, 2026-08-30): same pattern as the phase-0 gate
+# above — a probe artifact left in place per the no-delete rule, never committed.
+.live-gate-location.*
