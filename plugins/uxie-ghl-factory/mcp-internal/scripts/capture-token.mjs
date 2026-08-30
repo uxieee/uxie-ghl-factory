@@ -160,10 +160,20 @@ async function main() {
   let bearerScope = null;
   let tokenId = null;
   let bearerOrigin = null;
+  let firebaseKey = null;
 
   ctx.on('request', (req) => {
-    let host;
-    try { host = new URL(req.url()).host; } catch { return; }
+    let host, url;
+    try { url = new URL(req.url()); host = url.host; } catch { return; }
+    // The app signs into Firebase with its PUBLIC web key on the `key=` query of its own
+    // identitytoolkit calls. Auto-renewal needs that key to mint a fresh token-id, and it is
+    // GHL's value, not ours to ship — so it is captured here and written to the 0600 token file
+    // like the other two credentials (0.45.1).
+    if (host === 'identitytoolkit.googleapis.com' || host === 'securetoken.googleapis.com') {
+      const k = url.searchParams.get('key');
+      if (!firebaseKey && k && /^AIza[0-9A-Za-z_-]{35}$/.test(k)) firebaseKey = k;
+      return;
+    }
     if (host !== BACKEND && host !== AI_HOST) return;
     const h = req.headers();
     const auth = h.authorization || h.Authorization || '';
@@ -217,7 +227,7 @@ async function main() {
     process.exit(1);
   }
 
-  writeFileSync(TOKEN_FILE, formatTokenFile({ bearer, tokenId }), { mode: 0o600 });
+  writeFileSync(TOKEN_FILE, formatTokenFile({ bearer, tokenId, firebaseKey }), { mode: 0o600 });
   chmodSync(TOKEN_FILE, 0o600);
 
   const b = claimNames(bearer);
@@ -226,6 +236,7 @@ async function main() {
   if (tokenId) {
     const t = claimNames(tokenId);
     console.log(`  token-id ttl=${t.ttlMin}min type=${t.type} role=${t.role} locations=${t.locations}`);
+    console.log(`  firebase-key ${firebaseKey ? 'recorded (token-id will auto-renew)' : 'NOT observed — token-id will not auto-renew until a capture sees it'}`);
   } else {
     console.log('  token-id NOT captured — AI-surface calls will need a second run that opens an AI screen.');
   }

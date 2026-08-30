@@ -187,7 +187,11 @@ to this repo, a report, or a commit message.
    ```
    Bearer <jwt>
    token-id: <firebase-token>
+   firebase-key: <the app's public Firebase web key, seen on its identitytoolkit calls>
    ```
+   The third line is what lets the server renew the `token-id` itself (0.45.x); `capture-token.mjs`
+   records it automatically. Without it the bearer still auto-renews and the AI rail waits for the
+   next capture.
    (Live-proven: one AI-surface capture authenticates workflow + AI + memberships — no separate
    token needed.)
 
