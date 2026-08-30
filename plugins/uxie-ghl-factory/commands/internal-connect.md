@@ -57,7 +57,13 @@ console.log(JSON.stringify({
   auditProfileRegistered: Boolean(audit),
   boundTo: srv?.env?.GHL_INTERNAL_LOCATIONS ?? null,
   tokenFileSet: Boolean(srv?.env?.GHL_INTERNAL_TOK_FILE),
-  legacyNames: Object.keys(srv?.env ?? {}).filter((k) => k === 'GHL_TOK_FILE' || k === 'GHL_LOCATIONS'),
+  // PRESENCE — what rule 6 says to leave alone. Present is not the same as refused.
+  legacyNamesPresent: Object.keys(srv?.env ?? {}).filter((k) => k === 'GHL_TOK_FILE' || k === 'GHL_LOCATIONS'),
+  // REFUSAL — the guard's actual condition is old name set AND new name absent (`stdio.mjs`,
+  // mirrored by `listRegistrations`). BOTH names present is healthy, and is exactly the end state
+  // rule 6 tells you to create — so never diagnose from presence alone.
+  legacyTokenFileEnv: Boolean(srv?.env?.GHL_TOK_FILE) && !srv?.env?.GHL_INTERNAL_TOK_FILE,
+  legacyLocationsEnv: Boolean(srv?.env?.GHL_LOCATIONS) && !srv?.env?.GHL_INTERNAL_LOCATIONS,
   // REPORT ONLY. Same-basename keys at other paths are the stale shadows — never a fallback.
   sameNameElsewhere: keys.filter((k) => k !== folder && basename(k) === basename(folder))
     .map((k) => ({ key: k, hasMcpServers: Boolean(cfg.projects[k]?.mcpServers) })),
@@ -70,6 +76,12 @@ If `registered` is false but `sameNameElsewhere` shows a key with `hasMcpServers
 and stop.** That is a path mismatch (a moved folder, a symlink, a `/Users/<user>/Documents/…`
 leftover), not an unregistered folder, and `connect` would create a second registration beside the
 first. Ask which path is real. Do **not** match on the suffix — see rule 2.
+
+If `registered` is false but `auditProfileRegistered` is true, **say so and ask before doing
+anything.** `mode` is derived from the full server alone, so an audit-only folder selects
+`connect` — whose step 4 would then `claude mcp add` the full, write-capable server into a folder
+somebody deliberately made read-only, and a folder offering both offers the write tools. Only the
+user can say whether this folder is meant to gain them.
 
 ## The rules every mode obeys
 
@@ -106,7 +118,11 @@ by the next agent who thinks it looks redundant. All seven were paid for by hand
    place.** 0.43.0's migration guards require the NEW name to be present, not the old one to be
    absent, and deleting the old one would break any machine still running an older build off the
    same config.
-7. **Never delete anything, and back up `~/.claude.json` before every write.** Copy it to
+7. **Never delete a registration, an env var, or a backup — and back up `~/.claude.json` before
+   every write.** Scoped deliberately: this command mandates two deletions of its own (the
+   intermediate header file holding a live JWT, in `connect` step 2, and a stale discovery `OUT`),
+   and an agent that reads an unscoped "never delete anything" over those specific instructions
+   leaves a live credential lying in a project folder. Config state is what is protected. Copy it to
    `backupPath(configPath)` first, and refuse to proceed if that backup path already exists rather
    than overwriting it — the name is second-granular, so two writes in the same second otherwise
    leave one un-backed-up.
@@ -175,6 +191,16 @@ to this repo, a report, or a commit message.
    (Live-proven: one AI-surface capture authenticates workflow + AI + memberships — no separate
    token needed.)
 
+   **When you need only a credential, prefer `mcp-internal/scripts/capture-token.mjs`** — it owns
+   the whole capture out of band, so no JWT ever passes through the model's context at all, it
+   honours `GHL_INTERNAL_TOK_FILE` so it writes project-locally, and it emits this exact two-line
+   format (`formatTokenFile`, pinned by `test/token-file-format.test.mjs` and
+   `test/capture-referer.test.mjs`). That is the right path for a re-authorize, or for `bind` on a
+   folder whose `agency.json` already exists. `connect` uses the browser flow above because
+   **step 3 rides the same session** to read the agency `companyId`, which the script neither
+   captures nor leaves a browser open for; the header → file → parse discipline is what holds the
+   credential rule in the meantime.
+
 3. **Capture the agency `companyId` in the same browser session.** While the network log is still
    there, list the app's own requests and read the `companyId=<id>` query parameter off them (the
    agency-scoped calls carry it). Confirm the SAME value appears on at least two distinct requests
@@ -219,9 +245,12 @@ to this repo, a report, or a commit message.
    default. Bind the fewest accounts that let the folder do its job.
 
 6. **Verify.** The server must connect; call `auth_status` (claims only) and confirm
-   `allowedLocations` equals the number of ids you wrote, then call one real read tool
-   (`list_workflows`) against a bound account and confirm `ok`. A brand-new registration may need
-   the user to reload/approve before the tools appear.
+   `allowedLocations` equals the number of ids you wrote, then call one real read tool —
+   **`list_workflows_complete`**, against an account this registration reaches — and confirm `ok`.
+   Use that name on BOTH profiles: the audit profile ships seven tools and `list_workflows` is not
+   one of them, so naming it here would hand a correctly-set-up audit folder an unknown-tool error
+   on its last step, which reads exactly like a broken registration. A brand-new registration may
+   need the user to reload/approve before the tools appear.
 
 ---
 
@@ -230,8 +259,9 @@ to this repo, a report, or a commit message.
 The folder is already registered. Nothing here re-captures a credential unless the user asks
 (rule 5).
 
-1. **Read the registration** with the mode-selection snippet above. Note `boundTo`, `tokenFileSet`
-   and `legacyNames`.
+1. **Read the registration** with the mode-selection snippet above. Note `boundTo`,
+   `tokenFileSet`, and `legacyTokenFileEnv` / `legacyLocationsEnv` — the refusal flags, not
+   `legacyNamesPresent`.
 2. **Read `<folder>/.ghl/agency.json`** for `companyId`. If it is missing, this folder was
    connected before agency capture existed: say exactly that, and offer a capture (which is what
    step 3 of `connect` does) — do not guess a `companyId`, and do not fall back to another
@@ -244,11 +274,17 @@ The folder is already registered. Nothing here re-captures a credential unless t
    - `matched` — bound and real. Show it too; a proposal you cannot see the whole of is not a diff.
 5. **Propose and write** — **Shared: propose and write** below.
 
-If the registration's `legacyNames` includes `GHL_TOK_FILE`, adding `GHL_INTERNAL_LOCATIONS` alone
-leaves it refused with `LEGACY_TOKEN_FILE_ENV`. Patch **both** names in one write — add
+If `legacyTokenFileEnv` is true — `GHL_TOK_FILE` set and `GHL_INTERNAL_TOK_FILE` **not** set, so
+`tokenFileSet` is false — the registration is refused with `LEGACY_TOKEN_FILE_ENV`, and adding
+`GHL_INTERNAL_LOCATIONS` alone does not lift it. Patch **both** names in one write: add
 `GHL_INTERNAL_TOK_FILE: '<the same path GHL_TOK_FILE holds>'` to the `setEnv` patch object, and
-leave `GHL_TOK_FILE` itself in place (rule 6). Same for `GHL_LOCATIONS`: the new name you are
-already writing satisfies the guard; the old one stays.
+leave `GHL_TOK_FILE` itself in place (rule 6).
+
+**`GHL_TOK_FILE` merely being present is not a fault.** The guard's condition is old-name-set AND
+new-name-absent; both names present is healthy and is precisely the end state rule 6 tells you to
+create. Diagnosing from `legacyNamesPresent` would report a compliant registration as refused and
+prescribe a write `setEnv` then reports as a no-op. Same on the locations side: writing
+`GHL_INTERNAL_LOCATIONS` clears `legacyLocationsEnv` by itself; `GHL_LOCATIONS` stays.
 
 ---
 
@@ -294,6 +330,16 @@ for (const o of result.overlaps) {
     console.log(`  NOTE ${o.id} is listed twice in ${o.folders[0]}'s own binding — a duplicate-id typo, not a cross-folder collision.`);
   }
 }
+
+// TIER 2 INPUTS. formatAudit prints boundCount and NO ids, so it cannot feed the reconcile step;
+// the ids are on result.folders[].ids. Printed here, deduped, with the exempt and un-runnable rows
+// marked so the sweep in tier 2 does not have to re-derive any of it.
+console.log('\n  TIER 2 INPUTS:');
+for (const f of result.folders) {
+  if (f.server.endsWith('-audit')) { console.log(`    ${f.folder}\n        EXEMPT — ${f.server} never takes a binding; do not run discovery for it.`); continue; }
+  const blocked = f.flags.find((x) => x.startsWith('credential-') || x === 'no-token-file-configured');
+  console.log(`    ${f.folder}\n        bound=[${[...new Set(f.ids)].join(',')}]  ${blocked ? `SKIP — ${blocked}` : 'eligible (needs .ghl/agency.json)'}`);
+}
 NODE
 ```
 
@@ -315,16 +361,25 @@ Reading the output:
 ### Tier 2 — online (per folder, only where a credential happens to be live)
 
 `formatAudit` ends by naming exactly what it did not check; tier 2 is that gap, and it is this
-command's job because it needs a live credential **per agency** (rule 3). For each row where the
-offline tier showed no credential problem AND `<folder>/.ghl/agency.json` exists:
+command's job because it needs a live credential **per agency** (rule 3). Work from the
+**TIER 2 INPUTS** block the tier-1 snippet prints — it already carries the bound ids and marks the
+rows that cannot or must not be checked.
+
+- Skip every row marked **EXEMPT**. A `uxie-ghl-internal-mcp-audit` row never takes a binding, so
+  running discovery for it would report the agency's whole roster as `missing` against a
+  registration that is correct by design.
+- Skip every row marked **SKIP** — its credential cannot be read, so tier 2 cannot run for it.
+
+For each remaining row where `<folder>/.ghl/agency.json` exists:
 
 1. Run **Shared: discovery** with that folder's `tokenFile` and `companyId`.
-2. Run **Shared: reconcile** with that folder's bound ids.
+2. Run **Shared: reconcile** with `BOUND` set to that row's `bound=[…]` list. Do NOT try to read
+   the ids out of the `formatAudit` text — it prints `boundCount` and no ids at all.
 3. Report its `missing` and `unknown`. Do not propose writes — `audit` changes nothing. Point the
    user at `bind`, run from that folder, for anything worth fixing.
 
-For every folder you skipped, name it and say why: expired credential, no `agency.json`, discovery
-failed. A silent skip reads as a pass.
+For every folder you skipped, name it and say why: exempt, expired credential, no `agency.json`,
+discovery failed. A silent skip reads as a pass.
 
 ---
 
