@@ -137,7 +137,7 @@ function marketplaceAttributes(node, ctx) {
   // The native path injects __customInputs__ via normalizeAttrs when the catalog
   // says usesCustomInputs — marketplace bypasses that path entirely (there is no
   // native catalog meta for a third-party type), so it must inject its own copy.
-  // Live-confirmed 2026-08-16 (Jing Spa): the stored step carries
+  // Live-confirmed 2026-08-16 (the marketplace-canary client account): the stored step carries
   // attributes.__customInputs__ = {} even though the app's own `inputs` list never
   // declares that key. Only fill when the author left it out — never clobber an
   // author-supplied value.
@@ -547,7 +547,7 @@ function asUserArray(v) {
 // This is the class fix for the `to` bug: the allowlist design is right (the editor binds
 // to an exact field set), but a silent drop is how a "clean build" ships a dead step.
 const NOTIFICATION_EMITTED_KEYS = {
-  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published Living-In-Idaho
+  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published client-account
   // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
   // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
   // into inline mode and made template-mode impossible to author — found by the enforcement tests.
@@ -2192,7 +2192,7 @@ export function compile(ir, ctx) {
   //     time THIS key appears, not the Nth template overall. Two different marketplace
   //     keys interleaved must NOT share a counter (a wait_step between two
   //     send_outbound_whatsapp_message steps does not consume a WhatsApp slot).
-  // Live-confirmed 2026-08-16 (Jing Spa): the one send_outbound_whatsapp_message step
+  // Live-confirmed 2026-08-16 (the marketplace-canary client account): the one send_outbound_whatsapp_message step
   // carries stepIndex:1 and workflow.meta.stepIndexCounter reads
   // {send_outbound_whatsapp_message: 1} — same counter, recorded twice: running on the
   // step, final tally at workflow level. marketplaceStepIndexCounter below feeds both

@@ -92,6 +92,19 @@ const NAME_HASHES = new Set([
   'fcb1d1c298887a6ffcd3f5f6eb28504c1ffa84f79984040683b0c74452b2245f',
   '6e8bfe2ae1abb91f367c8c9ecbef24cddbedbc0686ae0f1ea9584116ad4ffd98',
   '73f91b8e33fa0f6931d3872a012785b54373c1c3712dad952a11d631d873c569',
+  // 2026-08-31 roster sweep: a task review noticed an (untracked) design doc naming a client the
+  // gate did not know. Hashing the active roster against this list found TEN names missing, not
+  // one — the 18 above date from the earlier scrubs and never tracked the roster as it grew.
+  '91fd465dae01a9a169703b165d1d64acc4890754e792b52c7d4105ee1b40df4c',
+  '4004a99ad5bcc81a99b32429d1830496a891abfc2c2fcfcdef1b57e8c61ba396',
+  'd7aa31064c1df93fd9d981b97fe2927474956d497d3d3a988885a6a55fc20688',
+  '4a813e2dd7276ce07313c62fbd0fcd3c92adc274dac762a03d9bb2927f56b829',
+  '792d3c8b8c2e74ee9429f726d9e7c7aba29c0549b3e17ed7f0c4896743a301f7',
+  '0c60ce0631ed9a6e8f92cd96292c6e7f04cfc62826d6085e63cd60ec13bcc1bc',
+  'b637471b996f6ed120c5084b69bd8754e082333b511305c655ca47134450f821',
+  'a7a81f0dbbe295f1069931133d696a0473175e7695b85cfc03985e9d2314e2ef',
+  '345aa0743f7662db7d2fc2861d1650f58df0f7091f0548127079d9b33a4a7fd6',
+  'adf6a4a4af14f65e86cef064eb19b54015bc9467bafefc1579c7e1cd96b8f4a3',
 ]);
 
 // Normalize a candidate the way the hashes were generated: lowercase, collapse any

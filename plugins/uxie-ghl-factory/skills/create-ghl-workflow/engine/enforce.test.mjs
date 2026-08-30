@@ -45,7 +45,7 @@ test("GHL's windowed-zero-wait exemption holds: window present → value 0 is le
 });
 
 test('template-mode email notification (template_id, no inline html) is legal', () => {
-  // 3 real published Living-In-Idaho notifications; GHL's own validator misses this exemption and
+  // 3 real published client-account notifications; GHL's own validator misses this exemption and
   // wrongly warns on them — the outer chain (!email.template_id) carries it for us.
   compiles([{ ref: 'n', kind: 'action', type: 'internal_notification', name: 'N',
     attributes: { type: 'email', email: { subject: 's', template_id: '6a0790804b3943ec5b585679', templatesource: 'email-builder' } } }]);

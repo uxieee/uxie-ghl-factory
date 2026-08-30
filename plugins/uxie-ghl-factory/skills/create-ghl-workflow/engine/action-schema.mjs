@@ -154,7 +154,7 @@ export function parseTriggerSchema(assets) {
 // TRIGGER-ONLY, by evidence, not by choice.
 //
 // 🔴 SCOPE: a stored marketplace TRIGGER carries `version` and `templateId`
-// (live-captured, JING SPA account, 2026-08-16). A stored marketplace ACTION step does
+// (live-captured, marketplace-canary client account, 2026-08-16). A stored marketplace ACTION step does
 // NOT — its complete key set is `id, stepIndex, order, attributes, name, type,
 // isMarketplaceAction`. No version anywhere, not at step level, not inside `attributes`.
 // There is nothing stored to compare an action against, so there is nothing to detect.
