@@ -21,7 +21,7 @@ Credentials live in a **file on your machine**, written by the agent-driven capt
 accepted as a tool argument, never logged, and never echoed in a response or error.
 
 - Default location: **`~/.uxie-ghl-internal-mcp/tok.txt`** (`DEFAULT_TOKEN_FILE`). Override
-  with `GHL_TOK_FILE=<path>` or the `set_token_file` tool (a **path**, never a token — a
+  with `GHL_INTERNAL_TOK_FILE=<path>` or the `set_token_file` tool (a **path**, never a token — a
   JWT-looking value is rejected without echoing it back).
 - The file is re-read **on every call**, so re-capturing mid-session works with no restart.
 - JWTs last ~1 hour. On expiry you get `TOKEN_EXPIRED` — re-run `/uxie-ghl-factory:internal-connect`.
@@ -33,9 +33,9 @@ accepted as a tool argument, never logged, and never echoed in a response or err
 ## Location binding
 
 One GHL login serves many client sub-accounts, and the JWT carries no location claim — the
-credential cannot tell them apart. `GHL_LOCATIONS=<id>[,<id>...]` declares, per registration,
+credential cannot tell them apart. `GHL_INTERNAL_LOCATIONS=<id>[,<id>...]` declares, per registration,
 which accounts it may act on: a **comma-separated list** of location ids, set the same way as
-`GHL_TOK_FILE` (`-e GHL_LOCATIONS="<id>,<id>"` on `claude mcp add`, or the equivalent `env` entry
+`GHL_INTERNAL_TOK_FILE` (`-e GHL_INTERNAL_LOCATIONS="<id>,<id>"` on `claude mcp add`, or the equivalent `env` entry
 for other stdio clients).
 
 - **Unset (the default) means every read stays available and every write is refused** with
@@ -85,16 +85,16 @@ different folders. Instead:
   project-scoped server (`claude mcp add --scope local`) pointing at a stable launcher
   (`~/.uxie-ghl-internal-mcp/launch.mjs`, which resolves the newest installed plugin build so
   version updates don't break the path), captures that account's token to a project-local file
-  (`.ghl/uxie-ghl-internal-mcp-tok.txt`, gitignored), and sets `GHL_TOK_FILE` to it. Each folder
+  (`.ghl/uxie-ghl-internal-mcp-tok.txt`, gitignored), and sets `GHL_INTERNAL_TOK_FILE` to it. Each folder
   gets its own server + account. First registration triggers a one-time workspace-trust prompt.
 - **Other stdio clients** (Codex, Cursor, Desktop): register it yourself per project, pointing at
-  the stable launcher (or the versioned bundle directly) and setting `GHL_TOK_FILE`:
+  the stable launcher (or the versioned bundle directly) and setting `GHL_INTERNAL_TOK_FILE`:
   ```toml
   # ~/.codex/config.toml
   [mcp_servers.uxie-ghl-internal-mcp]
   command = "node"
   args = ["<home>/.uxie-ghl-internal-mcp/launch.mjs"]
-  env = { GHL_TOK_FILE = "<project>/.ghl/uxie-ghl-internal-mcp-tok.txt" }
+  env = { GHL_INTERNAL_TOK_FILE = "<project>/.ghl/uxie-ghl-internal-mcp-tok.txt" }
   ```
 
 **Developing on the server?** `stdio.mjs` + `core/` are the source; `dist/server.mjs` is the
@@ -210,6 +210,7 @@ machine-branchable:
 | Code | Meaning |
 |---|---|
 | `TOKEN_MISSING` | no/unreadable token file, or a credential passed as an argument |
+| `LEGACY_TOKEN_FILE_ENV` | this registration sets the old `GHL_TOK_FILE` (renamed to `GHL_INTERNAL_TOK_FILE` in 0.43.0) but not the new one — refused rather than silently falling back to the shared default token file |
 | `TOKEN_EXPIRED` | JWT `exp` passed, or upstream 401/403 |
 | `VALIDATION_FAILED` | unsupported argument fields, or upstream 422 |
 | `VERSION_CONFLICT` | upstream 409 — re-read for the current `version` |
@@ -217,7 +218,7 @@ machine-branchable:
 | `CONFIRM_REQUIRED` | a gated operation needs `confirm: true` |
 | `PREVIEW_STALE` | fast-forward preview token is missing or no longer matches fresh parked state |
 | `ENGINE_ABORT` | engine threw — usually a spec or dependency problem |
-| `LOCATION_UNBOUND` | this registration declares no permitted locations (`GHL_LOCATIONS` unset) and the call would write — not a credential problem, see **Location binding** |
+| `LOCATION_UNBOUND` | this registration declares no permitted locations (`GHL_INTERNAL_LOCATIONS` unset) and the call would write — not a credential problem, see **Location binding** |
 | `LOCATION_FORBIDDEN` | the call named an account outside this registration's permitted set, in the `locationId` argument, a `raw_request` path/query segment, or a `raw_request` body — not a credential problem, see **Location binding** |
 | `LOCATION_PATH_REWRITE` | a `raw_request` path contains a relative (`.`/`..`) segment or resolves to a different origin; refused rather than reasoned about |
 | `LOCATION_DENYLISTED` | a `raw_request` targets an agency-wide write that no per-location binding can sanction |

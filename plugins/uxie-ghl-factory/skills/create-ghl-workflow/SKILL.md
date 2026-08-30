@@ -78,7 +78,7 @@ catalog rather than improvising a shape.
    (OWNED-ACCOUNT CHECK every session; TOS DISCLOSURE once per workspace).
 2. Auth: `${CLAUDE_PLUGIN_ROOT}/docs/auth-jwt-capture.md`. `Authorization: Bearer`,
    **NOT** `token-id`. Save the captured `Authorization: Bearer …` line to the file
-   `scripts/build.mjs` reads — set `GHL_TOK_FILE=<path>` (recommended) or drop it at
+   `scripts/build.mjs` reads — set `GHL_INTERNAL_TOK_FILE=<path>` (recommended) or drop it at
    the default `plugins/.playwright-mcp/tok.txt`. JWT ~1 hr, so it WILL expire mid-run: on 401,
    re-capture it YOURSELF (invoke `uxie-ghl-factory:internal-connect`) and resume where you left
    off. Do not ask first. One re-capture per failure — never retry-loop.

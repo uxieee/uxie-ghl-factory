@@ -58,7 +58,7 @@ workflow-builder iframe origin or the endpoints 401.
 1. **Parse the target.** Need `locationId` + `workflowId` (from the URL
    `…/workflow/{WORKFLOW_ID}`). Ask if missing.
 2. **Gates.** Run Gate 1 + (first-time) Gate 2; hold Gate 3 in mind for the move itself.
-3. **Capture the scoped JWT** per the canonical auth doc. Point `GHL_TOK_FILE` at the file that
+3. **Capture the scoped JWT** per the canonical auth doc. Point `GHL_INTERNAL_TOK_FILE` at the file that
    holds the captured `Authorization: Bearer …` header.
 4. **See where everyone is (read-only).** `count-per-step` lists every occupied step + counts;
    `details-by-step` lists the parked enrollments at one step (with their status ULIDs). The
@@ -77,11 +77,11 @@ workflow-builder iframe origin or the endpoints 401.
 explicit `--confirm`.
 
 ```
-GHL_TOK_FILE=/path/to/token.txt node ff.mjs <LOC> <WID> peek                 # count-per-step
-GHL_TOK_FILE=… node ff.mjs <LOC> <WID> peek <STEP_ID>                        # details-by-step (who's parked)
-GHL_TOK_FILE=… node ff.mjs <LOC> <WID> move <STEP_ID> --contact <CID>        # move ONE contact past the wait
-GHL_TOK_FILE=… node ff.mjs <LOC> <WID> move <STEP_ID> --status <ID,ID>       # move explicit status ULIDs
-GHL_TOK_FILE=… node ff.mjs <LOC> <WID> move <STEP_ID> --all --confirm        # move EVERY parked contact (paginates)
+GHL_INTERNAL_TOK_FILE=/path/to/token.txt node ff.mjs <LOC> <WID> peek                 # count-per-step
+GHL_INTERNAL_TOK_FILE=… node ff.mjs <LOC> <WID> peek <STEP_ID>                        # details-by-step (who's parked)
+GHL_INTERNAL_TOK_FILE=… node ff.mjs <LOC> <WID> move <STEP_ID> --contact <CID>        # move ONE contact past the wait
+GHL_INTERNAL_TOK_FILE=… node ff.mjs <LOC> <WID> move <STEP_ID> --status <ID,ID>       # move explicit status ULIDs
+GHL_INTERNAL_TOK_FILE=… node ff.mjs <LOC> <WID> move <STEP_ID> --all --confirm        # move EVERY parked contact (paginates)
 ```
 
 Without `--confirm`, a `--all` move prints what WOULD move and stops (dry run). `move` with an

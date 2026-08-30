@@ -182,7 +182,7 @@ entirely. Behaviour is identical either way — this is housekeeping, not a fix.
 7. **`claude mcp add` takes `<name>` BEFORE `-e`** — `-e` is variadic and swallows the name.
 8. **The MCP launcher runs the newest INSTALLED plugin build, not your repo.** To live-test
    engine changes, drive the repo's own CLI:
-   `GHL_TOK_FILE=… node skills/create-ghl-workflow/scripts/build.mjs <ir.json> <LOC>`.
+   `GHL_INTERNAL_TOK_FILE=… node skills/create-ghl-workflow/scripts/build.mjs <ir.json> <LOC>`.
    That is what proved this session's work; the installed 0.12.0 build would have rejected all
    four new types with `STEP_TYPE_UNKNOWN`.
 9. **`import.meta.url === \`file://${process.argv[1]}\`` is broken here** — the repo path
