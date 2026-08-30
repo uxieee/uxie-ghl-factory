@@ -46,6 +46,12 @@ for other stdio clients).
   declared; it does not keep reading everywhere else the credential happens to reach.
 - Neither code is a credential problem — re-capturing the token does not help either one; see
   `core/instructions.mjs` for the guidance shipped to the agent.
+- **A registration that migrated `GHL_INTERNAL_TOK_FILE` but left the old `GHL_LOCATIONS` set
+  (0.43.0's rename) is refused with `LEGACY_LOCATIONS_ENV`** — on reads as well as writes. An
+  unbound registration's reads pass by design (see the point above), so leaving the old name in
+  place would silently widen reads from the registration's intended bound set to every account
+  the credential reaches, while writes kept looking safe because they were already refused.
+  Checked from the old name's presence only, never its value.
 - The **audit profile does not read this variable at all** — it is structurally read-only
   (GET-only capabilities, enforced in the server, not by this guard), so location binding is
   moot for it.
@@ -222,6 +228,7 @@ machine-branchable:
 | `LOCATION_FORBIDDEN` | the call named an account outside this registration's permitted set, in the `locationId` argument, a `raw_request` path/query segment, or a `raw_request` body — not a credential problem, see **Location binding** |
 | `LOCATION_PATH_REWRITE` | a `raw_request` path contains a relative (`.`/`..`) segment or resolves to a different origin; refused rather than reasoned about |
 | `LOCATION_DENYLISTED` | a `raw_request` targets an agency-wide write that no per-location binding can sanction |
+| `LEGACY_LOCATIONS_ENV` | this registration sets the old `GHL_LOCATIONS` (renamed to `GHL_INTERNAL_LOCATIONS` in 0.43.0) but not the new one — refused on reads and writes rather than silently widening reads to every location the credential reaches |
 | `HTTP_<n>` | any other upstream status |
 
 ## Audit profile
