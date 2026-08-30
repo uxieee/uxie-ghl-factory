@@ -157,3 +157,41 @@ test('locationPositions: both forms, and neither for a location-free template', 
   assert.deepEqual(locationPositions('/locations/{id}'), [1]);          // {param} after a literal "locations"
   assert.deepEqual(locationPositions('/funnels/funnel/{id}'), []);
 });
+
+test('rule 3: a foreign location nested in the body is refused', () => {
+  const r = checkLocationBinding(raw({ method: 'POST', body: { attributes: { locationId: FOREIGN } } }));
+  assert.equal(r.code, CODES.LOCATION_FORBIDDEN);
+});
+
+test('rule 3: a STRING body is parsed before scanning', () => {
+  // raw_request's handler does `if (typeof body === 'string') body = JSON.parse(body)`. Scanning
+  // the unparsed string is a one-line escape from this rule.
+  const r = checkLocationBinding(raw({ method: 'POST', body: JSON.stringify({ location_id: FOREIGN }) }));
+  assert.equal(r.code, CODES.LOCATION_FORBIDDEN);
+});
+
+test('rule 3: an unparseable string body is passed through, not refused', () => {
+  assert.equal(checkLocationBinding(raw({ method: 'POST', body: 'not json at all' })), null);
+});
+
+test('rule 3: a permitted location in the body passes', () => {
+  assert.equal(checkLocationBinding(raw({ method: 'POST', body: { locationId: PERMITTED } })), null);
+});
+
+test('rule 3: non-string values at a matched key are refused, not ignored', () => {
+  for (const value of [[FOREIGN], { $ne: null }, 42]) {
+    const r = checkLocationBinding(raw({ method: 'POST', body: { locationId: value } }));
+    assert.ok(r, `locationId: ${JSON.stringify(value)} must not pass silently`);
+  }
+});
+
+test('rule 3: an array of permitted strings is allowed', () => {
+  assert.equal(checkLocationBinding(raw({ method: 'POST', body: { locationId: [PERMITTED] } })), null);
+});
+
+test('rule 3: an over-deep body reports a cap hit, never a location violation', () => {
+  let deep = { locationId: PERMITTED };
+  for (let i = 0; i < 40; i++) deep = { nested: deep };
+  const r = checkLocationBinding(raw({ method: 'POST', body: deep }));
+  assert.equal(r?.code, CODES.VALIDATION_FAILED, 'a cap hit is a cap hit, not a forbidden location');
+});

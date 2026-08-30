@@ -93,6 +93,34 @@ export function matchTemplates(pathname, method, endpoints) {
 const isAgencyWideWrite = (method, segs) =>
   method !== 'GET' && segs[0] === 'workflow' && segs[2] === 'workflow-company-setting';
 
+const MAX_DEPTH = 32;
+const MAX_NODES = 10_000;
+
+// A matched key's value is checked when it is a string OR an array of strings; any other type at a
+// matched key is REFUSED. Ignoring them would let {"locationId": ["FOREIGN"]} and
+// {"locationId": {"$ne": null}} past, because the strings under them sit at array indices and
+// nested keys rather than at the exact key.
+function scanBodyLocations(value, allowed) {
+  let nodes = 0;
+  const bad = [];
+  const walk = (v, depth) => {
+    if (bad.length) return true;
+    if (depth > MAX_DEPTH || ++nodes > MAX_NODES) return false;
+    if (Array.isArray(v)) return v.every((x) => walk(x, depth + 1));
+    if (!v || typeof v !== 'object') return true;
+    for (const [k, x] of Object.entries(v)) {
+      if (k === 'locationId' || k === 'location_id') {
+        const values = typeof x === 'string' ? [x] : (Array.isArray(x) && x.every((s) => typeof s === 'string') ? x : null);
+        if (values === null) { bad.push({ unusable: true }); return true; }
+        for (const id of values) if (!allowed.has(id)) { bad.push({ id }); return true; }
+      } else if (!walk(x, depth + 1)) return false;
+    }
+    return true;
+  };
+  const withinCaps = walk(value, 0);
+  return { withinCaps, bad };
+}
+
 export function checkLocationBinding({ tool, args, allowed, ...opts }) {
   const kind = classifyCall(tool, args);
   if (kind === 'unguarded') return null;
@@ -159,6 +187,25 @@ export function checkLocationBinding({ tool, args, allowed, ...opts }) {
         if (v && !allowed.has(v)) return fail(CODES.LOCATION_FORBIDDEN,
           `the request path targets ${v}, which this registration is not permitted to act on`,
           'Target a permitted account, or rebind the registration.');
+      }
+    }
+
+    let body = args?.body;
+    if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = undefined; } }
+    if (body !== undefined) {
+      const { withinCaps, bad } = scanBodyLocations(body, allowed);
+      if (!withinCaps) return fail(CODES.VALIDATION_FAILED,
+        'the request body is too large or too deeply nested to check for account references',
+        'Flatten or shrink the body. This is a size limit, not a location refusal.');
+      if (bad.length) {
+        const first = bad[0];
+        return first.unusable
+          ? fail(CODES.LOCATION_FORBIDDEN,
+              'the request body carries a locationId that is not a string or list of strings',
+              'Send locationId as a string. The guard cannot check any other shape.')
+          : fail(CODES.LOCATION_FORBIDDEN,
+              `the request body targets ${first.id}, which this registration is not permitted to act on`,
+              'Target a permitted account, or rebind the registration.');
       }
     }
   }
