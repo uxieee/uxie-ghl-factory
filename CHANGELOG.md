@@ -39,13 +39,23 @@ values):
   **presence only** (never its value) and hand it to `readCredentials()` (`core/auth.mjs`),
   which throws an `AuthError` naming both variables and the fix before any file is touched — the
   same `fail()`/`AuthError` contract every other credential failure uses, never a hand-built
-  object. An explicit `set_token_file` call is unaffected: it names its own path and bypasses
-  environment resolution entirely, matching prior behaviour.
-- `GHL_LOCATIONS` becomes `GHL_INTERNAL_LOCATIONS` with a straight rename and **no** equivalent
-  guard. Unlike the token file, an unset `GHL_INTERNAL_LOCATIONS` means UNBOUND, which already
-  refuses every write (`LOCATION_UNBOUND`) rather than silently reaching any account — a missed
-  migration here degrades to the existing fail-safe default, not a silent wrong-account read, so
-  a second guard would add noise without closing a real hazard.
+  object. An explicit `set_token_file` call VALIDATES its path independently of the guard (it
+  never carries the stale-env flag), and once that validation succeeds it also CLEARS
+  `legacyTokenFileEnv` on state — the operator named a real file themselves, so there is nothing
+  left for the guard to protect against, and every later call (this tool's own `authStatus`
+  reply included) stops refusing without a server restart.
+- **`LEGACY_LOCATIONS_ENV`** — the same guard shape, mirrored onto `GHL_LOCATIONS` ->
+  `GHL_INTERNAL_LOCATIONS`, added after review caught that "unbound fails safe" is only true of
+  *writes*. `checkLocationBinding` returns `null` (allowed) for an unbound registration's
+  *reads* — 0.42.0 deliberately made a bound registration's `LOCATION_FORBIDDEN` apply to reads
+  too (`mcp-internal/README.md`'s "does not keep reading everywhere else the credential happens
+  to reach"), so a registration that migrates `GHL_INTERNAL_TOK_FILE` but leaves `GHL_LOCATIONS`
+  stale would keep refusing writes (already fail-safe) while silently WIDENING reads from its
+  bound set to every location the credential reaches — a security feature quietly getting
+  weaker, with nothing said. `checkLocationBinding` now refuses every guarded call (read or
+  write) with `LEGACY_LOCATIONS_ENV` when `state.legacyLocationsEnv` is set — computed the same
+  presence-only way as the token guard, in `stdio.mjs` only (the audit profile has never read
+  this variable at all, and still doesn't).
 
 ### Changed
 
