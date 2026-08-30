@@ -41,7 +41,9 @@ for other stdio clients).
 - **Unset (the default) means every read stays available and every write is refused** with
   `LOCATION_UNBOUND`, whose remediation names the exact command to bind the registration. A
   registration that has not declared its locations cannot be trusted to write to the right one.
-- **Set, a write to any account outside the list is refused** with `LOCATION_FORBIDDEN`.
+- **Set, any call naming an account outside the list is refused** with `LOCATION_FORBIDDEN` —
+  this applies to reads as well as writes. A bound registration is scoped to the accounts it
+  declared; it does not keep reading everywhere else the credential happens to reach.
 - Neither code is a credential problem — re-capturing the token does not help either one; see
   `core/instructions.mjs` for the guidance shipped to the agent.
 - The **audit profile does not read this variable at all** — it is structurally read-only
@@ -54,6 +56,21 @@ as an argument and their own token file, entirely outside this server:
 `skills/create-ghl-workflow/scripts/build.mjs`, `skills/ghl-workflow-fast-forward/scripts/ff.mjs`,
 and `skills/ghl-memberships/scripts/cli-gateway.mjs`. Any agent with shell access can still reach
 those accounts through that path. Closing it is separate, unstarted work.
+
+Two narrower residuals live inside the guard itself, both stated limits of the design rather than
+protections it claims:
+
+- **A `%2f`-encoded path segment is not decoded by WHATWG URL parsing.** `new URL()` leaves `%2f`
+  encoded, so a location hidden that way (`/workflow/PERMITTED%2f..%2fFOREIGN/list`) shows neither
+  a dot segment nor an origin change and is not caught by the path-rewrite check. It falls through
+  to the next case below.
+- **A path the catalogue does not recognise cannot have its location verified.** `raw_request`
+  exists precisely for endpoints outside the 876-row catalogue, so an unmatched path is not refused
+  outright — refusing it would gut the tool. When bound, such a call (and the `%2f` case above) is
+  **allowed**, not refused, because the guard cannot confirm what it did not recognise. It still
+  requires `confirm: true` on any non-GET, same as every other write. A follow-up `locationVerified:
+  false` advisory flag for this case was designed but deferred — the guard's only return channel
+  today is null-or-refusal, and that flag needs a handler-side annotation this release does not add.
 
 ## Install / registration
 
