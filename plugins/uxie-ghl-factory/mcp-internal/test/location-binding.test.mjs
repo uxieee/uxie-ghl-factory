@@ -215,3 +215,27 @@ test('rule 3: an over-long array at a matched key reports a cap hit, never a loc
   const r = checkLocationBinding(raw({ method: 'POST', body: { locationId: Array(10_001).fill(PERMITTED) } }));
   assert.equal(r?.code, CODES.VALIDATION_FAILED, 'a cap hit is a cap hit, not a forbidden location');
 });
+
+import { readFileSync as rfs } from 'node:fs';
+
+test('the full entry point parses GHL_LOCATIONS into state', () => {
+  // stdio-audit.mjs is deliberately excluded — see Step 3.
+  for (const entry of ['../stdio.mjs']) {
+    const src = rfs(new URL(entry, import.meta.url), 'utf8');
+    assert.match(src, /allowedLocations/, `${entry} must put allowedLocations on state`);
+    assert.match(src, /GHL_LOCATIONS/, `${entry} must read GHL_LOCATIONS`);
+  }
+});
+
+test('registerTools calls the guard before the handler', () => {
+  const src = rfs(new URL('../core/tools.mjs', import.meta.url), 'utf8');
+  assert.match(src, /checkLocationBinding/, 'the guard must be wired into the choke point');
+});
+
+test('auth_status reports the binding as a COUNT, never the ids', async () => {
+  const { authStatus } = await import('../core/auth.mjs');
+  const s = authStatus({ tokenFile: '/nonexistent', allowedLocations: new Set([PERMITTED]) });
+  assert.equal(s.allowedLocations, 1);
+  assert.ok(!JSON.stringify(s).includes(PERMITTED), 'ids must not be echoed');
+  assert.equal(authStatus({ tokenFile: '/nonexistent', allowedLocations: null }).allowedLocations, null);
+});

@@ -9,6 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { makeGatewayFactory, registerTools } from './core/tools.mjs';
 import { FULL_INSTRUCTIONS } from './core/instructions.mjs';
 import { DEFAULT_TOKEN_FILE } from './core/auth.mjs';
+import { parseAllowedLocations } from './core/location-binding.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // The version is injected at bundle time via esbuild --define (see scripts/build.mjs).
@@ -21,7 +22,7 @@ const pkgVersion = typeof __MCP_VERSION__ !== 'undefined'
       catch { return '0.0.0-dev'; }
     })();
 
-const state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
+const state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion, allowedLocations: parseAllowedLocations(process.env.GHL_LOCATIONS) };
 // Forwards EVERY option a tool passes. The previous `({ loc, rail }) => …` destructure
 // dropped the audit tools' `throttleMs: 0, jitterMs: 0`, so the gateway kept its own
 // 300-450ms delay while the shared audit limiter paced on top of it — the double-throttle

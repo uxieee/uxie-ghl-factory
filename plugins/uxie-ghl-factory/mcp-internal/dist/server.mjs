@@ -72141,10 +72141,21 @@ function authStatus(state2) {
       tokenFile: state2.tokenFile,
       jwtClaims: { present: true, ...s },
       tokenIdClaims: tokenId,
-      engine: state2.engineVersion ?? "unknown"
+      engine: state2.engineVersion ?? "unknown",
+      // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
+      // not which accounts it may reach.
+      allowedLocations: state2.allowedLocations ? state2.allowedLocations.size : null
     };
   } catch (e) {
-    return { tokenFile: state2.tokenFile, jwtClaims: { present: false }, error: { code: e.code, detail: e.detail, remediation: e.remediation }, engine: state2.engineVersion ?? "unknown" };
+    return {
+      tokenFile: state2.tokenFile,
+      jwtClaims: { present: false },
+      error: { code: e.code, detail: e.detail, remediation: e.remediation },
+      engine: state2.engineVersion ?? "unknown",
+      // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
+      // not which accounts it may reach.
+      allowedLocations: state2.allowedLocations ? state2.allowedLocations.size : null
+    };
   }
 }
 function requireAiCredentials(creds) {
@@ -72165,6 +72176,201 @@ function requireAiCredentials(creds) {
   if (jwtExpired) throw new AuthError(CODES.TOKEN_EXPIRED, "Bearer JWT exp is in the past", AI_RECAPTURE);
   if (tokenIdExpired) throw new AuthError(CODES.TOKEN_ID_EXPIRED, "token-id exp is in the past", AI_RECAPTURE);
   return tokenIdClaims;
+}
+
+// core/location-binding.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+function parseAllowedLocations(raw) {
+  if (typeof raw !== "string") return null;
+  const ids = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  return ids.length ? new Set(ids) : null;
+}
+var declaresLocation = (tool) => Object.keys(tool?.inputSchema?.shape ?? {}).includes("locationId");
+function classifyCall(tool, args) {
+  if (!declaresLocation(tool)) return "unguarded";
+  if (tool.name === "raw_request") return (args?.method ?? "GET") === "GET" ? "read" : "write";
+  return tool.capabilities?.some((c) => c.method !== "GET") ? "write" : "read";
+}
+var bindCommand = (locationId) => `Bind this registration to the accounts it may touch, then retry:
+  claude mcp add --transport stdio --scope local -e GHL_LOCATIONS="${locationId}" ... (keep the existing -e GHL_TOK_FILE=... and the same server name)`;
+var DEFAULT_BASE = "https://backend.leadconnectorhq.com";
+var AI_BASE = "https://services.leadconnectorhq.com";
+var DOT_SEGMENT = /(^|\/)(\.|%2e|\.\.|%2e%2e|\.%2e|%2e\.)(\/|$)/i;
+function locationPositions(templatePath) {
+  const segs = templatePath.replace(/\{query\}$/, "").split("/").filter(Boolean);
+  const out = [];
+  segs.forEach((seg, i) => {
+    if (!seg.startsWith("{")) return;
+    if (seg === "{locationId}" || /^\{location_?[Ii]d\}$/.test(seg)) out.push(i);
+    else if (i > 0 && /^locations?$/i.test(segs[i - 1])) out.push(i);
+  });
+  return out;
+}
+function matchTemplates(pathname, method, endpoints2) {
+  const segs = pathname.split("/").filter(Boolean).map((s) => {
+    try {
+      return decodeURIComponent(s);
+    } catch {
+      return s;
+    }
+  });
+  const scored = [];
+  let globalBest = -1;
+  for (const e of endpoints2) {
+    const t = (e.path ?? "").replace(/\{query\}$/, "").split("/").filter(Boolean);
+    if (t.length !== segs.length) continue;
+    let literals = 0, ok2 = true;
+    for (let i = 0; i < t.length; i++) {
+      if (t[i].startsWith("{")) continue;
+      if (t[i] !== segs[i]) {
+        ok2 = false;
+        break;
+      }
+      literals++;
+    }
+    if (!ok2) continue;
+    if (literals > globalBest) globalBest = literals;
+    if ((e.method ?? "GET") === method) scored.push({ e, literals });
+  }
+  return scored.filter((s) => s.literals === globalBest).map((s) => s.e);
+}
+var isAgencyWideWrite = (method, segs) => method !== "GET" && segs[0] === "workflow" && segs[2] === "workflow-company-setting";
+var MAX_DEPTH = 32;
+var MAX_NODES = 1e4;
+function scanBodyLocations(value, allowed) {
+  let nodes = 0;
+  const bad = [];
+  const walk2 = (v, depth) => {
+    if (bad.length) return true;
+    if (depth > MAX_DEPTH || ++nodes > MAX_NODES) return false;
+    if (Array.isArray(v)) return v.every((x) => walk2(x, depth + 1));
+    if (!v || typeof v !== "object") return true;
+    for (const [k, x] of Object.entries(v)) {
+      if (k === "locationId" || k === "location_id") {
+        if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) return false;
+        const values = typeof x === "string" ? [x] : Array.isArray(x) && x.every((s) => typeof s === "string") ? x : null;
+        if (values === null) {
+          bad.push({ unusable: true });
+          return true;
+        }
+        for (const id of values) if (!allowed.has(id)) {
+          bad.push({ id });
+          return true;
+        }
+      } else if (!walk2(x, depth + 1)) return false;
+    }
+    return true;
+  };
+  const withinCaps = walk2(value, 0);
+  return { withinCaps, bad };
+}
+function checkLocationBinding({ tool, args, allowed, ...opts }) {
+  const kind = classifyCall(tool, args);
+  if (kind === "unguarded") return null;
+  const declared = args?.locationId;
+  const hasDeclared = typeof declared === "string" && declared.length > 0;
+  if (allowed === null) {
+    if (kind === "read") return null;
+    return fail(
+      CODES.LOCATION_UNBOUND,
+      "this registration may not write: it declares no permitted locations" + (hasDeclared ? ` (the call targeted ${declared})` : ""),
+      bindCommand(hasDeclared ? declared : "<locationId>")
+    );
+  }
+  if (hasDeclared && !allowed.has(declared)) {
+    return fail(
+      CODES.LOCATION_FORBIDDEN,
+      `this registration is not permitted to act on ${declared}`,
+      "Target an account this registration is bound to, or rebind it with -e GHL_LOCATIONS=... if it should legitimately serve this one."
+    );
+  }
+  if (tool.name === "raw_request") {
+    const path = String(args?.path ?? "");
+    const method = String(args?.method ?? "GET");
+    const base = args?.host === "ai" ? AI_BASE : opts.base ?? DEFAULT_BASE;
+    if (DOT_SEGMENT.test(path.split("?")[0])) {
+      return fail(
+        CODES.LOCATION_PATH_REWRITE,
+        "the request path contains a relative segment and would resolve to a different target",
+        "Send the fully-resolved path. The guard refuses paths it would have to rewrite."
+      );
+    }
+    let url2;
+    try {
+      url2 = new URL(path, base);
+    } catch {
+      return fail(
+        CODES.LOCATION_PATH_REWRITE,
+        "the request path could not be resolved",
+        "Send an absolute internal path beginning with /."
+      );
+    }
+    if (url2.origin !== new URL(base).origin) {
+      return fail(
+        CODES.LOCATION_PATH_REWRITE,
+        "the request path resolves to a different origin",
+        "Send an absolute internal path beginning with /."
+      );
+    }
+    const segs = url2.pathname.split("/").filter(Boolean);
+    if (isAgencyWideWrite(method, segs)) {
+      return fail(
+        CODES.LOCATION_DENYLISTED,
+        "this endpoint writes settings across every location under the agency",
+        "No per-location binding can sanction an agency-wide write. Make the change per location."
+      );
+    }
+    for (const key of ["locationId", "location_id"]) {
+      for (const v of url2.searchParams.getAll(key)) {
+        if (!allowed.has(v)) return fail(
+          CODES.LOCATION_FORBIDDEN,
+          `the request targets ${v}, which this registration is not permitted to act on`,
+          "Target a permitted account, or rebind the registration."
+        );
+      }
+    }
+    for (const e of matchTemplates(url2.pathname, method, opts.endpoints ?? [])) {
+      for (const i of locationPositions(e.path ?? "")) {
+        const v = segs[i];
+        if (v && !allowed.has(v)) return fail(
+          CODES.LOCATION_FORBIDDEN,
+          `the request path targets ${v}, which this registration is not permitted to act on`,
+          "Target a permitted account, or rebind the registration."
+        );
+      }
+    }
+    let body = args?.body;
+    if (typeof body === "string") {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        body = void 0;
+      }
+    }
+    if (body !== void 0) {
+      const { withinCaps, bad } = scanBodyLocations(body, allowed);
+      if (!withinCaps) return fail(
+        CODES.VALIDATION_FAILED,
+        "the request body is too large or too deeply nested to check for account references",
+        "Flatten or shrink the body. This is a size limit, not a location refusal."
+      );
+      if (bad.length) {
+        const first = bad[0];
+        return first.unusable ? fail(
+          CODES.LOCATION_FORBIDDEN,
+          "the request body carries a locationId that is not a string or list of strings",
+          "Send locationId as a string. The guard cannot check any other shape."
+        ) : fail(
+          CODES.LOCATION_FORBIDDEN,
+          `the request body targets ${first.id}, which this registration is not permitted to act on`,
+          "Target a permitted account, or rebind the registration."
+        );
+      }
+    }
+  }
+  return null;
 }
 
 // core/audit-gateway.mjs
@@ -147620,7 +147826,7 @@ function compileSuperAgentCreate({ buildPrompt, name } = {}, { locationId, compa
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
-var AI_BASE = "https://services.leadconnectorhq.com";
+var AI_BASE2 = "https://services.leadconnectorhq.com";
 var kindFor = (create) => {
   if (create?.path === "/ai-employees/employees") return "convai";
   if (create?.path === "/voice-ai/agents") return "voiceai";
@@ -147737,7 +147943,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   if (!gw?.call || !plan?.create || !kind) return failure("AGENT_PLAN_INVALID", "validation", report);
   let created;
   try {
-    created = kind === "studio" ? await gw.stream("POST", plan.create.path, plan.create.body, { base: AI_BASE }) : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE });
+    created = kind === "studio" ? await gw.stream("POST", plan.create.path, plan.create.body, { base: AI_BASE2 }) : await gw.call(plan.create.method, plan.create.path, plan.create.body, { base: AI_BASE2 });
   } catch (error51) {
     return failure(error51?.code ?? "AGENT_CREATE_FAILED", "create", report);
   }
@@ -147750,7 +147956,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   for (let index = 0; index < (plan.followUps ?? []).length; index++) {
     const followUp = threadAgentId(plan.followUps[index], report.agentId);
     try {
-      const result = await gw.call(followUp.method, followUp.path, followUp.body, { base: AI_BASE });
+      const result = await gw.call(followUp.method, followUp.path, followUp.body, { base: AI_BASE2 });
       const observed = { index, path: followUp.path, status: result.status };
       report.followUps.push(observed);
       if (!result.ok) return failure(`HTTP_${result.status}`, "follow_up", report, { failedFollowUp: observed });
@@ -147763,7 +147969,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   for (let index = 0; index < (plan.actions ?? []).length; index++) {
     const action = threadAgentId(plan.actions[index], report.agentId);
     try {
-      const result = await gw.call(action.method, action.path, action.body, { base: AI_BASE });
+      const result = await gw.call(action.method, action.path, action.body, { base: AI_BASE2 });
       const observed = { index, path: action.path, status: result.status, id: actionId(result.json) };
       report.actions.push(observed);
       if (!result.ok) return failure(`HTTP_${result.status}`, "action", report, { failedAction: observed });
@@ -147776,7 +147982,7 @@ async function executeAgentPlan({ plan, gw, verifyExpected } = {}) {
   }
   let reread;
   try {
-    reread = await gw.call("GET", readPathFor(kind, report.agentId, gw.loc), void 0, { base: AI_BASE });
+    reread = await gw.call("GET", readPathFor(kind, report.agentId, gw.loc), void 0, { base: AI_BASE2 });
   } catch (error51) {
     return failure(error51?.code ?? "AGENT_VERIFY_FAILED", "verify", report);
   }
@@ -148551,7 +148757,7 @@ function fastForwardPreview(rows, selector, { locationId, workflowId, stepId }) 
     }
   };
 }
-var AI_BASE2 = "https://services.leadconnectorhq.com";
+var AI_BASE3 = "https://services.leadconnectorhq.com";
 var CONTACT_AI_CONFIGS_PATH = "/conversations-ai/employeeConfigs";
 var CONTACT_AI_STATUSES = ["active", "inactive"];
 var CONTACT_AI_TIME_UNITS = ["hour", "day"];
@@ -148823,7 +149029,7 @@ var TOOLS2 = [
     capabilities: [{ method: "GET", path: "/conversations-ai/employeeConfigs" }],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
-      const response = await gw.call("GET", contactAiConfigQuery(args), void 0, { base: AI_BASE2 });
+      const response = await gw.call("GET", contactAiConfigQuery(args), void 0, { base: AI_BASE3 });
       if (!response.ok) return fromHttp(response.status, response.json);
       return ok({ ...summarizeContactAiConfig(response.json), config: response.json });
     }, args)
@@ -148870,7 +149076,7 @@ var TOOLS2 = [
       const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
       const configQuery = contactAiConfigQuery(args);
       const partialProgress = { write: { phase: "employeeConfig_put", attempted: false, acknowledged: false, ambiguous: false } };
-      const readBefore = await gw.call("GET", configQuery, void 0, { base: AI_BASE2 });
+      const readBefore = await gw.call("GET", configQuery, void 0, { base: AI_BASE3 });
       if (!readBefore.ok) return fromHttp(readBefore.status, readBefore.json);
       const before = summarizeContactAiConfig(readBefore.json);
       if (typeof before.configId !== "string" || before.configId.length === 0) {
@@ -148888,7 +149094,7 @@ var TOOLS2 = [
         "PUT",
         `${CONTACT_AI_CONFIGS_PATH}/${encodeURIComponent(before.configId)}`,
         { locationId: args.locationId, data: intent.data },
-        { base: AI_BASE2 }
+        { base: AI_BASE3 }
       ));
       if (write.threw) {
         partialProgress.write.ambiguous = true;
@@ -148901,7 +149107,7 @@ var TOOLS2 = [
         return withFailureData(fromHttp(write.value.status, write.value.json), { preview, before, partialProgress });
       }
       partialProgress.write.acknowledged = true;
-      const readAfter = await gw.call("GET", configQuery, void 0, { base: AI_BASE2 });
+      const readAfter = await gw.call("GET", configQuery, void 0, { base: AI_BASE3 });
       if (!readAfter.ok) {
         return withFailureData(fromHttp(readAfter.status, readAfter.json), {
           preview,
@@ -150050,7 +150256,7 @@ var TOOLS2 = [
           "GET",
           `/marketplace/core/search/module?locationId=${loc}&type=${type}&isInstalled=true&skip=0&limit=200`,
           void 0,
-          { base: AI_BASE2 }
+          { base: AI_BASE3 }
         );
         if (!r?.ok) return { status: "failed", rows: null };
         return { status: "ok", rows: Array.isArray(r.json) ? r.json : r.json?.modules ?? r.json?.data ?? [] };
@@ -151590,7 +151796,7 @@ var TOOLS2 = [
           "GET",
           `/locations/${loc}/customFields/search?${folderQuery(forModel)}`,
           void 0,
-          { base: AI_BASE2 }
+          { base: AI_BASE3 }
         );
         return { response, folders: recordsFrom2(response.json, "customFieldFolders") };
       };
@@ -151626,7 +151832,7 @@ var TOOLS2 = [
         "POST",
         `/locations/${loc}/customFields`,
         { documentType: "folder", model, name: args.name },
-        { base: AI_BASE2 }
+        { base: AI_BASE3 }
       );
       if (!created.ok) {
         const existingId = created.json?.meta?.existingId;
@@ -152081,7 +152287,7 @@ function registerTools(server2, deps, tools = TOOLS2) {
       { description: t.description, inputSchema: t.inputSchema },
       async (args) => {
         const safeArgs = args ?? {};
-        const result = validateRegisteredArgs(t, safeArgs) ?? await t.handler(safeArgs, deps);
+        const result = validateRegisteredArgs(t, safeArgs) ?? checkLocationBinding({ tool: t, args: safeArgs, allowed: deps.state?.allowedLocations ?? null, endpoints: endpoints() }) ?? await t.handler(safeArgs, deps);
         return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
       }
     );
@@ -152136,7 +152342,7 @@ var pkgVersion = true ? "0.1.0" : (() => {
     return "0.0.0-dev";
   }
 })();
-var state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
+var state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion, allowedLocations: parseAllowedLocations(process.env.GHL_LOCATIONS) };
 var makeGw = makeGatewayFactory({ state });
 var server = new McpServer({ name: "uxie-ghl-internal-mcp", version: pkgVersion }, { instructions: FULL_INSTRUCTIONS });
 registerTools(server, { state, makeGw });

@@ -40,7 +40,7 @@ function depsFixture({
     calls,
     made: () => made,
     deps: {
-      state: { tokenFile: '/fixture/token.txt' },
+      state: { tokenFile: '/fixture/token.txt', allowedLocations: new Set(['LOC']) },
       makeGw: () => { made++; return gw; },
     },
   };
