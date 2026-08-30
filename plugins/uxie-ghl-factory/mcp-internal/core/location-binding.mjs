@@ -109,7 +109,7 @@ function scanBodyLocations(value, allowed) {
     if (Array.isArray(v)) return v.every((x) => walk(x, depth + 1));
     if (!v || typeof v !== 'object') return true;
     for (const [k, x] of Object.entries(v)) {
-      if (k === 'locationId' || k === 'location_id') {
+      if (k === 'locationId' || k === 'location_id' || k === 'locations' || k === 'locationIds') {
         // The array branch below inspects x's elements without recursing through walk() -- count
         // them against the same node budget here, or an array at a matched key scans uncapped.
         if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) return false;

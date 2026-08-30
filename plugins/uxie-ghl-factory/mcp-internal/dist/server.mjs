@@ -72248,7 +72248,7 @@ function scanBodyLocations(value, allowed) {
     if (Array.isArray(v)) return v.every((x) => walk2(x, depth + 1));
     if (!v || typeof v !== "object") return true;
     for (const [k, x] of Object.entries(v)) {
-      if (k === "locationId" || k === "location_id") {
+      if (k === "locationId" || k === "location_id" || k === "locations" || k === "locationIds") {
         if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) return false;
         const values = typeof x === "string" ? [x] : Array.isArray(x) && x.every((s) => typeof s === "string") ? x : null;
         if (values === null) {
