@@ -35,16 +35,19 @@ accepted as a tool argument, never logged, and never echoed in a response or err
 One GHL login serves many client sub-accounts, and the JWT carries no location claim — the
 credential cannot tell them apart. `GHL_INTERNAL_LOCATIONS=<id>[,<id>...]` declares, per registration,
 which accounts it may act on: a **comma-separated list** of location ids, set the same way as
-`GHL_INTERNAL_TOK_FILE` (`-e GHL_INTERNAL_LOCATIONS="<id>,<id>"` on `claude mcp add`, or the equivalent `env` entry
-for other stdio clients).
+`GHL_INTERNAL_TOK_FILE` (`-e GHL_INTERNAL_LOCATIONS="<id>,<id>"` on `claude mcp add` — a folder's
+*first* registration only, since a second one rewrites the whole entry; on an existing registration
+see below — or the equivalent `env` entry for other stdio clients).
 
 **Set and check it with `/uxie-ghl-factory:internal-connect`, not by hand** — it discovers the agency's
 accounts, proposes the list, and writes it additively, where a second `claude mcp add` would rewrite
 the whole entry and drop `GHL_INTERNAL_TOK_FILE` with it.
 
 - **Unset (the default) means every read stays available and every write is refused** with
-  `LOCATION_UNBOUND`, whose remediation names the exact command to bind the registration. A
-  registration that has not declared its locations cannot be trusted to write to the right one.
+  `LOCATION_UNBOUND`, whose remediation names a `claude mcp add` command to bind the registration —
+  correct for a first registration, but on an existing one it rewrites the entry, so run
+  `/uxie-ghl-factory:internal-connect` rather than pasting it. A registration that has not declared
+  its locations cannot be trusted to write to the right one.
 - **Set, any call naming an account outside the list is refused** with `LOCATION_FORBIDDEN` —
   this applies to reads as well as writes. A bound registration is scoped to the accounts it
   declared; it does not keep reading everywhere else the credential happens to reach.
