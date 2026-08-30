@@ -89,3 +89,28 @@ test('re-reads the file each call so mid-session recapture is picked up', () => 
   writeFileSync(p, `Bearer ${jwtWith({ authClassId: 'second', exp: future })}`);
   assert.equal(readCredentials({ tokenFile: p }).uid, 'second');
 });
+
+// Finding 2 (task-4 fix round 1): the LOCATION_UNBOUND-guard's `allowedLocations` count on
+// authStatus previously had coverage only on the error branch (readCredentials throwing on an
+// unreadable file lands in the catch at core/auth.mjs:108). The success branch at
+// core/auth.mjs:98 — the one an operator actually sees when their token is healthy — had no
+// test and would stay green if deleted. This exercises that branch directly with a real,
+// readable token file.
+test('auth status success path reports the binding as a count, never the ids', () => {
+  // Same synthetic location ids used throughout test/location-binding.test.mjs.
+  const PERMITTED = 'LOCPERMITTED0000001';
+  const FOREIGN = 'LOCFOREIGN000000001';
+  const jwt = jwtWith({ authClassId: 'u', exp: future });
+  const p = fixture(`Bearer ${jwt}\n`);
+
+  const bound = authStatus({ tokenFile: p, allowedLocations: new Set([PERMITTED, FOREIGN]) });
+  assert.equal(bound.jwtClaims.present, true, 'this must hit the success branch, not the catch');
+  assert.equal(bound.allowedLocations, 2);
+  const serializedBound = JSON.stringify(bound);
+  assert.equal(serializedBound.includes(PERMITTED), false, 'permitted id must not be echoed');
+  assert.equal(serializedBound.includes(FOREIGN), false, 'foreign id must not be echoed');
+
+  const unbound = authStatus({ tokenFile: p, allowedLocations: null });
+  assert.equal(unbound.jwtClaims.present, true);
+  assert.equal(unbound.allowedLocations, null);
+});
