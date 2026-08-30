@@ -71806,7 +71806,7 @@ var StdioServerTransport = class {
 
 // stdio-audit.mjs
 import { fileURLToPath as fileURLToPath2 } from "node:url";
-import { dirname as dirname3, resolve as resolve3 } from "node:path";
+import { dirname as dirname4, resolve as resolve3 } from "node:path";
 
 // core/tools.mjs
 init_define_ENDPOINT_CATALOG();
@@ -73476,8 +73476,8 @@ var parseAsctimeGmt = (text) => {
 var MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1e3;
 var RECAPTURE2 = "Re-capture the token: invoke the uxie-ghl-factory:internal-connect skill yourself, then retry the call. No restart needed; the server re-reads the token file on every call.";
 var defaultSleep2 = (ms) => new Promise((r) => setTimeout(r, ms));
-function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep2, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS, legacyTokenFileEnv = false }) {
-  const creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });
+function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImpl = defaultSleep2, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS, legacyTokenFileEnv = false, renewer = null }) {
+  let creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });
   const headers = (isWrite, overrides = {}, base = BASE) => {
     const h = { channel: "APP", source: "WEB_USER", version: "2021-07-28", accept: "application/json, text/plain, */*" };
     if (isWrite) {
@@ -73545,6 +73545,10 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
       if (!ok2) {
         throw new Error("signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL");
       }
+    }
+    if (renewer && !signedUpload) {
+      const r = await renewer.maybeRenew(creds);
+      if (r?.renewed) creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });
     }
     const delayMs = Math.max(0, throttleMs) + Math.floor(randomImpl() * Math.max(0, jitterMs));
     if (delayMs > 0) await sleepImpl(delayMs);
@@ -143540,7 +143544,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     for (const key of app.actionKeys) appIdByKind.action.set(key, app.appId);
     for (const key of app.triggerKeys) appIdByKind.trigger.set(key, app.appId);
   }
-  const join4 = (schema2, kind) => {
+  const join5 = (schema2, kind) => {
     const appIdByKey = appIdByKind[kind];
     const joined = /* @__PURE__ */ new Map();
     for (const [key, entry] of schema2) {
@@ -143550,7 +143554,7 @@ function buildMarketplaceIndex({ assets, modules, legs } = {}) {
     }
     return joined;
   };
-  const byKind = { action: join4(actionSchema, "action"), trigger: join4(triggerSchema, "trigger") };
+  const byKind = { action: join5(actionSchema, "action"), trigger: join5(triggerSchema, "trigger") };
   return {
     // WHICH READS FAILED. A key missing from the assets schema, or an app reading installed:false,
     // means nothing when the read behind it did not succeed — the compiler must say "unknown",
@@ -148299,7 +148303,7 @@ function processAuditPacing() {
   return { limiter: sharedAuditLimiter, circuit: sharedAuditCircuit };
 }
 function makeGatewayFactory({ state: state2, gatewayImpl = makeGateway }) {
-  return (options = {}) => gatewayImpl({ tokenFile: state2.tokenFile, legacyTokenFileEnv: state2.legacyTokenFileEnv, ...options });
+  return (options = {}) => gatewayImpl({ tokenFile: state2.tokenFile, legacyTokenFileEnv: state2.legacyTokenFileEnv, renewer: state2.renewer ?? null, ...options });
 }
 function validateRegisteredArgs(tool, args) {
   if (containsSecrets(args)) {
@@ -152425,8 +152429,149 @@ function readOnlyGateway(gateway) {
   };
 }
 
+// core/token-renewal.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+import { renameSync, writeFileSync as writeFileSync2, chmodSync, existsSync as existsSync4, readFileSync as readFileSync4 } from "node:fs";
+import { dirname as dirname3, join as join4 } from "node:path";
+var BACKEND5 = "https://backend.leadconnectorhq.com";
+var REFRESH_PATH = "/oauth/2/login/current";
+var FIREBASE_WEB_API_KEY = "AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE";
+var RENEW_THRESHOLD_SEC = 300;
+var RENEW_MIN_INTERVAL_MS = 6e4;
+var looksJwt = (v) => typeof v === "string" && v.split(".").length === 3 && v.length > 80;
+var fail2 = (message) => {
+  const e = new Error(message);
+  e.code = "RENEW_FAILED";
+  return e;
+};
+function autoRenewEnabled(env = process.env) {
+  const v = String(env.GHL_INTERNAL_AUTO_RENEW ?? "").trim().toLowerCase();
+  return !["0", "false", "off", "no"].includes(v);
+}
+function needsRenewal({ jwtSecondsRemaining, tokenIdSecondsRemaining = null, thresholdSec = RENEW_THRESHOLD_SEC }) {
+  if (!Number.isFinite(jwtSecondsRemaining) || jwtSecondsRemaining <= 0) return false;
+  if (jwtSecondsRemaining <= thresholdSec) return true;
+  return Number.isFinite(tokenIdSecondsRemaining) && tokenIdSecondsRemaining <= thresholdSec;
+}
+function formatTokenFile({ bearer, tokenId }) {
+  const lines = [`Bearer ${bearer}`];
+  if (tokenId) lines.push(`token-id: ${tokenId}`);
+  return `${lines.join("\n")}
+`;
+}
+async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = FIREBASE_WEB_API_KEY, base = BACKEND5 }) {
+  const res = await fetchImpl(`${base}${REFRESH_PATH}`, {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${jwt2}`,
+      channel: "APP",
+      source: "WEB_USER",
+      version: "2021-07-28",
+      accept: "application/json, text/plain, */*"
+    }
+  });
+  if (res.status !== 200) throw fail2(`refresh endpoint returned ${res.status}`);
+  const body = await res.json().catch(() => null);
+  const authToken = body?.authToken;
+  if (!looksJwt(authToken)) throw fail2("refresh response carried no usable authToken");
+  const warnings = [];
+  let tokenId = null;
+  if (!looksJwt(body.token)) {
+    warnings.push("refresh response carried no firebase custom token; token-id not renewed");
+  } else {
+    try {
+      const fb = await fetchImpl(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseKey}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token: body.token, returnSecureToken: true })
+      });
+      if (fb.status !== 200) {
+        warnings.push(`firebase exchange returned ${fb.status}; token-id not renewed`);
+      } else {
+        const j = await fb.json().catch(() => null);
+        if (looksJwt(j?.idToken)) tokenId = j.idToken;
+        else warnings.push("firebase exchange returned no idToken; token-id not renewed");
+      }
+    } catch (e) {
+      warnings.push(`firebase exchange threw (${e?.message ?? e}); token-id not renewed`);
+    }
+  }
+  return { jwt: authToken, tokenId, companyId: typeof body.companyId === "string" ? body.companyId : null, warnings };
+}
+function writeTokenFile({ tokenFile, bearer, tokenId }) {
+  let keep = tokenId;
+  if (!keep && existsSync4(tokenFile)) {
+    keep = (readFileSync4(tokenFile, "utf8").match(/token-id:\s*([A-Za-z0-9._-]+)/i) || [])[1] ?? null;
+  }
+  const tmp = `${tokenFile}.tmp-${process.pid}-${Date.now()}`;
+  writeFileSync2(tmp, formatTokenFile({ bearer, tokenId: keep }), { mode: 384 });
+  chmodSync(tmp, 384);
+  renameSync(tmp, tokenFile);
+}
+function writeAgencyJsonIfAbsent({ tokenFile, companyId, nowMs }) {
+  const path = join4(dirname3(tokenFile), "agency.json");
+  if (existsSync4(path)) return false;
+  writeFileSync2(path, `${JSON.stringify({ companyId, source: "token-renewal", capturedAt: new Date(nowMs).toISOString() }, null, 2)}
+`, { mode: 384 });
+  return true;
+}
+function makeRenewer({
+  getTokenFile,
+  fetchImpl = fetch,
+  nowImpl = Date.now,
+  log = (m) => process.stderr.write(`${m}
+`),
+  firebaseKey = FIREBASE_WEB_API_KEY,
+  thresholdSec = RENEW_THRESHOLD_SEC,
+  minIntervalMs = RENEW_MIN_INTERVAL_MS
+}) {
+  const slots = /* @__PURE__ */ new Map();
+  const slotFor = (tokenFile) => {
+    if (!slots.has(tokenFile)) slots.set(tokenFile, { inFlight: null, lastAttemptAt: -Infinity });
+    return slots.get(tokenFile);
+  };
+  const maybeRenew = (creds) => {
+    const tokenFile = getTokenFile();
+    if (!tokenFile || !creds || !Number.isFinite(creds.secondsRemaining)) return Promise.resolve({ renewed: false, reason: "no-credentials" });
+    let tokenIdSecondsRemaining = null;
+    if (creds.tokenId) {
+      try {
+        tokenIdSecondsRemaining = safeTokenIdClaims(creds.tokenId).secondsRemaining;
+      } catch {
+        tokenIdSecondsRemaining = null;
+      }
+    }
+    if (!needsRenewal({ jwtSecondsRemaining: creds.secondsRemaining, tokenIdSecondsRemaining, thresholdSec })) {
+      return Promise.resolve({ renewed: false, reason: "healthy" });
+    }
+    const slot = slotFor(tokenFile);
+    if (slot.inFlight) return slot.inFlight;
+    if (nowImpl() - slot.lastAttemptAt < minIntervalMs) return Promise.resolve({ renewed: false, reason: "backoff" });
+    slot.lastAttemptAt = nowImpl();
+    slot.inFlight = (async () => {
+      try {
+        const out = await renewCredentials({ jwt: creds.jwt, fetchImpl, firebaseKey });
+        writeTokenFile({ tokenFile, bearer: out.jwt, tokenId: out.tokenId });
+        if (out.companyId) writeAgencyJsonIfAbsent({ tokenFile, companyId: out.companyId, nowMs: nowImpl() });
+        for (const w of out.warnings) log(`[token-renewal] ${w}`);
+        log(`[token-renewal] renewed ${out.tokenId ? "both credentials" : "the bearer only"} (had ${Math.round(creds.secondsRemaining / 60)}min left)`);
+        return { renewed: true, tokenIdRenewed: Boolean(out.tokenId) };
+      } catch (e) {
+        log(`[token-renewal] renewal failed: ${e?.code ? `${e.code} ` : ""}${e?.message ?? e}`);
+        return { renewed: false, reason: "failed" };
+      } finally {
+        slot.inFlight = null;
+      }
+    })();
+    return slot.inFlight;
+  };
+  return { maybeRenew };
+}
+
 // stdio-audit.mjs
-var HERE2 = dirname3(fileURLToPath2(import.meta.url));
+var HERE2 = dirname4(fileURLToPath2(import.meta.url));
 var pkgVersion = true ? "0.1.0" : (() => {
   try {
     return JSON.parse(readFileSync(resolve3(HERE2, "package.json"), "utf8")).version;
@@ -152439,6 +152584,7 @@ var state = {
   legacyTokenFileEnv: Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE,
   engineVersion: pkgVersion
 };
+state.renewer = autoRenewEnabled(process.env) ? makeRenewer({ getTokenFile: () => state.tokenFile }) : null;
 var { limiter, circuit } = processAuditPacing();
 var makeGw = makeGatewayFactory({
   state,

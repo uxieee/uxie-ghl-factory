@@ -2211,11 +2211,12 @@ test('the gateway factory forwards every option, including the audit throttle di
   });
   factory({ loc: LOC, rail: 'jwt', throttleMs: 0, jitterMs: 0 });
   // legacyTokenFileEnv rides along too (0.43.0's migration guard) — undefined here because
-  // this state never set it, same as any other option this state didn't declare.
-  assert.deepEqual(seen, [{ tokenFile: '/tok', legacyTokenFileEnv: undefined, loc: LOC, rail: 'jwt', throttleMs: 0, jitterMs: 0 }]);
+  // this state never set it, same as any other option this state didn't declare. `renewer`
+  // (0.45.0 auto-renewal) rides on state as well, normalised to null when state has none.
+  assert.deepEqual(seen, [{ tokenFile: '/tok', legacyTokenFileEnv: undefined, renewer: null, loc: LOC, rail: 'jwt', throttleMs: 0, jitterMs: 0 }]);
   // And a caller that passes nothing still gets the credential wiring.
   factory();
-  assert.deepEqual(seen[1], { tokenFile: '/tok', legacyTokenFileEnv: undefined });
+  assert.deepEqual(seen[1], { tokenFile: '/tok', legacyTokenFileEnv: undefined, renewer: null });
 });
 
 test('the stdio entry point wires the factory straight through, with no narrowing wrapper', () => {

@@ -78,10 +78,12 @@ const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 //
 // Task 5's audit stdio MUST construct its audit gateways with `throttleMs: 0, jitterMs: 0`
 // — the shared makeAuditLimiter is the single pacing authority on that rail.
-export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS, legacyTokenFileEnv = false }) {
+export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS, legacyTokenFileEnv = false, renewer = null }) {
   // Read expired credentials too: the AI rail must distinguish its independently
   // expiring Bearer JWT and Firebase token-id before sending a request.
-  const creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });   // throws AuthError; tools map it
+  // `let`, not `const`: a renewal (below) rewrites the token file and re-reads it into this
+  // binding, so headers() built after that point carry the renewed credentials.
+  let creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });   // throws AuthError; tools map it
 
   const headers = (isWrite, overrides = {}, base = BASE) => {
     // channel/source/version are NOT optional outside the /workflow/* prefix. Anything on
@@ -161,6 +163,15 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       if (!ok) {
         throw new Error('signedUpload requires a raw binary PUT to a *.storage.googleapis.com URL');
       }
+    }
+    // Auto-renewal (0.45.0) runs BEFORE the request when the bearer is alive but near expiry —
+    // an expired bearer cannot refresh, so the trigger lives inside the window, not after it. The
+    // renewer never throws and shares one in-flight refresh across concurrent calls; on success
+    // the token file has been rewritten, so re-read it and carry on with the new credentials. A
+    // signed-storage PUT sends no credential at all and needs no renewal.
+    if (renewer && !signedUpload) {
+      const r = await renewer.maybeRenew(creds);
+      if (r?.renewed) creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });
     }
     // Skipped entirely rather than slept for 0ms: a disabled throttle must cost no
     // scheduling turn at all, so a test can prove the audit rail pays the shared
