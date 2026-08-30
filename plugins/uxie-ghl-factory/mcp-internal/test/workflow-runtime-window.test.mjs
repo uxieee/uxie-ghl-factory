@@ -2210,10 +2210,12 @@ test('the gateway factory forwards every option, including the audit throttle di
     gatewayImpl: (options) => { seen.push(options); return { rail: options.rail, loc: options.loc }; },
   });
   factory({ loc: LOC, rail: 'jwt', throttleMs: 0, jitterMs: 0 });
-  assert.deepEqual(seen, [{ tokenFile: '/tok', loc: LOC, rail: 'jwt', throttleMs: 0, jitterMs: 0 }]);
+  // legacyTokenFileEnv rides along too (0.43.0's migration guard) — undefined here because
+  // this state never set it, same as any other option this state didn't declare.
+  assert.deepEqual(seen, [{ tokenFile: '/tok', legacyTokenFileEnv: undefined, loc: LOC, rail: 'jwt', throttleMs: 0, jitterMs: 0 }]);
   // And a caller that passes nothing still gets the credential wiring.
   factory();
-  assert.deepEqual(seen[1], { tokenFile: '/tok' });
+  assert.deepEqual(seen[1], { tokenFile: '/tok', legacyTokenFileEnv: undefined });
 });
 
 test('the stdio entry point wires the factory straight through, with no narrowing wrapper', () => {

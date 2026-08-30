@@ -4,7 +4,7 @@ import { writeFileSync, mkdtempSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { authStatus, readCredentials, safeClaims, secondsRemaining } from '../core/auth.mjs';
-import { ok } from '../core/errors.mjs';
+import { ok, CODES } from '../core/errors.mjs';
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwtWith = (claims) => `eyJhbGciOiJIUzI1NiJ9.${b64(claims)}.sig`;
@@ -113,4 +113,56 @@ test('auth status success path reports the binding as a count, never the ids', (
   const unbound = authStatus({ tokenFile: p, allowedLocations: null });
   assert.equal(unbound.jwtClaims.present, true);
   assert.equal(unbound.allowedLocations, null);
+});
+
+// ---------------------------------------------------------------------------
+// 0.43.0 hard rename: GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE. readCredentials'
+// `legacyTokenFileEnv` flag is a plain boolean the entry points compute from the OLD name's
+// PRESENCE (never its value) — these tests exercise readCredentials/authStatus directly, since
+// that flag is where the actual refusal lives. Entry-point-level (real env var, real
+// subprocess) coverage of the four migration scenarios lives in
+// test/legacy-token-file-env.test.mjs.
+// ---------------------------------------------------------------------------
+
+test('legacyTokenFileEnv true refuses with LEGACY_TOKEN_FILE_ENV, naming both variables and the fix, before any file is touched', () => {
+  // The path does not exist, proving the guard fires BEFORE the file-existence check —
+  // a stale env var is a more useful diagnosis than "no token file at <default path>".
+  assert.throws(
+    () => readCredentials({ tokenFile: '/nope/tok.txt', legacyTokenFileEnv: true }),
+    (e) => {
+      assert.equal(e.code, CODES.LEGACY_TOKEN_FILE_ENV);
+      assert.match(e.detail, /GHL_TOK_FILE/);
+      assert.match(e.detail, /GHL_INTERNAL_TOK_FILE/);
+      assert.match(e.remediation, /GHL_INTERNAL_TOK_FILE/);
+      assert.match(e.remediation, /GHL_TOK_FILE/);
+      return true;
+    },
+  );
+});
+
+test('legacyTokenFileEnv false (the default) leaves readCredentials byte-identical to before the rename', () => {
+  const jwt = jwtWith({ authClassId: 'u', exp: future });
+  const p = fixture(`Bearer ${jwt}`);
+  const withFlag = readCredentials({ tokenFile: p, legacyTokenFileEnv: false });
+  const withoutFlag = readCredentials({ tokenFile: p });
+  assert.deepEqual(withFlag, withoutFlag);
+  assert.equal(withFlag.uid, 'u');
+});
+
+test('authStatus reports LEGACY_TOKEN_FILE_ENV as a graceful diagnostic (ok-shaped), same as TOKEN_MISSING', () => {
+  const status = authStatus({ tokenFile: '/nope/tok.txt', legacyTokenFileEnv: true });
+  assert.equal(status.jwtClaims.present, false);
+  assert.equal(status.error.code, CODES.LEGACY_TOKEN_FILE_ENV);
+  assert.match(status.error.remediation, /GHL_INTERNAL_TOK_FILE/);
+});
+
+test('a valid tokenFile plus legacyTokenFileEnv:true still refuses — presence of the old var alone is disqualifying', () => {
+  // Guards against a shortcut implementation that only checks legacyTokenFileEnv when the
+  // resolved tokenFile is otherwise unusable.
+  const jwt = jwtWith({ authClassId: 'u', exp: future });
+  const p = fixture(`Bearer ${jwt}`);
+  assert.throws(
+    () => readCredentials({ tokenFile: p, legacyTokenFileEnv: true }),
+    (e) => e.code === CODES.LEGACY_TOKEN_FILE_ENV,
+  );
 });
