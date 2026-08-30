@@ -11,6 +11,7 @@ import { makeGateway } from '../core/gateway.mjs';
 import { makeGatewayFactory } from '../core/tools.mjs';
 import { makeRenewer, formatTokenFile, REFRESH_PATH } from '../core/token-renewal.mjs';
 
+const TEST_KEY = 'AIzaTESTKEY0000000000000000000000000000';
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const now = () => Math.floor(Date.now() / 1000);
 const mkJwt = (c) => `eyJhbGciOiJIUzI1NiJ9.${b64(c)}.${'s'.repeat(40)}`;
@@ -36,7 +37,7 @@ test('a near-expiry bearer is renewed before the request, and the request carrie
   const tokenFile = fixture(200);
   const calls = [];
   const fetchImpl = fetchAll(calls);
-  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {} });
+  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {}, firebaseKey: TEST_KEY });
   const gw = makeGateway({ tokenFile, loc: 'L1', fetchImpl, renewer, throttleMs: 0, jitterMs: 0 });
   const res = await gw.call('GET', '/workflow/L1/list');
   assert.equal(res.status, 200);
@@ -51,7 +52,7 @@ test('the AI rail picks up the renewed token-id in the same call', async () => {
   const tokenFile = fixture(200);
   const calls = [];
   const fetchImpl = fetchAll(calls);
-  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {} });
+  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {}, firebaseKey: TEST_KEY });
   const gw = makeGateway({ tokenFile, loc: 'L1', rail: 'ai', fetchImpl, renewer, throttleMs: 0, jitterMs: 0 });
   await gw.call('GET', '/ai-employees/employees/search?locationId=L1');
   const api = calls.find((c) => c.url.includes('/ai-employees/'));
@@ -63,7 +64,7 @@ test('a healthy bearer makes exactly one request and no refresh', async () => {
   const tokenFile = fixture(3600);
   const calls = [];
   const fetchImpl = fetchAll(calls);
-  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {} });
+  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {}, firebaseKey: TEST_KEY });
   const gw = makeGateway({ tokenFile, loc: 'L1', fetchImpl, renewer, throttleMs: 0, jitterMs: 0 });
   await gw.call('GET', '/workflow/L1/list');
   assert.equal(calls.length, 1);
@@ -87,7 +88,7 @@ test('a renewal failure never breaks the call — the current bearer is used and
     if (url.endsWith(REFRESH_PATH)) return { status: 500, ok: false, json: async () => ({}), text: async () => '' };
     return { status: 200, ok: true, text: async () => '{"ok":true}' };
   };
-  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: (m) => logs.push(m) });
+  const renewer = makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: (m) => logs.push(m), firebaseKey: TEST_KEY });
   const gw = makeGateway({ tokenFile, loc: 'L1', fetchImpl, renewer, throttleMs: 0, jitterMs: 0 });
   const res = await gw.call('GET', '/workflow/L1/list');
   assert.equal(res.status, 200, 'the call still went out');
@@ -98,7 +99,7 @@ test('makeGatewayFactory forwards state.renewer so every tool call is covered', 
   const tokenFile = fixture(200);
   const calls = [];
   const fetchImpl = fetchAll(calls);
-  const state = { tokenFile, legacyTokenFileEnv: false, renewer: makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {} }) };
+  const state = { tokenFile, legacyTokenFileEnv: false, renewer: makeRenewer({ getTokenFile: () => tokenFile, fetchImpl, nowImpl: () => 1e12, log: () => {}, firebaseKey: TEST_KEY }) };
   const makeGw = makeGatewayFactory({ state });
   const gw = makeGw({ loc: 'L1', fetchImpl, throttleMs: 0, jitterMs: 0 });
   await gw.call('GET', '/workflow/L1/list');

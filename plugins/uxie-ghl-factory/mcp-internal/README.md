@@ -28,7 +28,11 @@ accepted as a tool argument, never logged, and never echoed in a response or err
   bearer alive but within 5 minutes of expiry, the gateway first calls GHL's own
   `GET /oauth/2/login/current` with the current bearer (fresh 60-minute `authToken`), exchanges
   the Firebase custom token it returns for a fresh `token-id` at Google's identitytoolkit, and
-  rewrites the token file atomically — both credentials, no browser, no restart. One in-flight
+  rewrites the token file atomically — both credentials, no browser, no restart. The Firebase
+  web key that exchange needs is GHL's public client key; it is **captured, not shipped** — the
+  capture records it as a `firebase-key:` line in the 0600 token file (or set
+  `GHL_INTERNAL_FIREBASE_KEY`). A file without one still renews the bearer; only the token-id
+  waits for the next capture. One in-flight
   renewal is shared by concurrent calls and attempts are at least 60s apart (rapid repeats were
   measured to log the browser profile out). `GHL_INTERNAL_AUTO_RENEW=0` disables it. A renewal
   failure never fails the call; the call proceeds on the credentials it has.

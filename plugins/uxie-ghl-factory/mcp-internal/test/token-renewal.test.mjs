@@ -13,11 +13,12 @@ import { mkdtempSync, readFileSync, statSync, readdirSync, existsSync, writeFile
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  FIREBASE_WEB_API_KEY, REFRESH_PATH, RENEW_THRESHOLD_SEC,
-  autoRenewEnabled, needsRenewal, renewCredentials, writeTokenFile, makeRenewer, formatTokenFile,
+  FIREBASE_KEY_ENV, REFRESH_PATH, RENEW_THRESHOLD_SEC,
+  autoRenewEnabled, needsRenewal, renewCredentials, writeTokenFile, makeRenewer, formatTokenFile, readFirebaseKey,
 } from '../core/token-renewal.mjs';
 import { readCredentials } from '../core/auth.mjs';
 
+const TEST_KEY = 'AIzaTESTKEY0000000000000000000000000000'; // shape-valid, not a real key
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const now = () => Math.floor(Date.now() / 1000);
 const mkJwt = (claims) => `eyJhbGciOiJIUzI1NiJ9.${b64(claims)}.${'s'.repeat(40)}`;
@@ -91,14 +92,14 @@ test('renewCredentials sends the three required GHL headers and the current bear
   assert.equal(h.channel, 'APP'); assert.equal(h.source, 'WEB_USER'); assert.equal(h.version, '2021-07-28');
 });
 
-test('renewCredentials exchanges body.token at identitytoolkit with the REAL firebase key, not body.apiKey', async () => {
+test('renewCredentials exchanges body.token at identitytoolkit with the CAPTURED firebase key, not body.apiKey', async () => {
   const calls = [];
   const body = refreshBody();
   const tid = liveTid();
-  const out = await renewCredentials({ jwt: liveJwt(), fetchImpl: fakeFetch(calls, { refresh: { status: 200, body }, firebase: { status: 200, body: { idToken: tid, expiresIn: '3600' } } }) });
+  const out = await renewCredentials({ jwt: liveJwt(), firebaseKey: TEST_KEY, fetchImpl: fakeFetch(calls, { refresh: { status: 200, body }, firebase: { status: 200, body: { idToken: tid, expiresIn: '3600' } } }) });
   const fb = calls.find((c) => c.url.includes('identitytoolkit'));
   assert.ok(fb, 'called identitytoolkit');
-  assert.match(fb.url, new RegExp(`key=${FIREBASE_WEB_API_KEY}$`), 'the public web key observed on the wire');
+  assert.match(fb.url, new RegExp(`key=${TEST_KEY}$`), 'the key the capture recorded, not a constant in the repo');
   assert.doesNotMatch(fb.url, new RegExp(body.apiKey), 'body.apiKey is GHL\'s own key — Google rejects it');
   assert.equal(fb.init.method, 'POST');
   assert.deepEqual(JSON.parse(fb.init.body), { token: body.token, returnSecureToken: true });
@@ -116,10 +117,31 @@ test('renewCredentials: a non-200 refresh throws RENEW_FAILED and never calls fi
 
 test('renewCredentials: a firebase failure still returns the new bearer, with tokenId null and a warning', async () => {
   const calls = [];
-  const out = await renewCredentials({ jwt: liveJwt(), fetchImpl: fakeFetch(calls, { firebase: { status: 400, body: { error: { message: 'API key not valid' } } } }) });
+  const out = await renewCredentials({ jwt: liveJwt(), firebaseKey: TEST_KEY, fetchImpl: fakeFetch(calls, { firebase: { status: 400, body: { error: { message: 'API key not valid' } } } }) });
   assert.ok(out.jwt);
   assert.equal(out.tokenId, null);
   assert.ok(out.warnings.some((w) => /firebase|token-id/i.test(w)));
+});
+
+test('renewCredentials with NO firebase key on record renews the bearer only and says why, without calling Google', async () => {
+  const calls = [];
+  const out = await renewCredentials({ jwt: liveJwt(), firebaseKey: null, fetchImpl: fakeFetch(calls) });
+  assert.ok(out.jwt);
+  assert.equal(out.tokenId, null);
+  assert.equal(calls.some((c) => c.url.includes('identitytoolkit')), false);
+  assert.ok(out.warnings.some((w) => w.includes(FIREBASE_KEY_ENV)), 'names the override so the operator can fix it');
+});
+
+test('readFirebaseKey: env override wins, then the token file line, else null — and a malformed value is ignored', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'renew-'));
+  const tokenFile = join(dir, 'tok.txt');
+  writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(), tokenId: liveTid(), firebaseKey: TEST_KEY }), { mode: 0o600 });
+  assert.equal(readFirebaseKey({ tokenFile, env: {} }), TEST_KEY);
+  const other = TEST_KEY.replace('TESTKEY', 'ENVKEY0');
+  assert.equal(readFirebaseKey({ tokenFile, env: { [FIREBASE_KEY_ENV]: other } }), other);
+  assert.equal(readFirebaseKey({ tokenFile, env: { [FIREBASE_KEY_ENV]: 'not-a-key' } }), TEST_KEY, 'a malformed env value falls through to the file');
+  writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(), tokenId: liveTid() }), { mode: 0o600 });
+  assert.equal(readFirebaseKey({ tokenFile, env: {} }), null);
 });
 
 test('renewCredentials: an authToken that is not JWT-shaped is refused rather than written', async () => {
@@ -136,25 +158,27 @@ test('formatTokenFile + writeTokenFile round-trip through the real reader, at mo
   const dir = mkdtempSync(join(tmpdir(), 'renew-'));
   const tokenFile = join(dir, 'tok.txt');
   const bearer = liveJwt(); const tid = liveTid();
-  writeTokenFile({ tokenFile, bearer, tokenId: tid });
+  writeTokenFile({ tokenFile, bearer, tokenId: tid, firebaseKey: TEST_KEY });
   const creds = readCredentials({ tokenFile });
   assert.equal(creds.jwt, bearer);
   assert.equal(creds.tokenId, tid);
+  assert.equal(readFirebaseKey({ tokenFile, env: {} }), TEST_KEY, 'the third line survives the round trip');
   assert.equal(statSync(tokenFile).mode & 0o777, 0o600);
   assert.deepEqual(readdirSync(dir), ['tok.txt'], 'no temp file left behind');
-  assert.equal(readFileSync(tokenFile, 'utf8'), formatTokenFile({ bearer, tokenId: tid }));
+  assert.equal(readFileSync(tokenFile, 'utf8'), formatTokenFile({ bearer, tokenId: tid, firebaseKey: TEST_KEY }));
 });
 
 test('writeTokenFile keeps the EXISTING token-id when the new one is null (partial renewal)', () => {
   const dir = mkdtempSync(join(tmpdir(), 'renew-'));
   const tokenFile = join(dir, 'tok.txt');
   const oldTid = liveTid(900);
-  writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(200), tokenId: oldTid }), { mode: 0o600 });
+  writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(200), tokenId: oldTid, firebaseKey: TEST_KEY }), { mode: 0o600 });
   const newBearer = liveJwt();
   writeTokenFile({ tokenFile, bearer: newBearer, tokenId: null });
   const creds = readCredentials({ tokenFile });
   assert.equal(creds.jwt, newBearer);
   assert.equal(creds.tokenId, oldTid, 'a still-valid token-id must not be thrown away');
+  assert.equal(readFirebaseKey({ tokenFile, env: {} }), TEST_KEY, 'the recorded key survives a renewal that did not mention it');
 });
 
 // ---------- the renewer (rate discipline) ----------
@@ -162,7 +186,7 @@ test('writeTokenFile keeps the EXISTING token-id when the new one is null (parti
 const renewerFixture = ({ ttl = 200, tidTtl = 200, fetchOpts } = {}) => {
   const dir = mkdtempSync(join(tmpdir(), 'renew-'));
   const tokenFile = join(dir, 'tok.txt');
-  writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(ttl), tokenId: liveTid(tidTtl) }), { mode: 0o600 });
+  writeFileSync(tokenFile, formatTokenFile({ bearer: liveJwt(ttl), tokenId: liveTid(tidTtl), firebaseKey: TEST_KEY }), { mode: 0o600 });
   const calls = [];
   const logs = [];
   let t = 1_000_000;
@@ -171,6 +195,7 @@ const renewerFixture = ({ ttl = 200, tidTtl = 200, fetchOpts } = {}) => {
     fetchImpl: fakeFetch(calls, fetchOpts),
     nowImpl: () => t,
     log: (m) => logs.push(m),
+    env: {},                      // the key must come from the FILE here, as in production
   });
   const creds = () => readCredentials({ tokenFile, allowExpired: true });
   return { dir, tokenFile, calls, logs, renewer, creds, advance: (ms) => { t += ms; } };
@@ -230,10 +255,10 @@ test('a successful renewal writes agency.json beside the token file, and never o
   assert.equal(j.companyId, 'COMPANY0000000000001');
   assert.equal(j.source, 'token-renewal');
   // second cycle, different companyId in the response: the file written first wins
-  writeFileSync(f.tokenFile, formatTokenFile({ bearer: liveJwt(200), tokenId: liveTid(200) }), { mode: 0o600 });
+  writeFileSync(f.tokenFile, formatTokenFile({ bearer: liveJwt(200), tokenId: liveTid(200), firebaseKey: TEST_KEY }), { mode: 0o600 });
   f.advance(120_000);
   f.calls.length = 0;
-  const renewer2 = makeRenewer({ getTokenFile: () => f.tokenFile, fetchImpl: fakeFetch(f.calls, { refresh: { status: 200, body: refreshBody({ companyId: 'OTHER00000000000002' }) } }), nowImpl: () => 9e12, log: () => {} });
+  const renewer2 = makeRenewer({ getTokenFile: () => f.tokenFile, fetchImpl: fakeFetch(f.calls, { refresh: { status: 200, body: refreshBody({ companyId: 'OTHER00000000000002' }) } }), nowImpl: () => 9e12, log: () => {}, env: {} });
   await renewer2.maybeRenew(f.creds());
   assert.equal(JSON.parse(readFileSync(agency, 'utf8')).companyId, 'COMPANY0000000000001');
 });

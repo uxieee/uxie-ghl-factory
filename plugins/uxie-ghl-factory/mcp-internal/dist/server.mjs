@@ -152387,10 +152387,11 @@ import { renameSync, writeFileSync as writeFileSync2, chmodSync, existsSync as e
 import { dirname as dirname3, join as join4 } from "node:path";
 var BACKEND5 = "https://backend.leadconnectorhq.com";
 var REFRESH_PATH = "/oauth/2/login/current";
-var FIREBASE_WEB_API_KEY = "AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE";
+var FIREBASE_KEY_ENV = "GHL_INTERNAL_FIREBASE_KEY";
 var RENEW_THRESHOLD_SEC = 300;
 var RENEW_MIN_INTERVAL_MS = 6e4;
 var looksJwt = (v) => typeof v === "string" && v.split(".").length === 3 && v.length > 80;
+var looksFirebaseKey = (v) => typeof v === "string" && /^AIza[0-9A-Za-z_-]{35}$/.test(v);
 var fail2 = (message) => {
   const e = new Error(message);
   e.code = "RENEW_FAILED";
@@ -152400,18 +152401,26 @@ function autoRenewEnabled(env = process.env) {
   const v = String(env.GHL_INTERNAL_AUTO_RENEW ?? "").trim().toLowerCase();
   return !["0", "false", "off", "no"].includes(v);
 }
+function readFirebaseKey({ tokenFile, env = process.env }) {
+  const fromEnv = env?.[FIREBASE_KEY_ENV];
+  if (looksFirebaseKey(fromEnv)) return fromEnv;
+  if (!tokenFile || !existsSync4(tokenFile)) return null;
+  const fromFile = (readFileSync4(tokenFile, "utf8").match(/firebase-key:\s*([A-Za-z0-9_-]+)/i) || [])[1];
+  return looksFirebaseKey(fromFile) ? fromFile : null;
+}
 function needsRenewal({ jwtSecondsRemaining, tokenIdSecondsRemaining = null, thresholdSec = RENEW_THRESHOLD_SEC }) {
   if (!Number.isFinite(jwtSecondsRemaining) || jwtSecondsRemaining <= 0) return false;
   if (jwtSecondsRemaining <= thresholdSec) return true;
   return Number.isFinite(tokenIdSecondsRemaining) && tokenIdSecondsRemaining <= thresholdSec;
 }
-function formatTokenFile({ bearer, tokenId }) {
+function formatTokenFile({ bearer, tokenId, firebaseKey }) {
   const lines = [`Bearer ${bearer}`];
   if (tokenId) lines.push(`token-id: ${tokenId}`);
+  if (firebaseKey) lines.push(`firebase-key: ${firebaseKey}`);
   return `${lines.join("\n")}
 `;
 }
-async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = FIREBASE_WEB_API_KEY, base = BACKEND5 }) {
+async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = null, base = BACKEND5 }) {
   const res = await fetchImpl(`${base}${REFRESH_PATH}`, {
     method: "GET",
     headers: {
@@ -152430,6 +152439,8 @@ async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = FI
   let tokenId = null;
   if (!looksJwt(body.token)) {
     warnings.push("refresh response carried no firebase custom token; token-id not renewed");
+  } else if (!firebaseKey) {
+    warnings.push(`no firebase web key on record (re-run the capture to record one, or set ${FIREBASE_KEY_ENV}); token-id not renewed`);
   } else {
     try {
       const fb = await fetchImpl(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseKey}`, {
@@ -152450,13 +152461,16 @@ async function renewCredentials({ jwt: jwt2, fetchImpl = fetch, firebaseKey = FI
   }
   return { jwt: authToken, tokenId, companyId: typeof body.companyId === "string" ? body.companyId : null, warnings };
 }
-function writeTokenFile({ tokenFile, bearer, tokenId }) {
-  let keep = tokenId;
-  if (!keep && existsSync4(tokenFile)) {
-    keep = (readFileSync4(tokenFile, "utf8").match(/token-id:\s*([A-Za-z0-9._-]+)/i) || [])[1] ?? null;
+function writeTokenFile({ tokenFile, bearer, tokenId, firebaseKey }) {
+  let keepTid = tokenId;
+  let keepKey = firebaseKey;
+  if ((!keepTid || keepKey === void 0) && existsSync4(tokenFile)) {
+    const raw = readFileSync4(tokenFile, "utf8");
+    if (!keepTid) keepTid = (raw.match(/token-id:\s*([A-Za-z0-9._-]+)/i) || [])[1] ?? null;
+    if (keepKey === void 0) keepKey = (raw.match(/firebase-key:\s*([A-Za-z0-9_-]+)/i) || [])[1] ?? null;
   }
   const tmp = `${tokenFile}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync2(tmp, formatTokenFile({ bearer, tokenId: keep }), { mode: 384 });
+  writeFileSync2(tmp, formatTokenFile({ bearer, tokenId: keepTid, firebaseKey: keepKey ?? null }), { mode: 384 });
   chmodSync(tmp, 384);
   renameSync(tmp, tokenFile);
 }
@@ -152473,7 +152487,9 @@ function makeRenewer({
   nowImpl = Date.now,
   log = (m) => process.stderr.write(`${m}
 `),
-  firebaseKey = FIREBASE_WEB_API_KEY,
+  firebaseKey = void 0,
+  // explicit override; otherwise resolved per renewal from env/file
+  env = process.env,
   thresholdSec = RENEW_THRESHOLD_SEC,
   minIntervalMs = RENEW_MIN_INTERVAL_MS
 }) {
@@ -152502,7 +152518,8 @@ function makeRenewer({
     slot.lastAttemptAt = nowImpl();
     slot.inFlight = (async () => {
       try {
-        const out = await renewCredentials({ jwt: creds.jwt, fetchImpl, firebaseKey });
+        const key = firebaseKey !== void 0 ? firebaseKey : readFirebaseKey({ tokenFile, env });
+        const out = await renewCredentials({ jwt: creds.jwt, fetchImpl, firebaseKey: key });
         writeTokenFile({ tokenFile, bearer: out.jwt, tokenId: out.tokenId });
         if (out.companyId) writeAgencyJsonIfAbsent({ tokenFile, companyId: out.companyId, nowMs: nowImpl() });
         for (const w of out.warnings) log(`[token-renewal] ${w}`);

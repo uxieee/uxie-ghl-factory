@@ -11,6 +11,22 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.45.1] — 2026-08-31
+
+### Fixed
+
+- **The Firebase web key is captured, not shipped.** 0.45.0 hardcoded GHL's public Firebase web
+  key in `core/token-renewal.mjs` (and so in both bundles) for the `token-id` exchange; GitHub's
+  secret scanner flagged `dist/server.mjs` within minutes of the push. The key is a public
+  client-side value every browser loading the app receives — nothing of ours was exposed and
+  nothing needed rotating — but it is GHL's, not ours to commit, and a constant breaks the day
+  they rotate it. It now travels like the other two credentials: `capture-token.mjs` reads it off
+  the app's own identitytoolkit call and writes it as a third `firebase-key:` line in the 0600
+  token file; `GHL_INTERNAL_FIREBASE_KEY` overrides. A file without one still renews the bearer
+  and logs why the token-id did not. Existing folders pick the line up at their next capture.
+- **`check-privacy.mjs` now fails on any Google API key** (`AIza` + 35 characters), so this class
+  cannot recur. The key is gone from the tip; it remains in commit `43f75a9`'s history.
+
 ## [0.45.0] — 2026-08-31
 
 The hourly credential wall is gone for any session that is actually in use. The server renews

@@ -54,6 +54,10 @@ const ALLOW = [
   // Synthetic ids from the EARLIER plugin-repo scrub (v0.5.3/0.6.1). Same fields, different
   // placeholder values than above — the two repos were sanitized in separate passes.
   'act_100000000000000', '120200000000000000', '109876543210987654321',
+  // Shape-valid but plainly fake Google API key used by the token-renewal tests to prove the
+  // firebase exchange is called with the CAPTURED key. Deliberately not a real key: the rule
+  // below caught it on its first run, which is the behaviour it exists to have.
+  'AIzaTESTKEY0000000000000000000000000000',
 ];
 
 const RULES = [
@@ -62,6 +66,9 @@ const RULES = [
   { name: 'long opaque account id', re: /\b\d{18,}\b/g },
   // Ad-platform account ids are shorter than the digit rule above but just as identifying.
   { name: 'ad account id', re: /\bact_\d{6,}\b/g },
+  // 0.45.0 shipped GHL's Firebase web key as a constant; GitHub's scanner flagged the bundle
+  // within minutes. Public or not, a third party's key is captured at runtime, never committed.
+  { name: 'Google API key', re: /\bAIza[0-9A-Za-z_-]{35}\b/g },
 ];
 
 // Known client / person names, stored as SHA-256 HASHES — never plaintext.
