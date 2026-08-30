@@ -3,7 +3,7 @@
 // free string and 17 of them mutate live accounts. Nothing else separates one client from another.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseAllowedLocations, classifyCall, checkLocationBinding } from '../core/location-binding.mjs';
+import { parseAllowedLocations, classifyCall, checkLocationBinding, locationPositions } from '../core/location-binding.mjs';
 import { TOOLS } from '../core/tools.mjs';
 import { CODES } from '../core/errors.mjs';
 
@@ -76,4 +76,84 @@ test('INVARIANT: every tool with a capability declares locationId', () => {
     .filter((t) => !Object.keys(t.inputSchema?.shape ?? {}).includes('locationId'))
     .map((t) => t.name);
   assert.deepEqual(offenders, [], 'a tool can reach an account without declaring locationId');
+});
+
+import { readFileSync } from 'node:fs';
+const ENDPOINTS = JSON.parse(readFileSync(new URL('../catalog/internal-endpoints.json', import.meta.url), 'utf8')).endpoints;
+const bound = { allowed: new Set([PERMITTED]), endpoints: ENDPOINTS };
+const raw = (over) => ({ tool: tool('raw_request'), args: { locationId: PERMITTED, method: 'GET', path: '/x', ...over }, ...bound });
+
+test('rule 2: a foreign location in the path is refused even when the argument is permitted', () => {
+  const r = checkLocationBinding(raw({ path: `/workflow/${FOREIGN}/list` }));
+  assert.equal(r.code, CODES.LOCATION_FORBIDDEN);
+});
+
+test('rule 2: the permitted location in the same position passes', () => {
+  assert.equal(checkLocationBinding(raw({ path: `/workflow/${PERMITTED}/list` })), null);
+});
+
+test('rule 2: dot segments are refused AS A REWRITE, on the raw path', () => {
+  // new URL() resolves these away, so a checker reading u.pathname sees nothing wrong. The test
+  // must run on args.path or this is the exact bypass rule 2 exists to close.
+  for (const path of [`/workflow/${PERMITTED}/../${FOREIGN}/list`,
+                      `/workflow/${PERMITTED}/%2e%2e/${FOREIGN}/list`,
+                      `/workflow/./${FOREIGN}/list`]) {
+    assert.equal(checkLocationBinding(raw({ path })).code, CODES.LOCATION_PATH_REWRITE, path);
+  }
+});
+
+test('rule 2: ordinary paths with spaces, non-ASCII or braces are NOT rewrites', () => {
+  for (const path of ['/media/files/My File.png', '/emails/builder/Café', '/a/b^c', '/a/{tpl}/c']) {
+    const r = checkLocationBinding(raw({ path }));
+    assert.notEqual(r?.code, CODES.LOCATION_PATH_REWRITE, `${path} must not be reported as a rewrite`);
+  }
+});
+
+test('rule 2: an off-origin path is refused', () => {
+  assert.equal(checkLocationBinding(raw({ path: '//evil.example.com/x' })).code, CODES.LOCATION_PATH_REWRITE);
+});
+
+test('rule 2: query locationId is checked, including duplicates', () => {
+  assert.equal(checkLocationBinding(raw({ path: `/calendars/?locationId=${FOREIGN}` })).code, CODES.LOCATION_FORBIDDEN);
+  assert.equal(checkLocationBinding(raw({ path: `/calendars/?location_id=${FOREIGN}` })).code, CODES.LOCATION_FORBIDDEN);
+  // .get() would return only the first and pass this.
+  assert.equal(checkLocationBinding(raw({ path: `/calendars/?locationId=${PERMITTED}&locationId=${FOREIGN}` })).code,
+    CODES.LOCATION_FORBIDDEN, 'every value of a repeated key must be checked');
+});
+
+test('rule 2: literal beats parameter — fully literal paths are not treated as locations', () => {
+  // Without a specificity rule these unify with a location-bearing template and demand that a
+  // literal segment be a permitted location.
+  for (const path of ['/locations/search', '/workflows/statistics', '/workflow/oauth2/update-token']) {
+    assert.equal(checkLocationBinding(raw({ path })), null, path);
+  }
+});
+
+test('rule 2: an unrecognised path is allowed when bound', () => {
+  // raw_request exists for endpoints the catalogue does not cover, so an unmatched path cannot be
+  // refused outright without gutting the tool. Spec §5.4 row 3 additionally wants such a call
+  // flagged `locationVerified: false`; that is DEFERRED — see the plan's self-review — because the
+  // guard's only return channel is null-or-refusal and a flag needs a handler-side annotation.
+  assert.equal(checkLocationBinding(raw({ path: '/no/such/endpoint/anywhere' })), null);
+});
+
+test('rule 2: an ambiguous template pair fails closed, per spec §5.3', () => {
+  // /lists/dynamic/{smartListId} ties on literal count with /lists/dynamic/{locationId}, so the
+  // union rule demands the segment be permitted. The spec sanctions this explicitly: refusing a
+  // legitimate smartListId call is the right direction for an escape hatch. Pinned so an
+  // implementer does not read it as a broken matcher.
+  const r = checkLocationBinding(raw({ path: `/lists/dynamic/${FOREIGN}` }));
+  assert.equal(r.code, CODES.LOCATION_FORBIDDEN);
+});
+
+test('the agency-wide writes are denylisted, and their sibling reads are not', () => {
+  const p = `/workflow/${PERMITTED}/workflow-company-setting/settings`;
+  assert.equal(checkLocationBinding(raw({ method: 'PUT', path: p })).code, CODES.LOCATION_DENYLISTED);
+  assert.equal(checkLocationBinding(raw({ method: 'GET', path: p })), null, 'reads are unaffected');
+});
+
+test('locationPositions: both forms, and neither for a location-free template', () => {
+  assert.deepEqual(locationPositions('/workflow/{locationId}/list'), [1]);
+  assert.deepEqual(locationPositions('/locations/{id}'), [1]);          // {param} after a literal "locations"
+  assert.deepEqual(locationPositions('/funnels/funnel/{id}'), []);
 });

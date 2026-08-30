@@ -37,7 +37,63 @@ const bindCommand = (locationId) =>
   + `  claude mcp add --transport stdio --scope local -e GHL_LOCATIONS="${locationId}" ... `
   + '(keep the existing -e GHL_TOK_FILE=... and the same server name)';
 
-export function checkLocationBinding({ tool, args, allowed }) {
+const DEFAULT_BASE = 'https://backend.leadconnectorhq.com';
+const AI_BASE = 'https://services.leadconnectorhq.com';
+// A `.` or `..` SEGMENT, raw or percent-encoded. Tested against the raw argument, never against
+// URL.pathname -- by the time new URL() has resolved, the dot segments are gone and the check
+// silently passes the traversal it exists to catch.
+const DOT_SEGMENT = /(^|\/)(\.|%2e|\.\.|%2e%2e|\.%2e|%2e\.)(\/|$)/i;
+
+// Locations occupy two shapes in a catalogue template: an explicit {locationId} slot, and a
+// {param} slot immediately after a literal `location`/`locations` segment (7 rows, all GET).
+// Positions, never id shapes: every GHL object id is 20-24 alphanumerics, so workflow, step and
+// location ids are indistinguishable by appearance.
+export function locationPositions(templatePath) {
+  const segs = templatePath.replace(/\{query\}$/, '').split('/').filter(Boolean);
+  const out = [];
+  segs.forEach((seg, i) => {
+    if (!seg.startsWith('{')) return;
+    if (seg === '{locationId}' || /^\{location_?[Ii]d\}$/.test(seg)) out.push(i);
+    else if (i > 0 && /^locations?$/i.test(segs[i - 1])) out.push(i);
+  });
+  return out;
+}
+
+// Literal beats parameter. Without it, 13+ fully-literal paths (/locations/search,
+// /workflows/statistics, /workflow/oauth2/update-token) unify with a location-bearing template and
+// demand that a literal segment be a permitted location.
+export function matchTemplates(pathname, method, endpoints) {
+  const segs = pathname.split('/').filter(Boolean).map((s) => { try { return decodeURIComponent(s); } catch { return s; } });
+  const scored = [];
+  // The best literal count is computed across ALL methods, then only same-method rows that tie it
+  // are kept. Scoring within one method first would miss a literal row that exists under another:
+  // /workflow/oauth2/update-token is a PUT, so a GET of that path finds no same-method literal
+  // match, unifies with GET /workflow/{locationId}/{id}, and demands that `oauth2` be a permitted
+  // location. Seven fully-literal paths are wrongly refused that way.
+  let globalBest = -1;
+  for (const e of endpoints) {
+    const t = (e.path ?? '').replace(/\{query\}$/, '').split('/').filter(Boolean);
+    if (t.length !== segs.length) continue;
+    let literals = 0, ok = true;
+    for (let i = 0; i < t.length; i++) {
+      if (t[i].startsWith('{')) continue;
+      if (t[i] !== segs[i]) { ok = false; break; }
+      literals++;
+    }
+    if (!ok) continue;
+    if (literals > globalBest) globalBest = literals;
+    if ((e.method ?? 'GET') === method) scored.push({ e, literals });
+  }
+  return scored.filter((s) => s.literals === globalBest).map((s) => s.e);
+}
+
+// Agency-wide writes: they mutate EVERY location under the agency, so no per-location binding can
+// sanction them. Matched by method and segment position -- a path-only pattern also matches two
+// sibling GETs and would contradict "reads are unaffected". The id in seg[1] is never shape-matched.
+const isAgencyWideWrite = (method, segs) =>
+  method !== 'GET' && segs[0] === 'workflow' && segs[2] === 'workflow-company-setting';
+
+export function checkLocationBinding({ tool, args, allowed, ...opts }) {
   const kind = classifyCall(tool, args);
   if (kind === 'unguarded') return null;
 
@@ -64,5 +120,48 @@ export function checkLocationBinding({ tool, args, allowed }) {
       + 'if it should legitimately serve this one.',
     );
   }
+
+  if (tool.name === 'raw_request') {
+    const path = String(args?.path ?? '');
+    const method = String(args?.method ?? 'GET');
+    const base = args?.host === 'ai' ? AI_BASE : (opts.base ?? DEFAULT_BASE);
+    if (DOT_SEGMENT.test(path.split('?')[0])) {
+      return fail(CODES.LOCATION_PATH_REWRITE,
+        'the request path contains a relative segment and would resolve to a different target',
+        'Send the fully-resolved path. The guard refuses paths it would have to rewrite.');
+    }
+    let url;
+    try { url = new URL(path, base); } catch {
+      return fail(CODES.LOCATION_PATH_REWRITE, 'the request path could not be resolved',
+        'Send an absolute internal path beginning with /.');
+    }
+    if (url.origin !== new URL(base).origin) {
+      return fail(CODES.LOCATION_PATH_REWRITE,
+        'the request path resolves to a different origin',
+        'Send an absolute internal path beginning with /.');
+    }
+    const segs = url.pathname.split('/').filter(Boolean);
+    if (isAgencyWideWrite(method, segs)) {
+      return fail(CODES.LOCATION_DENYLISTED,
+        'this endpoint writes settings across every location under the agency',
+        'No per-location binding can sanction an agency-wide write. Make the change per location.');
+    }
+    for (const key of ['locationId', 'location_id']) {
+      for (const v of url.searchParams.getAll(key)) {
+        if (!allowed.has(v)) return fail(CODES.LOCATION_FORBIDDEN,
+          `the request targets ${v}, which this registration is not permitted to act on`,
+          'Target a permitted account, or rebind the registration.');
+      }
+    }
+    for (const e of matchTemplates(url.pathname, method, opts.endpoints ?? [])) {
+      for (const i of locationPositions(e.path ?? '')) {
+        const v = segs[i];
+        if (v && !allowed.has(v)) return fail(CODES.LOCATION_FORBIDDEN,
+          `the request path targets ${v}, which this registration is not permitted to act on`,
+          'Target a permitted account, or rebind the registration.');
+      }
+    }
+  }
+
   return null;
 }
