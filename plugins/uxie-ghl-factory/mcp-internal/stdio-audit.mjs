@@ -29,7 +29,17 @@ const pkgVersion = typeof __MCP_VERSION__ !== 'undefined'
       catch { return '0.0.0-dev'; }
     })();
 
-const state = { tokenFile: process.env.GHL_TOK_FILE ?? DEFAULT_TOKEN_FILE, engineVersion: pkgVersion };
+// Hard rename (0.43.0): GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE. Only the NEW name is ever read
+// as a value. GHL_TOK_FILE's presence is checked (never its value) so a registration still
+// setting only the old name is refused loudly by readCredentials() instead of silently falling
+// back to DEFAULT_TOKEN_FILE — see core/auth.mjs. Reading the old name's presence here does not
+// widen this profile: which tools this entry registers is still selected exactly once, from the
+// literal 'audit', below.
+const state = {
+  tokenFile: process.env.GHL_INTERNAL_TOK_FILE ?? DEFAULT_TOKEN_FILE,
+  legacyTokenFileEnv: Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE,
+  engineVersion: pkgVersion,
+};
 
 // ONE limiter and ONE circuit for the whole process, handed to every composite. Per-call
 // pacing would let N surfaces each pace politely while the ACCOUNT sees N times the rate,

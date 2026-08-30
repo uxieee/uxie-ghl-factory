@@ -78,10 +78,10 @@ const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 //
 // Task 5's audit stdio MUST construct its audit gateways with `throttleMs: 0, jitterMs: 0`
 // — the shared makeAuditLimiter is the single pacing authority on that rail.
-export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS }) {
+export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, sleepImpl = defaultSleep, randomImpl = Math.random, nowImpl = Date.now, throttleMs = THROTTLE_MS, jitterMs = JITTER_MS, legacyTokenFileEnv = false }) {
   // Read expired credentials too: the AI rail must distinguish its independently
   // expiring Bearer JWT and Firebase token-id before sending a request.
-  const creds = readCredentials({ tokenFile, allowExpired: true });   // throws AuthError; tools map it
+  const creds = readCredentials({ tokenFile, allowExpired: true, legacyTokenFileEnv });   // throws AuthError; tools map it
 
   const headers = (isWrite, overrides = {}, base = BASE) => {
     // channel/source/version are NOT optional outside the /workflow/* prefix. Anything on

@@ -7,6 +7,11 @@ export const CODES = Object.freeze({
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
   TOKEN_ID_MISSING: 'TOKEN_ID_MISSING',
   TOKEN_ID_EXPIRED: 'TOKEN_ID_EXPIRED',
+  // 0.43.0 hard-renamed GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE. A registration that still sets
+  // only the OLD name would otherwise see the NEW one as simply unset and silently fall back to
+  // DEFAULT_TOKEN_FILE — authenticating as whatever login owns that shared file. Refused instead
+  // of guessed; see core/auth.mjs.
+  LEGACY_TOKEN_FILE_ENV: 'LEGACY_TOKEN_FILE_ENV',
   SSE_EXPECTED: 'SSE_EXPECTED',
   SSE_INCOMPLETE: 'SSE_INCOMPLETE',
   CONFIRM_REQUIRED: 'CONFIRM_REQUIRED',

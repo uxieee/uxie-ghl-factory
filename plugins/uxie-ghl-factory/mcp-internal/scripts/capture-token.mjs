@@ -30,7 +30,7 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
 const HOME_DIR = join(homedir(), '.uxie-ghl-internal-mcp');
-const TOKEN_FILE = process.env.GHL_TOK_FILE || join(HOME_DIR, 'tok.txt');
+const TOKEN_FILE = process.env.GHL_INTERNAL_TOK_FILE || join(HOME_DIR, 'tok.txt');
 const PROFILE_DIR = join(HOME_DIR, 'pw-profile');
 
 const APP = 'https://app.gohighlevel.com';
