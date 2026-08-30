@@ -23,15 +23,19 @@ const pkgVersion = typeof __MCP_VERSION__ !== 'undefined'
     })();
 
 // Hard rename (0.43.0): GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE, GHL_LOCATIONS ->
-// GHL_INTERNAL_LOCATIONS. Only the NEW names are ever read as values. GHL_TOK_FILE's presence
-// is checked (never its value) so a registration still setting only the old name is refused
-// loudly by readCredentials() instead of silently falling back to DEFAULT_TOKEN_FILE — see
-// core/auth.mjs.
+// GHL_INTERNAL_LOCATIONS. Only the NEW names are ever read as values. Both old names' PRESENCE
+// (never their value) is checked so a registration still setting an old name is refused loudly
+// instead of silently degrading: readCredentials() refuses instead of falling back to
+// DEFAULT_TOKEN_FILE (core/auth.mjs), and checkLocationBinding() refuses instead of leaving an
+// unbound registration's reads silently widened to the credential's full reach
+// (core/location-binding.mjs) — an unbound registration's reads pass by design, which is
+// exactly why a stale GHL_LOCATIONS has to be refused rather than merely left unbound.
 const state = {
   tokenFile: process.env.GHL_INTERNAL_TOK_FILE ?? DEFAULT_TOKEN_FILE,
   legacyTokenFileEnv: Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE,
   engineVersion: pkgVersion,
   allowedLocations: parseAllowedLocations(process.env.GHL_INTERNAL_LOCATIONS),
+  legacyLocationsEnv: Boolean(process.env.GHL_LOCATIONS) && !process.env.GHL_INTERNAL_LOCATIONS,
 };
 // Forwards EVERY option a tool passes. The previous `({ loc, rail }) => …` destructure
 // dropped the audit tools' `throttleMs: 0, jitterMs: 0`, so the gateway kept its own
