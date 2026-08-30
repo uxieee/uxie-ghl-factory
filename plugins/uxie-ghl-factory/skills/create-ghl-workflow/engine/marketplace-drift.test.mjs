@@ -1,7 +1,7 @@
 // marketplaceDrift — TRIGGER-ONLY, by live evidence, not by choice.
 //
 // A stored marketplace TRIGGER carries `version` and `templateId`. A stored marketplace
-// ACTION step does NOT — its complete key set, live-captured 2026-08-16 (JING SPA account),
+// ACTION step does NOT — its complete key set, live-captured 2026-08-16 (the marketplace-canary client account),
 // is `id, stepIndex, order, attributes, name, type, isMarketplaceAction`. No version
 // anywhere. There is nothing stored on the action side to compare against, so there is
 // nothing to detect there.

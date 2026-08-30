@@ -11,6 +11,19 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.44.2] — 2026-08-31
+
+### Fixed
+
+- **Privacy: two client names scrubbed from engine comments (leak #5).** A roster sweep against
+  `check-privacy.mjs`'s name denylist found TEN active client names the gate did not know — its 18
+  hashes dated from the earlier scrubs and never tracked the roster as it grew. Adding them
+  immediately caught two names live in seven provenance comments under
+  `skills/create-ghl-workflow/engine/`, carried into both committed bundles. Names replaced with
+  anonymous descriptors (the provenance facts — dates, what was proven — stay), bundles rebuilt.
+  The gate now fails on reintroduction of any of the ten. Git history and pre-0.44.2 release
+  bundles still carry the two names; scrubbing history remains a separate, pending decision.
+
 ## [0.44.1] — 2026-08-31
 
 Pays the follow-up 0.44.0's Known limits promised: the refusal guidance now routes to `bind`

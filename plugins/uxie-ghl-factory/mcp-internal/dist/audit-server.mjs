@@ -140269,7 +140269,7 @@ function asUserArray(v) {
   return Array.isArray(v) ? v : [v];
 }
 var NOTIFICATION_EMITTED_KEYS = {
-  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published Living-In-Idaho
+  // template_id/templatesource: TEMPLATE-MODE notifications are real (3 published client-account
   // nodes carry email.template_id + templatesource:'email-builder' and NO inline html; GHL's own
   // guards exempt the body on !<channel>.template_id). Dropping them forced every notification
   // into inline mode and made template-mode impossible to author — found by the enforcement tests.

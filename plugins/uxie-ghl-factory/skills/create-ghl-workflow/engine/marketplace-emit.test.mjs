@@ -235,7 +235,7 @@ test('a NON-marketplace trigger is untouched', () => {
 
 // --- Task 5 fixes: stepIndex, __customInputs__, meta.stepIndexCounter -----------------
 //
-// Live-confirmed 2026-08-16 (Jing Spa, docs/superpowers/notes/2026-08-16-marketplace-
+// Live-confirmed 2026-08-16 (the marketplace-canary client account, docs/superpowers/notes/2026-08-16-marketplace-
 // live-evidence.md): a stored marketplace step carries a per-action-key stepIndex, and
 // the workflow body carries a matching meta.stepIndexCounter map.
 
