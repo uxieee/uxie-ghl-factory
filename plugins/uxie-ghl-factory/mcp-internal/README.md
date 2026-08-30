@@ -30,6 +30,31 @@ accepted as a tool argument, never logged, and never echoed in a response or err
   Bearer also authenticates the workflow/backend surface (`list_workflows` → 45 workflows),
   so one capture covers every tool family — no separately-scoped workflow token needed.
 
+## Location binding
+
+One GHL login serves many client sub-accounts, and the JWT carries no location claim — the
+credential cannot tell them apart. `GHL_LOCATIONS=<id>[,<id>...]` declares, per registration,
+which accounts it may act on: a **comma-separated list** of location ids, set the same way as
+`GHL_TOK_FILE` (`-e GHL_LOCATIONS="<id>,<id>"` on `claude mcp add`, or the equivalent `env` entry
+for other stdio clients).
+
+- **Unset (the default) means every read stays available and every write is refused** with
+  `LOCATION_UNBOUND`, whose remediation names the exact command to bind the registration. A
+  registration that has not declared its locations cannot be trusted to write to the right one.
+- **Set, a write to any account outside the list is refused** with `LOCATION_FORBIDDEN`.
+- Neither code is a credential problem — re-capturing the token does not help either one; see
+  `core/instructions.mjs` for the guidance shipped to the agent.
+- The **audit profile does not read this variable at all** — it is structurally read-only
+  (GET-only capabilities, enforced in the server, not by this guard), so location binding is
+  moot for it.
+
+**Guard limits.** The binding guard sits at the MCP tool choke point — it does not reach the
+plugin's standalone CLI scripts, which call the GHL backend directly with a location id passed
+as an argument and their own token file, entirely outside this server:
+`skills/create-ghl-workflow/scripts/build.mjs`, `skills/ghl-workflow-fast-forward/scripts/ff.mjs`,
+and `skills/ghl-memberships/scripts/cli-gateway.mjs`. Any agent with shell access can still reach
+those accounts through that path. Closing it is separate, unstarted work.
+
 ## Install / registration
 
 This server ships **inside** the `uxie-ghl-factory` plugin as a **self-contained bundle**

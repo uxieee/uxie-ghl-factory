@@ -41,7 +41,13 @@ search endpoint returns 200 with a plausible WRONG row for a filter it does not 
 back on a separate request before reporting a result.
 
 A catalogue hit proves the GHL builder calls that path. It does not prove your token reaches it,
-and it does not prove calling it is safe.`;
+and it does not prove calling it is safe.
+
+LOCATION_UNBOUND AND LOCATION_FORBIDDEN ARE NOT CREDENTIAL PROBLEMS. Re-capturing a token will not
+help either one. LOCATION_UNBOUND means this project has not declared which GHL accounts it may
+write to; LOCATION_FORBIDDEN means the call targeted an account outside that declared set. Both
+name the fix in their remediation -- surface it to the user rather than retrying or re-running
+internal-connect.`;
 
 export const AUDIT_INSTRUCTIONS = `GoHighLevel internal API — READ-ONLY audit profile.
 
