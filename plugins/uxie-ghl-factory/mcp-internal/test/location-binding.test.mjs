@@ -338,3 +338,42 @@ test('registerTools lets a bound write reach the handler', async () => {
     assert.equal(gwCalls.length, 1, 'a bound registration must actually reach the handler and call through the gateway');
   });
 });
+
+// ---------------------------------------------------------------------------
+// 0.43.0 fix round 1 (Finding 1): checkLocationBinding's legacyLocationsEnvSet param — the
+// symmetric counterpart to readCredentials' legacyTokenFileEnv. Unit-level coverage of the
+// FLAG's effect; test/legacy-locations-env.test.mjs covers the real env-var resolution
+// end-to-end through a spawned stdio.mjs.
+// ---------------------------------------------------------------------------
+
+test('legacyLocationsEnvSet true refuses a READ, before it ever falls into the unbound-reads-pass branch', () => {
+  // Without this guard, allowed:null + a read returns null (permitted) two lines down — this is
+  // the exact silent-widening path Finding 1 closed.
+  const r = checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: PERMITTED }, allowed: null, legacyLocationsEnvSet: true });
+  assert.equal(r.code, CODES.LEGACY_LOCATIONS_ENV);
+  assert.match(r.remediation, /GHL_INTERNAL_LOCATIONS/);
+});
+
+test('legacyLocationsEnvSet true refuses a WRITE too, even when the registration happens to be bound', () => {
+  const r = checkLocationBinding({ tool: tool('build_workflow'), args: { locationId: PERMITTED }, allowed: new Set([PERMITTED]), legacyLocationsEnvSet: true });
+  assert.equal(r.code, CODES.LEGACY_LOCATIONS_ENV, 'the stale env var must refuse regardless of what the (would-be-ignored) bound set says');
+});
+
+test('legacyLocationsEnvSet names both variables and a runnable fix, presence-only never a value', () => {
+  const r = checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: PERMITTED }, allowed: null, legacyLocationsEnvSet: true });
+  assert.match(r.detail, /GHL_LOCATIONS/);
+  assert.match(r.detail, /GHL_INTERNAL_LOCATIONS/);
+  assert.match(r.remediation, /claude mcp add/);
+  assert.match(r.remediation, /GHL_INTERNAL_LOCATIONS/);
+});
+
+test('legacyLocationsEnvSet false (the default) leaves every existing binding outcome unchanged', () => {
+  assert.equal(checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: PERMITTED }, allowed: null }), null);
+  assert.equal(checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: PERMITTED }, allowed: null, legacyLocationsEnvSet: false }), null);
+  const unbound = checkLocationBinding({ tool: tool('build_workflow'), args: { locationId: PERMITTED }, allowed: null, legacyLocationsEnvSet: false });
+  assert.equal(unbound.code, CODES.LOCATION_UNBOUND);
+  const bound = checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: PERMITTED }, allowed: new Set([PERMITTED]), legacyLocationsEnvSet: false });
+  assert.equal(bound, null);
+  const forbidden = checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: FOREIGN }, allowed: new Set([PERMITTED]), legacyLocationsEnvSet: false });
+  assert.equal(forbidden.code, CODES.LOCATION_FORBIDDEN);
+});

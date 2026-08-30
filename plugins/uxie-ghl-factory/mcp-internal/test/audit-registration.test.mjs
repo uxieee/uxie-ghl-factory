@@ -506,6 +506,18 @@ test('stdio-audit.mjs reads no environment variable that could switch its profil
       + 'legacy name, presence-only) may come from the environment',
     );
   }
+  // The name-only check above is satisfied by `process.env.GHL_TOK_FILE` used as a VALUE too —
+  // it only checks WHICH names appear, not how. These two make "presence-only" real: the sole
+  // reference must be inside `Boolean(...)`, and there must be exactly one reference, so a
+  // second GHL_TOK_FILE read (as a value, or a second presence check) cannot slip in unnoticed.
+  assert.equal(
+    countOf(code, 'process.env.GHL_TOK_FILE'), 1,
+    'process.env.GHL_TOK_FILE must be referenced exactly once in stdio-audit.mjs',
+  );
+  assert.match(
+    code, /Boolean\(process\.env\.GHL_TOK_FILE\)/,
+    'the sole GHL_TOK_FILE reference must be wrapped in Boolean(...) — presence, never its value',
+  );
   assert.equal(
     /process\.env\s*\[/.test(code), false,
     'a computed process.env lookup is an environment switch the static check cannot audit',
