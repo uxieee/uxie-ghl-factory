@@ -184,7 +184,7 @@ env = { GHL_ACCOUNTS_FILE = "/Users/you/.ghl/accounts.json", GHL_ALLOWED_LOCATIO
 [mcp_servers.uxie-ghl-internal-mcp]
 command = "node"
 args = ["/Users/you/.uxie-ghl-internal-mcp/launch.mjs"]
-env = { GHL_TOK_FILE = "/path/to/project/.ghl/uxie-ghl-internal-mcp-tok.txt" }
+env = { GHL_INTERNAL_TOK_FILE = "/path/to/project/.ghl/uxie-ghl-internal-mcp-tok.txt" }
 ```
 
 Without either server the reasoning skills still load; anything that *calls* GHL needs one.

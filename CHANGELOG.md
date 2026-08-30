@@ -11,6 +11,62 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.43.0] — 2026-08-31
+
+**BREAKING.** The internal server has a second, unrelated public rail now
+(`@uxieee/ghl-mcp`, Private Integration Tokens), and `GHL_TOK_FILE`/`GHL_LOCATIONS` said
+nothing about which one they belonged to. Both are hard-renamed with the `INTERNAL` prefix
+that names the rail on sight, and there is no fallback that reads the old names' values.
+
+**Migration:** every existing internal-server registration must swap the flag names (same
+values):
+
+```
+-e GHL_TOK_FILE=...    -> -e GHL_INTERNAL_TOK_FILE=...
+-e GHL_LOCATIONS=...   -> -e GHL_INTERNAL_LOCATIONS=...
+```
+
+### Added
+
+- **`LEGACY_TOKEN_FILE_ENV`** — the migration guard. A hard rename has one specific hazard: the
+  entry points build `state.tokenFile` as `process.env.GHL_INTERNAL_TOK_FILE ?? DEFAULT_TOKEN_FILE`
+  (`core/auth.mjs:12`), so a registration that missed the migration and still sets only the OLD
+  `GHL_TOK_FILE` would see the new name as simply unset and silently fall back to the shared
+  default token file (`~/.uxie-ghl-internal-mcp/tok.txt`) — quietly authenticating as whatever
+  account owns that file. That is a silent wrong-account failure, the exact class of bug
+  0.42.0's location binding exists to prevent, so it is closed here instead of shipped. Both
+  `stdio.mjs` and `stdio-audit.mjs` compute `legacyTokenFileEnv` from the OLD variable's
+  **presence only** (never its value) and hand it to `readCredentials()` (`core/auth.mjs`),
+  which throws an `AuthError` naming both variables and the fix before any file is touched — the
+  same `fail()`/`AuthError` contract every other credential failure uses, never a hand-built
+  object. An explicit `set_token_file` call is unaffected: it names its own path and bypasses
+  environment resolution entirely, matching prior behaviour.
+- `GHL_LOCATIONS` becomes `GHL_INTERNAL_LOCATIONS` with a straight rename and **no** equivalent
+  guard. Unlike the token file, an unset `GHL_INTERNAL_LOCATIONS` means UNBOUND, which already
+  refuses every write (`LOCATION_UNBOUND`) rather than silently reaching any account — a missed
+  migration here degrades to the existing fail-safe default, not a silent wrong-account read, so
+  a second guard would add noise without closing a real hazard.
+
+### Changed
+
+- Every user-facing string that told an operator to set `GHL_TOK_FILE` or `GHL_LOCATIONS` — the
+  `LOCATION_UNBOUND`/`LOCATION_FORBIDDEN` remediations in `core/location-binding.mjs`, both
+  READMEs, `HANDOFF.md`, `commands/internal-connect.md`, and the `create-ghl-workflow` /
+  `ghl-workflow-fast-forward` `SKILL.md` files — now names the new variable. A stale instruction
+  here would produce exactly the misconfiguration the guard above refuses.
+- The CLI-rail scripts (`skills/create-ghl-workflow/scripts/build.mjs`, `.../edit.mjs`,
+  `skills/ghl-workflow-fast-forward/scripts/ff.mjs`, `mcp-internal/scripts/capture-token.mjs`)
+  read `GHL_INTERNAL_TOK_FILE` now. They keep their own pre-existing fallbacks (a
+  project-relative `.playwright-mcp/tok.txt`, or an explicit throw) unchanged — those are a
+  different, lower-risk shape than `DEFAULT_TOKEN_FILE` and were not the hazard this release
+  closes.
+
+### Known limits
+
+- The migration guard covers the two stdio entry points only, the same footprint as 0.42.0's
+  location binding — it does not reach the standalone CLI scripts above, which have never read
+  `GHL_LOCATIONS`/`GHL_INTERNAL_LOCATIONS` at all.
+
 ## [0.42.0] — 2026-08-30
 
 Location binding. One GHL login serves many client sub-accounts and the JWT carries no location
