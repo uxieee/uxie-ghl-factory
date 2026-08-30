@@ -56,3 +56,17 @@ test('reconcile is order-independent and deduplicates', () => {
   const r = reconcile({ bound: [B, A, A], available: [{ id: A, name: 'A' }, { id: B, name: 'B' }] });
   assert.deepEqual(r.matched.slice().sort(), [A, B].sort());
 });
+
+test('parseLocations counts the rows it drops instead of hiding them', () => {
+  // A row without a string _id is unusable, but silently dropping it makes total > locations.length
+  // read as pagination truncation. `skipped` lets the caller name the real cause.
+  const withBadRow = { ok: true, data: { status: 200, json: {
+    hit: [{ count: 3 }],
+    locations: [{ _id: A, name: 'Alpha' }, { name: 'no id at all' }, { _id: B, name: 'Beta' }],
+  } } };
+  const { total, locations, skipped } = parseLocations(withBadRow);
+  assert.equal(total, 3);
+  assert.equal(locations.length, 2);
+  assert.equal(skipped, 1, 'one malformed row was dropped and must be counted');
+  assert.equal(parseLocations(live()).skipped, 0, 'a clean response skips nothing');
+});

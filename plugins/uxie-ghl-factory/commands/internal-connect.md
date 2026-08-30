@@ -457,7 +457,7 @@ const { parseLocations, reconcile } = await import(R + '/agency-binding.mjs');
 
 const RESPONSE = JSON.parse(readFileSync(process.env.RESPONSE_FILE, 'utf8'));
 const BOUND = (process.env.BOUND ?? '').split(',').map((s) => s.trim()).filter(Boolean);
-const { total, locations } = parseLocations(RESPONSE);
+const { total, locations, skipped } = parseLocations(RESPONSE);
 
 // GATE 1 — discovery did not RUN. reconcile() returns three EMPTY arrays when `available` is
 // empty, which reads exactly like "nothing to change". It is not: it is "nothing was read".
@@ -471,7 +471,11 @@ if (locations.length === 0) {
 // module does not surface that; the caller must. Reconciling a partial roster reports real
 // accounts as `unknown` and a binding built on it would be wrong.
 if (total !== null && total > locations.length) {
-  console.log(`TRUNCATED ROSTER: ${locations.length} of ${total} rows. REFUSE to propose a binding.`);
+  // `skipped` separates the two causes a short list can have: rows the parser dropped as
+  // malformed (skipped > 0) versus rows the fixed limit=200 request never received.
+  if (skipped > 0) console.log(`MALFORMED ROWS: ${skipped} row(s) lacked a usable _id and were dropped.`);
+  console.log(`INCOMPLETE ROSTER: ${locations.length} usable of ${total} reported`
+    + `${skipped > 0 ? '' : ' (likely pagination: the request pins limit=200)'}. REFUSE to propose a binding.`);
   process.exit(1);
 }
 if (total === null) console.log('WARNING: no total in the response; roster completeness is unverified.');

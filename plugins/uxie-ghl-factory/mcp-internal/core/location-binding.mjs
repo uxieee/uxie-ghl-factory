@@ -32,10 +32,16 @@ export function classifyCall(tool, args) {
   return tool.capabilities?.some((c) => c.method !== 'GET') ? 'write' : 'read';
 }
 
+// 0.44.1: this used to print a copy-paste `claude mcp add -e GHL_INTERNAL_LOCATIONS=...` — the
+// exact command 0.44.0's rule 1 forbids on an existing registration, because `claude mcp add`
+// rewrites the whole server entry and drops every env var not on that command line (the token
+// file included). The safe rebind path is internal-connect's bind mode, which discovers the
+// agency, proposes, and writes additively.
 const bindCommand = (locationId) =>
-  'Bind this registration to the accounts it may touch, then retry:\n'
-  + `  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="${locationId}" ... `
-  + '(keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)';
+  `Bind this registration to the accounts it may touch (this call targeted ${locationId}), then retry:\n`
+  + '  run /uxie-ghl-factory:internal-connect — bind mode discovers the agency, proposes\n'
+  + '  GHL_INTERNAL_LOCATIONS, and writes it additively. Do NOT rebind with a bare `claude mcp add`:\n'
+  + '  on an existing registration it rewrites the server entry and drops the sibling env vars.';
 
 // 0.43.0 hard rename. GHL_LOCATIONS is presence-checked ONLY (never read as a value) by the
 // caller that computes legacyLocationsEnvSet — see stdio.mjs. Mirrors LEGACY_TOKEN_FILE_ENV's
@@ -172,8 +178,9 @@ export function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSe
     return fail(
       CODES.LOCATION_FORBIDDEN,
       `this registration is not permitted to act on ${declared}`,
-      'Target an account this registration is bound to, or rebind it with -e GHL_INTERNAL_LOCATIONS=... '
-      + 'if it should legitimately serve this one.',
+      'Target an account this registration is bound to. If it should legitimately serve this one, '
+      + 'run /uxie-ghl-factory:internal-connect (bind mode) to extend GHL_INTERNAL_LOCATIONS '
+      + 'additively — never a bare `claude mcp add`, which rewrites the entry.',
     );
   }
 

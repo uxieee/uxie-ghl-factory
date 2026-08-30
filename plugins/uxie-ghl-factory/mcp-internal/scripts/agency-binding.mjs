@@ -19,11 +19,13 @@ export function parseLocations(response) {
   const json = response?.data?.json ?? null;
   const rows = Array.isArray(json?.locations) ? json.locations : [];
   const total = Number.isFinite(json?.hit?.[0]?.count) ? json.hit[0].count : null;
+  const usable = rows.filter((r) => typeof r?._id === 'string' && r._id.length > 0);
   return {
     total,
-    locations: rows
-      .filter((r) => typeof r?._id === 'string' && r._id.length > 0)
-      .map((r) => ({ id: r._id, name: typeof r.name === 'string' ? r.name : '(unnamed)' })),
+    locations: usable.map((r) => ({ id: r._id, name: typeof r.name === 'string' ? r.name : '(unnamed)' })),
+    // Dropped rows are COUNTED, not hidden: a silent drop makes total > locations.length look like
+    // pagination truncation, so the caller's roster gate would name the wrong cause.
+    skipped: rows.length - usable.length,
   };
 }
 
