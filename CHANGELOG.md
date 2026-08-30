@@ -11,6 +11,54 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.44.0] — 2026-08-31
+
+`internal-connect` gains two modes — `bind` and `audit` — beside the existing `connect`, so a
+folder's `GHL_INTERNAL_LOCATIONS` binding can be discovered from its own agency and proposed,
+instead of being typed by hand. Nothing set that binding before this: it was populated by hand
+across 8 registrations, and that hand pass immediately found two that had been silently wrong.
+The three modules behind it stay pure and unbundled (`mcp-internal/scripts/`, never imported by
+`core/` or either entry point) — `dist/` does not change in this release.
+
+### Added
+
+- **Mode selection on `internal-connect`.** `connect` (a folder with no registration): capture →
+  register → discover → propose → verify. `bind` (a folder already registered): discover → diff
+  bound vs. available → propose → write. `audit` (only when explicitly asked): a read-only sweep
+  of every registration that changes nothing. Mode is decided by reading the registration, not by
+  guessing, and the command says so and stops on anything ambiguous (a stale-path shadow, an
+  audit-only folder that looks unregistered).
+- **`registrations.mjs`** — the one owner of `~/.claude.json` for this rail: `listRegistrations`,
+  an EXACT-path `findRegistration`, and an additive `setEnv` with a backup. Exact-path because
+  stale `/Users/<user>/Documents/…` project entries shadow the real ones, carry no `mcpServers`,
+  and sort first — a suffix match on them hid 5 of 11 registrations on the manual pass. Additive
+  because `claude mcp add` rewrites a whole server entry, which is how a credential refresh
+  silently erases a location binding.
+- **`agency-binding.mjs`** — builds the `/locations/search` discovery request and parses its
+  response (rows nested at `data.json.locations`, the agency total at `data.json.hit[0].count`),
+  then reconciles bound-vs-available into `matched` / `missing` / `unknown`. An empty available
+  list yields no findings at all rather than marking every bound id `unknown`, so a failed read
+  can never masquerade as a wrong binding.
+- **`audit-report.mjs`** — the offline health tier over registrations and token claims: unbound
+  registrations, expired or unreadable credentials, legacy env names, and accounts reachable from
+  more than one folder. Every folder is marked `onlineChecked: false`, and the report names what
+  it did NOT check — a health check that implies a folder is clean when its credential was too
+  dead to verify is worse than none.
+
+### Known limits
+
+- **The online tier (does this folder's binding match its agency's real roster?) is manual and
+  per-folder**, run one credential at a time under `bind` or `audit`'s tier 2 — there is no
+  scheduled or batch sweep across registrations.
+- Sub-account creation and credential renewal remain untouched; this release only reconciles a
+  binding against accounts and credentials that already exist.
+
+### Design note
+
+The three modes live inside `internal-connect` rather than a new skill because the credential and
+the binding are the SAME object in `~/.claude.json` — `claude mcp add` rewrites it wholesale, so a
+second owner writing to it independently would silently clobber the first's write.
+
 ## [0.43.0] — 2026-08-31
 
 **BREAKING.** The internal server has a second, unrelated public rail now
