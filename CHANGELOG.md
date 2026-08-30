@@ -55,6 +55,14 @@ it independently would silently clobber the first's write.
   scheduled or batch sweep across registrations.
 - Sub-account creation and credential renewal remain untouched; this release only reconciles a
   binding against accounts and credentials that already exist.
+- **The shipped agent instructions still point `LOCATION_UNBOUND`/`LOCATION_FORBIDDEN` at
+  `claude mcp add`.** `core/instructions.mjs` tells an agent to surface the error's own
+  remediation rather than retrying or re-running internal-connect, and that remediation
+  (`core/location-binding.mjs`) is a `claude mcp add` that rewrites the whole server entry and
+  binds only the single refused id — exactly what rule 1 exists to prevent, and what this
+  command's prose now tells agents to run `bind` for instead. Not fixed in 0.44.0:
+  `core/instructions.mjs` is a bundled file, and this release deliberately changes nothing under
+  `core/` or `dist/`. Owed as a follow-up.
 
 ## [0.43.0] — 2026-08-31
 
