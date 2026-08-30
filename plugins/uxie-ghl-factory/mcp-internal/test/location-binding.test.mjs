@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseAllowedLocations, classifyCall, checkLocationBinding, locationPositions } from '../core/location-binding.mjs';
-import { TOOLS } from '../core/tools.mjs';
+import { TOOLS, registerTools } from '../core/tools.mjs';
 import { CODES } from '../core/errors.mjs';
 
 const PERMITTED = 'LOCPERMITTED0000001';
@@ -238,4 +238,71 @@ test('auth_status reports the binding as a COUNT, never the ids', async () => {
   assert.equal(s.allowedLocations, 1);
   assert.ok(!JSON.stringify(s).includes(PERMITTED), 'ids must not be echoed');
   assert.equal(authStatus({ tokenFile: '/nonexistent', allowedLocations: null }).allowedLocations, null);
+});
+
+// The two source-grep tests above catch outright deletion of the wiring, but they say nothing
+// about ORDER or actual effect: `assert.match(src, /checkLocationBinding/)` is satisfied even if
+// the guard sits AFTER the handler in the `??` chain, or in a branch that never runs. These two
+// drive registerTools end-to-end over a real McpServer/Client pair (the style already used in
+// test/raw-request-storage-url.test.mjs) and prove the handler itself never executes on a refusal.
+import { McpServer as LB_McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { Client as LB_Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport as LB_InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+
+async function withLbClient(deps, fn) {
+  const server = new LB_McpServer({ name: 'test-server', version: '0.0.0' });
+  const client = new LB_Client({ name: 'test-client', version: '0.0.0' });
+  const [clientTransport, serverTransport] = LB_InMemoryTransport.createLinkedPair();
+  registerTools(server, deps, TOOLS.filter((t) => t.name === 'raw_request'));
+  await server.connect(serverTransport);
+  await client.connect(clientTransport);
+  try { return await fn(client); } finally { await client.close(); await server.close(); }
+}
+
+test('registerTools refuses an unbound write BEFORE the handler runs, not after', async () => {
+  const gwCalls = [];
+  const deps = {
+    state: { allowedLocations: null },
+    // If the handler ran, it would call this to get a gateway and then call() through it.
+    // Throwing here turns "the handler ran anyway" into a loud, unambiguous test failure
+    // instead of a silently-swallowed side effect.
+    makeGw: () => { gwCalls.push('makeGw'); throw new Error('the handler ran — the guard did not block it first'); },
+  };
+  await withLbClient(deps, async (client) => {
+    const result = await client.callTool({
+      name: 'raw_request',
+      arguments: { locationId: PERMITTED, method: 'PUT', path: '/workflow/whatever/does-not-matter', confirm: true },
+    });
+    // If checkLocationBinding ran AFTER the handler (or not at all and the handler's own
+    // makeGw() throw propagated), the SDK catches that exception and reports isError:true —
+    // so isError being unset is itself part of the proof the handler never ran.
+    assert.equal(result.isError, undefined, 'the handler must never execute on an unbound write — no exception should surface');
+    const contract = JSON.parse(result.content[0].text);
+    assert.equal(contract.ok, false);
+    assert.equal(contract.code, CODES.LOCATION_UNBOUND);
+    assert.equal(gwCalls.length, 0, 'makeGw (and therefore the handler body) must never be invoked when the guard refuses');
+  });
+});
+
+test('registerTools lets a bound write reach the handler', async () => {
+  const gwCalls = [];
+  const deps = {
+    state: { allowedLocations: new Set([PERMITTED]) },
+    makeGw: () => ({
+      call: async (method, path, body) => {
+        gwCalls.push({ method, path, body });
+        return { status: 200, ok: true, json: { done: true } };
+      },
+    }),
+  };
+  await withLbClient(deps, async (client) => {
+    const result = await client.callTool({
+      name: 'raw_request',
+      arguments: { locationId: PERMITTED, method: 'PUT', path: '/workflow/oauth2/update-token', confirm: true, body: { x: 1 } },
+    });
+    assert.equal(result.isError, undefined);
+    const contract = JSON.parse(result.content[0].text);
+    assert.equal(contract.ok, true, JSON.stringify(contract));
+    assert.equal(gwCalls.length, 1, 'a bound registration must actually reach the handler and call through the gateway');
+  });
 });
