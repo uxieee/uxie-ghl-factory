@@ -111,7 +111,7 @@ test('real MCP tools/call sanitizes secret unknown keys and rejects all unknown 
 test('stdio.mjs boots and stays alive (real process, not a mock)', async () => {
   const child = spawn(process.execPath, [resolve(HERE, '../stdio.mjs')], {
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: { ...process.env, GHL_TOK_FILE: '/nonexistent/tok.txt' },
+    env: { ...process.env, GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt' },
   });
   let stderr = '';
   child.stderr.on('data', (d) => { stderr += d; });

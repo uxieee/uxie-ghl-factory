@@ -44,7 +44,7 @@ test('unbound: reads pass, writes refuse with the binding command', () => {
   assert.equal(checkLocationBinding({ tool: tool('get_workflow'), args: { locationId: PERMITTED }, allowed: null }), null);
   const r = checkLocationBinding({ tool: tool('build_workflow'), args: { locationId: PERMITTED }, allowed: null });
   assert.equal(r.code, CODES.LOCATION_UNBOUND);
-  assert.match(r.remediation, /GHL_LOCATIONS/);
+  assert.match(r.remediation, /GHL_INTERNAL_LOCATIONS/);
   assert.match(r.remediation, new RegExp(PERMITTED), 'the refusal must name the attempted location so it is one copy-paste to fix');
 });
 
@@ -250,12 +250,12 @@ test('rule 3: an over-long array at a matched key reports a cap hit, never a loc
 
 import { readFileSync as rfs } from 'node:fs';
 
-test('the full entry point parses GHL_LOCATIONS into state', () => {
+test('the full entry point parses GHL_INTERNAL_LOCATIONS into state', () => {
   // stdio-audit.mjs is deliberately excluded — see Step 3.
   for (const entry of ['../stdio.mjs']) {
     const src = rfs(new URL(entry, import.meta.url), 'utf8');
     assert.match(src, /allowedLocations/, `${entry} must put allowedLocations on state`);
-    assert.match(src, /GHL_LOCATIONS/, `${entry} must read GHL_LOCATIONS`);
+    assert.match(src, /GHL_INTERNAL_LOCATIONS/, `${entry} must read GHL_INTERNAL_LOCATIONS`);
   }
 });
 

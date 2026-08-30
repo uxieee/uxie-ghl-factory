@@ -343,7 +343,7 @@ async function withChildClient(entry, { env = {}, name = 'audit-child' } = {}) {
   const transport = new StdioClientTransport({
     command: process.execPath,
     args: [entry],
-    env: { ...process.env, GHL_TOK_FILE: '/nonexistent/tok.txt', ...env },
+    env: { ...process.env, GHL_INTERNAL_TOK_FILE: '/nonexistent/tok.txt', ...env },
     stderr: 'pipe',
   });
   let stderr = '';
@@ -491,10 +491,19 @@ test('stdio-audit.mjs always registers toolsForProfile("audit") and never the fu
 test('stdio-audit.mjs reads no environment variable that could switch its profile', () => {
   const code = auditEntrySource();
   const referenced = [...code.matchAll(/process\.env\.([A-Za-z_][A-Za-z0-9_]*)/g)].map((match) => match[1]);
+  // Two names are legal, and only two: GHL_INTERNAL_TOK_FILE (the credential file path,
+  // read as a VALUE) and GHL_TOK_FILE (the renamed-away name from 0.43.0, whose PRESENCE ONLY
+  // is checked so the migration guard in core/auth.mjs can refuse a mismigrated registration
+  // instead of silently falling back to the shared default token file). Neither can select a
+  // different tool profile — that is chosen exactly once, from the literal 'audit', by the
+  // `toolsForProfile` assertion above; this test's own invariant is untouched by which
+  // credential-file name a line mentions.
+  const ALLOWED_ENV_NAMES = new Set(['GHL_INTERNAL_TOK_FILE', 'GHL_TOK_FILE']);
   for (const name of referenced) {
-    assert.equal(
-      name, 'GHL_TOK_FILE',
-      `stdio-audit.mjs reads process.env.${name}; only the credential file path may come from the environment`,
+    assert.ok(
+      ALLOWED_ENV_NAMES.has(name),
+      `stdio-audit.mjs reads process.env.${name}; only the credential file path (and its `
+      + 'legacy name, presence-only) may come from the environment',
     );
   }
   assert.equal(
