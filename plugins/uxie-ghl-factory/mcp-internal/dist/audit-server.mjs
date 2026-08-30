@@ -71837,6 +71837,17 @@ var CODES = Object.freeze({
   // re-authentication cycle on something re-authenticating cannot fix.
   ACCESS_DENIED: "ACCESS_DENIED",
   VALIDATION_FAILED: "VALIDATION_FAILED",
+  // The registration declares no permitted locations, and this call would write. Reads are
+  // unaffected: refusing everything would break every registration on upgrade, and refusing
+  // nothing would ship the guard to nobody.
+  LOCATION_UNBOUND: "LOCATION_UNBOUND",
+  // The registration is bound, and this call targets an account outside its set.
+  LOCATION_FORBIDDEN: "LOCATION_FORBIDDEN",
+  // The path resolves to something other than what was written (dot segments, or a different
+  // origin). Refused rather than reasoned about.
+  LOCATION_PATH_REWRITE: "LOCATION_PATH_REWRITE",
+  // An agency-wide write that no per-location binding can sanction.
+  LOCATION_DENYLISTED: "LOCATION_DENYLISTED",
   RATE_LIMITED: "RATE_LIMITED",
   ENGINE_ABORT: "ENGINE_ABORT",
   // Audit-rail policy codes. They are separate from the codes above because an
