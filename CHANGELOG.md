@@ -18,7 +18,10 @@ folder's `GHL_INTERNAL_LOCATIONS` binding can be discovered from its own agency 
 instead of being typed by hand. Nothing set that binding before this: it was populated by hand
 across 8 registrations, and that hand pass immediately found two that had been silently wrong.
 The three modules behind it stay pure and unbundled (`mcp-internal/scripts/`, never imported by
-`core/` or either entry point) — `dist/` does not change in this release.
+`core/` or either entry point) — `dist/` does not change in this release. The three modes live
+inside this command rather than a new skill because the credential and the binding are the SAME
+object in `~/.claude.json` — `claude mcp add` rewrites it wholesale, so a second owner writing to
+it independently would silently clobber the first's write.
 
 ### Added
 
@@ -52,12 +55,6 @@ The three modules behind it stay pure and unbundled (`mcp-internal/scripts/`, ne
   scheduled or batch sweep across registrations.
 - Sub-account creation and credential renewal remain untouched; this release only reconciles a
   binding against accounts and credentials that already exist.
-
-### Design note
-
-The three modes live inside `internal-connect` rather than a new skill because the credential and
-the binding are the SAME object in `~/.claude.json` — `claude mcp add` rewrites it wholesale, so a
-second owner writing to it independently would silently clobber the first's write.
 
 ## [0.43.0] — 2026-08-31
 
