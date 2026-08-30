@@ -223,7 +223,7 @@ to this repo, a report, or a commit message.
    The first time Claude Code connects a project server it may show a **workspace-trust dialog**
    — the user accepts it once per folder. Register it **unbound**: a registration that omits
    `GHL_INTERNAL_LOCATIONS` keeps every read available and refuses every write with
-   `LOCATION_UNBOUND`, which is the correct state until step 6 has been confirmed. Reads are what
+   `LOCATION_UNBOUND`, which is the correct state until step 5 has been confirmed. Reads are what
    discovery needs, so nothing is blocked by waiting.
 
    **For a read-only audit project**, register the audit profile INSTEAD (a different server
@@ -389,8 +389,8 @@ discovery failed. A silent skip reads as a pass.
 of the folder being checked. One call per folder, paced.
 
 ```bash
-TOK_FILE=<folder>/.ghl/uxie-ghl-internal-mcp-tok.txt \
-COMPANY_ID=<from that folder's .ghl/agency.json> \
+TOK_FILE="<folder>/.ghl/uxie-ghl-internal-mcp-tok.txt" \
+COMPANY_ID="<from that folder's .ghl/agency.json>" \
 OUT=/tmp/ghl-discovery.json \
 node --input-type=module <<'NODE'
 import { readFileSync, writeFileSync, rmSync } from 'node:fs';
@@ -500,7 +500,7 @@ by appearance.
 or removed with its account name. Wait for an explicit yes. Then, and only then:
 
 ```bash
-FOLDER=<exact project key> \
+FOLDER="<exact project key>" \
 SERVER=uxie-ghl-internal-mcp \
 IDS="<the confirmed comma-separated list>" \
 node --input-type=module <<'NODE'
