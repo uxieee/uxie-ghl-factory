@@ -59,7 +59,7 @@ function spyDeps() {
   return {
     sent,
     deps: {
-      state: {},
+      state: { allowedLocations: new Set([LOC]) },
       makeGw: () => ({
         call: async (method, path, body) => {
           sent.push({ method, path, body });

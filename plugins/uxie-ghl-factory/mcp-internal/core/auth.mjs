@@ -93,9 +93,20 @@ export function authStatus(state) {
       jwtClaims: { present: true, ...s },
       tokenIdClaims: tokenId,
       engine: state.engineVersion ?? 'unknown',
+      // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
+      // not which accounts it may reach.
+      allowedLocations: state.allowedLocations ? state.allowedLocations.size : null,
     };
   } catch (e) {
-    return { tokenFile: state.tokenFile, jwtClaims: { present: false }, error: { code: e.code, detail: e.detail, remediation: e.remediation }, engine: state.engineVersion ?? 'unknown' };
+    return {
+      tokenFile: state.tokenFile,
+      jwtClaims: { present: false },
+      error: { code: e.code, detail: e.detail, remediation: e.remediation },
+      engine: state.engineVersion ?? 'unknown',
+      // A COUNT, never the ids: an operator needs to know whether this registration is guarded,
+      // not which accounts it may reach.
+      allowedLocations: state.allowedLocations ? state.allowedLocations.size : null,
+    };
   }
 }
 

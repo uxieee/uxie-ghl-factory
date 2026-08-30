@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { ok, fail, fromHttp, CODES, containsSecrets } from './errors.mjs';
 import { authStatus, DEFAULT_TOKEN_FILE, readCredentials } from './auth.mjs';
+import { checkLocationBinding } from './location-binding.mjs';
 import { makeAuditCircuit, makeAuditGateway, makeAuditLimiter } from './audit-gateway.mjs';
 import { makeGateway } from './gateway.mjs';
 import { collectWorkflowRuntimeWindow, validateRuntimeWindowInput } from './workflow-runtime-window.mjs';
@@ -4918,7 +4919,9 @@ export function registerTools(server, deps, tools = TOOLS) {
     server.registerTool(t.name, { description: t.description, inputSchema: t.inputSchema },
       async (args) => {
         const safeArgs = args ?? {};
-        const result = validateRegisteredArgs(t, safeArgs) ?? await t.handler(safeArgs, deps);
+        const result = validateRegisteredArgs(t, safeArgs)
+          ?? checkLocationBinding({ tool: t, args: safeArgs, allowed: deps.state?.allowedLocations ?? null, endpoints: endpoints() })
+          ?? await t.handler(safeArgs, deps);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       });
   }
