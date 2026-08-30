@@ -11,6 +11,46 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.42.0] — 2026-08-30
+
+Location binding. One GHL login serves many client sub-accounts and the JWT carries no location
+claim, so the credential alone cannot tell them apart: 39 of the internal server's 45 tools take
+`locationId` as a free string, and 17 mutate a live account. Nothing stood between one client's
+account and another's beyond the caller not making a mistake.
+
+### Added
+
+- **`GHL_LOCATIONS`** — a per-registration env var declaring the comma-separated location ids a
+  server instance may act on, enforced at the tool choke point (`core/location-binding.mjs`) so
+  every one of the 39 location-bearing tools is covered from one place rather than 39 call sites.
+  Unset registrations keep every read available and refuse every write with `LOCATION_UNBOUND`,
+  whose remediation names the exact `claude mcp add` command to bind it — existing registrations
+  upgrade without losing read access, and a write against an unbound registration fails loud
+  rather than landing on whichever account the token happens to reach. A bound registration that
+  targets an account outside its set is refused with `LOCATION_FORBIDDEN`.
+- **`raw_request` gets its own path-level checks**, since it is the one tool whose target isn't a
+  typed `locationId` argument: `LOCATION_PATH_REWRITE` refuses a path containing a relative (`.`
+  or `..`) segment or one that resolves off the expected origin, rather than reasoning about where
+  it would actually land; `LOCATION_DENYLISTED` refuses the one endpoint that writes settings
+  across every location under the agency, because no per-location allowlist can sanction it. The
+  request body is scanned for `locationId`/`location_id` keys (string or array-of-string values
+  only; any other shape at that key is refused) up to a bounded depth/node budget, so a nested or
+  array-shaped foreign location can't slip past a check that only looked at the top level.
+- **`core/instructions.mjs`** now tells the agent that `LOCATION_UNBOUND` and `LOCATION_FORBIDDEN`
+  are not credential problems and that re-capturing a token will not help — without it, a refusal
+  reads as an auth failure and burns a re-capture loop against a guard that is working correctly.
+- `commands/internal-connect.md` and `mcp-internal/README.md` document `GHL_LOCATIONS` beside
+  `GHL_TOK_FILE`. The audit registration is unaffected and unchanged — it is structurally
+  read-only and its entry point reads no such variable.
+
+### Known limits
+
+- **The guard covers the MCP server only.** Three standalone CLI scripts reach the same accounts
+  with a location id passed directly, entirely outside this server and its checks:
+  `skills/create-ghl-workflow/scripts/build.mjs`, `skills/ghl-workflow-fast-forward/scripts/ff.mjs`,
+  and `skills/ghl-memberships/scripts/cli-gateway.mjs`. A documented one-command path around the
+  guard, available to the same agent. Closing it is separate, unstarted work.
+
 ## [0.41.0] — 2026-08-29
 
 Phase-5 plan 6 — **surfaces and lifecycle**. Endpoint and entity knowledge becomes DATA, and the

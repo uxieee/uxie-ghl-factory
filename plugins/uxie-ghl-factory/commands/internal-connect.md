@@ -64,12 +64,15 @@ would ever reach the transcript.
    ```bash
    claude mcp add --transport stdio --scope local \
      -e GHL_TOK_FILE="$(pwd)/.ghl/uxie-ghl-internal-mcp-tok.txt" \
+     -e GHL_LOCATIONS="<id>[,<id>...]" \
      uxie-ghl-internal-mcp \
      -- node "$HOME/.uxie-ghl-internal-mcp/launch.mjs"
    ```
    `--scope local` keeps it private + project-specific (in `~/.claude.json` under this folder).
    The first time Claude Code connects a project server it may show a **workspace-trust dialog**
-   — the user accepts it once per folder.
+   — the user accepts it once per folder. A registration that omits `GHL_LOCATIONS` keeps every
+   read available but refuses every write, and the refusal names the exact `claude mcp add`
+   command to bind it.
 
    **For a read-only audit project**, register the audit profile INSTEAD (a different server
    name, so the two never collide in one folder):
