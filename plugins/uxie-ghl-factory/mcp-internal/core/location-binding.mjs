@@ -37,6 +37,15 @@ const bindCommand = (locationId) =>
   + `  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="${locationId}" ... `
   + '(keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)';
 
+// 0.43.0 hard rename. GHL_LOCATIONS is presence-checked ONLY (never read as a value) by the
+// caller that computes legacyLocationsEnvSet — see stdio.mjs. Mirrors LEGACY_TOKEN_FILE_ENV's
+// remediation in core/auth.mjs.
+const LEGACY_LOCATIONS_REMEDIATION = 'Rename the env var on this registration, then retry — same '
+  + 'value, new name:\n'
+  + '  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="<same value you '
+  + 'had after -e GHL_LOCATIONS=...>" ... (GHL_INTERNAL_LOCATIONS replaces GHL_LOCATIONS; keep '
+  + 'the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)';
+
 const DEFAULT_BASE = 'https://backend.leadconnectorhq.com';
 const AI_BASE = 'https://services.leadconnectorhq.com';
 // A `.` or `..` SEGMENT, raw or percent-encoded. Tested against the raw argument, never against
@@ -124,9 +133,25 @@ function scanBodyLocations(value, allowed) {
   return { withinCaps, bad };
 }
 
-export function checkLocationBinding({ tool, args, allowed, ...opts }) {
+export function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = false, ...opts }) {
   const kind = classifyCall(tool, args);
   if (kind === 'unguarded') return null;
+
+  // Checked BEFORE the read/write split below, on every guarded call: an unbound registration's
+  // READS pass silently (see the `allowed === null` branch), so a registration that migrated
+  // GHL_INTERNAL_TOK_FILE but left GHL_LOCATIONS stale would go on refusing writes (already
+  // fail-safe) while quietly WIDENING every read from its bound set to the credential's full
+  // reach — the exact silent-widening class LEGACY_TOKEN_FILE_ENV exists to catch on the
+  // token side. Refused for both reads and writes rather than letting either slip through.
+  if (legacyLocationsEnvSet) {
+    return fail(
+      CODES.LEGACY_LOCATIONS_ENV,
+      'GHL_LOCATIONS is set but GHL_INTERNAL_LOCATIONS is not. GHL_LOCATIONS no longer does '
+      + 'anything (renamed in 0.43.0), so this registration would silently widen from its bound '
+      + 'set to every location this credential reaches on reads, while still refusing writes.',
+      LEGACY_LOCATIONS_REMEDIATION,
+    );
+  }
 
   const declared = args?.locationId;
   // Absence is not a refusal: search_merge_tags declares locationId optional and makes no gateway

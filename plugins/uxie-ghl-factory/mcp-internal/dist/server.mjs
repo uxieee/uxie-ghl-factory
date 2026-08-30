@@ -71853,6 +71853,13 @@ var CODES = Object.freeze({
   LOCATION_PATH_REWRITE: "LOCATION_PATH_REWRITE",
   // An agency-wide write that no per-location binding can sanction.
   LOCATION_DENYLISTED: "LOCATION_DENYLISTED",
+  // 0.43.0 hard-renamed GHL_LOCATIONS -> GHL_INTERNAL_LOCATIONS, mirroring LEGACY_TOKEN_FILE_ENV
+  // above. "Unbound fails safe" is only true of writes: checkLocationBinding returns null
+  // (allowed) for an unbound registration's READS. A registration that migrates the token file
+  // but leaves GHL_LOCATIONS stale would keep refusing writes while silently WIDENING reads from
+  // its bound set to every location the credential reaches — refused instead; see
+  // core/location-binding.mjs.
+  LEGACY_LOCATIONS_ENV: "LEGACY_LOCATIONS_ENV",
   RATE_LIMITED: "RATE_LIMITED",
   ENGINE_ABORT: "ENGINE_ABORT",
   // Audit-rail policy codes. They are separate from the codes above because an
@@ -72208,6 +72215,7 @@ function classifyCall(tool, args) {
 }
 var bindCommand = (locationId) => `Bind this registration to the accounts it may touch, then retry:
   claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="${locationId}" ... (keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)`;
+var LEGACY_LOCATIONS_REMEDIATION = 'Rename the env var on this registration, then retry \u2014 same value, new name:\n  claude mcp add --transport stdio --scope local -e GHL_INTERNAL_LOCATIONS="<same value you had after -e GHL_LOCATIONS=...>" ... (GHL_INTERNAL_LOCATIONS replaces GHL_LOCATIONS; keep the existing -e GHL_INTERNAL_TOK_FILE=... and the same server name)';
 var DEFAULT_BASE = "https://backend.leadconnectorhq.com";
 var AI_BASE = "https://services.leadconnectorhq.com";
 var DOT_SEGMENT = /(^|\/)(\.|%2e|\.\.|%2e%2e|\.%2e|%2e\.)(\/|$)/i;
@@ -72279,9 +72287,16 @@ function scanBodyLocations(value, allowed) {
   const withinCaps = walk2(value, 0);
   return { withinCaps, bad };
 }
-function checkLocationBinding({ tool, args, allowed, ...opts }) {
+function checkLocationBinding({ tool, args, allowed, legacyLocationsEnvSet = false, ...opts }) {
   const kind = classifyCall(tool, args);
   if (kind === "unguarded") return null;
+  if (legacyLocationsEnvSet) {
+    return fail(
+      CODES.LEGACY_LOCATIONS_ENV,
+      "GHL_LOCATIONS is set but GHL_INTERNAL_LOCATIONS is not. GHL_LOCATIONS no longer does anything (renamed in 0.43.0), so this registration would silently widen from its bound set to every location this credential reaches on reads, while still refusing writes.",
+      LEGACY_LOCATIONS_REMEDIATION
+    );
+  }
   const declared = args?.locationId;
   const hasDeclared = typeof declared === "string" && declared.length > 0;
   if (allowed === null) {
@@ -148872,6 +148887,7 @@ var TOOLS2 = [
       }
       readCredentials({ tokenFile: path });
       state2.tokenFile = path;
+      state2.legacyTokenFileEnv = false;
       return ok(authStatus(state2));
     }, args, { credentialCode: CODES.TOKEN_MISSING })
   },
@@ -152300,7 +152316,7 @@ function registerTools(server2, deps, tools = TOOLS2) {
       { description: t.description, inputSchema: t.inputSchema },
       async (args) => {
         const safeArgs = args ?? {};
-        const result = validateRegisteredArgs(t, safeArgs) ?? checkLocationBinding({ tool: t, args: safeArgs, allowed: deps.state?.allowedLocations ?? null, endpoints: endpoints() }) ?? await t.handler(safeArgs, deps);
+        const result = validateRegisteredArgs(t, safeArgs) ?? checkLocationBinding({ tool: t, args: safeArgs, allowed: deps.state?.allowedLocations ?? null, legacyLocationsEnvSet: deps.state?.legacyLocationsEnv ?? false, endpoints: endpoints() }) ?? await t.handler(safeArgs, deps);
         return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
       }
     );
@@ -152365,7 +152381,8 @@ var state = {
   tokenFile: process.env.GHL_INTERNAL_TOK_FILE ?? DEFAULT_TOKEN_FILE,
   legacyTokenFileEnv: Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE,
   engineVersion: pkgVersion,
-  allowedLocations: parseAllowedLocations(process.env.GHL_INTERNAL_LOCATIONS)
+  allowedLocations: parseAllowedLocations(process.env.GHL_INTERNAL_LOCATIONS),
+  legacyLocationsEnv: Boolean(process.env.GHL_LOCATIONS) && !process.env.GHL_INTERNAL_LOCATIONS
 };
 var makeGw = makeGatewayFactory({ state });
 var server = new McpServer({ name: "uxie-ghl-internal-mcp", version: pkgVersion }, { instructions: FULL_INSTRUCTIONS });

@@ -1156,6 +1156,11 @@ export const TOOLS = [
       // AuthError, which guard maps to a top-level failure (not ok:true).
       readCredentials({ tokenFile: path });
       state.tokenFile = path;
+      // An explicit path is the operator taking control back — there is nothing left for the
+      // stale-env-var guard to protect against once they have named the file themselves, so
+      // clear it here rather than leaving every later call (including this tool's own
+      // authStatus below) refuse against an env var the operator just worked around.
+      state.legacyTokenFileEnv = false;
       return ok(authStatus(state));
     }, args, { credentialCode: CODES.TOKEN_MISSING }),
   },
@@ -4920,7 +4925,7 @@ export function registerTools(server, deps, tools = TOOLS) {
       async (args) => {
         const safeArgs = args ?? {};
         const result = validateRegisteredArgs(t, safeArgs)
-          ?? checkLocationBinding({ tool: t, args: safeArgs, allowed: deps.state?.allowedLocations ?? null, endpoints: endpoints() })
+          ?? checkLocationBinding({ tool: t, args: safeArgs, allowed: deps.state?.allowedLocations ?? null, legacyLocationsEnvSet: deps.state?.legacyLocationsEnv ?? false, endpoints: endpoints() })
           ?? await t.handler(safeArgs, deps);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       });

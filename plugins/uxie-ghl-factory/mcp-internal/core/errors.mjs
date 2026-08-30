@@ -34,6 +34,13 @@ export const CODES = Object.freeze({
   LOCATION_PATH_REWRITE: 'LOCATION_PATH_REWRITE',
   // An agency-wide write that no per-location binding can sanction.
   LOCATION_DENYLISTED: 'LOCATION_DENYLISTED',
+  // 0.43.0 hard-renamed GHL_LOCATIONS -> GHL_INTERNAL_LOCATIONS, mirroring LEGACY_TOKEN_FILE_ENV
+  // above. "Unbound fails safe" is only true of writes: checkLocationBinding returns null
+  // (allowed) for an unbound registration's READS. A registration that migrates the token file
+  // but leaves GHL_LOCATIONS stale would keep refusing writes while silently WIDENING reads from
+  // its bound set to every location the credential reaches — refused instead; see
+  // core/location-binding.mjs.
+  LEGACY_LOCATIONS_ENV: 'LEGACY_LOCATIONS_ENV',
   RATE_LIMITED: 'RATE_LIMITED',
   ENGINE_ABORT: 'ENGINE_ABORT',
 
