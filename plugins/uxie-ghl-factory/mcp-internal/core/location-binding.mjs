@@ -110,6 +110,9 @@ function scanBodyLocations(value, allowed) {
     if (!v || typeof v !== 'object') return true;
     for (const [k, x] of Object.entries(v)) {
       if (k === 'locationId' || k === 'location_id') {
+        // The array branch below inspects x's elements without recursing through walk() -- count
+        // them against the same node budget here, or an array at a matched key scans uncapped.
+        if (Array.isArray(x) && (nodes += x.length) > MAX_NODES) return false;
         const values = typeof x === 'string' ? [x] : (Array.isArray(x) && x.every((s) => typeof s === 'string') ? x : null);
         if (values === null) { bad.push({ unusable: true }); return true; }
         for (const id of values) if (!allowed.has(id)) { bad.push({ id }); return true; }

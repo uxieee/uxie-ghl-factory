@@ -179,9 +179,20 @@ test('rule 3: a permitted location in the body passes', () => {
 });
 
 test('rule 3: non-string values at a matched key are refused, not ignored', () => {
-  for (const value of [[FOREIGN], { $ne: null }, 42]) {
+  // [FOREIGN] is a valid string-ARRAY shape, so it is refused as a FOREIGN ID (the
+  // `bad.push({id})` branch). `{ $ne: null }` and `42` are neither a string nor an all-string
+  // array, so they are refused as an UNUSABLE SHAPE (the `bad.push({unusable:true})` branch).
+  // Both branches return the same CODES.LOCATION_FORBIDDEN -- the code alone does not distinguish
+  // "wrong account" from "wrong shape", only `detail` does, so both are asserted here.
+  const foreignArray = checkLocationBinding(raw({ method: 'POST', body: { locationId: [FOREIGN] } }));
+  assert.equal(foreignArray.code, CODES.LOCATION_FORBIDDEN);
+  assert.match(foreignArray.detail, new RegExp(FOREIGN), 'must name the foreign id, not just refuse');
+
+  for (const value of [{ $ne: null }, 42]) {
     const r = checkLocationBinding(raw({ method: 'POST', body: { locationId: value } }));
-    assert.ok(r, `locationId: ${JSON.stringify(value)} must not pass silently`);
+    assert.equal(r.code, CODES.LOCATION_FORBIDDEN, `locationId: ${JSON.stringify(value)} must not pass silently`);
+    assert.match(r.detail, /not a string or list of strings/,
+      `locationId: ${JSON.stringify(value)} must be refused as an unusable shape, not a foreign id`);
   }
 });
 
@@ -193,5 +204,14 @@ test('rule 3: an over-deep body reports a cap hit, never a location violation', 
   let deep = { locationId: PERMITTED };
   for (let i = 0; i < 40; i++) deep = { nested: deep };
   const r = checkLocationBinding(raw({ method: 'POST', body: deep }));
+  assert.equal(r?.code, CODES.VALIDATION_FAILED, 'a cap hit is a cap hit, not a forbidden location');
+});
+
+test('rule 3: an over-long array at a matched key reports a cap hit, never a location violation', () => {
+  // The array branch inspects x's elements without recursing through walk(), so those elements
+  // must be counted against the same MAX_NODES budget separately -- otherwise
+  // { locationId: Array(5_000_000).fill(PERMITTED) } scans uncapped. 10,001 permitted strings
+  // trips the 10,000-node budget without slowing the suite down.
+  const r = checkLocationBinding(raw({ method: 'POST', body: { locationId: Array(10_001).fill(PERMITTED) } }));
   assert.equal(r?.code, CODES.VALIDATION_FAILED, 'a cap hit is a cap hit, not a forbidden location');
 });
