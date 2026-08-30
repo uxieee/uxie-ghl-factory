@@ -200,6 +200,10 @@ machine-branchable:
 | `CONFIRM_REQUIRED` | a gated operation needs `confirm: true` |
 | `PREVIEW_STALE` | fast-forward preview token is missing or no longer matches fresh parked state |
 | `ENGINE_ABORT` | engine threw — usually a spec or dependency problem |
+| `LOCATION_UNBOUND` | this registration declares no permitted locations (`GHL_LOCATIONS` unset) and the call would write — not a credential problem, see **Location binding** |
+| `LOCATION_FORBIDDEN` | the call named an account outside this registration's permitted set, in the `locationId` argument, a `raw_request` path/query segment, or a `raw_request` body — not a credential problem, see **Location binding** |
+| `LOCATION_PATH_REWRITE` | a `raw_request` path contains a relative (`.`/`..`) segment or resolves to a different origin; refused rather than reasoned about |
+| `LOCATION_DENYLISTED` | a `raw_request` targets an agency-wide write that no per-location binding can sanction |
 | `HTTP_<n>` | any other upstream status |
 
 ## Audit profile
