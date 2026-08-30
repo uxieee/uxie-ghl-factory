@@ -29,12 +29,15 @@ re-capturing the token will not help.
 host:"ai" is ONE decision, not two: it switches the origin to services.leadconnectorhq.com AND
 attaches the second credential (token-id). Do not reach for it just to change host.
 
-AN EXPIRED CREDENTIAL IS YOURS TO FIX. The JWT lasts about an hour, so it WILL expire mid-task.
-On TOKEN_EXPIRED or TOKEN_MISSING, invoke the uxie-ghl-factory:internal-connect skill yourself,
-then retry the call that failed. Do not stop and do not ask -- the skill drives the browser, writes
-a fresh token to this project, and the server re-reads that file on every call, so nothing needs
-restarting. The user only has to act if the browser session itself has lapsed. Bound it to ONE
-re-capture per failure: if the retry fails the same way, stop and report it.
+CREDENTIALS RENEW THEMSELVES WHILE YOU WORK. The JWT lasts about an hour; when a call finds it
+within 5 minutes of expiry the server refreshes BOTH credentials in the token file before sending
+the call -- no browser, no restart, nothing for you to do. You will only see TOKEN_EXPIRED when the
+token died before any call could renew it (the server sat idle past the hour), and TOKEN_MISSING
+when there is no token file at all. Both are still yours to fix: invoke the
+uxie-ghl-factory:internal-connect skill yourself, then retry the call that failed. Do not stop and
+do not ask -- the skill drives the browser, writes a fresh token to this project, and the server
+re-reads that file on every call. The user only has to act if the browser session itself has
+lapsed. Bound it to ONE re-capture per failure: if the retry fails the same way, stop and report it.
 
 A 200 IS NOT PROOF the write applied. GHL stores unrecognised keys verbatim, and at least one
 search endpoint returns 200 with a plausible WRONG row for a filter it does not understand. Read

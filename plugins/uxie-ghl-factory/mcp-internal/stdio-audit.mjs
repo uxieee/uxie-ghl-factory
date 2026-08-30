@@ -18,6 +18,7 @@ import { AUDIT_INSTRUCTIONS } from './core/instructions.mjs';
 import { readOnlyGateway } from './core/audit-readonly.mjs';
 import { makeGateway } from './core/gateway.mjs';
 import { DEFAULT_TOKEN_FILE } from './core/auth.mjs';
+import { makeRenewer, autoRenewEnabled } from './core/token-renewal.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // Injected at bundle time via esbuild --define. The bundle has no sibling package.json, so
@@ -40,6 +41,11 @@ const state = {
   legacyTokenFileEnv: Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE,
   engineVersion: pkgVersion,
 };
+// Auto-renewal (0.45.0) applies to this profile too. It does not widen read-only-ness: the
+// renewer's traffic is a GET to GHL's own login endpoint and a POST to Google's identitytoolkit,
+// and its only write is the LOCAL token file. Long audit sweeps are exactly where an hourly
+// expiry used to bite. GHL_INTERNAL_AUTO_RENEW=0 disables it.
+state.renewer = autoRenewEnabled(process.env) ? makeRenewer({ getTokenFile: () => state.tokenFile }) : null;
 
 // ONE limiter and ONE circuit for the whole process, handed to every composite. Per-call
 // pacing would let N surfaces each pace politely while the ACCOUNT sees N times the rate,

@@ -134,11 +134,10 @@ async function loadPlaywright() {
 //
 // An absent token-id omits the LINE. Writing `token-id: ` with an empty value would match the
 // reader's regex group as empty and hand the AI rail a blank credential.
-export function formatTokenFile({ bearer, tokenId }) {
-  const lines = [`Bearer ${bearer}`];
-  if (tokenId) lines.push(`token-id: ${tokenId}`);
-  return `${lines.join('\n')}\n`;
-}
+// 0.45.0: the formatter moved to core/token-renewal.mjs, which is the SECOND writer of this file
+// (auto-renewal). One definition, re-exported here, so the two writers cannot drift apart.
+import { formatTokenFile } from '../core/token-renewal.mjs';
+export { formatTokenFile };
 
 const claimNames = (jwt) => {
   const c = JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString());

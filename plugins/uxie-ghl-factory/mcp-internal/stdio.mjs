@@ -10,6 +10,7 @@ import { makeGatewayFactory, registerTools } from './core/tools.mjs';
 import { FULL_INSTRUCTIONS } from './core/instructions.mjs';
 import { DEFAULT_TOKEN_FILE } from './core/auth.mjs';
 import { parseAllowedLocations } from './core/location-binding.mjs';
+import { makeRenewer, autoRenewEnabled } from './core/token-renewal.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // The version is injected at bundle time via esbuild --define (see scripts/build.mjs).
@@ -37,6 +38,10 @@ const state = {
   allowedLocations: parseAllowedLocations(process.env.GHL_INTERNAL_LOCATIONS),
   legacyLocationsEnv: Boolean(process.env.GHL_LOCATIONS) && !process.env.GHL_INTERNAL_LOCATIONS,
 };
+// Auto-renewal (0.45.0): while a bearer is alive but within 5 minutes of expiry, the gateway
+// refreshes BOTH credentials in the token file before the call — no browser, no restart. Reads
+// state.tokenFile lazily so set_token_file keeps working. GHL_INTERNAL_AUTO_RENEW=0 disables it.
+state.renewer = autoRenewEnabled(process.env) ? makeRenewer({ getTokenFile: () => state.tokenFile }) : null;
 // Forwards EVERY option a tool passes. The previous `({ loc, rail }) => …` destructure
 // dropped the audit tools' `throttleMs: 0, jitterMs: 0`, so the gateway kept its own
 // 300-450ms delay while the shared audit limiter paced on top of it — the double-throttle

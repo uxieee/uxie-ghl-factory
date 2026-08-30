@@ -554,6 +554,13 @@ restarted yet; say so rather than reporting a failed write.
 
 ## Re-authorize on expiry (agent: do this automatically)
 
+**Since 0.45.0 this is the cold-start path only.** While a token is alive, the server renews both
+credentials itself within 5 minutes of expiry — `GET /oauth/2/login/current` for the bearer, a
+Firebase exchange for the `token-id` — and rewrites the token file with no browser. It cannot
+renew a token that has already expired (the endpoint answers `401 Invalid JWT`), so `TOKEN_EXPIRED`
+now means the server idled past the hour and the browser capture is genuinely required.
+`GHL_INTERNAL_AUTO_RENEW=0` on the registration turns renewal off.
+
 GHL JWTs last ~1 hour. **When any internal tool returns `TOKEN_EXPIRED` (or `TOKEN_MISSING`),
 re-run `connect`'s capture step (2) automatically** — write a fresh token to the SAME
 project file — then retry the tool. The server re-reads the file every call, so no restart or

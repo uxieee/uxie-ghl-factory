@@ -24,7 +24,19 @@ accepted as a tool argument, never logged, and never echoed in a response or err
   with `GHL_INTERNAL_TOK_FILE=<path>` or the `set_token_file` tool (a **path**, never a token — a
   JWT-looking value is rejected without echoing it back).
 - The file is re-read **on every call**, so re-capturing mid-session works with no restart.
-- JWTs last ~1 hour. On expiry you get `TOKEN_EXPIRED` — re-run `/uxie-ghl-factory:internal-connect`.
+- JWTs last ~1 hour, and **since 0.45.0 the server renews them itself.** When a call finds the
+  bearer alive but within 5 minutes of expiry, the gateway first calls GHL's own
+  `GET /oauth/2/login/current` with the current bearer (fresh 60-minute `authToken`), exchanges
+  the Firebase custom token it returns for a fresh `token-id` at Google's identitytoolkit, and
+  rewrites the token file atomically — both credentials, no browser, no restart. One in-flight
+  renewal is shared by concurrent calls and attempts are at least 60s apart (rapid repeats were
+  measured to log the browser profile out). `GHL_INTERNAL_AUTO_RENEW=0` disables it. A renewal
+  failure never fails the call; the call proceeds on the credentials it has.
+- `TOKEN_EXPIRED` therefore now means the token died **before any call could renew it** — a
+  server that idled past the hour. An expired bearer cannot refresh (measured: `401 Invalid JWT`),
+  so that case still needs `/uxie-ghl-factory:internal-connect`.
+- A renewal also records the agency's `companyId` in `agency.json` beside the token file if none
+  exists yet — the value `internal-connect`'s `bind`/`audit` modes need and cannot read from a JWT.
 - Capture is from the **AI Agents surface** (`app.gohighlevel.com`), which yields a Bearer
   **and** the `token-id` the AI tools need. **Live-proven (GROM AU, 2026-07-21):** that same
   Bearer also authenticates the workflow/backend surface (`list_workflows` → 45 workflows),

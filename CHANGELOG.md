@@ -11,6 +11,51 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.45.0] — 2026-08-31
+
+The hourly credential wall is gone for any session that is actually in use. The server renews
+BOTH credentials in the token file itself — no browser, no restart, no user action — and the
+browser capture becomes the cold-start path for a server that sat idle past the hour. Every
+mechanism here was measured live on 2026-08-31 before it was written down — 18 probes, each rule
+below attributed to the one that established it.
+
+### Added
+
+- **Auto-renewal in the gateway** (`core/token-renewal.mjs`, wired into both entry points). When a
+  call finds the bearer alive but within 5 minutes of expiry, the gateway first calls GHL's own
+  `GET /oauth/2/login/current` with the current bearer and takes the fresh 60-minute `authToken`,
+  exchanges the Firebase custom token in that same response for a fresh `token-id` at Google's
+  identitytoolkit (the app's public web key, read off the wire), rewrites the token file
+  atomically at 0600, re-reads it, and then sends the call it was asked for. One in-flight renewal
+  is shared by every concurrent caller and attempts are at least 60 seconds apart. A renewal
+  failure is logged to stderr — never stdout, the MCP transport — and the call proceeds on the
+  credentials it has. `GHL_INTERNAL_AUTO_RENEW=0` disables it.
+- **`agency.json` beside the token file**, written on a successful renewal when none exists: the
+  refresh response carries `companyId`, which is not a JWT claim and which `internal-connect`'s
+  `bind`/`audit` modes need for their online tier. Never overwrites a file `connect` captured.
+- 22 offline tests pin the rules that cost a probe each: `authToken` not `token` (the first JWT in
+  the body is a Firebase custom token and 401s as a bearer), the real Firebase key not
+  `body.apiKey` (GHL's own key, rejected by Google), renew only while the bearer is ALIVE (an
+  expired one 401s `Invalid JWT`), one shared in-flight refresh, back-off after failure, atomic
+  0600 writes that round-trip through `readCredentials`, and a partial renewal keeping the
+  existing `token-id`.
+
+### Changed
+
+- `formatTokenFile` moved to `core/token-renewal.mjs`; `scripts/capture-token.mjs` re-exports it,
+  so the two writers of the token file share one definition.
+- The shipped agent instructions and `internal-connect`'s re-authorize section now say what
+  `TOKEN_EXPIRED` means post-renewal: the server idled past the hour, and the browser is required.
+
+### Known limits
+
+- **The chain does not survive a >60-minute idle.** An expired bearer cannot refresh, so a server
+  that sat unused past expiry still needs the browser capture once. The refresh response also
+  carries a 30-day `refreshToken`; `POST /oauth/refresh` exists (401, not 404) but its contract is
+  not yet known — exchanging that token would make cold starts monthly. Not in this release.
+- Renewal keys off the bearer's own `exp`. A token-id that dies while the bearer is healthy also
+  triggers a renewal, but a file with no token-id at all does not gain one automatically.
+
 ## [0.44.2] — 2026-08-31
 
 ### Fixed

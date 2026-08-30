@@ -369,7 +369,9 @@ export function processAuditPacing() {
 // SHARED limiter can own pacing. The result was the double-throttle Task 2's carry-forward
 // warns about: the per-gateway 300-450ms delay AND the limiter's, on every audit read.
 export function makeGatewayFactory({ state, gatewayImpl = makeGateway }) {
-  return (options = {}) => gatewayImpl({ tokenFile: state.tokenFile, legacyTokenFileEnv: state.legacyTokenFileEnv, ...options });
+  // `renewer` rides state (not the options) so EVERY tool's gateway renews, including the audit
+  // tools that pass their own throttle options — the same forwarding lesson as the spread.
+  return (options = {}) => gatewayImpl({ tokenFile: state.tokenFile, legacyTokenFileEnv: state.legacyTokenFileEnv, renewer: state.renewer ?? null, ...options });
 }
 
 function validateRegisteredArgs(tool, args) {
