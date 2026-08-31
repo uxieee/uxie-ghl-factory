@@ -304,6 +304,32 @@ export const AUDIT_CAPABILITIES = Object.freeze([
     locationBinding: 'query',
     sealedBy: 'conversation_ai_agent_discovery',
   }),
+  // The Agent-Deployment ROUTING read for Conversation AI agents: one GET per agent, one row
+  // per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], …}.
+  // LIVE-CAPTURED 2026-08-31 (designated sandbox, read-only): the response is a BARE ARRAY of
+  // rows — no wrapper key — and every row SELF-IDENTIFIES with `agentId` and `locationId`
+  // (equality with the request held on the capture), so the gateway's response-side identity
+  // inspection has real fields to check on this route.
+  //
+  // `agentId` is QUERY-bound rather than path-bound, and it is still SEALED by the
+  // Conversation AI discovery result: without the seal, a routing read could be issued for an
+  // id no discovery response ever returned. The seal enforcement in core/audit-gateway.mjs
+  // covers both binding shapes (see enforceAgentSeal there).
+  //
+  // Conversation AI ONLY: the route is proven for flow-bot agents on this account class, and
+  // nothing has been captured for Voice AI or Agent Studio deployment routing. Declaring it
+  // for a product whose schema this rail has never seen would be the same guess the Voice
+  // tombstone rule (`tombstonesApply`, core/audit-configuration.mjs) refuses to make.
+  descriptor({
+    capabilityId: 'conversation_ai_deployment_routing',
+    host: 'services',
+    authRail: 'ai',
+    normalizedPath: '/agent-deployment/routing-config/configs',
+    queryBindings: { agentId: 'agentId' },
+    requiredQueryKeys: ['locationId', 'agentId'],
+    locationBinding: 'query',
+    sealedBy: 'conversation_ai_agent_discovery',
+  }),
   descriptor({
     capabilityId: 'agent_studio_agent_discovery',
     host: 'services',
@@ -355,7 +381,7 @@ export const AUDIT_CAPABILITIES = Object.freeze([
 const BY_ID = new Map(AUDIT_CAPABILITIES.map((capability) => [capability.capabilityId, capability]));
 
 // `descriptors` is injectable for the same single reason `resolveCapability`'s is: some
-// descriptor-shaped policy is unreachable against the real 16-descriptor set, and a rule
+// descriptor-shaped policy is unreachable against the real 18-descriptor set, and a rule
 // with no positive test is a rule that can be deleted with everything still green.
 // `repeatableQueryKeys` is now exactly that — empty everywhere, so only a synthetic
 // descriptor can exercise the allow-a-repeat branch. Runtime callers always take the
@@ -407,7 +433,7 @@ const staticSegmentCount = (normalizedPath) => segmentsOf(normalizedPath).filter
 // must trace the discovery capability even though `{agentId}` also matches it.
 //
 // `descriptors` is injectable for one reason only: AMBIGUOUS_CAPABILITY is unreachable
-// against the real 16-descriptor set, and a rule with no positive test is a rule that
+// against the real 18-descriptor set, and a rule with no positive test is a rule that
 // can be deleted. Runtime callers always take the default.
 export function resolveCapability({ host, method, path }, descriptors = AUDIT_CAPABILITIES) {
   if (method !== 'GET') {

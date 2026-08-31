@@ -488,6 +488,44 @@ const identityIncomplete = (identity) => identity.unreadable.length > 0
   || identity.inspectionCapped
   || identity.depthCapped;
 
+// A detail-shaped read may only be issued for an agent id ITS OWN discovery route returned.
+// The seal is keyed per discovery capability, not flat: the three AI products share an id
+// shape, so one flat list would let a Voice id probe the Conversation-AI and Agent-Studio
+// routes with a perfectly plausible id. HOISTED out of the path-variable branch because
+// `agentId` can be bound through a PATH VARIABLE (the three agent detail routes) or a QUERY
+// KEY (`conversation_ai_deployment_routing`), and two enforcement sites for one rule is how
+// the two drift — this is the single site both binding shapes call.
+const enforceAgentSeal = (capability, typedBindings, value) => {
+  const sealed = typedBindings.discoveredAgentIds;
+  const sealKey = capability.sealedBy;
+  if (!sealed || typeof sealed !== 'object' || Array.isArray(sealed)) {
+    throw auditError(
+      CODES.BINDING_MISMATCH,
+      `capability ${capability.capabilityId} needs the sealed discovery result keyed by discovery capability id`,
+      'Pass discoveredAgentIds as { <discovery capabilityId>: [...ids] }, then retry the detail read.',
+    );
+  }
+  // OWN property only. A plain `sealed[sealKey]` walks the prototype chain, so
+  // `{ __proto__: { voice_ai_agent_discovery: ['a1'] } }` — an object with no own
+  // keys at all — forged a seal and authorized a detail read for an id no discovery
+  // route ever returned.
+  const permitted = Object.hasOwn(sealed, sealKey) ? sealed[sealKey] : undefined;
+  if (!Array.isArray(permitted)) {
+    throw auditError(
+      CODES.BINDING_MISMATCH,
+      `capability ${capability.capabilityId} has no sealed result under its own discovery capability ${sealKey}`,
+      `Run ${sealKey} first and seal its ids under that key; another product's discovery result cannot authorize this route.`,
+    );
+  }
+  if (!permitted.map(String).includes(value)) {
+    throw auditError(
+      CODES.BINDING_MISMATCH,
+      `capability ${capability.capabilityId} was asked for an agent outside its sealed discovery result`,
+      'Only read details for ids returned by the paired discovery capability.',
+    );
+  }
+};
+
 // One gateway structurally cannot serve both audit hosts: the 10 backend capabilities
 // need the location JWT rail and the 6 services capabilities need the AI rail (Bearer
 // PLUS the agency token-id, and core/gateway.mjs refuses to attach that to any other
@@ -611,38 +649,8 @@ export function makeAuditGateway({ gateways, locationId, limiter, circuit, descr
         );
       }
       if (target === 'agentId') {
-        // A detail route may only be called for an id ITS OWN discovery route returned.
-        // The seal is keyed per discovery capability, not flat: the three AI products
-        // share an id shape, so one flat list would let a Voice id probe the
-        // Conversation-AI and Agent-Studio detail routes with a plausible id.
-        const sealed = typedBindings.discoveredAgentIds;
-        const sealKey = capability.sealedBy;
-        if (!sealed || typeof sealed !== 'object' || Array.isArray(sealed)) {
-          throw auditError(
-            CODES.BINDING_MISMATCH,
-            `capability ${capability.capabilityId} needs the sealed discovery result keyed by discovery capability id`,
-            'Pass discoveredAgentIds as { <discovery capabilityId>: [...ids] }, then retry the detail read.',
-          );
-        }
-        // OWN property only. A plain `sealed[sealKey]` walks the prototype chain, so
-        // `{ __proto__: { voice_ai_agent_discovery: ['a1'] } }` — an object with no own
-        // keys at all — forged a seal and authorized a detail read for an id no discovery
-        // route ever returned.
-        const permitted = Object.hasOwn(sealed, sealKey) ? sealed[sealKey] : undefined;
-        if (!Array.isArray(permitted)) {
-          throw auditError(
-            CODES.BINDING_MISMATCH,
-            `capability ${capability.capabilityId} has no sealed result under its own discovery capability ${sealKey}`,
-            `Run ${sealKey} first and seal its ids under that key; another product's discovery result cannot authorize this route.`,
-          );
-        }
-        if (!permitted.map(String).includes(value)) {
-          throw auditError(
-            CODES.BINDING_MISMATCH,
-            `capability ${capability.capabilityId} was asked for an agent outside its sealed discovery result`,
-            'Only read details for ids returned by the paired discovery capability.',
-          );
-        }
+        // The per-product seal, shared with the query-bound shape — see enforceAgentSeal.
+        enforceAgentSeal(capability, typedBindings, value);
       }
       return encodeURIComponent(value);
     }).join('/');
@@ -773,6 +781,19 @@ export function makeAuditGateway({ gateways, locationId, limiter, circuit, descr
           );
         }
       }
+    }
+
+    // The SAME per-product seal for a QUERY-bound agentId. The path-variable branch above
+    // cannot see it — `/agent-deployment/routing-config/configs` carries no {agentId}
+    // segment — and without this a routing read could be issued for an id no Conversation-AI
+    // discovery response ever returned. The equality loop above has already proven the
+    // emitted `agentId` value equals the typed one (and refused an untyped or multi-valued
+    // key; the required-key check refused an absent one), so the typed value is the one
+    // sealed here. Gated on `sealedBy` because the seal's KEY is the declared discovery
+    // capability: a descriptor that query-binds an agent without declaring a seal has no
+    // sealed set to check against, and inventing one would be policy this module does not own.
+    if (capability.sealedBy !== null && Object.values(capability.queryBindings).includes('agentId')) {
+      enforceAgentSeal(capability, typedBindings, String(typedBindings.agentId));
     }
 
     // An OPTIONAL seal for step rosters. The plan does not require one — step ids come

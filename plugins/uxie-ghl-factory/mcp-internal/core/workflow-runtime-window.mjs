@@ -281,7 +281,7 @@ const canonicalize = (value) => {
 const sha256Canonical = (value) => createHash('sha256').update(JSON.stringify(canonicalize(value))).digest('hex');
 
 // Exactly the capabilities this collector reads. The version below hashes ONLY these:
-// hashing the whole 16-descriptor set meant a Task 4 edit to an Agent-Studio descriptor
+// hashing the whole 18-descriptor set meant a Task 4 edit to an Agent-Studio descriptor
 // invalidated every already-collected workflow runtime window for a reason that could not
 // possibly have changed what those windows observed. A receipt must be invalidated by a
 // change to the policy it was actually collected under, and by nothing else.

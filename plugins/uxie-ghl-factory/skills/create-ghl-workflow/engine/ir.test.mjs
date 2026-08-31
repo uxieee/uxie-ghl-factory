@@ -133,3 +133,27 @@ test('branches/paths/target on a node no container handler reads are refused (NO
   ir2.graph[0] = { ref: 'a', kind: 'action', type: 'sms', name: 'A', attributes: { body: 'x' }, paths: [] };
   assert.throws(() => parseIR(ir2), (e) => e.code === 'NODE_KEY' && /paths/.test(e.message));
 });
+
+// C-17, live: a build with `parentId` set to the folder every other Standard workflow lives in
+// returned ok:true, a clean asset pre-flight, verify.pass 2 — and a workflow at the ROOT of the
+// account. `parentId` was read by nothing and mentioned by nothing. The engine already refuses
+// unknown keys one level down (NODE_KEY); the top level had no registry at all, so a typo'd
+// `setings:` dies the same silent death.
+test('an unknown TOP-LEVEL key is refused (TOP_KEY), not silently swallowed', () => {
+  const ir = validIR();
+  ir.parentId = 'ec63f9bf-0f2c-484c-a335-44afceb5879a';
+  assert.throws(() => parseIR(ir), (e) => e.code === 'TOP_KEY' && /parentId/.test(e.message));
+
+  const typo = validIR();
+  typo.setings = { allowMultiple: true };
+  assert.throws(() => parseIR(typo), (e) => e.code === 'TOP_KEY' && /setings/.test(e.message));
+});
+
+test('every top-level key the pipeline actually reads still parses', () => {
+  const ir = validIR();
+  Object.assign(ir, {
+    name: 'W', settings: {}, stickyNotes: [], senderDefault: {},
+    sampleWebhookPayload: {}, pinWebhookSample: false, workflowType: 'agent',
+  });
+  assert.ok(parseIR(ir));
+});

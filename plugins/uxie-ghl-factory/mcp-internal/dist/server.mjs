@@ -46,9 +46,9 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-08-29",
+      generated: "2026-08-31",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 876,
+      count: 892,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -1651,8 +1651,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source.",
-          reach: "source-only",
+          summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -1664,13 +1665,25 @@ var init_define_ENDPOINT_CATALOG = __esm({
           pathParams: [],
           query: [
             {
-              name: "locationId",
+              name: "offset",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "chatType",
               type: "string",
               required: false,
               source: "documented"
             },
             {
-              name: "chatType",
+              name: "locationId",
               type: "string",
               required: false,
               source: "documented"
@@ -1690,6 +1703,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/chat-widget-service.ts:35",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:117",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -8576,6 +8590,47 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--locations-custom-fields",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{fieldId}",
+          path: "/locations/{locationId}/customFields/{fieldId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "One custom field by id: {customField:{id, model, name, fieldKey, dataType, documentType, parentId (folder), description, standard, scopes, \u2026}}. Proven 2026-08-31.",
+          note: "The read-back for filing (parentId) and for description \u2014 both stored and returned. dataType is IMMUTABLE after creation: a PUT changing it answers success and the read-back keeps the old type; retype = delete, then create (the old KEY blocks the name until deleted).",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            },
+            {
+              name: "fieldId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/custom-fields-and-values.md:41",
+            "platform/70-research/2026-08-31-certification-snapshot-and-field-probes.md:77"
+          ]
+        },
+        {
           id: "custom-field-service--get-contact-custom-fields",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/search",
@@ -8583,6 +8638,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: "documentType=folder&model=all lists custom-FIELD folders ONLY with includeStandards=true \u2014 with includeStandards=false (the plugin's habitual value on FIELD searches) the same query returns [], which reads as 'this account has no folders' and is false (proven 2026-08-30).",
           reach: "proven",
           coveredBy: [
             "build_workflow",
@@ -8642,6 +8698,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/CustomFieldService.ts:14",
             "services/CustomFieldService.ts:32",
+            "platform/20-api/custom-fields-and-values.md:24",
             "workflows/70-research/ENDPOINTS.md:123"
           ]
         },
@@ -8690,6 +8747,86 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/api/custom-value.ts:21",
             "workflows/10-anatomy/07-id-resolution.md:186"
+          ]
+        },
+        {
+          id: "platform--locations-custom-values",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customValues",
+          path: "/locations/{locationId}/customValues",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          summary: 'Create a custom VALUE \u2014 or, with {name, documentType:"folder"}, a custom-value FOLDER (the response echoes documentType:"folder"). Proven 2026-08-30.',
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/custom-fields-and-values.md:69"
+          ]
+        },
+        {
+          id: "platform--custom-values-search",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{locationId}/customValues/search",
+          path: "/locations/{locationId}/customValues/search",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, \u2026}.",
+          note: "Answers byte-identically on BOTH backend and services (differential 2026-08-31) \u2014 either rail works.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [
+            {
+              name: "documentType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/custom-fields-and-values.md:79"
           ]
         },
         {
@@ -12927,7 +13064,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          summary: "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
+          note: "Reachable through the standard gateway with no special referer (proven daily by list_account_entities; a 2026-08-31 claim that it was iframe-referer-gated was refuted). The six system defaults are SOFT-DELETABLE, so a live account may list fewer \u2014 never assume the count; includeDeleted=false hides them.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -12972,7 +13111,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/call-dispositions.md:23",
+            "platform/20-api/call-dispositions.md:32",
             "workflows/70-research/ENDPOINTS.md:135"
           ]
         },
@@ -13011,7 +13150,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/call-dispositions.md:40"
+            "platform/20-api/call-dispositions.md:60"
           ]
         },
         {
@@ -13053,7 +13192,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/call-dispositions.md:52"
+            "platform/20-api/call-dispositions.md:72"
           ]
         },
         {
@@ -26204,6 +26343,93 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--routing-config-configs",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-deployment/routing-config/configs",
+          path: "/agent-deployment/routing-config/configs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
+          note: "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row.",
+          reach: "proven",
+          coveredBy: [
+            "get_ai_configuration_bundle"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "agentId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/12-ai-agents-api.md:348",
+            "ai-agents/20-api/agent-deployment-routing.md:25",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:89"
+          ]
+        },
+        {
+          id: "ai-agents--routing-config-configs-patch",
+          method: "PATCH",
+          url: "https://services.leadconnectorhq.com/agent-deployment/routing-config/configs/{rowId}",
+          path: "/agent-deployment/routing-config/configs/{rowId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          summary: "Update one channel's routing row. Proven 2026-08-31 by a live reply after switching Live chat to All widgets.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "rowId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-deployment-routing.md:55",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:90"
+          ]
+        },
+        {
           id: "ai-agents--anton-session",
           method: "POST",
           url: "https://services.leadconnectorhq.com/agent-studio/agents/anton/session",
@@ -26403,7 +26629,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:209",
             "ai-agents/20-api/12-ai-agents-api.md:216",
-            "ai-agents/20-api/12-ai-agents-api.md:343"
+            "ai-agents/20-api/12-ai-agents-api.md:345"
           ]
         },
         {
@@ -26520,7 +26746,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:342"
+            "ai-agents/20-api/12-ai-agents-api.md:344"
           ]
         },
         {
@@ -26766,7 +26992,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:77",
-            "ai-agents/20-api/12-ai-agents-api.md:335"
+            "ai-agents/20-api/12-ai-agents-api.md:337"
           ]
         },
         {
@@ -26909,7 +27135,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:54",
             "ai-agents/20-api/12-ai-agents-api.md:74",
             "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:311"
+            "ai-agents/20-api/12-ai-agents-api.md:313"
           ]
         },
         {
@@ -26985,7 +27211,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:76",
             "ai-agents/20-api/12-ai-agents-api.md:84",
-            "ai-agents/20-api/12-ai-agents-api.md:333"
+            "ai-agents/20-api/12-ai-agents-api.md:335"
           ]
         },
         {
@@ -27060,7 +27286,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:335"
+            "ai-agents/20-api/12-ai-agents-api.md:337"
           ]
         },
         {
@@ -27654,6 +27880,64 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--chat-widget-list-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/chat-widget/list",
+          path: "/chat-widget/list",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read).",
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: true,
+              source: "live-probe"
+            },
+            {
+              name: "chatType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-deployment-routing.md:74"
+          ]
+        },
+        {
           id: "services--send-magic-link",
           method: "POST",
           url: "https://services.leadconnectorhq.com/clientclub/{locationId}/tokens/send-magic-link",
@@ -28111,7 +28395,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:88"
+            "ai-agents/20-api/knowledge-base.md:126"
           ]
         },
         {
@@ -28146,7 +28430,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:89"
+            "ai-agents/20-api/knowledge-base.md:127"
           ]
         },
         {
@@ -28191,7 +28475,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:82",
-            "ai-agents/20-api/knowledge-base.md:87"
+            "ai-agents/20-api/knowledge-base.md:125"
           ]
         },
         {
@@ -28222,7 +28506,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:86"
+            "ai-agents/20-api/knowledge-base.md:124"
           ]
         },
         {
@@ -28253,7 +28537,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:85"
+            "ai-agents/20-api/knowledge-base.md:123"
           ]
         },
         {
@@ -28606,7 +28890,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:49"
+            "ai-agents/20-api/knowledge-base.md:50"
           ]
         },
         {
@@ -28641,7 +28925,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:45"
+            "ai-agents/20-api/knowledge-base.md:46"
           ]
         },
         {
@@ -28676,8 +28960,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:59",
-            "ai-agents/20-api/knowledge-base.md:104"
+            "ai-agents/20-api/knowledge-base.md:60",
+            "ai-agents/20-api/knowledge-base.md:142"
           ]
         },
         {
@@ -28712,7 +28996,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:48"
+            "ai-agents/20-api/knowledge-base.md:49"
           ]
         },
         {
@@ -28747,7 +29031,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:60"
+            "ai-agents/20-api/knowledge-base.md:61"
           ]
         },
         {
@@ -28786,7 +29070,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:281",
-            "ai-agents/20-api/knowledge-base.md:46"
+            "ai-agents/20-api/knowledge-base.md:47"
           ]
         },
         {
@@ -28817,7 +29101,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:51"
+            "ai-agents/20-api/knowledge-base.md:52"
           ]
         },
         {
@@ -28848,7 +29132,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:67"
+            "ai-agents/20-api/knowledge-base.md:68"
           ]
         },
         {
@@ -28881,8 +29165,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:280",
             "ai-agents/20-api/conversation-ai-boundary.md:79",
-            "ai-agents/20-api/knowledge-base.md:50",
-            "ai-agents/20-api/knowledge-base.md:70"
+            "ai-agents/20-api/knowledge-base.md:51",
+            "ai-agents/20-api/knowledge-base.md:71"
           ]
         },
         {
@@ -28913,7 +29197,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:54"
+            "ai-agents/20-api/knowledge-base.md:55"
           ]
         },
         {
@@ -28944,7 +29228,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:55"
+            "ai-agents/20-api/knowledge-base.md:56"
           ]
         },
         {
@@ -28979,7 +29263,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:57"
+            "ai-agents/20-api/knowledge-base.md:58"
           ]
         },
         {
@@ -29014,7 +29298,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:56"
+            "ai-agents/20-api/knowledge-base.md:57"
           ]
         },
         {
@@ -29045,7 +29329,62 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:58"
+            "ai-agents/20-api/knowledge-base.md:59"
+          ]
+        },
+        {
+          id: "ai-agents--knowledge-base-gaps",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/knowledge-base/gaps",
+          path: "/knowledge-base/gaps",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Every question the agent could not answer from one knowledge base: title, categories, priority, queryCount, firstSeenAt, lastAskedAt, topQueryTexts (the customer's own wording).",
+          note: "A gap row is a DATED LOG, not an inventory: it stays open after the answering content lands (proven by differential 2026-08-31 \u2014 added the documents, re-asked live, answered correctly, list unchanged, lastAskedAt unmoved). Read lastAskedAt before treating a row as current; a question the KB answers is never logged at all. Categories are unreliable. The DISMISS write was never captured.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "knowledgeBaseId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "status",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/12-ai-agents-api.md:347",
+            "ai-agents/20-api/knowledge-base.md:82",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:42"
           ]
         },
         {
@@ -29056,7 +29395,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          summary: "Open-gap totals per knowledge base.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -29072,6 +29412,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: "string",
               required: false,
               source: "documented"
+            },
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -29083,8 +29429,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:52",
-            "ai-agents/20-api/knowledge-base.md:76"
+            "ai-agents/20-api/knowledge-base.md:53",
+            "ai-agents/20-api/knowledge-base.md:83",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:43"
           ]
         },
         {
@@ -29116,8 +29463,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:277",
-            "ai-agents/20-api/12-ai-agents-api.md:344",
-            "ai-agents/20-api/knowledge-base.md:110"
+            "ai-agents/20-api/12-ai-agents-api.md:346",
+            "ai-agents/20-api/knowledge-base.md:148"
           ]
         },
         {
@@ -29153,7 +29500,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:279",
-            "ai-agents/20-api/knowledge-base.md:114"
+            "ai-agents/20-api/knowledge-base.md:152"
           ]
         },
         {
@@ -29188,7 +29535,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:111"
+            "ai-agents/20-api/knowledge-base.md:149"
           ]
         },
         {
@@ -29224,7 +29571,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:278",
-            "ai-agents/20-api/knowledge-base.md:112"
+            "ai-agents/20-api/knowledge-base.md:150"
           ]
         },
         {
@@ -29259,7 +29606,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:113"
+            "ai-agents/20-api/knowledge-base.md:151"
           ]
         },
         {
@@ -29290,7 +29637,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:53"
+            "ai-agents/20-api/knowledge-base.md:54"
           ]
         },
         {
@@ -29321,7 +29668,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:63"
+            "ai-agents/20-api/knowledge-base.md:64"
           ]
         },
         {
@@ -29356,7 +29703,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:66"
+            "ai-agents/20-api/knowledge-base.md:67"
           ]
         },
         {
@@ -29391,7 +29738,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:61"
+            "ai-agents/20-api/knowledge-base.md:62"
           ]
         },
         {
@@ -29426,7 +29773,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:65"
+            "ai-agents/20-api/knowledge-base.md:66"
           ]
         },
         {
@@ -29461,7 +29808,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:64"
+            "ai-agents/20-api/knowledge-base.md:65"
           ]
         },
         {
@@ -29496,7 +29843,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/knowledge-base.md:62"
+            "ai-agents/20-api/knowledge-base.md:63"
           ]
         },
         {
@@ -29507,6 +29854,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
+          summary: "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, \u2026}.",
+          note: "Answers byte-identically on BOTH backend and services (differential 2026-08-31) \u2014 either rail works.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -36374,6 +36723,430 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--snapshot-get-assets",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots-appengine/snapshot/{snapshotId}/get_assets",
+          path: "/snapshots-appengine/snapshot/{snapshotId}/get_assets",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:70"
+          ]
+        },
+        {
+          id: "platform--snapshots-assets",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/{snapshotId}/assets",
+          path: "/snapshots/{snapshotId}/assets",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "A snapshot's actual CONTENTS, one array per category (folders, custom_values, tags, links, text_templates, surveys, teams, calendars, campaigns, membership_offers, membership_products, triggers, sectionTemplates, workflow, social_planner, custom_fields, pipelines, knowledge_bases, chat_widget).",
+          note: "Dual credential (AI rail). There is NO Conversation AI category: a flow-bot agent, its flow workflow and its deployment rows never travel; knowledge bases DO. Diff this against the manifest before pushing a snapshot. The bare /snapshots/{id} read and every backend-host spelling 403/404.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:33"
+          ]
+        },
+        {
+          id: "platform--snapshots-assets-status",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/{snapshotId}/assets-status",
+          path: "/snapshots/{snapshotId}/assets-status",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Load-wizard step 2 counter. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:118"
+          ]
+        },
+        {
+          id: "platform--snapshots-restricted-assets",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/{snapshotId}/restricted-assets",
+          path: "/snapshots/{snapshotId}/restricted-assets",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Share dialog's assets-protection read. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:89"
+          ]
+        },
+        {
+          id: "platform--v2-available",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/locations/v2/{companyId}/available",
+          path: "/snapshots/locations/v2/{companyId}/available",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Sub-accounts available as load targets \u2014 the SOURCE sub-account is excluded, so a snapshot cannot be loaded back onto the account it came from. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [
+            {
+              name: "snapshotId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:110"
+          ]
+        },
+        {
+          id: "platform--locations-v2",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/locations/v2/{snapshotId}",
+          path: "/snapshots/locations/v2/{snapshotId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "isEnabled",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:104"
+          ]
+        },
+        {
+          id: "platform--snapshot-push-push-in-progress",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/snapshot-push/{snapshotId}/push-in-progress",
+          path: "/snapshots/snapshot-push/{snapshotId}/push-in-progress",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:99"
+          ]
+        },
+        {
+          id: "platform--snapshots-snapshot-versions",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/snapshot-versions/{snapshotId}",
+          path: "/snapshots/snapshot-versions/{snapshotId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "snapshotId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:80"
+          ]
+        },
+        {
+          id: "platform--snapshots-v2",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/snapshots/v2/{companyId}",
+          path: "/snapshots/v2/{companyId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "companyId"
+            }
+          ],
+          query: [
+            {
+              name: "companyId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "skip",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/snapshots.md:60"
+          ]
+        },
+        {
           id: "conversations--snippets",
           method: "GET",
           url: "https://services.leadconnectorhq.com/snippets/{locationId}",
@@ -36880,7 +37653,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:152"
+            "ai-agents/20-api/logs-deployment-email.md:161"
           ]
         },
         {
@@ -36918,7 +37691,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:154"
+            "ai-agents/20-api/logs-deployment-email.md:163"
           ]
         },
         {
@@ -36949,7 +37722,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:157"
+            "ai-agents/20-api/logs-deployment-email.md:166"
           ]
         },
         {
@@ -36980,7 +37753,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:158"
+            "ai-agents/20-api/logs-deployment-email.md:167"
           ]
         },
         {
@@ -37011,7 +37784,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:155"
+            "ai-agents/20-api/logs-deployment-email.md:164"
           ]
         },
         {
@@ -37042,7 +37815,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:161"
+            "ai-agents/20-api/logs-deployment-email.md:170"
           ]
         },
         {
@@ -37284,7 +38057,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:138",
             "ai-agents/20-api/12-ai-agents-api.md:148",
-            "ai-agents/20-api/12-ai-agents-api.md:337",
+            "ai-agents/20-api/12-ai-agents-api.md:339",
             "ai-agents/20-api/voice-ai-boundary.md:58"
           ]
         },
@@ -37369,7 +38142,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:62"
+            "ai-agents/20-api/logs-deployment-email.md:71"
           ]
         },
         {
@@ -37404,7 +38177,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:61"
+            "ai-agents/20-api/logs-deployment-email.md:70"
           ]
         },
         {
@@ -37474,7 +38247,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:91"
+            "ai-agents/20-api/logs-deployment-email.md:100"
           ]
         },
         {
@@ -37512,7 +38285,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:90"
+            "ai-agents/20-api/logs-deployment-email.md:99"
           ]
         },
         {
@@ -37599,7 +38372,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/12-ai-agents-api.md:338"
+            "ai-agents/20-api/12-ai-agents-api.md:340"
           ]
         },
         {
@@ -37731,7 +38504,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:85"
+            "ai-agents/20-api/logs-deployment-email.md:94"
           ]
         },
         {
@@ -37965,7 +38738,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:76"
+            "ai-agents/20-api/logs-deployment-email.md:85"
           ]
         },
         {
@@ -38000,7 +38773,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:77"
+            "ai-agents/20-api/logs-deployment-email.md:86"
           ]
         },
         {
@@ -38031,7 +38804,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:78"
+            "ai-agents/20-api/logs-deployment-email.md:87"
           ]
         },
         {
@@ -38066,7 +38839,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:79"
+            "ai-agents/20-api/logs-deployment-email.md:88"
           ]
         },
         {
@@ -38101,7 +38874,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:80"
+            "ai-agents/20-api/logs-deployment-email.md:89"
           ]
         },
         {
@@ -38136,7 +38909,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:81"
+            "ai-agents/20-api/logs-deployment-email.md:90"
           ]
         },
         {
@@ -38171,7 +38944,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:82"
+            "ai-agents/20-api/logs-deployment-email.md:91"
           ]
         },
         {
@@ -38202,7 +38975,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:75"
+            "ai-agents/20-api/logs-deployment-email.md:84"
           ]
         },
         {
@@ -38238,7 +39011,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:146",
-            "ai-agents/20-api/logs-deployment-email.md:74",
+            "ai-agents/20-api/logs-deployment-email.md:83",
             "ai-agents/20-api/voice-ai-boundary.md:69",
             "ai-agents/30-types/voice-ai-actions.md:65"
           ]
@@ -38271,7 +39044,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:84"
+            "ai-agents/20-api/logs-deployment-email.md:93"
           ]
         },
         {
@@ -38302,7 +39075,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:83"
+            "ai-agents/20-api/logs-deployment-email.md:92"
           ]
         },
         {
@@ -38495,7 +39268,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:159"
+            "ai-agents/20-api/logs-deployment-email.md:168"
           ]
         },
         {
@@ -38526,7 +39299,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:160"
+            "ai-agents/20-api/logs-deployment-email.md:169"
           ]
         },
         {
@@ -38557,7 +39330,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/logs-deployment-email.md:162"
+            "ai-agents/20-api/logs-deployment-email.md:171"
           ]
         },
         {
@@ -38603,7 +39376,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:42",
             "ai-agents/20-api/12-ai-agents-api.md:143",
-            "ai-agents/20-api/12-ai-agents-api.md:340",
+            "ai-agents/20-api/12-ai-agents-api.md:342",
             "ai-agents/20-api/voice-ai-boundary.md:61"
           ]
         },
@@ -38762,9 +39535,13 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /chat-widget/list": {
           requiredQuery: [
-            "locationId"
+            "locationId",
+            "offset",
+            "limit"
           ],
-          note: "Live-probed 2026-08-25: the endpoint returned 422 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+          note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
+          reach: "proven",
+          summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read)."
         },
         "GET /conversations-ai/intents/{locationId}": {
           reach: "proven"
@@ -38846,13 +39623,16 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven"
         },
         "GET /locations/{locationId}/customFields/search": {
-          reach: "proven"
+          reach: "proven",
+          note: "documentType=folder&model=all lists custom-FIELD folders ONLY with includeStandards=true \u2014 with includeStandards=false (the plugin's habitual value on FIELD searches) the same query returns [], which reads as 'this account has no folders' and is false (proven 2026-08-30)."
         },
         "GET /locations/{locationId}/customValues": {
           reach: "proven"
         },
         "GET /locations/{locationId}/customValues/search": {
-          reach: "proven"
+          reach: "proven",
+          summary: "documentType=folder lists custom-value folders under customValueFolders: {id, name, documentType, fieldsCount, \u2026}.",
+          note: "Answers byte-identically on BOTH backend and services (differential 2026-08-31) \u2014 either rail works."
         },
         "GET /locations/{locationId}/templates": {
           reach: "proven"
@@ -39302,6 +40082,88 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           reach: "proven",
           summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
           note: "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either."
+        },
+        "GET /knowledge-base/gaps": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId",
+            "knowledgeBaseId",
+            "status"
+          ],
+          summary: "Every question the agent could not answer from one knowledge base: title, categories, priority, queryCount, firstSeenAt, lastAskedAt, topQueryTexts (the customer's own wording).",
+          note: "A gap row is a DATED LOG, not an inventory: it stays open after the answering content lands (proven by differential 2026-08-31 \u2014 added the documents, re-asked live, answered correctly, list unchanged, lastAskedAt unmoved). Read lastAskedAt before treating a row as current; a question the KB answers is never logged at all. Categories are unreliable. The DISMISS write was never captured."
+        },
+        "GET /knowledge-base/gaps/counts": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          summary: "Open-gap totals per knowledge base."
+        },
+        "GET /agent-deployment/routing-config/configs": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId",
+            "agentId"
+          ],
+          summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
+          note: "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row."
+        },
+        "PATCH /agent-deployment/routing-config/configs/{rowId}": {
+          reach: "proven",
+          summary: "Update one channel's routing row. Proven 2026-08-31 by a live reply after switching Live chat to All widgets."
+        },
+        "GET /snapshots/{snapshotId}/assets": {
+          reach: "proven",
+          requiredQuery: [
+            "companyId"
+          ],
+          summary: "A snapshot's actual CONTENTS, one array per category (folders, custom_values, tags, links, text_templates, surveys, teams, calendars, campaigns, membership_offers, membership_products, triggers, sectionTemplates, workflow, social_planner, custom_fields, pipelines, knowledge_bases, chat_widget).",
+          note: "Dual credential (AI rail). There is NO Conversation AI category: a flow-bot agent, its flow workflow and its deployment rows never travel; knowledge bases DO. Diff this against the manifest before pushing a snapshot. The bare /snapshots/{id} read and every backend-host spelling 403/404."
+        },
+        "GET /snapshots/v2/{companyId}": {
+          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer."
+        },
+        "GET /snapshots-appengine/snapshot/{snapshotId}/get_assets": {
+          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/snapshot-versions/{snapshotId}": {
+          note: "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/{snapshotId}/restricted-assets": {
+          note: "Share dialog's assets-protection read. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/snapshot-push/{snapshotId}/push-in-progress": {
+          note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/locations/v2/{snapshotId}": {
+          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/locations/v2/{companyId}/available": {
+          requiredQuery: [
+            "snapshotId"
+          ],
+          note: "Sub-accounts available as load targets \u2014 the SOURCE sub-account is excluded, so a snapshot cannot be loaded back onto the account it came from. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/{snapshotId}/assets-status": {
+          note: "Load-wizard step 2 counter. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /locations/{locationId}/customFields/{fieldId}": {
+          reach: "proven",
+          summary: "One custom field by id: {customField:{id, model, name, fieldKey, dataType, documentType, parentId (folder), description, standard, scopes, \u2026}}. Proven 2026-08-31.",
+          note: "The read-back for filing (parentId) and for description \u2014 both stored and returned. dataType is IMMUTABLE after creation: a PUT changing it answers success and the read-back keeps the old type; retype = delete, then create (the old KEY blocks the name until deleted)."
+        },
+        "POST /locations/{locationId}/customValues": {
+          reach: "proven",
+          summary: 'Create a custom VALUE \u2014 or, with {name, documentType:"folder"}, a custom-value FOLDER (the response echoes documentType:"folder"). Proven 2026-08-30.'
+        },
+        "GET /phone-system/call-dispositions": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          summary: "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
+          note: "Reachable through the standard gateway with no special referer (proven daily by list_account_entities; a 2026-08-31 claim that it was iframe-referer-gated was refuted). The six system defaults are SOFT-DELETABLE, so a live account may list fewer \u2014 never assume the count; includeDeleted=false hides them."
         }
       }
     };
@@ -39556,7 +40418,7 @@ var init_define_TOOL_CATALOG = __esm({
         undocumentedCapabilities: []
       },
       get_ai_configuration_bundle: {
-        description: "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Live canary required before Full audit.",
+        description: "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim on the item); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned \u2014 legal live config reported for review, never a failure. Live canary required before Full audit.",
         risk: "read",
         proof: "external-receipt-required",
         proofFloor: "external-receipt-required",
@@ -39593,6 +40455,10 @@ var init_define_TOOL_CATALOG = __esm({
           {
             path: "/agent-studio/super-agent/agents/{agentId}",
             reason: "The Agent Studio per-agent detail route. No catalog entry cites a row for it; see above."
+          },
+          {
+            path: "/agent-deployment/routing-config/configs",
+            reason: "The Agent-Deployment routing route, added to the audit descriptor set with the per-agent routing read. No catalog entry cites a matrix row for it, and the matrix that defines row ids is not in this repository, so the gap is recorded rather than an id invented; see above."
           }
         ]
       },
@@ -72692,6 +73558,32 @@ var AUDIT_CAPABILITIES = Object.freeze([
     locationBinding: "query",
     sealedBy: "conversation_ai_agent_discovery"
   }),
+  // The Agent-Deployment ROUTING read for Conversation AI agents: one GET per agent, one row
+  // per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], …}.
+  // LIVE-CAPTURED 2026-08-31 (designated sandbox, read-only): the response is a BARE ARRAY of
+  // rows — no wrapper key — and every row SELF-IDENTIFIES with `agentId` and `locationId`
+  // (equality with the request held on the capture), so the gateway's response-side identity
+  // inspection has real fields to check on this route.
+  //
+  // `agentId` is QUERY-bound rather than path-bound, and it is still SEALED by the
+  // Conversation AI discovery result: without the seal, a routing read could be issued for an
+  // id no discovery response ever returned. The seal enforcement in core/audit-gateway.mjs
+  // covers both binding shapes (see enforceAgentSeal there).
+  //
+  // Conversation AI ONLY: the route is proven for flow-bot agents on this account class, and
+  // nothing has been captured for Voice AI or Agent Studio deployment routing. Declaring it
+  // for a product whose schema this rail has never seen would be the same guess the Voice
+  // tombstone rule (`tombstonesApply`, core/audit-configuration.mjs) refuses to make.
+  descriptor({
+    capabilityId: "conversation_ai_deployment_routing",
+    host: "services",
+    authRail: "ai",
+    normalizedPath: "/agent-deployment/routing-config/configs",
+    queryBindings: { agentId: "agentId" },
+    requiredQueryKeys: ["locationId", "agentId"],
+    locationBinding: "query",
+    sealedBy: "conversation_ai_agent_discovery"
+  }),
   descriptor({
     capabilityId: "agent_studio_agent_discovery",
     host: "services",
@@ -73070,6 +73962,32 @@ var inspectIdentity = (json2, expected, fields) => {
   };
 };
 var identityIncomplete = (identity) => identity.unreadable.length > 0 || identity.inspectionCapped || identity.depthCapped;
+var enforceAgentSeal = (capability, typedBindings, value) => {
+  const sealed = typedBindings.discoveredAgentIds;
+  const sealKey = capability.sealedBy;
+  if (!sealed || typeof sealed !== "object" || Array.isArray(sealed)) {
+    throw auditError(
+      CODES.BINDING_MISMATCH,
+      `capability ${capability.capabilityId} needs the sealed discovery result keyed by discovery capability id`,
+      "Pass discoveredAgentIds as { <discovery capabilityId>: [...ids] }, then retry the detail read."
+    );
+  }
+  const permitted = Object.hasOwn(sealed, sealKey) ? sealed[sealKey] : void 0;
+  if (!Array.isArray(permitted)) {
+    throw auditError(
+      CODES.BINDING_MISMATCH,
+      `capability ${capability.capabilityId} has no sealed result under its own discovery capability ${sealKey}`,
+      `Run ${sealKey} first and seal its ids under that key; another product's discovery result cannot authorize this route.`
+    );
+  }
+  if (!permitted.map(String).includes(value)) {
+    throw auditError(
+      CODES.BINDING_MISMATCH,
+      `capability ${capability.capabilityId} was asked for an agent outside its sealed discovery result`,
+      "Only read details for ids returned by the paired discovery capability."
+    );
+  }
+};
 var EXPECTED_RAIL = Object.freeze({ backend: "jwt", ai: "ai" });
 function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors = AUDIT_CAPABILITIES }) {
   if (typeof locationId !== "string" || locationId.trim() === "") {
@@ -73161,30 +74079,7 @@ function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors 
         );
       }
       if (target === "agentId") {
-        const sealed = typedBindings.discoveredAgentIds;
-        const sealKey = capability.sealedBy;
-        if (!sealed || typeof sealed !== "object" || Array.isArray(sealed)) {
-          throw auditError(
-            CODES.BINDING_MISMATCH,
-            `capability ${capability.capabilityId} needs the sealed discovery result keyed by discovery capability id`,
-            "Pass discoveredAgentIds as { <discovery capabilityId>: [...ids] }, then retry the detail read."
-          );
-        }
-        const permitted = Object.hasOwn(sealed, sealKey) ? sealed[sealKey] : void 0;
-        if (!Array.isArray(permitted)) {
-          throw auditError(
-            CODES.BINDING_MISMATCH,
-            `capability ${capability.capabilityId} has no sealed result under its own discovery capability ${sealKey}`,
-            `Run ${sealKey} first and seal its ids under that key; another product's discovery result cannot authorize this route.`
-          );
-        }
-        if (!permitted.map(String).includes(value)) {
-          throw auditError(
-            CODES.BINDING_MISMATCH,
-            `capability ${capability.capabilityId} was asked for an agent outside its sealed discovery result`,
-            "Only read details for ids returned by the paired discovery capability."
-          );
-        }
+        enforceAgentSeal(capability, typedBindings, value);
       }
       return encodeURIComponent(value);
     }).join("/");
@@ -73291,6 +74186,9 @@ function makeAuditGateway({ gateways, locationId, limiter, circuit, descriptors 
           );
         }
       }
+    }
+    if (capability.sealedBy !== null && Object.values(capability.queryBindings).includes("agentId")) {
+      enforceAgentSeal(capability, typedBindings, String(typedBindings.agentId));
     }
     if (Object.values(capability.queryBindings).includes("stepId") && typedBindings.stepId !== void 0 && typedBindings.stepId !== null && typedBindings.discoveredStepIds !== void 0) {
       const sealedSteps = typedBindings.discoveredStepIds;
@@ -74821,6 +75719,14 @@ var AI_BUNDLE_WARNINGS = Object.freeze({
   AI_DISCOVERY_TOTAL_DISAPPEARED: "AI_DISCOVERY_TOTAL_DISAPPEARED",
   AI_DETAIL_READ_FAILED: "AI_DETAIL_READ_FAILED",
   AI_DETAIL_UNREADABLE: "AI_DETAIL_UNREADABLE",
+  // The ROUTING twins of the two detail codes above, for the per-agent Agent-Deployment
+  // routing read (Conversation AI only — see AI_SURFACES.routingCapabilityId). Separate
+  // codes rather than reusing the detail ones because an auditor branches on them
+  // differently: a missing detail is a missing configuration, a missing routing read is a
+  // channel deployment nobody can vouch for — and only one of the two phases may be at
+  // fault on a given agent.
+  AI_ROUTING_READ_FAILED: "AI_ROUTING_READ_FAILED",
+  AI_ROUTING_UNREADABLE: "AI_ROUTING_UNREADABLE",
   // A detail response that is perfectly readable and describes SOMEBODY ELSE. See
   // readAgentRecord: the record was previously accepted on the strength of carrying an id at
   // all, never on that id being the one the request was issued for.
@@ -74880,7 +75786,13 @@ var AI_SURFACES = Object.freeze({
     discoveryCapabilityId: "conversation_ai_agent_discovery",
     detailCapabilityId: "conversation_ai_agent_detail",
     paginated: false,
-    requiresCompany: false
+    requiresCompany: false,
+    // The Agent-Deployment routing read — one GET per discovered agent, after detail().
+    // THIS surface ONLY, on the same precedent as Voice's `tombstonesApply` below: the
+    // route is live-proven for Conversation AI agents (2026-08-31, designated sandbox) and
+    // NOTHING has been captured for Voice AI or Agent Studio deployment routing, so
+    // declaring it there would drop or invent evidence on the strength of a guess.
+    routingCapabilityId: "conversation_ai_deployment_routing"
   }),
   voice_ai: Object.freeze({
     discoveryCapabilityId: "voice_ai_agent_discovery",
@@ -74904,6 +75816,7 @@ var ROSTER_CAPABILITY_IDS = Object.freeze(["workflow_roster_list"]);
 var AI_BUNDLE_CAPABILITY_IDS = Object.freeze([
   "conversation_ai_agent_discovery",
   "conversation_ai_agent_detail",
+  "conversation_ai_deployment_routing",
   "voice_ai_agent_discovery",
   "voice_ai_agent_detail",
   "agent_studio_agent_discovery",
@@ -74999,6 +75912,7 @@ var ROSTER_ROW_KEYS = Object.freeze(["rows", "workflows", "data"]);
 var ROSTER_TOTAL_KEYS = Object.freeze(["count", "total"]);
 var AI_ROW_KEYS = Object.freeze(["agents", "employees", "data", "items"]);
 var AI_TOTAL_KEYS = Object.freeze(["total", "totalCount"]);
+var ROUTING_ROW_KEYS = Object.freeze(["configs", "data"]);
 var ID_WRAPPER_KEYS2 = ["$oid", "_id", "id"];
 var unwrapId = (raw) => {
   if (raw === null || raw === void 0) return null;
@@ -75412,6 +76326,7 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
   let quarantined = false;
   let identityIncomplete2 = false;
   const shapeLogs = new Map(AI_BUNDLE_COMPONENTS.map((name) => [name, makeShapeLog()]));
+  const routingShapeLogs = new Map(AI_BUNDLE_COMPONENTS.filter((name) => AI_SURFACES[name].routingCapabilityId).map((name) => [name, makeShapeLog()]));
   const components = {};
   for (const name of AI_BUNDLE_COMPONENTS) {
     components[name] = {
@@ -75438,6 +76353,19 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
         // when there was never a second page to spend it on.
         budget: AI_SURFACES[name].paginated ? config2.maxPages : null
       },
+      // The routing phase's per-component evidence, `null` on every surface with no declared
+      // routing capability — the same "does not apply here" grammar as `pages.budget` above.
+      // `routingRead` counts agents whose routing rows were READ (its denominator is
+      // detailDenominator — the routing loop owes exactly the same set of agents the detail
+      // loop does, so a second denominator field would be a second copy of one number).
+      // `routingEnvelopeShape` is read out of the side log at finalize, beside
+      // `envelopeShape`, so a component that was never attempted still publishes an empty
+      // observation and the CIRCUIT_OPEN partial carries whatever was met before the latch.
+      routingEnvelopeShape: AI_SURFACES[name].routingCapabilityId ? { rowsKeys: [], totalKeys: [] } : null,
+      // One entry per READ row with a STRICT `allIdentifiers === false` — an advisory
+      // summary, never a warning: a pinned row is legal live configuration (see routing()).
+      routingPinned: AI_SURFACES[name].routingCapabilityId ? [] : null,
+      routingRead: AI_SURFACES[name].routingCapabilityId ? 0 : null,
       sourceRoutes: [],
       // One entry per page READ, `null` where that page reported no total — the roster's
       // `totalHistory`, per component, and published for the same reason: a walk whose whole
@@ -75515,6 +76443,9 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       );
     }
     for (const name of AI_BUNDLE_COMPONENTS) components[name].envelopeShape = shapeLogs.get(name).read();
+    for (const name of AI_BUNDLE_COMPONENTS) {
+      if (routingShapeLogs.has(name)) components[name].routingEnvelopeShape = routingShapeLogs.get(name).read();
+    }
     const complete = warnings.length === 0 && !rateLimit.limited;
     return {
       appliedQueries,
@@ -75561,6 +76492,7 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
     component.applicable = reconciled ? items.length > 0 : "unknown";
     component.detailDenominator = items.filter((item) => item.tombstone !== true).length;
     await detail(name, surface, component);
+    if (surface.routingCapabilityId) await routing(name, surface, component);
     component.complete = component.errors.length === 0 && !warnings.some((entry) => entry.component === name);
   }
   async function discover(name, surface, component) {
@@ -75748,7 +76680,12 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
           // Only the Voice route's tombstones are recognised, and only on a schema-valid row.
           tombstone: surface.tombstonesApply === true && grade === "tombstone",
           detailRead: false,
-          detail: null
+          detail: null,
+          // Seeded on EVERY component's items, routing surface or not, so a consumer walking
+          // items never meets `undefined` — the same rule the warning shape carries. On a
+          // surface with no routing capability they simply never change.
+          routingRead: false,
+          routing: null
         });
       }
       const pageTotal = totalRead.total;
@@ -75901,6 +76838,69 @@ async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       component.detailsRead += 1;
     }
   }
+  async function routing(name, surface, component) {
+    const routingCapabilityId = surface.routingCapabilityId;
+    const discoveredAgentIds = {
+      [surface.discoveryCapabilityId]: component.items.filter((item) => item.id !== null).map((item) => item.id)
+    };
+    for (const item of component.items) {
+      if (item.tombstone === true) continue;
+      if (item.id === null) continue;
+      let response;
+      try {
+        response = await read(name, routingCapabilityId, {
+          locationId: boundLocationId,
+          agentId: item.id,
+          discoveredAgentIds
+        }, { locationId: boundLocationId, agentId: item.id });
+      } catch (error51) {
+        absorbThrow(error51, name, routingCapabilityId, "routing");
+        continue;
+      }
+      if (!response.ok) {
+        recordError(
+          name,
+          response.failureClass ?? CODES.INVALID_RESPONSE_BODY,
+          routingCapabilityId,
+          "routing",
+          failureDetail(response, routingCapabilityId)
+        );
+        warnAggregated(
+          warningForFailure(response.failureClass, AI_BUNDLE_WARNINGS.AI_ROUTING_READ_FAILED),
+          name,
+          failureDetail(response, routingCapabilityId)
+        );
+        continue;
+      }
+      const rowsRead = readRows(response.json, ROUTING_ROW_KEYS);
+      routingShapeLogs.get(name).record({ rowsKey: rowsRead.key, totalKey: null });
+      if (rowsRead.rows === null) {
+        const detail2 = rowsRead.conflict !== null ? `the routing response contradicted itself (row keys ${rowsRead.conflict.join("/")} carry different lists)` : "the routing response carried no readable routing-config list";
+        recordError(name, AI_BUNDLE_WARNINGS.AI_ROUTING_UNREADABLE, routingCapabilityId, "routing", detail2);
+        warnAggregated(
+          AI_BUNDLE_WARNINGS.AI_ROUTING_UNREADABLE,
+          name,
+          `capability ${routingCapabilityId} answered 200 with an envelope this rail cannot read`
+        );
+        continue;
+      }
+      item.routing = rowsRead.rows;
+      item.routingRead = true;
+      component.routingRead += 1;
+      for (const row of rowsRead.rows) {
+        if (!row || typeof row !== "object" || Array.isArray(row)) continue;
+        if (row.allIdentifiers !== false) continue;
+        component.routingPinned.push({
+          agentId: item.id,
+          // `includeTags`/`excludeTags` can legitimately be ABSENT from a live row, so no
+          // key on the row is assumed to exist; the two copied here are normalised to null
+          // when missing and otherwise copied verbatim.
+          channel: row.channel ?? null,
+          specificIdentifiers: row.specificIdentifiers ?? null
+        });
+      }
+    }
+  }
 }
 
 // ../skills/create-ghl-workflow/engine/orchestrate.mjs
@@ -75979,6 +76979,28 @@ var SCOPE_OWNERS = {
 };
 var KIND_BY_TYPE = { if_else: "if_else", workflow_split: "split", ai_decision: "ai_decision", goto: "goto" };
 var WIRE_TYPE_ALIASES = { internal_update_opportunity: "update_opportunity", internal_create_opportunity: "create_opportunity" };
+var KNOWN_TOP_KEYS = /* @__PURE__ */ new Set([
+  "name",
+  "triggers",
+  "graph",
+  "settings",
+  "stickyNotes",
+  "senderDefault",
+  "sampleWebhookPayload",
+  "pinWebhookSample",
+  "object",
+  "customObjectType",
+  "workflowType"
+]);
+function checkTopKeys(ir) {
+  const bad = Object.keys(ir).filter((k) => !KNOWN_TOP_KEYS.has(k));
+  if (!bad.length) return;
+  const folderHint = bad.includes("parentId") ? " `parentId` is not a build input \u2014 the create POST cannot file a workflow. Build first, then file it with move_workflows({locationId, workflowIds:[wid], parentId})." : "";
+  throw new IRError(
+    "TOP_KEY",
+    `unknown top-level IR key(s) [${bad.join(", ")}] \u2014 the pipeline never reads these, so they would be silently discarded and the build would report success anyway.${folderHint} Known top-level keys: ${[...KNOWN_TOP_KEYS].join(", ")}.`
+  );
+}
 function checkNodeKeys(n) {
   const bad = Object.keys(n).filter((k) => !KNOWN_NODE_KEYS.has(k));
   if (bad.length)
@@ -76081,6 +77103,7 @@ function walkNodes(nodes, visit) {
 function parseIR(ir, { externalRefs } = {}) {
   if (!ir || typeof ir !== "object" || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph))
     throw new IRError("SCHEMA", "IR must have triggers[] and graph[]");
+  checkTopKeys(ir);
   const refs = collectRefs(ir);
   const seen = /* @__PURE__ */ new Set();
   for (const r of refs) {
@@ -76260,6 +77283,7 @@ var opp_field_rulebook_default = {
 };
 
 // ../skills/create-ghl-workflow/engine/opp-shapes.mjs
+var OPP_CUSTOM_FIELD_PREFIX = "custom_fields.";
 var STANDARD_OPP_FIELDS = /* @__PURE__ */ new Set([
   ...Object.keys(opp_field_rulebook_default.fields),
   ...Object.keys(opp_field_shapes_default.fields)
@@ -140207,10 +141231,15 @@ function resolveOppUpdateField(u, ref, ctx) {
     checkOppFieldShape(f, { ref, warn: ctx?.warn });
     return f;
   }
-  const cf = ctx?.customFields?.find((c) => c.id === ff || c.fieldKey === ff);
+  const bare = ff.startsWith(OPP_CUSTOM_FIELD_PREFIX) ? ff.slice(OPP_CUSTOM_FIELD_PREFIX.length) : ff;
+  const cf = ctx?.customFields?.find((c) => c.id === bare || c.fieldKey === bare);
   if (cf) {
-    ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' custom field '${ff}' shape not validated (contact->opp dataType join pending, spec \xA77b) \u2014 emitted as authored`);
-    return oppField(ff, u.value, u.dataType, u.valueFieldType ?? "string");
+    return oppField(
+      `${OPP_CUSTOM_FIELD_PREFIX}${cf.id}`,
+      u.value,
+      u.dataType ?? cf.dataType,
+      u.valueFieldType ?? "string"
+    );
   }
   if (Array.isArray(ctx?.customFields)) {
     throw new IRError(
@@ -141455,7 +142484,7 @@ function buildTrigger(t, ctx, wid, refMap) {
     ctx?.warn?.(`TRIGGER_TARGET: '${t.name ?? t.type}' is a goto trigger with NO target \u2014 the builder flags it as an incomplete trigger. Pass \`target: "<step ref>"\`.`);
   }
   if (targetActionId && isGotoTriggerType(t.type, ctx)) {
-    ctx?.warn?.(`GOTO_TRIGGER_RACE: '${t.name ?? t.type}' re-enters the flow at a step via targetActionId. GHL can deliver the SAME trigger event twice ~15s apart (different workflowTraceIds, at-least-once delivery). The second firing's remove-from-run lands on the run the first one created, and its re-enrol never arrives: the run dies mid-conversation with no reply and no field writes. Reproduced 3/3 on 2026-08-27 (goto-kill-evidence.md). The fatal case is a remove hitting a run WAITING at an interactive step, so a targeted section that only derives and records is survivable while one that asks a question is not. GHL's own pattern avoids the jump entirely: land every trigger at the flow HEAD and route on trigger identity with a head if_else ({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} \u2014 conditionSubType is mandatory).`);
+    ctx?.warn?.(`GOTO_TRIGGER_RACE: '${t.name ?? t.type}' re-enters the flow at a step via targetActionId, and a run created this way can be KILLED by a SIBLING custom trigger. Measured 2026-08-27 over eleven reproductions: a remove_from_workflow with NO add ~15-18s after a successful jump strands the contact mid-conversation \u2014 0/11 replies with priorities wrong, 5/5 once the trigger you always want to win (booking) held TOP priority, strictly above every sibling. The mechanism (break-out authority follows priority; matching runs against the WHOLE conversation; a non-atomic remove+add whose add is deduped) is an inferred model that fits every observation, not a measurement. Keep siblings at LOW sensitivity with latest-message-scoped descriptions. Distinct from a genuine second inbound message mid-run, which restarts the flow BENIGNLY \u2014 the restarted run reads the whole conversation and answers everything so far. GHL's own pattern avoids the jump entirely: land every trigger at the flow HEAD and route on trigger identity with a head if_else ({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} \u2014 conditionSubType is mandatory).`);
   }
   let cdr = null;
   if (t.type === "custom_date_reminder") {
@@ -142253,8 +143282,32 @@ var ID_ROWS = /* @__PURE__ */ new Set(["pipelineId", "pipelineStageId", "lostRea
 var NAME_KEYS = ["pipeline", "stage", "lostReason"];
 var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
 var isMergeTag2 = (v) => typeof v === "string" && v.includes("{{");
+var isLeakedName = (v) => typeof v === "string" && v.trim() !== "";
+var FOUND_KEY = "predefined_Opportunity Found";
+var FOUND_NAME = "Opportunity Found";
+function pathBindsCard(t, byId) {
+  const seen = /* @__PURE__ */ new Set();
+  let cur = t;
+  while (cur && typeof cur.parentKey === "string" && !seen.has(cur.parentKey)) {
+    seen.add(cur.parentKey);
+    const up = byId.get(cur.parentKey);
+    if (!up) return false;
+    if (up.type === "internal_create_opportunity") return true;
+    if (up.type === "transition") {
+      const container = byId.get(up.parent);
+      if (container?.type === "find_opportunity") {
+        const row = (container.attributes?.transitions ?? []).find?.((r) => r?.id === up.id);
+        if (up.meta?.__branchKey__ === FOUND_KEY || row?.meta?.__branchKey__ === FOUND_KEY || up.name === FOUND_NAME || row?.name === FOUND_NAME) return true;
+      }
+    }
+    cur = up;
+  }
+  return false;
+}
 function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null } = {}) {
   const out = [];
+  const byId = /* @__PURE__ */ new Map();
+  for (const t of templates ?? []) if (t && typeof t.id === "string") byId.set(t.id, t);
   const known = pipelines && {
     pipelineId: new Set(pipelines.map((p2) => p2.id)),
     pipelineStageId: new Set(pipelines.flatMap((p2) => (p2.stages ?? []).map((s) => s.id))),
@@ -142264,7 +143317,14 @@ function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null
     if (!t || !OPP_TYPES.has(t.type)) continue;
     const a = t.attributes ?? {};
     const push = (code, severity, msg) => out.push({ stepId: t.id, name: t.name ?? t.id, type: t.type, code, severity, msg });
-    const leaked = NAME_KEYS.filter((k) => a[k] !== void 0);
+    if (t.type === "internal_update_opportunity" && !pathBindsCard(t, byId)) {
+      push(
+        "OPP_WRITE_UNBOUND_PATH",
+        "warning",
+        `'${t.name ?? t.id}' writes to a card but nothing on its path binds one \u2014 it works only when the run entered through an opportunity trigger; an add_to_workflow from another workflow or a manual/API enrolment SKIPS it silently (or logs success with an empty actionFrom and moves nothing). Use the pattern: find_opportunity \u2192 Not Found: create_opportunity \u2192 Found: update_opportunity.`
+      );
+    }
+    const leaked = NAME_KEYS.filter((k) => isLeakedName(a[k]));
     if (leaked.length) {
       push(
         "OPP_NAME_KEY",
@@ -142281,11 +143341,19 @@ function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null
       );
       continue;
     }
-    let hasStage = false, hasPipe = false;
+    let hasStage = false;
+    let hasPipe = t.type === "internal_create_opportunity" && (looksLikeId(a.pipelineId) || isMergeTag2(a.pipelineId));
     for (const r of rows) {
       if (!r || typeof r !== "object") continue;
       if (r.filterField === "pipelineStageId") hasStage = true;
       if (r.filterField === "pipelineId") hasPipe = true;
+      if (typeof r.filterField === "string" && !r.filterField.startsWith(OPP_CUSTOM_FIELD_PREFIX) && !STANDARD_OPP_FIELDS.has(r.filterField) && looksLikeId(r.filterField)) {
+        push(
+          "OPP_CUSTOM_FIELD_BARE_ID",
+          "error",
+          `row addresses custom field '${r.filterField}' by its bare id \u2014 the opportunities DTO rejects that as a top-level property ("property ${r.filterField} should not exist") and the step SKIPS with a 400 nobody reads. Write it as '${OPP_CUSTOM_FIELD_PREFIX}${r.filterField}'; only STANDARD properties take a bare name.`
+        );
+      }
       if (!ID_ROWS.has(r.filterField)) continue;
       if (isMergeTag2(r.value)) continue;
       if (!looksLikeId(r.value)) {
@@ -143910,10 +144978,25 @@ function findAfterCreateRace(list) {
   }
   return out;
 }
+var isContainer = (t) => !!t && (t.cat === "multi-path" || t.attributes?.cat === "multi-path" || Array.isArray(t.next));
+function splitterBranchLeadsWithContainer(list) {
+  const byId = new Map(list.map((t) => [t.id, t]));
+  const out = [];
+  for (const t of list) {
+    if (!t || t.type !== "conversationai_ai_splitter" || !Array.isArray(t.next)) continue;
+    for (const entryId of t.next) {
+      const entry = byId.get(entryId);
+      const head = entry && typeof entry.next === "string" ? byId.get(entry.next) : null;
+      if (!isContainer(head)) continue;
+      out.push(`splitter '${t.name ?? t.id}' branch '${entry.name ?? entry.id}' leads directly with '${head.name ?? head.id}' (${head.type}), a multipath container \u2014 GHL never offers a branch whose first step is a container, so this branch is never chosen no matter how well the conversation matches it. Put one simple step (add_notes, update_contact_field, conversationai_continue, \u2026) at the head of the branch, before the container.`);
+    }
+  }
+  return out;
+}
 function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {}) {
   if (skipGraphContextRules === true) return [];
   const list = Array.isArray(templates) ? templates : [];
-  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list), ...findAfterCreateRace(list)];
+  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list), ...findAfterCreateRace(list), ...splitterBranchLeadsWithContainer(list)];
   for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
   return findings;
 }
@@ -144806,15 +145889,15 @@ function compileSubgraph(node, ctx) {
   );
   const tpls = out._templates;
   const head = tpls.find((t) => (t.parentKey === null || t.parentKey === void 0) && t.parent == null) ?? tpls[0];
-  const isContainer = Array.isArray(head.next);
+  const isContainer2 = Array.isArray(head.next);
   const entry = { ...head };
   delete entry.order;
   delete entry.parentKey;
   delete entry.parent;
-  if (!isContainer) delete entry.next;
-  if (!isContainer && tpls.length !== 1)
+  if (!isContainer2) delete entry.next;
+  if (!isContainer2 && tpls.length !== 1)
     throw new Error(`edit-add: '${node.type}' compiled to ${tpls.length} templates but its entry has no branch array \u2014 unsupported shape`);
-  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer, refMap: out._refMap };
+  return { entry, templates: [entry, ...tpls.filter((t) => t.id !== head.id)], isContainer: isContainer2, refMap: out._refMap };
 }
 var empty = () => ({ createdSteps: [], modifiedSteps: [], deletedSteps: [] });
 function mergeDiff(a, b) {
@@ -145286,7 +146369,88 @@ var consecutiveRemoves = (templates) => {
   }
   return out;
 };
+var SPEAKING_FIELDS = {
+  conversationai_continue: "instructions",
+  conversationai_objective: "instructions",
+  conversationai_ai_message: "message",
+  // its field is titled "Enter the PROMPT for the message"
+  conversationai_ai_splitter: "description",
+  conversationai_book_appointment: "promptInstructions"
+};
+var normaliseSentence = (s) => s.trim().replace(/\s+/g, " ").toLowerCase().replace(/[.!?]+$/, "");
+var sentenceTokens = (norm3) => new Set(norm3.split(/[^a-z0-9']+/).filter(Boolean));
+var jaccard = (a, b) => {
+  if (a.size === 0 && b.size === 0) return 0;
+  let inter = 0;
+  for (const t of a) if (b.has(t)) inter += 1;
+  return inter / (a.size + b.size - inter);
+};
+var truncate80 = (s) => s.length > 80 ? `${s.slice(0, 80)}\u2026` : s;
+var flowBotRulesDrift = (templates) => {
+  const speaking = [];
+  for (const t of templates) {
+    const field = SPEAKING_FIELDS[t?.type];
+    if (!field) continue;
+    const text = t.attributes?.[field];
+    const sentences = /* @__PURE__ */ new Map();
+    if (typeof text === "string") {
+      for (const raw of text.split(/(?<=[.!?])\s+/)) {
+        const norm3 = normaliseSentence(raw);
+        if (norm3.length < 40 || sentences.has(norm3)) continue;
+        sentences.set(norm3, { raw: raw.trim(), tokens: sentenceTokens(norm3) });
+      }
+    }
+    speaking.push({ t, sentences });
+  }
+  if (speaking.length < 2) return [];
+  const byNorm = /* @__PURE__ */ new Map();
+  speaking.forEach((n, i) => {
+    for (const [norm3, s] of n.sentences) {
+      const e = byNorm.get(norm3) ?? { raw: s.raw, tokens: s.tokens, nodes: /* @__PURE__ */ new Set() };
+      e.nodes.add(i);
+      byNorm.set(norm3, e);
+    }
+  });
+  const shared = [...byNorm.values()].filter((e) => e.nodes.size >= 2);
+  const out = [];
+  speaking.forEach((n, i) => {
+    const name = n.t.name ?? n.t.id;
+    const missingCore = [];
+    for (const s of shared) {
+      if (s.nodes.has(i)) continue;
+      let variant = null;
+      for (const cand of n.sentences.values()) {
+        if (jaccard(s.tokens, cand.tokens) >= 0.6) {
+          variant = cand;
+          break;
+        }
+      }
+      if (variant) {
+        out.push({
+          stepId: n.t.id,
+          name,
+          msg: `'${name}' carries a VARIANT of a rule sentence that ${s.nodes.size} other node(s) carry verbatim \u2014 "${truncate80(s.raw)}" vs "${truncate80(variant.raw)}". A behavioural rule repeated across speaking nodes must be byte-identical; variation invites the model to read the difference as meaningful.`
+        });
+      } else if (s.nodes.size >= 2 && s.nodes.size * 2 >= speaking.length) {
+        missingCore.push(s);
+      }
+    }
+    if (missingCore.length > 0) {
+      out.push({
+        stepId: n.t.id,
+        name,
+        msg: `'${name}' (${n.t.type}) carries none of ${missingCore.length} behavioural rule sentence(s) the other speaking nodes share \u2014 a global rule does not reach a node whose local text implies a narrower job; repeat the block here, byte-identically, with its positive half.`
+      });
+    }
+  });
+  return out;
+};
 var HYGIENE_RULES = [
+  {
+    rule: "flow-bot-rules-drift",
+    severity: "warning",
+    run: (doc) => flowBotRulesDrift(doc.templates ?? [])
+  },
   {
     rule: "notification-no-redirect",
     severity: "warning",
@@ -145308,6 +146472,39 @@ var HYGIENE_RULES = [
       stepId: t.id,
       name: t.name ?? t.id,
       msg: `wait '${t.name ?? t.id}' waits on a ${t.attributes.type} with convertToMultipath:false \u2014 there is no timeout leg, so a contact who never replies waits forever`
+    }))
+  },
+  {
+    // GHL queues an UNASSIGNED manual task like any other — it is parked, not skipped. Live: two
+    // contacts sat behind a manual-call saved with assignedUser:'' / standardAssignedUser:'' for
+    // hours, receiving none of the sends below it. GHL has no validator for this shape
+    // (catalog: steps['manual-call'].enforcement.provenZero = "no-ghl-validator"), so nothing
+    // downstream will catch it.
+    rule: "manual-task-unassigned",
+    severity: "warning",
+    run: (doc) => (doc.templates ?? []).filter((t) => isType(t, "manual-call", "manual-sms", "manual_call", "manual_sms") && !t.attributes?.assignedUser && !t.attributes?.standardAssignedUser).map((t) => ({
+      stepId: t.id,
+      name: t.name ?? t.id,
+      msg: `manual task '${t.name ?? t.id}' (${t.type}) has no assigned user \u2014 GHL still queues it and the contact waits behind it indefinitely; an unassigned manual task is parked, not skipped. Assign a user or drop the step`
+    }))
+  },
+  {
+    // conversationai_book_appointment exposes only calendarId and promptInstructions — there is
+    // no field for WHICH appointment it acts on. Two clean-room fixtures measured the defaults,
+    // both wrong: with one past and one future appointment it named the visit the contact had
+    // already attended and offered to move it to times that had already passed; with three
+    // confirmed future bookings it silently picked the soonest and never asked. Both were closed
+    // purely by wording in promptInstructions, so a stock or empty value ships those defaults.
+    rule: "book-appointment-unsteered",
+    severity: "warning",
+    run: (doc) => (doc.templates ?? []).filter((t) => {
+      if (!isType(t, "conversationai_book_appointment")) return false;
+      const pi = t.attributes?.promptInstructions;
+      return pi == null || String(pi).trim() === "" || pi === "Get the customer to book an appointment";
+    }).map((t) => ({
+      stepId: t.id,
+      name: t.name ?? t.id,
+      msg: `'${t.name ?? t.id}' runs with the stock promptInstructions \u2014 the step has no field for WHICH appointment it acts on, and the measured defaults are wrong both ways: it offers to move an appointment the contact already attended to times that have already passed, and with several future bookings it silently picks the soonest without asking. Steer it with wording in promptInstructions (e.g. which appointment to act on, and to ask when there are several)`
     }))
   },
   {
@@ -148476,6 +149673,38 @@ function triggerPublishInstruction(triggerPlan, workflowStatus, { committed }) {
   }
   return committed ? "Trigger configuration was committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly." : "Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.";
 }
+var ATTR_WRITING_OPS = /* @__PURE__ */ new Set([
+  "addBranch",
+  "appendStep",
+  "appendToBranch",
+  "duplicateStep",
+  "insertAfter",
+  "insertBefore",
+  "modifyStep",
+  "replaceInAttributes",
+  "replaceFieldId",
+  "replaceTag",
+  "retypeStep"
+]);
+async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetchedAssets) {
+  if (!(ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op))) return [];
+  try {
+    let assets = prefetchedAssets;
+    if (!assets) {
+      const resp = await gw.call(
+        "GET",
+        `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`
+      );
+      if (!resp?.ok || !resp.json) return [];
+      assets = resp.json;
+    }
+    const schema2 = parseActionSchema(assets);
+    const triggerTypes = (triggers ?? []).map((t) => t?.type).filter(Boolean);
+    return checkWorkflow(templates, schema2, triggerTypes.length ? { triggerTypes } : {});
+  } catch {
+    return [];
+  }
+}
 function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
   const afterIds = new Set(templates.map((step) => step.id));
@@ -149368,7 +150597,7 @@ var TOOLS2 = [
     name: "check_workflow",
     description: describe3(
       "check_workflow",
-      'Read-only pre-flight: reproduce the workflow builder\'s "Resolve N Errors" list for an existing workflow, without opening the UI (proof: live-reproduction 2026-07-27 \u2014 matched the builder exactly on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets catalog the builder itself validates against). NOTE: that catalog omits core native actions (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means "nothing found in the 240 types it describes", not "provably publishable". Also reports `marketplaceDrift`: whether a stored marketplace TRIGGER\'s version/templateId matches what is installed now \u2014 TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all (live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, isMarketplaceAction \u2014 nothing to compare an action against). Always a separate key, never folded into `errorCount`. It also returns `lints`: the engine\'s OWN layers run over the live document (platform), generic authoring hygiene, and this project\'s doctrine pack from .ghl/<locationId>/lint-pack.json or an inline lintPack \u2014 advisory, never part of errorCount. When the marketplace assets fetch fails the schema layer is skipped and errorCount is null (unknown, not zero) while every other layer still reports.'
+      'Read-only pre-flight: reproduce the workflow builder\'s "Resolve N Errors" list for an existing workflow, without opening the UI (proof: live-reproduction 2026-07-27 \u2014 matched the builder exactly on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets catalog the builder itself validates against). NOTE: that catalog omits core native actions (add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means "nothing found in the ~300 marketplace types it describes" (the live count is in coverage.schemaTypes), not "provably publishable". Also reports `marketplaceDrift`: whether a stored marketplace TRIGGER\'s version/templateId matches what is installed now \u2014 TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all (live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, isMarketplaceAction \u2014 nothing to compare an action against). Always a separate key, never folded into `errorCount`. It also returns `lints`: the engine\'s OWN layers run over the live document (platform), generic authoring hygiene, and this project\'s doctrine pack from .ghl/<locationId>/lint-pack.json or an inline lintPack \u2014 advisory, never part of errorCount. When the marketplace assets fetch fails the schema layer is skipped and errorCount is null (unknown, not zero) while every other layer still reports.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -149661,7 +150890,19 @@ var TOOLS2 = [
       }
       const LIFECYCLE_TYPES = /* @__PURE__ */ new Set(["add_to_workflow", "added_to_workflow", "remove_from_workflow"]);
       const rawLogs = logs.json?.logs ?? logs.json ?? [];
+      const PREMIUM_ACTION_TYPES = /* @__PURE__ */ new Set(["internal_create_opportunity", "internal_update_opportunity"]);
+      const emptyActionFrom = (r) => {
+        const af = r?.meta?.actionFrom;
+        return af == null || typeof af === "object" && Object.keys(af).length === 0;
+      };
       const labelledLogs = Array.isArray(rawLogs) ? rawLogs.map((r) => {
+        if (PREMIUM_ACTION_TYPES.has(r?.type) && r?.status === "success" && emptyActionFrom(r)) {
+          return {
+            ...r,
+            actionDispatched: false,
+            actionDispatchNote: "success with an EMPTY meta.actionFrom \u2014 the write never reached the premium-actions-worker, so nothing was written. Seen when the run holds no bound opportunity (manual/API enrolment into an opportunity-triggered workflow). Treat this row as a NO-OP, not a successful card write."
+          };
+        }
         if (!LIFECYCLE_TYPES.has(r?.type)) return r;
         const channel = r?.removedFrom?.channel ?? null;
         return {
@@ -149799,7 +151040,7 @@ var TOOLS2 = [
     name: "get_ai_configuration_bundle",
     description: describe3(
       "get_ai_configuration_bundle",
-      "Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Live canary required before Full audit."
+      "Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned \u2014 legal live config reported for review, never a failure. Live canary required before Full audit."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -149815,6 +151056,11 @@ var TOOLS2 = [
       // `/ai-employees/employees/search` instead (see core/audit-capabilities.mjs).
       { method: "GET", path: "/ai-employees/employees/search" },
       { method: "GET", path: "/ai-employees/employees/{agentId}" },
+      // The Agent-Deployment routing rows, read once per Conversation AI agent (a live
+      // Live_Chat row pinned to a deleted widget id is a silently mute agent — the whole
+      // reason this read exists). Conversation AI only; no routing capture exists for the
+      // other two products.
+      { method: "GET", path: "/agent-deployment/routing-config/configs" },
       // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
       // list_account_entities reads: a different capability with a different receipt.
       { method: "GET", path: "/voice-ai/agents/simple" },
@@ -150678,7 +151924,8 @@ var TOOLS2 = [
         args.ops,
         beforeTemplates.map((step) => step.id)
       );
-      const marketplace = opsUseMarketplace(args.ops) ? buildMarketplaceIndex(await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId)) : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
+      const marketplaceRaw = opsUseMarketplace(args.ops) ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId) : { assets: null, modules: { actions: [], triggers: [] } };
+      const marketplace = buildMarketplaceIndex(marketplaceRaw);
       const ctx = {
         loc: args.locationId,
         cid: void 0,
@@ -150734,6 +151981,7 @@ var TOOLS2 = [
         ctx.catalog?.workflowRules,
         { skipWorkflowRules: args.skipWorkflowRules, warn: ctx.warn }
       );
+      const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
         wid: args.workflowId,
@@ -150766,6 +152014,10 @@ var TOOLS2 = [
         preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
       }
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+      if (schemaViolations.length) {
+        preview.schemaViolations = schemaViolations;
+        preview.schemaViolationsNote = `GHL's own action schema would show "Resolve ${schemaViolations.length} Errors" on this document. These are not refused by the server \u2014 it stores an over-cap or malformed value verbatim \u2014 so they will not stop the write; the builder will show them to whoever opens the workflow.`;
+      }
       if (args.confirm !== true) {
         return withFailureData(
           fail(
@@ -150970,6 +152222,11 @@ var TOOLS2 = [
         requiresPublish,
         publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
         verify,
+        // What the builder's own panel will say about the document this edit just wrote. Advisory
+        // by construction: the server accepted every one of these, so they are the class a
+        // round-trip can never see.
+        schemaViolations,
+        schemaHeadline: `Resolve ${schemaViolations.length} Errors`,
         warnings,
         partialProgress,
         builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,

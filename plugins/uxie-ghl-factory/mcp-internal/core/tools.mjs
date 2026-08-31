@@ -613,6 +613,37 @@ function triggerPublishInstruction(triggerPlan, workflowStatus, { committed }) {
     : 'Trigger configuration will be committed without activation. After verifying the edit, invoke publish_workflow with confirm:true to activate it explicitly.';
 }
 
+// Ops that write step ATTRIBUTES. Only these can breach a per-field rule such as a character cap,
+// so only these are worth a catalog fetch — a rename or a move cannot make a field invalid, and
+// the edit path's network shape is a pinned contract that must not grow for nothing.
+const ATTR_WRITING_OPS = new Set([
+  'addBranch', 'appendStep', 'appendToBranch', 'duplicateStep', 'insertAfter', 'insertBefore',
+  'modifyStep', 'replaceInAttributes', 'replaceFieldId', 'replaceTag', 'retypeStep',
+]);
+
+// The builder's "Resolve N Errors" list, computed for an edit before it is sent. Same catalog and
+// same predicate check_workflow uses, so the two can never disagree about what the builder shows.
+// Returns [] on any failure: this is a reporting layer, never a gate.
+async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetchedAssets) {
+  if (!(ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op))) return [];
+  try {
+    // A marketplace op has already fetched this exact payload to resolve its keys. Reuse it
+    // rather than asking for the same 3 MB twice in one edit.
+    let assets = prefetchedAssets;
+    if (!assets) {
+      const resp = await gw.call('GET',
+        `/workflows-marketplace/location/${loc}/assets?workflowTypes=default,contacts`);
+      if (!resp?.ok || !resp.json) return [];
+      assets = resp.json;
+    }
+    const schema = parseActionSchema(assets);
+    const triggerTypes = (triggers ?? []).map((t) => t?.type).filter(Boolean);
+    return checkWorkflow(templates, schema, triggerTypes.length ? { triggerTypes } : {});
+  } catch {
+    return [];
+  }
+}
+
 function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
   const afterIds = new Set(templates.map((step) => step.id));
@@ -1637,7 +1668,7 @@ export const TOOLS = [
       + 'on a known-broken workflow: same count, same step, same stepId, same message; risk: read-only). Applies GHL\'s OWN action schema (the marketplace assets '
       + 'catalog the builder itself validates against). NOTE: that catalog omits core native actions '
       + '(add_contact_tag, send_email, sms, if_else, wait, custom_webhook, ...), so a clean result means '
-      + '"nothing found in the 240 types it describes", not "provably publishable". Also reports '
+      + '"nothing found in the ~300 marketplace types it describes" (the live count is in coverage.schemaTypes), not "provably publishable". Also reports '
       + '`marketplaceDrift`: whether a stored marketplace TRIGGER\'s version/templateId matches what is '
       + 'installed now — TRIGGERS ONLY, because a stored marketplace ACTION step records no version at all '
       + '(live-captured 2026-08-16: its full key set is id, stepIndex, order, attributes, name, type, '
@@ -2007,8 +2038,30 @@ export const TOOLS = [
       // removal (F5-35, proven live 2026-08-29 with a private integration token). So an exit
       // reason read from the roster alone is unknowable, and a run ended by an integration looks
       // exactly like one that ran to the end.
+      // Opportunity steps route through the premium-actions-worker, and a row that really ran
+      // carries `meta.actionFrom: {channel:"premium-actions-worker", ...}` — even a `skipped` one,
+      // because the skip verdict came FROM the worker (3/3 live rows). A `success` whose
+      // actionFrom is EMPTY never reached the worker at all: measured live on a manual enrolment
+      // into an opportunity-triggered workflow, where "Mark the card LOST" logged success twice
+      // and the card never moved. Scoped to exactly these two types — internal_notification runs
+      // successfully with an empty actionFrom, so a broader label would cry wolf on every row.
+      const PREMIUM_ACTION_TYPES = new Set(['internal_create_opportunity', 'internal_update_opportunity']);
+      const emptyActionFrom = (r) => {
+        const af = r?.meta?.actionFrom;
+        return af == null || (typeof af === 'object' && Object.keys(af).length === 0);
+      };
       const labelledLogs = Array.isArray(rawLogs)
         ? rawLogs.map((r) => {
+          if (PREMIUM_ACTION_TYPES.has(r?.type) && r?.status === 'success' && emptyActionFrom(r)) {
+            return {
+              ...r,
+              actionDispatched: false,
+              actionDispatchNote: 'success with an EMPTY meta.actionFrom — the write never reached '
+                + 'the premium-actions-worker, so nothing was written. Seen when the run holds no '
+                + 'bound opportunity (manual/API enrolment into an opportunity-triggered workflow). '
+                + 'Treat this row as a NO-OP, not a successful card write.',
+            };
+          }
           if (!LIFECYCLE_TYPES.has(r?.type)) return r;
           const channel = r?.removedFrom?.channel ?? null;
           return {
@@ -2164,7 +2217,7 @@ export const TOOLS = [
     name: 'get_ai_configuration_bundle',
     description: describe(
       'get_ai_configuration_bundle',
-      'Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail — proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Live canary required before Full audit.',
+      'Sweep Conversation AI, Voice AI and Agent Studio discovery plus detail — proof: external-receipt-required; risk: read. All three surfaces are always attempted; a failed or malformed component is complete:false with null items, never an empty agent list. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned — legal live config reported for review, never a failure. Live canary required before Full audit.',
     ),
     inputSchema: schema({
       locationId: z.string(),
@@ -2180,6 +2233,11 @@ export const TOOLS = [
       // `/ai-employees/employees/search` instead (see core/audit-capabilities.mjs).
       { method: 'GET', path: '/ai-employees/employees/search' },
       { method: 'GET', path: '/ai-employees/employees/{agentId}' },
+      // The Agent-Deployment routing rows, read once per Conversation AI agent (a live
+      // Live_Chat row pinned to a deleted widget id is a silently mute agent — the whole
+      // reason this read exists). Conversation AI only; no routing capture exists for the
+      // other two products.
+      { method: 'GET', path: '/agent-deployment/routing-config/configs' },
       // The /simple discovery route, never the legacy bare `/voice-ai/agents` that
       // list_account_entities reads: a different capability with a different receipt.
       { method: 'GET', path: '/voice-ai/agents/simple' },
@@ -2193,7 +2251,7 @@ export const TOOLS = [
         return fail(CODES.ENGINE_ABORT, 'the AI configuration bundle was invoked without a gateway factory',
           'Register the tool with { state, makeGw } dependencies before calling it.');
       }
-      // ONLY the ai rail, for the same reason the roster builds only jwt: ALL SIX of this
+      // ONLY the ai rail, for the same reason the roster builds only jwt: ALL SEVEN of this
       // bundle's capabilities declare `authRail:'ai'`, and `makeGateway` reads credentials at
       // construction, so a backend gateway this composite can never call would widen the
       // credential surface of a read that has no business touching it. (It also cannot help:
@@ -3099,9 +3157,10 @@ export const TOOLS = [
       // therefore stays network-identical to what it was before this feature existed, and
       // still gets a real (empty) index, so an unresolvable key raises the engine's own
       // MARKETPLACE_KEY_UNKNOWN rather than a `.get is not a function` crash.
-      const marketplace = opsUseMarketplace(args.ops)
-        ? buildMarketplaceIndex(await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId))
-        : buildMarketplaceIndex({ assets: null, modules: { actions: [], triggers: [] } });
+      const marketplaceRaw = opsUseMarketplace(args.ops)
+        ? await fetchMarketplace((m, path, body) => gw.call(m, path, body), args.locationId)
+        : { assets: null, modules: { actions: [], triggers: [] } };
+      const marketplace = buildMarketplaceIndex(marketplaceRaw);
       const ctx = {
         loc: args.locationId,
         cid: undefined,
@@ -3175,6 +3234,16 @@ export const TOOLS = [
       // the post-edit document with the live trigger set. Hatch: args.skipWorkflowRules.
       checkWorkflowRules({ templates, triggers: existingTriggers, settings: { senderAddress: commitBody.senderAddress ?? fresh.senderAddress }, publishing: fresh.status === 'published' },
         ctx.catalog?.workflowRules, { skipWorkflowRules: args.skipWorkflowRules, warn: ctx.warn });
+      // GHL's OWN action schema — the marketplace assets catalog the builder validates against,
+      // and the only layer that carries per-field rules like a character cap. The build path has
+      // run it since v0.9.0; the edit path never did, which is how a 614-character prompt reached
+      // a published workflow with a 200, a clean round-trip, and an error badge in the builder.
+      // Round-trip cannot catch this by construction: it compares SENT against STORED, and the
+      // server stores an over-cap value verbatim. Runs on the MUTATED templates, BEFORE the write,
+      // so the confirm preview shows what a human would see on opening the builder.
+      // Advisory and fail-open, matching the build path: an unreachable catalog must not become a
+      // new way for a working edit to die.
+      const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
         wid: args.workflowId,
@@ -3205,6 +3274,15 @@ export const TOOLS = [
           .map((k) => [k, k === 'statsView' ? (commitBody.meta?.statsView ?? false) : commitBody[k]]));
       }
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+      // Named in the preview so an over-cap prompt is visible while the edit can still be
+      // changed, not discovered later as a badge in the builder.
+      if (schemaViolations.length) {
+        preview.schemaViolations = schemaViolations;
+        preview.schemaViolationsNote = `GHL's own action schema would show "Resolve `
+          + `${schemaViolations.length} Errors" on this document. These are not refused by the `
+          + `server — it stores an over-cap or malformed value verbatim — so they will not stop `
+          + `the write; the builder will show them to whoever opens the workflow.`;
+      }
 
       if (args.confirm !== true) {
         return withFailureData(
@@ -3446,6 +3524,11 @@ export const TOOLS = [
         requiresPublish,
         publishInstruction: triggerPublishInstruction(triggerPlan, fresh.status, { committed: true }),
         verify,
+        // What the builder's own panel will say about the document this edit just wrote. Advisory
+        // by construction: the server accepted every one of these, so they are the class a
+        // round-trip can never see.
+        schemaViolations,
+        schemaHeadline: `Resolve ${schemaViolations.length} Errors`,
         warnings,
         partialProgress,
         builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,

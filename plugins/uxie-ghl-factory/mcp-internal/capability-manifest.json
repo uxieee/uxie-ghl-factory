@@ -232,6 +232,11 @@
   {
     "tool": "get_ai_configuration_bundle",
     "method": "GET",
+    "path": "/agent-deployment/routing-config/configs"
+  },
+  {
+    "tool": "get_ai_configuration_bundle",
+    "method": "GET",
     "path": "/voice-ai/agents/simple"
   },
   {

@@ -2535,6 +2535,35 @@ test('get_workflow_logs labels GHL lifecycle rows without dropping them', async 
   assert.equal(byId.l2.isLifecycleRow, undefined, 'an authored step must NOT be flagged');
 });
 
+test('get_workflow_logs flags a no-op opportunity write, and only that', async () => {
+  // Live differential (GROM sandbox 2026-08-31, workflow 01): every opportunity row that reached
+  // the premium-actions-worker carries a populated meta.actionFrom — even the `skipped` ones,
+  // because the skip verdict came FROM the worker. A `success` with an EMPTY actionFrom is the
+  // manual-enrolment no-op: "Mark the card LOST" logged success twice and the card never moved.
+  // And internal_notification runs successfully with an empty actionFrom, so the label must be
+  // scoped to the two premium-action types or it cries wolf on every notification.
+  const gw = gwStub({
+    'logs/v2': { logs: [
+      { id: 'r1', type: 'internal_update_opportunity', status: 'success', meta: { actionFrom: {} } },
+      { id: 'r2', type: 'internal_update_opportunity', status: 'success',
+        meta: { actionFrom: { channel: 'premium-actions-worker', source: 'internal_update_opportunity' } } },
+      { id: 'r3', type: 'internal_create_opportunity', status: 'skipped', meta: { actionFrom: {} } },
+      { id: 'r4', type: 'internal_notification', status: 'success', meta: { actionFrom: {} } },
+    ] },
+    'count-per-step': { counts: [] },
+    'workflow-with-filter': { rows: [] },
+  });
+  const result = await tool('get_workflow_logs').handler({ locationId: 'L', workflowId: 'w1', limit: 20 }, deps(gw));
+
+  const byId = Object.fromEntries(result.data.logs.map((r) => [r.id, r]));
+  assert.equal(byId.r1.actionDispatched, false, 'success + empty actionFrom on an opp write is a no-op');
+  assert.match(byId.r1.actionDispatchNote, /NO-OP/);
+  assert.equal(byId.r2.actionDispatched, undefined, 'a write that reached the worker is untouched');
+  assert.equal(byId.r3.actionDispatched, undefined, 'only success rows are flagged — a skipped row already tells the truth');
+  assert.equal(byId.r4.actionDispatched, undefined, 'internal_notification legitimately runs with an empty actionFrom');
+  assert.equal(result.data.logs.length, 4, 'nothing dropped');
+});
+
 test('get_workflow_logs labelling survives the bare-array response shape', async () => {
   // /workflows/logs/v2 returns a bare array, not {logs:[…]}. A consumer reaching for .logs gets
   // undefined and reports no executions for a workflow that ran.

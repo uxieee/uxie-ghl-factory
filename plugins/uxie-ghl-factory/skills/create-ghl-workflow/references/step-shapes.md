@@ -319,13 +319,21 @@ step type, which is a supported container with its own body and its own validato
 `attributes.loopIdentified` is **backend-stamped and read-only** — never emit it. Emitting it
 fabricates a lock (`ACTION-DRAWERS-2.md:1675`).
 
-🔴 **A `conv_ai_autonomous_trigger` with a `targetActionId` is a reliability risk, not a bug you
-can fix.** GHL can deliver one trigger event twice ~15s apart; the second delivery's remove
-lands on the run the first created and no re-enrol follows, killing the run mid-conversation.
-Reproduced 3/3 (`goto-kill-evidence.md`). Prefer GHL's own pattern: land triggers at the flow
-head and route on trigger identity with a head `if_else` carrying
+🔴 **A `conv_ai_autonomous_trigger` run can be KILLED by a sibling custom trigger, and the lever
+is PRIORITY.** Measured over eleven reproductions (2026-08-27): the kill signature is a
+`remove_from_workflow` with NO add ~15–18 s after a successful jump, and it went 0/11 → 5/5 the
+moment **the trigger you always want to win (booking) held top priority, strictly above every
+sibling**. The explanation — break-out authority follows priority, matching runs against the
+WHOLE conversation so old messages keep matching, and the break-out is a non-atomic remove+add
+whose add is deduped while the remove lands — is an inferred model that fits every observation,
+not something the logs can show. Keep siblings at LOW sensitivity with latest-message-scoped
+descriptions and explicit exclusions for their siblings' intents. Distinct and benign: a genuine second inbound
+message mid-run restarts the flow, and the restarted run reads the whole conversation and answers
+everything so far — a burst is answered once, after the burst. Prefer GHL's own pattern anyway:
+land triggers at the flow head and route on trigger identity with a head `if_else` carrying
 `{conditionType: "trigger", conditionSubType: "trigger", conditionValue: "<real trigger id>"}`.
 `conditionSubType` is mandatory — the engine compiles the full canonical shape when given both.
+(Corpus: `workflows/70-research/2026-08-31-flow-bot-runtime-certification.md`.)
 
 ## Verifying a built step — GET, not the editor panel
 

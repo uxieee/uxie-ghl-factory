@@ -79,7 +79,10 @@ it with a dashed edge to its target. The operator-facing label is **"Custom trig
 | `customTriggerPriority` | number | yes | 1–10 | `"8"` — stored as a **string** |
 | `customTriggerSensitivity` | select | yes | `low` · `medium` · `high` | `medium` — stored lower-case |
 
-Rows use `operator: "eq"`, **not** the `==` that `conv_ai_trigger`'s `botId` row uses.
+⚠️ Rows were historically captured with `operator: "eq"`, but GHL's save-side validator (added
+~2026-08-27) now REFUSES `eq` with `trigger-condition-invalid` — write `==`, the same operator
+`conv_ai_trigger`'s `botId` row uses. The engine's `TRIGGER_CORRECTIONS` maps `eq → ==` for you;
+a hand-authored complete filter row passes through untouched, so spell it `==` yourself.
 
 **Rules** (from `uiControls`, i18n resolved): a `conv_ai_trigger` must already exist
 (*"Conversation AI trigger is mandatory for adding custom trigger."*); **max 3** per workflow;
@@ -89,9 +92,16 @@ Conversation AI must be enabled; and it is hidden unless the flow-builder beta i
 Once a `conv_ai_trigger` exists, `hideOtherTriggers` filters the picker to **this type only** — so
 a flow can never gain an ordinary trigger, only more custom ones.
 
-**Runtime semantics, as the drawer states them:** *"Custom scenario will only get triggered after
-the primary / main workflow is completed. This will move the contact to the alternate branch."*
-Not executed — the jump has not been observed running.
+**Runtime, measured 2026-08-27→31** (the drawer's "only after the primary workflow is completed"
+does NOT match what was seen): a custom-trigger fire demonstrably jumps — `added_to_workflow`
+carrying `targetActionId`, a qualified `condition`, a `goto success`. The kill: a
+`remove_from_workflow` with no add ~15–18 s after a successful jump; 0/11 replies with priorities
+wrong, 5/5 once the booking trigger held TOP priority, strictly above every sibling. The
+mechanism — a higher-priority sibling matching stale context, and a non-atomic remove+add whose
+add is deduped — is an INFERRED model that fits eleven reproductions, not a measurement. Full
+detail: `create-ghl-workflow/references/flow-bots.md` → the custom-trigger section, and corpus
+`knowledge/corpus/workflows/50-runtime/flow-bot-runtime.md` (the certification write-up is
+`knowledge/corpus/workflows/70-research/2026-08-31-flow-bot-runtime-certification.md`).
 
 > The picker only offers this trigger once the app has finished resolving its Conversation-AI
 > plan state — checking too early makes it look unreachable from the flow builder.
@@ -137,6 +147,13 @@ All nine accept **both** `conv_ai_trigger` and `conv_ai_autonomous_trigger`.
 ### `conversationai_continue` — Continue Conversation
 
 > The bot will continue to engage with the contact using the Knowledge base and Global prompt 
+
+⚠️ Runtime-proven caveat on that vendor blurb (2026-08-31): the node reads the global prompt but
+**owns no tools** — from a `continue` node the agent cannot book, move or cancel anything, and no
+wording confers the capability. And the global prompt is not a backstop: a `continue` node scoped
+to a narrow job will declare incapacity for out-of-scope requests in the very words the global
+prompt bans, unless the node's own `instructions` carry the rule with its positive half. See
+`create-ghl-workflow/references/flow-bots.md` → "Runtime doctrine".
 
 **status** verified-live · **example** yes · **multipath** no
 
@@ -278,6 +295,10 @@ as previously documented.
 - `conversationai_services_booking` — field names and 2-branch shape confirmed from the asset and
   the live options endpoint, but **not commit-verified**: the test account has no configured
   commerce service, so its services list returns empty and the builder refuses to save the node.
-- **Runtime.** No contact has been made to chat with a flow bot, so nothing here proves the bot
-  actually enters the flow at runtime — only that the binding is stored in the shape GHL's own
-  client reads and renders.
+- **Runtime is now PROVEN** (2026-08-26 → 31, a week of live conversations through the real chat
+  widget, verified against the server's conversation records): the bot enters the flow, the
+  splitters route, objectives capture, the booking node books/moves live appointments, and the
+  custom triggers fire mid-conversation. The doctrine that came out of it — node-owned
+  capability, unsteerable empty-result wording, selection-vs-capability, node scope beating
+  global prohibitions, trigger priority — lives in
+  `create-ghl-workflow/references/flow-bots.md` → "Runtime doctrine".

@@ -1,7 +1,8 @@
 // Canonical build entry for the create-ghl-workflow skill. Run:
 //   node scripts/build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved]
 //
-// Reads the Bearer JWT from ../.playwright-mcp/tok.txt (or $GHL_INTERNAL_TOK_FILE), then
+// Reads the Bearer JWT from $GHL_INTERNAL_TOK_FILE, else ~/.uxie-ghl-internal-mcp/tok.txt
+// (the same default capture-token.mjs and the MCP server use), then
 // routes the IR through the dependency-aware orchestrator — which pre-creates
 // tags + email templates, resolves every human name to the account's real ID,
 // ABORTS if an account dependency is missing, builds a DRAFT, and round-trip
@@ -11,8 +12,33 @@
 // pre-creation and name resolution can never be skipped.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { homedir } from 'node:os';
 const HERE = dirname(fileURLToPath(import.meta.url));
+
+// MUST match DEFAULT_TOKEN_FILE in mcp-internal/core/auth.mjs:12 — capture-token.mjs writes
+// there when no env var is set, so this script has to read the same path or a "fresh" capture
+// still 401s here (the exact defect this constant fixed: edit/build used to default to a
+// .playwright-mcp path that capture never wrote). Re-typed rather than imported because the
+// skills tree is consumed without mcp-internal beside it (Codex manifest, skill installers),
+// so a cross-tree import would break standalone copies.
+const DEFAULT_TOKEN_FILE = join(homedir(), '.uxie-ghl-internal-mcp', 'tok.txt');
+// 0.43.0 hard-renamed GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE. Only the NEW name is read as a
+// value; the OLD name's PRESENCE alone (never its value) is refused loudly — same discipline
+// and wording as mcp-internal/core/auth.mjs readCredentials.
+if (Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE) {
+  console.error('ABORTED (LEGACY_TOKEN_FILE_ENV): GHL_TOK_FILE is set but GHL_INTERNAL_TOK_FILE '
+    + 'is not. GHL_TOK_FILE no longer does anything (renamed in 0.43.0), so this run would '
+    + 'silently fall back to the shared default token file and could authenticate as the wrong '
+    + 'account.\nRename the env var, then retry — same value, new name: '
+    + 'export GHL_INTERNAL_TOK_FILE="<same path you had in GHL_TOK_FILE>"');
+  process.exit(2);
+}
+const tokFile = process.env.GHL_INTERNAL_TOK_FILE || DEFAULT_TOKEN_FILE;
+// Test seam: print the resolved token-file path and exit, so the suite can assert that capture
+// and build resolve the SAME file. Checked AFTER the legacy guard, BEFORE the usage check.
+if (process.argv.includes('--print-token-file')) { console.log(tokFile); process.exit(0); }
+
 const ENG = resolve(HERE, '../engine');
 const { orchestrate } = await import(ENG + '/orchestrate.mjs');
 
@@ -21,7 +47,6 @@ const publish = process.argv.includes('--publish');
 const ignoreUnresolved = process.argv.includes('--ignore-unresolved');
 if (!irPath || !LOC) { console.error('usage: node build.mjs <ir.json> <LOC> [--publish] [--ignore-unresolved]'); process.exit(1); }
 
-const tokFile = process.env.GHL_INTERNAL_TOK_FILE || resolve(HERE, '../../../../.playwright-mcp/tok.txt');
 const T = (readFileSync(tokFile, 'utf8').match(/Bearer (ey[A-Za-z0-9._-]+)/) || [])[1];
 if (!T) { console.error('no Bearer token in', tokFile); process.exit(1); }
 const decoded = JSON.parse(Buffer.from(T.split('.')[1], 'base64url').toString());

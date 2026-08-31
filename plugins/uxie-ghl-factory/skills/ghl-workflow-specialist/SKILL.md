@@ -20,7 +20,8 @@ blueprint → approval → execute → verify). Recon here = read existing workf
   root, `ghl-workflow-specialist/`). Consult it BEFORE telling the user a step/
   trigger "isn't supported" or reaching for a webhook/custom-code workaround.
 - references/patterns.md — multi-workflow architectures and when to use them
-- references/anti-patterns.md — loops, races, timezone/wait/re-entry traps
+- references/anti-patterns.md — loops, races, timezone/wait/re-entry traps, and §11 the
+  flow-bot design rules (read before blueprinting any Conversation AI flow bot)
 
 ## Execute
 Decide WHAT to build here; delegate HOW to the create-ghl-workflow skill (workflows

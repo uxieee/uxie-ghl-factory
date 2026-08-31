@@ -114,20 +114,38 @@ shape* — not its data. Read it as **configuration travels, data doesn't**:
   custom value *definitions* (values set by the snapshot author may also
   carry as literal strings), pipelines and stages, calendars (settings/
   availability, not bookings), tags (definitions only), email/SMS templates,
-  products, custom menus.
+  products, custom menus, **knowledge bases** (their own `knowledge_bases`
+  asset category — proven from a snapshot's own assets read).
 - **Does not carry:** contacts, conversations, opportunities (pipeline
   *data*), appointments (the bookings themselves), users/staff accounts, any
   third-party integration credentials (Stripe, Twilio/LC Phone, Mailgun/
   SMTP, Google, Meta — all must be reconnected per sub-account), tracking
   pixels added through integrations (head/body script pixels may carry;
   integration-added ones don't).
+- **Conversation AI does not carry — the single most expensive thing a
+  clone can miss.** There is no Conversation AI asset category: a flow-bot
+  agent, its flow workflow (which lists under the agent, not under
+  `workflow`) and its Agent Deployment routing rows never travel. A clone
+  gets the bot's knowledge bases and none of the bot. Every clone needs the
+  agent installed separately, by API (`ghl-conversation-ai`), and its
+  Live-chat routing set to All widgets (inferred — clone path not
+  re-executed).
+- 🔑 **A snapshot's actual contents are readable:**
+  `GET /snapshots/{snapshotId}/assets?companyId=` (AI rail, dual credential:
+  Bearer + `token-id`) returns one array per category. Diff it against the
+  manifest before pushing, instead of trusting the wizard's tick-boxes.
 - **Snapshots don't auto-update.** A snapshot is a point-in-time copy;
   editing the source account afterward does not propagate. Distributing a
   change requires re-capturing and re-pushing.
-- **Re-pushing an updated snapshot can overwrite local edits** on
-  sub-accounts that already received it — same-ID assets get overwritten by
-  default, silently discarding any client-side customization made since the
-  original push.
+- **The load wizard gates overwrites per asset.** Step 1 excludes the SOURCE
+  sub-account from the available targets (a snapshot cannot be loaded back
+  onto the account it came from — proven). Steps 2–3 are observed in the UI,
+  never executed (what a commit actually writes is still an open probe):
+  step 2 starts with every category unselected; step 3 resolves collisions
+  per asset, per target account, by explicitly choosing what to overwrite. The overwrite
+  risk is still real: an operator who selects a client-customised asset in
+  the conflict step silently loses those edits, so duplicate customised
+  workflows/forms in the sub-account before a re-push.
 - **No clean detach.** A sub-account can't be decoupled from its originating
   snapshot; the only clean reset is deleting and recreating the sub-account.
 - A very common finding: after a snapshot import, workflows/templates still
@@ -136,6 +154,10 @@ shape* — not its data. Read it as **configuration travels, data doesn't**:
   not the client's) because nobody updated custom values post-import.
   Custom values (and any third-party integration) should always be verified
   immediately after any snapshot import, new or repeated.
+- Corpus: `knowledge/corpus/platform/20-api/snapshots.md` (every snapshot
+  read, and the load wizard step by step) and
+  `knowledge/corpus/platform/40-rules/snapshot-carry-matrix.md` (the full
+  carry table and audit triggers).
 
 ## SaaS-Mode Basics
 

@@ -148,6 +148,30 @@ Every page carries a `status` floor: `proven-live` means executed against a live
 read back on a separate request**. Anything weaker says so. Raw captures go to `sniffs/`, and
 pages cite them rather than copying them.
 
+### The harvester reads your page
+
+A corpus page is not only prose. `knowledge/scripts/harvest-documented-endpoints.mjs` scans
+**every** corpus `.md` — `70-research` included — and every `METHOD /path` token it finds, bare
+in a code block or backtick-wrapped in prose, mints a catalog row that ships in the plugin. The
+row's host comes from the page's single `Base:` declaration, else from a prefix map
+(`ORIGIN_BY_PREFIX`), else BACKEND. So:
+
+- **Declare exactly one `Base:` per `20-api` page.** Two bases make every path ambiguous and
+  the harvester ignores the declaration and falls back to the prefix map, then backend.
+- **Never write a `METHOD /path` token for an endpoint that is inferred, unproven, or known to
+  403.** "a bare read of `/x/{id}`" is safe; "`GET /x/{id}` returns 403" mints a row.
+- **A research page naming endpoints on a non-default host** either declares the base or avoids
+  method tokens — a `70-research` page that did neither filed its rows on backend, and the
+  wrong-host duplicate reached the plugin once.
+- **After writing, run the harvest and READ the minted rows' hosts** before calling the page done.
+
+The pipeline is page → `harvest-documented-endpoints.mjs` → `merge-endpoint-catalogs.mjs`
+(delivers `internal-endpoints.source.json` into the plugin) → the plugin's
+`build-endpoint-catalog.mjs` plus the hand-maintained `endpoint-overlay.json` for reach and
+notes. Before harvesting, have an adversarial reader check every generated page against the
+source it was written from — that read catches invented semantics and over-claimed confidence
+before they ship; it did on the first run.
+
 Turning a finding into a skill or an engine capability is a **separate, later decision** — do
 not fold it into a mapping session.
 

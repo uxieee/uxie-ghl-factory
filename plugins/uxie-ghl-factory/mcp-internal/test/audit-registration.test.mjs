@@ -70,6 +70,10 @@ const DEFAULT_BODIES = Object.freeze({
   '/workflows/status/search/enroll-stats-cache': [{ workflowId: WF, total: 0, finished: 0 }],
   '/workflows/status/enroll-stats': { workflowId: WF, total: 0, finished: 0 },
   '/ai-employees/employees/search': { employees: [], totalCount: 0 },
+  // The Agent-Deployment routing read (per Conversation AI agent) answers a BARE ARRAY —
+  // no wrapper key — per the 2026-08-31 live capture. Unreached while discovery serves no
+  // agents, but pinned here so a fixture that grows one does not fall to the `{}` default.
+  '/agent-deployment/routing-config/configs': [],
   // Also the live shapes (GROM AU 2026-07-27). `/voice-ai/agents/simple` answers a BARE
   // ARRAY with no envelope and no total at all — which is legal here because the surface is
   // single-shot, so a short page is terminal on its own. `/agent-studio/…/agents-with-folders`

@@ -125,7 +125,7 @@ instances across the same 326-workflow corpus. One example JSON per type lives a
 |---|---|---|---|
 | `ai_agent` | GHL-native AI agent (tools, memory, structured output) | `model`, `tools`, `outputFormat` | |
 | `chatgpt` | Separate OpenAI ChatGPT action | `actionType`, `apiKey`, `instructions` | Distinct provider from `ai_agent` — don't conflate the two when reading a workflow. |
-| `conversationai_*` (5 types: `objective`, `ai_message`, `custom_message`, `ai_splitter`, `transfer_bot`) | Conversation AI Studio bot-canvas nodes | varies | The bot canvas itself (prompts, KB, flow graph) is **UI-only** — not exposed via public API (confirmed live, see §4). These step types only cover the workflow-side wiring. |
+| `conversationai_*` (9 nodes: `objective`, `continue`, `end`, `ai_message`, `custom_message`, `ai_splitter`, `book_appointment`, `services_booking`, `transfer_bot`) | Conversation AI Studio bot-canvas nodes | varies | The bot canvas itself (prompts, KB, flow graph) is **UI-only** — not exposed via public API (confirmed live, see §4). These step types only cover the workflow-side wiring. Designing a flow bot: `anti-patterns.md` §11 first. |
 
 ### Coverage gap — the corpus undercounts the real action surface
 Per `STEP_TYPES.md` (2026-05-17 note): 66 step types were corpus-observed, but the

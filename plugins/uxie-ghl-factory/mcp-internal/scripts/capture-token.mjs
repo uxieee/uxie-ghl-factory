@@ -28,9 +28,28 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
+import { DEFAULT_TOKEN_FILE } from '../core/auth.mjs';
 
 const HOME_DIR = join(homedir(), '.uxie-ghl-internal-mcp');
-const TOKEN_FILE = process.env.GHL_INTERNAL_TOK_FILE || join(HOME_DIR, 'tok.txt');
+// 0.43.0 hard-renamed GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE. Only the NEW name is read as a
+// value; the OLD name's PRESENCE alone (never its value) is refused loudly — same discipline
+// and wording as core/auth.mjs readCredentials, so the server and this script say the same
+// thing. Without this, a shell still exporting the old name would have this capture write the
+// shared default file while the caller believes it wrote their configured path.
+if (Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE) {
+  console.error('ABORTED (LEGACY_TOKEN_FILE_ENV): GHL_TOK_FILE is set but GHL_INTERNAL_TOK_FILE '
+    + 'is not. GHL_TOK_FILE no longer does anything (renamed in 0.43.0), so this run would '
+    + 'silently fall back to the shared default token file and could authenticate as the wrong '
+    + 'account.\nRename the env var, then retry — same value, new name: '
+    + 'export GHL_INTERNAL_TOK_FILE="<same path you had in GHL_TOK_FILE>"');
+  process.exit(2);
+}
+// DEFAULT_TOKEN_FILE is the server's own fallback (core/auth.mjs) — capture must write where
+// the server (and the skill scripts) read when no env var is set.
+const TOKEN_FILE = process.env.GHL_INTERNAL_TOK_FILE || DEFAULT_TOKEN_FILE;
+// Test seam: print the resolved token-file path and exit, so the suite can assert resolution
+// (and that capture/edit agree) without launching a browser. Checked AFTER the legacy guard.
+if (process.argv.includes('--print-token-file')) { console.log(TOKEN_FILE); process.exit(0); }
 const PROFILE_DIR = join(HOME_DIR, 'pw-profile');
 
 const APP = 'https://app.gohighlevel.com';

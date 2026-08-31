@@ -66,9 +66,17 @@ AI:
 *"When to use this knowledge base"* and enforces it. A KB attached with no trigger condition
 and `mode: custom` is a KB the agent will not reach for.
 
-**4. Gaps are a real surface, not a counter.** `GET /knowledge-base/gaps/counts` reports
-questions the KB could not answer. That is the fastest read on *why* an agent is answering
-badly — check it before rewriting a prompt.
+**4. Gaps are a dated log of misses, not an inventory of what is missing now.**
+🔴 A row stays `open` after the answering content is added — proven by differential (documents
+added, the questions re-asked live and answered from them, the list re-read unchanged, `lastAskedAt`
+unmoved) — and a question the KB answers is never logged, so every row looks current until you
+read its dates. List: `GET /knowledge-base/gaps?locationId=&knowledgeBaseId=&status=open` (AI rail).
+1. **Read the knowledge base first** — content present ⇒ the row is stale; do not change the agent.
+2. **Check `lastAskedAt`** against the window you are judging.
+3. **Write the knowledge to match `topQueryTexts`** (the customer's own wording).
+4. **Never filter by `categories`** — a genuine product question was filed under *Noise / Gibberish / Chitchat*.
+The DISMISS write was never captured — clearing a gap is a UI step; do not claim to have automated
+it. Fields and counts endpoint: `knowledge/corpus/ai-agents/20-api/knowledge-base.md` → "Gaps".
 
 **5. Editing a rich-text doc is a PUT, not delete-and-recreate.** `PUT
 /knowledge-base/rich-text/:id` is a **live-verified full-replace** (2026-08-28, the designated

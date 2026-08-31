@@ -2,7 +2,7 @@
 // See docs/superpowers/specs/2026-07-10-create-ghl-workflow-v2-design.md §5.
 import { parseIR, IRError, collectRefs, checkOpportunityAssociation, canonicalizeOppStageCondition,
   lintConditionShape, walkNodes, OPP_STAGE_TYPE, OPP_STAGE_SUBTYPE } from './ir.mjs';
-import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape } from './opp-shapes.mjs';
+import { checkOppFieldShape, STANDARD_OPP_FIELDS, defaultOppFieldShape, OPP_CUSTOM_FIELD_PREFIX } from './opp-shapes.mjs';
 import { checkGoghlSyntax } from './goghl.mjs';
 import { checkWebhookRefs } from './webhook-rail.mjs';
 import { checkStepOutputRefs } from './step-outputs.mjs';
@@ -434,11 +434,18 @@ function resolveOppUpdateField(u, ref, ctx) {
     checkOppFieldShape(f, { ref, warn: ctx?.warn });
     return f;
   }
-  const cf = ctx?.customFields?.find((c) => c.id === ff || c.fieldKey === ff);
+  // A CUSTOM field must be addressed as `custom_fields.<id>`. The action turns filterField into a
+  // TOP-LEVEL body property, and the opportunities DTO whitelists those — a bare id comes back
+  // `property <id> should not exist` and the step SKIPS with a 400 buried in the log row
+  // (live-proven, GROM sandbox 2026-08-30). The prefix is what makes it build a customFields
+  // entry instead. Accept every spelling an author might reach for; emit only the wire one.
+  const bare = ff.startsWith(OPP_CUSTOM_FIELD_PREFIX) ? ff.slice(OPP_CUSTOM_FIELD_PREFIX.length) : ff;
+  const cf = ctx?.customFields?.find((c) => c.id === bare || c.fieldKey === bare);
   if (cf) {
-    ctx?.warn?.(`OPP_SHAPE: update_opportunity '${ref}' custom field '${ff}' shape not validated `
-      + `(contact->opp dataType join pending, spec §7b) — emitted as authored`);
-    return oppField(ff, u.value, u.dataType, u.valueFieldType ?? 'string');
+    // entities.mjs already carries dataType per field, so the join this used to defer is
+    // available: emit the account's own dataType rather than warning that it went unvalidated.
+    return oppField(`${OPP_CUSTOM_FIELD_PREFIX}${cf.id}`, u.value,
+      u.dataType ?? cf.dataType, u.valueFieldType ?? 'string');
   }
   // Row 3 is a claim: "this field is genuinely unknown." The engine may only make that
   // claim when it actually HAS the account's field list. Only throw when a customFields
@@ -1975,16 +1982,20 @@ export function buildTrigger(t, ctx, wid, refMap) {
   }
   if (targetActionId && isGotoTriggerType(t.type, ctx)) {
     ctx?.warn?.(`GOTO_TRIGGER_RACE: '${t.name ?? t.type}' re-enters the flow at a step via `
-      + 'targetActionId. GHL can deliver the SAME trigger event twice ~15s apart (different '
-      + 'workflowTraceIds, at-least-once delivery). The second firing\'s remove-from-run lands '
-      + 'on the run the first one created, and its re-enrol never arrives: the run dies mid-'
-      + 'conversation with no reply and no field writes. Reproduced 3/3 on 2026-08-27 '
-      + '(goto-kill-evidence.md). The fatal case is a remove hitting a run WAITING at an '
-      + 'interactive step, so a targeted section that only derives and records is survivable '
-      + 'while one that asks a question is not. GHL\'s own pattern avoids the jump entirely: '
-      + 'land every trigger at the flow HEAD and route on trigger identity with a head if_else '
-      + '({conditionType:"trigger", conditionSubType:"trigger", conditionValue:"<trigger id>"} '
-      + '— conditionSubType is mandatory).');
+      + 'targetActionId, and a run created this way can be KILLED by a SIBLING custom trigger. '
+      + 'Measured 2026-08-27 over eleven reproductions: a remove_from_workflow with NO add '
+      + '~15-18s after a successful jump strands the contact mid-conversation — 0/11 replies '
+      + 'with priorities wrong, 5/5 once the trigger you always want to win (booking) held TOP '
+      + 'priority, strictly above every sibling. The mechanism (break-out authority follows '
+      + 'priority; matching runs against the WHOLE conversation; a non-atomic remove+add whose '
+      + 'add is deduped) is an inferred model that fits every observation, not a measurement. '
+      + 'Keep siblings at LOW sensitivity with latest-message-scoped descriptions. '
+      + 'Distinct from a genuine second inbound message mid-run, which restarts the flow '
+      + 'BENIGNLY — the restarted run reads the whole conversation and answers everything so '
+      + 'far. GHL\'s own pattern avoids the jump entirely: land every trigger at the flow HEAD '
+      + 'and route on trigger identity with a head if_else ({conditionType:"trigger", '
+      + 'conditionSubType:"trigger", conditionValue:"<trigger id>"} — conditionSubType is '
+      + 'mandatory).');
   }
   // custom_date_reminder: the config block AND the conditions row the validator reads.
   let cdr = null;

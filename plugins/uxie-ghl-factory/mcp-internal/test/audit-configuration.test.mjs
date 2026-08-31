@@ -113,6 +113,11 @@ const AI_WARNING_CODES = Object.freeze([
   'AI_DISCOVERY_TOTAL_DISAPPEARED',
   'AI_DETAIL_READ_FAILED',
   'AI_DETAIL_UNREADABLE',
+  // The ROUTING twins, for the per-agent Agent-Deployment routing read (Conversation AI
+  // only). Separate from the detail codes because only one of the two phases may be at
+  // fault on a given agent, and an auditor acts on them differently.
+  'AI_ROUTING_READ_FAILED',
+  'AI_ROUTING_UNREADABLE',
   // Added by adversarial review: a detail read was never checked against the id it was issued
   // for, so a response about another agent was published as this one's configuration.
   'AI_DETAIL_IDENTITY_MISMATCH',
@@ -159,9 +164,15 @@ const BUNDLE_RESULT_KEYS = Object.freeze([
 // that page reported no total. It is published rather than kept private because the defect it
 // closes is invisible from any other field — a walk that latched 500 and finished with 150 rows
 // and a walk that was never told anything are otherwise the same artifact.
+// `routingRead`/`routingPinned`/`routingEnvelopeShape` are the Agent-Deployment routing
+// phase's per-component fields — a count against detailDenominator (the routing loop owes
+// the same agents detail() does, so there is deliberately NO routing denominator field), an
+// advisory summary of rows pinned to specific identifiers, and the routing twin of
+// `envelopeShape`. All three are `null` on a surface with no declared routing capability.
 const COMPONENT_KEYS = Object.freeze([
   'applicable', 'complete', 'detailDenominator', 'detailsRead', 'envelopeShape', 'errors',
-  'items', 'pages', 'sourceRoutes', 'totalHistory',
+  'items', 'pages', 'routingEnvelopeShape', 'routingPinned', 'routingRead', 'sourceRoutes',
+  'totalHistory',
 ]);
 
 // --- fixtures -------------------------------------------------------------------
@@ -257,8 +268,11 @@ function assertDescriptorPolicy({ capabilityId, typedBindings, query }, { locati
   }
   // The per-product seal. A flat product-agnostic list would let a Voice id probe the
   // Conversation-AI and Agent-Studio detail routes with a perfectly plausible id, so the
-  // stub enforces the same OWN-property, per-discovery-capability rule the gateway does.
-  if (Object.values(capability.pathBindings).includes('agentId')) {
+  // stub enforces the same OWN-property, per-discovery-capability rule the gateway does —
+  // for BOTH agent-binding shapes, exactly as the gateway's enforceAgentSeal does: a path
+  // variable (the detail routes) or a sealed query key (the routing route).
+  if (Object.values(capability.pathBindings).includes('agentId')
+    || (capability.sealedBy !== null && Object.values(capability.queryBindings).includes('agentId'))) {
     const sealed = typedBindings.discoveredAgentIds;
     assert.ok(sealed && typeof sealed === 'object' && !Array.isArray(sealed),
       `${capabilityId} needs discoveredAgentIds keyed by discovery capability id (BINDING_MISMATCH)`);
@@ -390,9 +404,14 @@ const AI_DETAIL_OF = Object.freeze({
   voice_ai: 'voice_ai_agent_detail',
   agent_studio: 'agent_studio_agent_detail',
 });
+// Conversation AI is the only surface with a proven Agent-Deployment routing route.
+const AI_ROUTING_OF = Object.freeze({
+  conversation_ai: 'conversation_ai_deployment_routing',
+});
 const COMPONENT_OF_CAPABILITY = Object.freeze(Object.fromEntries([
   ...Object.entries(AI_DISCOVERY_OF).map(([component, id]) => [id, component]),
   ...Object.entries(AI_DETAIL_OF).map(([component, id]) => [id, component]),
+  ...Object.entries(AI_ROUTING_OF).map(([component, id]) => [id, component]),
 ]));
 
 function makeAiGateway(spec, { locationId = LOC } = {}) {
@@ -453,6 +472,21 @@ function makeAiGateway(spec, { locationId = LOC } = {}) {
     return { json: { _id: id, locationId, name: id }, override: {} };
   };
 
+  // Routing bodies, keyed by agent id like `details`. The DEFAULT is the live-observed
+  // envelope: a BARE ARRAY (2026-08-31 capture), served empty — a schema-valid terminal read
+  // that says "deployed on no channel", which keeps every pre-existing scenario's
+  // completeness verdict untouched. `routingDefault` fails every routing read on a component
+  // without naming ids one by one, for the same ballast reason `detailDefault` exists.
+  const routingBody = (component, typedBindings) => {
+    const id = String(typedBindings.agentId);
+    const declared = components[component] ?? {};
+    const entry = (declared.routing ?? {})[id];
+    if (entry && Object.hasOwn(entry, 'body')) return { json: entry.body, override: entry.gateway ?? {} };
+    if (entry?.gateway) return { json: null, override: entry.gateway };
+    if (declared.routingDefault) return { json: null, override: declared.routingDefault };
+    return { json: [], override: {} };
+  };
+
   return {
     locationId,
     calls,
@@ -466,9 +500,12 @@ function makeAiGateway(spec, { locationId = LOC } = {}) {
       const component = COMPONENT_OF_CAPABILITY[capability.capabilityId];
       assert.ok(component, `getAiConfigurationBundle may only read AI capabilities, got ${capability.capabilityId}`);
       const isDiscovery = AI_DISCOVERY_OF[component] === capability.capabilityId;
+      const isRouting = AI_ROUTING_OF[component] === capability.capabilityId;
       const { json, override } = isDiscovery
         ? discoveryBody(component, capability, query, nth)
-        : detailBody(component, typedBindings);
+        : isRouting
+          ? routingBody(component, typedBindings)
+          : detailBody(component, typedBindings);
       return respond(capability, typedBindings, query, json, override);
     },
   };
@@ -614,6 +651,11 @@ function assertComponentExpectations(component, expected, label) {
   }
   if (has('detailDenominator')) assert.equal(component.detailDenominator, expected.detailDenominator, `${label}.detailDenominator`);
   if (has('detailsRead')) assert.equal(component.detailsRead, expected.detailsRead, `${label}.detailsRead`);
+  if (has('routingRead')) assert.equal(component.routingRead, expected.routingRead, `${label}.routingRead`);
+  if (has('routingPinned')) assert.deepEqual(component.routingPinned, expected.routingPinned, `${label}.routingPinned`);
+  if (has('routingEnvelopeShape')) {
+    assert.deepEqual(component.routingEnvelopeShape, expected.routingEnvelopeShape, `${label}.routingEnvelopeShape`);
+  }
   if (has('pagesFetched')) assert.equal(component.pages.fetched, expected.pagesFetched, `${label}.pages.fetched`);
   if (has('pagesExhausted')) assert.equal(component.pages.exhausted, expected.pagesExhausted, `${label}.pages.exhausted`);
   if (has('totalHistory')) assert.deepEqual(component.totalHistory, expected.totalHistory, `${label}.totalHistory`);
@@ -650,6 +692,23 @@ function assertComponentExpectations(component, expected, label) {
         `${label}: a complete component read a detail for every applicable discovered id`);
     }
   }
+  // The routing invariant, on EVERY scenario rather than only where it is named: a
+  // routing-bearing component may not publish complete:true while a routing read was
+  // silently skipped — the routing loop owes exactly the detail denominator's agents.
+  if (component.routingRead !== null) {
+    assert.ok(Number.isSafeInteger(component.routingRead) && component.routingRead >= 0,
+      `${label}: routingRead must be a real count on a routing-bearing surface`);
+    assert.ok(component.routingRead <= component.detailDenominator,
+      `${label}: more routing reads were counted than the denominator allows`);
+    assert.ok(Array.isArray(component.routingPinned), `${label}: routingPinned must be a list here`);
+    if (component.complete === true) {
+      assert.equal(component.routingRead, component.detailDenominator,
+        `${label}: a complete routing-bearing component read routing rows for every applicable agent`);
+    }
+  } else {
+    assert.equal(component.routingPinned, null, `${label}: no routing surface, no pinned summary`);
+    assert.equal(component.routingEnvelopeShape, null, `${label}: no routing surface, no routing shape`);
+  }
   for (const error of component.errors) {
     // The error vocabulary is CLOSED, exactly as the warning vocabularies are. It used to be
     // asserted only as `typeof === 'string'`, which is not a contract: `component.errors[].code`
@@ -658,7 +717,7 @@ function assertComponentExpectations(component, expected, label) {
     assert.ok(isAiBundleErrorCode(error.code),
       `${label}: ${error.code} is not in the closed AI_BUNDLE_ERROR_CODES vocabulary`);
     assert.equal(typeof error.capabilityId, 'string', `${label}: error metadata must name the capability`);
-    assert.ok(['discovery', 'detail'].includes(error.phase), `${label}: error metadata must name the phase`);
+    assert.ok(['discovery', 'detail', 'routing'].includes(error.phase), `${label}: error metadata must name the phase`);
     // Errors carry the SAME uniform shape as warnings, and for the same reason: they are
     // aggregated per (code, capabilityId, phase), so a consumer summing `occurrences` must
     // never meet undefined.
@@ -1675,6 +1734,280 @@ test('a detail read is never issued for an id no discovery response returned', a
   assert.deepEqual(ids, ['as-1'], 'only discovered ids may be detail-read');
 });
 
+// --- the Agent-Deployment routing phase (Conversation AI only) ----------------------------
+
+const routingRowFor = (agentId, channel, over = {}) => ({
+  id: `rc-${agentId}-${channel}`,
+  createdAt: '2026-08-31T00:00:00.000Z',
+  updatedAt: '2026-08-31T00:00:00.000Z',
+  deleted: false,
+  locationId: LOC,
+  channel,
+  providerId: 'provider-1',
+  enabled: true,
+  agentId,
+  agentProductType: 'CONVERSATIONS',
+  allIdentifiers: true,
+  specificIdentifiers: [],
+  includeTagsOperator: 'ANY',
+  excludeTagsOperator: 'ALL',
+  ...over,
+});
+
+test('routing rows are read once per Conversation AI agent, sealed, and published VERBATIM', async () => {
+  // The LIVE envelope (2026-08-31, designated sandbox): a BARE ARRAY, no wrapper key.
+  const rows1 = [routingRowFor('ce-1', 'SMS'), routingRowFor('ce-1', 'Live_Chat')];
+  const rows2 = [routingRowFor('ce-2', 'SMS')];
+  const { gateway, result } = await runBundle({
+    components: {
+      conversation_ai: {
+        discovery: [{ rows: [{ _id: 'ce-1' }, { _id: 'ce-2' }] }],
+        routing: { 'ce-1': { body: rows1 }, 'ce-2': { body: rows2 } },
+      },
+      voice_ai: { discovery: [{ rows: [] }] },
+      agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    },
+  });
+  const calls = callsTo(gateway, 'conversation_ai_deployment_routing');
+  assert.deepEqual(calls.map((call) => String(call.typedBindings.agentId)), ['ce-1', 'ce-2'],
+    'one routing read per discovered agent, in discovery order, AFTER the detail loop');
+  for (const call of calls) {
+    assert.deepEqual(Object.keys(call.query).sort(), ['agentId', 'locationId']);
+    assert.equal(call.query.locationId, LOC);
+    assert.equal(call.query.agentId, String(call.typedBindings.agentId));
+    // Sealed under its OWN discovery capability, exactly as the detail reads are.
+    const seal = call.typedBindings.discoveredAgentIds;
+    assert.ok(seal && Object.hasOwn(seal, 'conversation_ai_agent_discovery'));
+    assert.ok(seal.conversation_ai_agent_discovery.includes(String(call.typedBindings.agentId)));
+  }
+  const component = result.components.conversation_ai;
+  assert.equal(component.routingRead, 2);
+  assert.equal(component.detailDenominator, 2, 'routing reuses the detail denominator — no second one exists');
+  assert.deepEqual(component.items.map((item) => item.routingRead), [true, true]);
+  assert.deepEqual(component.items[0].routing, rows1, 'rows are published verbatim, deleted flag included');
+  assert.deepEqual(component.items[1].routing, rows2);
+  assert.deepEqual(component.routingPinned, [], 'allIdentifiers:true rows pin nothing');
+  // The live fact, pinned as an observation: the envelope the walk MET was a bare array.
+  assert.deepEqual(component.routingEnvelopeShape, { rowsKeys: ['<bare-array>'], totalKeys: [] });
+  // The two surfaces with no proven routing route stay null on all three fields.
+  for (const name of ['voice_ai', 'agent_studio']) {
+    assert.equal(result.components[name].routingRead, null, `${name} has no routing surface`);
+    assert.equal(result.components[name].routingPinned, null);
+    assert.equal(result.components[name].routingEnvelopeShape, null);
+  }
+  assert.equal(component.complete, true);
+  assert.equal(result.complete, true);
+  assert.deepEqual(warningCodesOf(result), []);
+});
+
+test('a wrapped routing envelope under configs or data is still read — fail-closed candidates, not observations', async () => {
+  const { result } = await runBundle({
+    components: {
+      conversation_ai: {
+        discovery: [{ rows: [{ _id: 'ce-1' }, { _id: 'ce-2' }] }],
+        routing: {
+          'ce-1': { body: { configs: [routingRowFor('ce-1', 'SMS')] } },
+          'ce-2': { body: { data: [routingRowFor('ce-2', 'SMS')] } },
+        },
+      },
+      voice_ai: { discovery: [{ rows: [] }] },
+      agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    },
+  });
+  const component = result.components.conversation_ai;
+  assert.equal(component.routingRead, 2);
+  assert.equal(component.items[0].routing.length, 1);
+  assert.equal(component.items[1].routing.length, 1);
+  assert.deepEqual(component.routingEnvelopeShape, { rowsKeys: ['configs', 'data'], totalKeys: [] });
+  assert.equal(component.complete, true);
+});
+
+test('an EMPTY routing array after a terminal read is legal: routing [], routingRead counted', async () => {
+  // Empty-after-terminal-read is an observation ("deployed on no channel"); null-on-failure
+  // is mandatory. The two must never converge — this is the routing copy of the module's
+  // founding rule.
+  const { result } = await runBundle({
+    components: {
+      conversation_ai: { discovery: [{ rows: [{ _id: 'ce-1' }] }] },   // routing default: []
+      voice_ai: { discovery: [{ rows: [] }] },
+      agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    },
+  });
+  const component = result.components.conversation_ai;
+  assert.deepEqual(component.items[0].routing, [], 'a proven-empty deployment publishes []');
+  assert.equal(component.items[0].routingRead, true);
+  assert.equal(component.routingRead, 1);
+  assert.equal(component.complete, true);
+  assert.equal(result.complete, true);
+});
+
+test('a failed routing read is stated with a coded warning, never an empty row list', async () => {
+  const { gateway, result } = await runBundle({
+    components: {
+      conversation_ai: {
+        discovery: [{ rows: [{ _id: 'ce-1' }, { _id: 'ce-2' }] }],
+        routing: { 'ce-2': { gateway: { ok: false, status: 404, failureClass: 'HTTP_404' } } },
+      },
+      voice_ai: { discovery: [{ rows: [] }] },
+      agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    },
+  });
+  assert.equal(callsTo(gateway, 'conversation_ai_deployment_routing').length, 2,
+    'the failed read was ISSUED — this is not a check that skips the call');
+  const component = result.components.conversation_ai;
+  assert.equal(component.items[1].routing, null, 'a failed routing read is null, never []');
+  assert.equal(component.items[1].routingRead, false);
+  assert.equal(component.routingRead, 1, 'the read that succeeded still counts');
+  assert.equal(component.complete, false, 'a component missing a routing read may not publish as complete');
+  assert.equal(result.complete, false);
+  assert.ok(result.warnings.some((warning) => warning.code === 'AI_ROUTING_READ_FAILED'
+    && warning.component === 'conversation_ai'));
+  const routingErrors = component.errors.filter((error) => error.phase === 'routing');
+  assert.deepEqual(routingErrors.map((error) => [error.code, error.capabilityId]),
+    [['HTTP_404', 'conversation_ai_deployment_routing']]);
+});
+
+test('an unreadable routing 200 is AI_ROUTING_UNREADABLE, not an empty deployment', async () => {
+  // The gateway says ok:true, so a composite reaching for `json.configs ?? []` would publish
+  // a confident "deployed nowhere" for a read that did not happen. `{}` and an unknown
+  // wrapper both fail closed the same way.
+  for (const body of [{ unexpectedEnvelope: true }, {}, { routingConfigs: [] }]) {
+    const { result } = await runBundle({
+      components: {
+        conversation_ai: {
+          discovery: [{ rows: [{ _id: 'ce-1' }] }],
+          routing: { 'ce-1': { body } },
+        },
+        voice_ai: { discovery: [{ rows: [] }] },
+        agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+      },
+    });
+    const component = result.components.conversation_ai;
+    assert.equal(component.items[0].routing, null, `${JSON.stringify(body)}: unreadable is not empty`);
+    assert.equal(component.items[0].routingRead, false);
+    assert.equal(component.routingRead, 0);
+    assert.equal(component.complete, false);
+    assert.deepEqual([...new Set(component.errors.filter((e) => e.phase === 'routing').map((e) => e.code))],
+      ['AI_ROUTING_UNREADABLE']);
+    assert.ok(result.warnings.some((warning) => warning.code === 'AI_ROUTING_UNREADABLE'));
+  }
+});
+
+test('routingPinned flags STRICT allIdentifiers:false rows only, and a pinned row is never a failure', async () => {
+  // The same discipline as the tombstone rule: `'false'` (a string) and an ABSENT key are
+  // each one loose comparison away from qualifying, and each such slip either invents a
+  // pinned row or hides one. A genuinely pinned row is legal live configuration — the
+  // channel answers only on the named identifiers — so it must be REPORTED, component-level,
+  // and must not force complete:false.
+  const rows = [
+    routingRowFor('ce-1', 'Live_Chat', { allIdentifiers: false, specificIdentifiers: ['widget-1', 'widget-2'] }),
+    routingRowFor('ce-1', 'SMS', { allIdentifiers: 'false', specificIdentifiers: ['not-flagged'] }),
+    (() => { const row = routingRowFor('ce-1', 'Email'); delete row.allIdentifiers; return row; })(),
+    routingRowFor('ce-1', 'WhatsApp'),                       // true — not flagged
+  ];
+  // `includeTags`/`excludeTags` are ABSENT from every row above, as they can be live: the
+  // advisory must never assume the tag keys exist.
+  assert.ok(rows.every((row) => !Object.hasOwn(row, 'includeTags') && !Object.hasOwn(row, 'excludeTags')));
+  const { result } = await runBundle({
+    components: {
+      conversation_ai: {
+        discovery: [{ rows: [{ _id: 'ce-1' }] }],
+        routing: { 'ce-1': { body: rows } },
+      },
+      voice_ai: { discovery: [{ rows: [] }] },
+      agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    },
+  });
+  const component = result.components.conversation_ai;
+  assert.deepEqual(component.routingPinned, [
+    { agentId: 'ce-1', channel: 'Live_Chat', specificIdentifiers: ['widget-1', 'widget-2'] },
+  ], 'exactly the strict === false row pins, with its identifiers copied verbatim');
+  assert.equal(component.items[0].routing.length, 4, 'every row is still published verbatim');
+  assert.equal(component.complete, true, 'a pinned row is legal live config, not a fault');
+  assert.equal(result.complete, true);
+  assert.deepEqual(warningCodesOf(result), [], 'the pinned summary is component evidence, never a warning');
+});
+
+test('routing skips tombstones and id-less rows exactly as detail() does', async () => {
+  // Conversation AI rows are never tombstoned (the Voice-only rule), so the skip rules are
+  // exercised on the id-less side here: a row with no id can address neither a detail nor a
+  // routing route, stays in the denominator, and its absence keeps the component incomplete
+  // through the discovery warning that already fired.
+  const { gateway, result } = await runBundle({
+    components: {
+      conversation_ai: {
+        discovery: [{ rows: [{ _id: 'ce-ok' }, { name: 'no id at all' }] }],
+      },
+      voice_ai: { discovery: [{ rows: [] }] },
+      agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    },
+  });
+  assert.deepEqual(
+    callsTo(gateway, 'conversation_ai_deployment_routing').map((call) => String(call.typedBindings.agentId)),
+    ['ce-ok'], 'no routing read is ever issued for an unaddressable row',
+  );
+  const component = result.components.conversation_ai;
+  assert.equal(component.routingRead, 1);
+  assert.equal(component.detailDenominator, 2, 'the id-less row still owes rows nobody can fetch');
+  assert.equal(component.complete, false);
+});
+
+test('routing reads need no company context', async () => {
+  // The routing route binds a location and an agent, never an agency. A missing companyId
+  // degrades Agent Studio alone; the Conversation AI routing loop must still run.
+  const { gateway, result } = await runBundle({
+    omitCompanyId: true,
+    components: {
+      conversation_ai: { discovery: [{ rows: [{ _id: 'ce-1' }] }] },
+      voice_ai: { discovery: [{ rows: [] }] },
+      agent_studio: { declaredTotal: 0, discovery: [{ rows: [] }] },
+    },
+  });
+  assert.equal(callsTo(gateway, 'conversation_ai_deployment_routing').length, 1);
+  assert.equal(result.components.conversation_ai.routingRead, 1);
+  assert.equal(result.components.conversation_ai.complete, true);
+  assert.equal(result.components.agent_studio.complete, false, 'Agent Studio still records its own gap');
+});
+
+test('a thrown policy fault on a routing read degrades the surface and the run continues', async () => {
+  const gateway = throwingGateway('BINDING_MISMATCH', { only: 'conversation_ai_deployment_routing' });
+  const result = await getAiConfigurationBundle({
+    auditGateway: gateway,
+    input: { locationId: LOC, companyId: COMPANY },
+  });
+  const component = result.components.conversation_ai;
+  assert.equal(component.complete, false);
+  assert.ok(Array.isArray(component.items) && component.items.length === 1,
+    'the discovered row stays as evidence — a routing refusal does not erase discovery');
+  assert.equal(component.items[0].routing, null);
+  assert.equal(component.routingRead, 0);
+  assert.deepEqual(component.errors.filter((error) => error.phase === 'routing').map((error) => error.code),
+    ['BINDING_MISMATCH']);
+  assert.equal(result.components.voice_ai.complete, true, 'the other surfaces stay readable');
+  assert.equal(result.components.agent_studio.complete, true);
+  assert.ok(result.warnings.some((warning) => warning.code === 'AI_POLICY_REFUSED'));
+});
+
+test('a CIRCUIT_OPEN thrown mid-routing aborts the sweep and attaches the partial', async () => {
+  const gateway = throwingGateway('CIRCUIT_OPEN', {
+    meta: { scope: 'ai', reason: 'RATE_LIMITED' },
+    only: 'conversation_ai_deployment_routing',
+  });
+  await assert.rejects(
+    () => getAiConfigurationBundle({ auditGateway: gateway, input: { locationId: LOC, companyId: COMPANY } }),
+    (error) => {
+      assert.equal(error.code, 'CIRCUIT_OPEN');
+      assert.ok(error.partial, 'the reads before the latch are evidence');
+      const partial = error.partial.components.conversation_ai;
+      assert.equal(partial.detailsRead, 1, 'the detail phase had already finished');
+      assert.equal(partial.routingRead, 0);
+      assert.deepEqual(partial.routingEnvelopeShape, { rowsKeys: [], totalKeys: [] },
+        'the partial carries the routing shape log, empty because no routing page was read');
+      return true;
+    },
+  );
+});
+
 // --- always three surfaces -------------------------------------------------------------
 
 test('callers cannot omit a surface, however hard they try', async () => {
@@ -1739,6 +2072,7 @@ test('each composite hashes ONLY the descriptors it declares', async () => {
     'agent_studio_agent_discovery',
     'conversation_ai_agent_detail',
     'conversation_ai_agent_discovery',
+    'conversation_ai_deployment_routing',
     'voice_ai_agent_detail',
     'voice_ai_agent_discovery',
   ]);
@@ -1772,6 +2106,17 @@ test('each composite hashes ONLY the descriptors it declares', async () => {
   );
   assert.equal(
     `sha256:${sha256Canonical(resolveConfigurationDescriptors(ROSTER_CAPABILITY_IDS, aiEdited))}`,
+    ROSTER_CAPABILITY_VERSION,
+  );
+  // The routing descriptor is part of the bundle's policy and only the bundle's: editing it
+  // must move the AI bundle version and must NOT move the roster's.
+  const routingEdited = mutate('conversation_ai_deployment_routing', { optionalQueryKeys: ['channel'] });
+  assert.notEqual(
+    `sha256:${sha256Canonical(resolveConfigurationDescriptors(AI_BUNDLE_CAPABILITY_IDS, routingEdited))}`,
+    AI_BUNDLE_CAPABILITY_VERSION,
+  );
+  assert.equal(
+    `sha256:${sha256Canonical(resolveConfigurationDescriptors(ROSTER_CAPABILITY_IDS, routingEdited))}`,
     ROSTER_CAPABILITY_VERSION,
   );
 });

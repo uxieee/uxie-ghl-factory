@@ -72,6 +72,32 @@ const WIRE_TYPE_ALIASES = { internal_update_opportunity: 'update_opportunity', i
 // Reject any node-level key the compiler will not read. Attribute keys already had this
 // (ATTR_KEY); node keys did not, which is how `kind:'find_opportunity'`, a typo'd
 // `attribute:`, and a stray `onFound:` all compiled "clean" while doing nothing.
+// Every TOP-LEVEL key some stage of the pipeline reads. The node level has had a registry since
+// v0.3.0; this one did not exist, so the top level accreted keys and anything outside the set was
+// accepted, ignored, and never mentioned in the report. `parentId` is the case that named it: a
+// build asking for a folder returned ok:true and left the workflow at the account root, with
+// nothing in the output hinting it had not gone where it was asked. A typo'd `setings` had always
+// died the same way.
+const KNOWN_TOP_KEYS = new Set([
+  'name', 'triggers', 'graph', 'settings', 'stickyNotes', 'senderDefault',
+  'sampleWebhookPayload', 'pinWebhookSample', 'object', 'customObjectType', 'workflowType',
+]);
+
+function checkTopKeys(ir) {
+  const bad = Object.keys(ir).filter((k) => !KNOWN_TOP_KEYS.has(k));
+  if (!bad.length) return;
+  // Folders are a separate resource: the create POST hardcodes parentId:null and there is no
+  // evidence it accepts one, so filing is a second call. Say so instead of a bare key list.
+  const folderHint = bad.includes('parentId')
+    ? ' `parentId` is not a build input — the create POST cannot file a workflow. Build first,'
+      + ' then file it with move_workflows({locationId, workflowIds:[wid], parentId}).'
+    : '';
+  throw new IRError('TOP_KEY',
+    `unknown top-level IR key(s) [${bad.join(', ')}] — the pipeline never reads these, so they `
+    + `would be silently discarded and the build would report success anyway.${folderHint} `
+    + `Known top-level keys: ${[...KNOWN_TOP_KEYS].join(', ')}.`);
+}
+
 function checkNodeKeys(n) {
   const bad = Object.keys(n).filter((k) => !KNOWN_NODE_KEYS.has(k));
   if (bad.length)
@@ -201,6 +227,7 @@ export function walkNodes(nodes, visit) {
 export function parseIR(ir, { externalRefs } = {}) {
   if (!ir || typeof ir !== 'object' || !Array.isArray(ir.triggers) || !Array.isArray(ir.graph))
     throw new IRError('SCHEMA', 'IR must have triggers[] and graph[]');
+  checkTopKeys(ir);
   // triggers: [] is legal — trigger-less workflows are enrolled from another
   // workflow via add_to_workflow (the builder's "empty trigger tab" shape).
   // The build path simply has no trigger POSTs to make.

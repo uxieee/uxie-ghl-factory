@@ -41,6 +41,25 @@ option IDs unique.
 **The engine lints both at compile** (`goghl.mjs`, advisory): a malformed line is sent to the
 contact as LITERAL TEXT — the lint names the exact segment. Hatch: `skipGoghlCheck`.
 
+## Silent failure: no phone = fake success (live-measured 2026-08-30)
+
+A contact created with NO phone number was walked through a six-send WhatsApp rail. **All six
+sends logged `success — {"message":"Message queued for delivery"}`, and the contact's conversation
+list afterwards was EMPTY** — no failed message, no empty thread, no record at all. Contrast the
+native `sms` step, which honestly reports `missing-data: No Phone number` on the same contact.
+
+Consequences to design around:
+- A vendor `success` means *queued*, never *delivered*. When auditing a WA rail, cross-check the
+  contact's conversation list before believing a send row.
+- An email-only lead (a form fill with the phone field missing, a bad number) silently absorbs the
+  entire chase: the logs read six touches, the lead got none, and nothing in the inbox hints
+  anyone was contacted.
+- This partly defeats the mandatory failure monitor below: a contact with no number never reaches
+  a delivery *attempt*, so `message_failed_prod` (and `InvalidWhatsAppNumber` watchers) may never
+  fire `[inferred — no trace of any kind was left; the trigger itself was not observed]`. Guard
+  the rail upstream — branch on the phone field before the first send — rather than trusting the
+  monitor to catch the phoneless case.
+
 ## Ban discipline (vendor's own numbers — treat as hard policy for every GROM WA build)
 
 1. **Residential proxy**: country = where the PHONE physically is, never the number's country.
