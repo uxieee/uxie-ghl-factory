@@ -2,44 +2,85 @@
 
 A plugin that turns **Claude Code** — or **Codex** — into a competent **GoHighLevel operator**: it
 reads a sub-account, designs and builds workflows, courses, funnels, events, pipelines and AI
-agents, and reverse-engineers GHL's own internal APIs when the public one falls short.
+agents, and reaches GHL's own internal APIs when the public one falls short.
 
-### Install in Claude Code
+**This is not an MCP wrapper around an API.** The API access is the smallest part. The plugin
+pairs it with GHL-specific judgement — a persisted per-client brief, specialist architecture
+skills, a compiler with 147 enforced rules, read-back verification after every write, and
+draft-first discipline — so the agent operates the account instead of narrating where to click.
+
+## What you can do with it
+
+Point it at a sub-account, then ask in plain language:
+
+- *"Read this account and tell me how it's set up — what's automated, what's missing."*
+- *"Design and build a 7-day lead-nurture workflow for Facebook leads."*
+- *"Contacts are getting stuck in this workflow — figure out where and why."*
+- *"Build this course from my curriculum doc — chapters, drip, quizzes, the offer."*
+- *"Create a pipeline for our setter process and wire the stage moves."*
+- *"Export this workflow's raw JSON before we touch it."*
+- *"Build a Voice AI agent for this clinic."*
+
+You don't pick tools or skills by hand — the request routes itself. The skills exist so the agent
+knows *how* GHL actually behaves (and when not to act), not as a menu you have to learn.
+
+## Quick start
+
+**Claude Code**
 
 ```
 /plugin marketplace add uxieee/uxie-ghl-factory
 /plugin install uxie-ghl-factory@uxieee
 ```
 
-Then run `/uxie-ghl-factory:setup` for the public rail, and
-`/uxie-ghl-factory:internal-connect` for the internal one.
+Then `/uxie-ghl-factory:setup` (public rail: token, connection test), and — only if you need the
+internal rail — `/uxie-ghl-factory:internal-connect` (the agent drives the browser; you just log
+in).
 
-### Install in Codex
+**Codex**
 
 ```
 codex plugin marketplace add uxieee/uxie-ghl-factory
 codex plugin add uxie-ghl-factory@uxieee
 ```
 
-The Codex build ships the **skills only** and does **not** bundle the MCP servers — configure them
-yourself (one-time). Slash commands are Claude Code-only. See
+The Codex build ships the **skills only**; configure the MCP servers once yourself — see
 **[Using in Codex](#using-in-codex)**.
 
----
+## A normal session
 
-## The two rails
+```
+You:    /uxie-ghl-factory:brief          ← once per client: business, offer, goals — persisted
 
-Almost every decision here comes down to which one you are on.
+You:    "We're a cosmetic clinic. Facebook leads need a workflow that
+         gets them to book a consultation."
+
+Agent:  reads the brief · inspects existing workflows, tags, calendars, pipelines
+        · designs the architecture and shows you what it intends to create
+        · builds the workflow as a DRAFT through the internal builder API
+        · reads it back and verifies what was stored, not what was sent
+        · reports what exists, what's still needed, and how to publish
+
+You:    review in the GHL builder → publish is a separate, gated step
+```
+
+Nothing publishes, sends, or deletes as a side effect: every internal non-GET requires an explicit
+confirm, and workflows always build as drafts.
+
+## How it works — two ways of talking to GHL
+
+The plugin talks to GHL over two APIs, and almost every decision here comes down to which one you
+are on. Throughout this repo they're called the **public rail** and the **internal rail**.
 
 | | Public rail | Internal rail |
 |---|---|---|
 | What | GHL's official, documented v2/v3 API | the same endpoints GHL's own web app calls |
-| Auth | a Private Integration Token, long-lived | a browser session JWT, ~1 hour |
-| Surface | **671 operations across 45 categories** | **806 catalogued endpoints** |
+| Auth | a Private Integration Token, long-lived | a browser session JWT, auto-renewed |
+| Surface | **671 operations across 45 categories** | **892 catalogued endpoints** |
 | Server | `@uxieee/ghl-mcp` (npm, runs locally) | `uxie-ghl-internal-mcp` (bundled, local stdio) |
 | Status | supported, stable | undocumented, can change without notice |
 
-Default to public. The internal rail exists because the public API cannot reach the workflow
+**Default to public.** The internal rail exists because the public API cannot reach the workflow
 builder, memberships and courses, events, funnel/page content, Voice AI behaviour, or knowledge
 bases at all.
 
@@ -47,7 +88,7 @@ Inspecting your own account's traffic is permitted; what GHL does not owe is com
 internal write passes two gates — an owned-account check each session, and a one-time
 acknowledgement per workspace.
 
-## Finding things — the same shape on both rails
+### Finding things — the same shape on both rails
 
 Neither rail asks you to know an endpoint in advance.
 
@@ -56,7 +97,7 @@ public    search_actions   → describe_action   → execute_action
 internal  search_endpoints → describe_endpoint → raw_request (or a typed tool)
 ```
 
-The internal catalogue holds **806 endpoints** across every product this project knows, from four
+The internal catalogue holds **892 endpoints** across every product this project knows, from four
 kinds of evidence, and each row says which: mined from GHL's own recovered front-end source,
 transcribed into the corpus from live traffic, or adopted from what the shipped tools call.
 
@@ -93,8 +134,9 @@ every specialist reads *before* asking you anything, so nothing re-interviews yo
 
 ## Skills
 
-Fifteen, in three roles. The tools do the execution and the catalogue does the lookup, so what a
-skill carries is what neither can hold: **order, consequence, and when not to.**
+Fifteen, in three roles — loaded by the agent as the task demands, not picked by you. The tools do
+the execution and the catalogue does the lookup, so what a skill carries is what neither can hold:
+**order, consequence, and when not to.**
 
 **Judgement — how to decide**
 
@@ -114,7 +156,7 @@ skill carries is what neither can hold: **order, consequence, and when not to.**
 | `ghl-funnels-pages` | funnels, steps, pages, full-bleed HTML, tracking code, and the three-call public-path fix |
 | `ghl-events` | ticketed and RSVP events: tickets, sessions, speakers, attendees, public registration |
 | `ghl-voice-ai` | phone agents — the behaviour layer the public API cannot see (27 fields vs 51) |
-| `ghl-conversation-ai` | the chat AI Employee. **Mostly a public-rail product** — internal only for the per-contact switch and prompt history |
+| `ghl-conversation-ai` | the chat AI Employee. **Mostly a public-rail product** — internal only for the per-contact switch, prompt history and the deployment routing table |
 | `ghl-knowledge-base` | the content both AI products consume. 5 of its 9 source types have no public equivalent |
 | `ghl-workflow-fast-forward` | move contacts parked at a wait to the next step. Turns a multi-day ladder into minutes. **Write skill, three gates** |
 
@@ -135,10 +177,10 @@ catalogue and `raw_request` as the escape hatch. Every non-GET requires an expli
 A **second, separate server** exposes 7 read-only audit tools whose GET-only lock is structural,
 not configuration.
 
-## Honest limits
+## Coverage & limitations
 
-- **709 of the 806 catalogued endpoints are `source-only`** — GHL's app calls them, nobody here
-  has. 72 are proven live, 25 are confirmed dead ends. A row is a path, not a proven behaviour.
+- **778 of the 892 catalogued endpoints are `source-only`** — GHL's app calls them, nobody here
+  has. 89 are proven live, 25 are confirmed dead ends. A row is a path, not a proven behaviour.
 - **Whole surfaces are unmapped.** Social planner and blogs have no coverage at all; calendars,
   reputation and media are thin. Most are reachable on the public rail instead.
 - **385 step types and 204 trigger types** are buildable, but only 71 step types have been fired
