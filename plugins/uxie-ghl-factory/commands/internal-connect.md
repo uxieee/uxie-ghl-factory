@@ -39,13 +39,20 @@ Decide by looking, not by guessing. Run this first — it is also rule 2 in exec
 
 ```bash
 node --input-type=module <<'NODE'
+import { pathToFileURL } from 'node:url';
 import { homedir } from 'node:os';
 import { join, basename } from 'node:path';
 const R = process.env.CLAUDE_PLUGIN_ROOT + '/mcp-internal/scripts';
-const { readConfig, findRegistration } = await import(R + '/registrations.mjs');
+// pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Same pattern as launch.mjs.
+const load = (f) => import(pathToFileURL(R + '/' + f).href);
+const { readConfig, findRegistration } = await load('registrations.mjs');
 
 const CFG = join(homedir(), '.claude.json');
-const folder = process.cwd();
+// Windows: process.cwd() yields backslashes but ~/.claude.json keys use forward slashes,
+// so an un-normalised cwd reports registered:false for a folder that IS registered — and
+// `mode` would then say `connect`, whose step 4 runs `claude mcp add` and wipes the binding.
+const folder = process.cwd().split(String.fromCharCode(92)).join('/');
 const cfg = readConfig(CFG);
 const srv = findRegistration(cfg, folder, 'uxie-ghl-internal-mcp');        // EXACT key. Never a suffix.
 const audit = findRegistration(cfg, folder, 'uxie-ghl-internal-mcp-audit');
@@ -303,12 +310,16 @@ Two tiers, and the distinction is the whole point.
 
 ```bash
 node --input-type=module <<'NODE'
+import { pathToFileURL } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 const R = process.env.CLAUDE_PLUGIN_ROOT + '/mcp-internal/scripts';
-const { readConfig, listRegistrations } = await import(R + '/registrations.mjs');
-const { auditOffline, formatAudit } = await import(R + '/audit-report.mjs');
+// pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Same pattern as launch.mjs.
+const load = (f) => import(pathToFileURL(R + '/' + f).href);
+const { readConfig, listRegistrations } = await load('registrations.mjs');
+const { auditOffline, formatAudit } = await load('audit-report.mjs');
 
 const CFG = join(homedir(), '.claude.json');
 const rows = listRegistrations(readConfig(CFG));
@@ -399,9 +410,13 @@ TOK_FILE="<folder>/.ghl/uxie-ghl-internal-mcp-tok.txt" \
 COMPANY_ID="<from that folder's .ghl/agency.json>" \
 OUT=/tmp/ghl-discovery.json \
 node --input-type=module <<'NODE'
+import { pathToFileURL } from 'node:url';
 import { readFileSync, writeFileSync, rmSync } from 'node:fs';
 const R = process.env.CLAUDE_PLUGIN_ROOT + '/mcp-internal/scripts';
-const { discoveryRequest } = await import(R + '/agency-binding.mjs');
+// pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Same pattern as launch.mjs.
+const load = (f) => import(pathToFileURL(R + '/' + f).href);
+const { discoveryRequest } = await load('agency-binding.mjs');
 
 // Clear OUT FIRST. Every exit below leaves no file, so a leftover roster from the folder you
 // checked a minute ago can never be reconciled as this folder's agency.
@@ -457,9 +472,13 @@ NODE
 RESPONSE_FILE=/tmp/ghl-discovery.json \
 BOUND="<the folder's current GHL_INTERNAL_LOCATIONS, or empty>" \
 node --input-type=module <<'NODE'
+import { pathToFileURL } from 'node:url';
 import { readFileSync } from 'node:fs';
 const R = process.env.CLAUDE_PLUGIN_ROOT + '/mcp-internal/scripts';
-const { parseLocations, reconcile } = await import(R + '/agency-binding.mjs');
+// pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Same pattern as launch.mjs.
+const load = (f) => import(pathToFileURL(R + '/' + f).href);
+const { parseLocations, reconcile } = await load('agency-binding.mjs');
 
 const RESPONSE = JSON.parse(readFileSync(process.env.RESPONSE_FILE, 'utf8'));
 const BOUND = (process.env.BOUND ?? '').split(',').map((s) => s.trim()).filter(Boolean);
@@ -514,11 +533,15 @@ FOLDER="<exact project key>" \
 SERVER=uxie-ghl-internal-mcp \
 IDS="<the confirmed comma-separated list>" \
 node --input-type=module <<'NODE'
+import { pathToFileURL } from 'node:url';
 import { copyFileSync, writeFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 const R = process.env.CLAUDE_PLUGIN_ROOT + '/mcp-internal/scripts';
-const { readConfig, setEnv, backupPath } = await import(R + '/registrations.mjs');
+// pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Same pattern as launch.mjs.
+const load = (f) => import(pathToFileURL(R + '/' + f).href);
+const { readConfig, setEnv, backupPath } = await load('registrations.mjs');
 
 const CFG = join(homedir(), '.claude.json');
 const ids = process.env.IDS.split(',').map((s) => s.trim()).filter(Boolean);
