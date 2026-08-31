@@ -20,6 +20,14 @@ export { OPP_SHAPES, OPP_RULEBOOK };
 // the engine reported a GHL limitation that does not exist (live, Grom UK 2026-08-03).
 //
 // The union is what the engine knows; the corpus still owns the shape rules where it has any.
+// How a CUSTOM field is addressed on an opportunity action. `filterField` becomes a TOP-LEVEL
+// body property, and the opportunities DTO whitelists those, so a bare field id is rejected with
+// `property <id> should not exist` and the step SKIPS with a 400 nobody sees (live-proven, GROM
+// sandbox 2026-08-30). This prefix makes the action build a `customFields` entry instead.
+// STANDARD properties (pipelineStageId, status, lostReasonId, monetaryValue…) take a bare name —
+// that asymmetry is the whole rule. Shared by the compiler's emit and the lint that guards it.
+export const OPP_CUSTOM_FIELD_PREFIX = 'custom_fields.';
+
 export const STANDARD_OPP_FIELDS = new Set([
   ...Object.keys(OPP_RULEBOOK.fields),
   ...Object.keys(OPP_SHAPES.fields),

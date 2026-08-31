@@ -31,12 +31,29 @@ the internal rail only for:
 - **the per-contact AI switch** — `GET`/`PUT /conversations-ai/employeeConfigs[/{configId}]`.
   No public equivalent. This silences one bot for one contact; DND is worse on every count.
 - **prompt version history** (`oldPromptIds`), if a rollback is actually needed.
+- **the Agent Deployment routing table** — `GET /agent-deployment/routing-config/configs?locationId=&agentId=`,
+  one row per channel deciding which widgets/numbers actually reach the agent. Internal-only:
+  no public equivalent, no typed tool — `raw_request` with `host:"ai"`. See the next section.
 
 `references/conversation-ai.md` documents the internal endpoints — read it when you need the
-per-contact switch or prompt history, not as the default path. Those two, and every other
+per-contact switch, prompt history or the routing table, not as the default path. Those, and every other
 `/ai-employees/*` and `/conversations-ai/*` route the corpus records, are indexed by
 `search_endpoints` on the internal MCP; use it to confirm a path before hand-typing one — **not**
 as a reason to leave the public rail for reads and config it already covers.
+
+## "My bot isn't replying" — read the routing table before touching the prompt
+
+Deployment is a routing table (one row per channel), not a toggle on the agent record. The mute
+symptom: contacts get created, no reply, no enrolment, no error anywhere. Diagnose in this order:
+
+1. Read the routing rows (`raw_request`, `host:"ai"`; no typed tool or agent read shows them) and
+   fix any row pointing at nothing — a full-row PATCH to "All widgets".
+2. Only after every row checks out: the per-contact switch, `mode`, `channels[]`, then the prompt.
+
+Clone rule: Live chat stays on *All widgets*, never a specific widget id — ids change on a clone
+(inferred — the clone path itself was not re-executed). Endpoints, row shape and the exact PATCH
+body: `references/conversation-ai.md` → "Deployment — the routing table"; corpus
+`knowledge/corpus/ai-agents/20-api/agent-deployment-routing.md`.
 
 ## Contract
 Follow `${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md` (recon → brief → intake →

@@ -31,12 +31,40 @@ test('updates[] genuinely unknown field throws OPP_FIELD_UNKNOWN', () => {
   );
 });
 
-test('updates[] known custom field warns and passes through (row 2, join pending)', () => {
+// C-05, live-proven on the GROM sandbox 2026-08-30: the opportunities DTO whitelists its
+// top-level properties, so a CUSTOM field addressed by its bare id comes back
+// `property <id> should not exist` and the step SKIPS with a 400 nobody reads. Only the
+// `custom_fields.` prefix makes the action build a customFields entry. Standard properties
+// (pipelineStageId, status, lostReasonId, monetaryValue) keep their bare name.
+const OPP_CF = { id: 'wcuc5AkMTW8iL5FtABWG', name: 'Treatment Interest', fieldKey: 'opportunity.treatment_interest', dataType: 'TEXT', model: 'opportunity' };
+
+test('updates[] custom field is emitted with the custom_fields. prefix and the joined dataType', () => {
   const warnings = [];
-  const ctx = baseCtx({ customFields: [{ id: 'cf1', name: 'Deposit Amount', fieldKey: 'contact.deposit_amount', dataType: 'MONETORY' }], warn: (m) => warnings.push(m) });
-  const built = compile(oppUpdate([{ field: 'cf1', value: '2000' }]), ctx);
-  assert.ok(fieldOf(built, 'cf1'), 'custom field emitted');
-  assert.equal(warnings.filter((w) => /custom field/.test(w)).length, 1);
+  const ctx = baseCtx({ customFields: [OPP_CF], warn: (m) => warnings.push(m) });
+  const built = compile(oppUpdate([{ field: 'wcuc5AkMTW8iL5FtABWG', value: 'skin peel' }]), ctx);
+  assert.equal(fieldOf(built, 'wcuc5AkMTW8iL5FtABWG'), undefined, 'the bare id must NOT be emitted');
+  const f = fieldOf(built, 'custom_fields.wcuc5AkMTW8iL5FtABWG');
+  assert.ok(f, 'emitted under the custom_fields. prefix');
+  assert.equal(f.value, 'skin peel');
+  assert.equal(f.valueFieldType, 'string');
+  // entities.mjs already carries dataType per field, so the join the old warning deferred is
+  // available: emit it rather than warning that it could not be validated.
+  assert.equal(f.dataType, 'TEXT');
+  assert.equal(warnings.filter((w) => /join pending/.test(w)).length, 0);
+});
+
+test('updates[] accepts the prefixed spelling and the fieldKey, and never double-prefixes', () => {
+  const ctx = () => baseCtx({ customFields: [OPP_CF] });
+  for (const spelling of ['custom_fields.wcuc5AkMTW8iL5FtABWG', 'opportunity.treatment_interest']) {
+    const built = compile(oppUpdate([{ field: spelling, value: 'skin peel' }]), ctx());
+    assert.ok(fieldOf(built, 'custom_fields.wcuc5AkMTW8iL5FtABWG'), `resolved from ${spelling}`);
+    assert.equal(fieldOf(built, `custom_fields.${spelling}`), undefined, 'no double prefix');
+  }
+});
+
+test('an authored dataType still wins over the joined one', () => {
+  const built = compile(oppUpdate([{ field: 'wcuc5AkMTW8iL5FtABWG', value: '2000', dataType: 'MONETORY' }]), baseCtx({ customFields: [OPP_CF] }));
+  assert.equal(fieldOf(built, 'custom_fields.wcuc5AkMTW8iL5FtABWG').dataType, 'MONETORY');
 });
 
 // Regression: the edit path builds a ctx WITHOUT customFields. A real custom field then

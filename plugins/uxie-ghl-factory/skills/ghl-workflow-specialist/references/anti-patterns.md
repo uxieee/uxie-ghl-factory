@@ -256,6 +256,46 @@ analogy, since both bill tokens to the same uncapped wallet.
 
 ---
 
+## 11. Flow-bot design rules (live-proven 2026-08-31)
+
+A flow bot (`workflowType: "agent"`) fails **silently**: nothing errors, the graph
+round-trips clean, and the only evidence is runtime behaviour. Seven rules from live
+conversation against the server's records (outcomes proven; the priority mechanism in
+rule 7 is an inferred model) — apply them to every flow-bot blueprint:
+
+1. **Capability belongs to the NODE, not the prompt.** Only
+   `conversationai_book_appointment` can touch the diary; no wording at any level lets a
+   `continue`/`objective`/`ai_message` node book, move or cancel — route the intent to
+   the node that owns the action.
+2. **Gate the booking node.** Its empty-result wording is unsteerable (it obeys prompt
+   *form*, owns its *content*), so never let it answer about a booking that may not
+   exist: identify the contact first (email/phone merges the anonymous visitor into the
+   real record), then `if_else` on a booking-live tag.
+3. **Selection problems ARE prompt problems.** Ask: has the node ever done the right
+   thing? Yes → wording fixes it (`promptInstructions`: never offer a past time, ask
+   which of several); never → capability, fix the routing.
+4. **A node's local scope beats a global prohibition.** Repeat every behavioural rule
+   byte-identically in EVERY speaking node, carrying the positive half (what to do),
+   not just the ban.
+5. **Never lead a splitter branch with a container.** A branch whose first step is
+   `book_appointment` (proven on `book_appointment`; `services_booking` inferred — same
+   multipath shape, not exercised) is silently never offered to the model — put one
+   simple step at the branch head.
+6. **Captures in a booking lane proceed on unmet.** Every `conversationai_objective` in
+   the lane carries `proceedIfNotMet: false` (the attr is name-inverted — `true` is the
+   UI's "Don't proceed"), or an undecided lead gets the closing message and never
+   reaches the times.
+7. **The booking custom trigger holds TOP priority, strictly above every sibling.**
+   Break-out authority follows priority; siblings sit at LOW sensitivity with
+   latest-message-scoped descriptions. 0/11 replies without the fix, 5/5 with it — 0/11 →
+   5/5 is the proof; "authority follows priority" is the model that fits it.
+
+**Source:** `create-ghl-workflow/references/flow-bots.md` → "Runtime doctrine" (and its
+custom-trigger section); corpus
+`knowledge/corpus/workflows/40-rules/flow-bot-runtime-doctrine.md`.
+
+---
+
 ## Cross-reference: field-level traps that produce anti-pattern symptoms
 
 Some of the above are downstream symptoms of internal-API field traps documented in

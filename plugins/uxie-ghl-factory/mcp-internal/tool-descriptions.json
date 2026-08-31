@@ -242,7 +242,7 @@
     "undocumentedCapabilities": []
   },
   "get_ai_configuration_bundle": {
-    "description": "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Live canary required before Full audit.",
+    "description": "Sweep Conversation AI, Voice AI and Agent Studio discovery plus per-agent detail \u2014 proof: external-receipt-required; risk: read. All three surfaces are always attempted and always reported; a 403, 404, rate limit, malformed envelope, missing detail or unavailable company context makes that component complete:false with items null, never an empty agent list. An empty surface is complete only after a terminal, schema-valid discovery response. Per Conversation AI agent it also reads the Agent-Deployment routing rows (one row per channel, published verbatim on the item); rows pinned to specific identifiers (allIdentifiers:false) are summarised in routingPinned \u2014 legal live config reported for review, never a failure. Live canary required before Full audit.",
     "risk": "read",
     "proof": "external-receipt-required",
     "proofFloor": "external-receipt-required",
@@ -279,6 +279,10 @@
       {
         "path": "/agent-studio/super-agent/agents/{agentId}",
         "reason": "The Agent Studio per-agent detail route. No catalog entry cites a row for it; see above."
+      },
+      {
+        "path": "/agent-deployment/routing-config/configs",
+        "reason": "The Agent-Deployment routing route, added to the audit descriptor set with the per-agent routing read. No catalog entry cites a matrix row for it, and the matrix that defines row ids is not in this repository, so the gap is recorded rather than an id invented; see above."
       }
     ]
   },

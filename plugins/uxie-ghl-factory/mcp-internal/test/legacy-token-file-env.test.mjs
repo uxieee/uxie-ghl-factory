@@ -20,6 +20,7 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
@@ -116,3 +117,79 @@ for (const { label, path } of ENTRY_POINTS) {
     assert.equal(contract.data.error.code, 'TOKEN_MISSING', 'no env var set at all is not the legacy-migration case');
   });
 }
+
+// ── standalone scripts ──────────────────────────────────────────────────────────────────────
+// The rename guard above only covered the MCP entry points. The standalone scripts read the
+// token file themselves, and until this coverage existed they silently fell back — to defaults
+// that DISAGREED with each other (capture-token wrote ~/.uxie-ghl-internal-mcp/tok.txt while
+// edit.mjs read a .playwright-mcp path, so a "fresh" capture still 401'd the very next edit).
+// Every script exposes `--print-token-file` (resolve + print + exit 0, checked AFTER the legacy
+// guard) precisely so this file can assert resolution without launching a browser or needing a
+// live workflow.
+const SCRIPTS = [
+  { label: 'capture-token.mjs', path: resolve(HERE, '../scripts/capture-token.mjs') },
+  { label: 'edit.mjs', path: resolve(HERE, '../../skills/create-ghl-workflow/scripts/edit.mjs') },
+  { label: 'build.mjs', path: resolve(HERE, '../../skills/create-ghl-workflow/scripts/build.mjs') },
+];
+const RENAME_STEP = resolve(HERE, '../../skills/create-ghl-workflow/scripts/rename-step-minimal.mjs');
+
+function runScript(scriptPath, args, overrides) {
+  return spawnSync(process.execPath, [scriptPath, ...args], {
+    env: childEnv(overrides), encoding: 'utf8', timeout: 30_000,
+  });
+}
+
+for (const { label, path } of SCRIPTS) {
+  test(`${label}: old name only (GHL_TOK_FILE set, GHL_INTERNAL_TOK_FILE unset) — loud rename refusal, not a silent fallback`, () => {
+    const r = runScript(path, ['--print-token-file'], {
+      GHL_TOK_FILE: '/should-never-be-read/tok.txt', GHL_INTERNAL_TOK_FILE: undefined,
+    });
+    assert.equal(r.status, 2, `expected refusal exit 2, got ${r.status}\nstdout: ${r.stdout}\nstderr: ${r.stderr}`);
+    assert.match(r.stderr, /LEGACY_TOKEN_FILE_ENV/);
+    assert.match(r.stderr, /GHL_TOK_FILE is set but GHL_INTERNAL_TOK_FILE is not/, 'must carry the same wording as core/auth.mjs');
+    assert.match(r.stderr, /renamed in 0\.43\.0/);
+    assert.match(r.stderr, /silently fall back/);
+    assert.equal(r.stdout.trim(), '', 'a refused run must not print a resolved path at all');
+  });
+
+  test(`${label}: both set — the new name wins, no refusal`, () => {
+    const r = runScript(path, ['--print-token-file'], {
+      GHL_INTERNAL_TOK_FILE: '/custom/place/tok.txt', GHL_TOK_FILE: '/should-never-be-read/tok.txt',
+    });
+    assert.equal(r.status, 0, `stderr: ${r.stderr}`);
+    assert.equal(r.stdout.trim(), '/custom/place/tok.txt');
+  });
+}
+
+test('neither env var set — capture-token.mjs, edit.mjs and build.mjs all resolve the SAME default token file (core/auth.mjs DEFAULT_TOKEN_FILE)', () => {
+  // ONE scratch HOME shared by every spawn, so agreement is asserted on identical ground.
+  const home = scratchHome();
+  const expected = join(home, '.uxie-ghl-internal-mcp', 'tok.txt');
+  for (const { label, path } of SCRIPTS) {
+    const r = runScript(path, ['--print-token-file'], {
+      HOME: home, GHL_TOK_FILE: undefined, GHL_INTERNAL_TOK_FILE: undefined,
+    });
+    assert.equal(r.status, 0, `${label} --print-token-file failed (${r.status})\nstderr: ${r.stderr}`);
+    assert.equal(r.stdout.trim(), expected,
+      `${label} must default to the server's own DEFAULT_TOKEN_FILE — capture and edit have to agree with NO env set`);
+  }
+});
+
+test('rename-step-minimal.mjs: reads GHL_INTERNAL_TOK_FILE (one env name across the whole plugin)', () => {
+  const r = runScript(RENAME_STEP, ['--print-token-file'], {
+    GHL_INTERNAL_TOK_FILE: '/custom/place/tok.txt',
+    GHL_TOKEN_FILE: undefined, GHL_TOK_FILE: undefined,
+  });
+  assert.equal(r.status, 0, `stderr: ${r.stderr}`);
+  assert.equal(r.stdout.trim(), '/custom/place/tok.txt');
+});
+
+test('rename-step-minimal.mjs: its retired one-off name GHL_TOKEN_FILE set alone — loud rename refusal, not a silent fallback', () => {
+  const r = runScript(RENAME_STEP, ['--print-token-file'], {
+    GHL_TOKEN_FILE: '/should-never-be-read/tok.txt',
+    GHL_INTERNAL_TOK_FILE: undefined, GHL_TOK_FILE: undefined,
+  });
+  assert.equal(r.status, 2, `expected refusal exit 2, got ${r.status}\nstdout: ${r.stdout}\nstderr: ${r.stderr}`);
+  assert.match(r.stderr, /LEGACY_TOKEN_FILE_ENV/);
+  assert.match(r.stderr, /GHL_TOKEN_FILE is set but GHL_INTERNAL_TOK_FILE is not/);
+});

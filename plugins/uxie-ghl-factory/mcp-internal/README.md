@@ -386,6 +386,20 @@ Studio), a caller cannot omit one, and it reports per-component
 `{applicable, complete, items, pages, sourceRoutes}`. Neither ever substitutes an empty
 result for a failed read: a failed component is `null` with a coded warning.
 
+For each Conversation AI agent the bundle also reads the **Agent-Deployment routing rows**
+(`GET /agent-deployment/routing-config/configs`, one call per agent, sealed by the same
+discovery result the detail read is): one row per channel, published verbatim on the item as
+`routing` (a bare array upstream — live-captured 2026-08-31). A failed or unreadable routing
+read leaves `routing: null` with `AI_ROUTING_READ_FAILED`/`AI_ROUTING_UNREADABLE`; an empty
+array after a terminal read is legal. Rows with a strict `allIdentifiers: false` are
+summarised in `component.routingPinned` (`{agentId, channel, specificIdentifiers}`) — a
+pinned row is legal live configuration and never fails the component, but a pinned identifier
+that no longer exists silently mutes the agent, and this rail does not check identifier
+existence (that needs `/chat-widget/list`), so `routingPinned` is derived only from rows
+actually read and hands a reviewer the ids to verify. Conversation AI only: no routing
+capture exists for Voice AI or Agent Studio, so their `routingRead`/`routingPinned`/
+`routingEnvelopeShape` fields are `null`.
+
 ### Credentials, refresh, and partial runs
 
 Authentication continues to come from the configured token file. The location JWT is
@@ -463,12 +477,14 @@ imply live correct:
   than vanishing, but the shape itself is unverified.
 - **Envelope shapes.** `readTotal` requires a root-level finite `total`; the roster row and
   agent-record envelope key lists are likewise unverified against live payloads.
-- **Docs-matrix rows.** Six audit routes carry no row in the capability matrix, and the
+- **Docs-matrix rows.** Seven audit routes carry no row in the capability matrix, and the
   matrix itself lives outside this repository: `/workflows/status/enroll-stats` (the legacy
   enrollment-totals fallback, read on every runtime-window run), `/voice-ai/agents/simple`,
   `/voice-ai/agents/{agentId}`, `/ai-employees/employees/{agentId}`,
-  `/agent-studio/agents/agents-with-folders` and
-  `/agent-studio/super-agent/agents/{agentId}`. No row id was invented to fill the gap;
+  `/agent-studio/agents/agents-with-folders`,
+  `/agent-studio/super-agent/agents/{agentId}` and
+  `/agent-deployment/routing-config/configs` (the per-agent routing read). No row id was
+  invented to fill the gap;
   `tool-descriptions.json` records each uncited capability instead, and a test proves every
   declared route is either cited or recorded.
 - **Detail identity.** The bundle assumes a detail body's `_id`/`id` equals the discovery

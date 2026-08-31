@@ -125,7 +125,7 @@ Raw log rows are only useful once mapped to what they mean. The signal lives in 
 |---|---|---|
 | `status: success` but `meta.status ≥ 400` | logs/v2 | **Silent failure** — the step "ran" but the downstream send/API rejected it. |
 | `status: failed` | logs/v2 | Hard error; `meta.msg` / `meta.status` say why. |
-| `status: skipped` | logs/v2 | Gated out; `meta.skippedFor.type` (`dnd`, `time-window`, `missing-data`, `active-already`, `appointment-wait`, …) says which gate. |
+| `status: skipped` | logs/v2 | Gated out; `meta.skippedFor.type` (`dnd`, `time-window`, `missing-data`, `active-already`, `appointment-wait`, …) says which gate — or the step's own API answered 4xx — the body is in `meta` (see below). |
 | `status: finished` | logs/v2 | Contact left the workflow; `meta.removedFrom.type` says why (reply-stop, end-of-workflow, wait-window-in-past). |
 | `executeOn` in the **past**, still `wait_time` | workflow-with-filter | **Stuck contact** — should have resumed already. |
 | step absent from `count-per-step` | count-per-step | No contact is (or maybe ever was) there — candidate **dead branch**; confirm against logs. |
@@ -133,6 +133,35 @@ Raw log rows are only useful once mapped to what they mean. The signal lives in 
 | `meta.addedSource` / `extraMeta.attributionSource` | workflow-with-filter | How the contact entered (trigger, ad campaign, manual). |
 
 **Join keys:** `workflowStatusId` (a ULID) ties one enrollment to all its log rows; `workflowTraceId` groups the rows of a single run. Use these to answer "walk me through what happened to this one contact."
+
+### Reading a run honestly
+
+Five rules, each one from live runs and each one the difference between a finding and a confident
+wrong answer:
+
+- **`skipped` rows ARE returned by `get_workflow_logs`** — a claim that it drops them was tested
+  and refuted. A `skipped` row whose `meta` carries a 4xx body (`property <id> should not exist`,
+  `Can not create duplicate opportunity`, `Internal Action Error - Please use Opportunity
+  trigger/find opportunity action`) is a FINDING, not absence of evidence — read the body.
+  The bodies and what each one means:
+  `knowledge/corpus/workflows/50-runtime/11-runtime-logs.md` → "4xx bodies inside skipped rows".
+- **`actionDispatched: false` on an `internal_create_opportunity` / `internal_update_opportunity`
+  `success` row is a NO-OP.** The write never reached the premium-actions-worker (`meta.actionFrom`
+  is empty) and the card did NOT move — seen on manual/API enrolment into an opportunity-triggered
+  workflow. The label is scoped to those two types only: `internal_notification` legitimately runs
+  with an empty `actionFrom`.
+- **A marketplace WhatsApp `success — Message queued for delivery` is QUEUED, not delivered.** A
+  contact with no phone gets six "successes" and zero conversations. Cross-check the contact's
+  conversation list before believing a vendor send row; the native `sms` step reports
+  `missing-data: No Phone number` honestly.
+- **In a flow bot's log, `remove_from_workflow` immediately followed by `added_to_workflow` is a
+  benign RESTART** — a new inbound arrived mid-run and the new run answers everything so far. A
+  `remove_from_workflow` with NO add after it, ~15–18 s into a run a custom trigger started, is the
+  trigger-priority collision kill — `knowledge/corpus/workflows/50-runtime/flow-bot-runtime.md`.
+- **When a whole sweep reads as empty or failing at once, check the credential before believing
+  it.** Through the MCP a dead token surfaces as `TOKEN_EXPIRED`; on a hand-rolled read (curl, a
+  harness) a 401 body parses as clean JSON with no rows — the rows are missing because the read
+  was, not the runs. `auth_status` first.
 
 ## Output Rules
 

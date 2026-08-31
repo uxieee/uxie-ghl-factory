@@ -229,6 +229,15 @@ const MINIMAL_REQUESTS = {
     },
     query: { locationId: LOC },
   },
+  conversation_ai_deployment_routing: {
+    capabilityId: 'conversation_ai_deployment_routing',
+    typedBindings: {
+      locationId: LOC,
+      agentId: 'agent-1',
+      discoveredAgentIds: { conversation_ai_agent_discovery: ['agent-1'] },
+    },
+    query: { locationId: LOC, agentId: 'agent-1' },
+  },
   agent_studio_agent_discovery: {
     capabilityId: 'agent_studio_agent_discovery',
     typedBindings: { locationId: LOC, companyId: COMPANY },
@@ -616,6 +625,88 @@ test('each AI detail route accepts its OWN product seal', async () => {
     });
     assert.equal(result.ok, true, `${capabilityId} should have been allowed`);
     assert.equal(calls[0].url, expectedUrl);
+  }
+});
+
+// The QUERY-BOUND seal. `/agent-deployment/routing-config/configs` binds `agentId` through
+// a query key rather than a path variable, so the path-variable seal branch never sees it —
+// the enforcement is a second call site of the SAME hoisted rule, and these four tests are
+// what keep that call site from being deleted with everything else still green.
+test('a query-bound routing agentId outside the sealed discovery set is refused before fetch', async () => {
+  const { audit, calls } = harness();
+  await rejectsWithCode(
+    () => audit.callCapability({
+      capabilityId: 'conversation_ai_deployment_routing',
+      typedBindings: {
+        locationId: LOC,
+        agentId: 'agent-9',
+        discoveredAgentIds: { conversation_ai_agent_discovery: ['agent-1', 'agent-2'] },
+      },
+      query: { locationId: LOC, agentId: 'agent-9' },
+    }),
+    'BINDING_MISMATCH',
+    { calls },
+  );
+});
+
+test('a query-bound routing agentId inside its own product seal is allowed through', async () => {
+  const { audit, calls } = harness();
+  const result = await audit.callCapability({
+    capabilityId: 'conversation_ai_deployment_routing',
+    typedBindings: {
+      locationId: LOC,
+      agentId: 'agent-1',
+      discoveredAgentIds: { conversation_ai_agent_discovery: ['agent-1', 'agent-2'] },
+    },
+    query: { locationId: LOC, agentId: 'agent-1' },
+  });
+  assert.equal(result.ok, true);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url.split('?')[0], `${SERVICES}/agent-deployment/routing-config/configs`);
+  assert.deepEqual(sortedEntries(calls[0].url), ['agentId=agent-1', `locationId=${LOC}`]);
+  assert.equal(result.capabilityId, 'conversation_ai_deployment_routing');
+});
+
+test('another product\'s seal cannot authorize the query-bound routing route', async () => {
+  for (const wrongSealKey of ['voice_ai_agent_discovery', 'agent_studio_agent_discovery']) {
+    const { audit, calls } = harness();
+    await rejectsWithCode(
+      () => audit.callCapability({
+        capabilityId: 'conversation_ai_deployment_routing',
+        typedBindings: {
+          locationId: LOC,
+          agentId: 'agent-1',
+          discoveredAgentIds: { [wrongSealKey]: ['agent-1'] },
+        },
+        query: { locationId: LOC, agentId: 'agent-1' },
+      }),
+      'BINDING_MISMATCH',
+      { calls },
+    );
+  }
+});
+
+test('a missing, malformed, or prototype-borne seal fails the routing route closed', async () => {
+  const forged = [
+    undefined,
+    null,
+    ['agent-1'],                                            // a flat list is not a seal
+    {},                                                     // right shape, missing this product's key
+    { conversation_ai_agent_discovery: 'agent-1' },         // right key, not an array
+    { __proto__: { conversation_ai_agent_discovery: ['agent-1'] } },
+    Object.create({ conversation_ai_agent_discovery: ['agent-1'] }),
+  ];
+  for (const discoveredAgentIds of forged) {
+    const { audit, calls } = harness();
+    await rejectsWithCode(
+      () => audit.callCapability({
+        capabilityId: 'conversation_ai_deployment_routing',
+        typedBindings: { locationId: LOC, agentId: 'agent-1', discoveredAgentIds },
+        query: { locationId: LOC, agentId: 'agent-1' },
+      }),
+      'BINDING_MISMATCH',
+      { calls },
+    );
   }
 });
 
@@ -1651,6 +1742,9 @@ test('every capability emits exactly the host, path, and query its descriptor de
     voice_ai_agent_detail: [`${SERVICES}/voice-ai/agents/agent-1`, [`locationId=${LOC}`]],
     conversation_ai_agent_discovery: [`${SERVICES}/ai-employees/employees/search`, [`locationId=${LOC}`]],
     conversation_ai_agent_detail: [`${SERVICES}/ai-employees/employees/agent-1`, [`locationId=${LOC}`]],
+    conversation_ai_deployment_routing: [`${SERVICES}/agent-deployment/routing-config/configs`, [
+      'agentId=agent-1', `locationId=${LOC}`,
+    ]],
     agent_studio_agent_discovery: [`${SERVICES}/agent-studio/agents/agents-with-folders`, [
       `agencyId=${COMPANY}`, 'groupBy=foldersFirst', `locationId=${LOC}`, 'page=1', 'pageSize=100',
       'productId=superagent', 'sortBy=lastUpdated', 'sortOrder=desc',

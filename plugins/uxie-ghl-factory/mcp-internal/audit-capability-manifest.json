@@ -480,6 +480,29 @@
     },
     {
       "tool": "get_ai_configuration_bundle",
+      "capabilityId": "conversation_ai_deployment_routing",
+      "host": "services",
+      "authRail": "ai",
+      "method": "GET",
+      "normalizedPath": "/agent-deployment/routing-config/configs",
+      "pathBindings": {},
+      "queryBindings": {
+        "agentId": "agentId"
+      },
+      "requiredQueryKeys": [
+        "locationId",
+        "agentId"
+      ],
+      "optionalQueryKeys": [],
+      "repeatableQueryKeys": [],
+      "fixedQueryValues": {},
+      "allowedQueryValues": {},
+      "numericQueryBounds": {},
+      "locationBinding": "query",
+      "sealedBy": "conversation_ai_agent_discovery"
+    },
+    {
+      "tool": "get_ai_configuration_bundle",
       "capabilityId": "voice_ai_agent_discovery",
       "host": "services",
       "authRail": "ai",
@@ -624,5 +647,5 @@
       "sealedBy": null
     }
   ],
-  "manifestHash": "sha256:037e7b75adba7dea6df9197e0178d7a0a96e96ad01deb142fc5f519561cb3ce7"
+  "manifestHash": "sha256:3a3152fd9f0976d415161a0e8e4801aa366b33b7ce988edeae6b97de1f300f12"
 }

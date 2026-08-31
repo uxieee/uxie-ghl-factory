@@ -104,7 +104,8 @@
 // --dry-run : compute + print the diff/commit body, send NO PUT (works offline).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { homedir } from 'node:os';
 import { editCommitBody } from '../engine/edit.mjs';
 import { applyOps, mergeSettingsOps, opsUseMarketplace, partitionOps, planTriggerOps, externalRefsOf,
   opsNeedResolution, resolveOps } from '../engine/edit-driver.mjs';
@@ -131,6 +132,29 @@ const friendlyAbort = (e) => {
 process.on('uncaughtException', friendlyAbort);
 process.on('unhandledRejection', friendlyAbort);
 
+// MUST match DEFAULT_TOKEN_FILE in mcp-internal/core/auth.mjs:12 — capture-token.mjs writes
+// there when no env var is set, so this script has to read the same path or a "fresh" capture
+// still 401s here (the exact defect this constant fixed: edit/build used to default to a
+// .playwright-mcp path that capture never wrote). Re-typed rather than imported because the
+// skills tree is consumed without mcp-internal beside it (Codex manifest, skill installers),
+// so a cross-tree import would break standalone copies.
+const DEFAULT_TOKEN_FILE = join(homedir(), '.uxie-ghl-internal-mcp', 'tok.txt');
+// 0.43.0 hard-renamed GHL_TOK_FILE -> GHL_INTERNAL_TOK_FILE. Only the NEW name is read as a
+// value; the OLD name's PRESENCE alone (never its value) is refused loudly — same discipline
+// and wording as mcp-internal/core/auth.mjs readCredentials.
+if (Boolean(process.env.GHL_TOK_FILE) && !process.env.GHL_INTERNAL_TOK_FILE) {
+  console.error('ABORTED (LEGACY_TOKEN_FILE_ENV): GHL_TOK_FILE is set but GHL_INTERNAL_TOK_FILE '
+    + 'is not. GHL_TOK_FILE no longer does anything (renamed in 0.43.0), so this run would '
+    + 'silently fall back to the shared default token file and could authenticate as the wrong '
+    + 'account.\nRename the env var, then retry — same value, new name: '
+    + 'export GHL_INTERNAL_TOK_FILE="<same path you had in GHL_TOK_FILE>"');
+  process.exit(2);
+}
+const tokFile = process.env.GHL_INTERNAL_TOK_FILE || DEFAULT_TOKEN_FILE;
+// Test seam: print the resolved token-file path and exit, so the suite can assert that capture
+// and edit resolve the SAME file. Checked AFTER the legacy guard, BEFORE the usage check.
+if (process.argv.includes('--print-token-file')) { console.log(tokFile); process.exit(0); }
+
 const [LOC, WID, specPath] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const assumeAssociated = process.argv.includes('--assume-associated');
 // Both overrides were documented in the header but only one was ever parsed, so
@@ -148,7 +172,6 @@ const spec = JSON.parse(readFileSync(specPath, 'utf8'));
 const ops = spec.ops ?? [];
 if (!ops.length) { console.error('edit-spec has no ops[]'); process.exit(1); }
 
-const tokFile = process.env.GHL_INTERNAL_TOK_FILE || resolve(HERE, '../../../../.playwright-mcp/tok.txt');
 const T = (readFileSync(tokFile, 'utf8').match(/Bearer (ey[A-Za-z0-9._-]+)/) || [])[1];
 if (!T) { console.error('no Bearer token in', tokFile); process.exit(1); }
 const decoded = JSON.parse(Buffer.from(T.split('.')[1], 'base64url').toString());

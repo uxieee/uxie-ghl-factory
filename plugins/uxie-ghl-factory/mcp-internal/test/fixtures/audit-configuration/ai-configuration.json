@@ -63,6 +63,8 @@
           "conversation_ai_agent_discovery",
           "conversation_ai_agent_detail",
           "conversation_ai_agent_detail",
+          "conversation_ai_deployment_routing",
+          "conversation_ai_deployment_routing",
           "voice_ai_agent_discovery",
           "voice_ai_agent_detail",
           "agent_studio_agent_discovery",
@@ -152,7 +154,8 @@
           "voice_ai_agent_discovery": 1,
           "voice_ai_agent_detail": 0,
           "agent_studio_agent_discovery": 2,
-          "agent_studio_agent_detail": 140
+          "agent_studio_agent_detail": 140,
+          "conversation_ai_deployment_routing": 0
         },
         "studioPages": [
           1,
@@ -240,7 +243,8 @@
           "voice_ai_agent_discovery": 1,
           "voice_ai_agent_detail": 0,
           "agent_studio_agent_discovery": 1,
-          "agent_studio_agent_detail": 1
+          "agent_studio_agent_detail": 1,
+          "conversation_ai_deployment_routing": 1
         },
         "components": {
           "conversation_ai": {
@@ -372,7 +376,8 @@
       "expect": {
         "capabilityCounts": {
           "conversation_ai_agent_discovery": 1,
-          "conversation_ai_agent_detail": 0
+          "conversation_ai_agent_detail": 0,
+          "conversation_ai_deployment_routing": 0
         },
         "components": {
           "conversation_ai": {
@@ -527,7 +532,8 @@
       "expect": {
         "capabilityCounts": {
           "conversation_ai_agent_discovery": 1,
-          "conversation_ai_agent_detail": 3
+          "conversation_ai_agent_detail": 3,
+          "conversation_ai_deployment_routing": 3
         },
         "components": {
           "conversation_ai": {
@@ -691,7 +697,8 @@
           "voice_ai_agent_discovery": 1,
           "voice_ai_agent_detail": 1,
           "agent_studio_agent_discovery": 0,
-          "agent_studio_agent_detail": 0
+          "agent_studio_agent_detail": 0,
+          "conversation_ai_deployment_routing": 1
         },
         "components": {
           "conversation_ai": {
@@ -758,7 +765,8 @@
           "voice_ai_agent_discovery": 1,
           "voice_ai_agent_detail": 0,
           "agent_studio_agent_discovery": 1,
-          "agent_studio_agent_detail": 0
+          "agent_studio_agent_detail": 0,
+          "conversation_ai_deployment_routing": 0
         },
         "components": {
           "conversation_ai": {
@@ -1693,7 +1701,8 @@
       "expect": {
         "capabilityCounts": {
           "conversation_ai_agent_discovery": 1,
-          "conversation_ai_agent_detail": 1
+          "conversation_ai_agent_detail": 1,
+          "conversation_ai_deployment_routing": 1
         },
         "components": {
           "conversation_ai": {
@@ -1833,7 +1842,8 @@
       "expect": {
         "capabilityCounts": {
           "conversation_ai_agent_discovery": 1,
-          "conversation_ai_agent_detail": 0
+          "conversation_ai_agent_detail": 0,
+          "conversation_ai_deployment_routing": 0
         },
         "components": {
           "conversation_ai": {
@@ -2212,7 +2222,8 @@
         "capabilityCounts": {
           "conversation_ai_agent_detail": 1,
           "voice_ai_agent_detail": 1,
-          "agent_studio_agent_detail": 1
+          "agent_studio_agent_detail": 1,
+          "conversation_ai_deployment_routing": 1
         },
         "components": {
           "conversation_ai": {
@@ -2297,7 +2308,8 @@
       "expect": {
         "capabilityCounts": {
           "conversation_ai_agent_discovery": 1,
-          "conversation_ai_agent_detail": 3
+          "conversation_ai_agent_detail": 3,
+          "conversation_ai_deployment_routing": 3
         },
         "components": {
           "conversation_ai": {

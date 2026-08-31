@@ -11,6 +11,165 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.47.0] — 2026-08-31
+
+The certification-run findings, re-verified and closed. Of the twenty-three live findings in the
+Standard's certification file, thirteen were real at HEAD; this release fixes every one that is
+engine work. Three were disproved along the way — including the headline claim that the log
+reader drops `skipped` rows, which a live differential refuted before anything was built.
+
+### Fixed
+
+- **An opportunity CUSTOM field is now addressed as `custom_fields.<id>`.** The action turns
+  `filterField` into a top-level body property and the opportunities DTO whitelists those, so the
+  bare id the compiler used to emit came back `property <id> should not exist` — a 400 buried in a
+  `skipped` row — on every booking since the build. Worse, the compiler *refused* the working
+  spelling with `OPP_FIELD_UNKNOWN`; the knowledge had sat in the harvest corpus all along, skipped
+  by one line in `gen-opp-shapes.mjs`. The compiler now accepts the bare id, the prefixed id and
+  the `opportunity.*` fieldKey, emits the single wire spelling, and joins in the account's own
+  `dataType` — closing the "contact→opp dataType join pending" warning deferred since F5-15.
+  Standard properties keep their bare name; one shared `OPP_CUSTOM_FIELD_PREFIX` in
+  `opp-shapes.mjs` keeps the emit and the guard from drifting.
+- **Two opportunity lints that over-fired on correct steps — and aborted the edit path.**
+  `OPP_NAME_KEY` tested key *presence*, so the builder's own `pipeline: null` / `stage: null`
+  tripped it; it now fires only on a non-empty string. `OPP_STAGE_NO_PIPELINE_ROW` read only the
+  rows, so every correctly-built `create_opportunity` (top-level `pipelineId` by design, stage as
+  a row) tripped it; a top-level id now satisfies it **on create only** — on update the pipeline
+  belongs in a row and the rule keeps its teeth. Both proven live on a builder-authored workflow.
+- **The edit path now runs GHL's own action schema before the write.** A 614-character
+  `conversationai_ai_message` prompt had returned 200, round-tripped clean and published — and the
+  builder then showed "Resolve 1 Errors — Maximum 600 characters are allowed". Round-trip cannot
+  see this by construction (sent equals stored). `edit_workflow` now checks the mutated templates
+  against the marketplace assets catalog pre-write and names violations in the confirm preview
+  (`preview.schemaViolations`) and the committed result (`schemaViolations`, `schemaHeadline`).
+  Advisory and fail-open like the build path; gated to the eleven ops that write attributes so
+  the pinned network contract does not grow for a rename; reuses the payload a marketplace op
+  already fetched. Note the caps are per node type — `continue` is 1000, not uncapped.
+- **`build_workflow` no longer swallows an unknown top-level key.** `parentId` was accepted,
+  ignored, and never mentioned — the build reported success and left the workflow at the account
+  root. The node level has had a key registry since v0.3.0; the top level had none. `parseIR` now
+  raises `TOP_KEY`, and `parentId` specifically gets the recipe: build, then
+  `move_workflows({locationId, workflowIds:[wid], parentId})` — the create POST cannot file a
+  workflow. A typo'd `setings:` dies the same loud death instead of the old silent one.
+- **The standalone scripts refuse a stale `GHL_TOK_FILE` loudly.** 0.43.0 renamed the env var and
+  the MCP server has refused the old name ever since; `capture-token.mjs`, `build.mjs` and
+  `edit.mjs` silently fell back — to *different* default paths, so a fresh capture wrote one file
+  while edit read another ("fresh capture still 401s", `ABORTED (ENOENT)`). All three now abort
+  in the server's own wording, share `~/.uxie-ghl-internal-mcp/tok.txt` as the default, and
+  `rename-step-minimal.mjs` drops its one-off `GHL_TOKEN_FILE` — one env name plugin-wide. A
+  `--print-token-file` seam lets the suite assert capture and edit resolve the same path.
+- `check_workflow`'s description no longer pins a stale type count; the live number is in
+  `coverage.schemaTypes`.
+
+### Added
+
+- **`OPP_CUSTOM_FIELD_BARE_ID`** (error) — a bare 20-character id in an opportunity `filterField`,
+  with the exact DTO rejection and the correct spelling in the message.
+- **`splitter-branch-leads-with-container`** (graph-context, warning) — a `conversationai_ai_splitter`
+  branch whose first step is a multipath container is never offered to the model; measured across
+  four live conversations whose wording matched the branch label almost verbatim, and fixed by one
+  simple step at the branch head.
+- **`manual-task-unassigned`** (hygiene, warning) — an unassigned `manual-call`/`manual-sms` is
+  parked, not skipped: GHL queues it for nobody and the contact waits behind it indefinitely. GHL
+  has no validator for this.
+- **`book-appointment-unsteered`** (hygiene, warning) — stock `promptInstructions` on
+  `conversationai_book_appointment` ships both measured defaults: it names an appointment already
+  attended and offers past times, and with several bookings silently picks the soonest.
+- **`get_workflow_logs` flags a no-op opportunity write.** A `success` row for
+  `internal_create_opportunity`/`internal_update_opportunity` whose `meta.actionFrom` is empty
+  never reached the premium-actions-worker — measured on a manual enrolment where "Mark the card
+  LOST" logged success twice and the card never moved. Labelled `actionDispatched:false` with a
+  note. Scoped to exactly those two types: `internal_notification` legitimately runs with an
+  empty `actionFrom`, and even a `skipped` opportunity row carries a populated one.
+- **`OPP_WRITE_UNBOUND_PATH`** (warning) — the operator's rule, mechanised: a card write must sit
+  on a path that binds the card itself (`find_opportunity` → Not Found: create → Found: update),
+  never rely on how the contact entered. Fires on any `internal_update_opportunity` whose
+  `parentKey` walk meets no create and no Found transition — the shape that works through the
+  opportunity trigger and silently no-ops on an `add_to_workflow` or manual/API enrolment.
+  Live-proven from the working tree: both LOST writes in the Standard's stale-lead workflow fire
+  it; the AI flow's writes (all under find→Found) stay silent.
+- **`flow-bot-rules-drift`** (warning) — C-13's byte-identical rule, mechanised zero-config:
+  sentences ≥ 40 chars shared verbatim by ≥ 2 speaking nodes are the rules block; a node carrying
+  a near-variant (token Jaccard ≥ 0.6) of one is named with both spellings, and a node carrying
+  none of the core block is told a global rule does not reach it. Speaking nodes are the five
+  prompt-driven types; `conversationai_custom_message` is excluded by ruling — its `message` is
+  sent to the lead verbatim, so a rules block there would be texted to the customer. Live-proven
+  silent on the certified flow, whose block was already frozen byte-identically.
+- `GOTO_TRIGGER_RACE` and the flow-bot references now carry the *resolved* cause of the
+  mid-conversation kill — a trigger-**priority** collision, closed by giving the booking trigger
+  top priority (0/11 → 5/5) — and distinguish it from a genuine second inbound message, which
+  restarts the run benignly. `flow-bots.md` gains a "Runtime doctrine" section from a week of
+  live conversations; `goghl-whatsapp.md` records that a vendor WhatsApp send reports `success`
+  for a contact with no phone and leaves no trace.
+
+### Skills — six skills now act on what the corpus learned
+
+- **`ghl-conversation-ai`** — "my bot isn't replying" now starts at the Agent Deployment
+  **routing table**, not the prompt: one row per channel, and a Live_Chat row pinned to a dead
+  widget id mutes the agent with no error anywhere. The full-row PATCH that fixes it (captured
+  from the product UI; a partial body is unproven), the widget picker's required `offset`/`limit`,
+  the bot-type trade-off (flow-bot half measured, prompt-bot half inferred), the node-scope
+  caveat, and the corrected `eq` → `==` operator. The custom-trigger runtime paragraph states
+  only what was measured; the kill mechanism is marked as the inferred model it is.
+- **`ghl-knowledge-base`** — gaps are a dated log of misses, not an inventory: the list endpoint,
+  the never-self-closes differential, the four-step reading order, and that the DISMISS write was
+  never captured.
+- **`ghl-orientation`** — snapshots carry knowledge bases and **not** Conversation AI (agent, flow
+  workflow, routing rows); the assets read to diff a snapshot before pushing; the wizard's
+  per-asset conflict step replaces the old "overwrites by default" claim.
+- **`ghl-workflow-specialist`** — a seven-rule flow-bot design block in `anti-patterns.md` §11,
+  and the `conversationai_*` catalog row now names nine nodes, not five.
+- **`get-ghl-workflow-logs`** — "Reading a run honestly": `skipped` rows are returned and a 4xx
+  body inside one is a finding; `actionDispatched:false` is a no-op card write; a vendor WhatsApp
+  `success` is queued, not delivered; restart vs kill in a flow-bot log; check the credential
+  before believing an empty sweep.
+- **`ghl-reverse-engineering`** — the harvester reads your page: every `METHOD /path` token
+  mints a shipped catalog row on the page's single `Base:`, else the prefix map, else backend —
+  with the discipline that keeps an inferred or 403ing path out of the catalog.
+- Every edit was adversarially read against its corpus source before landing; the pass caught
+  an over-claimed "live-proven" on the inferred kill mechanism in three places and corrected it
+  at source (`flow-bots.md`, `step-shapes.md`, the `GOTO_TRIGGER_RACE` text).
+
+### Audit — the bundle can finally see a muted agent
+
+- **`get_ai_configuration_bundle` reads each Conversation AI agent's Agent-Deployment routing
+  table** — the per-channel rows that decide which widgets/numbers actually reach the agent, and
+  the surface on which a Live_Chat row pinned to a deleted widget id mutes a fully-configured
+  agent with no error anywhere (C-21). Built with the framework's full ceremony: a new sealed
+  capability (`conversation_ai_deployment_routing`, query-bound `agentId`, seal enforcement
+  extended to query bindings at the gateway chokepoint), a third per-item phase on the
+  `conversation_ai` component (rows verbatim on each item, `routingRead` against the detail
+  denominator, `routingEnvelopeShape`, two new failure codes that gate `complete`), and a
+  component-level `routingPinned` advisory summarising every row with `allIdentifiers: false` —
+  pinned to specific identifiers, verify they still exist. The response envelope was pinned by a
+  live capture before the reader was written: a bare array whose rows self-identify, with the tag
+  keys absent on some rows (hence strict boolean reads). Live-proven read-only from the working
+  tree: the sandbox agent's four rows flow through, `routingPinned` empty because every channel
+  is on All widgets, `complete: true`. Both manifests and both dists regenerated; the
+  `AI_BUNDLE_CAPABILITY_VERSION` moved (as designed, invalidating old receipts) while
+  `ROSTER_CAPABILITY_VERSION` did not; a fresh human-approved canary is required before Full-audit
+  claims. 14 new tests (992 total).
+
+### Catalog
+
+- **16 new endpoint rows harvested from the corpus** into the internal catalog (876 → 892) — the snapshot surface
+  (`/snapshots/…`, nine reads, `assets` proven and carrying the fact that a snapshot has NO
+  Conversation AI category), knowledge-base gaps (`/knowledge-base/gaps`, proven: a gap row is a
+  dated log that never closes itself), Agent Deployment routing (`/agent-deployment/routing-config/configs`
+  GET + PATCH, proven: a Live_Chat row pinned to a dead widget id mutes the agent silently), and
+  custom-field/value folders (`customFields/{id}` read proven; `customValues` folder POST proven;
+  `customFields/search` needs `includeStandards=true` to list folders at all). 20 overlay rows
+  carry the live reach results and the trap notes. The harvester's prefix→origin map learned
+  `/agent-deployment` and `/snapshots`, after a research page without a `Base:` filed them on the
+  wrong host once.
+
+### Disproved — do not build
+
+- `get_workflow_logs` does **not** drop `skipped` rows (no filter exists; live: two returned, with
+  their 400 bodies). The trigger verifier's casing bug and the edit engine's "cannot see
+  find_opportunity children" were both fixed on 29 August by other mechanisms. Step ops commit
+  *before* trigger writes, so a trigger abort never swallows batched step edits.
+
 ## [0.46.0] — 2026-08-31
 
 The browser login becomes a monthly event at most. 0.45.0 kept a live session's credentials fresh;

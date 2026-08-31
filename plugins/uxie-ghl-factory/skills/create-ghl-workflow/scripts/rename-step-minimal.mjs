@@ -16,10 +16,32 @@
 //      shape with no MCP layer in between.
 //
 // usage: node rename-step-minimal.mjs <locationId> <workflowId> <stepId> "<new name>"
-// token file: $GHL_TOKEN_FILE, else ./.ghl/uxie-ghl-internal-mcp-tok.txt in the cwd
-//             (the project-scoped capture path the connect skill writes).
+// token file: $GHL_INTERNAL_TOK_FILE — the ONE env name the whole plugin reads — else
+//             ./.ghl/uxie-ghl-internal-mcp-tok.txt in the cwd (the project-scoped capture
+//             path the connect skill writes).
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+
+// This script once read its own one-off name, GHL_TOKEN_FILE — a third env var beside the
+// plugin-wide GHL_INTERNAL_TOK_FILE and the 0.43.0-retired GHL_TOK_FILE. Only
+// GHL_INTERNAL_TOK_FILE is read as a value now; either old name's PRESENCE alone (never its
+// value) is refused loudly — same discipline and wording as mcp-internal/core/auth.mjs
+// readCredentials — instead of silently falling back to a file the capture never wrote.
+const staleEnvName = ['GHL_TOKEN_FILE', 'GHL_TOK_FILE'].find((n) => Boolean(process.env[n]));
+if (staleEnvName && !process.env.GHL_INTERNAL_TOK_FILE) {
+  console.error(`ABORTED (LEGACY_TOKEN_FILE_ENV): ${staleEnvName} is set but GHL_INTERNAL_TOK_FILE `
+    + `is not. ${staleEnvName} no longer does anything (GHL_INTERNAL_TOK_FILE has been the one `
+    + 'plugin-wide name since 0.43.0), so this run would '
+    + 'silently fall back to a token file the capture never wrote and could authenticate as the '
+    + 'wrong account.\nRename the env var, then retry — same value, new name: '
+    + `export GHL_INTERNAL_TOK_FILE="<same path you had in ${staleEnvName}>"`);
+  process.exit(2);
+}
+const TOKFILE = process.env.GHL_INTERNAL_TOK_FILE
+  ?? resolve(process.cwd(), '.ghl/uxie-ghl-internal-mcp-tok.txt');
+// Test seam: print the resolved token-file path and exit — checked AFTER the legacy guard,
+// BEFORE the usage check, so the suite can assert resolution without a live workflow.
+if (process.argv.includes('--print-token-file')) { console.log(TOKFILE); process.exit(0); }
 
 const [, , LOC, WID, SID, NEWNAME] = process.argv;
 if (!NEWNAME) {
@@ -27,8 +49,6 @@ if (!NEWNAME) {
   process.exit(2);
 }
 
-const TOKFILE = process.env.GHL_TOKEN_FILE
-  ?? resolve(process.cwd(), '.ghl/uxie-ghl-internal-mcp-tok.txt');
 const raw = readFileSync(TOKFILE, 'utf8');
 const jwt = (raw.match(/^Bearer\s+(\S+)/m) || raw.match(/^Authorization:\s*Bearer\s+(\S+)/mi) || [])[1];
 if (!jwt) { console.error(`no Bearer token in ${TOKFILE}`); process.exit(1); }

@@ -1,9 +1,9 @@
 // Rules that need the WHOLE template list, not one node's attributes.
 //
 // The coupled-field layer in required-fields.mjs sees a single node's attributes and nothing
-// else, which is right for most of GHL's validators. These two cannot live there: one needs the
-// node's PARENT, the other needs every other step of the same type. Both are result:'warning' in
-// GHL, so both warn here.
+// else, which is right for most of GHL's validators. The rules here cannot live there: each one
+// needs another node — a parent, a sibling of the same type, a downstream step, a branch head.
+// Everything here is warning-severity, so all of them warn.
 //
 // They run after compile, on the emitted templates, so they see exactly what will be sent.
 
@@ -78,8 +78,8 @@ function mathUpstreamRefs(templates) {
 }
 
 /**
- * Run every graph-context rule and hand each finding to `warn`. Never throws: both mirrored rules
- * are result:'warning' in GHL, and promoting one would refuse a document the builder opens.
+ * Run every graph-context rule and hand each finding to `warn`. Never throws: every rule here is
+ * warning-severity, and promoting one would refuse a document the builder opens.
  * Returns the findings so a caller can assert on them.
  */
 // A MANUAL step (manual-call, manual-sms) creates a TASK and the run WAITS there until a human
@@ -144,10 +144,39 @@ function findAfterCreateRace(list) {
   return out;
 }
 
+// A SPLITTER BRANCH THAT LEADS WITH A CONTAINER IS NEVER OFFERED. Proven live (GROM sandbox,
+// 2026-08-30): a branch wired directly to a conversationai_book_appointment — itself a multipath
+// container — was never once chosen across four conversations whose wording matched its label
+// almost verbatim, and two rewrites of the splitter's description changed nothing. The cause is
+// structural, not prompting: nesting a container directly under a splitter branch means GHL never
+// offers that branch. One add_notes inserted at the head of the branch and it fired on the very
+// next message; every branch that DOES get chosen begins with a simple step.
+const isContainer = (t) =>
+  !!t && (t.cat === 'multi-path' || t.attributes?.cat === 'multi-path' || Array.isArray(t.next));
+
+function splitterBranchLeadsWithContainer(list) {
+  const byId = new Map(list.map((t) => [t.id, t]));
+  const out = [];
+  for (const t of list) {
+    if (!t || t.type !== 'conversationai_ai_splitter' || !Array.isArray(t.next)) continue;
+    for (const entryId of t.next) {
+      const entry = byId.get(entryId);
+      const head = entry && typeof entry.next === 'string' ? byId.get(entry.next) : null;
+      if (!isContainer(head)) continue;
+      out.push(`splitter '${t.name ?? t.id}' branch '${entry.name ?? entry.id}' leads directly `
+        + `with '${head.name ?? head.id}' (${head.type}), a multipath container — GHL never offers a `
+        + `branch whose first step is a container, so this branch is never chosen no matter how well `
+        + `the conversation matches it. Put one simple step (add_notes, update_contact_field, `
+        + `conversationai_continue, …) at the head of the branch, before the container.`);
+    }
+  }
+  return out;
+}
+
 export function checkGraphContextRules(templates, { warn, skipGraphContextRules } = {}) {
   if (skipGraphContextRules === true) return [];
   const list = Array.isArray(templates) ? templates : [];
-  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list), ...findAfterCreateRace(list)];
+  const findings = [...gotoPlacement(list), ...mathUpstreamRefs(list), ...manualStepHoldsChain(list), ...findAfterCreateRace(list), ...splitterBranchLeadsWithContainer(list)];
   for (const f of findings) warn?.(`GRAPH_CONTEXT: ${f}`);
   return findings;
 }

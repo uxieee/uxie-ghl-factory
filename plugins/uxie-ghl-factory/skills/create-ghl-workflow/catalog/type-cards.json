@@ -6005,7 +6005,7 @@
    "family": "triggers",
    "title": "conv_ai_autonomous_trigger",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-08-31",
    "summary": "Fires from an autonomous conversation AI bot action — treated as a 'goto' jump trigger.",
    "meta": {
     "Trigger value": "`conv_ai_autonomous_trigger`",
@@ -6290,7 +6290,7 @@
    "family": "steps",
    "title": "AI message",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-08-31",
    "summary": "Have the bot compose and send a message from an instruction, in its own words.",
    "fields": [
     {
@@ -6315,7 +6315,7 @@
    "family": "steps",
    "title": "AI splitter",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-08-31",
    "summary": "Let the model choose a branch from a natural-language description of each one.",
    "fields": [
     {
@@ -6333,7 +6333,7 @@
    "family": "steps",
    "title": "Book appointment",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-08-31",
    "summary": "Hand the conversation to the booking flow for one calendar, then branch on the outcome.",
    "fields": [
     {
@@ -6358,7 +6358,7 @@
    "family": "steps",
    "title": "Continue conversation",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-08-31",
    "summary": "Return the contact to the bot’s general conversation, driven by the global prompt and knowledge base.",
    "fields": [
     {
@@ -6440,7 +6440,7 @@
    "family": "steps",
    "title": "AI capture information",
    "status": "proven-live",
-   "lastVerified": "2026-08-26",
+   "lastVerified": "2026-08-31",
    "summary": "Ask the contact for one piece of information and store the answer on a contact field.",
    "fields": [
     {

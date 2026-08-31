@@ -150,6 +150,14 @@ export const AI_BUNDLE_WARNINGS = Object.freeze({
   AI_DISCOVERY_TOTAL_DISAPPEARED: 'AI_DISCOVERY_TOTAL_DISAPPEARED',
   AI_DETAIL_READ_FAILED: 'AI_DETAIL_READ_FAILED',
   AI_DETAIL_UNREADABLE: 'AI_DETAIL_UNREADABLE',
+  // The ROUTING twins of the two detail codes above, for the per-agent Agent-Deployment
+  // routing read (Conversation AI only — see AI_SURFACES.routingCapabilityId). Separate
+  // codes rather than reusing the detail ones because an auditor branches on them
+  // differently: a missing detail is a missing configuration, a missing routing read is a
+  // channel deployment nobody can vouch for — and only one of the two phases may be at
+  // fault on a given agent.
+  AI_ROUTING_READ_FAILED: 'AI_ROUTING_READ_FAILED',
+  AI_ROUTING_UNREADABLE: 'AI_ROUTING_UNREADABLE',
   // A detail response that is perfectly readable and describes SOMEBODY ELSE. See
   // readAgentRecord: the record was previously accepted on the strength of carrying an id at
   // all, never on that id being the one the request was issued for.
@@ -211,6 +219,12 @@ const AI_SURFACES = Object.freeze({
     detailCapabilityId: 'conversation_ai_agent_detail',
     paginated: false,
     requiresCompany: false,
+    // The Agent-Deployment routing read — one GET per discovered agent, after detail().
+    // THIS surface ONLY, on the same precedent as Voice's `tombstonesApply` below: the
+    // route is live-proven for Conversation AI agents (2026-08-31, designated sandbox) and
+    // NOTHING has been captured for Voice AI or Agent Studio deployment routing, so
+    // declaring it there would drop or invent evidence on the strength of a guess.
+    routingCapabilityId: 'conversation_ai_deployment_routing',
   }),
   voice_ai: Object.freeze({
     discoveryCapabilityId: 'voice_ai_agent_discovery',
@@ -232,7 +246,7 @@ const AI_SURFACES = Object.freeze({
 });
 
 // --- capability versions --------------------------------------------------------
-// Each composite hashes ONLY the descriptors it declares. Hashing the whole 16-descriptor
+// Each composite hashes ONLY the descriptors it declares. Hashing the whole 18-descriptor
 // set meant an edit to an unrelated descriptor invalidated every already-collected artifact
 // for a reason that could not possibly have changed what it observed. A receipt must be
 // invalidated by a change to the policy it was collected under, and by nothing else.
@@ -240,6 +254,7 @@ export const ROSTER_CAPABILITY_IDS = Object.freeze(['workflow_roster_list']);
 export const AI_BUNDLE_CAPABILITY_IDS = Object.freeze([
   'conversation_ai_agent_discovery',
   'conversation_ai_agent_detail',
+  'conversation_ai_deployment_routing',
   'voice_ai_agent_discovery',
   'voice_ai_agent_detail',
   'agent_studio_agent_discovery',
@@ -423,6 +438,16 @@ const ROSTER_TOTAL_KEYS = Object.freeze(['count', 'total']);
 // pointed at it, the total reads as absent (incomplete, loud) rather than as wrong.
 const AI_ROW_KEYS = Object.freeze(['agents', 'employees', 'data', 'items']);
 const AI_TOTAL_KEYS = Object.freeze(['total', 'totalCount']);
+
+// ROUTING — `/agent-deployment/routing-config/configs` answers a BARE ARRAY of rows with no
+// wrapper key at all (live-captured 2026-08-31, designated sandbox, read-only), which
+// `readRows` already accepts first. `configs`/`data` are FAIL-CLOSED fallbacks, not
+// observations: if a future GHL release wraps the array, a candidate key can only ever turn
+// an unreadable envelope into a readable one, and an envelope neither shape matches still
+// reads as AI_ROUTING_UNREADABLE rather than as an empty deployment. No total key is read —
+// no routing response has ever reported one, and a page count invented as a surface total is
+// the false terminal this module exists to refuse.
+const ROUTING_ROW_KEYS = Object.freeze(['configs', 'data']);
 
 // The real Mongo/BSON wrappers an id can arrive inside. This list is a deliberate COPY of
 // `ID_WRAPPER_KEYS` in core/audit-gateway.mjs — that module's copy is private, and the two are
@@ -981,6 +1006,13 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
   // how a `record`/`read` function ends up hashed into the proof ledger as `null`. Each
   // component's `envelopeShape` is read out of here at finalize.
   const shapeLogs = new Map(AI_BUNDLE_COMPONENTS.map((name) => [name, makeShapeLog()]));
+  // The routing twin of `shapeLogs`, kept ONLY for surfaces that declare a routing
+  // capability: a log for a surface with no routing route would read out `{rowsKeys: [],
+  // totalKeys: []}` — the shape of "attempted and met nothing" — where the truthful value
+  // is `null`, "this surface has no routing read to observe".
+  const routingShapeLogs = new Map(AI_BUNDLE_COMPONENTS
+    .filter((name) => AI_SURFACES[name].routingCapabilityId)
+    .map((name) => [name, makeShapeLog()]));
 
   const components = {};
   for (const name of AI_BUNDLE_COMPONENTS) {
@@ -1008,6 +1040,19 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
         // when there was never a second page to spend it on.
         budget: AI_SURFACES[name].paginated ? config.maxPages : null,
       },
+      // The routing phase's per-component evidence, `null` on every surface with no declared
+      // routing capability — the same "does not apply here" grammar as `pages.budget` above.
+      // `routingRead` counts agents whose routing rows were READ (its denominator is
+      // detailDenominator — the routing loop owes exactly the same set of agents the detail
+      // loop does, so a second denominator field would be a second copy of one number).
+      // `routingEnvelopeShape` is read out of the side log at finalize, beside
+      // `envelopeShape`, so a component that was never attempted still publishes an empty
+      // observation and the CIRCUIT_OPEN partial carries whatever was met before the latch.
+      routingEnvelopeShape: AI_SURFACES[name].routingCapabilityId ? { rowsKeys: [], totalKeys: [] } : null,
+      // One entry per READ row with a STRICT `allIdentifiers === false` — an advisory
+      // summary, never a warning: a pinned row is legal live configuration (see routing()).
+      routingPinned: AI_SURFACES[name].routingCapabilityId ? [] : null,
+      routingRead: AI_SURFACES[name].routingCapabilityId ? 0 : null,
       sourceRoutes: [],
       // One entry per page READ, `null` where that page reported no total — the roster's
       // `totalHistory`, per component, and published for the same reason: a walk whose whole
@@ -1106,6 +1151,12 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
     // partial attached to a thrown CIRCUIT_OPEN carries whatever shapes were met before the
     // latch. Both go through this one line, so neither can drift from the other.
     for (const name of AI_BUNDLE_COMPONENTS) components[name].envelopeShape = shapeLogs.get(name).read();
+    // The routing shapes go through the same one line, for the same reason — including on
+    // the partial attached to a thrown CIRCUIT_OPEN. A surface with no routing capability
+    // keeps its seeded `null`.
+    for (const name of AI_BUNDLE_COMPONENTS) {
+      if (routingShapeLogs.has(name)) components[name].routingEnvelopeShape = routingShapeLogs.get(name).read();
+    }
     // `truncated` below is `!complete`: the two fields are IDENTICAL by construction today,
     // for the same reason and with the same caveat as on the roster. See that finalize.
     // `!rateLimit.limited` is likewise defence in depth and currently unreachable — the block
@@ -1173,6 +1224,12 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
     component.applicable = reconciled ? items.length > 0 : 'unknown';
     component.detailDenominator = items.filter((item) => item.tombstone !== true).length;
     await detail(name, surface, component);
+    // The third per-item phase, on the surfaces that declare one: the Agent-Deployment
+    // routing rows, read AFTER detail and before the completeness verdict so a routing
+    // failure gates `complete` exactly the way a detail failure does. It owes the SAME set
+    // of agents detail() owes (detailDenominator), which is why no routing denominator
+    // exists — see the component seed.
+    if (surface.routingCapabilityId) await routing(name, surface, component);
     // A component is complete only when it was read end to end AND nothing was recorded
     // against it. Errors are the read failures; warnings additionally carry the gradings
     // (an ambiguous deletion signal is not a failed read, but it is an unknown, and an
@@ -1354,6 +1411,11 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
           tombstone: surface.tombstonesApply === true && grade === 'tombstone',
           detailRead: false,
           detail: null,
+          // Seeded on EVERY component's items, routing surface or not, so a consumer walking
+          // items never meets `undefined` — the same rule the warning shape carries. On a
+          // surface with no routing capability they simply never change.
+          routingRead: false,
+          routing: null,
         });
       }
 
@@ -1562,6 +1624,95 @@ export async function getAiConfigurationBundle({ auditGateway, input } = {}) {
       item.detailRead = true;
       item.detail = record;
       component.detailsRead += 1;
+    }
+  }
+
+  // The Agent-Deployment ROUTING read: one GET per applicable agent, through the same
+  // sealed-and-typed shape as detail(). What it publishes:
+  //
+  //   - `item.routing` — the READ rows, VERBATIM. The live rows self-identify (`agentId`,
+  //     `locationId`) and the gateway's identity inspection already judges those fields, so
+  //     no composite-level identity code is invented here: a row provably about somebody
+  //     else comes back as ok:false/IDENTITY_CONFLICT and lands in the failure branch below.
+  //     Rows also carry `deleted`; no deleted row has ever been observed, so NO tombstone
+  //     semantics are invented for it — the row is reported as it arrived.
+  //   - `component.routingPinned` — one `{agentId, channel, specificIdentifiers}` entry per
+  //     READ row whose `allIdentifiers === false`, STRICTLY: the string 'false' and an
+  //     absent key do NOT qualify, for the same reason the tombstone rule refuses
+  //     `isDeleted:'true'` — each loosening silently reclassifies a live row. It is
+  //     COMPONENT-LEVEL EVIDENCE, never a warning: a pinned row is legal live configuration
+  //     (the channel answers only on the named identifiers) and must not force
+  //     complete:false. Derived only from rows actually read — on complete:false it is a
+  //     floor, not a census. And it never judges whether the pinned identifiers still EXIST
+  //     (a deleted widget id silently mutes the agent); that needs /chat-widget/list, which
+  //     is out of this rail's scope, so the entry hands a reviewer the ids to check instead.
+  //
+  // An EMPTY array after a terminal, schema-valid read is legal (`routing: []`,
+  // routingRead counted) — the agent is deployed on no channel, which is an observation.
+  // A failed or unreadable read leaves `routing: null`, which is mandatory: null and []
+  // are the two facts this whole module exists to keep apart.
+  async function routing(name, surface, component) {
+    const routingCapabilityId = surface.routingCapabilityId;
+    // The same per-product seal detail() builds, reconstructed rather than shared so the
+    // two phases cannot silently diverge about which ids discovery vouched for.
+    const discoveredAgentIds = {
+      [surface.discoveryCapabilityId]: component.items
+        .filter((item) => item.id !== null)
+        .map((item) => item.id),
+    };
+    for (const item of component.items) {
+      // detail()'s skip rules, verbatim: a confirmed tombstone gets no further call, and a
+      // row with no id cannot address a per-agent route. Both already carry their verdicts
+      // from the discovery phase (excluded from the denominator, or warned as unreachable).
+      if (item.tombstone === true) continue;
+      if (item.id === null) continue;
+      let response;
+      try {
+        response = await read(name, routingCapabilityId, {
+          locationId: boundLocationId,
+          agentId: item.id,
+          discoveredAgentIds,
+        }, { locationId: boundLocationId, agentId: item.id });
+      } catch (error) {
+        absorbThrow(error, name, routingCapabilityId, 'routing');
+        continue;
+      }
+      if (!response.ok) {
+        recordError(name, response.failureClass ?? CODES.INVALID_RESPONSE_BODY, routingCapabilityId, 'routing',
+          failureDetail(response, routingCapabilityId));
+        warnAggregated(warningForFailure(response.failureClass, AI_BUNDLE_WARNINGS.AI_ROUTING_READ_FAILED), name,
+          failureDetail(response, routingCapabilityId));
+        continue;
+      }
+      // Bare array first (the live shape), then the fail-closed wrapper candidates. A 200
+      // this reader cannot read — including one that contradicts itself across two wrapper
+      // keys — is a read that did not happen, never an empty deployment.
+      const rowsRead = readRows(response.json, ROUTING_ROW_KEYS);
+      routingShapeLogs.get(name).record({ rowsKey: rowsRead.key, totalKey: null });
+      if (rowsRead.rows === null) {
+        const detail = rowsRead.conflict !== null
+          ? `the routing response contradicted itself (row keys ${rowsRead.conflict.join('/')} carry different lists)`
+          : 'the routing response carried no readable routing-config list';
+        recordError(name, AI_BUNDLE_WARNINGS.AI_ROUTING_UNREADABLE, routingCapabilityId, 'routing', detail);
+        warnAggregated(AI_BUNDLE_WARNINGS.AI_ROUTING_UNREADABLE, name,
+          `capability ${routingCapabilityId} answered 200 with an envelope this rail cannot read`);
+        continue;
+      }
+      item.routing = rowsRead.rows;
+      item.routingRead = true;
+      component.routingRead += 1;
+      for (const row of rowsRead.rows) {
+        if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
+        if (row.allIdentifiers !== false) continue;   // STRICT: 'false' and absent do not pin
+        component.routingPinned.push({
+          agentId: item.id,
+          // `includeTags`/`excludeTags` can legitimately be ABSENT from a live row, so no
+          // key on the row is assumed to exist; the two copied here are normalised to null
+          // when missing and otherwise copied verbatim.
+          channel: row.channel ?? null,
+          specificIdentifiers: row.specificIdentifiers ?? null,
+        });
+      }
     }
   }
 }

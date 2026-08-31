@@ -51,6 +51,7 @@ const CAPABILITY_ORDER = [
   'voice_ai_agent_detail',
   'conversation_ai_agent_discovery',
   'conversation_ai_agent_detail',
+  'conversation_ai_deployment_routing',
   'agent_studio_agent_discovery',
   'agent_studio_agent_detail',
   'marketplace_module_search',
@@ -228,6 +229,19 @@ const EXPECTED = {
     locationBinding: 'query',
     sealedBy: 'conversation_ai_agent_discovery',
   }),
+  // The Agent-Deployment routing read (live-captured 2026-08-31): agentId is QUERY-bound
+  // rather than path-bound, and the route is still sealed by the Conversation AI discovery
+  // result — the seal follows the agent binding, not the binding's shape.
+  conversation_ai_deployment_routing: descriptor({
+    capabilityId: 'conversation_ai_deployment_routing',
+    host: 'services',
+    authRail: 'ai',
+    normalizedPath: '/agent-deployment/routing-config/configs',
+    queryBindings: { agentId: 'agentId' },
+    requiredQueryKeys: ['locationId', 'agentId'],
+    locationBinding: 'query',
+    sealedBy: 'conversation_ai_agent_discovery',
+  }),
   agent_studio_agent_discovery: descriptor({
     capabilityId: 'agent_studio_agent_discovery',
     host: 'services',
@@ -343,23 +357,29 @@ test('hostBaseFor resolves the two approved hosts and refuses anything else', ()
   }
 });
 
-// I10: each detail route names the ONE discovery capability whose sealed result may
-// authorize it. A flat seal would let a Voice id probe the other two products' routes.
-test('every detail descriptor is sealed by its own product discovery capability', () => {
+// I10: each agent-addressing route names the ONE discovery capability whose sealed result
+// may authorize it. A flat seal would let a Voice id probe the other two products' routes.
+// EXTENDED with the routing descriptor: the seal rule follows the agent BINDING, whichever
+// shape it takes — a path variable (the three detail routes) or a query key (the
+// Agent-Deployment routing route). A query-bound agentId with no seal would be exactly the
+// unsealed probe the path-side seal exists to refuse, one binding shape over.
+test('every agent-addressing descriptor is sealed by its own product discovery capability', () => {
   const expectedSeals = {
     voice_ai_agent_detail: 'voice_ai_agent_discovery',
     conversation_ai_agent_detail: 'conversation_ai_agent_discovery',
+    conversation_ai_deployment_routing: 'conversation_ai_agent_discovery',
     agent_studio_agent_detail: 'agent_studio_agent_discovery',
   };
   const known = new Set(AUDIT_CAPABILITIES.map((c) => c.capabilityId));
   for (const cap of AUDIT_CAPABILITIES) {
-    const bindsAgent = Object.values(cap.pathBindings).includes('agentId');
+    const bindsAgent = Object.values(cap.pathBindings).includes('agentId')
+      || Object.values(cap.queryBindings).includes('agentId');
     if (bindsAgent) {
       assert.equal(cap.sealedBy, expectedSeals[cap.capabilityId], `${cap.capabilityId}: wrong sealedBy`);
       assert.ok(known.has(cap.sealedBy), `${cap.capabilityId}: sealedBy names an unknown capability`);
       assert.notEqual(cap.sealedBy, cap.capabilityId, `${cap.capabilityId}: cannot seal itself`);
     } else {
-      assert.equal(cap.sealedBy, null, `${cap.capabilityId}: only agent-detail routes carry a seal`);
+      assert.equal(cap.sealedBy, null, `${cap.capabilityId}: only agent-addressing routes carry a seal`);
     }
   }
 });
@@ -438,7 +458,7 @@ test('every descriptor is schema-valid', () => {
   }
 });
 
-test('the descriptor set is exactly the 17 planned capability IDs, in plan order', () => {
+test('the descriptor set is exactly the 18 planned capability IDs, in plan order', () => {
   assert.deepEqual(AUDIT_CAPABILITIES.map((c) => c.capabilityId), CAPABILITY_ORDER);
 });
 
@@ -569,7 +589,7 @@ test('resolveCapability refuses absolute, scheme-bearing, and unrooted paths by 
   );
 });
 
-// M4: AMBIGUOUS_CAPABILITY is unreachable against the real 16-descriptor set (the test
+// M4: AMBIGUOUS_CAPABILITY is unreachable against the real 18-descriptor set (the test
 // below proves exactly that), so without an injectable descriptor list the rule has no
 // positive test and could be deleted with everything still green.
 test('resolveCapability rejects a genuine specificity tie as AMBIGUOUS_CAPABILITY', () => {

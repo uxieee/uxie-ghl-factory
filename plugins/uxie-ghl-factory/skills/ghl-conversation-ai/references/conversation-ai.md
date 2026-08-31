@@ -1,7 +1,8 @@
 
 > **Scope: the internal rail.** Conversation AI reads and most writes go through the public
 > rail (see `SKILL.md`). The internal endpoints below are what you need for the per-contact AI
-> switch (`/conversations-ai/employeeConfigs`) and prompt version history (`oldPromptIds`).
+> switch (`/conversations-ai/employeeConfigs`), prompt version history (`oldPromptIds`) and the
+> Agent Deployment routing table (`/agent-deployment/routing-config/configs`).
 
 # Conversation AI (chat "AI Employee")
 
@@ -39,9 +40,12 @@ into three parts, not a tool-calling system prompt.
 | List knowledge bases | `GET` | `/knowledge-base/all?locationId=…` |
 | Default KB (idempotent get-or-create) | `POST` | `/knowledge-base/default` (`{locationId, migrateDocs:true}`) |
 | Default prompt template | `GET` | `/conversations-ai/prompt/default?locationId=…&intentType=…` |
+| Deployment routing rows (one per channel) | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
+| Update a routing row (full row only) | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
+| Live-chat widget picker (`offset`+`limit` required) | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
 
-Auth: **`token-id`** header (not the workflow-builder's `Authorization: Bearer`). See the
-parent SKILL.md's Execute section for the capture procedure pointer.
+Auth: Bearer **plus** `token-id` — the dual-credential AI rail (`raw_request` with `host:"ai"`
+attaches both). See the parent SKILL.md's Execute section for the capture procedure pointer.
 
 ## Agent config
 
@@ -53,6 +57,21 @@ parent SKILL.md's Execute section for the capture procedure pointer.
 - `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT`**. The prompt bot is the
   three-part-prompt agent above; the flow bot's logic is a **workflow** (see "Flow-Based
   Builder" below). Both are buildable via the engine (`convai-ir.mjs` `BOT_TYPES`).
+  - **Choosing between them is a real trade-off** (flow-bot half live-measured 2026-08-31; the
+    prompt-bot comparison is inferred from operator observation on other accounts, not measured
+    side-by-side): a
+    `FLOW_BUILDER_BOT` buys explicit routing and pays with less control over what a node
+    says in cases the node did not anticipate — e.g. `conversationai_book_appointment`'s
+    no-appointment-found wording is the node's own and takes no steering from
+    `promptInstructions` (it obeys prompt FORM, then emits its own CONTENT for the empty
+    result). A prompt bot composes every reply with the whole system prompt in play. Weigh this
+    per client, and re-test whenever GHL updates the nodes.
+  - ⚠️ **In a flow bot, a global prohibition does NOT reach a node whose local instruction
+    implies a narrower job.** A node scoped to one task will declare incapacity for anything
+    outside that scope — in the exact words the global prompt bans — unless the node's own text
+    carries the rule with its positive half (what to do instead). Repeat behavioural rules
+    byte-identically in every speaking node. See
+    `create-ghl-workflow/references/flow-bots.md` → "Runtime doctrine".
 - **Three-part prompt** — the entire personality of the bot lives in three free-text fields,
   each with a UI word-limit:
   - `personality` — who the bot is / tone.
@@ -127,6 +146,58 @@ the record back. The UI itself never sends a partial PUT — it PUTs the whole s
   (non-empty enum array).
 - `parseConvaiPartialIR(ir)` — partial validation for update. Every field optional, but any
   field present must still satisfy its enum/shape.
+
+## Deployment — the routing table
+
+`channels[]` on the agent says which channels the bot *may* speak on. Whether a message on a
+channel actually reaches the agent is decided by a separate routing table, one row per channel,
+that no read of the agent record shows. **Status: LIVE-PROVEN 2026-08-31** — rows read, the
+UI's PATCH captured and the row read back on a separate request, then a live reply through the
+previously mute widget ~38 s later. Corpus:
+`knowledge/corpus/ai-agents/20-api/agent-deployment-routing.md`.
+
+| Operation | Method | Path |
+|---|---|---|
+| Read the rows | `GET` | `/agent-deployment/routing-config/configs?locationId=…&agentId=…` |
+| Update a row | `PATCH` | `/agent-deployment/routing-config/configs/:rowId` |
+| Widget picker | `GET` | `/chat-widget/list?locationId=…&chatType=liveChat&offset=0&limit=20` |
+
+The two routing calls are AI-rail (`raw_request`, `host:"ai"`); `/chat-widget/list` answers
+identically on backend and services. No typed tool covers them, so any "is this agent actually
+live?" audit must read the rows directly.
+
+Each row: `{channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags,
+includeTagsOperator, excludeTags, excludeTagsOperator}`. `allIdentifiers:true` routes every
+identifier on that channel ("All widgets") and `specificIdentifiers` is then empty;
+`allIdentifiers:false` pins the row to the listed ids. The `…Tags` / `…Operator` fields
+(`"AND"` observed) were seen in the row shape only — their matching semantics are unexercised.
+
+🔴 **A row pinned to a dead identifier is a silent mute.** A `Live_Chat` row with
+`allIdentifiers:false` and `specificIdentifiers` naming a widget that no longer exists was found
+live: the current widget still created contacts, but the agent never replied and nothing
+enrolled — no error in the agent record, the logs, or the UI. The routing row is the only place
+the cause is visible. The widget picker lists live widgets only; the saved row keeps whatever id
+it was given, which is how a dead id stays pinned unseen.
+
+**Fix — the "All widgets" row.** `PATCH /agent-deployment/routing-config/configs/{rowId}` with
+the **full row**, exactly as the product UI sent it (Agent Deployment → Live chat → edit →
+Select all → Update):
+
+```json
+{"enabled":true,"allIdentifiers":true,"specificIdentifiers":[],"includeTags":[],"includeTagsOperator":"AND","excludeTags":[],"excludeTagsOperator":"AND"}
+```
+
+A partial body is **UNPROVEN** — no subset-of-keys body has ever been sent, so whether the
+endpoint merges or replaces is unknown. Send the full row, then GET the rows back before
+claiming the fix.
+
+**Clone rule:** leave Live chat on *All widgets*, never a specific widget id — widget ids change
+when an account or widget is cloned, and a pinned id fails silently (inferred from the dead id
+observed; the clone path itself was not re-executed).
+
+**Widget picker:** `offset` and `limit` are REQUIRED number strings — omit either and the call
+422s naming exactly those two keys. Returns
+`{chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}`.
 
 ## Actions
 

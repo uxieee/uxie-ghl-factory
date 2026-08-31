@@ -90,8 +90,19 @@ skip straight to booking when the customer asks for it.
   `low|medium|high`, Conversation AI enabled, and the flow-builder beta
   (`GET /ai-employees/beta/{loc}?feature=flow_builder` → `isAllowed`). **The engine refuses these
   itself (`FLOW_TRIGGER`)** — nothing downstream will.
-- **Runtime semantics, per the drawer:** the jump fires *after the main flow completes*, moving the
-  contact to the alternate branch. Not executed here — treat as the vendor's claim.
+- **Runtime, measured 2026-08-27→31** (the drawer's "only after the primary workflow is
+  completed" does NOT match what was seen). Proven: the fire jumps — `added_to_workflow`
+  carrying `targetActionId`, a qualified `condition`, a `goto success`; the kill signature — a
+  `remove_from_workflow` with NO add ~15–18 s after a successful jump, contact stranded; and the
+  outcome — 0/11 replies with priorities wrong, 5/5 once the booking trigger held TOP priority,
+  strictly above every sibling (eleven reproductions). The mechanism — a higher-priority sibling
+  matching STALE conversation context, and a non-atomic remove+add whose add is deduped — is an
+  INFERRED model that fits every observation, not a measurement. Config rule that follows: the
+  trigger you always want to win holds top priority; siblings stay at LOW sensitivity with
+  latest-message-scoped descriptions carrying explicit exclusions for their siblings' intents.
+  Benign and distinct: a genuine second inbound message mid-run restarts the flow, and the
+  restarted run reads the whole conversation and answers everything so far — a burst is answered
+  once, after the burst. Corpus: `knowledge/corpus/workflows/50-runtime/flow-bot-runtime.md`.
 
 ⚠️ Adding a custom trigger through the **UI** has been seen to put the workflow into a state where
 the builder's own full save 400s with `INVALID_TRIGGER_CONDITION`. The engine's plain workflow PUT
@@ -180,10 +191,43 @@ shows a red badge — `maxAttempts: 99999` was written and stored in a live prob
 
 Details: `knowledge/corpus/workflows/40-rules/server-side-validation.md`.
 
+## Runtime doctrine — a week of live conversations, 2026-08-26 → 31
+
+Measured against a live flow bot through the real chat widget, verified against the server's
+conversation records. Full evidence:
+`knowledge/corpus/workflows/70-research/2026-08-31-flow-bot-runtime-certification.md` and the
+distilled rules in `knowledge/corpus/workflows/40-rules/flow-bot-runtime-doctrine.md`.
+
+1. **Capability is a property of the NODE, not the prompt.** Only
+   `conversationai_book_appointment` (and `services_booking`) can act on the diary; from a
+   `continue`/`objective`/`ai_message` node the agent genuinely cannot book, move or cancel, and
+   no wording at any level — agent instructions, personality, objectives, branch labels, the node
+   text itself — changes that. Instructing a node to claim a capability it lacks orders it to lie.
+   If an intent needs an action, ROUTE it to the node that owns the action.
+2. **The booking node obeys prompt FORM but owns its empty-result CONTENT.** A diagnostic
+   "begin every reply with PINEAPPLE" was obeyed; five strategies to steer its no-appointment
+   wording all failed. Never put the node in the position of answering about a booking that may
+   not exist: identify the contact first (asking for the email/phone the booking was made under
+   merges the anonymous visitor into the real record), and gate the node behind an `if_else` on a
+   booking-live tag.
+3. **Selection problems ARE prompt problems.** With several appointments the node names one
+   already attended, offers past times, and silently picks the soonest of several —
+   `promptInstructions` wording fixes all of it. The test: has the node ever done the right
+   thing? Yes → selection, wording is the lever. Never → capability, fix the routing.
+4. **A node's local scope beats a global prohibition.** A node scoped to a narrow job emitted the
+   exact sentences the global prompt banned twice, because the request fell outside its scope and
+   nothing local said what to do instead. Behavioural rules must be repeated in EVERY speaking
+   node, byte-identically, and must carry the positive half (what to do), not just the ban.
+5. **Never lead a splitter branch with a container.** A branch whose first step is a multipath
+   container (`book_appointment` included) is never offered to the model, silently; one simple
+   step at the branch head fixes it.
+6. **In a lane ending at the booking node, every objective proceeds on unmet**
+   (`proceedIfNotMet: false` — the attr is name-inverted): a blocking capture sends its closing
+   message and ENDS the run on an undecided lead instead of walking on to times.
+7. **Trigger priority is the kill switch** — see the custom-trigger section above.
+
 ## Known unknowns
 
-- **Runtime is unproven throughout.** No contact has chatted with a flow bot. Everything above is
-  about what stores and what the builder renders.
 - **Wait-on-wait.** A marketplace app's wait-for-reply step (GoGHL's `wait_step`) alongside a
   flow's own `waitForReply` — untested, and the first thing to check before shipping one.
 - Flow workflows come back `status: "published"` on creation, engine-built or UI-built. The
