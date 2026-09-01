@@ -11,6 +11,59 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.49.0] — 2026-09-02
+
+The rollout-findings review (R-01…R-65). Two engine guards, two conversation-AI tool defects, a
+documentation-pipeline bug that had kept a whole surface out of the catalogue, and nine skill
+references corrected so agents act on what the review proved live.
+
+### Fixed
+
+- **`edit_workflow` no longer aborts on a builder-saved opportunity step.** The commit guard tested
+  name-key PRESENCE (`pipeline !== undefined`) while its own lint had been taught on 31 Aug that a
+  builder-written `pipeline: null` is not a leaked name, so any edit whose scope walked past a
+  UI-stored step failed with "carries name key(s) [pipeline, stage]" — naming the step by display
+  name, which two steps shared. One predicate now lives in `opp-shapes.mjs` (`leakedOppNames`) and
+  both the guard and the lint import it; the error names the step **id** and the retype remedy.
+- **`update_convai_agent` can update a flow-bot agent again.** The read-merge-write replayed
+  `employeeType`, `errors`, `isDeleted` and `rootParentAgentId` — keys every GET returns and the PUT
+  refuses — so the call 422'd having written nothing. All four are stripped.
+- **`create_convai_agent` accepts `mode: "auto-pilot"`.** GHL stores the hyphenated spelling and
+  returns it on every read, so a live record could not be copied into a spec. The IR normalises it
+  to the wire spelling `autoPilot`; a genuinely wrong value still fails `BAD_MODE`.
+- **The corpus harvester dropped every root-collection call.** A single-segment path such as
+  `/payment-links/` was skipped as "relative to an unstated base" even when the page stated a
+  host-only base — so the payment-links family reached the catalogue with its `{id}` routes and
+  without its LIST or CREATE, and `search_endpoints` answered "payment links" with `/links/search`.
+  Fixed at the harvester; three prose-mined rows that would have 404'd (`/rename-workflow/{id}`,
+  `/status/enroll-stats`, `/status/search/enroll-stats`) corrected at source.
+
+### Added
+
+- **`NAME_LENGTH` lint** (platform pack, warning) for steps and triggers. The builder's drawer
+  refuses a name outside 1..100 characters; the API stores anything, so a workflow could read clean
+  by API and be unsaveable by hand.
+- **21 catalogue rows and 21 overlay notes**, every note from a live call: calendar events (epoch-ms
+  only; the misspelled `appoinmentStatus` key), `?version=N` silently ignored, the pipeline PUT's
+  trimmed body and full-replace stages, call-disposition `includeDeleted` returning ONLY deleted
+  rows, `/ai-employees/actions/search` refusing `locationId`, the smart-list detail read, the
+  contact filter DSL, the full payment-links family, `gen-url` minting a stable short link. Rename
+  and the pipeline write now rank #1 for their intents (were #9 and absent).
+- Skills: `ghl-conversation-ai` (actions are add-only pointers; flow-bot flags on the record; merge
+  tags in `promptInstructions`; delete the agent never the flow; what the UI duplicate drops),
+  `ghl-workflow-specialist` anti-pattern §12 (the four appointment-rail rules), `ghl-orientation`
+  (calendar-delete cascade; what a snapshot load actually does), `ghl-pipeline-specialist` (the
+  write contract), `get-ghl-workflow-logs` (`sourceId` as the bound-appointment tell),
+  `ghl-reverse-engineering` (four harvester rules), `ghl-public-mcp-setup` (PIT by API),
+  `create-ghl-workflow/editing.md` and `flow-bots.md`.
+
+### Changed
+
+- Three skill claims that were wrong: `responseLength` does NOT pass through on create (it is
+  hardcoded `balanced` — unfixed, filed as R-64); the agent PUT is replace-what-you-omit, not
+  "merge UNPROVEN"; `botType` has three values. `flow-bots.md` no longer says the drawer requires
+  all four autonomous-trigger filters — the engine validates them only when supplied.
+
 ## [0.48.0] — 2026-09-02
 
 The build path's validation ladder, completed on the edit path. `edit_workflow` had grown most of

@@ -224,3 +224,20 @@ Two behaviours to design around:
 The workflow engine resolves `lostReason` by NAME (`list_account_entities` → `lostReasons`), so a
 spec can say "Too expensive" and the compiler supplies the id — or refuses if the account has no
 such reason.
+
+## Writing a pipeline through the internal rail (proven 31 Aug – 2 Sep 2026)
+
+The public API reads pipelines; the internal rail writes them:
+`PUT /opportunities/pipelines/{pipelineId}?locationId={loc}` (corpus `pipelines-opportunities/`).
+
+- **The body is a TRIMMED echo of GET.** Strip `id`, `dateAdded`, `dateUpdated`, `locationId` and
+  `position` from the top level or it 422s naming all five. Inside `stages[]`, `id` and `position` are
+  required. `stages` must contain at least one element.
+- 🔴 **`stages` is a FULL REPLACE — an omitted stage is silently DELETED.** A stage with its `id` is
+  updated in place (rename it; every workflow reference and every card on it survives, because
+  workflows reference stages by id, never by name). A stage with no `id` is created. Build the array
+  from a fresh GET every time; never drop a stage still holding cards.
+- **Renaming a stage fires nothing. Moving a CARD fires `pipeline_stage_updated` for every card.**
+  Before any bulk card move, list every published workflow triggering on that pipeline with no stage
+  filter and read what it does — a pixel step sends one conversion event per card and a review branch
+  can text a real customer.

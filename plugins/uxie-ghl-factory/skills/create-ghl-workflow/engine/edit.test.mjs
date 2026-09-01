@@ -382,3 +382,59 @@ test('the same document with the entry FIRST commits cleanly', () => {
   ];
   assert.doesNotThrow(() => editCommitBody(fresh, good, { createdSteps: ['a2', 'b'], modifiedSteps: [], deletedSteps: ['a'] }, 'uid', { assumeAssociated: true }));
 });
+
+// R-57 (GROM Sandbox, 2026-09-02). Inserting a step near an EXISTING opportunity step that the
+// BUILDER saved aborted the whole edit with "carries name key(s) [pipeline, stage]". The builder
+// writes `pipeline: null` / `stage: null` on its own update steps, so testing key PRESENCE flags a
+// step that leaks no name at all. lints/opportunity.mjs already learned this (isLeakedName wants a
+// non-empty string); the commit guard had not, so the two disagreed about the same shape.
+test('editCommitBody: a builder-written null pipeline/stage is not a leaked name', () => {
+  const templates = [
+    { id: 's1', type: 'add_contact_tag', name: 'A', next: 's2', parentKey: null, order: 0, attributes: {} },
+    {
+      id: 's2',
+      type: 'internal_update_opportunity',
+      name: 'Move the card back',
+      next: null,
+      parentKey: 's1',
+      order: 1,
+      // Exactly what the UI stores: the ids that do the work, plus null name keys beside them.
+      attributes: {
+        pipeline: null,
+        stage: null,
+        __customInputFields__: [
+          { filterField: 'pipelineId', value: 'PPPPPPPPPPPPPPPPPPPP' },
+          { filterField: 'pipelineStageId', value: 'SSSSSSSSSSSSSSSSSSSS' },
+        ],
+      },
+    },
+  ];
+  const diff = { createdSteps: [], modifiedSteps: ['s2'], deletedSteps: [] };
+  assert.doesNotThrow(() => editCommitBody({ version: 1 }, templates, diff, 'uid'));
+});
+
+test('editCommitBody: a REAL leaked name still fails closed, and names the offending step id', () => {
+  const templates = [
+    {
+      id: 'sDup',
+      type: 'internal_update_opportunity',
+      name: 'Move the card back',
+      next: null,
+      parentKey: null,
+      order: 0,
+      attributes: { pipeline: 'Main', stage: null, __customInputFields__: [] },
+    },
+  ];
+  const diff = { createdSteps: [], modifiedSteps: ['sDup'], deletedSteps: [] };
+  assert.throws(
+    () => editCommitBody({ version: 1 }, templates, diff, 'uid'),
+    (e) => e.code === 'UNRESOLVED_NAME'
+      // R-57 lost three attempts to a message that named the step by DISPLAY NAME while two steps
+      // shared one. The id is the only handle that disambiguates.
+      && e.message.includes('sDup')
+      && /\[pipeline\]/.test(e.message)
+      && !/stage/.test(e.message.split('carries name key')[1].split(']')[0])
+      // and it must say how to clear it on a UI-stored step
+      && /retypeStep/.test(e.message),
+  );
+});

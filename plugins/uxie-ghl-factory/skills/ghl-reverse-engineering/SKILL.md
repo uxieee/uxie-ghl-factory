@@ -175,6 +175,24 @@ before they ship; it did on the first run.
 Turning a finding into a skill or an engine capability is a **separate, later decision** — do
 not fold it into a mapping session.
 
+### Three more harvester rules, learned by breaking them (2 Sep 2026)
+
+- **A single-segment path (`GET /payment-links/`) is dropped unless the page states a HOST-ONLY
+  base** (`Base: backend.leadconnectorhq.com`, no path prefix). A page that declares a prefixed base or
+  none at all loses every root-collection call — which is how a surface reached the plugin with its
+  `{id}` routes and without its LIST or its CREATE. State the base as the bare host when the paths are
+  absolute.
+- **Use ONE spelling per path parameter across every page on a surface.** `{calendarId}` on one page
+  and `{id}` on another mints two catalogue rows for one endpoint, and the overlay attaches to only one.
+  The catalogue already carries 70 such twins; do not add to them.
+- **Never let prose mine as a path.** `GET /calendars/events...` (an ellipsis), or a shorthand tail
+  like `PUT /rename-workflow/{id}` with the `/workflow/{loc}` prefix elided, becomes a row that 404s.
+  Write the full wire path or drop the verb.
+- 🔴 **Writing the page is not shipping the knowledge.** The chain is corpus → harvest → merge → build →
+  overlay → dist, and each stage can drop a row quietly. **Diff the artefact at every stage** (rows
+  added / removed) — "harvested 509" is true and says nothing about which 509. Then re-run the shipped
+  ranking for the intent a caller would actually type and check the row is in the top 10.
+
 ## Non-negotiables
 
 - **Test on a designated test sub-account, never a client's.** If a surface is feature-gated,

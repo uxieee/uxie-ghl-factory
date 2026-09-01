@@ -40,6 +40,19 @@ its own specialist skill. Read the section that matches what you're touching.
   a generic "welcome" sequence firing every time instead of a status-
   specific message).
 
+**Three calendar traps proven 31 Aug–2 Sep 2026** (corpus `calendars/`):
+
+- 🔴 **Deleting a calendar HARD-DELETES its future appointments** — no `cancelled` status, no
+  cancellation event, no alert; the booking simply stops existing and the customer still believes
+  they are booked. Export events first (`GET /calendars/events`, epoch-ms window), move them, then
+  delete. Every trigger filtered to the old calendar id goes silently dead too.
+- 🔴 `GET /calendars/events` returns `{"events":[]}` with a clean 200 unless `startTime`/`endTime` are
+  **epoch milliseconds** — an ISO window makes a full calendar look empty, exactly when you are
+  checking whether a day is free. And `GET /contacts/{id}/appointments` carries the status ONLY under
+  GHL's misspelling `appoinmentStatus`; read `appoinmentStatus ?? appointmentStatus`.
+- **Read `autoConfirm` on every calendar a build touches.** `true` means appointments are born
+  `confirmed`, which silently kills any `status == new` trigger for AI/widget bookings.
+
 ## Forms / Surveys
 
 - **Field mapping is by ID, not by label.** A form's fields map to contact
@@ -158,6 +171,27 @@ shape* — not its data. Read it as **configuration travels, data doesn't**:
   read, and the load wizard step by step) and
   `knowledge/corpus/platform/40-rules/snapshot-carry-matrix.md` (the full
   carry table and audit triggers).
+
+**What a LOAD actually does (a live client install, 31 Aug 2026 — corpus pages pending the write half):**
+
+- 🔴 **Loaded workflows arrive PUBLISHED with triggers `active: true`**, seconds after the push, with
+  no prompt. The first action after a push is to unpublish every loaded workflow via `change-status`;
+  better, push outside business hours and measure the window afterwards with `/workflows/logs/v2`.
+- **"No conflicts found" is a statement about snapshot LINKAGE, not about names.** Same-named tags
+  merge keeping the original id; same-named custom values merge keeping the ORIGINAL value; but a
+  same-named custom FIELD's `dataType` is silently REWRITTEN by the snapshot's definition
+  (SINGLE_OPTIONS → TEXT, options gone) — the one thing the field API refuses, the snapshot rail does.
+  Diff asset names yourself before, re-read every same-named asset after, types included.
+- **The loader remaps every reference to an asset it created — and nothing else.** User ids and a
+  location id used as a literal VALUE in a trigger filter are left pointing at the SOURCE account,
+  silently. Sweep loaded workflows for the source location id, non-target user ids, and any hardcoded
+  identity (clinic name, assistant name, alert email) — only merge-tagged values are safe.
+- 🔴 **STANDARD contact field ids (first_name, last_name, email, phone) are PER-LOCATION.** A flow
+  copied without remapping them writes to nothing, with no error. They appear in no custom-field list;
+  read them from `customFields/search?includeStandards=true`.
+- **Refresh is a fresh PICK from the source account, not a re-capture**: an asset deleted at source is
+  silently dropped from the refreshed snapshot; and the dialog's ticked counts include FOLDER rows
+  while the assets endpoint's do not — compare like with like or you invent a discrepancy.
 
 ## SaaS-Mode Basics
 

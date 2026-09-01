@@ -72,7 +72,10 @@ skip straight to booking when the customer asks for it.
 - `target` takes a **step ref** and the compiler resolves it to the real step id. A dangling ref
   throws `REF_DANGLING` — a goto trigger with no `targetActionId` saves and has nowhere to send
   the contact.
-- All four filters are **required by the drawer**. The compiler expands them to the envelope GHL's
+- Emit **all four** filters. GHL's own duplicate writes all four (priority 8, sensitivity medium) and
+  an engine build that sent only `customTriggerType` + `customTriggerDescription` was accepted with two
+  (R-44). The engine validates each one WHEN SUPPLIED and never defaults or warns on an absent one, so
+  the four-row shape is on the author. The compiler expands them to the envelope GHL's
   own builder writes, with `operator: "=="` on every row — the same operator `conv_ai_trigger`'s
   `botId` row uses. (`eq` is what the builder wrote before GHL's ~2026-08-27 validator update; the
   save now refuses it with `trigger-condition-invalid`, one error per row. The engine emits `==`

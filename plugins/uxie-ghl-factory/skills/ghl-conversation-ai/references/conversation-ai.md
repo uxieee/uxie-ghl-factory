@@ -31,7 +31,7 @@ into three parts, not a tool-calling system prompt.
 | Operation | Method | Path |
 |---|---|---|
 | Create agent | `POST` | `/ai-employees/employees` |
-| Update agent (partial PUT — merge UNPROVEN, see below) | `PUT` | `/ai-employees/employees/:agentId` |
+| Update agent (PUT — replace-what-you-omit for booleans, see "Update-PUT semantics") | `PUT` | `/ai-employees/employees/:agentId` |
 | Get agent | `GET` | `/ai-employees/employees/:agentId` |
 | List / search agents | `GET` | `/ai-employees/employees/search` · `/ai-employees/employees/dashboard/search` |
 | Delete agent | `DELETE` | `/ai-employees/employees/:agentId` |
@@ -54,7 +54,7 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   bot, `suggestive` drafts replies for a human to approve, `autoPilot` sends unattended (capped
   by `autoPilotMaxMessages`, default 75).
 - `channels[]` — enum: `SMS`, `IG`, `FB`, `WebChat`, `Live_Chat`, `WhatsApp`. Non-empty required.
-- `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT`**. The prompt bot is the
+- `botType` — enum **`PROMPT_BASED_BOT` | `FLOW_BUILDER_BOT` | `FORM_BASED_BOT`** (three, per the bundle's own enum; `convai-ir.mjs` `BOT_TYPES`). The prompt bot is the
   three-part-prompt agent above; the flow bot's logic is a **workflow** (see "Flow-Based
   Builder" below). Both are buildable via the engine (`convai-ir.mjs` `BOT_TYPES`).
   - **Choosing between them is a real trade-off** (flow-bot half live-measured 2026-08-31; the
@@ -91,8 +91,15 @@ attaches both). See the parent SKILL.md's Execute section for the capture proced
   below.
 - `llm{primary, secondary}` — model selection (e.g. `gpt-4.1` / `gpt-4.1-mini`); observed on
   update captures.
-- `isPrimary`, `respondToImages`, `respondToAudio`, `isObjectiveBuilderEnabled`,
-  `responseLength` / `aiResponseLengthEnabled` — secondary knobs, pass through as given.
+- `respondToImages`, `respondToAudio`, `isObjectiveBuilderEnabled` — secondary knobs, pass through as given.
+- 🔴 `responseLength` / `aiResponseLengthEnabled`, `isPrimary`, `llm`, `knowledgeBaseTriggers` — **NOT passed
+  through on create** (R-64, 2026-09-02): `buildCreateBody` hardcodes `responseLength:'balanced'`,
+  `aiResponseLengthEnabled:false`, `knowledgeBaseTriggers:[]` and drops the author's value with no
+  warning. `knowledgeBaseTriggers` is settable on the update path; `responseLength`, `llm` and
+  `isPrimary` are reachable on neither. Every engine-created agent is `balanced` until this is
+  fixed — set them in the UI or by a direct PUT and read back.
+- `mode` — the write takes `autoPilot`; the READ returns **`auto-pilot`** (hyphenated). The IR accepts
+  both spellings and emits the write one, so a live record can be copied into a spec (fixed 2026-09-02).
 
 ## Conversation summary is workflow-obtainable (`summary{}`)
 
@@ -262,6 +269,28 @@ Resolve up front: `appointmentBooking.calendarId` + `conversationai_book_appoint
 `knowledgeBaseIds` (KBs). `conversationai_services_booking` additionally needs a pre-configured
 commerce service. A wrong/missing id posts clean and no-ops at runtime.
 
+### Actions are ADD-ONLY, and the record holds only pointers
+
+The agent record's `actions[]` is a list of **`{id, type}` pointers**. The configuration lives in a
+separate registry:
+
+```
+GET /ai-employees/actions/search?employeeId={agentId}      employeeId ONLY
+```
+
+- `locationId` is **REFUSED**, not ignored — `422 property locationId should not exist`. Parse that
+  as a result set and you report "0 configured actions" for an agent that has them.
+- The envelope is **grouped by type**: `data[]` is one row per action type, the objects live in
+  `data[].actions[]`. A flat `data.map(a => a.id)` yields `undefined` for every row.
+- An `advancedFollowup` object carries `scenarioId`, `enabled`, a `followupSequence[]` of up to five
+  steps, AND `followupSettings` (working hours per day, `dynamicChannelSwitching`, `timezoneToUse`).
+- ⚠️ **There is no update-by-id and no DELETE for an action.** `PUT` on the agent with
+  `actions: []`, `null`, `""` or a full record all return accepted and leave the array untouched.
+  Removing an action requires the UI. Treat writing one as close to irreversible.
+- A pointer whose configuration is missing is reported (R-45, live A/B on one account) to stop the
+  agent generating anything, silently. The engine never writes a bare pointer — it POSTs the action
+  as its own resource and threads the server id back — so if you see one, it was hand-assembled.
+
 ## Knowledge base (rich-text, feeds this + Voice AI + Agent Studio)
 
 `kb-compiler.mjs` compiles `POST /knowledge-base/rich-text/` — body
@@ -370,6 +399,33 @@ flow workflow = `backend.leadconnectorhq.com/workflow` + **`Authorization: Beare
 `create-ghl-workflow` recipe). The `compileFlowBuilderBot` driver keeps them as separate descriptors.
 
 **Build it end to end** with `compileFlowBuilderBot` (see driver example below).
+
+### Flow-bot rules that only the record can tell you (live-proven 1–2 Sep 2026)
+
+- **Move/cancel capability lives on the AGENT RECORD for a `FLOW_BUILDER_BOT`.** A flow bot carries no
+  `appointmentBooking` action for the "booking action is canonical" rule to point at (it carries only
+  `advancedFollowup`), so `cancelEnabled` / `rescheduleEnabled` on the record ARE the setting. With
+  them `false` the agent *books a second appointment* on a reschedule instead of moving the first —
+  the double-booking defect. Rule: read the booking action when one exists; read the record when one
+  does not. `conversationai_book_appointment` itself exposes only `promptInstructions` and
+  `calendarId` — it can only BOOK; naming a node "move or cancel" gives it nothing.
+- **Merge tags render inside a flow node's `promptInstructions`** before the model sees them. Prepend
+  `Today is {{right_now.day_of_week}} {{right_now.little_endian_date}}.` to every booking node or the
+  agent resolves "next week Wednesday" to the week it is already in. The whole `{{right_now.*}}`
+  namespace, contact tags and custom-value tags all work there.
+- **Prompt wording changes what the agent SAYS and which tool it picks, never what a tool WRITES.** A
+  status the step type's card does not expose cannot be reached by prose. Check the card first.
+- **Delete the AGENT, never the flow.** A `workflowType:"agent"` workflow can neither be deleted
+  ("Workflows with type agent cannot be deleted") nor unpublished ("must always be published"). The
+  only way one disappears is deleting the agent that owns it; lose the agent first and the flow is
+  permanent, and its inactive `conv_ai_trigger` keeps the old `botId`.
+- **The UI Duplicate** keeps every STEP id, mints new trigger ids, rewrites the trigger-identity
+  `if_else` refs itself — and arrives with `cancelEnabled`/`rescheduleEnabled` **false**, `mode: off`,
+  `aiResponseLengthEnabled` reset, no routing rows, and its autonomous-trigger conditions written with
+  operator `eq`, which the builder then rejects (`==` is valid). Read the whole record after any
+  duplicate, then fix those five things.
+- **Read-only keys to strip before any PUT** (the tool does this since 2026-09-02): `employeeType`,
+  `errors`, `isDeleted`, `rootParentAgentId`, plus the usual `id`/dates/`traceId`.
 
 ## Driving `convai-compiler.mjs`
 

@@ -296,6 +296,37 @@ custom-trigger section); corpus
 
 ---
 
+## 12. Appointment-rail design rules (live-proven 1–2 Sep 2026, corpus `calendars/40-rules/`)
+
+Four rules, each behind a real defect on a live account:
+
+- **A workflow that reads `{{appointment.*}}` or waits relative to an appointment may only be entered
+  by an APPOINTMENT TRIGGER.** `add_to_workflow` starts the target with NO appointment context: every
+  `{{appointment.*}}` renders empty and every appointment-anchored wait SKIPS (`skippedFor:
+  missing-data`) — so the whole reminder ladder collapses into one burst and "see you tomorrow" goes
+  out the moment they rebook. The tell in the enrolment: a trigger-born row carries
+  `sourceId: appointment_<id>`; a workflow-born row has no `sourceId` at all. Generalises to anything
+  the run is BOUND to rather than looked up on the contact.
+- **Read the calendar's `autoConfirm` before building on `status == new`.** With it on, an
+  appointment is BORN `confirmed` and the trigger never fires for anything the AI or the widget books.
+  An API fixture that sends `appointmentStatus:"new"` overrides it and proves nothing — book through
+  the door the customer uses. `autoConfirm` governs birth only; a MOVE keeps whatever status the
+  appointment had, so a moved booking still cannot re-enter a `new` filter — that needs a second
+  trigger filtered `status == confirmed`.
+- **Never branch on `appointmentRescheduled` to decide what KIND of event arrived.** It is STICKY: a
+  property of the appointment's history, `true` on every later event including the CANCEL. A guard
+  testing it ate a genuine cancellation's winback, and an unfiltered trigger took its reschedule
+  branch on a cancel and texted "You're all booked" three minutes after the agent said "cancelled".
+  The event kind lives in the trigger's status filter and nowhere else.
+- **A workflow whose own step flips `new → confirmed` RE-ENTERS its own `confirmed` trigger.** Two
+  confirmations ~90 s apart, the reminder ladder armed twice. Count enrolments, and count them late —
+  the echo lands on the ~3-minute evaluation lag, so one reading five minutes in reports clean. A
+  `modifiedBy` filter excluding `workflow` on the confirmed trigger is the candidate fix, untested.
+
+Also from the same run: deleting a CALENDAR hard-deletes its future appointments and raises no
+cancellation event (nobody is told); a calendar id in a trigger filter is a silent dependency, so
+swapping calendars kills every rail keyed to it with no error anywhere.
+
 ## Cross-reference: field-level traps that produce anti-pattern symptoms
 
 Some of the above are downstream symptoms of internal-API field traps documented in
