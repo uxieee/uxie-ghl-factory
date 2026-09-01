@@ -149688,6 +149688,9 @@ var ATTR_WRITING_OPS = /* @__PURE__ */ new Set([
 ]);
 async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetchedAssets) {
   if (!(ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op))) return [];
+  return schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets);
+}
+async function schemaViolationsFor(gw, loc, templates, triggers, prefetchedAssets) {
   try {
     let assets = prefetchedAssets;
     if (!assets) {
@@ -149704,6 +149707,99 @@ async function editSchemaViolations(gw, loc, templates, triggers, ops, prefetche
   } catch {
     return [];
   }
+}
+async function customCodePreflight({ gw, loc, templates, touchedIds, strict, skip, warnings }) {
+  const tests = [];
+  if (skip === true) return { tests, refusal: null };
+  for (const t of templates) {
+    if (t?.type !== "custom_code" || !touchedIds.has(t.id)) continue;
+    const a = t.attributes ?? {};
+    let r = null;
+    let transportError = null;
+    try {
+      r = await gw.call(
+        "POST",
+        "/workflow/custom-code/run-test",
+        { location_id: loc, attributes: { language: a.language ?? "javascript", code: a.code ?? "", inputData: a.inputData ?? {} } }
+      );
+    } catch (e) {
+      transportError = e?.message ?? String(e);
+    }
+    const j = r?.ok && r.json && typeof r.json === "object" ? r.json : null;
+    const out = j?.output;
+    const valid = out !== null && typeof out === "object" && !Array.isArray(out) && Object.keys(out).length > 0;
+    const entry = {
+      id: t.id,
+      name: t.name ?? null,
+      status: r?.status ?? null,
+      passed: !!j && j.hasError !== true && valid,
+      hasError: j?.hasError === true,
+      errorMessage: j?.errorMessage ?? transportError ?? null,
+      authoredKeys: Object.keys(a.output ?? {}),
+      outputKeys: valid ? Object.keys(out) : [],
+      consoleErrors: Array.isArray(j?.consoleErrors) ? j.consoleErrors : [],
+      replacedOutput: false
+    };
+    if (entry.passed) {
+      const missing = entry.authoredKeys.filter((k) => !(k in out));
+      const extra = entry.outputKeys.filter((k) => !(k in (a.output ?? {})));
+      if (missing.length || extra.length) warnings.push(`custom_code '${entry.name ?? t.id}': sandbox output keys differ from the authored sample (missing: ${missing.join(",") || "-"}; extra: ${extra.join(",") || "-"}) \u2014 the sandbox result was saved as the step's output`);
+      t.attributes = { ...a, output: out };
+      entry.replacedOutput = true;
+    } else {
+      const why = transportError ? `sandbox unreachable: ${transportError}` : j ? j.errorMessage ?? (valid ? "unknown" : "output is not a non-empty object") : `HTTP ${r?.status}`;
+      warnings.push(`custom_code '${entry.name ?? t.id}': sandbox test did not pass (${why}); the authored output sample was kept`);
+      if (strict === true) {
+        tests.push(entry);
+        return { tests, refusal: withFailureData(fail(
+          CODES.ENGINE_ABORT,
+          `custom_code '${entry.name ?? t.id}' failed the sandbox test: ${why}`,
+          "Fix the code (test_custom_code iterates without writing), drop strictCustomCode to write it with a warning, or pass skipCustomCodeTest:true to skip the sandbox entirely. Nothing was written."
+        ), { customCodeTests: tests, warnings }) };
+      }
+    }
+    tests.push(entry);
+  }
+  return { tests, refusal: null };
+}
+async function assetPreflightFor({ gw, loc, templates, triggers, companyId, touchedIds, ignoreAssetErrors, warnings }) {
+  const assetPreflight = await validateAssets((m, p2, b) => gw.call(m, p2, b), loc, { templates, triggers, companyId });
+  for (const w of assetPreflight.warnings ?? []) warnings.push(`asset: ${describeFinding(w)}`);
+  const blocking = [];
+  for (const e of assetPreflight.errors ?? []) {
+    if (e.stepId && !touchedIds.has(e.stepId)) warnings.push(`asset (pre-existing, untouched by this edit): ${describeFinding(e)}`);
+    else blocking.push(e);
+  }
+  if (blocking.length && ignoreAssetErrors !== true) {
+    return { assetPreflight, refusal: withFailureData(fail(
+      CODES.VALIDATION_FAILED,
+      `GHL rejected ${blocking.length} asset reference(s) in this edit before any write: ` + blocking.map(describeFinding).join("; "),
+      "Create the missing objects, correct the references, or pass ignoreAssetErrors:true to write the edit anyway. Nothing was written."
+    ), { assetPreflight, warnings }) };
+  }
+  return { assetPreflight, refusal: null };
+}
+async function readinessFor({ gw, loc, templates, touchedIds, triggerTypes = [], settings = {}, catalog, warnings }) {
+  try {
+    const plan = planReadinessChecks({
+      templates: templates.filter((t) => touchedIds.has(t.id)),
+      triggerTypes,
+      settings,
+      catalog
+    });
+    const readiness = plan.length ? await runReadinessChecks(plan, { call: (m, p2, b) => gw.call(m, p2, b), loc }) : [];
+    for (const c of readiness) if (c.ok === false) warnings.push(`readiness: ${c.detail} (needed by ${c.why.join("; ")})`);
+    return readiness;
+  } catch (e) {
+    return [{ key: "readiness", checked: false, ok: null, detail: `pre-flight failed to run: ${e.message}`, why: [] }];
+  }
+}
+function persistedMissingRequired(gotTemplates, touchedIds, warnings) {
+  const missingRequired = gotTemplates.filter((t) => touchedIds.has(t.id)).map((t) => ({ id: t.id, name: t.name ?? null, type: t.type, missing: missingRequiredFields(t) })).filter((entry) => entry.missing.length);
+  for (const entry of missingRequired) {
+    warnings.push(`required: step '${entry.name ?? entry.id}' (${entry.type}) is missing builder-required field(s) ${entry.missing.join(", ")} \u2014 the builder renders it with a red error badge and the workflow cannot be published until they are supplied`);
+  }
+  return missingRequired;
 }
 function editPreview(ops, beforeTemplates, templates, diff, triggerPlan, neededTags, tagsToCreate, workflowStatus) {
   const beforeIds = new Set(beforeTemplates.map((step) => step.id));
@@ -151785,7 +151881,7 @@ var TOOLS2 = [
   },
   {
     name: "edit_workflow",
-    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs. Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch, deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger (target = a live step id or unique name), deleteTrigger, duplicateTrigger; settings: updateSettings; notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass)."),
+    description: describe3("edit_workflow", "Preview or confirmation-gate edits to an existing workflow through the canonical edit engine. Confirmed step edits use only the plain workflow PUT and are round-trip verified. Guard hatches, each named by the guard that refuses: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs. Ops \u2014 steps: appendStep, insertAfter, insertBefore, appendToBranch (anchor: branchEntryId | containerId+branch | branchRef), deleteStep, modifyStep (attrPatch/stepPatch; re-normalised through the compiler), retypeStep (full attributes), renameStep, setStepDisabled, disableStepsByType, moveStep, addBranch, deleteContainer, repairParentKeys, addStepNote, duplicateStep, replaceTag, replaceFieldId, replaceInAttributes; triggers: addTrigger, modifyTrigger (target = a live step id or unique name), deleteTrigger, duplicateTrigger; settings: updateSettings; notes: addStickyNote, updateStickyNote. Names in steps and triggers resolve to ids against the account (ignoreUnresolved to bypass). Runs the same pre-write validation ladder as build_workflow: workflow + graph-context rules, GHL's asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox test on custom_code steps this edit touches (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field check on the persisted document."),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
@@ -151806,6 +151902,13 @@ var TOOLS2 = [
       // Same opt-out build_workflow has: proceed with names that resolved to nothing. Rarely what
       // you want — a name on the wire moves nothing — but it is the caller's decision to make.
       ignoreUnresolved: external_exports.boolean().default(false),
+      // The build path's validate_assets hatch (orchestrate.mjs opts.ignoreAssetErrors): write the
+      // edit even though GHL's own reference validator rejected an asset reference this edit touches.
+      ignoreAssetErrors: external_exports.boolean().default(false),
+      // The build path's custom-code sandbox pre-flight switches, same names and defaults as
+      // build_workflow: strict → a failing sandbox run refuses the edit instead of warning.
+      strictCustomCode: external_exports.boolean().default(false),
+      skipCustomCodeTest: external_exports.boolean().default(false),
       // Optimistic concurrency. The stale-read window is silent: the PUT carries the whole
       // templates array, so an edit authored against an old graph simply erases the newer one.
       expectedVersion: external_exports.number().int().positive().optional(),
@@ -151835,7 +151938,16 @@ var TOOLS2 = [
       { method: "DELETE", path: "/workflow/{loc}/trigger/{tid}" },
       // Sticky notes (addStickyNote / updateStickyNote ops) — a separate resource, not the document.
       { method: "POST", path: "/workflows/sticky-note" },
-      { method: "PATCH", path: "/workflows/sticky-note" }
+      { method: "PATCH", path: "/workflows/sticky-note" },
+      // The build path's pre-write validators, ported to edit. Asset preflight is stateless
+      // (payload in, verdict out — nothing written); the sandbox runs code without touching the
+      // account; the readiness reads run ONLY when a touched step's channel needs them.
+      { method: "POST", path: "/workflow/{loc}/validate-assets" },
+      { method: "POST", path: "/workflow/custom-code/run-test" },
+      { method: "GET", path: "/phone-system/numbers" },
+      { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
+      { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
+      { method: "GET", path: "/workflow/{loc}/email/location-email-provider" }
     ],
     handler: async (args, deps) => guard(async () => {
       if (!Array.isArray(args.ops) || args.ops.length === 0) {
@@ -151963,6 +152075,19 @@ var TOOLS2 = [
         if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
         existingTriggers = listed.triggers;
       }
+      const editTouchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+      const opsWriteAttributes = (args.ops ?? []).some((o) => ATTR_WRITING_OPS.has(o?.op));
+      const customCode = await customCodePreflight({
+        gw,
+        loc: args.locationId,
+        templates,
+        touchedIds: editTouchedIds,
+        strict: args.strictCustomCode,
+        skip: !opsWriteAttributes || args.skipCustomCodeTest === true,
+        warnings
+      });
+      if (customCode.refusal) return customCode.refusal;
+      const customCodeTests = customCode.tests;
       lintContactFieldTemplates(templates, diff.modifiedSteps, ctx.warn);
       const commitBody = editCommitBody(fresh, templates, diff, gw.uid, {
         assumeAssociated: args.assumeAssociated === true,
@@ -151981,6 +152106,7 @@ var TOOLS2 = [
         ctx.catalog?.workflowRules,
         { skipWorkflowRules: args.skipWorkflowRules, warn: ctx.warn }
       );
+      checkGraphContextRules(templates, { warn: ctx.warn });
       const schemaViolations = await editSchemaViolations(gw, locationPath, templates, existingTriggers, args.ops, marketplaceRaw.assets);
       const triggerPlan = planTriggerOps(triggerOps, {
         ctx,
@@ -151992,6 +152118,32 @@ var TOOLS2 = [
         // follows the target workflow, not a hardcoded default — see edit-driver.mjs).
         workflowStatus: fresh.status
       });
+      let assetPreflight = null;
+      let readiness = [];
+      if (opsWriteAttributes || triggerOps.length) {
+        const assets = await assetPreflightFor({
+          gw,
+          loc: args.locationId,
+          templates,
+          triggers: [...existingTriggers, ...triggerPlan.map((request) => request.body).filter(Boolean)],
+          companyId: fresh.companyId,
+          touchedIds: editTouchedIds,
+          ignoreAssetErrors: args.ignoreAssetErrors,
+          warnings
+        });
+        if (assets.refusal) return assets.refusal;
+        assetPreflight = assets.assetPreflight;
+        readiness = await readinessFor({
+          gw,
+          loc: args.locationId,
+          templates,
+          touchedIds: editTouchedIds,
+          triggerTypes: triggerPlan.map((request) => request.body?.type).filter(Boolean),
+          settings: settingsPatch ?? {},
+          catalog: ctx.catalog,
+          warnings
+        });
+      }
       const neededTags = collectOpTags(args.ops);
       let tagsToCreate = [];
       if (neededTags.length) {
@@ -152014,6 +152166,9 @@ var TOOLS2 = [
         preview.settings = Object.fromEntries(Object.keys(settingsPatch).map((k) => [k, k === "statsView" ? commitBody.meta?.statsView ?? false : commitBody[k]]));
       }
       if (stickyPlan.length) preview.stickyNotes = stickyPlan.map(({ op, method, path, body }) => ({ op, method, path, color: body.color, chars: body.content?.length }));
+      if (assetPreflight) preview.assetPreflight = assetPreflight;
+      if (customCodeTests.length) preview.customCodeTests = customCodeTests;
+      if (readiness.length) preview.readiness = readiness;
       if (schemaViolations.length) {
         preview.schemaViolations = schemaViolations;
         preview.schemaViolationsNote = `GHL's own action schema would show "Resolve ${schemaViolations.length} Errors" on this document. These are not refused by the server \u2014 it stores an over-cap or malformed value verbatim \u2014 so they will not stop the write; the builder will show them to whoever opens the workflow.`;
@@ -152197,12 +152352,13 @@ var TOOLS2 = [
         triggers: roundTripTriggers
       });
       const verify = verifyEditRoundTrip(stripNullNext(templates), beforeTemplates, stripNullNext(gotTemplates));
-      const touchedIds = /* @__PURE__ */ new Set([...diff.createdSteps ?? [], ...diff.modifiedSteps ?? []]);
+      const touchedIds = editTouchedIds;
       const intentFindings = [
         ...lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id))),
         ...lintTriggerRows(roundTripTriggers, ctx.catalog)
       ];
       verify.intent = intentFindings;
+      verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
       const intentErrors = intentFindings.filter((f) => f.severity === "error");
       partialProgress.verification.completed = true;
       partialProgress.verification.roundTrip = verify.roundTrip;
@@ -152227,6 +152383,11 @@ var TOOLS2 = [
         // round-trip can never see.
         schemaViolations,
         schemaHeadline: `Resolve ${schemaViolations.length} Errors`,
+        // The other ported build-path pre-flight verdicts, carried on the committed result the
+        // same way the build report carries them.
+        assetPreflight,
+        customCodeTests,
+        readiness,
         warnings,
         partialProgress,
         builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
@@ -152255,12 +152416,16 @@ var TOOLS2 = [
     name: "repair_workflow",
     description: describe3(
       "repair_workflow",
-      "Full-document REPAIR of workflowData.templates \u2014 proof: engine; risk: write. Runs every edit guard: opportunity association, required fields, dangling refs/parentKeys, goto loops, dead branches, workflow rules and merge tags \u2014 then the plain PUT and a round-trip verify. The sanctioned replacement for a hand-rolled PUT when the ops in edit_workflow cannot express the change; prefer edit_workflow when they can. Previews by default; confirm:true writes. expectedVersion refuses a stale read (VERSION_CONFLICT). Guard hatches: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs."
+      "Full-document REPAIR of workflowData.templates \u2014 proof: engine; risk: write. Runs every edit guard: opportunity association, required fields, dangling refs/parentKeys, goto loops, dead branches, workflow rules and merge tags \u2014 then the plain PUT and a round-trip verify. The sanctioned replacement for a hand-rolled PUT when the ops in edit_workflow cannot express the change; prefer edit_workflow when they can. Previews by default; confirm:true writes. expectedVersion refuses a stale read (VERSION_CONFLICT). Guard hatches: allowGotoLoops, deadBranchAcknowledged, allowDanglingParentKeys, allowDanglingStepRefs. Also runs the build path's pre-write ladder over the steps the repair changes: graph-context rules, GHL's action schema and asset-reference validator (hatch: ignoreAssetErrors), the custom-code sandbox (skipCustomCodeTest / strictCustomCode), account-readiness signals, and a builder-required-field + opportunity-intent check on the persisted document."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
       workflowId: external_exports.string(),
       templates: external_exports.array(external_exports.object({}).passthrough()),
+      // The build path's hatches, same names and defaults as build_workflow / edit_workflow.
+      ignoreAssetErrors: external_exports.boolean().default(false),
+      strictCustomCode: external_exports.boolean().default(false),
+      skipCustomCodeTest: external_exports.boolean().default(false),
       // Optimistic concurrency: a repair is written against a document the caller has already
       // read and edited, so a version that moved underneath means their edit was built on a
       // stale graph. Optional — omitted, the tool trusts the caller's read.
@@ -152278,10 +152443,21 @@ var TOOLS2 = [
       { method: "GET", path: "/workflow/{loc}/trigger" },
       { method: "GET", path: "/locations/{loc}/customFields/search" },
       { method: "GET", path: "/locations/{loc}/customValues" },
-      { method: "PUT", path: "/workflow/{loc}/{wid}" }
+      { method: "PUT", path: "/workflow/{loc}/{wid}" },
+      // The pre-write ladder (shared helpers above edit_workflow): the action-schema catalog, the
+      // stateless asset validator, the sandbox, and the readiness reads — read ONLY when the
+      // repair actually changes a step (a no-op document sends nothing new).
+      { method: "GET", path: "/workflows-marketplace/location/{loc}/assets" },
+      { method: "POST", path: "/workflow/{loc}/validate-assets" },
+      { method: "POST", path: "/workflow/custom-code/run-test" },
+      { method: "GET", path: "/phone-system/numbers" },
+      { method: "GET", path: "/phone-system/whatsapp/location/{loc}/phone-numbers" },
+      { method: "GET", path: "/workflow/{loc}/instagram/connected-accounts" },
+      { method: "GET", path: "/workflow/{loc}/email/location-email-provider" }
     ],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const locationPath = encodeURIComponent(args.locationId);
       const warnings = [];
       const warn = (message) => warnings.push(message);
       if (!Array.isArray(args.templates) || !args.templates.length) {
@@ -152319,6 +152495,17 @@ var TOOLS2 = [
       }
       const diff = diffTemplates(beforeTemplates, args.templates);
       const catalog = loadCatalog();
+      const touchedIds = /* @__PURE__ */ new Set([...diff.createdSteps, ...diff.modifiedSteps]);
+      const customCode = await customCodePreflight({
+        gw,
+        loc: args.locationId,
+        templates: args.templates,
+        touchedIds,
+        strict: args.strictCustomCode,
+        skip: args.skipCustomCodeTest === true,
+        warnings
+      });
+      if (customCode.refusal) return customCode.refusal;
       let commitBody;
       try {
         commitBody = editCommitBody(fresh, args.templates, diff, gw.uid, {
@@ -152338,12 +152525,58 @@ var TOOLS2 = [
         );
       }
       lintContactFieldTemplates(args.templates, [...diff.createdSteps, ...diff.modifiedSteps], { warn });
+      let existingTriggers = [];
+      if (rulesNeedTriggers(args.templates, catalog?.workflowRules)) {
+        const listed = await listWorkflowTriggers(gw, args.locationId, args.workflowId);
+        if (!listed.response.ok) return fromHttp(listed.response.status, listed.response.json);
+        existingTriggers = listed.triggers;
+      }
+      try {
+        checkWorkflowRules(
+          { templates: args.templates, triggers: existingTriggers, settings: { senderAddress: fresh.senderAddress }, publishing: fresh.status === "published" },
+          catalog?.workflowRules,
+          { skipWorkflowRules: args.skipWorkflowRules, warn }
+        );
+      } catch (error51) {
+        return fail(
+          CODES.ENGINE_ABORT,
+          `repair rejected (${error51.code ?? "WORKFLOW_RULE"}): ${error51.message}`,
+          "The document was rejected before any request was sent \u2014 nothing was written."
+        );
+      }
+      checkGraphContextRules(args.templates, { warn });
+      let schemaViolations = [];
+      let assetPreflight = null;
+      let readiness = [];
+      if (touchedIds.size) {
+        schemaViolations = await schemaViolationsFor(gw, locationPath, args.templates, existingTriggers, null);
+        const assets = await assetPreflightFor({
+          gw,
+          loc: args.locationId,
+          templates: args.templates,
+          triggers: existingTriggers,
+          companyId: fresh.companyId,
+          touchedIds,
+          ignoreAssetErrors: args.ignoreAssetErrors,
+          warnings
+        });
+        if (assets.refusal) return assets.refusal;
+        assetPreflight = assets.assetPreflight;
+        readiness = await readinessFor({ gw, loc: args.locationId, templates: args.templates, touchedIds, catalog, warnings });
+      }
       const preview = {
         diff,
         stepCount: { before: beforeTemplates.length, after: args.templates.length },
         version: fresh.version,
-        warnings
+        warnings,
+        ...assetPreflight ? { assetPreflight } : {},
+        ...customCode.tests.length ? { customCodeTests: customCode.tests } : {},
+        ...readiness.length ? { readiness } : {}
       };
+      if (schemaViolations.length) {
+        preview.schemaViolations = schemaViolations;
+        preview.schemaViolationsNote = `GHL's own action schema would show "Resolve ${schemaViolations.length} Errors" on this document. These are not refused by the server \u2014 it stores an over-cap or malformed value verbatim \u2014 so they will not stop the write; the builder will show them to whoever opens the workflow.`;
+      }
       if (args.confirm !== true) {
         return withFailureData(fail(
           CODES.CONFIRM_REQUIRED,
@@ -152363,21 +152596,29 @@ var TOOLS2 = [
       }
       const gotTemplates = recordsFrom2(roundTripResponse.json?.workflowData?.templates);
       const verify = verifyEditRoundTrip(stripNullNext(args.templates), beforeTemplates, stripNullNext(gotTemplates));
+      verify.intent = lintOpportunityWrites(gotTemplates.filter((t) => touchedIds.has(t.id)));
+      verify.missingRequired = persistedMissingRequired(gotTemplates, touchedIds, warnings);
+      const intentErrors = verify.intent.filter((f) => f.severity === "error");
       const data2 = {
         workflowId: args.workflowId,
         status: roundTripResponse.json?.status,
         stepCount: { before: beforeTemplates.length, after: gotTemplates.length },
         diff,
         verify,
+        schemaViolations,
+        schemaHeadline: `Resolve ${schemaViolations.length} Errors`,
+        assetPreflight,
+        customCodeTests: customCode.tests,
+        readiness,
         warnings,
         builderUrl: `https://app.gohighlevel.com/v2/location/${encodeURIComponent(args.locationId)}/automation/workflow/${encodeURIComponent(args.workflowId)}`,
         runtimeProofNote: "repair_workflow never publishes. A clean round trip proves the document stored, not that anything fires."
       };
-      if (!verify.roundTrip) {
+      if (!verify.roundTrip || intentErrors.length) {
         return withFailureData(fail(
           CODES.ENGINE_ABORT,
-          "Workflow PUT returned but the repaired graph did not round-trip cleanly.",
-          "Inspect data.verify and the workflow canvas before making further edits."
+          intentErrors.length ? `The write persisted, but the stored document does not express the intent: ` + intentErrors.map((f) => `${f.code} on '${f.name}' \u2014 ${f.msg}`).join("; ") : "Workflow PUT returned but the repaired graph did not round-trip cleanly.",
+          "Inspect data.verify (including verify.intent) and the workflow canvas before making further edits."
         ), data2);
       }
       return ok(data2);

@@ -11,6 +11,47 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.48.0] — 2026-09-02
+
+The build path's validation ladder, completed on the edit path. `edit_workflow` had grown most of
+`build_workflow`'s six-phase ladder piecemeal (name resolution, the compiler, workflow rules, the
+action-schema check, tag pre-creation, round-trip verify with intent lints) — but four layers had
+never made it over, so an edit could point a step at a deleted user, write custom code that throws
+on its first run, or leave a builder-required field missing, and the tool reported ok.
+
+### Added
+
+- **Asset pre-flight on edit** (`validate_assets`, the build path's phase). GHL's own reference
+  validator judges the post-edit document BEFORE anything is written. Errors on steps this edit
+  touched refuse the call (hatch: `ignoreAssetErrors`, same name as the build's); errors on
+  untouched steps are legacy debt and demote to warnings. Fail-open, stateless, and gated on the
+  same op class as the schema check — a rename or a move still sends nothing new.
+- **Custom-code sandbox pre-flight on edit.** Every `custom_code` step this edit creates or
+  modifies runs in GHL's sandbox (`/workflow/custom-code/run-test`); a passing run replaces the
+  authored `output` sample with the real return object before the PUT, so
+  `{{custom_code.N.<key>}}` refs are pickable. Same switches as build: `skipCustomCodeTest`,
+  `strictCustomCode` (refuse instead of warn). Untouched legacy code is never re-run — a pass
+  would silently rewrite outputs the caller did not ask to change.
+- **Graph-context rules on edit** (`goto` placement, `math_operation`'s upstream reference) —
+  whole-document on purpose, because a deleted upstream math step is exactly the class of break
+  an edit introduces on a step it never touched. Warning-severity in GHL, so advisory here too.
+- **Account-readiness signals on edit** (the build's G15 advisory), scoped to the steps and
+  triggers this edit wrote — an SMS step edited on a location with no number now says so.
+- **Persisted required-field check in the edit round-trip** (`verify.missingRequired`): the
+  build path's assertion that a step whose attributes round-tripped perfectly can still be
+  missing a field the BUILDER requires, read off the re-GET, scoped to touched steps.
+
+All five surface in the confirm PREVIEW as well as the committed result, so the verdicts are
+visible while the edit can still be changed.
+
+- **The same ladder on `repair_workflow`.** The whole-document write now runs the five layers
+  above through the same shared helpers, plus the action-schema check and the opportunity-intent
+  lint on the persisted document. With no op list to gate on, the diff against the stored document
+  is the gate and the touched set: an unchanged document sends nothing new. This also makes the
+  tool's description true — it had promised "workflow rules" since it shipped, but only the commit
+  guards actually ran; `checkWorkflowRules` now runs, trigger-aware, with the `skipWorkflowRules`
+  hatch. Same hatches as build/edit: `ignoreAssetErrors`, `strictCustomCode`, `skipCustomCodeTest`.
+
 ## [0.47.0] — 2026-08-31
 
 The certification-run findings, re-verified and closed. Of the twenty-three live findings in the
