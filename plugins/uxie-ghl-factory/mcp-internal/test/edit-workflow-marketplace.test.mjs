@@ -195,5 +195,7 @@ test('the preview names the retype and writes nothing without confirm', async ()
   assert.deepEqual(result.data.preview.diff.modifiedSteps, ['s1']);
   assert.deepEqual(result.data.preview.idsAdded, []);
   assert.deepEqual(result.data.preview.idsRemoved, []);
-  assert.equal(calls.some(({ method }) => method !== 'GET'), false);
+  // validate-assets is a stateless POST (payload in, verdict out — the asset pre-flight ported
+  // from the build path); the guard here is that the preview MUTATES nothing.
+  assert.equal(calls.some(({ method, path }) => method !== 'GET' && !path.endsWith('/validate-assets')), false);
 });

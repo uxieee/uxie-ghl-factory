@@ -54,6 +54,7 @@ const KNOWN_HOST_DISAGREEMENTS = new Map([
   ['/ai-employees/employees/search', 'as above — the same live sweep resolved agents on the default rail'],
   ['/conversations-ai/employeeConfigs', 'the per-contact ConvAI pair ships as live-proven on its declared rail; the catalogue row is unverified'],
   ['/agent-studio/agents/agents-with-folders', 'get_ai_configuration_bundle calls this on the AI rail deliberately; the catalogue row says backend and is unverified'],
+  ['/instagram/connected-accounts', 'the account-readiness pre-flight (preflight.mjs) live-proved this read on the backend Bearer rail, GROM AU 2026-08-22; the catalogue row says services and is unverified'],
 ]);
 const knownReason = (path) => {
   for (const [needle, why] of KNOWN_HOST_DISAGREEMENTS) if (path.includes(needle)) return why;

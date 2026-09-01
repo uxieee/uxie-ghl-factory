@@ -760,6 +760,36 @@
     "path": "/workflows/sticky-note"
   },
   {
+    "tool": "edit_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/validate-assets"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "POST",
+    "path": "/workflow/custom-code/run-test"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/phone-system/numbers"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/phone-system/whatsapp/location/{loc}/phone-numbers"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/instagram/connected-accounts"
+  },
+  {
+    "tool": "edit_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/email/location-email-provider"
+  },
+  {
     "tool": "repair_workflow",
     "method": "GET",
     "path": "/workflow/{loc}/{wid}"
@@ -783,6 +813,41 @@
     "tool": "repair_workflow",
     "method": "PUT",
     "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/workflows-marketplace/location/{loc}/assets"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "POST",
+    "path": "/workflow/{loc}/validate-assets"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "POST",
+    "path": "/workflow/custom-code/run-test"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/phone-system/numbers"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/phone-system/whatsapp/location/{loc}/phone-numbers"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/instagram/connected-accounts"
+  },
+  {
+    "tool": "repair_workflow",
+    "method": "GET",
+    "path": "/workflow/{loc}/email/location-email-provider"
   },
   {
     "tool": "publish_workflow",

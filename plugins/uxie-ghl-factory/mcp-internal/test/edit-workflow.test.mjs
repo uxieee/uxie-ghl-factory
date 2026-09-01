@@ -704,7 +704,9 @@ test('trigger preview on a DRAFT workflow tells the caller that a confirmed publ
   assert.equal(result.code, 'CONFIRM_REQUIRED');
   assert.equal(result.data.preview.requiresPublish, true);
   assert.match(result.data.preview.publishInstruction, /publish_workflow.*confirm:true/i);
-  assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false);
+  // validate-assets is a stateless POST (the asset pre-flight ported from the build path);
+  // the guard here is that the preview MUTATES nothing.
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-assets')), false);
 });
 
 test('trigger preview on an ALREADY-PUBLISHED workflow tells the caller no separate publish is needed — the trigger will land active', async () => {
@@ -723,7 +725,8 @@ test('trigger preview on an ALREADY-PUBLISHED workflow tells the caller no separ
   assert.equal(result.code, 'CONFIRM_REQUIRED');
   assert.equal(result.data.preview.requiresPublish, false);
   assert.equal(result.data.preview.publishInstruction, null);
-  assert.equal(calls.some(({ method }) => ['POST', 'PUT', 'DELETE'].includes(method)), false);
+  // Same stateless-POST exemption as the draft-workflow preview test above.
+  assert.equal(calls.some(({ method, path }) => ['POST', 'PUT', 'DELETE'].includes(method) && !path.endsWith('/validate-assets')), false);
 });
 
 test('failed custom-field lookup stays unknown so engine passthrough remains available', async () => {
