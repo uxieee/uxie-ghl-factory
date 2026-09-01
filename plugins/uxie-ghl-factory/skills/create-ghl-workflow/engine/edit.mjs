@@ -17,6 +17,7 @@ import { expandCondition } from './compiler.mjs';
 import { stepRefsOf, danglingStepRefs } from './graph-refs.mjs';
 import { enforceTemplates } from './enforce.mjs';
 import { gotoLoops } from './goto-loops.mjs';
+import { leakedOppNames } from './opp-shapes.mjs';
 
 // `active` is a read-only projection of a trigger's own `status` field ("draft"|"published")
 // — `active === (status !== "draft")` — not a field any PUT body sets directly. A per-trigger
@@ -848,12 +849,19 @@ export function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const oppTypes = new Set(['internal_update_opportunity', 'internal_create_opportunity']);
   for (const t of newTemplates) {
     if (!oppTouched.has(t.id) || !oppTypes.has(t.type)) continue;
-    const leaked = ['pipeline', 'stage', 'lostReason'].filter((k) => t.attributes?.[k] !== undefined);
+    // Only a NON-EMPTY name leaks (leakedOppNames). The builder writes `pipeline: null` /
+    // `stage: null` on its own update steps, so the old presence test aborted every edit whose
+    // scope merely walked past a UI-stored step — and, because it named the step by DISPLAY NAME,
+    // pointed at the wrong one of two steps sharing a name (R-57, GROM sandbox 2026-09-02).
+    const leaked = leakedOppNames(t.attributes);
     if (leaked.length)
       throw new IRError('UNRESOLVED_NAME',
-        `'${t.name ?? t.id}' (${t.type}) carries name key(s) [${leaked.join(', ')}] — the edit path does not `
-        + `resolve names to ids, so GHL would store the word and the step would move nothing. Author `
-        + `pipelineId/stageId (from list_account_entities), or rebuild through build_workflow, which resolves names.`);
+        `step '${t.id}' ('${t.name ?? t.id}', ${t.type}) carries name key(s) [${leaked.join(', ')}] — the edit `
+        + `path does not resolve names to ids, so GHL would store the word and the step would move nothing. `
+        + `Author pipelineId/stageId (from list_account_entities), or rebuild through build_workflow, which `
+        + `resolves names. If this step was saved from the BUILDER, retypeStep it first in the same `
+        + `edit_workflow call — {stepId, step:{type:'update_opportunity', name, attributes:{pipelineId, stageId}}} `
+        + `— which recompiles the ids and drops the name keys.`);
   }
   // FIELD enforcement on the steps THIS edit touched. Steps ADDED by ops were compiled through
   // compile() and its chokepoint already; `modifyStep` merges an attrPatch straight onto a stored

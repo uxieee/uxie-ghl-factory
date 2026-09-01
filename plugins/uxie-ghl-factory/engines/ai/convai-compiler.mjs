@@ -399,7 +399,15 @@ const UPDATE_FIELD_MAP = {
 // every other accepted-but-inert defect in this programme.
 const FLOW_ONLY_KEYS = ['cancelEnabled', 'rescheduleEnabled', 'tones'];
 const NON_FORM_KEYS = ['skipIfAlreadyFilled', 'botInitialMessage', 'steps', 'notificationSettings', 'brandId'];
-const SERVER_KEYS = new Set(['id', '_id', 'dateAdded', 'dateUpdated', 'createdAt', 'updatedAt', 'deleted', 'traceId']);
+// Keys GET returns that the update DTO REFUSES. The first eight are ordinary server metadata; the
+// last three are the ones that made a read-merge-write impossible. `employeeType` and `errors`
+// come back on every agent GET and 422 the PUT, so replaying them meant update_convai_agent could
+// not touch a FLOW_BUILDER_BOT at all -- it failed safely, having written nothing, and the update
+// had to be done by hand (R-21; the record shape re-read live 2026-09-02). `isDeleted` is the same
+// class and is NOT covered by `deleted`.
+// `rootParentAgentId` is minted by the UI's Duplicate and is likewise read-only (R-59).
+const SERVER_KEYS = new Set(['id', '_id', 'dateAdded', 'dateUpdated', 'createdAt', 'updatedAt', 'deleted', 'traceId',
+  'employeeType', 'errors', 'isDeleted', 'rootParentAgentId']);
 
 export function applyBotTypeCleanup(body) {
   const b = { ...body };

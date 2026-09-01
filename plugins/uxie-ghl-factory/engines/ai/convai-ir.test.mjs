@@ -97,3 +97,20 @@ test('partial IR: knowledgeBaseTriggers passthrough (only KB ids array-checked)'
   const out = parseConvaiPartialIR({ knowledgeBaseIds: ['kb1'] });
   assert.deepEqual(out.knowledgeBaseIds, ['kb1']);
 });
+
+// R-26 (2026-09-02). GHL ACCEPTS `autoPilot` on the write and STORES `auto-pilot`, which is what
+// every read returns (live-confirmed on the sandbox agent, 2026-09-02: `"mode": "auto-pilot"`).
+// So the enum rejected the only spelling a caller could ever have in hand — copying a live agent's
+// own record into a create spec failed validation on a value GHL itself wrote.
+test('mode accepts the hyphenated spelling GHL STORES, and normalises it to the wire spelling', () => {
+  const spec = (mode) => ({
+    name: 'A', botType: 'PROMPT_BASED_BOT', mode,
+    channels: ['Live_Chat'], personality: 'p', goal: 'g', locationId: 'LOC',
+  });
+  const out = parseConvaiIR(spec('auto-pilot'));
+  assert.equal(out.mode, 'autoPilot', 'the read spelling must normalise to the write spelling');
+  // the canonical spelling still works, unchanged
+  assert.equal(parseConvaiIR(spec('autoPilot')).mode, 'autoPilot');
+  // and a genuinely wrong value still fails, naming the accepted set
+  assert.throws(() => parseConvaiIR(spec('turbo')), (e) => e.code === 'BAD_MODE');
+});

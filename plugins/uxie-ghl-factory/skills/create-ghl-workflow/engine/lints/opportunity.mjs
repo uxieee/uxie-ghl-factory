@@ -6,17 +6,14 @@
 //
 // Pure, never throws, and runs over READ-BACK templates, so the same predicate serves the build
 // verify, the edit verify and check_workflow.
-import { STANDARD_OPP_FIELDS, OPP_CUSTOM_FIELD_PREFIX } from '../opp-shapes.mjs';
+import { STANDARD_OPP_FIELDS, OPP_CUSTOM_FIELD_PREFIX, leakedOppNames } from '../opp-shapes.mjs';
 
 const OPP_TYPES = new Set(['internal_update_opportunity', 'internal_create_opportunity']);
 const ID_ROWS = new Set(['pipelineId', 'pipelineStageId', 'lostReasonId']);
-const NAME_KEYS = ['pipeline', 'stage', 'lostReason'];
 const looksLikeId = (v) => typeof v === 'string' && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
 const isMergeTag = (v) => typeof v === 'string' && v.includes('{{');
-// The builder writes `pipeline: null` / `stage: null` on its own update steps, so PRESENCE of the
-// key says nothing. Only a non-empty string is a leaked name — anything else stores nothing and
-// moves nothing, which is precisely what the rule exists to catch.
-const isLeakedName = (v) => typeof v === 'string' && v.trim() !== '';
+// `leakedOppNames` (opp-shapes.mjs) owns what counts as a leak — the same predicate the
+// edit-commit guard uses, so the lint and the guard can never again disagree about one shape.
 
 // Does anything ON THE WRITE'S OWN PATH bind a card? A card write that relies on how the contact
 // ENTERED works only through an opportunity trigger: enrolled any other way (an add_to_workflow
@@ -83,7 +80,7 @@ export function lintOpportunityWrites(templates, { pipelines = null, lostReasons
         + 'Found: update_opportunity.');
     }
 
-    const leaked = NAME_KEYS.filter((k) => isLeakedName(a[k]));
+    const leaked = leakedOppNames(a);
     if (leaked.length) {
       push('OPP_NAME_KEY', 'error',
         `carries name key(s) [${leaked.join(', ')}] at the top level — GHL stores the word and the `

@@ -28,6 +28,20 @@ export { OPP_SHAPES, OPP_RULEBOOK };
 // that asymmetry is the whole rule. Shared by the compiler's emit and the lint that guards it.
 export const OPP_CUSTOM_FIELD_PREFIX = 'custom_fields.';
 
+// The NAME keys an opportunity write may carry beside its ids, and what counts as one being
+// LEAKED. GHL stores a name verbatim and the step then moves nothing, so a real name must fail
+// closed — but the BUILDER writes `pipeline: null` / `stage: null` on its own update steps, so
+// key PRESENCE says nothing. Only a non-empty string is a leak.
+//
+// Shared by the check_workflow lint and the edit-commit guard because they disagreed: the lint
+// learned this on 2026-08-31 and the guard did not, so a UI-stored step that leaks no name at all
+// aborted every edit in its scope with "carries name key(s) [pipeline, stage]" (R-57, GROM
+// sandbox 2026-09-02). One predicate, one meaning.
+export const OPP_NAME_KEYS = ['pipeline', 'stage', 'lostReason'];
+export const isLeakedOppName = (v) => typeof v === 'string' && v.trim() !== '';
+export const leakedOppNames = (attributes) =>
+  OPP_NAME_KEYS.filter((k) => isLeakedOppName(attributes?.[k]));
+
 export const STANDARD_OPP_FIELDS = new Set([
   ...Object.keys(OPP_RULEBOOK.fields),
   ...Object.keys(OPP_SHAPES.fields),

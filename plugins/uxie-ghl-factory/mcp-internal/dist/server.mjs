@@ -46,9 +46,9 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-08-31",
+      generated: "2026-09-01",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 892,
+      count: 913,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -1415,6 +1415,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--calendars",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/{calendarId}",
+          path: "/calendars/{calendarId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "One calendar's full configuration, including team members and open hours.",
+          note: "Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "calendarId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/events-and-appointments.md:24",
+            "calendars/20-api/events-and-appointments.md:76",
+            "calendars/40-rules/appointment-status-semantics.md:19"
+          ]
+        },
+        {
           id: "calendar-service--get-calendar-configuration",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/calendars/configuration/location/{locationId}",
@@ -1451,6 +1490,67 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/CalendarService.ts:11"
+          ]
+        },
+        {
+          id: "calendars--calendars-events",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/calendars/events",
+          path: "/calendars/events",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Every appointment on one calendar in a time window.",
+          note: 'startTime/endTime must be EPOCH MILLISECONDS. An ISO-8601 timestamp returns a clean 200 with {"events":[]} -- no error, no warning. Live differential 2026-09-02, same calendar and same window: epoch ms -> 40 events, ISO -> 0. Most dangerous exactly where it is used, checking whether a slot is free before writing to a diary. Rows carry BOTH appointmentStatus and the misspelled appoinmentStatus.',
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "calendarId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "startTime",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "endTime",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/events-and-appointments.md:22",
+            "calendars/20-api/events-and-appointments.md:53",
+            "calendars/20-api/events-and-appointments.md:67",
+            "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42"
           ]
         },
         {
@@ -1703,7 +1803,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/chat-widget-service.ts:35",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:117",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:123",
             "workflows/70-research/ENDPOINTS.md:137"
           ]
         },
@@ -2097,6 +2197,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--contacts-appointments",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/contacts/{contactId}/appointments",
+          path: "/contacts/{contactId}/appointments",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Every appointment for one contact, newest last.",
+          note: "The status key here is ONLY GHL's misspelling `appoinmentStatus` (no 't' after the 'n') -- the correctly-spelled appointmentStatus is absent, so a reader checking it sees undefined and wrongly concludes the route carries no status. It does. Live 2026-09-02. Times are naive and zoneless (\"2026-09-04 14:00:00\"), unlike /calendars/events which returns offset-bearing ISO -- never compare the two as strings.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "contactId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/events-and-appointments.md:23",
+            "calendars/20-api/events-and-appointments.md:54",
+            "calendars/20-api/events-and-appointments.md:68"
+          ]
+        },
+        {
           id: "workflows--contacts",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/contacts/{id}",
@@ -2203,7 +2342,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           summary: "Contact search. Treat its results as unverified \u2014 see the note.",
-          note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
+          note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row -- always run a baseline and a KNOWN-ZERO control, never a single query. Filter FIELDS and OPERATORS are validated (422, and an invalid operator prints the whole 22-value enum); COLUMN keys are not. Fields are snake_case (first_name works, firstName 422s). On a keyword field eq/contains/match are exact SYNONYMS -- `contains` is NOT substring; only `wildcard` with an explicit * is partial. `active_workflows_2`/`finished_workflows_2` filter workflow membership; `finished_workflows` WITHOUT the _2 validates and silently matches nothing. includeTotal:true is what makes `total` appear, and pageLimit:0 returns the count alone.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -2233,9 +2372,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/api/contact-service.ts:36",
-            "platform/20-api/smart-lists.md:58",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:128",
-            "workflows/70-research/WALK-CHECKLIST-2026-08-25.md:53"
+            "platform/20-api/smart-lists.md:91",
+            "platform/30-types/contact-filter-dsl.md:4",
+            "platform/30-types/contact-filter-dsl.md:12",
+            "platform/30-types/index.md:18"
           ]
         },
         {
@@ -2277,6 +2417,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "Effectively PERMANENT: there is no delete on this rail (DELETE 404s, and PUT with deleted:true is refused 'property deleted should not exist'), so removal is UI-only. The validator is the documentation -- it rejects userId and name, and demands listName, a non-empty columns array of exactly {key,value,order}, and an object filterSpecs. filterSpecs:{} is ACCEPTED and creates a list that filters NOTHING.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -2298,18 +2439,18 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:27",
-            "platform/20-api/smart-lists.md:38",
-            "platform/20-api/smart-lists.md:99"
+            "platform/20-api/smart-lists.md:71",
+            "platform/20-api/smart-lists.md:132"
           ]
         },
         {
-          id: "platform--contacts-smartlist-get",
-          method: "GET",
+          id: "platform--contacts-smartlist-delete",
+          method: "DELETE",
           url: "https://backend.leadconnectorhq.com/contacts/smartlist/{id}",
           path: "/contacts/smartlist/{id}",
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
-          kind: "read",
+          kind: "destructive",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -2334,7 +2475,53 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:26"
+            "platform/20-api/smart-lists.md:57"
+          ]
+        },
+        {
+          id: "platform--contacts-smartlist-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/contacts/smartlist/{id}",
+          path: "/contacts/smartlist/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "One smart list: listName, columns, filterSpecs, sortSpecs, sharedWith.",
+          note: "Send NO locationId. The route works (live 2026-09-02) but 422s 'property locationId should not exist' the moment you add the usual location query param -- the same shape as /ai-employees/actions/search. `sharedWith` reads back as [] when unset and as a bare STRING when set.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/smart-lists.md:26",
+            "platform/20-api/smart-lists.md:46",
+            "platform/20-api/smart-lists.md:47"
           ]
         },
         {
@@ -2380,7 +2567,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          note: "userId is REQUIRED and is authorisation-checked, not merely a filter -- another user's id returns 403. Smart lists are per user, so this answers 'one user's lists', never 'the account's lists'. Answers identically on BOTH hosts with a plain Bearer (byte-identical payloads, live 2026-09-02); services is what the UI uses.",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -2425,7 +2613,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/smart-lists.md:25"
+            "platform/20-api/smart-lists.md:25",
+            "platform/20-api/smart-lists.md:38"
           ]
         },
         {
@@ -7612,6 +7801,58 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--invoices-gen-url",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/invoices/gen-url",
+          path: "/invoices/gen-url",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "The public URL for a payment link or invoice. shortUrl=true mints a short /l/{code} link.",
+          note: "A GET that MINTS: shortUrl=true creates a short link. It is idempotent -- the same payment link returns the same code on repeat calls (live 2026-09-02) -- so the short URL is stable and safe to store in a custom value.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "id",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "shortUrl",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:111"
+          ]
+        },
+        {
           id: "workflows--ivr-get-mappings-by-phones",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/ivr/get-mappings-by-phones",
@@ -7898,7 +8139,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:25",
-            "platform/20-api/smart-lists.md:79",
+            "platform/20-api/smart-lists.md:112",
             "workflows/20-api/03-endpoints.md:344",
             "workflows/20-api/smart-lists.md:69"
           ]
@@ -7975,7 +8216,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "platform/20-api/smart-lists.md:26",
-            "platform/20-api/smart-lists.md:89"
+            "platform/20-api/smart-lists.md:122"
           ]
         },
         {
@@ -8307,6 +8548,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--locations-custom-fields",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/locations/{id}/customFields",
+          path: "/locations/{id}/customFields",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/custom-fields-and-values.md:148"
+          ]
+        },
+        {
           id: "memberships-courses--locations-categories",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/categories",
@@ -8547,6 +8823,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
+            "platform/20-api/custom-fields-and-values.md:122",
             "workflows/10-anatomy/07-id-resolution.md:85",
             "workflows/10-anatomy/07-id-resolution.md:185",
             "workflows/70-research/ENDPOINTS.md:124"
@@ -8590,7 +8867,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--locations-custom-fields",
+          id: "platform--locations-custom-fields-get-get",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{fieldId}",
           path: "/locations/{locationId}/customFields/{fieldId}",
@@ -8685,6 +8962,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
               type: '"contact"',
               required: true,
               source: "params"
+            },
+            {
+              name: "query",
+              type: "string",
+              required: false,
+              source: "documented"
             }
           ],
           body: null,
@@ -8699,6 +8982,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "services/CustomFieldService.ts:14",
             "services/CustomFieldService.ts:32",
             "platform/20-api/custom-fields-and-values.md:24",
+            "platform/20-api/custom-fields-and-values.md:126",
+            "platform/20-api/custom-fields-and-values.md:142",
             "workflows/70-research/ENDPOINTS.md:123"
           ]
         },
@@ -10063,6 +10348,76 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "marketplace-apps/10-anatomy/marketplace-rail.md:233",
             "workflows/10-anatomy/07-id-resolution.md:205",
             "workflows/40-rules/flow-bot-action-compatibility.md:52"
+          ]
+        },
+        {
+          id: "platform--private-integration-location",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/marketplace/private-integration/location/{locationId}",
+          path: "/marketplace/private-integration/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/private-integration-tokens.md:20"
+          ]
+        },
+        {
+          id: "platform--private-integration-location-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/marketplace/private-integration/location/{locationId}",
+          path: "/marketplace/private-integration/location/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/private-integration-tokens.md:22"
           ]
         },
         {
@@ -12395,6 +12750,50 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--static-scopes",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/oauth/static/scopes",
+          path: "/oauth/static/scopes",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "userType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "isPITEligible",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/private-integration-tokens.md:21"
+          ]
+        },
+        {
           id: "funnels--sessions-token",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/oauth/users/{uid}/sessions/token",
@@ -12799,7 +13198,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "platform--opportunities-pipelines",
+          id: "pipelines-opportunities--opportunities-pipelines",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/opportunities/pipelines",
           path: "/opportunities/pipelines",
@@ -12817,7 +13216,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           responseMode: "json",
           extraHeaders: [],
           operation: null,
-          service: "platform",
+          service: "pipelines-opportunities",
           tree: "documented",
           pathParams: [],
           query: [
@@ -12832,12 +13231,12 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/api-gap-matrix.md:25",
+            "pipelines-opportunities/20-api/pipelines.md:22",
             "workflows/70-research/ENDPOINTS.md:130"
           ]
         },
@@ -12881,6 +13280,385 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/10-anatomy/07-id-resolution.md:183"
+          ]
+        },
+        {
+          id: "pipelines-opportunities--opportunities-pipelines-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/opportunities/pipelines/{pipelineId}",
+          path: "/opportunities/pipelines/{pipelineId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          summary: "Replaces a pipeline's name, flags and its WHOLE stages array.",
+          note: "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "pipelines-opportunities",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "pipelineId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "pipelines-opportunities/20-api/pipelines.md:23",
+            "pipelines-opportunities/20-api/pipelines.md:32",
+            "platform/20-api/api-gap-matrix.md:25"
+          ]
+        },
+        {
+          id: "platform--payment-links",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payment-links/",
+          path: "/payment-links/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "Every payment link on the location, with prices expanded into priceData.",
+          note: "Reached with a plain location Bearer -- the token-id header the UI sends is not required (live 2026-09-02). The list expands prices into priceData and leaves `products` EMPTY; use /payment-links/preview for the expanded products.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "altType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "offset",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "active",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "search",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "sourceType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:28"
+          ]
+        },
+        {
+          id: "platform--payment-links-post",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/payment-links/",
+          path: "/payment-links/",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:48"
+          ]
+        },
+        {
+          id: "platform--payment-links-patch",
+          method: "PATCH",
+          url: "https://backend.leadconnectorhq.com/payment-links/{id}",
+          path: "/payment-links/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          summary: "Deactivates a payment link. Body {activeValue:false, altId, altType}.",
+          note: "Deactivates but CANNOT reactivate: activeValue:true returns 400 'Error activating link. Please update automatic deactivation configuration to activate'. Reactivation is the full-document PUT with active:true. A deactivated link renders only 'Payment link deactivated / CODE:- PAYMENT_LINK_DEACTIVATED' to the customer -- no product, no form -- which is why a deposit link must never carry an automatic deactivation date.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:83"
+          ]
+        },
+        {
+          id: "platform--payment-links-put",
+          method: "PUT",
+          url: "https://backend.leadconnectorhq.com/payment-links/{id}",
+          path: "/payment-links/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          note: 'Whole-document write (a partial PUT was never tried -- treat it as full until proven). This is also the only way to REACTIVATE a link (active:true); the PATCH cannot. A custom CTA is sent as customPaymentButtonText BESIDE the preset in paymentButtonText and the server folds it into paymentButtonText, so reads carry only the latter -- to restore a preset label send customPaymentButtonText:"". Branding off is branding:"" (empty string, not null, not omitted).',
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:69"
+          ]
+        },
+        {
+          id: "platform--payment-links-customised-link",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payment-links/customised-link",
+          path: "/payment-links/customised-link",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Returns a PLAIN TEXT body (a short /l/{code} URL), not JSON. The short link resolves to the standard link with firstName/lastName/email/phone query parameters, which is all the checkout prefill is -- so a workflow message can prefill by appending those params itself, with no API call. A '+' in a phone must arrive as %2B.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "paymentLinkId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "contactId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:110"
+          ]
+        },
+        {
+          id: "platform--payment-links-preview",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payment-links/preview",
+          path: "/payment-links/preview",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          summary: "The full payment link with products and prices expanded. This IS the detail read.",
+          note: "There is NO bare detail read -- GET /payment-links/{id} is a 404 'Cannot GET' (the route does not exist). preview is what both the editor and the public checkout use, and it answers UNAUTHENTICATED with config=true.",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "paymentLinkId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "config",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:95"
+          ]
+        },
+        {
+          id: "platform--payment-links-settings",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payment-links/settings",
+          path: "/payment-links/settings",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "altType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "page",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "limit",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:121"
           ]
         },
         {
@@ -12988,6 +13766,204 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--integrations-details",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payments/integrations/details/{locationId}",
+          path: "/payments/integrations/details/{locationId}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "locationId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:125"
+          ]
+        },
+        {
+          id: "platform--integrations-entity-providers",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payments/integrations/entity-providers",
+          path: "/payments/integrations/entity-providers",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Test vs Live is two layers: the provider integration holds a test key pair and a live key pair (one Stripe Connect fills both), and each payment link carries liveMode and asks this endpoint for the matching keys. Nothing validates a provider at link-save time -- a link saves fine in Live mode with no gateway connected, and the public Pay button is simply disabled.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "altType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "liveMode",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "entityType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "entityId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "includeDefault",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:123"
+          ]
+        },
+        {
+          id: "platform--provider-connected",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payments/integrations/provider/connected",
+          path: "/payments/integrations/provider/connected",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "altType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:122"
+          ]
+        },
+        {
+          id: "platform--provider-details",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payments/integrations/provider/details",
+          path: "/payments/integrations/provider/details",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "altId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "altType",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "type",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:124"
+          ]
+        },
+        {
           id: "memberships-courses--integrations-stripe",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/payments/integrations/stripe/",
@@ -13057,6 +14033,45 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--stripe-connect",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/payments/stripe/connect",
+          path: "/payments/stripe/connect",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:126",
+            "platform/70-research/2026-09-02-payment-links-capture.md:46"
+          ]
+        },
+        {
           id: "platform--phone-system-call-dispositions",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
@@ -13065,7 +14080,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           summary: "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
-          note: "Reachable through the standard gateway with no special referer (proven daily by list_account_entities; a 2026-08-31 claim that it was iframe-referer-gated was refuted). The six system defaults are SOFT-DELETABLE, so a live account may list fewer \u2014 never assume the count; includeDeleted=false hides them.",
+          note: "?includeDeleted=true returns ONLY the soft-deleted rows, not the union -- the name reads like 'include', the behaviour is 'only'. Every account ships the SAME SIX system defaults (proven 2026-09-02: a sandbox listing four returned exactly the two missing ones, Follow Up and Requested Appointment, under includeDeleted=true, both isDefault:true with a deletedAt). A short list means somebody soft-deleted defaults, not that defaults vary by account. call_status triggers match BY NAME.",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -13123,6 +14138,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          summary: 'Creates a call disposition. Body is {"name": "..."}.',
+          note: `locationId must be in the QUERY. With it in the BODY only, the POST returns 403 {"message":"Forbidden resource","message_code":"FORBIDDEN"} -- which reads as a credential problem and is actually 'this request names no location'. Not referer-gated. The server assigns isDefault, orderingKey and meta.createdBy; sending them is accepted and ignored. call_status triggers match a disposition BY NAME (array value, contains-any), so the name must match exactly, case included.`,
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -13150,7 +14167,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/call-dispositions.md:60"
+            "platform/20-api/call-dispositions.md:65"
           ]
         },
         {
@@ -13192,7 +14209,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "platform/20-api/call-dispositions.md:72"
+            "platform/20-api/call-dispositions.md:77"
           ]
         },
         {
@@ -13280,7 +14297,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -13526,7 +14546,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -13706,6 +14729,68 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "platform--products-amount-summary",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/products/amount-summary",
+          path: "/products/amount-summary",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:100"
+          ]
+        },
+        {
+          id: "platform--payment-element-display",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/products/gift-cards/public/payment-element/display",
+          path: "/products/gift-cards/public/payment-element/display",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "platform",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "platform/20-api/payment-links.md:102"
+          ]
+        },
+        {
           id: "memberships-courses--products-prices",
           method: "PUT",
           url: "https://backend.leadconnectorhq.com/products/prices/{id}",
@@ -13738,41 +14823,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "memberships-courses/20-api/endpoints.md:96"
-          ]
-        },
-        {
-          id: "workflows--rename-workflow",
-          method: "PUT",
-          url: "https://backend.leadconnectorhq.com/rename-workflow/{id}",
-          path: "/rename-workflow/{id}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "id"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/EDIT-OPS.md:169"
           ]
         },
         {
@@ -14658,37 +15708,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "workflows--status-enroll-stats",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/status/enroll-stats",
-          path: "/status/enroll-stats",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/RUNTIME-DATA-2.md:70"
-          ]
-        },
-        {
           id: "workflows--search-count-per-step",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/status/search/count-per-step",
@@ -14748,37 +15767,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "workflows/70-research/RUNTIME-DATA-2.md:69"
-          ]
-        },
-        {
-          id: "workflows--search-enroll-stats",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/status/search/enroll-stats",
-          path: "/status/search/enroll-stats",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "workflows",
-          tree: "documented",
-          pathParams: [],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "workflows/70-research/RUNTIME-DATA-2.md:71"
           ]
         },
         {
@@ -15917,6 +16905,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "read",
+          note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`,
           reach: "source-only",
           coveredBy: [
             "build_workflow",
@@ -15971,6 +16960,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s.",
           reach: "source-only",
           coveredBy: [
             "edit_workflow",
@@ -17927,7 +18917,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           summary: "The sending domain, warm-up state and rate limit behind this account's email steps.",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -18370,7 +19363,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -18906,6 +19902,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://backend.leadconnectorhq.com",
           rail: "workflow",
           kind: "write",
+          summary: 'Renames a workflow. Body is {"name": "..."}.',
+          note: "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename.",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -18933,7 +19931,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "none-observed"
           },
           sources: [
-            "services/WorkflowService.ts:178"
+            "services/WorkflowService.ts:178",
+            "workflows/70-research/EDIT-OPS.md:169"
           ]
         },
         {
@@ -20416,7 +21415,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -22061,6 +23063,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "source-only",
           coveredBy: [
             "build_workflow",
+            "edit_workflow",
+            "repair_workflow",
             "test_custom_code"
           ],
           rawCallable: true,
@@ -24408,7 +25412,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           reach: "proven",
           coveredBy: [
             "check_workflow",
-            "edit_workflow"
+            "edit_workflow",
+            "repair_workflow"
           ],
           rawCallable: true,
           transport: "json",
@@ -24899,10 +25904,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
-            "workflows/50-runtime/11-runtime-logs.md:35",
-            "workflows/50-runtime/11-runtime-logs.md:209",
-            "workflows/50-runtime/forcing-and-removing-contacts.md:50",
-            "workflows/50-runtime/observed-query-shapes.md:19"
+            "workflows/50-runtime/11-runtime-logs.md:37",
+            "workflows/50-runtime/11-runtime-logs.md:113",
+            "workflows/50-runtime/11-runtime-logs.md:241",
+            "workflows/50-runtime/forcing-and-removing-contacts.md:50"
           ]
         },
         {
@@ -25040,9 +26045,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
-            "workflows/50-runtime/11-runtime-logs.md:158",
-            "workflows/50-runtime/11-runtime-logs.md:214",
-            "workflows/70-research/RAIL.md:120"
+            "workflows/50-runtime/11-runtime-logs.md:190",
+            "workflows/50-runtime/11-runtime-logs.md:246",
+            "workflows/70-research/RAIL.md:120",
+            "workflows/70-research/RUNTIME-DATA-2.md:70"
           ]
         },
         {
@@ -25095,8 +26101,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
             "workflows/20-api/03-endpoints.md:353",
-            "workflows/50-runtime/11-runtime-logs.md:113",
-            "workflows/50-runtime/11-runtime-logs.md:210",
+            "workflows/50-runtime/11-runtime-logs.md:145",
+            "workflows/50-runtime/11-runtime-logs.md:242",
             "workflows/70-research/ENDPOINTS.md:193"
           ]
         },
@@ -25172,8 +26178,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
             "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
-            "workflows/50-runtime/11-runtime-logs.md:171",
-            "workflows/50-runtime/11-runtime-logs.md:212",
+            "workflows/50-runtime/11-runtime-logs.md:203",
+            "workflows/50-runtime/11-runtime-logs.md:244",
             "workflows/70-research/ENDPOINTS.md:196"
           ]
         },
@@ -25479,9 +26485,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:203",
-            "workflows/50-runtime/11-runtime-logs.md:156",
+            "workflows/50-runtime/11-runtime-logs.md:188",
             "workflows/70-research/ENDPOINTS.md:194",
-            "workflows/70-research/RAIL.md:120"
+            "workflows/70-research/RAIL.md:120",
+            "workflows/70-research/RUNTIME-DATA-2.md:71"
           ]
         },
         {
@@ -25782,8 +26789,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
             "workflows/20-api/03-endpoints.md:354",
-            "workflows/50-runtime/11-runtime-logs.md:157",
-            "workflows/50-runtime/11-runtime-logs.md:213",
+            "workflows/50-runtime/11-runtime-logs.md:189",
+            "workflows/50-runtime/11-runtime-logs.md:245",
             "workflows/50-runtime/observed-query-shapes.md:60"
           ]
         },
@@ -25845,8 +26852,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
-            "workflows/50-runtime/11-runtime-logs.md:127",
-            "workflows/50-runtime/11-runtime-logs.md:211",
+            "workflows/50-runtime/11-runtime-logs.md:159",
+            "workflows/50-runtime/11-runtime-logs.md:243",
             "workflows/50-runtime/observed-query-shapes.md:43",
             "workflows/70-research/ENDPOINTS.md:195"
           ]
@@ -26389,7 +27396,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/12-ai-agents-api.md:348",
             "ai-agents/20-api/agent-deployment-routing.md:25",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:89"
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:95"
           ]
         },
         {
@@ -26425,8 +27432,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:55",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:90"
+            "ai-agents/20-api/agent-deployment-routing.md:64",
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:96"
           ]
         },
         {
@@ -26933,7 +27940,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           origin: "https://services.leadconnectorhq.com",
           rail: "ai",
           kind: "read",
-          reach: "source-only",
+          summary: "The CONFIGURATION behind an agent's action pointers, grouped by action type.",
+          note: `Two traps. (1) locationId is REFUSED, not ignored: 422 {"message":["property locationId should not exist"]}. Parse that as a result set and you report '0 configured actions' for an agent that has them. employeeId alone is the whole query. (2) The envelope is GROUPED BY TYPE -- data[] is one row per action type and the objects live in data[].actions[], so a flat data.map(a => a.id) yields undefined for every row. The agent record's own \`actions\` array holds only {id, type} POINTERS; this is where the real object lives.`,
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -27903,23 +28912,23 @@ var init_define_ENDPOINT_CATALOG = __esm({
             {
               name: "locationId",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "chatType",
+              type: "string",
+              required: false,
+              source: "documented"
             },
             {
               name: "offset",
               type: "string",
-              required: true,
-              source: "live-probe"
+              required: false,
+              source: "documented"
             },
             {
               name: "limit",
-              type: "string",
-              required: true,
-              source: "live-probe"
-            },
-            {
-              name: "chatType",
               type: "string",
               required: false,
               source: "documented"
@@ -27934,7 +28943,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "ai-agents/20-api/agent-deployment-routing.md:74"
+            "ai-agents/20-api/agent-deployment-routing.md:83"
           ]
         },
         {
@@ -29384,7 +30393,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "ai-agents/20-api/12-ai-agents-api.md:347",
             "ai-agents/20-api/knowledge-base.md:82",
             "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:42"
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
           ]
         },
         {
@@ -29431,7 +30440,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
           sources: [
             "ai-agents/20-api/knowledge-base.md:53",
             "ai-agents/20-api/knowledge-base.md:83",
-            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:43"
+            "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
           ]
         },
         {
@@ -39451,7 +40460,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "edit_workflow",
+            "repair_workflow"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -39508,14 +40520,31 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /ad-publishing/facebook/pages": {
           reach: "proven"
         },
-        "GET /affiliate-manager/{locationId}/campaigns": {
-          reach: "proven"
-        },
         "GET /affiliate-manager/affiliates/workflow-filters": {
           requiredQuery: [
             "locationId"
           ],
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /affiliate-manager/{locationId}/campaigns": {
+          reach: "proven"
+        },
+        "GET /agent-deployment/routing-config/configs": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId",
+            "agentId"
+          ],
+          summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
+          note: "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row."
+        },
+        "GET /ai-employees/actions/search": {
+          reach: "proven",
+          requiredQuery: [
+            "employeeId"
+          ],
+          summary: "The CONFIGURATION behind an agent's action pointers, grouped by action type.",
+          note: `Two traps. (1) locationId is REFUSED, not ignored: 422 {"message":["property locationId should not exist"]}. Parse that as a result set and you report '0 configured actions' for an agent that has them. employeeId alone is the whole query. (2) The envelope is GROUPED BY TYPE -- data[] is one row per action type and the objects live in data[].actions[], so a flat data.map(a => a.id) yields undefined for every row. The agent record's own \`actions\` array holds only {id, type} POINTERS; this is where the real object lives.`
         },
         "GET /ai-employees/beta/{locationId}": {
           reach: "proven"
@@ -39533,6 +40562,22 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /calendars/configuration/location/{locationId}": {
           reach: "proven"
         },
+        "GET /calendars/events": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId",
+            "calendarId",
+            "startTime",
+            "endTime"
+          ],
+          summary: "Every appointment on one calendar in a time window.",
+          note: 'startTime/endTime must be EPOCH MILLISECONDS. An ISO-8601 timestamp returns a clean 200 with {"events":[]} -- no error, no warning. Live differential 2026-09-02, same calendar and same window: epoch ms -> 40 events, ISO -> 0. Most dangerous exactly where it is used, checking whether a slot is free before writing to a diary. Rows carry BOTH appointmentStatus and the misspelled appoinmentStatus.'
+        },
+        "GET /calendars/{calendarId}": {
+          reach: "proven",
+          summary: "One calendar's full configuration, including team members and open hours.",
+          note: "Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself."
+        },
         "GET /chat-widget/list": {
           requiredQuery: [
             "locationId",
@@ -39542,6 +40587,24 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           note: "offset and limit are REQUIRED as number strings \u2014 omit them and BOTH hosts answer 422 naming exactly those keys (proven 2026-08-31). Answers byte-identically on backend and services. A widget id pinned in an agent's routing row dies with the widget; route on All widgets instead.",
           reach: "proven",
           summary: "The account's chat widgets {chatWidgets:[{_id, chatType, name, default, settings, creationSource, createdAt, updatedAt}], totalCount}; chatType=liveChat filters to Live-chat widgets (the Agent Deployment picker's read)."
+        },
+        "GET /contacts/smartlist/search": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId",
+            "userId"
+          ],
+          note: "userId is REQUIRED and is authorisation-checked, not merely a filter -- another user's id returns 403. Smart lists are per user, so this answers 'one user's lists', never 'the account's lists'. Answers identically on BOTH hosts with a plain Bearer (byte-identical payloads, live 2026-09-02); services is what the UI uses."
+        },
+        "GET /contacts/smartlist/{id}": {
+          reach: "proven",
+          summary: "One smart list: listName, columns, filterSpecs, sortSpecs, sharedWith.",
+          note: "Send NO locationId. The route works (live 2026-09-02) but 422s 'property locationId should not exist' the moment you add the usual location query param -- the same shape as /ai-employees/actions/search. `sharedWith` reads back as [] when unset and as a bare STRING when set."
+        },
+        "GET /contacts/{contactId}/appointments": {
+          reach: "proven",
+          summary: "Every appointment for one contact, newest last.",
+          note: "The status key here is ONLY GHL's misspelling `appoinmentStatus` (no 't' after the 'n') -- the correctly-spelled appointmentStatus is absent, so a reader checking it sees undefined and wrongly concludes the route carries no status. It does. Live 2026-09-02. Times are naive and zoneless (\"2026-09-04 14:00:00\"), unlike /calendars/events which returns offset-bearing ISO -- never compare the two as strings."
         },
         "GET /conversations-ai/intents/{locationId}": {
           reach: "proven"
@@ -39613,11 +40676,41 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /integrations/tiktok": {
           reach: "proven"
         },
+        "GET /invoices/gen-url": {
+          reach: "proven",
+          requiredQuery: [
+            "id",
+            "type"
+          ],
+          summary: "The public URL for a payment link or invoice. shortUrl=true mints a short /l/{code} link.",
+          note: "A GET that MINTS: shortUrl=true creates a short link. It is idempotent -- the same payment link returns the same code on repeat calls (live 2026-09-02) -- so the short URL is stable and safe to store in a custom value."
+        },
+        "GET /knowledge-base/gaps": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId",
+            "knowledgeBaseId",
+            "status"
+          ],
+          summary: "Every question the agent could not answer from one knowledge base: title, categories, priority, queryCount, firstSeenAt, lastAskedAt, topQueryTexts (the customer's own wording).",
+          note: "A gap row is a DATED LOG, not an inventory: it stays open after the answering content lands (proven by differential 2026-08-31 \u2014 added the documents, re-asked live, answered correctly, list unchanged, lastAskedAt unmoved). Read lastAskedAt before treating a row as current; a question the KB answers is never logged at all. Categories are unreliable. The DISMISS write was never captured."
+        },
+        "GET /knowledge-base/gaps/counts": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          summary: "Open-gap totals per knowledge base."
+        },
         "GET /links/search": {
           requiredQuery: [
             "locationId"
           ],
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
+        },
+        "GET /locations/search": {
+          reach: "refused",
+          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
         },
         "GET /locations/{locationId}/customFields": {
           reach: "proven"
@@ -39625,6 +40718,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /locations/{locationId}/customFields/search": {
           reach: "proven",
           note: "documentType=folder&model=all lists custom-FIELD folders ONLY with includeStandards=true \u2014 with includeStandards=false (the plugin's habitual value on FIELD searches) the same query returns [], which reads as 'this account has no folders' and is false (proven 2026-08-30)."
+        },
+        "GET /locations/{locationId}/customFields/{fieldId}": {
+          reach: "proven",
+          summary: "One custom field by id: {customField:{id, model, name, fieldKey, dataType, documentType, parentId (folder), description, standard, scopes, \u2026}}. Proven 2026-08-31.",
+          note: "The read-back for filing (parentId) and for description \u2014 both stored and returned. dataType is IMMUTABLE after creation: a PUT changing it answers success and the read-back keeps the old type; retype = delete, then create (the old KEY blocks the name until deleted)."
         },
         "GET /locations/{locationId}/customValues": {
           reach: "proven"
@@ -39636,10 +40734,6 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "GET /locations/{locationId}/templates": {
           reach: "proven"
-        },
-        "GET /locations/search": {
-          reach: "refused",
-          note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
         },
         "GET /marketplace/core/search/module": {
           requiredQuery: [
@@ -39673,6 +40767,43 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           ],
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
+        "GET /payment-links/": {
+          reach: "proven",
+          requiredQuery: [
+            "altId",
+            "altType"
+          ],
+          summary: "Every payment link on the location, with prices expanded into priceData.",
+          note: "Reached with a plain location Bearer -- the token-id header the UI sends is not required (live 2026-09-02). The list expands prices into priceData and leaves `products` EMPTY; use /payment-links/preview for the expanded products."
+        },
+        "GET /payment-links/customised-link": {
+          reach: "proven",
+          requiredQuery: [
+            "paymentLinkId",
+            "contactId",
+            "altId"
+          ],
+          note: "Returns a PLAIN TEXT body (a short /l/{code} URL), not JSON. The short link resolves to the standard link with firstName/lastName/email/phone query parameters, which is all the checkout prefill is -- so a workflow message can prefill by appending those params itself, with no API call. A '+' in a phone must arrive as %2B."
+        },
+        "GET /payment-links/preview": {
+          reach: "proven",
+          requiredQuery: [
+            "paymentLinkId"
+          ],
+          summary: "The full payment link with products and prices expanded. This IS the detail read.",
+          note: "There is NO bare detail read -- GET /payment-links/{id} is a 404 'Cannot GET' (the route does not exist). preview is what both the editor and the public checkout use, and it answers UNAUTHENTICATED with config=true."
+        },
+        "GET /payments/integrations/entity-providers": {
+          note: "Test vs Live is two layers: the provider integration holds a test key pair and a live key pair (one Stripe Connect fills both), and each payment link carries liveMode and asks this endpoint for the matching keys. Nothing validates a provider at link-save time -- a link saves fine in Live mode with no gateway connected, and the public Pay button is simply disabled."
+        },
+        "GET /phone-system/call-dispositions": {
+          reach: "proven",
+          requiredQuery: [
+            "locationId"
+          ],
+          summary: "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
+          note: "?includeDeleted=true returns ONLY the soft-deleted rows, not the union -- the name reads like 'include', the behaviour is 'only'. Every account ships the SAME SIX system defaults (proven 2026-09-02: a sandbox listing four returned exactly the two missing ones, Follow Up and Requested Appointment, under includeDeleted=true, both isDefault:true with a deletedAt). A short list means somebody soft-deleted defaults, not that defaults vary by account. call_status triggers match BY NAME."
+        },
         "GET /phone-system/numbers/location/{locationId}": {
           reach: "proven"
         },
@@ -39699,11 +40830,46 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /reselling/subscription/location/{locationId}": {
           reach: "proven"
         },
+        "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
+          reach: "proven"
+        },
         "GET /saas_service/isv-mode/status/{locationId}": {
           reach: "proven"
         },
-        "GET /saas-billing-v2/billing-config/LOCATION/{locationId}/conversation_AI": {
-          reach: "proven"
+        "GET /snapshots-appengine/snapshot/{snapshotId}/get_assets": {
+          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/locations/v2/{companyId}/available": {
+          requiredQuery: [
+            "snapshotId"
+          ],
+          note: "Sub-accounts available as load targets \u2014 the SOURCE sub-account is excluded, so a snapshot cannot be loaded back onto the account it came from. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/locations/v2/{snapshotId}": {
+          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/snapshot-push/{snapshotId}/push-in-progress": {
+          note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/snapshot-versions/{snapshotId}": {
+          note: "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/v2/{companyId}": {
+          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer."
+        },
+        "GET /snapshots/{snapshotId}/assets": {
+          reach: "proven",
+          requiredQuery: [
+            "companyId"
+          ],
+          summary: "A snapshot's actual CONTENTS, one array per category (folders, custom_values, tags, links, text_templates, surveys, teams, calendars, campaigns, membership_offers, membership_products, triggers, sectionTemplates, workflow, social_planner, custom_fields, pipelines, knowledge_bases, chat_widget).",
+          note: "Dual credential (AI rail). There is NO Conversation AI category: a flow-bot agent, its flow workflow and its deployment rows never travel; knowledge bases DO. Diff this against the manifest before pushing a snapshot. The bare /snapshots/{id} read and every backend-host spelling 403/404."
+        },
+        "GET /snapshots/{snapshotId}/assets-status": {
+          note: "Load-wizard step 2 counter. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
+        },
+        "GET /snapshots/{snapshotId}/restricted-assets": {
+          note: "Share dialog's assets-protection read. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
         },
         "GET /snippets/{locationId}": {
           reach: "proven",
@@ -39712,67 +40878,6 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /users/search": {
           reach: "refused",
           note: "Live-probed 2026-08-25: 401 for a location-user Bearer WITH the marketplace headers. The path is real; this credential class does not reach it."
-        },
-        "GET /workflow/{locationId}": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/{workflowId}/history": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/{workflowId}/history/v2": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/auto-save/settings": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/eliza-users": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/email/location-email-provider": {
-          summary: "The sending domain, warm-up state and rate limit behind this account's email steps."
-        },
-        "GET /workflow/{locationId}/error-notification/{workflowId}": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/error-notification/count": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/error-notification/list": {
-          summary: "Workflows in this account that are currently erroring, and who is notified."
-        },
-        "GET /workflow/{locationId}/error-notification/settings": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/instagram/connected-accounts": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/list": {
-          summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
-          note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
-          summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
-          note: 'Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer "why did a premium step not run".'
-        },
-        "GET /workflow/{locationId}/scheduled-pause/config": {
-          summary: "Whether this workflow is paused on a schedule, and the window if so.",
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/split/isExecuted": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/split/stats": {
-          summary: "Per-branch results for an A/B split step."
-        },
-        "GET /workflow/{locationId}/workflow-ai/settings": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/workflow-location-setting/settings": {
-          reach: "proven"
-        },
-        "GET /workflow/{locationId}/workflow-templates": {
-          reach: "proven"
         },
         "GET /workflow/agent/{locationId}/mcp-connections": {
           reach: "proven"
@@ -39810,6 +40915,70 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "GET /workflow/flowguard/workflow-rendering/{workflowId}": {
           reach: "refused",
           note: "Live-proven 2026-08-22: every /flowguard/* route 401s for a location-user Bearer. The path is real, the surface is not reachable from this rail. Needs a higher credential class."
+        },
+        "GET /workflow/{locationId}": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/auto-save/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/eliza-users": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/email/location-email-provider": {
+          summary: "The sending domain, warm-up state and rate limit behind this account's email steps."
+        },
+        "GET /workflow/{locationId}/error-notification/count": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/error-notification/list": {
+          summary: "Workflows in this account that are currently erroring, and who is notified."
+        },
+        "GET /workflow/{locationId}/error-notification/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/error-notification/{workflowId}": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/instagram/connected-accounts": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/list": {
+          summary: "The workflow roster for a location; also lists FOLDERS when asked for them.",
+          note: 'Folders list under type=directory. type=folder returns count 0 rather than an error, which reads as "this account has no folders".',
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/premium-tier-usage/{tier}": {
+          summary: "Premium-action CONSUMPTION for one tier on this sub-account.",
+          note: 'Consumption only. Entitlement and rebilling are set at AGENCY scope (saas-billing-v2 billing-config, product key workflow_premium_actions) and are invisible from inside the sub-account, so this alone cannot answer "why did a premium step not run".'
+        },
+        "GET /workflow/{locationId}/scheduled-pause/config": {
+          summary: "Whether this workflow is paused on a schedule, and the window if so.",
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/split/isExecuted": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/split/stats": {
+          summary: "Per-branch results for an A/B split step."
+        },
+        "GET /workflow/{locationId}/workflow-ai/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/workflow-location-setting/settings": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/workflow-templates": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/{wid}": {
+          note: `?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> "version": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.`
+        },
+        "GET /workflow/{locationId}/{workflowId}/history": {
+          reach: "proven"
+        },
+        "GET /workflow/{locationId}/{workflowId}/history/v2": {
+          reach: "proven"
         },
         "GET /workflows-marketplace/integration-apps": {
           reach: "refused",
@@ -39905,13 +41074,26 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           ],
           note: "Live-probed 2026-08-25: the endpoint returned 400 naming locationId as required. The builder passes these through a spread the source miner can only read as an open map, so they are recorded from the wire, not from the source."
         },
+        "PATCH /agent-deployment/routing-config/configs/{rowId}": {
+          reach: "proven",
+          summary: "Update one channel's routing row. Proven 2026-08-31 by a live reply after switching Live chat to All widgets."
+        },
+        "PATCH /payment-links/{id}": {
+          kind: "write",
+          summary: "Deactivates a payment link. Body {activeValue:false, altId, altType}.",
+          note: "Deactivates but CANNOT reactivate: activeValue:true returns 400 'Error activating link. Please update automatic deactivation configuration to activate'. Reactivation is the full-document PUT with active:true. A deactivated link renders only 'Payment link deactivated / CODE:- PAYMENT_LINK_DEACTIVATED' to the customer -- no product, no form -- which is why a deposit link must never carry an automatic deactivation date."
+        },
         "POST /appengine/workflow/sendElizaMailToAgencyAdmin": {
           kind: "destructive",
           note: "Sends a real email to the agency admin."
         },
         "POST /contacts/search/2": {
-          note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
+          note: "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row -- always run a baseline and a KNOWN-ZERO control, never a single query. Filter FIELDS and OPERATORS are validated (422, and an invalid operator prints the whole 22-value enum); COLUMN keys are not. Fields are snake_case (first_name works, firstName 422s). On a keyword field eq/contains/match are exact SYNONYMS -- `contains` is NOT substring; only `wildcard` with an explicit * is partial. `active_workflows_2`/`finished_workflows_2` filter workflow membership; `finished_workflows` WITHOUT the _2 validates and silently matches nothing. includeTotal:true is what makes `total` appear, and pageLimit:0 returns the count alone.",
           summary: "Contact search. Treat its results as unverified \u2014 see the note."
+        },
+        "POST /contacts/smartlist/": {
+          kind: "write",
+          note: "Effectively PERMANENT: there is no delete on this rail (DELETE 404s, and PUT with deleted:true is refused 'property deleted should not exist'), so removal is UI-only. The validator is the documentation -- it rejects userId and name, and demands listName, a non-empty columns array of exactly {key,value,order}, and an object filterSpecs. filterSpecs:{} is ACCEPTED and creates a list that filters NOTHING."
         },
         "POST /conversations/providers/tiktok/posts": {
           kind: "read"
@@ -39921,6 +41103,10 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "POST /emails/tracking/links": {
           kind: "read"
+        },
+        "POST /locations/{locationId}/customValues": {
+          reach: "proven",
+          summary: 'Create a custom VALUE \u2014 or, with {name, documentType:"folder"}, a custom-value FOLDER (the response echoes documentType:"folder"). Proven 2026-08-30.'
         },
         "POST /marketplace/billing/usage/meters/public": {
           kind: "read",
@@ -39933,39 +41119,19 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "read",
           summary: "Search records of a custom object by filter."
         },
+        "POST /phone-system/call-dispositions": {
+          requiredQuery: [
+            "locationId"
+          ],
+          kind: "write",
+          summary: 'Creates a call disposition. Body is {"name": "..."}.',
+          note: `locationId must be in the QUERY. With it in the BODY only, the POST returns 403 {"message":"Forbidden resource","message_code":"FORBIDDEN"} -- which reads as a credential problem and is actually 'this request names no location'. Not referer-gated. The server assigns isDefault, orderingKey and meta.createdBy; sending them is accepted and ignored. call_status triggers match a disposition BY NAME (array value, contains-any), so the name must match exactly, case included.`
+        },
         "POST /templates/list": {
           kind: "read"
         },
         "POST /templates/template/load": {
           kind: "read"
-        },
-        "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
-          kind: "destructive"
-        },
-        "POST /workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}": {
-          kind: "destructive"
-        },
-        "POST /workflow/{locationId}/{workflowId}/start-workflow": {
-          kind: "destructive"
-        },
-        "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
-          kind: "destructive"
-        },
-        "POST /workflow/{locationId}/adwords": {
-          kind: "read"
-        },
-        "POST /workflow/{locationId}/drip-schedule/preview": {
-          kind: "read"
-        },
-        "POST /workflow/{locationId}/email/send-test-email": {
-          kind: "destructive"
-        },
-        "POST /workflow/{locationId}/run-single-action": {
-          kind: "destructive",
-          note: "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
-        },
-        "POST /workflow/{locationId}/sms/send-test-sms": {
-          kind: "destructive"
         },
         "POST /workflow/flowguard/blacklist/contact/{contactId}": {
           kind: "destructive",
@@ -39998,16 +41164,41 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           kind: "destructive",
           note: "Writes to the OAuth credential rail."
         },
-        "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
+        "POST /workflow/{locationId}/adwords": {
           kind: "read"
         },
-        "POST /workflows-marketplace/actions/{actionType}/branches": {
+        "POST /workflow/{locationId}/drip-schedule/preview": {
           kind: "read"
+        },
+        "POST /workflow/{locationId}/email/send-test-email": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/run-single-action": {
+          kind: "destructive",
+          note: "Despite the name, run-single-action EXECUTES the action to produce its sample. For a send step that means a real message."
+        },
+        "POST /workflow/{locationId}/sms/send-test-sms": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/{workflowId}/remove-stuck-statuses/{stepId}": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/{workflowId}/requeue-stuck-statuses/{stepId}": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/{workflowId}/start-workflow": {
+          kind: "destructive"
+        },
+        "POST /workflow/{locationId}/{workflowStatusId}/stop-execution": {
+          kind: "destructive"
         },
         "POST /workflows-marketplace/actions/dynamic-source-details/{key}": {
           kind: "read"
         },
         "POST /workflows-marketplace/actions/published/{actionType}/dynamic-fields": {
+          kind: "read"
+        },
+        "POST /workflows-marketplace/actions/{actionType}/branches": {
           kind: "read"
         },
         "POST /workflows-marketplace/integration-apps/reset-token/{appId}": {
@@ -40027,6 +41218,9 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         "POST /workflows-marketplace/triggers/published/{triggerType}/dynamic-fields": {
           kind: "read"
         },
+        "POST /workflows-marketplace/{assetType}/dynamic-source/{key}": {
+          kind: "read"
+        },
         "POST /workflows/es/search": {
           kind: "read",
           summary: "Query workflows server-side by trigger type, action type, status, tags or name \u2014 the smart-list search.",
@@ -40037,9 +41231,25 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Trigger effectiveness across the account: attempted, matched and unmatched enrollments.",
           note: "A POST that RETURNS 201 for what is plainly a read. Its window is the last 30 days, unlike the 7-week enrollment chart beside it on the same screen."
         },
+        "PUT /opportunities/pipelines/{pipelineId}": {
+          kind: "write",
+          requiredQuery: [
+            "locationId"
+          ],
+          summary: "Replaces a pipeline's name, flags and its WHOLE stages array.",
+          note: "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element."
+        },
+        "PUT /payment-links/{id}": {
+          kind: "write",
+          note: 'Whole-document write (a partial PUT was never tried -- treat it as full until proven). This is also the only way to REACTIVATE a link (active:true); the PATCH cannot. A custom CTA is sent as customPaymentButtonText BESIDE the preset in paymentButtonText and the server folds it into paymentButtonText, so reads carry only the latter -- to restore a preset label send customPaymentButtonText:"". Branding off is branding:"" (empty string, not null, not omitted).'
+        },
         "PUT /saas-billing-v2/billing-config/{locationId}": {
           kind: "destructive",
           note: "Changes the sub-account BILLING PLAN. Money."
+        },
+        "PUT /workflow/oauth2/update-token": {
+          kind: "destructive",
+          note: "Writes to the OAuth credential rail."
         },
         "PUT /workflow/{companyId}/workflow-company-setting/bulk-location-settings": {
           kind: "destructive",
@@ -40060,16 +41270,11 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Move ONE workflow between folders. The only route that accepts a null parent, i.e. the only way back to root.",
           note: 'The BATCH move cannot reach root -- null, "" and "root" all 404. Use this per-workflow route instead.'
         },
-        "PUT /workflow/{locationId}/permission/{workflowId}": {
-          kind: "destructive",
-          note: "Changes who can see or edit a workflow."
-        },
-        "PUT /workflow/{locationId}/permissions": {
-          kind: "destructive"
-        },
-        "PUT /workflow/oauth2/update-token": {
-          kind: "destructive",
-          note: "Writes to the OAuth credential rail."
+        "PUT /workflow/{locationId}/only-triggers/{id}": {
+          kind: "write",
+          reach: "proven",
+          summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
+          note: "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either."
         },
         "PUT /workflow/{locationId}/only-triggers/{wid}": {
           kind: "write",
@@ -40077,93 +41282,20 @@ var init_define_ENDPOINT_OVERLAY = __esm({
           summary: "Accepted with 200 and bumps the workflow version \u2014 but does NOT change trigger content. Do not use this to save a trigger edit.",
           note: "\u{1F534} Live-proven INERT for trigger content, both {oldTriggers,newTriggers} and {version,triggers} body shapes: 200, version bumped, stored trigger conditions/active/name unchanged on read-back \u2014 do not use this to save a trigger edit. The rail this project uses instead is a per-trigger PUT /workflow/{locationId}/trigger/{triggerId} carrying the WHOLE trigger record (see edit_workflow's modifyTrigger op / mcp-internal/core/tools.mjs publish_workflow); it IS live-proven for trigger CONTENT (conditions/name/targetActionId). `active` is a read-only projection of the trigger's own `status` field (`active === (status !== \"draft\")`) \u2014 no PUT body's `active` field controls it directly: a publish with zero trigger writes still activates every trigger sub-second after the publish PUT returns, and a per-trigger PUT with active:false against a published workflow returns 200 with the trigger staying active:true. Sending `status:\"published\"` on that same per-trigger PUT DOES activate a trigger on an already-published workflow, verified by read-back at +0.5s/+2s/+5s; `status:\"draft\"` deactivates it. A bogus `status` string is silently accepted and ignored (200, unchanged) \u2014 never trust the 200, always read back. publish_workflow (mcp-internal/core/tools.mjs), orchestrate.mjs's --publish step, and skills/create-ghl-workflow/scripts/edit.mjs's post-add check send exactly this PUT as a REPAIR \u2014 one per trigger still inactive after the publish PUT's own draft\u2192published cascade \u2014 before ever reporting failure. Separately, the full workflow PUT still 400s with INVALID_TRIGGER_CONDITION on conv_ai_autonomous_trigger \u2014 this endpoint is not a fix for that either."
         },
-        "PUT /workflow/{locationId}/only-triggers/{id}": {
+        "PUT /workflow/{locationId}/permission/{workflowId}": {
+          kind: "destructive",
+          note: "Changes who can see or edit a workflow."
+        },
+        "PUT /workflow/{locationId}/permissions": {
+          kind: "destructive"
+        },
+        "PUT /workflow/{locationId}/rename-workflow/{workflowId}": {
           kind: "write",
-          reach: "proven",
-          summary: "Same route as the {wid} row \u2014 also live-proven INERT for trigger content, see that row.",
-          note: "Same route as the {wid} row; the miner produced both spellings from different call sites \u2014 see that row's note. This does not persist a trigger edit either."
+          summary: 'Renames a workflow. Body is {"name": "..."}.',
+          note: "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. \u26A0\uFE0F Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename."
         },
-        "GET /knowledge-base/gaps": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId",
-            "knowledgeBaseId",
-            "status"
-          ],
-          summary: "Every question the agent could not answer from one knowledge base: title, categories, priority, queryCount, firstSeenAt, lastAskedAt, topQueryTexts (the customer's own wording).",
-          note: "A gap row is a DATED LOG, not an inventory: it stays open after the answering content lands (proven by differential 2026-08-31 \u2014 added the documents, re-asked live, answered correctly, list unchanged, lastAskedAt unmoved). Read lastAskedAt before treating a row as current; a question the KB answers is never logged at all. Categories are unreliable. The DISMISS write was never captured."
-        },
-        "GET /knowledge-base/gaps/counts": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId"
-          ],
-          summary: "Open-gap totals per knowledge base."
-        },
-        "GET /agent-deployment/routing-config/configs": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId",
-            "agentId"
-          ],
-          summary: "Agent Deployment as it really is: one row per channel {channel, providerId, enabled, allIdentifiers, specificIdentifiers[], includeTags, excludeTags}.",
-          note: "A Live_Chat row pinned to a DELETED widget id (specificIdentifiers) makes the agent silently mute \u2014 contacts created, no reply, no enrolment, no error anywhere. Fix: allIdentifiers:true, specificIdentifiers:[]. get_ai_configuration_bundle reads these rows per Conversation AI agent as of 0.47.0 and summarises rows with allIdentifiers:false in routingPinned \u2014 but it never checks whether the pinned identifiers still EXIST, so verify them against /chat-widget/list before trusting a pinned row."
-        },
-        "PATCH /agent-deployment/routing-config/configs/{rowId}": {
-          reach: "proven",
-          summary: "Update one channel's routing row. Proven 2026-08-31 by a live reply after switching Live chat to All widgets."
-        },
-        "GET /snapshots/{snapshotId}/assets": {
-          reach: "proven",
-          requiredQuery: [
-            "companyId"
-          ],
-          summary: "A snapshot's actual CONTENTS, one array per category (folders, custom_values, tags, links, text_templates, surveys, teams, calendars, campaigns, membership_offers, membership_products, triggers, sectionTemplates, workflow, social_planner, custom_fields, pipelines, knowledge_bases, chat_widget).",
-          note: "Dual credential (AI rail). There is NO Conversation AI category: a flow-bot agent, its flow workflow and its deployment rows never travel; knowledge bases DO. Diff this against the manifest before pushing a snapshot. The bare /snapshots/{id} read and every backend-host spelling 403/404."
-        },
-        "GET /snapshots/v2/{companyId}": {
-          note: "Agency snapshot list (type=own|imported|shared|templates). Captured from the agency Account Snapshots page's own browser session 2026-08-31; not yet proven through the plugin's location-user Bearer."
-        },
-        "GET /snapshots-appengine/snapshot/{snapshotId}/get_assets": {
-          note: "Details drawer, assets grouped by product category. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
-        },
-        "GET /snapshots/snapshot-versions/{snapshotId}": {
-          note: "{version, locationId, createdAt} per refresh. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
-        },
-        "GET /snapshots/{snapshotId}/restricted-assets": {
-          note: "Share dialog's assets-protection read. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
-        },
-        "GET /snapshots/snapshot-push/{snapshotId}/push-in-progress": {
-          note: "Load-wizard step 1. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
-        },
-        "GET /snapshots/locations/v2/{snapshotId}": {
-          note: "Sub-accounts LINKED to a snapshot (isEnabled=true). Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
-        },
-        "GET /snapshots/locations/v2/{companyId}/available": {
-          requiredQuery: [
-            "snapshotId"
-          ],
-          note: "Sub-accounts available as load targets \u2014 the SOURCE sub-account is excluded, so a snapshot cannot be loaded back onto the account it came from. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
-        },
-        "GET /snapshots/{snapshotId}/assets-status": {
-          note: "Load-wizard step 2 counter. Captured from the agency page's own session 2026-08-31; not yet proven through the plugin's credential."
-        },
-        "GET /locations/{locationId}/customFields/{fieldId}": {
-          reach: "proven",
-          summary: "One custom field by id: {customField:{id, model, name, fieldKey, dataType, documentType, parentId (folder), description, standard, scopes, \u2026}}. Proven 2026-08-31.",
-          note: "The read-back for filing (parentId) and for description \u2014 both stored and returned. dataType is IMMUTABLE after creation: a PUT changing it answers success and the read-back keeps the old type; retype = delete, then create (the old KEY blocks the name until deleted)."
-        },
-        "POST /locations/{locationId}/customValues": {
-          reach: "proven",
-          summary: 'Create a custom VALUE \u2014 or, with {name, documentType:"folder"}, a custom-value FOLDER (the response echoes documentType:"folder"). Proven 2026-08-30.'
-        },
-        "GET /phone-system/call-dispositions": {
-          reach: "proven",
-          requiredQuery: [
-            "locationId"
-          ],
-          summary: "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
-          note: "Reachable through the standard gateway with no special referer (proven daily by list_account_entities; a 2026-08-31 claim that it was iframe-referer-gated was refuted). The six system defaults are SOFT-DELETABLE, so a live account may list fewer \u2014 never assume the count; includeDeleted=false hides them."
+        "PUT /workflow/{locationId}/{wid}": {
+          note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
         }
       }
     };
@@ -77284,6 +78416,9 @@ var opp_field_rulebook_default = {
 
 // ../skills/create-ghl-workflow/engine/opp-shapes.mjs
 var OPP_CUSTOM_FIELD_PREFIX = "custom_fields.";
+var OPP_NAME_KEYS = ["pipeline", "stage", "lostReason"];
+var isLeakedOppName = (v) => typeof v === "string" && v.trim() !== "";
+var leakedOppNames = (attributes) => OPP_NAME_KEYS.filter((k) => isLeakedOppName(attributes?.[k]));
 var STANDARD_OPP_FIELDS = /* @__PURE__ */ new Set([
   ...Object.keys(opp_field_rulebook_default.fields),
   ...Object.keys(opp_field_shapes_default.fields)
@@ -143279,10 +144414,8 @@ init_define_ENDPOINT_OVERLAY();
 init_define_TOOL_CATALOG();
 var OPP_TYPES = /* @__PURE__ */ new Set(["internal_update_opportunity", "internal_create_opportunity"]);
 var ID_ROWS = /* @__PURE__ */ new Set(["pipelineId", "pipelineStageId", "lostReasonId"]);
-var NAME_KEYS = ["pipeline", "stage", "lostReason"];
 var looksLikeId = (v) => typeof v === "string" && /^[A-Za-z0-9_-]{16,}$/.test(v) && !/\s/.test(v);
 var isMergeTag2 = (v) => typeof v === "string" && v.includes("{{");
-var isLeakedName = (v) => typeof v === "string" && v.trim() !== "";
 var FOUND_KEY = "predefined_Opportunity Found";
 var FOUND_NAME = "Opportunity Found";
 function pathBindsCard(t, byId) {
@@ -143324,7 +144457,7 @@ function lintOpportunityWrites(templates, { pipelines = null, lostReasons = null
         `'${t.name ?? t.id}' writes to a card but nothing on its path binds one \u2014 it works only when the run entered through an opportunity trigger; an add_to_workflow from another workflow or a manual/API enrolment SKIPS it silently (or logs success with an empty actionFrom and moves nothing). Use the pattern: find_opportunity \u2192 Not Found: create_opportunity \u2192 Found: update_opportunity.`
       );
     }
-    const leaked = NAME_KEYS.filter((k) => isLeakedName(a[k]));
+    const leaked = leakedOppNames(a);
     if (leaked.length) {
       push(
         "OPP_NAME_KEY",
@@ -144251,11 +145384,11 @@ function editCommitBody(fresh, newTemplates, diff, uid, opts = {}) {
   const oppTypes = /* @__PURE__ */ new Set(["internal_update_opportunity", "internal_create_opportunity"]);
   for (const t of newTemplates) {
     if (!oppTouched.has(t.id) || !oppTypes.has(t.type)) continue;
-    const leaked = ["pipeline", "stage", "lostReason"].filter((k) => t.attributes?.[k] !== void 0);
+    const leaked = leakedOppNames(t.attributes);
     if (leaked.length)
       throw new IRError(
         "UNRESOLVED_NAME",
-        `'${t.name ?? t.id}' (${t.type}) carries name key(s) [${leaked.join(", ")}] \u2014 the edit path does not resolve names to ids, so GHL would store the word and the step would move nothing. Author pipelineId/stageId (from list_account_entities), or rebuild through build_workflow, which resolves names.`
+        `step '${t.id}' ('${t.name ?? t.id}', ${t.type}) carries name key(s) [${leaked.join(", ")}] \u2014 the edit path does not resolve names to ids, so GHL would store the word and the step would move nothing. Author pipelineId/stageId (from list_account_entities), or rebuild through build_workflow, which resolves names. If this step was saved from the BUILDER, retypeStep it first in the same edit_workflow call \u2014 {stepId, step:{type:'update_opportunity', name, attributes:{pipelineId, stageId}}} \u2014 which recompiles the ids and drops the name keys.`
       );
   }
   if (opts.catalog) {
@@ -146348,6 +147481,36 @@ function lintPublishRules(templates) {
   return out;
 }
 
+// ../skills/create-ghl-workflow/engine/lints/name-length.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var STEP_NAME_MIN = 1;
+var STEP_NAME_MAX = 100;
+var judge = (name) => {
+  if (typeof name !== "string") return null;
+  const len = [...name].length;
+  if (name.trim() === "") {
+    return `is empty or whitespace only \u2014 the builder requires at least ${STEP_NAME_MIN} character, so the drawer cannot be saved by hand even though the API stored it`;
+  }
+  if (len > STEP_NAME_MAX) {
+    return `has a ${len}-character name \u2014 the builder caps it at ${STEP_NAME_MAX}. The API accepts the longer name and round-trips it intact, so this reads clean by API and the drawer refuses to save the moment a human opens it. Shorten the name.`;
+  }
+  return null;
+};
+function lintNameLength(templates, triggers) {
+  const out = [];
+  for (const t of Array.isArray(templates) ? templates.filter(Boolean) : []) {
+    const bad = judge(t.name);
+    if (bad) out.push({ code: "NAME_LENGTH", severity: "warning", stepId: t.id, name: t.name, msg: `step '${t.id}' ${bad}` });
+  }
+  for (const g of Array.isArray(triggers) ? triggers.filter(Boolean) : []) {
+    const bad = judge(g.name);
+    if (bad) out.push({ code: "NAME_LENGTH", severity: "warning", triggerId: g.id, name: g.name, msg: `trigger '${g.id}' ${bad}` });
+  }
+  return out;
+}
+
 // ../skills/create-ghl-workflow/engine/lints/hygiene.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -146697,6 +147860,8 @@ function runLints(doc, {
       for (const f of lintPublishRules(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintOpportunityWrites(T)) F("platform", f.code, f.severity, f.msg, { stepId: f.stepId });
       for (const f of lintTriggerRows(triggers, catalog)) F("platform", f.code, f.severity, f.msg, { triggerId: f.triggerId });
+      for (const f of lintNameLength(T, triggers))
+        F("platform", f.code, f.severity, f.msg, f.stepId ? { stepId: f.stepId } : { triggerId: f.triggerId });
     } catch (e) {
       out.notEvaluable.push(`platform crashed: ${e.message}`);
     }
@@ -148017,6 +149182,10 @@ var IRError2 = class extends Error {
   }
 };
 var MODES = ["off", "suggestive", "autoPilot"];
+var MODE_ALIASES = /* @__PURE__ */ new Map([["auto-pilot", "autoPilot"]]);
+function normalizeMode(mode) {
+  return typeof mode === "string" && MODE_ALIASES.has(mode) ? MODE_ALIASES.get(mode) : mode;
+}
 var BOT_TYPES = ["PROMPT_BASED_BOT", "FLOW_BUILDER_BOT", "FORM_BASED_BOT"];
 var CHANNELS = ["SMS", "IG", "FB", "WebChat", "Live_Chat", "WhatsApp"];
 function assertNonEmptyString(v, field) {
@@ -148041,7 +149210,8 @@ function checkSummary(summary) {
   }
 }
 function checkMode(mode) {
-  if (!MODES.includes(mode)) throw new IRError2("BAD_MODE", `mode must be one of ${MODES.join(", ")}, got: ${JSON.stringify(mode)}`);
+  if (!MODES.includes(normalizeMode(mode)))
+    throw new IRError2("BAD_MODE", `mode must be one of ${MODES.join(", ")}, got: ${JSON.stringify(mode)}`);
 }
 function checkChannels(channels) {
   if (!Array.isArray(channels) || channels.length === 0) throw new IRError2("BAD_CHANNELS", "channels must be a non-empty array");
@@ -148103,7 +149273,7 @@ function parseConvaiIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
-  return { ...ir };
+  return { ...ir, mode: normalizeMode(ir.mode) };
 }
 function parseConvaiPartialIR(ir) {
   if (!ir || typeof ir !== "object") throw new IRError2("SCHEMA", "IR must be an object");
@@ -148118,7 +149288,7 @@ function parseConvaiPartialIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
-  return { ...ir };
+  return ir.mode !== void 0 ? { ...ir, mode: normalizeMode(ir.mode) } : { ...ir };
 }
 
 // ../engines/ai/convai-compiler.mjs
@@ -148399,7 +149569,20 @@ var UPDATE_FIELD_MAP = {
 };
 var FLOW_ONLY_KEYS = ["cancelEnabled", "rescheduleEnabled", "tones"];
 var NON_FORM_KEYS = ["skipIfAlreadyFilled", "botInitialMessage", "steps", "notificationSettings", "brandId"];
-var SERVER_KEYS = /* @__PURE__ */ new Set(["id", "_id", "dateAdded", "dateUpdated", "createdAt", "updatedAt", "deleted", "traceId"]);
+var SERVER_KEYS = /* @__PURE__ */ new Set([
+  "id",
+  "_id",
+  "dateAdded",
+  "dateUpdated",
+  "createdAt",
+  "updatedAt",
+  "deleted",
+  "traceId",
+  "employeeType",
+  "errors",
+  "isDeleted",
+  "rootParentAgentId"
+]);
 function applyBotTypeCleanup(body) {
   const b = { ...body };
   if (b.botType !== "FLOW_BUILDER_BOT") for (const k of FLOW_ONLY_KEYS) delete b[k];

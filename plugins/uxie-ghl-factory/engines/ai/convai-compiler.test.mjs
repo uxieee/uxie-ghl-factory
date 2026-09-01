@@ -564,3 +564,35 @@ test('applyBotTypeCleanup matches the UI: flow-only keys, the FORM branch, and l
   assert.equal('llm' in applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', llm: { primary: '', secondary: '' } }), false);
   assert.deepEqual(applyBotTypeCleanup({ botType: 'PROMPT_BASED_BOT', llm: { primary: 'gpt', secondary: '' } }).llm, { primary: 'gpt' });
 });
+
+// R-21 (2026-09-02). A read-merge-write replayed keys that GET returns and PUT refuses, so
+// update_convai_agent could not update a FLOW_BUILDER_BOT at all: the PUT 422'd and nothing was
+// written. The record shape below is the live one read off the sandbox agent on 2026-09-02 --
+// `employeeType` and `errors` come back on every GET, and the DTO rejects both.
+test('compileConvaiUpdateFromRecord: strips the read-only keys GHL returns and the PUT refuses', () => {
+  const current = {
+    id: 'A1',
+    name: 'Front Desk',
+    botType: 'FLOW_BUILDER_BOT',
+    locationId: 'LOC',
+    mode: 'auto-pilot',
+    // returned by GET, refused by PUT
+    employeeType: 'custom',
+    errors: [],
+    isDeleted: false,
+    rootParentAgentId: 'A0',   // minted by the UI's Duplicate (R-59)
+    // ordinary server metadata, already stripped before this fix
+    dateAdded: '2026-01-01',
+    traceId: 'abc',
+    // a real setting that must survive
+    cancelEnabled: true,
+  };
+  const out = compileConvaiUpdateFromRecord(current, { knowledgeBaseIds: ['KB1'] }, { agentId: 'A1', locationId: 'LOC' });
+  const body = out.body ?? out;
+  for (const k of ['employeeType', 'errors', 'isDeleted', 'rootParentAgentId', 'id', 'dateAdded', 'traceId']) {
+    assert.ok(!(k in body), `${k} must not reach the PUT body`);
+  }
+  // and the fix must not become a blunt filter: real settings still ride along
+  assert.equal(body.cancelEnabled, true);
+  assert.deepEqual(body.knowledgeBaseIds, ['KB1']);
+});

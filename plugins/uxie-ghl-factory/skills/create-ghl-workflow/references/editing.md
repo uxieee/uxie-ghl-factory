@@ -340,3 +340,14 @@ round-trip is NOT proof a trigger fires (see the 2026-07-16 inert-trigger bug).
 Trigger filter values obey the string/array split above — `value: "vip"`, never `["vip"]`.
 `expandFilter` unwraps a single-element array on this path too, but author the string.
 
+### Two edit-path facts from the rollout (2 Sep 2026)
+
+- **A UI-stored opportunity step carries `pipeline: null, stage: null` beside its ids.** The commit
+  guard used to read that as a leaked NAME and abort every edit whose scope walked past it, naming
+  the step by display name — three attempts lost to two steps sharing one name (R-57). Fixed: only a
+  non-empty string is a leak, and the error names the step **id**. If you still need to touch such a
+  step, `retypeStep {stepId, step:{type:'update_opportunity', name, attributes:{pipelineId, stageId}}}`
+  in the same call recompiles the ids and drops the null keys.
+- **Step and trigger names are capped at 1–100 characters by the BUILDER, not the API** (R-58). The
+  API stores a longer name and the workflow runs; the drawer then refuses to save it, so the workflow
+  is clean by API and uneditable by hand. `check_workflow` reports `NAME_LENGTH` (warning).

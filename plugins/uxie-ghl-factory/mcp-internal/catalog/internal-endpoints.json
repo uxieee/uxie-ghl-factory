@@ -1,7 +1,7 @@
 {
-  "generated": "2026-08-31",
+  "generated": "2026-09-01",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 892,
+  "count": 913,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -1368,6 +1368,45 @@
       ]
     },
     {
+      "id": "calendars--calendars",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/calendars/{calendarId}",
+      "path": "/calendars/{calendarId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "summary": "One calendar's full configuration, including team members and open hours.",
+      "note": "Read `autoConfirm` before building an appointment rail. autoConfirm:true means an appointment is BORN `confirmed`, so a workflow trigger filtered status==new never fires for anything an agent books. An API-created appointment can force the status, which is how a test rig hides this from itself.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "calendarId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/events-and-appointments.md:24",
+        "calendars/20-api/events-and-appointments.md:76",
+        "calendars/40-rules/appointment-status-semantics.md:19"
+      ]
+    },
+    {
       "id": "calendar-service--get-calendar-configuration",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/calendars/configuration/location/{locationId}",
@@ -1404,6 +1443,67 @@
       },
       "sources": [
         "services/marketplaceServices/CalendarService.ts:11"
+      ]
+    },
+    {
+      "id": "calendars--calendars-events",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/calendars/events",
+      "path": "/calendars/events",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "summary": "Every appointment on one calendar in a time window.",
+      "note": "startTime/endTime must be EPOCH MILLISECONDS. An ISO-8601 timestamp returns a clean 200 with {\"events\":[]} -- no error, no warning. Live differential 2026-09-02, same calendar and same window: epoch ms -> 40 events, ISO -> 0. Most dangerous exactly where it is used, checking whether a slot is free before writing to a diary. Rows carry BOTH appointmentStatus and the misspelled appoinmentStatus.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "calendarId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/events-and-appointments.md:22",
+        "calendars/20-api/events-and-appointments.md:53",
+        "calendars/20-api/events-and-appointments.md:67",
+        "calendars/40-rules/deleting-a-calendar-deletes-its-appointments.md:42"
       ]
     },
     {
@@ -1656,7 +1756,7 @@
       },
       "sources": [
         "services/api/chat-widget-service.ts:35",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:117",
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:123",
         "workflows/70-research/ENDPOINTS.md:137"
       ]
     },
@@ -2050,6 +2150,45 @@
       ]
     },
     {
+      "id": "calendars--contacts-appointments",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/contacts/{contactId}/appointments",
+      "path": "/contacts/{contactId}/appointments",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "summary": "Every appointment for one contact, newest last.",
+      "note": "The status key here is ONLY GHL's misspelling `appoinmentStatus` (no 't' after the 'n') -- the correctly-spelled appointmentStatus is absent, so a reader checking it sees undefined and wrongly concludes the route carries no status. It does. Live 2026-09-02. Times are naive and zoneless (\"2026-09-04 14:00:00\"), unlike /calendars/events which returns offset-bearing ISO -- never compare the two as strings.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "contactId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/events-and-appointments.md:23",
+        "calendars/20-api/events-and-appointments.md:54",
+        "calendars/20-api/events-and-appointments.md:68"
+      ]
+    },
+    {
       "id": "workflows--contacts",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/contacts/{id}",
@@ -2156,7 +2295,7 @@
       "rail": "workflow",
       "kind": "write",
       "summary": "Contact search. Treat its results as unverified — see the note.",
-      "note": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row. Not evidence -- address the record directly instead.",
+      "note": "Silently ignores a filter it does not understand and returns 200 with a plausible WRONG row -- always run a baseline and a KNOWN-ZERO control, never a single query. Filter FIELDS and OPERATORS are validated (422, and an invalid operator prints the whole 22-value enum); COLUMN keys are not. Fields are snake_case (first_name works, firstName 422s). On a keyword field eq/contains/match are exact SYNONYMS -- `contains` is NOT substring; only `wildcard` with an explicit * is partial. `active_workflows_2`/`finished_workflows_2` filter workflow membership; `finished_workflows` WITHOUT the _2 validates and silently matches nothing. includeTotal:true is what makes `total` appear, and pageLimit:0 returns the count alone.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -2186,9 +2325,10 @@
       },
       "sources": [
         "services/api/contact-service.ts:36",
-        "platform/20-api/smart-lists.md:58",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:128",
-        "workflows/70-research/WALK-CHECKLIST-2026-08-25.md:53"
+        "platform/20-api/smart-lists.md:91",
+        "platform/30-types/contact-filter-dsl.md:4",
+        "platform/30-types/contact-filter-dsl.md:12",
+        "platform/30-types/index.md:18"
       ]
     },
     {
@@ -2230,6 +2370,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "note": "Effectively PERMANENT: there is no delete on this rail (DELETE 404s, and PUT with deleted:true is refused 'property deleted should not exist'), so removal is UI-only. The validator is the documentation -- it rejects userId and name, and demands listName, a non-empty columns array of exactly {key,value,order}, and an object filterSpecs. filterSpecs:{} is ACCEPTED and creates a list that filters NOTHING.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -2251,18 +2392,18 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:27",
-        "platform/20-api/smart-lists.md:38",
-        "platform/20-api/smart-lists.md:99"
+        "platform/20-api/smart-lists.md:71",
+        "platform/20-api/smart-lists.md:132"
       ]
     },
     {
-      "id": "platform--contacts-smartlist-get",
-      "method": "GET",
+      "id": "platform--contacts-smartlist-delete",
+      "method": "DELETE",
       "url": "https://backend.leadconnectorhq.com/contacts/smartlist/{id}",
       "path": "/contacts/smartlist/{id}",
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
-      "kind": "read",
+      "kind": "destructive",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -2287,7 +2428,53 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/smart-lists.md:26"
+        "platform/20-api/smart-lists.md:57"
+      ]
+    },
+    {
+      "id": "platform--contacts-smartlist-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/contacts/smartlist/{id}",
+      "path": "/contacts/smartlist/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "summary": "One smart list: listName, columns, filterSpecs, sortSpecs, sharedWith.",
+      "note": "Send NO locationId. The route works (live 2026-09-02) but 422s 'property locationId should not exist' the moment you add the usual location query param -- the same shape as /ai-employees/actions/search. `sharedWith` reads back as [] when unset and as a bare STRING when set.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/smart-lists.md:26",
+        "platform/20-api/smart-lists.md:46",
+        "platform/20-api/smart-lists.md:47"
       ]
     },
     {
@@ -2333,7 +2520,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
-      "reach": "source-only",
+      "note": "userId is REQUIRED and is authorisation-checked, not merely a filter -- another user's id returns 403. Smart lists are per user, so this answers 'one user's lists', never 'the account's lists'. Answers identically on BOTH hosts with a plain Bearer (byte-identical payloads, live 2026-09-02); services is what the UI uses.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -2378,7 +2566,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/smart-lists.md:25"
+        "platform/20-api/smart-lists.md:25",
+        "platform/20-api/smart-lists.md:38"
       ]
     },
     {
@@ -7565,6 +7754,58 @@
       ]
     },
     {
+      "id": "platform--invoices-gen-url",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/invoices/gen-url",
+      "path": "/invoices/gen-url",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "summary": "The public URL for a payment link or invoice. shortUrl=true mints a short /l/{code} link.",
+      "note": "A GET that MINTS: shortUrl=true creates a short link. It is idempotent -- the same payment link returns the same code on repeat calls (live 2026-09-02) -- so the short URL is stable and safe to store in a custom value.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "shortUrl",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:111"
+      ]
+    },
+    {
       "id": "workflows--ivr-get-mappings-by-phones",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/ivr/get-mappings-by-phones",
@@ -7851,7 +8092,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:25",
-        "platform/20-api/smart-lists.md:79",
+        "platform/20-api/smart-lists.md:112",
         "workflows/20-api/03-endpoints.md:344",
         "workflows/20-api/smart-lists.md:69"
       ]
@@ -7928,7 +8169,7 @@
       },
       "sources": [
         "platform/20-api/smart-lists.md:26",
-        "platform/20-api/smart-lists.md:89"
+        "platform/20-api/smart-lists.md:122"
       ]
     },
     {
@@ -8260,6 +8501,41 @@
       ]
     },
     {
+      "id": "platform--locations-custom-fields",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/locations/{id}/customFields",
+      "path": "/locations/{id}/customFields",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/custom-fields-and-values.md:148"
+      ]
+    },
+    {
       "id": "memberships-courses--locations-categories",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/locations/{locationId}/categories",
@@ -8500,6 +8776,7 @@
       },
       "sources": [
         "services/marketplaceServices/OpportunityCustomFieldService.ts:9",
+        "platform/20-api/custom-fields-and-values.md:122",
         "workflows/10-anatomy/07-id-resolution.md:85",
         "workflows/10-anatomy/07-id-resolution.md:185",
         "workflows/70-research/ENDPOINTS.md:124"
@@ -8543,7 +8820,7 @@
       ]
     },
     {
-      "id": "platform--locations-custom-fields",
+      "id": "platform--locations-custom-fields-get-get",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/locations/{locationId}/customFields/{fieldId}",
       "path": "/locations/{locationId}/customFields/{fieldId}",
@@ -8638,6 +8915,12 @@
           "type": "\"contact\"",
           "required": true,
           "source": "params"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "required": false,
+          "source": "documented"
         }
       ],
       "body": null,
@@ -8652,6 +8935,8 @@
         "services/CustomFieldService.ts:14",
         "services/CustomFieldService.ts:32",
         "platform/20-api/custom-fields-and-values.md:24",
+        "platform/20-api/custom-fields-and-values.md:126",
+        "platform/20-api/custom-fields-and-values.md:142",
         "workflows/70-research/ENDPOINTS.md:123"
       ]
     },
@@ -10016,6 +10301,76 @@
         "marketplace-apps/10-anatomy/marketplace-rail.md:233",
         "workflows/10-anatomy/07-id-resolution.md:205",
         "workflows/40-rules/flow-bot-action-compatibility.md:52"
+      ]
+    },
+    {
+      "id": "platform--private-integration-location",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/marketplace/private-integration/location/{locationId}",
+      "path": "/marketplace/private-integration/location/{locationId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/private-integration-tokens.md:20"
+      ]
+    },
+    {
+      "id": "platform--private-integration-location-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/marketplace/private-integration/location/{locationId}",
+      "path": "/marketplace/private-integration/location/{locationId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/private-integration-tokens.md:22"
       ]
     },
     {
@@ -12348,6 +12703,50 @@
       ]
     },
     {
+      "id": "platform--static-scopes",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/oauth/static/scopes",
+      "path": "/oauth/static/scopes",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "userType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "isPITEligible",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/private-integration-tokens.md:21"
+      ]
+    },
+    {
       "id": "funnels--sessions-token",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/oauth/users/{uid}/sessions/token",
@@ -12752,7 +13151,7 @@
       ]
     },
     {
-      "id": "platform--opportunities-pipelines",
+      "id": "pipelines-opportunities--opportunities-pipelines",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/opportunities/pipelines",
       "path": "/opportunities/pipelines",
@@ -12770,7 +13169,7 @@
       "responseMode": "json",
       "extraHeaders": [],
       "operation": null,
-      "service": "platform",
+      "service": "pipelines-opportunities",
       "tree": "documented",
       "pathParams": [],
       "query": [
@@ -12785,12 +13184,12 @@
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/api-gap-matrix.md:25",
+        "pipelines-opportunities/20-api/pipelines.md:22",
         "workflows/70-research/ENDPOINTS.md:130"
       ]
     },
@@ -12834,6 +13233,385 @@
       },
       "sources": [
         "workflows/10-anatomy/07-id-resolution.md:183"
+      ]
+    },
+    {
+      "id": "pipelines-opportunities--opportunities-pipelines-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/opportunities/pipelines/{pipelineId}",
+      "path": "/opportunities/pipelines/{pipelineId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "summary": "Replaces a pipeline's name, flags and its WHOLE stages array.",
+      "note": "Two traps. (1) It refuses an echo of what GET returns: strip id, dateAdded, dateUpdated, locationId and position from the TOP level or it 422s naming all five (live 2026-09-02). Inside stages, id and position are required. (2) FULL REPLACE on stages -- a stage OMITTED from the array is silently DELETED, with no warning and nothing in the response. Build the array from a fresh GET every time; never send a partial one; never drop a stage still holding cards. `stages` must contain at least 1 element.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "pipelines-opportunities",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "pipelineId"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "pipelines-opportunities/20-api/pipelines.md:23",
+        "pipelines-opportunities/20-api/pipelines.md:32",
+        "platform/20-api/api-gap-matrix.md:25"
+      ]
+    },
+    {
+      "id": "platform--payment-links",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payment-links/",
+      "path": "/payment-links/",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "summary": "Every payment link on the location, with prices expanded into priceData.",
+      "note": "Reached with a plain location Bearer -- the token-id header the UI sends is not required (live 2026-09-02). The list expands prices into priceData and leaves `products` EMPTY; use /payment-links/preview for the expanded products.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "altType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "sourceType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:28"
+      ]
+    },
+    {
+      "id": "platform--payment-links-post",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/payment-links/",
+      "path": "/payment-links/",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:48"
+      ]
+    },
+    {
+      "id": "platform--payment-links-patch",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/payment-links/{id}",
+      "path": "/payment-links/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "summary": "Deactivates a payment link. Body {activeValue:false, altId, altType}.",
+      "note": "Deactivates but CANNOT reactivate: activeValue:true returns 400 'Error activating link. Please update automatic deactivation configuration to activate'. Reactivation is the full-document PUT with active:true. A deactivated link renders only 'Payment link deactivated / CODE:- PAYMENT_LINK_DEACTIVATED' to the customer -- no product, no form -- which is why a deposit link must never carry an automatic deactivation date.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:83"
+      ]
+    },
+    {
+      "id": "platform--payment-links-put",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/payment-links/{id}",
+      "path": "/payment-links/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "note": "Whole-document write (a partial PUT was never tried -- treat it as full until proven). This is also the only way to REACTIVATE a link (active:true); the PATCH cannot. A custom CTA is sent as customPaymentButtonText BESIDE the preset in paymentButtonText and the server folds it into paymentButtonText, so reads carry only the latter -- to restore a preset label send customPaymentButtonText:\"\". Branding off is branding:\"\" (empty string, not null, not omitted).",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:69"
+      ]
+    },
+    {
+      "id": "platform--payment-links-customised-link",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payment-links/customised-link",
+      "path": "/payment-links/customised-link",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "note": "Returns a PLAIN TEXT body (a short /l/{code} URL), not JSON. The short link resolves to the standard link with firstName/lastName/email/phone query parameters, which is all the checkout prefill is -- so a workflow message can prefill by appending those params itself, with no API call. A '+' in a phone must arrive as %2B.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "paymentLinkId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:110"
+      ]
+    },
+    {
+      "id": "platform--payment-links-preview",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payment-links/preview",
+      "path": "/payment-links/preview",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "summary": "The full payment link with products and prices expanded. This IS the detail read.",
+      "note": "There is NO bare detail read -- GET /payment-links/{id} is a 404 'Cannot GET' (the route does not exist). preview is what both the editor and the public checkout use, and it answers UNAUTHENTICATED with config=true.",
+      "reach": "proven",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "paymentLinkId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "config",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:95"
+      ]
+    },
+    {
+      "id": "platform--payment-links-settings",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payment-links/settings",
+      "path": "/payment-links/settings",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "altType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:121"
       ]
     },
     {
@@ -12941,6 +13719,204 @@
       ]
     },
     {
+      "id": "platform--integrations-details",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payments/integrations/details/{locationId}",
+      "path": "/payments/integrations/details/{locationId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:125"
+      ]
+    },
+    {
+      "id": "platform--integrations-entity-providers",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payments/integrations/entity-providers",
+      "path": "/payments/integrations/entity-providers",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "note": "Test vs Live is two layers: the provider integration holds a test key pair and a live key pair (one Stripe Connect fills both), and each payment link carries liveMode and asks this endpoint for the matching keys. Nothing validates a provider at link-save time -- a link saves fine in Live mode with no gateway connected, and the public Pay button is simply disabled.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "altType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "liveMode",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "entityType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "entityId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "includeDefault",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:123"
+      ]
+    },
+    {
+      "id": "platform--provider-connected",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payments/integrations/provider/connected",
+      "path": "/payments/integrations/provider/connected",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "altType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:122"
+      ]
+    },
+    {
+      "id": "platform--provider-details",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payments/integrations/provider/details",
+      "path": "/payments/integrations/provider/details",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "altId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "altType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:124"
+      ]
+    },
+    {
       "id": "memberships-courses--integrations-stripe",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/payments/integrations/stripe/",
@@ -13010,6 +13986,45 @@
       ]
     },
     {
+      "id": "platform--stripe-connect",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/payments/stripe/connect",
+      "path": "/payments/stripe/connect",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:126",
+        "platform/70-research/2026-09-02-payment-links-capture.md:46"
+      ]
+    },
+    {
       "id": "platform--phone-system-call-dispositions",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/phone-system/call-dispositions",
@@ -13018,7 +14033,7 @@
       "rail": "workflow",
       "kind": "read",
       "summary": "The account's call dispositions {dispositions:[{id, name, isDefault, orderingKey, meta.createdBy, isDeleted}], totalRecords, isCreateButtonVisible}; call_status triggers match these BY NAME.",
-      "note": "Reachable through the standard gateway with no special referer (proven daily by list_account_entities; a 2026-08-31 claim that it was iframe-referer-gated was refuted). The six system defaults are SOFT-DELETABLE, so a live account may list fewer — never assume the count; includeDeleted=false hides them.",
+      "note": "?includeDeleted=true returns ONLY the soft-deleted rows, not the union -- the name reads like 'include', the behaviour is 'only'. Every account ships the SAME SIX system defaults (proven 2026-09-02: a sandbox listing four returned exactly the two missing ones, Follow Up and Requested Appointment, under includeDeleted=true, both isDefault:true with a deletedAt). A short list means somebody soft-deleted defaults, not that defaults vary by account. call_status triggers match BY NAME.",
       "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
@@ -13076,6 +14091,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "summary": "Creates a call disposition. Body is {\"name\": \"...\"}.",
+      "note": "locationId must be in the QUERY. With it in the BODY only, the POST returns 403 {\"message\":\"Forbidden resource\",\"message_code\":\"FORBIDDEN\"} -- which reads as a credential problem and is actually 'this request names no location'. Not referer-gated. The server assigns isDefault, orderingKey and meta.createdBy; sending them is accepted and ignored. call_status triggers match a disposition BY NAME (array value, contains-any), so the name must match exactly, case included.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -13103,7 +14120,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/call-dispositions.md:60"
+        "platform/20-api/call-dispositions.md:65"
       ]
     },
     {
@@ -13145,7 +14162,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "platform/20-api/call-dispositions.md:72"
+        "platform/20-api/call-dispositions.md:77"
       ]
     },
     {
@@ -13233,7 +14250,10 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -13479,7 +14499,10 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -13659,6 +14682,68 @@
       ]
     },
     {
+      "id": "platform--products-amount-summary",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/products/amount-summary",
+      "path": "/products/amount-summary",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:100"
+      ]
+    },
+    {
+      "id": "platform--payment-element-display",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/products/gift-cards/public/payment-element/display",
+      "path": "/products/gift-cards/public/payment-element/display",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "platform",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "platform/20-api/payment-links.md:102"
+      ]
+    },
+    {
       "id": "memberships-courses--products-prices",
       "method": "PUT",
       "url": "https://backend.leadconnectorhq.com/products/prices/{id}",
@@ -13691,41 +14776,6 @@
       },
       "sources": [
         "memberships-courses/20-api/endpoints.md:96"
-      ]
-    },
-    {
-      "id": "workflows--rename-workflow",
-      "method": "PUT",
-      "url": "https://backend.leadconnectorhq.com/rename-workflow/{id}",
-      "path": "/rename-workflow/{id}",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "write",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [
-        {
-          "name": "id"
-        }
-      ],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/EDIT-OPS.md:169"
       ]
     },
     {
@@ -14611,37 +15661,6 @@
       ]
     },
     {
-      "id": "workflows--status-enroll-stats",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/status/enroll-stats",
-      "path": "/status/enroll-stats",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/RUNTIME-DATA-2.md:70"
-      ]
-    },
-    {
       "id": "workflows--search-count-per-step",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/status/search/count-per-step",
@@ -14701,37 +15720,6 @@
       },
       "sources": [
         "workflows/70-research/RUNTIME-DATA-2.md:69"
-      ]
-    },
-    {
-      "id": "workflows--search-enroll-stats",
-      "method": "GET",
-      "url": "https://backend.leadconnectorhq.com/status/search/enroll-stats",
-      "path": "/status/search/enroll-stats",
-      "origin": "https://backend.leadconnectorhq.com",
-      "rail": "workflow",
-      "kind": "read",
-      "reach": "source-only",
-      "coveredBy": [],
-      "rawCallable": true,
-      "transport": "json",
-      "responseMode": "json",
-      "extraHeaders": [],
-      "operation": null,
-      "service": "workflows",
-      "tree": "documented",
-      "pathParams": [],
-      "query": [],
-      "body": null,
-      "returns": null,
-      "confidence": {
-        "path": "documented",
-        "query": "none-observed",
-        "body": "unresolved",
-        "returns": "unresolved"
-      },
-      "sources": [
-        "workflows/70-research/RUNTIME-DATA-2.md:71"
       ]
     },
     {
@@ -15870,6 +16858,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "read",
+      "note": "?version=N is ACCEPTED, silently IGNORED, and the CURRENT document is returned wearing its real version number (live 2026-09-02: ?version=1 -> \"version\": 3). Nothing errors, so a 'recovery' read can restore the corruption over itself and look successful. Use the version-history rail instead -- history / history-by-number -- which the typed get_workflow_version already does.",
       "reach": "source-only",
       "coveredBy": [
         "build_workflow",
@@ -15924,6 +16913,7 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s.",
       "reach": "source-only",
       "coveredBy": [
         "edit_workflow",
@@ -17880,7 +18870,10 @@
       "kind": "read",
       "summary": "The sending domain, warm-up state and rate limit behind this account's email steps.",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -18323,7 +19316,10 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -18859,6 +19855,8 @@
       "origin": "https://backend.leadconnectorhq.com",
       "rail": "workflow",
       "kind": "write",
+      "summary": "Renames a workflow. Body is {\"name\": \"...\"}.",
+      "note": "The only rename path that does NOT re-run the step validator. Use it instead of the full-document PUT, which re-validates every stored step and on a workflow whose own saved graph the validator now rejects fails outright with INVALID_FIELD_VALUE -- so a rename by full PUT can be refused on a workflow that is running perfectly well. ⚠️ Do NOT rely on it leaving `version` alone: one account observed 4 -> 4 (2026-08-31) and another observed 1 -> 2 on a flow workflow (2026-09-02). The two disagree and the cause is not established, so re-read the digest before any expectedVersion write that follows a rename.",
       "reach": "source-only",
       "coveredBy": [],
       "rawCallable": true,
@@ -18886,7 +19884,8 @@
         "returns": "none-observed"
       },
       "sources": [
-        "services/WorkflowService.ts:178"
+        "services/WorkflowService.ts:178",
+        "workflows/70-research/EDIT-OPS.md:169"
       ]
     },
     {
@@ -20369,7 +21368,10 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -22014,6 +23016,8 @@
       "reach": "source-only",
       "coveredBy": [
         "build_workflow",
+        "edit_workflow",
+        "repair_workflow",
         "test_custom_code"
       ],
       "rawCallable": true,
@@ -24361,7 +25365,8 @@
       "reach": "proven",
       "coveredBy": [
         "check_workflow",
-        "edit_workflow"
+        "edit_workflow",
+        "repair_workflow"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -24852,10 +25857,10 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:166",
-        "workflows/50-runtime/11-runtime-logs.md:35",
-        "workflows/50-runtime/11-runtime-logs.md:209",
-        "workflows/50-runtime/forcing-and-removing-contacts.md:50",
-        "workflows/50-runtime/observed-query-shapes.md:19"
+        "workflows/50-runtime/11-runtime-logs.md:37",
+        "workflows/50-runtime/11-runtime-logs.md:113",
+        "workflows/50-runtime/11-runtime-logs.md:241",
+        "workflows/50-runtime/forcing-and-removing-contacts.md:50"
       ]
     },
     {
@@ -24993,9 +25998,10 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:237",
-        "workflows/50-runtime/11-runtime-logs.md:158",
-        "workflows/50-runtime/11-runtime-logs.md:214",
-        "workflows/70-research/RAIL.md:120"
+        "workflows/50-runtime/11-runtime-logs.md:190",
+        "workflows/50-runtime/11-runtime-logs.md:246",
+        "workflows/70-research/RAIL.md:120",
+        "workflows/70-research/RUNTIME-DATA-2.md:70"
       ]
     },
     {
@@ -25048,8 +26054,8 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:181",
         "workflows/20-api/03-endpoints.md:353",
-        "workflows/50-runtime/11-runtime-logs.md:113",
-        "workflows/50-runtime/11-runtime-logs.md:210",
+        "workflows/50-runtime/11-runtime-logs.md:145",
+        "workflows/50-runtime/11-runtime-logs.md:242",
         "workflows/70-research/ENDPOINTS.md:193"
       ]
     },
@@ -25125,8 +26131,8 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:281",
         "services/marketplaceServices/WorkflowMarketplaceService.ts:296",
-        "workflows/50-runtime/11-runtime-logs.md:171",
-        "workflows/50-runtime/11-runtime-logs.md:212",
+        "workflows/50-runtime/11-runtime-logs.md:203",
+        "workflows/50-runtime/11-runtime-logs.md:244",
         "workflows/70-research/ENDPOINTS.md:196"
       ]
     },
@@ -25432,9 +26438,10 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:203",
-        "workflows/50-runtime/11-runtime-logs.md:156",
+        "workflows/50-runtime/11-runtime-logs.md:188",
         "workflows/70-research/ENDPOINTS.md:194",
-        "workflows/70-research/RAIL.md:120"
+        "workflows/70-research/RAIL.md:120",
+        "workflows/70-research/RUNTIME-DATA-2.md:71"
       ]
     },
     {
@@ -25735,8 +26742,8 @@
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:212",
         "workflows/20-api/03-endpoints.md:354",
-        "workflows/50-runtime/11-runtime-logs.md:157",
-        "workflows/50-runtime/11-runtime-logs.md:213",
+        "workflows/50-runtime/11-runtime-logs.md:189",
+        "workflows/50-runtime/11-runtime-logs.md:245",
         "workflows/50-runtime/observed-query-shapes.md:60"
       ]
     },
@@ -25798,8 +26805,8 @@
       },
       "sources": [
         "services/marketplaceServices/WorkflowMarketplaceService.ts:260",
-        "workflows/50-runtime/11-runtime-logs.md:127",
-        "workflows/50-runtime/11-runtime-logs.md:211",
+        "workflows/50-runtime/11-runtime-logs.md:159",
+        "workflows/50-runtime/11-runtime-logs.md:243",
         "workflows/50-runtime/observed-query-shapes.md:43",
         "workflows/70-research/ENDPOINTS.md:195"
       ]
@@ -26342,7 +27349,7 @@
       "sources": [
         "ai-agents/20-api/12-ai-agents-api.md:348",
         "ai-agents/20-api/agent-deployment-routing.md:25",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:89"
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:95"
       ]
     },
     {
@@ -26378,8 +27385,8 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:55",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:90"
+        "ai-agents/20-api/agent-deployment-routing.md:64",
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:96"
       ]
     },
     {
@@ -26886,7 +27893,9 @@
       "origin": "https://services.leadconnectorhq.com",
       "rail": "ai",
       "kind": "read",
-      "reach": "source-only",
+      "summary": "The CONFIGURATION behind an agent's action pointers, grouped by action type.",
+      "note": "Two traps. (1) locationId is REFUSED, not ignored: 422 {\"message\":[\"property locationId should not exist\"]}. Parse that as a result set and you report '0 configured actions' for an agent that has them. employeeId alone is the whole query. (2) The envelope is GROUPED BY TYPE -- data[] is one row per action type and the objects live in data[].actions[], so a flat data.map(a => a.id) yields undefined for every row. The agent record's own `actions` array holds only {id, type} POINTERS; this is where the real object lives.",
+      "reach": "proven",
       "coveredBy": [],
       "rawCallable": true,
       "transport": "json",
@@ -27856,23 +28865,23 @@
         {
           "name": "locationId",
           "type": "string",
-          "required": true,
-          "source": "live-probe"
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "chatType",
+          "type": "string",
+          "required": false,
+          "source": "documented"
         },
         {
           "name": "offset",
           "type": "string",
-          "required": true,
-          "source": "live-probe"
+          "required": false,
+          "source": "documented"
         },
         {
           "name": "limit",
-          "type": "string",
-          "required": true,
-          "source": "live-probe"
-        },
-        {
-          "name": "chatType",
           "type": "string",
           "required": false,
           "source": "documented"
@@ -27887,7 +28896,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "ai-agents/20-api/agent-deployment-routing.md:74"
+        "ai-agents/20-api/agent-deployment-routing.md:83"
       ]
     },
     {
@@ -29337,7 +30346,7 @@
         "ai-agents/20-api/12-ai-agents-api.md:347",
         "ai-agents/20-api/knowledge-base.md:82",
         "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:19",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:42"
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:48"
       ]
     },
     {
@@ -29384,7 +30393,7 @@
       "sources": [
         "ai-agents/20-api/knowledge-base.md:53",
         "ai-agents/20-api/knowledge-base.md:83",
-        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:43"
+        "ai-agents/70-research/2026-08-31-certification-gaps-and-routing.md:49"
       ]
     },
     {
@@ -39404,7 +40413,10 @@
       "rail": "ai",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "edit_workflow",
+        "repair_workflow"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

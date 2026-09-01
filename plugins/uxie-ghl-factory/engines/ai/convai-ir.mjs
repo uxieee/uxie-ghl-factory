@@ -10,8 +10,17 @@ export class IRError extends Error {
   constructor(code, message) { super(message); this.name = 'IRError'; this.code = code; }
 }
 
-// mode enum — observed live on both create + update (lowercase strings).
+// mode enum — the spelling the WRITE takes.
 export const MODES = ['off', 'suggestive', 'autoPilot'];
+// ...and the spelling the READ gives back. GHL accepts `autoPilot` on create/update and STORES
+// `auto-pilot`, so every GET of a live agent returns the hyphenated form (live-confirmed
+// 2026-09-02). Rejecting it meant the one spelling a caller actually has in hand — the value read
+// off the agent they are cloning — failed validation on a word GHL itself wrote (R-26).
+// Normalise on the way in; keep emitting the wire spelling.
+const MODE_ALIASES = new Map([['auto-pilot', 'autoPilot']]);
+export function normalizeMode(mode) {
+  return typeof mode === 'string' && MODE_ALIASES.has(mode) ? MODE_ALIASES.get(mode) : mode;
+}
 // botType enum. PROMPT_BASED_BOT is the default "Start from Scratch" prompt bot;
 // FLOW_BUILDER_BOT is the "Flow Based Builder" agent whose logic IS a workflow
 // (conv_ai_trigger bound to the agent via convTriggerBotId; the agent carries
@@ -73,7 +82,8 @@ function checkSummary(summary) {
 }
 
 function checkMode(mode) {
-  if (!MODES.includes(mode)) throw new IRError('BAD_MODE', `mode must be one of ${MODES.join(', ')}, got: ${JSON.stringify(mode)}`);
+  if (!MODES.includes(normalizeMode(mode)))
+    throw new IRError('BAD_MODE', `mode must be one of ${MODES.join(', ')}, got: ${JSON.stringify(mode)}`);
 }
 
 function checkChannels(channels) {
@@ -146,7 +156,7 @@ export function parseConvaiIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
-  return { ...ir };
+  return { ...ir, mode: normalizeMode(ir.mode) };
 }
 
 // Partial validation — used when compiling an update (PUT /ai-employees/employees/:id,
@@ -165,5 +175,5 @@ export function parseConvaiPartialIR(ir) {
   checkKnowledgeBaseIds(ir.knowledgeBaseIds);
   checkBotType(ir.botType);
   checkFlowFields(ir);
-  return { ...ir };
+  return ir.mode !== undefined ? { ...ir, mode: normalizeMode(ir.mode) } : { ...ir };
 }

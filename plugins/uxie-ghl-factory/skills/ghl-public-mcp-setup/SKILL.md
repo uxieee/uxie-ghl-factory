@@ -63,6 +63,16 @@ returns `ok: true`.
 
 See `references/failure-modes.md` for what each error means and what to ask for next.
 
+### The PIT can be minted by API (internal rail, proven 31 Aug 2026)
+
+Settings → Private Integrations is not the only way. On the internal rail with the agency Bearer:
+`GET /oauth/static/scopes?userType=Location&isPITEligible=true` (the 160-scope catalogue; the UI
+offers 133) then `POST /marketplace/private-integration/location/{locationId}` with
+`{name, description, scopes:[…], locationId}` → 201 **with the key in the response — the only time
+it is ever returned.** The list endpoint never carries the key; a PIT not captured at creation is
+unrecoverable and must be recreated. Write it straight into `accounts add` and never display it.
+Corpus: `platform/20-api/private-integration-tokens.md`.
+
 ## Point a folder at one client
 
 ```bash

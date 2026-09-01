@@ -163,6 +163,17 @@ wrong answer:
   harness) a 401 body parses as clean JSON with no rows — the rows are missing because the read
   was, not the runs. `auth_status` first.
 
+### Two enrolment tells added 2 Sep 2026
+
+- **`addedSource.source` + `sourceId` say whether the run is BOUND to an appointment.** A trigger-born
+  enrolment carries `sourceId: appointment_<id>`; one started by another workflow's `add_to_workflow`
+  has NO `sourceId`. The second kind renders every `{{appointment.*}}` empty and SKIPS every
+  appointment-anchored wait (`skippedFor: {"type":"missing-data"}`) — a healthy-looking roster row
+  and a collapsed reminder ladder. If a reminder went out at the wrong time, check `sourceId` first.
+- **Conv-AI triggers keep NO attempt statistics** — all read `attempted: 0` even while every
+  enrolment names them as its source. A non-firing autonomous trigger can only be inferred from the
+  ABSENCE of an enrolment; there is no per-attempt log to read.
+
 ## Output Rules
 
 - Preserve raw JSON exactly on disk. Don't normalize or discard unknown fields — the schema evolves and today's junk field is tomorrow's signal.
