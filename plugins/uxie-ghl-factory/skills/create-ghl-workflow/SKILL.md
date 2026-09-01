@@ -159,8 +159,11 @@ workflow that builds clean, verifies clean, and behaves wrongly at runtime.
   an unassociated `internal_update_opportunity`, but it does not catch moving an existing update
   out of a Found scope, deleting the `create_opportunity` it depends on, or raw template mutation
   that skips `editCommitBody`. Verify those yourself.
-- **`workflow_id` takes an ID, not a name.** The engine does not resolve it and the validator does
-  not check it exists, so a wrong id publishes clean and silently no-ops at runtime.
+- **`workflow_id` takes an ID, not a name.** The engine does not resolve it. GHL's asset
+  pre-flight DOES refuse an id that does not exist on the location (`ASSET_WORKFLOW_NOT_FOUND`,
+  live-proven on build, edit and repair 2026-09-02) — but only when the pre-flight actually ran:
+  a fail-open skip (`assetPreflight.skipped`) or `ignoreAssetErrors` lets a wrong id through, and
+  it then publishes clean and silently no-ops at runtime.
 - **Marketplace steps build fine and only RUN if the app is installed** on that location. 282 of the
   385 step types are marketplace; a build is not a proof it will fire.
 - **A step type's card, not its example.** An example is one capture, so it pins one value of every
