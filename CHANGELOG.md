@@ -11,6 +11,53 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.50.0] — 2026-09-03
+
+One browser profile per token file. The per-folder credential binding was never the thing that
+could put you in another client's account — the browser was.
+
+### Fixed
+
+- **The token capture no longer shares one Chrome profile across every folder.**
+  `capture-token.mjs` hardcoded `~/.uxie-ghl-internal-mcp/pw-profile`, so every capture on the
+  machine opened the same profile. A Chrome profile holds a GHL session, which made the agency
+  logged in last the agency the next capture ran in — and a capture writes whatever account the
+  browser is signed into straight into the *calling* folder's token file, where nothing downstream
+  can tell it is the wrong one. The guard was per folder; the login it was handed was machine-wide.
+  Measured 2026-09-03: a session working in one client's folder drove a browser to that client's
+  sub-account and was redirected to a **different** client's agency launchpad, because the shared
+  profile still held that other agency's session.
+
+  The profile is now derived from the token file the capture is about to write
+  (`~/.uxie-ghl-internal-mcp/profiles/<project>-<hash>`): same token file, same profile, so a login
+  persists per client; different token file, different profile, so one client's session can never
+  answer for another. Symlinked token files resolve to one profile because they are one login.
+  `GHL_INTERNAL_PW_PROFILE` overrides it and `--print-profile-dir` prints it without launching
+  Chrome. Pinned by `test/capture-profile.test.mjs`.
+
+  **There is deliberately no fallback to the old shared profile.** Seeding each client's slot with
+  it would carry over exactly the session that caused the bug. The cost is one login per client,
+  once; the old profile is left on disk, untouched and unused. A fresh profile shows the login
+  page — that is correct, not a failure, and the capture now says which profile it opened.
+
+### Documentation
+
+- **`/uxie-ghl-factory:internal-connect` now states that browsers are not governed by a binding.**
+  Per-project layout documents the derived profile; the capture step says to use a profile
+  belonging to the folder; re-authorize gained a verify-the-login-you-captured rule (decode
+  `authClassId`, restore the previous file on a mismatch rather than leaving a folder
+  authenticated as another client).
+- **`audit` gained a tier 3: the surfaces it does not cover.** Three of them, all measured on
+  2026-09-03. The public `@uxieee/ghl-mcp` server treats an **empty or absent
+  `GHL_ALLOWED_LOCATIONS` as every account in the accounts file** — one folder was offering all 18
+  accounts across six agencies. Plugin-level browser servers share one Chrome profile machine-wide.
+  Sub-folders carry their own registrations. Tier 1 also enumerates by name prefix, so a
+  registration of this server under any other name is invisible to it; six such servers were found
+  by hand, each refusing every call with `LEGACY_TOKEN_FILE_ENV` while still presenting a full tool
+  set.
+- `docs/auth-jwt-capture.md` and `mcp-internal/README.md` carry the same profile rule, including
+  the `--user-data-dir` / `--userDataDir` flags for the Playwright and Chrome-DevTools MCP servers.
+
 ## [0.49.0] — 2026-09-02
 
 The rollout-findings review (R-01…R-65). Two engine guards, two conversation-AI tool defects, a
