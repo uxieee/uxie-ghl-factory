@@ -134,7 +134,7 @@ every specialist reads *before* asking you anything, so nothing re-interviews yo
 
 ## Skills
 
-Fifteen, in three roles — loaded by the agent as the task demands, not picked by you. The tools do
+Sixteen, in three roles — loaded by the agent as the task demands, not picked by you. The tools do
 the execution and the catalogue does the lookup, so what a skill carries is what neither can hold:
 **order, consequence, and when not to.**
 
@@ -143,6 +143,7 @@ the execution and the catalogue does the lookup, so what a skill carries is what
 | Skill | |
 |---|---|
 | `ghl-orientation` | the object model, the terminology, and which rail can do what. Every other skill assumes it |
+| `ghl-system-conventions` | how a system should *look*: recon-first, layer-by-layer design gates, naming, where data lives (stage vs field vs tag), pipeline tests, hard rules, and the pre-build HTML approval document. Loaded before any blueprint |
 | `ghl-workflow-specialist` | senior automation architect: patterns, anti-patterns, multi-workflow architecture. Decides *what* to build, delegates *how* |
 | `ghl-pipeline-specialist` | stages as states, opportunity hygiene, pipeline↔automation interplay. Public API only |
 | `ghl-reverse-engineering` | the method for mapping a new internal surface exhaustively — and for checking the catalogue before opening a browser |

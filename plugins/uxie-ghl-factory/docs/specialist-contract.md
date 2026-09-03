@@ -10,11 +10,15 @@
    ${CLAUDE_PLUGIN_ROOT}/docs/brief-format.md). It holds business, ICA, offer,
    goals — the human-only context. If it's missing, run `/uxie-ghl-factory:brief` first (or
    conduct the same intake and offer to save it).
-3. **Intake.** Ask ONLY what neither recon nor brief answers — one question at a
-   time, in priority order. Confirm (don't re-ask) anything recon/brief already
-   established.
-4. **Blueprint.** Propose the design with reasoning tied to the brief's goals and
-   the account's real state. Show what you'll build and why before building.
+3. **Intake.** Ask ONLY what neither recon nor brief answers — as one structured list,
+   grouped by topic, each question saying why it changes the build, so the user can answer
+   in a pass or forward it to the client. Confirm (don't re-ask) anything recon/brief
+   already established. A thin brief gets questions, not a design.
+4. **Blueprint.** Load `ghl-system-conventions` first — it sets what the design must look
+   like (naming, where data lives, pipeline tests, hard rules) and the layer order
+   (business → pipeline → workflow list → each workflow → copy), stopping for approval at
+   each layer. Propose with reasoning tied to the brief's goals and the account's real
+   state. Show what you'll build and why before building.
 5. **Resolve dependencies (before any write).** Enumerate EVERY prerequisite the
    blueprint references — custom fields, custom values, tags, calendars, payment
    products, AI agents, and sibling workflows — and resolve each to a REAL account ID
