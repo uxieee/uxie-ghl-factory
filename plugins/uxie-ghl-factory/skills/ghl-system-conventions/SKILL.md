@@ -116,6 +116,10 @@ attention. The order, with a confirmation gate between every step:
 4. **Each workflow in detail, one at a time** — trigger, steps, waits, exits. They check
    each before you move to the next.
 5. **Copy** — once the structure is settled.
+6. **The pre-build document** — the whole agreed design in one self-contained HTML file
+   (system map, one card per workflow, full copy appendix), approved before anything is
+   built. Say from the first reply that this is where the design lands, so nobody expects
+   a build to start from a chat.
 
 Present a layer, give your reasoning and recommendation, then stop and let them respond.
 A recommendation is welcome; a finished document they have to unpick is not.

@@ -11,6 +11,15 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+### Changed
+
+- `ghl-system-conventions`: the layer list ends with the pre-build document as layer 6, so a
+  first reply that is (correctly) all questions still says where the design will land. Found by
+  running the skill's evals against the standalone install: a thin brief got questions, as the
+  rule demands, but never mentioned the approval document.
+
 ## [0.54.0] — 2026-09-04
 
 `ghl-system-conventions` is now also a **standalone skill** anyone can install without the plugin:
