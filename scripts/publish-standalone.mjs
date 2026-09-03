@@ -85,7 +85,13 @@ if (isMain) {
   // 2. fresh clone (or an empty tree on a dry run against a repo that does not exist yet)
   const work = mkdtempSync(join(tmpdir(), 'ghl-system-conventions-mirror-'));
   if (exists) sh('git', ['clone', '--quiet', MIRROR_URL, work]);
-  else { sh('git', ['init', '--quiet', '-b', 'main', work]); }
+  else {
+    // First publish: the repo was just created empty (or will be, on a real run), so there is
+    // nothing to clone — init and point origin at it. Forgetting the remote is how the first
+    // 0.54.0 publish failed with "'origin' does not appear to be a git repository".
+    sh('git', ['init', '--quiet', '-b', 'main', work]);
+    sh('git', ['remote', 'add', 'origin', MIRROR_URL], work);
+  }
 
   // 3. replace the tree wholesale — everything except .git — so removed files disappear too
   for (const name of readdirSync(work)) {
