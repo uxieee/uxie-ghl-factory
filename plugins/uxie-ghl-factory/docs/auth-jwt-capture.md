@@ -43,7 +43,7 @@ Preconditions: the user is logged into GHL in a browser profile you can automate
 session, so a profile shared between folders captures whichever agency was logged in last — and
 the capture writes that credential into the calling folder's token file, where nothing downstream
 can tell it is the wrong account. `mcp-internal/scripts/capture-token.mjs` derives one profile per
-token file for this reason (0.50.0; `GHL_INTERNAL_PW_PROFILE` overrides, `--print-profile-dir`
+token file for this reason (0.51.0; `GHL_INTERNAL_PW_PROFILE` overrides, `--print-profile-dir`
 prints it). When you drive a browser yourself instead, give it a per-client `--user-data-dir`, and
 verify the captured `authClassId` against the login that folder had before you accept the file.
 

@@ -85,7 +85,7 @@ Without it, the skills that only *reason* about GHL still load, but anything tha
 
 ## Internal-API MCP server
 
-The internal-API engines that power the workflow, memberships, and AI-agent skills are also exposed as a **local stdio MCP server**, `uxie-ghl-internal-mcp` — 17 tools that let an agent *execute* those engines directly, with the same confirmation gates and round-trip verification the skills use. It ships as a self-contained bundle that boots with just `node` (no `npm install`).
+The internal-API engines that power the workflow, memberships, and AI-agent skills are also exposed as a **local stdio MCP server**, `uxie-ghl-internal-mcp` — 51 tools that let an agent *execute* those engines directly, with the same confirmation gates and round-trip verification the skills use. It ships as a self-contained bundle that boots with just `node` (no `npm install`).
 
 It is **per-project, not global.** You set it up in each GHL folder you work in with one command:
 

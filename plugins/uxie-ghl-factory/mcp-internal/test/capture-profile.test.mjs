@@ -1,6 +1,6 @@
-// ONE BROWSER PROFILE PER TOKEN FILE (0.50.0).
+// ONE BROWSER PROFILE PER TOKEN FILE (0.51.0).
 //
-// Until 0.50.0 capture-token.mjs hardcoded ONE Chrome profile for every folder on the machine.
+// Until 0.51.0 capture-token.mjs hardcoded ONE Chrome profile for every folder on the machine.
 // A Chrome profile holds a GHL session, so the agency logged in last was the agency the next
 // capture ran in, whichever folder asked for it. Measured 2026-09-03: a chat in one client's
 // folder drove that shared browser to that client's sub-account and landed on a DIFFERENT
@@ -74,7 +74,7 @@ test('a blank or whitespace override is ignored rather than resolving to the cwd
   }
 });
 
-test('NOTHING resolves to the pre-0.50.0 shared profile', () => {
+test('NOTHING resolves to the pre-0.51.0 shared profile', () => {
   // The old path must never be handed back, not even as a fallback: seeding a client's slot with
   // it would restore the exact cross-agency session bleed this change exists to end.
   const shared = join(HOME_DIR, 'pw-profile');

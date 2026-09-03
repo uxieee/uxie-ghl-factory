@@ -157,10 +157,10 @@ to this repo, a report, or a commit message.
   launcher hands an operator who mistyped it every write tool in the registry while they
   believe they are read-only. The audit launcher REFUSES to start if no installed build ships
   `dist/audit-server.mjs`; it never downgrades to the full server.
-- **Browser profile (per token file, 0.50.0):** `~/.uxie-ghl-internal-mcp/profiles/<project>-<hash>`,
+- **Browser profile (per token file, 0.51.0):** `~/.uxie-ghl-internal-mcp/profiles/<project>-<hash>`,
   derived by `capture-token.mjs` from the token file it is about to write —
   `GHL_INTERNAL_PW_PROFILE` overrides it, `--print-profile-dir` prints it without opening Chrome.
-  **A Chrome profile holds a GHL session, so a shared profile is a shared login.** Before 0.50.0
+  **A Chrome profile holds a GHL session, so a shared profile is a shared login.** Before 0.51.0
   every folder's capture opened one profile (`~/.uxie-ghl-internal-mcp/pw-profile`), which meant
   whichever agency was logged in last was the agency the next capture ran in — measured
   2026-09-03, when a browser driven to one client's sub-account landed on ANOTHER client's agency
@@ -220,7 +220,7 @@ bound to a client, and check `auth_status` rather than the browser for which acc
    **When you need only a credential, prefer `mcp-internal/scripts/capture-token.mjs`** — it owns
    the whole capture out of band, so no JWT ever passes through the model's context at all, it
    honours `GHL_INTERNAL_TOK_FILE` so it writes project-locally, it opens a browser profile
-   belonging to that token file rather than the machine's shared one (0.50.0), and it emits the
+   belonging to that token file rather than the machine's shared one (0.51.0), and it emits the
    exact four-line format above (`formatTokenFile`, pinned by `test/token-file-format.test.mjs`,
    `test/capture-referer.test.mjs` and `test/capture-profile.test.mjs`). It is therefore the
    safest capture path as well as the least leaky. That is the right path for a re-authorize, or for `bind` on a
@@ -626,7 +626,7 @@ browser was signed into, and a browser is not governed by this folder's binding.
 file's `authClassId` and check it against the login this folder had before (`audit`'s offline tier
 prints it). On a mismatch, keep the wrong capture beside the file under a name that says so,
 restore the previous token file, and tell the user — never leave a folder authenticated as another
-client. Since 0.50.0 the per-token-file profile makes this rare, but a person can still log a
+client. Since 0.51.0 the per-token-file profile makes this rare, but a person can still log a
 profile into the wrong agency.
 
 `LOCATION_UNBOUND` and `LOCATION_FORBIDDEN` are **not** credential problems and re-capturing does

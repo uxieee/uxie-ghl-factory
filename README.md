@@ -170,7 +170,7 @@ the execution and the catalogue does the lookup, so what a skill carries is what
 
 ## The internal MCP server
 
-Bundled and local. **45 tools** — the workflow build/edit/publish rail, runtime reads, memberships,
+Bundled and local. **51 tools** — the workflow build/edit/publish rail, runtime reads, memberships,
 AI agent creation, folders, versions — plus `search_endpoints` / `describe_endpoint` over the
 catalogue and `raw_request` as the escape hatch. Every non-GET requires an explicit `confirm`.
 
