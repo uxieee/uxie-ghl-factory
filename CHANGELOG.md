@@ -11,10 +11,20 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [Unreleased]
+## [0.53.0] — 2026-09-03
 
 ### Added
 
+- **`ghl-system-conventions`** — the sixteenth skill: how a GHL system should *look*. Recon
+  before responding, layer-by-layer design gates (business → pipeline → workflow list → each
+  workflow → copy), naming (`NN - Name`, `namespace:value`, `snake_case`), the stage-vs-field-
+  vs-tag decision rule, pipeline tests, the hard rules, and the pre-build HTML approval
+  document with a worked example. Account-agnostic. Moved here from a standalone folder; the
+  corpus references now go through `describe_step_type` / `describe_endpoint` first and read
+  the `knowledge/` repo only when it is beside the plugin source.
+- `docs/specialist-contract.md`: the blueprint step loads `ghl-system-conventions`, and intake
+  asks in one structured list (grouped, each with why it changes the build) rather than one
+  question at a time — the format that survived three correction rounds.
 - **`npm run sync`** (`scripts/sync-generated.mjs`) — regenerate every generated artefact in
   place and run the freshness gate. `knowledge/`'s `post-commit` hook now runs it, so a corpus
   commit updates the plugin's copies instead of leaving a reminder; the hook never commits and
