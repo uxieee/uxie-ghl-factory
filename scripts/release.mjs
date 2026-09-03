@@ -71,7 +71,10 @@ git('fetch', '--quiet', 'origin');
 const current = JSON.parse(readFileSync(MANIFESTS[0], 'utf8')).version;
 const changelogText = readFileSync(CHANGELOG, 'utf8');
 const section = changelogSection(changelogText, version);
-const today = new Date().toISOString().slice(0, 10);
+// LOCAL date, not UTC: the CHANGELOG is written by a person at their desk (this one at +08:00),
+// and toISOString() said "still yesterday" to an entry dated after local midnight.
+const d = new Date();
+const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const dirty = git('status', '--porcelain').split('\n').filter((l) => l && !l.startsWith('??')).map((l) => l.slice(3));
 const failures = preflightFailures({
   branch: git('branch', '--show-current'),
