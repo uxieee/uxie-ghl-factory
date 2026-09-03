@@ -330,6 +330,56 @@
     "path": "/workflows/trigger/logs/top-failed-reasons"
   },
   {
+    "tool": "list_agent_sessions",
+    "method": "POST",
+    "path": "/agent-logs/logs"
+  },
+  {
+    "tool": "get_agent_session",
+    "method": "GET",
+    "path": "/agent-logs/logs/{sessionId}/summary"
+  },
+  {
+    "tool": "get_agent_session",
+    "method": "GET",
+    "path": "/agent-logs/logs/{sessionId}/interactions"
+  },
+  {
+    "tool": "get_agent_session",
+    "method": "GET",
+    "path": "/agent-logs/logs/{sessionId}/metrics"
+  },
+  {
+    "tool": "get_agent_message_trace",
+    "method": "GET",
+    "path": "/agent-logs/logs/{traceId}/spans"
+  },
+  {
+    "tool": "get_agent_message_trace",
+    "method": "GET",
+    "path": "/agent-logs/logs/{sessionId}/interactions"
+  },
+  {
+    "tool": "get_agent_message_trace",
+    "method": "GET",
+    "path": "/workflow/{loc}/{wid}"
+  },
+  {
+    "tool": "get_ai_response_details",
+    "method": "GET",
+    "path": "/ai-employees/interactions/responseDetails"
+  },
+  {
+    "tool": "list_agent_contacts",
+    "method": "POST",
+    "path": "/agent-logs/contacts"
+  },
+  {
+    "tool": "get_agent_metrics",
+    "method": "POST",
+    "path": "/agent-logs/metrics"
+  },
+  {
     "tool": "get_account_workflow_overview",
     "method": "GET",
     "path": "/workflows/statistics"
