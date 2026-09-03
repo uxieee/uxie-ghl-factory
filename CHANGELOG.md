@@ -11,7 +11,7 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
-## [0.50.0] — 2026-09-03
+## [0.51.0] — 2026-09-03
 
 One browser profile per token file. The per-folder credential binding was never the thing that
 could put you in another client's account — the browser was.
@@ -57,6 +57,56 @@ could put you in another client's account — the browser was.
   set.
 - `docs/auth-jwt-capture.md` and `mcp-internal/README.md` carry the same profile rule, including
   the `--user-data-dir` / `--userDataDir` flags for the Playwright and Chrome-DevTools MCP servers.
+
+## [0.50.0] — 2026-09-03
+
+The Agent Logs surface — `services.leadconnectorhq.com/agent-logs/*`, the only place GHL shows *why* a
+flow bot said what it said — mapped to the reverse-engineering skill's stop condition and shipped as
+six read tools. The whole API client was recovered from the screen's federated bundle before a single
+capture: 15 endpoints, every enum, the exact request-body builder.
+
+### Added
+
+- **`list_agent_sessions`** — the Sessions table with every filter the bundle builds, including two
+  the Add Filter menu never shows (`contactId`, `voiceName`), `metadataFilters`, and `all:true` to walk
+  the cursor. A POST that reads, so it takes no write confirmation.
+- **`get_agent_session`** — summary, per-product `customConfigs`, every interaction (paged internally)
+  and the per-session metrics.
+- **`get_agent_message_trace`** — the span trace for one message, digested: ordered steps with node
+  type, splitter branch id (named when `workflowId` is given) and its reasoning, knowledge sources by
+  title, tool calls, which node's text actually reached the contact, tokens. `metadata.prompt` is
+  stripped unless `includePrompt:true`. The digest flags the two failure modes the trace exposes —
+  replies generated and discarded, and a model-side `conversation_ended` on a message that deserved an
+  answer.
+- **`get_ai_response_details`** — the older per-message rail (`source=conversation` fixed), prompt
+  stripped unless asked.
+- **`list_agent_contacts`** and **`get_agent_metrics`** — the Contacts and Metrics tabs, which return
+  per-contact aggregates and 35 dashboard datasets none of the four above do.
+- **15 catalogue rows** for `/agent-logs/*` with proven reach; `search_endpoints` names the covering
+  tool. The four writes (`DELETE /agent-logs/logs/{id}` is wired but UI-unreachable; the three
+  `metrics-layouts` writes) are catalogued `source-only` and were never called.
+
+### Encoded rules (`core/agent-logs.mjs`), each live-proven on the sandbox
+
+- Paging offset `(page-1)×limit` is capped at **500**. `limit` is uncapped; `pageToken` walks past the
+  cap **only when `page` is omitted** (`page` silently wins). The cursor is timestamp-keyed — under any
+  other `sortBy` it never advances, so the tool refuses that pair. `asc` is inclusive (de-duplicated),
+  `desc` exclusive. The cursor carries no filters; every hop re-sends them.
+- On `/spans`, **`conversationId` is not sent**. The UI sends it and it drops the `ai_splitter` span —
+  the branch decision — from the trace (6 of 24 traces; the splitter every time).
+- The service validates **types** (422) but never **values**: a bogus `timeRange`/`sortBy` is silently
+  ignored, a bogus product or channel filters to zero rows. Epoch-millisecond dates match nothing, so
+  the tool rejects them.
+- Either credential alone reaches this surface (Bearer or `token-id`, R18-proven); the page itself
+  sends only `token-id`.
+
+### Notes for tool authors
+
+- The agent-log session id is exposed as **`agentSessionId`**, not `sessionId`: that key is in the
+  credential scrubber's `SECRET_KEYS`, so an argument by that name is refused before the handler runs
+  and the value would be redacted on the way out.
+- A capability on a different host from the tool's rail declares `origin:` per capability
+  (`get_agent_message_trace`'s workflow read, for branch names).
 
 ## [0.49.0] — 2026-09-02
 

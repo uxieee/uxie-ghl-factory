@@ -52,7 +52,7 @@ const TOKEN_FILE = process.env.GHL_INTERNAL_TOK_FILE || DEFAULT_TOKEN_FILE;
 // (and that capture/edit agree) without launching a browser. Checked AFTER the legacy guard.
 if (process.argv.includes('--print-token-file')) { console.log(TOKEN_FILE); process.exit(0); }
 
-// ONE BROWSER PROFILE PER TOKEN FILE (0.50.0). Until 0.50.0 every capture, from every folder,
+// ONE BROWSER PROFILE PER TOKEN FILE (0.51.0). Until 0.51.0 every capture, from every folder,
 // opened the SAME Chrome profile (`~/.uxie-ghl-internal-mcp/pw-profile`). A Chrome profile holds
 // a GHL session, so whichever agency was logged in last was the agency the next capture landed
 // in — and the capture writes that credential into the CALLING folder's token file. The guard

@@ -4,7 +4,7 @@ MCP server exposing the `uxie-ghl-factory` plugin's proven GoHighLevel **interna
 engines as schema-validated tools. Complements the plugin's skills — the specialists
 design, this server executes.
 
-**Status: shipped in `uxie-ghl-factory` 0.8.0 — all 17 tools LIVE-PROVEN on GROM AU (2026-07-21).**
+**Status: shipped in `uxie-ghl-factory` since 0.8.0 (17 tools then, 51 as of 0.51.0). The original 17 were all LIVE-PROVEN on GROM AU (2026-07-21); every tool added since carries its own `proof:` label in `tool-descriptions.json`.**
 Every tool has been driven against a real account through a real MCP stdio session — see the
 per-tool ledgers below: the read tools; the confirm-gated workflow writes (`build_workflow`,
 `edit_workflow`, `publish_workflow`, `fast_forward_contacts`, non-GET `raw_request`); the
@@ -123,7 +123,7 @@ different folders. Instead:
   gets its own server + account. First registration triggers a one-time workspace-trust prompt.
   The capture opens a **browser profile derived from that token file**
   (`~/.uxie-ghl-internal-mcp/profiles/<project>-<hash>`; `GHL_INTERNAL_PW_PROFILE` overrides,
-  `--print-profile-dir` prints it) — before 0.50.0 one profile was shared by every folder, so the
+  `--print-profile-dir` prints it) — before 0.51.0 one profile was shared by every folder, so the
   agency logged in last was the agency the next capture ran in. A fresh profile means one login
   per client, once. Browser MCP servers have the same hazard and are not covered by this: give
   `@playwright/mcp` (`--user-data-dir`) and `chrome-devtools-mcp` (`--userDataDir`) a per-project

@@ -585,7 +585,7 @@ test('processAuditPacing hands out the SAME limiter and circuit for the life of 
 // 4. the normal server is untouched
 // ---------------------------------------------------------------------------
 
-test('the full 45-tool registry and the normal stdio entry point are unchanged', () => {
+test('the full 51-tool registry and the normal stdio entry point are unchanged', () => {
   // 21 -> 22 when this branch merged main at 0.14.0, which added `check_workflow`.
   // 22 -> 23 for Task 7, which added `list_marketplace_apps` (read-only, registered
   // immediately after `list_account_entities`).
@@ -634,14 +634,22 @@ test('the full 45-tool registry and the normal stdio entry point are unchanged',
   // `check_workflow`. A pure read with two OPTIONAL per-location GETs.
   // 44 -> 45: `get_workflow_digest` — a compact read of one workflow, registered before
   // `search_merge_tags`. Read-only, but not part of the frozen audit evidence contract.
-  assert.equal(TOOLS.length, 45, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 45 -> 51: the Agent Logs surface (0.50.0) — list_agent_sessions, get_agent_session,
+  // get_agent_message_trace, get_ai_response_details, list_agent_contacts, get_agent_metrics —
+  // registered together immediately after `get_trigger_logs`. All six are reads. The 0.50.0
+  // release moved TOOLS to 51 without moving this list, so the published build shipped with
+  // this test red; caught on the 0.51.0 merge.
+  assert.equal(TOOLS.length, 51, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
     'list_workflows', 'get_workflow', 'get_workflow_digest', 'search_merge_tags', 'check_workflow', 'export_workflow',
     'get_workflow_logs', 'get_workflow_runtime_window', 'list_workflows_complete',
     'get_ai_configuration_bundle', 'get_contacts_at_step', 'get_workflow_stats', 'list_workflow_versions', 'get_workflow_version',
-    'get_trigger_logs', 'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
+    'get_trigger_logs',
+    'list_agent_sessions', 'get_agent_session', 'get_agent_message_trace', 'get_ai_response_details',
+    'list_agent_contacts', 'get_agent_metrics',
+    'get_account_workflow_overview', 'test_custom_code', 'list_account_entities',
     'list_marketplace_apps', 'list_courses', 'build_course', 'build_workflow', 'edit_workflow',
     'repair_workflow', 'publish_workflow', 'search_step_types', 'describe_step_type',
     'list_workflow_folders', 'create_workflow_folder',
