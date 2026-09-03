@@ -11,6 +11,16 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [Unreleased]
+
+### Added
+
+- **`npm run sync`** (`scripts/sync-generated.mjs`) — regenerate every generated artefact in
+  place and run the freshness gate. `knowledge/`'s `post-commit` hook now runs it, so a corpus
+  commit updates the plugin's copies instead of leaving a reminder; the hook never commits and
+  never fails the corpus commit. `release.mjs` uses the same script as its regenerate step, so
+  there is one regeneration path.
+
 ## [0.52.0] — 2026-09-03
 
 A release can no longer be cut from stale generated artefacts. The plugin ships five things that

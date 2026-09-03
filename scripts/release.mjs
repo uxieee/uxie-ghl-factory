@@ -19,7 +19,7 @@
 //   2. show drift       run the freshness gate ONCE before regenerating — this is the loud diff
 //                       of what the corpus changed since the last release, and it is printed
 //                       whether or not it fails
-//   3. regenerate       type-cards, source (delivered from knowledge/), catalogue, manifests, dist
+//   3. regenerate       scripts/sync-generated.mjs — the same step knowledge/'s post-commit hook runs
 //   4. freshness gate   must now be green — regeneration is idempotent or something is wrong
 //   5. bump             both manifests, in lockstep
 //   6. test             the FULL suite on THIS tree (pretest runs privacy, parity, freshness)
@@ -93,23 +93,8 @@ const before = sh('node', [join(REPO, 'scripts/check-generated-freshness.mjs')])
 console.log(before.code === 0 ? '   nothing drifted — every shipped artefact already matches regeneration' : '   ↑ that is the diff this release carries');
 
 // ── 3. regenerate ────────────────────────────────────────────────────────────────────────────
-step(3, 'regenerate every generated artefact');
-const gen = (label, cmd, argv, cwd) => {
-  console.log(`   • ${label}`);
-  const r = sh(cmd, argv, { cwd, quiet: true });
-  if (r.code !== 0) { process.stderr.write(r.out); die(`${label} failed`); }
-};
-if (existsSync(join(KNOWLEDGE, 'scripts/build-type-catalog.mjs'))) {
-  gen('type-cards  ← knowledge/corpus/workflows/30-types', 'node', [join(KNOWLEDGE, 'scripts/build-type-catalog.mjs')]);
-}
-if (existsSync(join(KNOWLEDGE, 'scripts/merge-endpoint-catalogs.mjs'))) {
-  gen('source      ← knowledge/catalog (stitched + delivered)', 'node', [join(KNOWLEDGE, 'scripts/merge-endpoint-catalogs.mjs')]);
-}
-gen('catalogue   ← source + overlay + capability manifest', 'node', [join(MCP, 'scripts/build-endpoint-catalog.mjs')], MCP);
-gen('manifests   ← TOOLS + audit descriptors', 'npm', ['run', '-s', 'manifest'], MCP);
-gen('dist        ← everything above, embedded', 'npm', ['run', '-s', 'build'], MCP);
-const regenerated = git('status', '--porcelain').split('\n').filter((l) => l && !l.startsWith('??')).map((l) => l.slice(3));
-console.log(regenerated.length ? `   regenerated files that changed:\n${regenerated.map((f) => `      ${f}`).join('\n')}` : '   regeneration changed nothing');
+step(3, 'regenerate every generated artefact (scripts/sync-generated.mjs)');
+if (sh('node', [join(REPO, 'scripts/sync-generated.mjs')]).code !== 0) die('regeneration failed');
 
 // ── 4. freshness gate ────────────────────────────────────────────────────────────────────────
 step(4, 'freshness gate after regeneration');
