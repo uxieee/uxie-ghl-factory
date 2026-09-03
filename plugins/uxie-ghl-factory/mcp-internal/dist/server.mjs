@@ -46,9 +46,9 @@ var define_ENDPOINT_CATALOG_default;
 var init_define_ENDPOINT_CATALOG = __esm({
   "<define:__ENDPOINT_CATALOG__>"() {
     define_ENDPOINT_CATALOG_default = {
-      generated: "2026-09-01",
+      generated: "2026-09-03",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 913,
+      count: 936,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -10036,6 +10036,77 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--logs",
+          method: "DELETE",
+          url: "https://backend.leadconnectorhq.com/logs/{id}",
+          path: "/logs/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "destructive",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/70-research/2026-09-03-agent-logs-capture.md:82"
+          ]
+        },
+        {
+          id: "ai-agents--logs-get",
+          method: "GET",
+          url: "https://backend.leadconnectorhq.com/logs/{id}",
+          path: "/logs/{id}",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/70-research/2026-09-03-agent-logs-capture.md:65",
+            "ai-agents/70-research/2026-09-03-agent-logs-capture.md:110"
+          ]
+        },
+        {
           id: "logs-service--dump",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/logs/metric",
@@ -16687,6 +16758,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "duplicate_workflow",
             "edit_workflow",
             "export_workflow",
+            "get_agent_message_trace",
             "get_workflow",
             "get_workflow_digest",
             "get_workflow_runtime_window",
@@ -16913,6 +16985,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             "duplicate_workflow",
             "edit_workflow",
             "export_workflow",
+            "get_agent_message_trace",
             "get_workflow",
             "get_workflow_digest",
             "get_workflow_runtime_window",
@@ -27437,6 +27510,577 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "ai-agents--agent-logs-contacts",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-logs/contacts",
+          path: "/agent-logs/contacts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500.",
+          reach: "proven-live",
+          coveredBy: [
+            "list_agent_contacts"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:50",
+            "ai-agents/20-api/agent-logs.md:109",
+            "ai-agents/20-api/agent-logs.md:172"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-filter-values",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-logs/filter-values",
+          path: "/agent-logs/filter-values",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Dropdown values for one filter field, derived from that location\u2019s data.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). `field` is the one strictly validated enum: 422 "field must be one of the following values: agentName, channel, contactName, voiceName". limit caps at 100 and the list is never scoped by products/timeRange.',
+          reach: "proven-live",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:52",
+            "ai-agents/20-api/agent-logs.md:159"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-health",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/health",
+          path: "/agent-logs/health",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Service health: {status, timestamp, traceId}.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface).",
+          reach: "proven-live",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:59"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-logs",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-logs/logs",
+          path: "/agent-logs/logs",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Agent Logs Sessions table. A POST that READS (201).",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows.',
+          reach: "proven-live",
+          coveredBy: [
+            "list_agent_sessions"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:32",
+            "ai-agents/20-api/agent-logs.md:49",
+            "ai-agents/20-api/agent-logs.md:69"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-logs-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}",
+          path: "/agent-logs/logs/{sessionId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          summary: "Delete a conversation log.",
+          note: "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "sessionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:60"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-logs-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}",
+          path: "/agent-logs/logs/{sessionId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Session detail: a 4-key summary plus EVERY interaction inline.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit.",
+          reach: "proven-live",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "sessionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:53",
+            "ai-agents/20-api/agent-logs.md:282",
+            "ai-agents/20-api/agent-logs.md:283"
+          ]
+        },
+        {
+          id: "ai-agents--logs-interactions",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}/interactions",
+          path: "/agent-logs/logs/{sessionId}/interactions",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "One row per inbound message; each traceId IS that message\u2019s CRM id.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404.",
+          reach: "proven-live",
+          coveredBy: [
+            "get_agent_message_trace",
+            "get_agent_session"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "sessionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:55",
+            "ai-agents/20-api/agent-logs.md:289",
+            "ai-agents/20-api/agent-logs.md:300"
+          ]
+        },
+        {
+          id: "ai-agents--logs-metrics",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}/metrics",
+          path: "/agent-logs/logs/{sessionId}/metrics",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Per-session metrics with a perInteraction[] series.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404.",
+          reach: "proven-live",
+          coveredBy: [
+            "get_agent_session"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "sessionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:57",
+            "ai-agents/20-api/agent-logs.md:301"
+          ]
+        },
+        {
+          id: "ai-agents--logs-summary",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}/summary",
+          path: "/agent-logs/logs/{sessionId}/summary",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation".',
+          reach: "proven-live",
+          coveredBy: [
+            "get_agent_session"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "sessionId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:54",
+            "ai-agents/20-api/agent-logs.md:285",
+            "ai-agents/20-api/agent-logs.md:298"
+          ]
+        },
+        {
+          id: "ai-agents--logs-spans",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/logs/{traceId}/spans",
+          path: "/agent-logs/logs/{traceId}/spans",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s "No spans found for trace"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span \u2014 the branch decision \u2014 from the trace.',
+          reach: "proven-live",
+          coveredBy: [
+            "get_agent_message_trace"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "traceId"
+            }
+          ],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "conversationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:56",
+            "ai-agents/20-api/agent-logs.md:209",
+            "ai-agents/20-api/agent-logs.md:299"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-metrics",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-logs/metrics",
+          path: "/agent-logs/metrics",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats.",
+          reach: "proven-live",
+          coveredBy: [
+            "get_agent_metrics"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:51",
+            "ai-agents/20-api/agent-logs.md:182"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-metrics-layouts",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/agent-logs/metrics-layouts",
+          path: "/agent-logs/metrics-layouts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          summary: "Saved Metrics dashboard layouts for the location.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven.",
+          reach: "proven-live",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:58",
+            "ai-agents/20-api/agent-logs.md:200"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-metrics-layouts-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/agent-logs/metrics-layouts",
+          path: "/agent-logs/metrics-layouts",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          summary: "Create a Metrics dashboard layout.",
+          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping.',
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:61"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-metrics-layouts-delete",
+          method: "DELETE",
+          url: "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
+          path: "/agent-logs/metrics-layouts/{layoutId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          summary: "Delete a Metrics dashboard layout.",
+          note: "Never called during mapping; read-only sweep.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "layoutId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:63"
+          ]
+        },
+        {
+          id: "ai-agents--agent-logs-metrics-layouts-put",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
+          path: "/agent-logs/metrics-layouts/{layoutId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          summary: "Update a Metrics dashboard layout.",
+          note: "Never called during mapping; read-only sweep.",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "layoutId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:62"
+          ]
+        },
+        {
           id: "ai-agents--anton-session",
           method: "POST",
           url: "https://services.leadconnectorhq.com/agent-studio/agents/anton/session",
@@ -28513,7 +29157,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "ai",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_ai_response_details"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -28522,16 +29168,24 @@ var init_define_ENDPOINT_CATALOG = __esm({
           service: "ai-agents",
           tree: "documented",
           pathParams: [],
-          query: [],
+          query: [
+            {
+              name: "messageId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "ai-agents/20-api/agent-logs.md:306",
             "ai-agents/20-api/logs-deployment-email.md:46"
           ]
         },
@@ -28664,7 +29318,70 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--ai-chat",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/calendars/ai/chat",
+          path: "/calendars/ai/chat",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/70-research/2026-09-03-calendar-ai-assistant.md:22",
+            "calendars/70-research/2026-09-03-calendar-ai-assistant.md:40"
+          ]
+        },
+        {
           id: "calendars--calendars-schedules",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/calendars/schedules",
+          path: "/calendars/schedules",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:49"
+          ]
+        },
+        {
+          id: "calendars--calendars-schedules-put",
           method: "PUT",
           url: "https://services.leadconnectorhq.com/calendars/schedules/{id}",
           path: "/calendars/schedules/{id}",
@@ -28733,7 +29450,80 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "calendars/20-api/schedules.md:39"
+            "calendars/20-api/schedules.md:64"
+          ]
+        },
+        {
+          id: "calendars--schedules-event-calendar",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/calendars/schedules/event-calendar/{id}",
+          path: "/calendars/schedules/event-calendar/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:55"
+          ]
+        },
+        {
+          id: "calendars--schedules-search",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/calendars/schedules/search",
+          path: "/calendars/schedules/search",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:48"
           ]
         },
         {
@@ -29177,6 +29967,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           },
           sources: [
             "restAgent.ts:70"
+          ]
+        },
+        {
+          id: "ai-agents--contacts",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/contacts/{id}",
+          path: "/contacts/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "read",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "ai-agents",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "ai-agents/20-api/agent-logs.md:65"
           ]
         },
         {
@@ -38567,6 +39392,41 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "calendars--users",
+          method: "PUT",
+          url: "https://services.leadconnectorhq.com/users/{userId}",
+          path: "/users/{userId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "ai",
+          kind: "write",
+          reach: "source-only",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "calendars",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "userId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "calendars/20-api/schedules.md:44"
+          ]
+        },
+        {
           id: "ai-agents--voice-ai-actions",
           method: "POST",
           url: "https://services.leadconnectorhq.com/voice-ai/actions",
@@ -41296,6 +42156,96 @@ var init_define_ENDPOINT_OVERLAY = __esm({
         },
         "PUT /workflow/{locationId}/{wid}": {
           note: "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
+        },
+        "POST /agent-logs/logs": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Agent Logs Sessions table. A POST that READS (201).",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 "Page too deep"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated \u2014 a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows.'
+        },
+        "POST /agent-logs/contacts": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500."
+        },
+        "POST /agent-logs/metrics": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A non-empty widgetIds \u2014 even a bogus value \u2014 drops voiceAiCallStats and callSentimentStats."
+        },
+        "POST /agent-logs/filter-values": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Dropdown values for one filter field, derived from that location\u2019s data.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). `field` is the one strictly validated enum: 422 "field must be one of the following values: agentName, channel, contactName, voiceName". limit caps at 100 and the list is never scoped by products/timeRange.'
+        },
+        "GET /agent-logs/logs/{sessionId}": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Session detail: a 4-key summary plus EVERY interaction inline.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit."
+        },
+        "GET /agent-logs/logs/{sessionId}/summary": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A trace id here 404s "No conversation data found for conversation".'
+        },
+        "GET /agent-logs/logs/{sessionId}/interactions": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "One row per inbound message; each traceId IS that message\u2019s CRM id.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404."
+        },
+        "GET /agent-logs/logs/{traceId}/spans": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
+          note: 'Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s "No spans found for trace"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span \u2014 the branch decision \u2014 from the trace.'
+        },
+        "GET /agent-logs/logs/{sessionId}/metrics": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Per-session metrics with a perInteraction[] series.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404."
+        },
+        "GET /agent-logs/metrics-layouts": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Saved Metrics dashboard layouts for the location.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface). Returns {layouts: []} when none exist \u2014 and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven."
+        },
+        "GET /agent-logs/health": {
+          kind: "read",
+          reach: "proven-live",
+          summary: "Service health: {status, timestamp, traceId}.",
+          note: "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone \u2014 either credential reaches this surface)."
+        },
+        "DELETE /agent-logs/logs/{sessionId}": {
+          kind: "write",
+          reach: "source-only",
+          summary: "Delete a conversation log.",
+          note: "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable \u2014 no row-action string exists for it. NEVER called during mapping; destructive and unproven."
+        },
+        "POST /agent-logs/metrics-layouts": {
+          kind: "write",
+          reach: "source-only",
+          summary: "Create a Metrics dashboard layout.",
+          note: 'The UI calls this automatically when metrics-layouts is empty, seeding {name:"Default", isDefault:true, version:2}. Never called during mapping.'
+        },
+        "PUT /agent-logs/metrics-layouts/{layoutId}": {
+          kind: "write",
+          reach: "source-only",
+          summary: "Update a Metrics dashboard layout.",
+          note: "Never called during mapping; read-only sweep."
+        },
+        "DELETE /agent-logs/metrics-layouts/{layoutId}": {
+          kind: "write",
+          reach: "source-only",
+          summary: "Delete a Metrics dashboard layout.",
+          note: "Never called during mapping; read-only sweep."
         }
       }
     };
@@ -42172,6 +43122,123 @@ var init_define_TOOL_CATALOG = __esm({
         proofFloor: "documented",
         rows: [],
         riskRows: []
+      },
+      list_agent_sessions: {
+        description: "Agent Logs sessions \u2014 the AI Agents log table, filterable and cursor-paged \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--agent-logs-logs"
+        ],
+        proofFloorRows: [
+          "ai-agents--agent-logs-logs"
+        ],
+        riskRows: [
+          "ai-agents--agent-logs-logs"
+        ],
+        rows: [
+          "ai-agents--agent-logs-logs"
+        ]
+      },
+      get_agent_session: {
+        description: "One agent session: summary, customConfigs, every interaction and its metrics \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--logs-summary",
+          "ai-agents--logs-interactions",
+          "ai-agents--logs-metrics"
+        ],
+        proofFloorRows: [
+          "ai-agents--logs-summary"
+        ],
+        riskRows: [
+          "ai-agents--logs-summary",
+          "ai-agents--logs-interactions",
+          "ai-agents--logs-metrics"
+        ],
+        rows: [
+          "ai-agents--logs-summary",
+          "ai-agents--logs-interactions",
+          "ai-agents--logs-metrics"
+        ]
+      },
+      get_agent_message_trace: {
+        description: "Why the AI said it: the node-by-node span trace for one message, digested \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--logs-spans",
+          "ai-agents--logs-interactions"
+        ],
+        proofFloorRows: [
+          "ai-agents--logs-spans"
+        ],
+        riskRows: [
+          "ai-agents--logs-spans",
+          "ai-agents--logs-interactions"
+        ],
+        rows: [
+          "ai-agents--logs-spans",
+          "ai-agents--logs-interactions"
+        ]
+      },
+      get_ai_response_details: {
+        description: "The assembled prompt, history and retrieval behind one outbound AI message \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--interactions-response-details"
+        ],
+        proofFloorRows: [
+          "ai-agents--interactions-response-details"
+        ],
+        riskRows: [
+          "ai-agents--interactions-response-details"
+        ],
+        rows: [
+          "ai-agents--interactions-response-details"
+        ]
+      },
+      list_agent_contacts: {
+        description: "Agent Logs contacts \u2014 per-contact AI activity aggregates \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--agent-logs-contacts"
+        ],
+        proofFloorRows: [
+          "ai-agents--agent-logs-contacts"
+        ],
+        riskRows: [
+          "ai-agents--agent-logs-contacts"
+        ],
+        rows: [
+          "ai-agents--agent-logs-contacts"
+        ]
+      },
+      get_agent_metrics: {
+        description: "Agent Logs metrics dashboard \u2014 tokens, latency, success rates, top models/tools/agents, time series \u2014 proof: live-runtime (2026-09-03); risk: read",
+        risk: "read",
+        proof: "live-runtime (2026-09-03)",
+        proofFloor: "live-runtime (2026-09-03)",
+        proofRows: [
+          "ai-agents--agent-logs-metrics"
+        ],
+        proofFloorRows: [
+          "ai-agents--agent-logs-metrics"
+        ],
+        riskRows: [
+          "ai-agents--agent-logs-metrics"
+        ],
+        rows: [
+          "ai-agents--agent-logs-metrics"
+        ]
       }
     };
   }
@@ -147432,6 +148499,242 @@ function readCache(state2) {
   };
 }
 
+// core/agent-logs.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var SORT_FIELDS = ["timestamp", "agentName", "aiProduct", "contactName", "channel", "durationMs", "totalTokens"];
+var TIME_RANGES = ["1_day", "7_days", "14_days", "30_days", "90_days", "custom"];
+var PRODUCTS = ["agent_studio", "voice_ai", "conversation_ai", "superagents", "ask_ai", "agent_logs_assistant"];
+var MAX_OFFSET = 500;
+var parseMeta = (raw) => {
+  if (raw == null) return null;
+  if (typeof raw === "object") return raw;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+var parseOutput = (raw) => {
+  if (raw == null) return { text: null, toolCalls: [] };
+  if (Array.isArray(raw)) return { text: null, toolCalls: raw.map(normaliseTool).filter(Boolean) };
+  if (typeof raw === "object") return { text: null, toolCalls: [normaliseTool(raw)].filter(Boolean) };
+  const s = String(raw);
+  const t = s.trim();
+  if (t.startsWith("[") || t.startsWith("{")) {
+    try {
+      const j = JSON.parse(t);
+      const arr = Array.isArray(j) ? j : [j];
+      const calls = arr.map(normaliseTool).filter(Boolean);
+      if (calls.length) return { text: null, toolCalls: calls };
+    } catch {
+    }
+  }
+  return { text: s, toolCalls: [] };
+};
+var normaliseTool = (o) => {
+  if (!o || typeof o !== "object") return null;
+  const name = o.tool_name ?? o.toolName ?? o.name ?? null;
+  if (!name) return null;
+  return { name, args: o.args ?? o.arguments ?? null };
+};
+var SOURCE_RE = /^\s*\[Source:\s*([^\]]+)\]\s*/;
+var knowledgeSources = (out) => {
+  const rows = Array.isArray(out) ? out : typeof out === "string" ? (() => {
+    try {
+      const j = JSON.parse(out);
+      return Array.isArray(j) ? j : [];
+    } catch {
+      return [];
+    }
+  })() : [];
+  return rows.map((r) => {
+    const content = typeof r?.content === "string" ? r.content : "";
+    const m = content.match(SOURCE_RE);
+    return { title: m ? m[1].trim() : null, category: r?.category ?? null, chars: content.length };
+  });
+};
+var branchNameMap = (workflowBody) => {
+  const map2 = /* @__PURE__ */ new Map();
+  const seen = /* @__PURE__ */ new Set();
+  const visit = (node) => {
+    if (!node || typeof node !== "object" || seen.has(node)) return;
+    seen.add(node);
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    const id = node.branchId ?? node.id ?? node._id;
+    const name = node.name ?? node.label ?? node.title;
+    if (typeof id === "string" && typeof name === "string" && name.trim()) {
+      if (!map2.has(id)) map2.set(id, name.trim());
+    }
+    for (const v of Object.values(node)) visit(v);
+  };
+  visit(workflowBody);
+  return map2;
+};
+var digestSpans = (spans, { includePrompt = false, branchNames = null } = {}) => {
+  const rows = Array.isArray(spans) ? spans.slice() : [];
+  rows.sort((a, b) => String(a?.timestamp ?? "").localeCompare(String(b?.timestamp ?? "")));
+  const steps = [];
+  const spoken = [];
+  const totals = { latencyMs: 0, tokensInput: 0, tokensOutput: 0, tokensCacheRead: 0, tokensCacheWrite: 0 };
+  let inbound = null;
+  for (const [i, s] of rows.entries()) {
+    const meta3 = parseMeta(s?.metadata);
+    const { text, toolCalls } = parseOutput(s?.output);
+    const step = {
+      n: i + 1,
+      stepType: s?.stepType ?? null,
+      name: s?.name ?? null,
+      product: s?.productName ?? null,
+      model: s?.model ?? null,
+      latencyMs: s?.latencyMs ?? null,
+      statusCode: s?.statusCode ?? null,
+      spanId: s?.spanId ?? null,
+      parentSpanId: s?.parentSpanId ?? null
+    };
+    const tk = {
+      input: s?.tokensInput ?? 0,
+      output: s?.tokensOutput ?? 0,
+      cacheRead: s?.tokensCacheRead ?? 0,
+      cacheWrite: s?.tokensCacheWrite ?? 0
+    };
+    if (tk.input || tk.output || tk.cacheRead || tk.cacheWrite) step.tokens = tk;
+    totals.latencyMs += Number(s?.latencyMs ?? 0);
+    totals.tokensInput += Number(tk.input ?? 0);
+    totals.tokensOutput += Number(tk.output ?? 0);
+    totals.tokensCacheRead += Number(tk.cacheRead ?? 0);
+    totals.tokensCacheWrite += Number(tk.cacheWrite ?? 0);
+    if (meta3?.nodeType) step.nodeType = meta3.nodeType;
+    if (s?.stepType === "human") {
+      inbound = { messageId: meta3?.messageId ?? null, conversationId: meta3?.conversationId ?? null, employeeMode: meta3?.employeeMode ?? null };
+      step.input = typeof s?.input === "string" ? s.input : s?.input ?? null;
+    }
+    const dec = meta3?.aiSplitterDecision;
+    if (dec) {
+      const id = dec.branchId ?? null;
+      step.branch = {
+        id,
+        name: id && branchNames ? branchNames.get(id) ?? null : null,
+        reasoning: dec.reasoning ?? null
+      };
+    }
+    if (s?.stepType === "contact_info_update") {
+      const o = typeof s?.output === "string" ? (() => {
+        try {
+          return JSON.parse(s.output);
+        } catch {
+          return null;
+        }
+      })() : s?.output;
+      if (o && typeof o === "object") step.extracted = o;
+    } else if (s?.stepType === "knowledge_base") {
+      step.knowledge = knowledgeSources(s?.output);
+      if (meta3?.kbDurationMeasured != null) step.kbDurationMs = meta3.kbDurationMeasured;
+    } else if (toolCalls.length) {
+      step.toolCalls = toolCalls;
+    } else if (text) {
+      step.spoken = text;
+      if (s?.stepType !== "human") spoken.push({ n: i + 1, stepType: s.stepType, nodeType: meta3?.nodeType ?? null, text });
+    }
+    if (includePrompt && meta3?.prompt) step.prompt = meta3.prompt;
+    steps.push(step);
+  }
+  totals.tokensTotal = totals.tokensInput + totals.tokensOutput;
+  const delivered = spoken.length ? spoken[spoken.length - 1] : null;
+  const notes = [];
+  if (spoken.length > 1) {
+    notes.push(`${spoken.length} nodes produced text; only the last one (${delivered.stepType}${delivered.nodeType ? "/" + delivered.nodeType : ""}) reached the contact \u2014 the earlier ones were generated and discarded.`);
+  }
+  if (steps.some((s) => (s.toolCalls ?? []).some((t) => t.name === "conversation_ended"))) {
+    notes.push("The model called the tool `conversation_ended`. The platform then writes its own closing line instead of acting on what the message asked for \u2014 check whether the message deserved a real answer.");
+  }
+  if (branchNames === null && steps.some((s) => s.branch)) {
+    notes.push("Splitter branch ids are not resolved to names. Pass workflowId (the flow-builder workflow whose trigger carries convTriggerBotId = this agent) to have them named.");
+  }
+  return { inbound, totals, steps, spoken, delivered, notes };
+};
+var SESSION_FILTER_KEYS = [
+  "products",
+  "agentId",
+  "agentName",
+  "contactId",
+  "contactName",
+  "conversationId",
+  "channel",
+  "voiceName",
+  "traceId",
+  "search",
+  "contentSearch",
+  "metadataText",
+  "skillId",
+  "timeRange",
+  "dateFrom",
+  "dateTo"
+];
+var sessionRow = (r) => ({
+  agentSessionId: r.conversationId ?? null,
+  contactId: r.contactId ?? null,
+  contactName: r.contactName ?? null,
+  product: r.aiProduct ?? null,
+  channel: r.channel ?? null,
+  agentId: r.agentId ?? null,
+  agentName: r.agentName ?? null,
+  status: r.status ?? null,
+  totalTokens: r.totalTokens ?? null,
+  latencyMs: r.latencyMs ?? null,
+  durationMs: r.durationMs ?? null,
+  timestamp: r.timestamp ?? null
+});
+var sessionBody = (args) => {
+  const body = {
+    locationId: args.locationId,
+    limit: args.limit ?? 50,
+    sortBy: args.sortBy ?? "timestamp",
+    sortOrder: args.sortOrder ?? "desc"
+  };
+  for (const k of SESSION_FILTER_KEYS) if (args[k] !== void 0 && args[k] !== "") body[k] = args[k];
+  if (args.metadataFilters?.length) {
+    body.metadataFilters = args.metadataFilters.map((f) => f.op === "exists" ? { key: f.key, op: "exists" } : { key: f.key, value: f.value ?? "", op: "equals" });
+  }
+  return body;
+};
+var walkSessions = async (gw, body, { maxRows = 1e3, maxHops = 200 } = {}) => {
+  const rows = [];
+  const seen = /* @__PURE__ */ new Set();
+  let token = null;
+  let hops = 0;
+  let meta3 = null;
+  let dupes = 0;
+  let error51 = null;
+  while (rows.length < maxRows && hops < maxHops) {
+    const r = await gw.call("POST", "/agent-logs/logs", { ...body, ...token ? { pageToken: token } : {} });
+    if (!r.ok) {
+      error51 = r;
+      break;
+    }
+    meta3 = r.json?.meta ?? null;
+    const data2 = Array.isArray(r.json?.data) ? r.json.data : [];
+    for (const row of data2) {
+      const id = row?.conversationId;
+      if (id && seen.has(id)) {
+        dupes++;
+        continue;
+      }
+      if (id) seen.add(id);
+      rows.push(sessionRow(row));
+      if (rows.length >= maxRows) break;
+    }
+    hops++;
+    token = meta3?.nextPageToken ?? null;
+    if (!data2.length || !token) break;
+  }
+  return { rows, meta: meta3, hops, dupes, error: error51 };
+};
+
 // ../skills/create-ghl-workflow/engine/lints/runner.mjs
 init_define_ENDPOINT_CATALOG();
 init_define_ENDPOINT_OVERLAY();
@@ -152661,6 +153964,429 @@ var TOOLS2 = [
         window: { fromDate, toDate, days: args.days ?? 30 },
         triggers: out,
         note: "Same endpoints as the builder's trigger Stats modal. contactId is the attempt's recordId; actualValue/expectedValue are the filter comparison that decided qualified. Seven trigger types keep no stats: mailgun_email_event, opportunity_decay, call_status, custom_date_reminder, customer_appointment, birthday_reminder, task_due_date_reminder."
+      });
+    }, args)
+  },
+  // ── Agent Logs (services/agent-logs) — read-only rail, mapped 2026-09-03 ─────────────
+  {
+    name: "list_agent_sessions",
+    description: describe3(
+      "list_agent_sessions",
+      "The AI Agents \u2192 Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST \u2014 this endpoint reads, so it does not take the raw-write confirmation gate."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      products: external_exports.array(external_exports.enum(PRODUCTS)).optional(),
+      agentId: external_exports.string().optional(),
+      agentName: external_exports.string().optional(),
+      contactId: external_exports.string().optional(),
+      contactName: external_exports.string().optional(),
+      conversationId: external_exports.string().optional(),
+      channel: external_exports.string().optional(),
+      voiceName: external_exports.string().optional(),
+      traceId: external_exports.string().optional(),
+      // `search` matches row metadata (agent / channel / contact); `contentSearch` matches the
+      // message body. They are different searches — live-proven on the same phrase.
+      search: external_exports.string().optional(),
+      contentSearch: external_exports.string().optional(),
+      metadataText: external_exports.string().optional(),
+      // Only `exists` behaves differently server-side; every other op is treated as equality,
+      // and `not_exists` does NOT negate. The enum reflects what actually works.
+      metadataFilters: external_exports.array(external_exports.object({
+        key: external_exports.string(),
+        value: external_exports.string().optional(),
+        op: external_exports.enum(["equals", "exists"]).default("equals")
+      })).optional(),
+      skillId: external_exports.string().optional(),
+      timeRange: external_exports.enum(TIME_RANGES).optional(),
+      dateFrom: external_exports.string().optional(),
+      dateTo: external_exports.string().optional(),
+      sortBy: external_exports.enum(SORT_FIELDS).default("timestamp"),
+      sortOrder: external_exports.enum(["asc", "desc"]).default("desc"),
+      page: external_exports.number().int().positive().optional(),
+      limit: external_exports.number().int().positive().max(1e3).default(50),
+      // Walk the cursor internally to `maxRows`. This is the only way past the offset-500 ceiling.
+      all: external_exports.boolean().default(false),
+      maxRows: external_exports.number().int().positive().max(5e3).default(1e3)
+    }),
+    capabilities: [{ method: "POST", path: "/agent-logs/logs" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const sortBy = args.sortBy ?? "timestamp";
+      const limit = args.limit ?? 50;
+      if (args.dateFrom && /^\d+$/.test(args.dateFrom)) {
+        return fail(CODES.VALIDATION_FAILED, "dateFrom/dateTo must be calendar dates (YYYY-MM-DD). Epoch milliseconds are accepted by the server and silently match zero rows.");
+      }
+      const body = sessionBody(args);
+      const notes = [];
+      if (args.all) {
+        if (sortBy !== "timestamp") {
+          return fail(CODES.VALIDATION_FAILED, `all:true walks the pageToken cursor, which is keyed on timestamp \u2014 under sortBy:"${sortBy}" it never advances and would loop on the same rows. Use sortBy:"timestamp" with all:true, or drop all:true and page (offset is capped at ${MAX_OFFSET}).`);
+        }
+        const maxRows = args.maxRows ?? 1e3;
+        const w = await walkSessions(gw, body, { maxRows });
+        if (w.error) return fromHttp(w.error.status, w.error.json);
+        if (w.dupes) notes.push(`sortOrder:"asc" uses an inclusive cursor; ${w.dupes} repeated row(s) were de-duplicated by agentSessionId.`);
+        const total2 = Number(w.meta?.totalRecords ?? w.rows.length);
+        if (w.rows.length < total2) notes.push(`Stopped at maxRows=${maxRows} of ${total2} \u2014 raise maxRows for the rest.`);
+        return ok({
+          sessions: w.rows,
+          count: w.rows.length,
+          totalRecords: total2,
+          hops: w.hops,
+          filtersApplied: w.meta?.filtersApplied ?? null,
+          note: "Walked the pageToken cursor \u2014 the only way past the offset-500 page ceiling.",
+          notes: notes.length ? notes : void 0
+        });
+      }
+      const page = args.page ?? 1;
+      const offset = (page - 1) * limit;
+      if (offset > MAX_OFFSET) {
+        return fail(CODES.VALIDATION_FAILED, `page ${page} at limit ${limit} means offset ${offset}, and the server refuses any offset above ${MAX_OFFSET} ("Page too deep"). Raise limit (it is uncapped) or pass all:true to walk the cursor.`);
+      }
+      const r = await gw.call("POST", "/agent-logs/logs", { ...body, page });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const meta3 = r.json?.meta ?? {};
+      const rows = recordsFrom2(r.json, "data").map(sessionRow);
+      if (r.json?.tokenDataVisible === false) notes.push("tokenDataVisible:false \u2014 this account hides token counts.");
+      const total = Number(meta3.totalRecords ?? rows.length);
+      if (total > MAX_OFFSET + limit) notes.push(`${total} rows match; paging stops at offset ${MAX_OFFSET}. Use all:true or a larger limit.`);
+      return ok({
+        sessions: rows,
+        count: rows.length,
+        page,
+        limit,
+        totalRecords: total,
+        totalPages: meta3.totalPages ?? null,
+        filtersApplied: meta3.filtersApplied ?? null,
+        nextPageToken: meta3.nextPageToken ? "<redacted>" : null,
+        hasMore: Boolean(meta3.nextPageToken) && rows.length > 0,
+        notes: notes.length ? notes : void 0
+      });
+    }, args)
+  },
+  {
+    name: "get_agent_session",
+    description: describe3(
+      "get_agent_session",
+      "One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries the traceId that get_agent_message_trace expands."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      // NOT `sessionId`: that key is in the server's credential scrubber (SECRET_KEYS), so an
+      // argument by that name is refused before the handler runs and the value would be
+      // redacted out of the response. The agent-log session id is not a credential.
+      agentSessionId: external_exports.string(),
+      includeMetrics: external_exports.boolean().default(true)
+    }),
+    capabilities: [
+      { method: "GET", path: "/agent-logs/logs/{sessionId}/summary" },
+      { method: "GET", path: "/agent-logs/logs/{sessionId}/interactions" },
+      { method: "GET", path: "/agent-logs/logs/{sessionId}/metrics" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const sid = encodeURIComponent(args.agentSessionId);
+      const lq = new URLSearchParams({ locationId: args.locationId });
+      const sum = await gw.call("GET", `/agent-logs/logs/${sid}/summary?${lq}`);
+      if (!sum.ok) {
+        if (sum.status === 404) {
+          return fail(CODES.VALIDATION_FAILED, `no session ${args.agentSessionId} on this location. Note the session id is NOT the CRM conversation id, and it is not a message/trace id \u2014 if you have a message id, use get_agent_message_trace instead.`);
+        }
+        return fromHttp(sum.status, sum.json);
+      }
+      const summary = sum.json?.summary ?? {};
+      const interactions = [];
+      let page = 1;
+      let meta3 = null;
+      while (page <= 50) {
+        const q2 = new URLSearchParams({ locationId: args.locationId, page: String(page), limit: "100" });
+        const r = await gw.call("GET", `/agent-logs/logs/${sid}/interactions?${q2}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        meta3 = r.json?.meta ?? null;
+        const rows = recordsFrom2(r.json, "interactions");
+        for (const i of rows) {
+          interactions.push({
+            traceId: i.traceId ?? null,
+            timestamp: i.timestamp ?? null,
+            lastSpanName: i.lastSpanName ?? null,
+            contactId: i.contactId ?? null,
+            contactName: i.contactName ?? null,
+            userQuery: i.userQuery ?? null,
+            aiResponse: i.aiResponse ?? null,
+            attachments: i.allAttachments ?? [],
+            metrics: i.metrics ?? null
+          });
+        }
+        if (!rows.length || page >= Number(meta3?.totalPages ?? 1)) break;
+        page++;
+      }
+      const out = {
+        agentSessionId: args.agentSessionId,
+        summary: {
+          channel: summary.channel ?? null,
+          agentName: summary.agentName ?? null,
+          productName: summary.productName ?? null,
+          totalTokens: summary.totalTokens ?? null,
+          totalLatencyMs: summary.totalLatencyMs ?? null,
+          durationMs: summary.durationMs ?? null,
+          totalInteractions: summary.totalInteractions ?? null
+        },
+        // Per-product extras: voice_ai ships voice_ai_call_summary here with call_outcome,
+        // disconnection_reason, in_voicemail and user_sentiment.
+        customConfigs: (summary.customConfigs ?? []).map((c) => ({
+          key: `${c.productName ?? "?"}.${c.stepType ?? "?"}`,
+          data: parseMeta(c.metadata)
+        })),
+        interactions,
+        interactionCount: interactions.length,
+        tokenDataVisible: sum.json?.tokenDataVisible !== false
+      };
+      if (args.includeMetrics !== false) {
+        const m = await gw.call("GET", `/agent-logs/logs/${sid}/metrics?${lq}`);
+        out.metrics = m.ok ? { overview: m.json?.overview ?? null, perInteraction: m.json?.perInteraction ?? [] } : null;
+        if (!m.ok) out.metricsError = { status: m.status };
+      }
+      out.note = "Each interaction is one inbound message; its traceId IS that message's CRM id. Expand it with get_agent_message_trace.";
+      return ok(out);
+    }, args)
+  },
+  {
+    name: "get_agent_message_trace",
+    description: describe3(
+      "get_agent_message_trace",
+      "Why the AI said what it said, for one message: the ordered node-by-node execution path \u2014 splitter branch and its reasoning, knowledge chunks by source title, tool calls, which node actually spoke, model and tokens. The digest is the point; raw spans are opt-in."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      // Either the inbound message id directly, or a session + which message in it.
+      messageId: external_exports.string().optional(),
+      conversationId: external_exports.string().optional(),
+      messageIndex: external_exports.number().int().optional(),
+      timestamp: external_exports.string().optional(),
+      // Names splitter branch ids. The flow-builder workflow is the one whose trigger carries
+      // convTriggerBotId = the agent; without it branch names come back null.
+      workflowId: external_exports.string().optional(),
+      includePrompt: external_exports.boolean().default(false),
+      includeRawSpans: external_exports.boolean().default(false),
+      // The UI sends conversationId on the spans call. It DROPS the ai_splitter span, so we
+      // default to off; set true only to reproduce exactly what the UI shows.
+      narrowToSession: external_exports.boolean().default(false)
+    }),
+    capabilities: [
+      { method: "GET", path: "/agent-logs/logs/{traceId}/spans" },
+      { method: "GET", path: "/agent-logs/logs/{sessionId}/interactions" },
+      // The branch-name resolution leg is the only one on the backend rail: the flow is a
+      // workflow, not an agent-logs object. Declared explicitly so host parity stays checkable.
+      { method: "GET", path: "/workflow/{loc}/{wid}", origin: "https://backend.leadconnectorhq.com" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const notes = [];
+      let traceId = args.messageId ?? null;
+      let picked = null;
+      if (!traceId) {
+        if (!args.conversationId) {
+          return fail(CODES.VALIDATION_FAILED, "pass messageId (the inbound CRM message id, which is the traceId), or conversationId plus messageIndex or timestamp.");
+        }
+        const q2 = new URLSearchParams({ locationId: args.locationId, limit: "100" });
+        const r = await gw.call("GET", `/agent-logs/logs/${encodeURIComponent(args.conversationId)}/interactions?${q2}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const rows = recordsFrom2(r.json, "interactions");
+        if (!rows.length) return fail(CODES.VALIDATION_FAILED, `session ${args.conversationId} has no interactions (or that id is not a session id \u2014 the spans route takes a message id, the summary route takes a session id).`);
+        if (args.timestamp) {
+          const want = Date.parse(args.timestamp.replace(" ", "T"));
+          picked = rows.slice().sort((a, b) => Math.abs(Date.parse(String(a.timestamp).replace(" ", "T")) - want) - Math.abs(Date.parse(String(b.timestamp).replace(" ", "T")) - want))[0];
+        } else {
+          const idx = args.messageIndex ?? 0;
+          picked = idx < 0 ? rows[rows.length + idx] : rows[idx];
+          if (!picked) return fail(CODES.VALIDATION_FAILED, `messageIndex ${idx} is out of range; this session has ${rows.length} interactions (0-based, negatives count from the end).`);
+        }
+        traceId = picked.traceId;
+      }
+      const sq = new URLSearchParams({ locationId: args.locationId });
+      if (args.narrowToSession && args.conversationId) sq.set("conversationId", args.conversationId);
+      const sp = await gw.call("GET", `/agent-logs/logs/${encodeURIComponent(traceId)}/spans?${sq}`);
+      if (!sp.ok) {
+        if (sp.status === 404) {
+          return fail(CODES.VALIDATION_FAILED, `no spans for trace ${traceId}. This route takes the INBOUND MESSAGE id, not a session id \u2014 if you passed a session id, use get_agent_session, or pass it as conversationId with a messageIndex.`);
+        }
+        return fromHttp(sp.status, sp.json);
+      }
+      const spans = recordsFrom2(sp.json, "spans") ?? [];
+      if (!spans.length) return fail(CODES.VALIDATION_FAILED, `trace ${traceId} returned no spans.`);
+      if (args.narrowToSession) notes.push("narrowToSession:true \u2014 the ai_splitter span is dropped by the server when conversationId is sent. This reproduces the UI, not the full trace.");
+      let branchNames = null;
+      if (args.workflowId) {
+        const wf = deps.makeGw({ loc: args.locationId, state: deps.state });
+        const b = await wf.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}`);
+        if (b.ok) branchNames = branchNameMap(b.json);
+        else notes.push(`could not read workflow ${args.workflowId} to name branches (status ${b.status}); branch names are null.`);
+      }
+      const d = digestSpans(spans, { includePrompt: args.includePrompt === true, branchNames });
+      const out = {
+        traceId,
+        messageId: d.inbound?.messageId ?? traceId,
+        crmConversationId: d.inbound?.conversationId ?? null,
+        agentSessionId: args.conversationId ?? null,
+        employeeMode: d.inbound?.employeeMode ?? null,
+        interaction: picked ? { timestamp: picked.timestamp, userQuery: picked.userQuery, aiResponse: picked.aiResponse } : null,
+        digest: { steps: d.steps, delivered: d.delivered, totals: d.totals },
+        spokenButDiscarded: d.spoken.slice(0, -1),
+        notes: [...d.notes, ...notes]
+      };
+      if (!args.includePrompt) out.promptNote = "metadata.prompt is stripped; pass includePrompt:true for the full assembled prompt.";
+      if (args.includeRawSpans) out.spans = spans;
+      return ok(out);
+    }, args)
+  },
+  {
+    name: "get_ai_response_details",
+    description: describe3(
+      "get_ai_response_details",
+      "The assembled prompt and conversation history behind one OUTBOUND AI message, plus its retrieved knowledge by type and its action logs. Complements get_agent_message_trace: that one is keyed by the human message and shows the decision path, this one is keyed by the AI message and shows what the model was given."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      outboundMessageId: external_exports.string(),
+      includePrompt: external_exports.boolean().default(false),
+      includeHistory: external_exports.boolean().default(true)
+    }),
+    capabilities: [{ method: "GET", path: "/ai-employees/interactions/responseDetails" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const q2 = new URLSearchParams({
+        locationId: args.locationId,
+        messageId: args.outboundMessageId,
+        source: "conversation"
+      });
+      const r = await gw.call("GET", `/ai-employees/interactions/responseDetails?${q2}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const j = r.json ?? {};
+      if (typeof j.message === "string" && /error while fetching/i.test(j.message)) {
+        return fail(CODES.VALIDATION_FAILED, `no AI response details for message ${args.outboundMessageId}. This route is keyed by the OUTBOUND (AI) message id \u2014 an inbound/human message id returns nothing. Server said: ${j.message}`);
+      }
+      const out = {
+        messageId: args.outboundMessageId,
+        traceId: j.traceId ?? null,
+        employeeId: j.employeeId ?? null,
+        mode: j.mode ?? null,
+        intent: j.intent ?? null,
+        input: j.input ?? null,
+        responseMessage: j.responseMessage ?? null,
+        actionLogs: j.actionLogs ?? [],
+        knowledge: {
+          faqs: j.faqs ?? null,
+          website: j.website ?? null,
+          richText: j.richText ?? null,
+          file: j.file ?? null,
+          table: j.table ?? null
+        }
+      };
+      if (args.includeHistory !== false) out.history = j.history ?? [];
+      if (args.includePrompt) out.prompt = j.prompt ?? null;
+      else out.promptNote = "prompt stripped; pass includePrompt:true for the full assembled prompt.";
+      if (!j.prompt && !j.intent) out.note = "No model ran for this message \u2014 a custom_message node sent fixed copy. Only actionLogs / history / mode / traceId are populated.";
+      return ok(out);
+    }, args)
+  },
+  {
+    name: "list_agent_contacts",
+    description: describe3(
+      "list_agent_contacts",
+      "The Agent Logs Contacts tab: one row per contact who has talked to an AI agent, with the products and channels they used, how many sessions, total tokens and last activity. Aggregates per contact \u2014 list_agent_sessions is per session. Read-only despite being a POST."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      products: external_exports.array(external_exports.enum(PRODUCTS)).optional(),
+      contactName: external_exports.string().optional(),
+      channel: external_exports.string().optional(),
+      conversationId: external_exports.string().optional(),
+      search: external_exports.string().optional(),
+      timeRange: external_exports.enum(TIME_RANGES).optional(),
+      dateFrom: external_exports.string().optional(),
+      dateTo: external_exports.string().optional(),
+      sortBy: external_exports.enum(["lastActive", "contactName"]).default("lastActive"),
+      sortOrder: external_exports.enum(["asc", "desc"]).default("desc"),
+      page: external_exports.number().int().positive().default(1),
+      limit: external_exports.number().int().positive().max(1e3).default(50)
+    }),
+    capabilities: [{ method: "POST", path: "/agent-logs/contacts" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const limit = args.limit ?? 50;
+      const page = args.page ?? 1;
+      if ((page - 1) * limit > MAX_OFFSET) {
+        return fail(CODES.VALIDATION_FAILED, `page ${page} at limit ${limit} exceeds the server's offset cap of ${MAX_OFFSET}. Unlike the sessions table this endpoint returns no pageToken, so a larger limit is the only way deeper.`);
+      }
+      const body = { locationId: args.locationId, page, limit, sortBy: args.sortBy ?? "lastActive", sortOrder: args.sortOrder ?? "desc" };
+      for (const k of ["products", "contactName", "channel", "conversationId", "search", "timeRange", "dateFrom", "dateTo"]) {
+        if (args[k] !== void 0 && args[k] !== "") body[k] = args[k];
+      }
+      const r = await gw.call("POST", "/agent-logs/contacts", body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const meta3 = r.json?.meta ?? {};
+      return ok({
+        contacts: recordsFrom2(r.json, "data").map((c) => ({
+          contactId: c.contactId ?? null,
+          contactName: c.contactName ?? null,
+          products: c.products ?? [],
+          channels: c.channels ?? [],
+          totalConversations: c.totalConversations ?? null,
+          totalTokens: c.totalTokens ?? null,
+          lastActivity: c.lastActivity ?? null
+        })),
+        page,
+        limit,
+        totalRecords: meta3.totalRecords ?? null,
+        totalPages: meta3.totalPages ?? null,
+        filtersApplied: meta3.filtersApplied ?? null,
+        note: "filtersApplied omits timeRange even when a time range is applied. This tab ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId)."
+      });
+    }, args)
+  },
+  {
+    name: "get_agent_metrics",
+    description: describe3(
+      "get_agent_metrics",
+      "The Agent Logs Metrics dashboard as data: token and latency totals, success/failure rates, top models, tools, agents and contacts, per-day time series, and the Voice AI call-outcome block. Account-wide aggregates, filterable by product, channel, agent or contact. Read-only despite being a POST."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      products: external_exports.array(external_exports.enum(PRODUCTS)).optional(),
+      channel: external_exports.string().optional(),
+      agentName: external_exports.string().optional(),
+      contactName: external_exports.string().optional(),
+      timeRange: external_exports.enum(TIME_RANGES).optional(),
+      dateFrom: external_exports.string().optional(),
+      dateTo: external_exports.string().optional(),
+      // Omit for the full set. Any non-empty value drops the two voice blocks.
+      sections: external_exports.array(external_exports.string()).optional()
+    }),
+    capabilities: [{ method: "POST", path: "/agent-logs/metrics" }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
+      const body = { locationId: args.locationId, widgetIds: [] };
+      for (const k of ["products", "channel", "agentName", "contactName", "timeRange", "dateFrom", "dateTo"]) {
+        if (args[k] !== void 0 && args[k] !== "") body[k] = args[k];
+      }
+      const r = await gw.call("POST", "/agent-logs/metrics", body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const { status: _s, traceId: _t, tokenDataVisible, ...rest } = r.json ?? {};
+      const isEmpty = (v) => v == null || Array.isArray(v) && v.length === 0;
+      const data2 = {};
+      const empty2 = [];
+      for (const [k, v] of Object.entries(rest)) {
+        if (isEmpty(v)) empty2.push(k);
+        else data2[k] = v;
+      }
+      const picked = args.sections?.length ? Object.fromEntries(Object.entries(data2).filter(([k]) => args.sections.includes(k))) : data2;
+      return ok({
+        metrics: picked,
+        emptyDatasets: empty2,
+        availableSections: Object.keys(data2),
+        tokenDataVisible: tokenDataVisible !== false,
+        note: "Sections are filtered locally \u2014 the server's own widgetIds is not a whitelist (any non-empty value silently drops voiceAiCallStats and callSentimentStats), so this tool always requests the full set."
       });
     }, args)
   },

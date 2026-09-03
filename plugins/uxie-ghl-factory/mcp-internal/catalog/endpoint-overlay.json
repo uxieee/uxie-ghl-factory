@@ -792,6 +792,96 @@
     },
     "PUT /workflow/{locationId}/{wid}": {
       "note": "The full-document commit re-runs the step validator over EVERY stored step, so it can be refused by a published, running workflow's own saved graph (INVALID_FIELD_VALUE, 'Action validation failed: <type> (...): Next is invalid'). The workflow keeps running and cannot be saved by anyone, API or builder. Never use this path for a rename -- rename-workflow skips the validator. Re-read before every write: a successful PUT bumps version and a later PUT built from a stale read 422s."
+    },
+    "POST /agent-logs/logs": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Agent Logs Sessions table. A POST that READS (201).",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 \"Page too deep\"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated — a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows."
+    },
+    "POST /agent-logs/contacts": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500."
+    },
+    "POST /agent-logs/metrics": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A non-empty widgetIds — even a bogus value — drops voiceAiCallStats and callSentimentStats."
+    },
+    "POST /agent-logs/filter-values": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Dropdown values for one filter field, derived from that location’s data.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). `field` is the one strictly validated enum: 422 \"field must be one of the following values: agentName, channel, contactName, voiceName\". limit caps at 100 and the list is never scoped by products/timeRange."
+    },
+    "GET /agent-logs/logs/{sessionId}": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Session detail: a 4-key summary plus EVERY interaction inline.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit."
+    },
+    "GET /agent-logs/logs/{sessionId}/summary": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A trace id here 404s \"No conversation data found for conversation\"."
+    },
+    "GET /agent-logs/logs/{sessionId}/interactions": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "One row per inbound message; each traceId IS that message’s CRM id.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404."
+    },
+    "GET /agent-logs/logs/{traceId}/spans": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s \"No spans found for trace\"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span — the branch decision — from the trace."
+    },
+    "GET /agent-logs/logs/{sessionId}/metrics": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Per-session metrics with a perInteraction[] series.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404."
+    },
+    "GET /agent-logs/metrics-layouts": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Saved Metrics dashboard layouts for the location.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Returns {layouts: []} when none exist — and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven."
+    },
+    "GET /agent-logs/health": {
+      "kind": "read",
+      "reach": "proven-live",
+      "summary": "Service health: {status, timestamp, traceId}.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface)."
+    },
+    "DELETE /agent-logs/logs/{sessionId}": {
+      "kind": "write",
+      "reach": "source-only",
+      "summary": "Delete a conversation log.",
+      "note": "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable — no row-action string exists for it. NEVER called during mapping; destructive and unproven."
+    },
+    "POST /agent-logs/metrics-layouts": {
+      "kind": "write",
+      "reach": "source-only",
+      "summary": "Create a Metrics dashboard layout.",
+      "note": "The UI calls this automatically when metrics-layouts is empty, seeding {name:\"Default\", isDefault:true, version:2}. Never called during mapping."
+    },
+    "PUT /agent-logs/metrics-layouts/{layoutId}": {
+      "kind": "write",
+      "reach": "source-only",
+      "summary": "Update a Metrics dashboard layout.",
+      "note": "Never called during mapping; read-only sweep."
+    },
+    "DELETE /agent-logs/metrics-layouts/{layoutId}": {
+      "kind": "write",
+      "reach": "source-only",
+      "summary": "Delete a Metrics dashboard layout.",
+      "note": "Never called during mapping; read-only sweep."
     }
   }
 }

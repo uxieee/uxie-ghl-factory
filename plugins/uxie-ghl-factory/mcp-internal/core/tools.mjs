@@ -44,6 +44,18 @@ import { searchMergeTags } from '../../skills/create-ghl-workflow/engine/merge-t
 import { digestWorkflow, fingerprintWorkflow } from '../../skills/create-ghl-workflow/engine/digest.mjs';
 import { entityCapabilities } from '../../skills/create-ghl-workflow/engine/entities.mjs';
 import { readCache } from './read-cache.mjs';
+import {
+  digestSpans as digestAgentSpans,
+  branchNameMap as agentLogBranchNames,
+  parseMeta as parseAgentLogMeta,
+  SORT_FIELDS as AGENT_LOG_SORT_FIELDS,
+  TIME_RANGES as AGENT_LOG_TIME_RANGES,
+  PRODUCTS as AGENT_LOG_PRODUCTS,
+  MAX_OFFSET as AGENT_LOG_MAX_OFFSET,
+  sessionBody as agentLogSessionBody,
+  sessionRow as agentLogSessionRow,
+  walkSessions as walkAgentSessions,
+} from './agent-logs.mjs';
 import { runLints } from '../../skills/create-ghl-workflow/engine/lints/runner.mjs';
 import { loadDoctrinePack } from '../../skills/create-ghl-workflow/engine/lints/doctrine.mjs';
 import { loadCatalog } from '../../skills/create-ghl-workflow/engine/catalog.mjs';
@@ -2660,6 +2672,419 @@ export const TOOLS = [
       return ok({
         window: { fromDate, toDate, days: args.days ?? 30 }, triggers: out,
         note: 'Same endpoints as the builder\'s trigger Stats modal. contactId is the attempt\'s recordId; actualValue/expectedValue are the filter comparison that decided qualified. Seven trigger types keep no stats: mailgun_email_event, opportunity_decay, call_status, custom_date_reminder, customer_appointment, birthday_reminder, task_due_date_reminder.',
+      });
+    }, args),
+  },
+  // ── Agent Logs (services/agent-logs) — read-only rail, mapped 2026-09-03 ─────────────
+  {
+    name: 'list_agent_sessions',
+    description: describe(
+      'list_agent_sessions',
+      'The AI Agents → Agent Logs Sessions table: one row per agent session with product, channel, agent, contact, tokens, latency and duration. Read-only despite being a POST — this endpoint reads, so it does not take the raw-write confirmation gate.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      products: z.array(z.enum(AGENT_LOG_PRODUCTS)).optional(),
+      agentId: z.string().optional(),
+      agentName: z.string().optional(),
+      contactId: z.string().optional(),
+      contactName: z.string().optional(),
+      conversationId: z.string().optional(),
+      channel: z.string().optional(),
+      voiceName: z.string().optional(),
+      traceId: z.string().optional(),
+      // `search` matches row metadata (agent / channel / contact); `contentSearch` matches the
+      // message body. They are different searches — live-proven on the same phrase.
+      search: z.string().optional(),
+      contentSearch: z.string().optional(),
+      metadataText: z.string().optional(),
+      // Only `exists` behaves differently server-side; every other op is treated as equality,
+      // and `not_exists` does NOT negate. The enum reflects what actually works.
+      metadataFilters: z.array(z.object({
+        key: z.string(),
+        value: z.string().optional(),
+        op: z.enum(['equals', 'exists']).default('equals'),
+      })).optional(),
+      skillId: z.string().optional(),
+      timeRange: z.enum(AGENT_LOG_TIME_RANGES).optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+      sortBy: z.enum(AGENT_LOG_SORT_FIELDS).default('timestamp'),
+      sortOrder: z.enum(['asc', 'desc']).default('desc'),
+      page: z.number().int().positive().optional(),
+      limit: z.number().int().positive().max(1000).default(50),
+      // Walk the cursor internally to `maxRows`. This is the only way past the offset-500 ceiling.
+      all: z.boolean().default(false),
+      maxRows: z.number().int().positive().max(5000).default(1000),
+    }),
+    capabilities: [{ method: 'POST', path: '/agent-logs/logs' }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const sortBy = args.sortBy ?? 'timestamp';
+      const limit = args.limit ?? 50;
+      if (args.dateFrom && /^\d+$/.test(args.dateFrom)) {
+        return fail(CODES.VALIDATION_FAILED, 'dateFrom/dateTo must be calendar dates (YYYY-MM-DD). Epoch milliseconds are accepted by the server and silently match zero rows.');
+      }
+      const body = agentLogSessionBody(args);
+      const notes = [];
+
+      if (args.all) {
+        // The cursor is keyed on timestamp; under any other sort it returns the same rows forever.
+        if (sortBy !== 'timestamp') {
+          return fail(CODES.VALIDATION_FAILED, `all:true walks the pageToken cursor, which is keyed on timestamp — under sortBy:"${sortBy}" it never advances and would loop on the same rows. Use sortBy:"timestamp" with all:true, or drop all:true and page (offset is capped at ${AGENT_LOG_MAX_OFFSET}).`);
+        }
+        const maxRows = args.maxRows ?? 1000;
+        const w = await walkAgentSessions(gw, body, { maxRows });
+        if (w.error) return fromHttp(w.error.status, w.error.json);
+        if (w.dupes) notes.push(`sortOrder:"asc" uses an inclusive cursor; ${w.dupes} repeated row(s) were de-duplicated by agentSessionId.`);
+        const total = Number(w.meta?.totalRecords ?? w.rows.length);
+        if (w.rows.length < total) notes.push(`Stopped at maxRows=${maxRows} of ${total} — raise maxRows for the rest.`);
+        return ok({
+          sessions: w.rows, count: w.rows.length, totalRecords: total, hops: w.hops,
+          filtersApplied: w.meta?.filtersApplied ?? null,
+          note: 'Walked the pageToken cursor — the only way past the offset-500 page ceiling.',
+          notes: notes.length ? notes : undefined,
+        });
+      }
+
+      const page = args.page ?? 1;
+      const offset = (page - 1) * limit;
+      if (offset > AGENT_LOG_MAX_OFFSET) {
+        return fail(CODES.VALIDATION_FAILED, `page ${page} at limit ${limit} means offset ${offset}, and the server refuses any offset above ${AGENT_LOG_MAX_OFFSET} ("Page too deep"). Raise limit (it is uncapped) or pass all:true to walk the cursor.`);
+      }
+      const r = await gw.call('POST', '/agent-logs/logs', { ...body, page });
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const meta = r.json?.meta ?? {};
+      const rows = recordsFrom(r.json, 'data').map(agentLogSessionRow);
+      if (r.json?.tokenDataVisible === false) notes.push('tokenDataVisible:false — this account hides token counts.');
+      const total = Number(meta.totalRecords ?? rows.length);
+      if (total > AGENT_LOG_MAX_OFFSET + limit) notes.push(`${total} rows match; paging stops at offset ${AGENT_LOG_MAX_OFFSET}. Use all:true or a larger limit.`);
+      return ok({
+        sessions: rows, count: rows.length, page, limit,
+        totalRecords: total, totalPages: meta.totalPages ?? null,
+        filtersApplied: meta.filtersApplied ?? null,
+        nextPageToken: meta.nextPageToken ? '<redacted>' : null,
+        hasMore: Boolean(meta.nextPageToken) && rows.length > 0,
+        notes: notes.length ? notes : undefined,
+      });
+    }, args),
+  },
+  {
+    name: 'get_agent_session',
+    description: describe(
+      'get_agent_session',
+      'One agent session end to end: its summary (channel, agent, product, tokens, latency, duration, per-product customConfigs) plus every interaction, paged internally. Each interaction carries the traceId that get_agent_message_trace expands.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      // NOT `sessionId`: that key is in the server's credential scrubber (SECRET_KEYS), so an
+      // argument by that name is refused before the handler runs and the value would be
+      // redacted out of the response. The agent-log session id is not a credential.
+      agentSessionId: z.string(),
+      includeMetrics: z.boolean().default(true),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/agent-logs/logs/{sessionId}/summary' },
+      { method: 'GET', path: '/agent-logs/logs/{sessionId}/interactions' },
+      { method: 'GET', path: '/agent-logs/logs/{sessionId}/metrics' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const sid = encodeURIComponent(args.agentSessionId);
+      const lq = new URLSearchParams({ locationId: args.locationId });
+      const sum = await gw.call('GET', `/agent-logs/logs/${sid}/summary?${lq}`);
+      if (!sum.ok) {
+        // A trace id here 404s "No conversation data found for conversation"; the spans route is
+        // the one that takes a trace id. Say so rather than passing the raw 404 up.
+        if (sum.status === 404) {
+          return fail(CODES.VALIDATION_FAILED, `no session ${args.agentSessionId} on this location. Note the session id is NOT the CRM conversation id, and it is not a message/trace id — if you have a message id, use get_agent_message_trace instead.`);
+        }
+        return fromHttp(sum.status, sum.json);
+      }
+      const summary = sum.json?.summary ?? {};
+
+      const interactions = [];
+      let page = 1; let meta = null;
+      while (page <= 50) {
+        const q = new URLSearchParams({ locationId: args.locationId, page: String(page), limit: '100' });
+        const r = await gw.call('GET', `/agent-logs/logs/${sid}/interactions?${q}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        meta = r.json?.meta ?? null;
+        const rows = recordsFrom(r.json, 'interactions');
+        for (const i of rows) {
+          interactions.push({
+            traceId: i.traceId ?? null, timestamp: i.timestamp ?? null, lastSpanName: i.lastSpanName ?? null,
+            contactId: i.contactId ?? null, contactName: i.contactName ?? null,
+            userQuery: i.userQuery ?? null, aiResponse: i.aiResponse ?? null,
+            attachments: i.allAttachments ?? [], metrics: i.metrics ?? null,
+          });
+        }
+        if (!rows.length || page >= Number(meta?.totalPages ?? 1)) break;
+        page++;
+      }
+
+      const out = {
+        agentSessionId: args.agentSessionId,
+        summary: {
+          channel: summary.channel ?? null, agentName: summary.agentName ?? null,
+          productName: summary.productName ?? null, totalTokens: summary.totalTokens ?? null,
+          totalLatencyMs: summary.totalLatencyMs ?? null, durationMs: summary.durationMs ?? null,
+          totalInteractions: summary.totalInteractions ?? null,
+        },
+        // Per-product extras: voice_ai ships voice_ai_call_summary here with call_outcome,
+        // disconnection_reason, in_voicemail and user_sentiment.
+        customConfigs: (summary.customConfigs ?? []).map((c) => ({
+          key: `${c.productName ?? '?'}.${c.stepType ?? '?'}`,
+          data: parseAgentLogMeta(c.metadata),
+        })),
+        interactions, interactionCount: interactions.length,
+        tokenDataVisible: sum.json?.tokenDataVisible !== false,
+      };
+      if (args.includeMetrics !== false) {
+        const m = await gw.call('GET', `/agent-logs/logs/${sid}/metrics?${lq}`);
+        out.metrics = m.ok ? { overview: m.json?.overview ?? null, perInteraction: m.json?.perInteraction ?? [] } : null;
+        if (!m.ok) out.metricsError = { status: m.status };
+      }
+      out.note = 'Each interaction is one inbound message; its traceId IS that message\'s CRM id. Expand it with get_agent_message_trace.';
+      return ok(out);
+    }, args),
+  },
+  {
+    name: 'get_agent_message_trace',
+    description: describe(
+      'get_agent_message_trace',
+      'Why the AI said what it said, for one message: the ordered node-by-node execution path — splitter branch and its reasoning, knowledge chunks by source title, tool calls, which node actually spoke, model and tokens. The digest is the point; raw spans are opt-in.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      // Either the inbound message id directly, or a session + which message in it.
+      messageId: z.string().optional(),
+      conversationId: z.string().optional(),
+      messageIndex: z.number().int().optional(),
+      timestamp: z.string().optional(),
+      // Names splitter branch ids. The flow-builder workflow is the one whose trigger carries
+      // convTriggerBotId = the agent; without it branch names come back null.
+      workflowId: z.string().optional(),
+      includePrompt: z.boolean().default(false),
+      includeRawSpans: z.boolean().default(false),
+      // The UI sends conversationId on the spans call. It DROPS the ai_splitter span, so we
+      // default to off; set true only to reproduce exactly what the UI shows.
+      narrowToSession: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/agent-logs/logs/{traceId}/spans' },
+      { method: 'GET', path: '/agent-logs/logs/{sessionId}/interactions' },
+      // The branch-name resolution leg is the only one on the backend rail: the flow is a
+      // workflow, not an agent-logs object. Declared explicitly so host parity stays checkable.
+      { method: 'GET', path: '/workflow/{loc}/{wid}', origin: 'https://backend.leadconnectorhq.com' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const notes = [];
+      let traceId = args.messageId ?? null;
+      let picked = null;
+
+      if (!traceId) {
+        if (!args.conversationId) {
+          return fail(CODES.VALIDATION_FAILED, 'pass messageId (the inbound CRM message id, which is the traceId), or conversationId plus messageIndex or timestamp.');
+        }
+        const q = new URLSearchParams({ locationId: args.locationId, limit: '100' });
+        const r = await gw.call('GET', `/agent-logs/logs/${encodeURIComponent(args.conversationId)}/interactions?${q}`);
+        if (!r.ok) return fromHttp(r.status, r.json);
+        const rows = recordsFrom(r.json, 'interactions');
+        if (!rows.length) return fail(CODES.VALIDATION_FAILED, `session ${args.conversationId} has no interactions (or that id is not a session id — the spans route takes a message id, the summary route takes a session id).`);
+        if (args.timestamp) {
+          const want = Date.parse(args.timestamp.replace(' ', 'T'));
+          picked = rows.slice().sort((a, b) => Math.abs(Date.parse(String(a.timestamp).replace(' ', 'T')) - want) - Math.abs(Date.parse(String(b.timestamp).replace(' ', 'T')) - want))[0];
+        } else {
+          const idx = args.messageIndex ?? 0;
+          picked = idx < 0 ? rows[rows.length + idx] : rows[idx];
+          if (!picked) return fail(CODES.VALIDATION_FAILED, `messageIndex ${idx} is out of range; this session has ${rows.length} interactions (0-based, negatives count from the end).`);
+        }
+        traceId = picked.traceId;
+      }
+
+      const sq = new URLSearchParams({ locationId: args.locationId });
+      if (args.narrowToSession && args.conversationId) sq.set('conversationId', args.conversationId);
+      const sp = await gw.call('GET', `/agent-logs/logs/${encodeURIComponent(traceId)}/spans?${sq}`);
+      if (!sp.ok) {
+        if (sp.status === 404) {
+          return fail(CODES.VALIDATION_FAILED, `no spans for trace ${traceId}. This route takes the INBOUND MESSAGE id, not a session id — if you passed a session id, use get_agent_session, or pass it as conversationId with a messageIndex.`);
+        }
+        return fromHttp(sp.status, sp.json);
+      }
+      const spans = recordsFrom(sp.json, 'spans') ?? [];
+      if (!spans.length) return fail(CODES.VALIDATION_FAILED, `trace ${traceId} returned no spans.`);
+      if (args.narrowToSession) notes.push('narrowToSession:true — the ai_splitter span is dropped by the server when conversationId is sent. This reproduces the UI, not the full trace.');
+
+      let branchNames = null;
+      if (args.workflowId) {
+        const wf = deps.makeGw({ loc: args.locationId, state: deps.state });
+        const b = await wf.call('GET', `/workflow/${encodeURIComponent(args.locationId)}/${encodeURIComponent(args.workflowId)}`);
+        if (b.ok) branchNames = agentLogBranchNames(b.json);
+        else notes.push(`could not read workflow ${args.workflowId} to name branches (status ${b.status}); branch names are null.`);
+      }
+
+      const d = digestAgentSpans(spans, { includePrompt: args.includePrompt === true, branchNames });
+      const out = {
+        traceId,
+        messageId: d.inbound?.messageId ?? traceId,
+        crmConversationId: d.inbound?.conversationId ?? null,
+        agentSessionId: args.conversationId ?? null,
+        employeeMode: d.inbound?.employeeMode ?? null,
+        interaction: picked ? { timestamp: picked.timestamp, userQuery: picked.userQuery, aiResponse: picked.aiResponse } : null,
+        digest: { steps: d.steps, delivered: d.delivered, totals: d.totals },
+        spokenButDiscarded: d.spoken.slice(0, -1),
+        notes: [...d.notes, ...notes],
+      };
+      if (!args.includePrompt) out.promptNote = 'metadata.prompt is stripped; pass includePrompt:true for the full assembled prompt.';
+      if (args.includeRawSpans) out.spans = spans;
+      return ok(out);
+    }, args),
+  },
+  {
+    name: 'get_ai_response_details',
+    description: describe(
+      'get_ai_response_details',
+      'The assembled prompt and conversation history behind one OUTBOUND AI message, plus its retrieved knowledge by type and its action logs. Complements get_agent_message_trace: that one is keyed by the human message and shows the decision path, this one is keyed by the AI message and shows what the model was given.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      outboundMessageId: z.string(),
+      includePrompt: z.boolean().default(false),
+      includeHistory: z.boolean().default(true),
+    }),
+    capabilities: [{ method: 'GET', path: '/ai-employees/interactions/responseDetails' }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      // `source` is required (422 without it) and validated to bot_trial|workflow|conversation.
+      // conversation and workflow return identical payloads for a flow bot; bot_trial keys a
+      // different Mongo model entirely, so it is not interchangeable and is not exposed here.
+      const q = new URLSearchParams({
+        locationId: args.locationId, messageId: args.outboundMessageId, source: 'conversation',
+      });
+      const r = await gw.call('GET', `/ai-employees/interactions/responseDetails?${q}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const j = r.json ?? {};
+      // This endpoint reports failure as 200 + a message string, not an HTTP error.
+      if (typeof j.message === 'string' && /error while fetching/i.test(j.message)) {
+        return fail(CODES.VALIDATION_FAILED, `no AI response details for message ${args.outboundMessageId}. This route is keyed by the OUTBOUND (AI) message id — an inbound/human message id returns nothing. Server said: ${j.message}`);
+      }
+      const out = {
+        messageId: args.outboundMessageId,
+        traceId: j.traceId ?? null,
+        employeeId: j.employeeId ?? null,
+        mode: j.mode ?? null,
+        intent: j.intent ?? null,
+        input: j.input ?? null,
+        responseMessage: j.responseMessage ?? null,
+        actionLogs: j.actionLogs ?? [],
+        knowledge: {
+          faqs: j.faqs ?? null, website: j.website ?? null,
+          richText: j.richText ?? null, file: j.file ?? null, table: j.table ?? null,
+        },
+      };
+      if (args.includeHistory !== false) out.history = j.history ?? [];
+      if (args.includePrompt) out.prompt = j.prompt ?? null;
+      else out.promptNote = 'prompt stripped; pass includePrompt:true for the full assembled prompt.';
+      if (!j.prompt && !j.intent) out.note = 'No model ran for this message — a custom_message node sent fixed copy. Only actionLogs / history / mode / traceId are populated.';
+      return ok(out);
+    }, args),
+  },
+  {
+    name: 'list_agent_contacts',
+    description: describe(
+      'list_agent_contacts',
+      'The Agent Logs Contacts tab: one row per contact who has talked to an AI agent, with the products and channels they used, how many sessions, total tokens and last activity. Aggregates per contact — list_agent_sessions is per session. Read-only despite being a POST.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      products: z.array(z.enum(AGENT_LOG_PRODUCTS)).optional(),
+      contactName: z.string().optional(),
+      channel: z.string().optional(),
+      conversationId: z.string().optional(),
+      search: z.string().optional(),
+      timeRange: z.enum(AGENT_LOG_TIME_RANGES).optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+      sortBy: z.enum(['lastActive', 'contactName']).default('lastActive'),
+      sortOrder: z.enum(['asc', 'desc']).default('desc'),
+      page: z.number().int().positive().default(1),
+      limit: z.number().int().positive().max(1000).default(50),
+    }),
+    capabilities: [{ method: 'POST', path: '/agent-logs/contacts' }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const limit = args.limit ?? 50;
+      const page = args.page ?? 1;
+      // This tab emits no cursor at all, so the offset ceiling is a hard wall here.
+      if ((page - 1) * limit > AGENT_LOG_MAX_OFFSET) {
+        return fail(CODES.VALIDATION_FAILED, `page ${page} at limit ${limit} exceeds the server's offset cap of ${AGENT_LOG_MAX_OFFSET}. Unlike the sessions table this endpoint returns no pageToken, so a larger limit is the only way deeper.`);
+      }
+      const body = { locationId: args.locationId, page, limit, sortBy: args.sortBy ?? 'lastActive', sortOrder: args.sortOrder ?? 'desc' };
+      for (const k of ['products', 'contactName', 'channel', 'conversationId', 'search', 'timeRange', 'dateFrom', 'dateTo']) {
+        if (args[k] !== undefined && args[k] !== '') body[k] = args[k];
+      }
+      const r = await gw.call('POST', '/agent-logs/contacts', body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const meta = r.json?.meta ?? {};
+      return ok({
+        contacts: recordsFrom(r.json, 'data').map((c) => ({
+          contactId: c.contactId ?? null, contactName: c.contactName ?? null,
+          products: c.products ?? [], channels: c.channels ?? [],
+          totalConversations: c.totalConversations ?? null, totalTokens: c.totalTokens ?? null,
+          lastActivity: c.lastActivity ?? null,
+        })),
+        page, limit, totalRecords: meta.totalRecords ?? null, totalPages: meta.totalPages ?? null,
+        filtersApplied: meta.filtersApplied ?? null,
+        note: 'filtersApplied omits timeRange even when a time range is applied. This tab ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId).',
+      });
+    }, args),
+  },
+  {
+    name: 'get_agent_metrics',
+    description: describe(
+      'get_agent_metrics',
+      'The Agent Logs Metrics dashboard as data: token and latency totals, success/failure rates, top models, tools, agents and contacts, per-day time series, and the Voice AI call-outcome block. Account-wide aggregates, filterable by product, channel, agent or contact. Read-only despite being a POST.',
+    ),
+    inputSchema: schema({
+      locationId: z.string(),
+      products: z.array(z.enum(AGENT_LOG_PRODUCTS)).optional(),
+      channel: z.string().optional(),
+      agentName: z.string().optional(),
+      contactName: z.string().optional(),
+      timeRange: z.enum(AGENT_LOG_TIME_RANGES).optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+      // Omit for the full set. Any non-empty value drops the two voice blocks.
+      sections: z.array(z.string()).optional(),
+    }),
+    capabilities: [{ method: 'POST', path: '/agent-logs/metrics' }],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, rail: 'ai', state: deps.state });
+      const body = { locationId: args.locationId, widgetIds: [] };
+      for (const k of ['products', 'channel', 'agentName', 'contactName', 'timeRange', 'dateFrom', 'dateTo']) {
+        if (args[k] !== undefined && args[k] !== '') body[k] = args[k];
+      }
+      const r = await gw.call('POST', '/agent-logs/metrics', body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const { status: _s, traceId: _t, tokenDataVisible, ...rest } = r.json ?? {};
+      // Drop the empty datasets rather than shipping 20 empty arrays: on an account with no
+      // Voice AI every call block comes back [] or all-zero.
+      const isEmpty = (v) => v == null || (Array.isArray(v) && v.length === 0);
+      const data = {}; const empty = [];
+      for (const [k, v] of Object.entries(rest)) {
+        if (isEmpty(v)) empty.push(k); else data[k] = v;
+      }
+      const picked = args.sections?.length
+        ? Object.fromEntries(Object.entries(data).filter(([k]) => args.sections.includes(k)))
+        : data;
+      return ok({
+        metrics: picked,
+        emptyDatasets: empty,
+        availableSections: Object.keys(data),
+        tokenDataVisible: tokenDataVisible !== false,
+        note: 'Sections are filtered locally — the server\'s own widgetIds is not a whitelist (any non-empty value silently drops voiceAiCallStats and callSentimentStats), so this tool always requests the full set.',
       });
     }, args),
   },
