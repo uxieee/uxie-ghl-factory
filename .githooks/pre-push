@@ -8,3 +8,6 @@
 set -e
 node scripts/check-mcp-contract.mjs
 node scripts/check-type-catalog.mjs
+# Every generated artefact (type-cards, source, catalogue, manifests, dist) must match a
+# regeneration — a release cut from stale copies is the failure this repo keeps re-learning.
+node scripts/check-generated-freshness.mjs

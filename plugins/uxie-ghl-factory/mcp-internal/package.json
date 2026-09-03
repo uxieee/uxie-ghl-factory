@@ -11,7 +11,7 @@
     "build": "node scripts/build.mjs",
     "test": "node --test \"test/**/*.test.mjs\"",
     "manifest": "node scripts/gen-manifest.mjs",
-    "pretest": "cd ../../.. && node scripts/check-privacy.mjs && node scripts/check-manifest-parity.mjs"
+    "pretest": "cd ../../.. && node scripts/check-privacy.mjs && node scripts/check-manifest-parity.mjs && node scripts/check-generated-freshness.mjs --skip dist"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

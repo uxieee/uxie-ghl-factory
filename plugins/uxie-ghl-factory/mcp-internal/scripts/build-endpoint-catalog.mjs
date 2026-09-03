@@ -22,7 +22,12 @@ const ROOT = resolve(HERE, '..');
 const SOURCE = resolve(ROOT, 'catalog/internal-endpoints.source.json');
 const OVERLAY = resolve(ROOT, 'catalog/endpoint-overlay.json');
 const MANIFEST = resolve(ROOT, 'capability-manifest.json');
-const OUT = resolve(ROOT, 'catalog/internal-endpoints.json');
+// `--out <path>` writes somewhere else — the freshness gate compiles into a temp file and diffs it
+// against the shipped one, so the check can never overwrite what it is checking.
+const outArg = process.argv.indexOf('--out');
+const OUT = outArg >= 0 && process.argv[outArg + 1]
+  ? resolve(process.argv[outArg + 1])
+  : resolve(ROOT, 'catalog/internal-endpoints.json');
 
 const source = JSON.parse(readFileSync(SOURCE, 'utf8'));
 const overlay = JSON.parse(readFileSync(OVERLAY, 'utf8')).rows ?? {};

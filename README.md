@@ -239,6 +239,24 @@ Without either server the reasoning skills still load; anything that *calls* GHL
 | **A GHL account (admin) + Private Integration Token** | everything on the public rail |
 | **A Playwright MCP server** | capturing the internal rail's token — without it the public rail still works fully |
 
+## Releasing
+
+The plugin ships **generated copies** of things that live elsewhere — type cards and the endpoint
+source from the sibling `knowledge/` corpus, the compiled catalogue, both capability manifests,
+and the dist bundles that embed all of it. Users only ever receive a *release* (`claude plugin
+update` compares version strings), so "up to date with the corpus" means "as of the last release".
+
+```bash
+npm run freshness            # would regenerating change any shipped artefact? names what differs
+npm run release -- 0.52.0    # preflight → drift → regenerate → gate → bump both manifests → full suite → tag/push/release/install
+npm run release -- 0.52.0 --dry-run
+```
+
+`release` refuses unless you are on `main`, fetched, not behind, with a clean tree, a version
+above the current one, and a `## [0.52.0] — YYYY-MM-DD` entry in `CHANGELOG.md` dated today —
+the entry is the release notes. The freshness gate also runs in `pre-push` and in
+`mcp-internal`'s `npm test`, so a stale tree cannot be pushed or pass the suite by accident.
+
 ## Repository layout
 
 The plugin lives in [`plugins/uxie-ghl-factory/`](plugins/uxie-ghl-factory/). The repo root carries
