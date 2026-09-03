@@ -21,7 +21,21 @@ written in the system-book idiom the operator reads every day; the example asset
 - **Full-width layout, no dead space.** Prose caps around 70ch for readability; frames,
   tables and diagrams use the width. Never park a big empty panel on screen waiting for
   interaction — detail appears on demand or not at all.
-- Light and dark both work; diagrams are themed from the page palette.
+- **Light and dark both work, with a visible toggle.** Define the palette as CSS custom
+  properties in three places: `:root` (light), `@media (prefers-color-scheme:dark)` guarded
+  with `:root:not([data-theme="light"])`, and `:root[data-theme="dark"]`. A small button in
+  the sidebar cycles **auto → light → dark**, writes `data-theme` on `<html>` (removing it for
+  auto), and remembers the choice in `localStorage` inside a try/catch. Reading the document
+  on a bright screen and reading it at night are different jobs, and following the OS is not
+  always what the reader wants.
+- **Diagrams are themed from the page palette, so the toggle has to re-render them.** Mermaid
+  reads its `themeVariables` once at `initialize()` and REPLACES each source block with an SVG.
+  A theme change therefore has to: restore the stashed source text into every `.mermaid`
+  element, drop their `data-processed` attribute, re-`initialize()` with freshly read computed
+  properties, and re-`run()`. Stash the sources on the first render or the second one finds
+  empty divs. Same applies when the system flips underneath you while on auto — listen to
+  `matchMedia('(prefers-color-scheme:dark)')`. Any hand-built SVG (the system map) should use
+  `var(--token)` for every fill and stroke so it rethemes with no JavaScript at all.
 
 ## 1. System map — interactive wiring flow
 

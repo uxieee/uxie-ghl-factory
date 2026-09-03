@@ -19,6 +19,14 @@ commit bodies carry the detail.
   first reply that is (correctly) all questions still says where the design will land. Found by
   running the skill's evals against the standalone install: a thin brief got questions, as the
   rule demands, but never mentioned the approval document.
+- `ghl-system-conventions` / `build-doc-spec.md`: the pre-build document now specifies a
+  **visible light/dark toggle** (auto → light → dark, `data-theme` on `<html>`, remembered in
+  `localStorage`), not just `prefers-color-scheme`. It also specifies what the toggle has to do
+  about mermaid: the library bakes its palette in at `initialize()` and replaces each source
+  block with an SVG, so a theme change means stashing the sources, restoring them, dropping
+  `data-processed`, re-initialising from freshly read custom properties and re-running. Proven
+  on a generated document: 17 diagrams, 0 errors, node fill and page ground both flip, choice
+  survives a reload.
 - `ghl-system-conventions`: **custom values and custom fields have a human-readable NAME and a
   `snake_case` KEY**, and the skill only said "snake_case" — which read as though the name itself
   were snake_cased. The name is what a person picks from a dropdown (foldered values show as
