@@ -11,6 +11,41 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.52.0] — 2026-09-03
+
+A release can no longer be cut from stale generated artefacts. The plugin ships five things that
+are compiled from elsewhere — type cards from the corpus, the mined endpoint source, the compiled
+catalogue, the two capability manifests, and the dist bundles that embed all of it — and until
+now nothing but memory said when to regenerate them. Today's two releases showed the cost: 0.50.0
+went out with a red test because the suite ran on a development branch instead of the tagged
+tree, and a second 0.50.0 was prepared on a branch that had not fetched.
+
+### Added
+
+- **`scripts/check-generated-freshness.mjs`** — regenerates every generated artefact into a temp
+  dir and fails on any difference, **naming what differs** (rows added, rows the shipped copy has
+  that regeneration would DROP, rows whose fields changed — shipped → regenerated). Wired into
+  `pre-push` and into mcp-internal's `pretest`, so `npm test` refuses a stale tree. The checks
+  that need the sibling `knowledge/` repo skip, and say so, when it is absent.
+  `mcp-internal/test/generated-freshness.test.mjs` pins it from both sides: green on the real
+  tree, red — with the row named — when a shipped artefact is made stale on purpose.
+- **`npm run release -- <version>`** (`scripts/release.mjs`) — the one door a version leaves
+  through: preflight (main, fetched, not behind, clean, version above current, dated CHANGELOG
+  entry) → print the drift → regenerate everything → freshness gate → bump both manifests → full
+  suite on *this* tree → commit, tag, push, GitHub release, `claude plugin update`. `--dry-run`
+  stops before any git state changes and restores the manifests. Rules live in
+  `scripts/release-lib.mjs`, pinned by `test/release-lib.test.mjs`.
+- `build-endpoint-catalog.mjs --out <path>` so the gate can compile without overwriting what it
+  is checking.
+- A repo-root `package.json` carrying `freshness`, `release` and `test`.
+- In `knowledge/`: an advisory `post-commit` hook that says when the plugin's corpus-derived
+  copies have fallen behind. It never writes into the plugin; being behind mid-harvest is normal.
+
+### Fixed
+
+- The endpoint-catalogue test asserts a **count**; same-count drift (a `kind` flipping, a
+  `coveredBy` tool vanishing) passed it. The freshness gate diffs by row and field.
+
 ## [0.51.0] — 2026-09-03
 
 One browser profile per token file. The per-folder credential binding was never the thing that

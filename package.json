@@ -1,0 +1,11 @@
+{
+  "name": "uxie-ghl-factory-repo",
+  "private": true,
+  "type": "module",
+  "description": "Repo-level scripts for the uxie-ghl-factory marketplace. The plugin itself lives in plugins/uxie-ghl-factory/.",
+  "scripts": {
+    "freshness": "node scripts/check-generated-freshness.mjs",
+    "release": "node scripts/release.mjs",
+    "test": "cd plugins/uxie-ghl-factory/mcp-internal && npm test"
+  }
+}
