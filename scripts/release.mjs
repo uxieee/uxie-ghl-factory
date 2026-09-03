@@ -5,6 +5,7 @@
 //   npm run release -- 0.52.0 --dry-run            # everything up to the commit; touches no git state
 //   npm run release -- 0.52.0 --title "..."        # override the title derived from the CHANGELOG
 //   npm run release -- 0.52.0 --no-install         # skip `claude plugin update` at the end
+//   npm run release -- 0.52.0 --no-mirror          # skip publishing the standalone skill mirror
 //
 // Why this exists: a release is the only moment anyone receives a corpus update — `claude plugin
 // update` compares VERSION STRINGS and pulls nothing without a bump — so "the plugin is up to date
@@ -23,7 +24,7 @@
 //   4. freshness gate   must now be green — regeneration is idempotent or something is wrong
 //   5. bump             both manifests, in lockstep
 //   6. test             the FULL suite on THIS tree (pretest runs privacy, parity, freshness)
-//   7. commit · tag · push · GitHub release · claude plugin update
+//   7. commit · tag · push · GitHub release · standalone skill mirror · claude plugin update
 //
 // --dry-run stops after step 6 with the manifests UNBUMPED (the bump is reverted), so a dry run
 // leaves the tree exactly as it found it except for regenerated artefacts — which, if they
@@ -129,12 +130,13 @@ if (DRY) {
   console.log(`   would tag:    v${version}`);
   console.log(`   would push:   origin main v${version}   (pre-push gates: mcp contract, type catalog, freshness)`);
   console.log(`   would create: GitHub release "${version} — ${title}" from the CHANGELOG entry`);
+  console.log(`   would publish: the standalone ghl-system-conventions mirror at v${version}`);
   console.log(`   manifests restored to ${current}; regenerated artefacts left in place (see step 3)`);
   process.exit(0);
 }
 
 // ── 7. commit · tag · push · release · install ───────────────────────────────────────────────
-step(7, 'commit · tag · push · GitHub release · install');
+step(7, 'commit · tag · push · GitHub release · mirror · install');
 git('add', '-u');
 git('commit', '-q', '-m', releaseCommitMessage(version, title));
 git('tag', '-a', `v${version}`, '-m', `${version} — ${title}`);
@@ -145,6 +147,12 @@ const notes = join(mkdtempSync(join(tmpdir(), 'release-notes-')), `${version}.md
 writeFileSync(notes, `${section.body}\n`);
 const rel = sh('gh', ['release', 'create', `v${version}`, '--title', `${version} — ${title}`, '--notes-file', notes]);
 if (rel.code !== 0) die('GitHub release failed — the tag is pushed; create the release by hand');
+if (!flag('--no-mirror')) {
+  // The standalone skill repo is a mirror of this release — published last so it can only ever
+  // carry a version that exists as a plugin release.
+  const mirror = sh('node', [join(REPO, 'scripts/publish-standalone.mjs'), '--version', version]);
+  if (mirror.code !== 0) console.error('   standalone mirror publish failed — run `npm run publish-skill -- --version ' + version + '` by hand');
+}
 if (!flag('--no-install')) {
   const up = sh('claude', ['plugin', 'update', 'uxie-ghl-factory@uxieee']);
   if (up.code !== 0) console.error('   claude plugin update failed — run it by hand');

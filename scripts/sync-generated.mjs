@@ -8,7 +8,7 @@
 // you run by hand after editing tools.mjs or the overlay. It writes ONLY generated files; it
 // never commits — read the list it prints, then commit them with whatever you were doing.
 //
-// Order matters: source must land before the catalogue is compiled, the catalogue before the
+// Order matters: type-cards before the skill's copy of them, source must land before the catalogue is compiled, the catalogue before the
 // manifests are compared against it, and the bundles last because they embed all of it.
 // Regeneration is idempotent — a second run changes nothing — and the freshness gate at the
 // end asserts exactly that, so a generator that writes somewhere the gate does not read is
@@ -36,6 +36,8 @@ const GENERATED = [
   'plugins/uxie-ghl-factory/mcp-internal/audit-capability-manifest.json',
   'plugins/uxie-ghl-factory/mcp-internal/dist/server.mjs',
   'plugins/uxie-ghl-factory/mcp-internal/dist/audit-server.mjs',
+  'plugins/uxie-ghl-factory/skills/ghl-system-conventions/catalog/type-cards.json',
+  'plugins/uxie-ghl-factory/skills/ghl-system-conventions/references/ghl-types-index.md',
 ];
 const digest = (rel) => {
   const p = join(REPO, rel);
@@ -61,6 +63,7 @@ if (hasKnowledge) {
 } else if (!quiet) {
   console.log('sync: knowledge/ not present — type-cards and source left as shipped');
 }
+run('skill-types ← type-cards.json copied into ghl-system-conventions + index rendered', 'node', [join(REPO, 'scripts/build-skill-types.mjs')]);
 run('catalogue   ← source + overlay + capability manifest', 'node', [join(MCP, 'scripts/build-endpoint-catalog.mjs')], MCP);
 run('manifests   ← TOOLS + audit descriptors', 'npm', ['run', '-s', 'manifest'], MCP);
 run('dist        ← everything above, embedded', 'npm', ['run', '-s', 'build'], MCP);

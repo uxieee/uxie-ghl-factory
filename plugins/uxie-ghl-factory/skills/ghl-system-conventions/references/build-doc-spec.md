@@ -1,14 +1,14 @@
 # The pre-build approval document
 
-One self-contained HTML file that Xander reads **before anything is built in GHL**.
+One self-contained HTML file that the operator reads **before anything is built in GHL**.
 
-Its purpose is specific: he approves the diagrams, and then building is *transcription*
+Its purpose is specific: they approve the diagrams, and then building is *transcription*
 rather than fresh decision-making. Every trigger, step, wait and exit is decided on this
 page. If the builder has to think about what a step should be, the page failed.
 
 **A worked, approved example ships with this skill: `assets/example-prebuild-doc.html`.**
 Open it before building one — match its shape rather than reinventing the format. It is
-written in the system-book idiom Xander reads every day; the example asset *is* that idiom.
+written in the system-book idiom the operator reads every day; the example asset *is* that idiom.
 
 ## File
 

@@ -11,6 +11,37 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.54.0] — 2026-09-04
+
+`ghl-system-conventions` is now also a **standalone skill** anyone can install without the plugin:
+
+```
+npx skills add uxieee/ghl-system-conventions
+```
+
+### Added
+
+- **The skill carries GHL's type vocabulary itself.** `catalog/type-cards.json` (a byte-identical
+  copy of the plugin's catalogue — 293 step and trigger types, 145 native) plus a generated
+  `references/ghl-types-index.md` and `scripts/types.mjs` (`types.mjs wait` prints the card,
+  `types.mjs <term>` searches). Standalone users get the same schema truth `describe_step_type`
+  serves in the plugin; the plugin path still wins when installed. Both files are produced by
+  `scripts/build-skill-types.mjs`, run by `npm run sync`, checked by the freshness gate
+  (`skill-types`), pinned by `test/skill-types.test.mjs`.
+- **`scripts/publish-standalone.mjs`** (`npm run publish-skill -- --version X`) publishes the skill
+  to `github.com/uxieee/ghl-system-conventions` — a **mirror**: fresh clone, tree replaced from
+  the plugin copy, README rendered from `scripts/standalone-readme.template.md`, commit + tag
+  stamped with the plugin version. `npm run release` runs it last (`--no-mirror` to skip), so the
+  mirror can only ever carry a version that exists as a plugin release.
+
+### Changed
+
+- The skill's text now names its two settings — standalone, and with the plugin — and says
+  where truth comes from in each (a new "What this needs" section; recon and corpus sections
+  reworded so no path points at a tool the standalone user does not have).
+- The skill addresses "the operator" rather than a named person, so the public page reads
+  neutrally. The rules are unchanged.
+
 ## [0.53.0] — 2026-09-03
 
 ### Added
