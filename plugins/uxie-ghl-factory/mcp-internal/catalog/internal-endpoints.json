@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-01",
+  "generated": "2026-09-03",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 913,
+  "count": 936,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -9989,6 +9989,77 @@
       ]
     },
     {
+      "id": "ai-agents--logs",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/logs/{id}",
+      "path": "/logs/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/70-research/2026-09-03-agent-logs-capture.md:82"
+      ]
+    },
+    {
+      "id": "ai-agents--logs-get",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/logs/{id}",
+      "path": "/logs/{id}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/70-research/2026-09-03-agent-logs-capture.md:65",
+        "ai-agents/70-research/2026-09-03-agent-logs-capture.md:110"
+      ]
+    },
+    {
       "id": "logs-service--dump",
       "method": "POST",
       "url": "https://backend.leadconnectorhq.com/logs/metric",
@@ -16640,6 +16711,7 @@
         "duplicate_workflow",
         "edit_workflow",
         "export_workflow",
+        "get_agent_message_trace",
         "get_workflow",
         "get_workflow_digest",
         "get_workflow_runtime_window",
@@ -16866,6 +16938,7 @@
         "duplicate_workflow",
         "edit_workflow",
         "export_workflow",
+        "get_agent_message_trace",
         "get_workflow",
         "get_workflow_digest",
         "get_workflow_runtime_window",
@@ -27390,6 +27463,577 @@
       ]
     },
     {
+      "id": "ai-agents--agent-logs-contacts",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/agent-logs/contacts",
+      "path": "/agent-logs/contacts",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Agent Logs Contacts tab: one row per contact with products, channels, conversation and token totals.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Ignores the logs-only filters (contentSearch, metadataFilters, agentId, agentName, contactId) and emits NO nextPageToken, so it is hard-capped at offset 500.",
+      "reach": "proven-live",
+      "coveredBy": [
+        "list_agent_contacts"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:50",
+        "ai-agents/20-api/agent-logs.md:109",
+        "ai-agents/20-api/agent-logs.md:172"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-filter-values",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/agent-logs/filter-values",
+      "path": "/agent-logs/filter-values",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Dropdown values for one filter field, derived from that location’s data.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). `field` is the one strictly validated enum: 422 \"field must be one of the following values: agentName, channel, contactName, voiceName\". limit caps at 100 and the list is never scoped by products/timeRange.",
+      "reach": "proven-live",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:52",
+        "ai-agents/20-api/agent-logs.md:159"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-health",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-logs/health",
+      "path": "/agent-logs/health",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Service health: {status, timestamp, traceId}.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface).",
+      "reach": "proven-live",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:59"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-logs",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/agent-logs/logs",
+      "path": "/agent-logs/logs",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Agent Logs Sessions table. A POST that READS (201).",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Offset ceiling: (page-1)*limit must be <=500 or 400 \"Page too deep\"; `limit` is uncapped and `pageToken` (body, and ONLY when `page` is omitted) walks past it. Values are never validated — a bogus timeRange/sortBy is silently ignored, a bogus product/channel filters to 0 rows.",
+      "reach": "proven-live",
+      "coveredBy": [
+        "list_agent_sessions"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:32",
+        "ai-agents/20-api/agent-logs.md:49",
+        "ai-agents/20-api/agent-logs.md:69"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-logs-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}",
+      "path": "/agent-logs/logs/{sessionId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "summary": "Delete a conversation log.",
+      "note": "Present in the bundle API client and wired (delete error strings ship) but UI-unreachable — no row-action string exists for it. NEVER called during mapping; destructive and unproven.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "sessionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:60"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-logs-get",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}",
+      "path": "/agent-logs/logs/{sessionId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Session detail: a 4-key summary plus EVERY interaction inline.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Not the same as /summary: fewer summary keys, but all interactions, and it ignores page/limit.",
+      "reach": "proven-live",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "sessionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:53",
+        "ai-agents/20-api/agent-logs.md:282",
+        "ai-agents/20-api/agent-logs.md:283"
+      ]
+    },
+    {
+      "id": "ai-agents--logs-interactions",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}/interactions",
+      "path": "/agent-logs/logs/{sessionId}/interactions",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "One row per inbound message; each traceId IS that message’s CRM id.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Default limit is 100. A page past the end returns 200 empty; page=0 or negative returns 404.",
+      "reach": "proven-live",
+      "coveredBy": [
+        "get_agent_message_trace",
+        "get_agent_session"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "sessionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:55",
+        "ai-agents/20-api/agent-logs.md:289",
+        "ai-agents/20-api/agent-logs.md:300"
+      ]
+    },
+    {
+      "id": "ai-agents--logs-metrics",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}/metrics",
+      "path": "/agent-logs/logs/{sessionId}/metrics",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Per-session metrics with a perInteraction[] series.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A wrong id returns 200 with zeroes rather than 404.",
+      "reach": "proven-live",
+      "coveredBy": [
+        "get_agent_session"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "sessionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:57",
+        "ai-agents/20-api/agent-logs.md:301"
+      ]
+    },
+    {
+      "id": "ai-agents--logs-summary",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-logs/logs/{sessionId}/summary",
+      "path": "/agent-logs/logs/{sessionId}/summary",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Session summary incl. totalInteractions, durationMs and per-product customConfigs.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A trace id here 404s \"No conversation data found for conversation\".",
+      "reach": "proven-live",
+      "coveredBy": [
+        "get_agent_session"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "sessionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:54",
+        "ai-agents/20-api/agent-logs.md:285",
+        "ai-agents/20-api/agent-logs.md:298"
+      ]
+    },
+    {
+      "id": "ai-agents--logs-spans",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-logs/logs/{traceId}/spans",
+      "path": "/agent-logs/logs/{traceId}/spans",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "The per-message execution trace: splitter branch + reasoning, knowledge chunks, tool calls, model, tokens.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Path id is the INBOUND MESSAGE id, not a session id (a session id 404s \"No spans found for trace\"). locationId is required. DO NOT send conversationId: the UI does, and it drops the ai_splitter span — the branch decision — from the trace.",
+      "reach": "proven-live",
+      "coveredBy": [
+        "get_agent_message_trace"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "traceId"
+        }
+      ],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        },
+        {
+          "name": "conversationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:56",
+        "ai-agents/20-api/agent-logs.md:209",
+        "ai-agents/20-api/agent-logs.md:299"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-metrics",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/agent-logs/metrics",
+      "path": "/agent-logs/metrics",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Agent Logs Metrics tab: 35 widget datasets (overview, topModels/Tools/Agents/Contacts, time series, voice-call stats).",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). A non-empty widgetIds — even a bogus value — drops voiceAiCallStats and callSentimentStats.",
+      "reach": "proven-live",
+      "coveredBy": [
+        "get_agent_metrics"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:51",
+        "ai-agents/20-api/agent-logs.md:182"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-metrics-layouts",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/agent-logs/metrics-layouts",
+      "path": "/agent-logs/metrics-layouts",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "summary": "Saved Metrics dashboard layouts for the location.",
+      "note": "Live-proven read 2026-09-03 on the designated sandbox (agency Bearer OR token-id alone — either credential reaches this surface). Returns {layouts: []} when none exist — and the UI reacts to that by POSTing a default layout, so opening the Metrics tab in a browser WRITES. The populated shape is unproven.",
+      "reach": "proven-live",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:58",
+        "ai-agents/20-api/agent-logs.md:200"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-metrics-layouts-post",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/agent-logs/metrics-layouts",
+      "path": "/agent-logs/metrics-layouts",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "summary": "Create a Metrics dashboard layout.",
+      "note": "The UI calls this automatically when metrics-layouts is empty, seeding {name:\"Default\", isDefault:true, version:2}. Never called during mapping.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:61"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-metrics-layouts-delete",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
+      "path": "/agent-logs/metrics-layouts/{layoutId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "summary": "Delete a Metrics dashboard layout.",
+      "note": "Never called during mapping; read-only sweep.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "layoutId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:63"
+      ]
+    },
+    {
+      "id": "ai-agents--agent-logs-metrics-layouts-put",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/agent-logs/metrics-layouts/{layoutId}",
+      "path": "/agent-logs/metrics-layouts/{layoutId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "summary": "Update a Metrics dashboard layout.",
+      "note": "Never called during mapping; read-only sweep.",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "layoutId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:62"
+      ]
+    },
+    {
       "id": "ai-agents--anton-session",
       "method": "POST",
       "url": "https://services.leadconnectorhq.com/agent-studio/agents/anton/session",
@@ -28466,7 +29110,9 @@
       "rail": "ai",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_ai_response_details"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -28475,16 +29121,24 @@
       "service": "ai-agents",
       "tree": "documented",
       "pathParams": [],
-      "query": [],
+      "query": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
       "body": null,
       "returns": null,
       "confidence": {
         "path": "documented",
-        "query": "none-observed",
+        "query": "documented",
         "body": "unresolved",
         "returns": "unresolved"
       },
       "sources": [
+        "ai-agents/20-api/agent-logs.md:306",
         "ai-agents/20-api/logs-deployment-email.md:46"
       ]
     },
@@ -28617,7 +29271,70 @@
       ]
     },
     {
+      "id": "calendars--ai-chat",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/calendars/ai/chat",
+      "path": "/calendars/ai/chat",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/70-research/2026-09-03-calendar-ai-assistant.md:22",
+        "calendars/70-research/2026-09-03-calendar-ai-assistant.md:40"
+      ]
+    },
+    {
       "id": "calendars--calendars-schedules",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/calendars/schedules",
+      "path": "/calendars/schedules",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/schedules.md:49"
+      ]
+    },
+    {
+      "id": "calendars--calendars-schedules-put",
       "method": "PUT",
       "url": "https://services.leadconnectorhq.com/calendars/schedules/{id}",
       "path": "/calendars/schedules/{id}",
@@ -28686,7 +29403,80 @@
         "returns": "unresolved"
       },
       "sources": [
-        "calendars/20-api/schedules.md:39"
+        "calendars/20-api/schedules.md:64"
+      ]
+    },
+    {
+      "id": "calendars--schedules-event-calendar",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/calendars/schedules/event-calendar/{id}",
+      "path": "/calendars/schedules/event-calendar/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/schedules.md:55"
+      ]
+    },
+    {
+      "id": "calendars--schedules-search",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/calendars/schedules/search",
+      "path": "/calendars/schedules/search",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": false,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/schedules.md:48"
       ]
     },
     {
@@ -29130,6 +29920,41 @@
       },
       "sources": [
         "restAgent.ts:70"
+      ]
+    },
+    {
+      "id": "ai-agents--contacts",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/contacts/{id}",
+      "path": "/contacts/{id}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "ai-agents",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "id"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-agents/20-api/agent-logs.md:65"
       ]
     },
     {
@@ -38517,6 +39342,41 @@
       },
       "sources": [
         "services/TemplateLibraryService.ts:43"
+      ]
+    },
+    {
+      "id": "calendars--users",
+      "method": "PUT",
+      "url": "https://services.leadconnectorhq.com/users/{userId}",
+      "path": "/users/{userId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "ai",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "calendars",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "userId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "calendars/20-api/schedules.md:44"
       ]
     },
     {
