@@ -243,12 +243,14 @@ Without either server the reasoning skills still load; anything that *calls* GHL
 
 The plugin ships **generated copies** of things that live elsewhere — type cards and the endpoint
 source from the sibling `knowledge/` corpus, the compiled catalogue, both capability manifests,
-and the dist bundles that embed all of it. Users only ever receive a *release* (`claude plugin
-update` compares version strings), so "up to date with the corpus" means "as of the last release".
+and the dist bundles that embed all of it. A commit in `knowledge/` regenerates them here via
+its `post-commit` hook (`npm run sync`), so the working tree tracks the corpus; users receive
+them at the next *release* (`claude plugin update` compares version strings).
 
 ```bash
+npm run sync                 # regenerate every generated artefact in place (a knowledge/ commit runs this for you)
 npm run freshness            # would regenerating change any shipped artefact? names what differs
-npm run release -- 0.52.0    # preflight → drift → regenerate → gate → bump both manifests → full suite → tag/push/release/install
+npm run release -- 0.52.0    # preflight → drift → sync → gate → bump both manifests → full suite → tag/push/release/install
 npm run release -- 0.52.0 --dry-run
 ```
 

@@ -5,6 +5,7 @@
   "description": "Repo-level scripts for the uxie-ghl-factory marketplace. The plugin itself lives in plugins/uxie-ghl-factory/.",
   "scripts": {
     "freshness": "node scripts/check-generated-freshness.mjs",
+    "sync": "node scripts/sync-generated.mjs",
     "release": "node scripts/release.mjs",
     "test": "cd plugins/uxie-ghl-factory/mcp-internal && npm test"
   }
