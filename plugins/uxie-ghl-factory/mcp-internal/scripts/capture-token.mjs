@@ -23,9 +23,10 @@
 //   node scripts/capture-token.mjs --account "GROM Digital AU"
 //   node scripts/capture-token.mjs                 # no auto-drive; you navigate, it watches
 //   node scripts/capture-token.mjs --timeout 300   # seconds to wait (default 240)
-import { writeFileSync, chmodSync, existsSync, readdirSync } from 'node:fs';
+import { writeFileSync, chmodSync, existsSync, readdirSync, realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve as resolvePath, dirname, basename } from 'node:path';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { DEFAULT_TOKEN_FILE } from '../core/auth.mjs';
@@ -50,7 +51,52 @@ const TOKEN_FILE = process.env.GHL_INTERNAL_TOK_FILE || DEFAULT_TOKEN_FILE;
 // Test seam: print the resolved token-file path and exit, so the suite can assert resolution
 // (and that capture/edit agree) without launching a browser. Checked AFTER the legacy guard.
 if (process.argv.includes('--print-token-file')) { console.log(TOKEN_FILE); process.exit(0); }
-const PROFILE_DIR = join(HOME_DIR, 'pw-profile');
+
+// ONE BROWSER PROFILE PER TOKEN FILE (0.50.0). Until 0.50.0 every capture, from every folder,
+// opened the SAME Chrome profile (`~/.uxie-ghl-internal-mcp/pw-profile`). A Chrome profile holds
+// a GHL session, so whichever agency was logged in last was the agency the next capture landed
+// in — and the capture writes that credential into the CALLING folder's token file. The guard
+// against acting on the wrong account was per folder; the login the guard was handed was
+// machine-wide.
+//
+// MEASURED 2026-09-03: a chat in a client folder drove a browser to that client's sub-account and
+// was redirected to a DIFFERENT client's agency launchpad, because the shared profile still held
+// that other agency's session. Nothing in the config was wrong; the profile was.
+//
+// So the profile is now derived from the token file the capture is about to write. Same token
+// file, same profile (the session persists, so you log in once per client and not again).
+// Different token file, different profile, with no way for one client's session to answer for
+// another. GHL_INTERNAL_PW_PROFILE overrides it for a one-off.
+//
+// THERE IS DELIBERATELY NO FALLBACK TO THE OLD SHARED PROFILE. Reusing it would seed every
+// client's slot with whatever agency that profile was left in — precisely the bug. The cost is
+// one login per client, once; the old profile is left on disk, untouched, and simply unused.
+export function resolveProfileDir({ tokenFile, env = process.env, homeDir = HOME_DIR }) {
+  const override = env?.GHL_INTERNAL_PW_PROFILE;
+  if (typeof override === 'string' && override.trim()) return resolvePath(override.trim());
+
+  // Resolve symlinks so two registrations pointing at ONE real token file share one profile
+  // (they are one login). realpathSync throws when the file does not exist yet — the first
+  // capture into a fresh folder — so fall back to resolving the directory, then the raw path.
+  const abs = resolvePath(tokenFile);
+  let real = abs;
+  try { real = realpathSync(abs); }
+  catch { try { real = join(realpathSync(dirname(abs)), basename(abs)); } catch { /* keep abs */ } }
+
+  // A readable name so `ls` says which client a profile belongs to, plus a hash so two clients
+  // whose folders share a basename can never collide. The token file normally sits at
+  // <project>/.ghl/<file>, so the project folder is the grandparent; anything else uses its own
+  // parent (the shared default token file yields "uxie-ghl-internal-mcp").
+  const parent = dirname(real);
+  const named = basename(parent) === '.ghl' ? basename(dirname(parent)) : basename(parent);
+  const slug = named.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32) || 'profile';
+  const hash = createHash('sha256').update(real).digest('hex').slice(0, 8);
+  return join(homeDir, 'profiles', `${slug}-${hash}`);
+}
+
+const PROFILE_DIR = resolveProfileDir({ tokenFile: TOKEN_FILE });
+// Test seam, and the answer to "which profile will this capture use?" without launching Chrome.
+if (process.argv.includes('--print-profile-dir')) { console.log(PROFILE_DIR); process.exit(0); }
 
 const APP = 'https://app.gohighlevel.com';
 // The builder iframe. A Bearer is only accepted when the request came from here.
@@ -169,6 +215,9 @@ const looksJwt = (v) => typeof v === 'string' && v.split('.').length === 3 && v.
 
 async function main() {
   const { chromium } = await loadPlaywright();
+  // Read BEFORE the launch: launchPersistentContext creates the directory, so afterwards every
+  // profile looks pre-existing and the operator loses the one hint that a login is coming.
+  const profileIsNew = !existsSync(PROFILE_DIR);
   const ctx = await chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
     viewport: { width: 1440, height: 900 },
@@ -216,7 +265,10 @@ async function main() {
   const page = ctx.pages()[0] ?? await ctx.newPage();
   await page.goto(APP, { waitUntil: 'domcontentloaded' });
 
-  console.log('browser open. leave it open until this exits.');
+  // Say which profile, because "why is it already logged in as someone else?" is answered here
+  // and nowhere else. A fresh directory means the login page — that is correct, not a fault.
+  console.log(`browser open on profile ${PROFILE_DIR}${profileIsNew ? ' (new — expect the login page)' : ''}.`);
+  console.log('leave it open until this exits.');
   if (!account) {
     console.log('no --account given: open any sub-account, then Automation → a workflow.');
   }

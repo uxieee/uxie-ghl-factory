@@ -121,6 +121,13 @@ different folders. Instead:
   version updates don't break the path), captures that account's token to a project-local file
   (`.ghl/uxie-ghl-internal-mcp-tok.txt`, gitignored), and sets `GHL_INTERNAL_TOK_FILE` to it. Each folder
   gets its own server + account. First registration triggers a one-time workspace-trust prompt.
+  The capture opens a **browser profile derived from that token file**
+  (`~/.uxie-ghl-internal-mcp/profiles/<project>-<hash>`; `GHL_INTERNAL_PW_PROFILE` overrides,
+  `--print-profile-dir` prints it) — before 0.50.0 one profile was shared by every folder, so the
+  agency logged in last was the agency the next capture ran in. A fresh profile means one login
+  per client, once. Browser MCP servers have the same hazard and are not covered by this: give
+  `@playwright/mcp` (`--user-data-dir`) and `chrome-devtools-mcp` (`--userDataDir`) a per-project
+  directory too, or one Chrome session spans every client on the machine.
 - **Other stdio clients** (Codex, Cursor, Desktop): register it yourself per project, pointing at
   the stable launcher (or the versioned bundle directly) and setting `GHL_INTERNAL_TOK_FILE`:
   ```toml

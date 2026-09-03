@@ -157,7 +157,26 @@ to this repo, a report, or a commit message.
   launcher hands an operator who mistyped it every write tool in the registry while they
   believe they are read-only. The audit launcher REFUSES to start if no installed build ships
   `dist/audit-server.mjs`; it never downgrades to the full server.
+- **Browser profile (per token file, 0.50.0):** `~/.uxie-ghl-internal-mcp/profiles/<project>-<hash>`,
+  derived by `capture-token.mjs` from the token file it is about to write —
+  `GHL_INTERNAL_PW_PROFILE` overrides it, `--print-profile-dir` prints it without opening Chrome.
+  **A Chrome profile holds a GHL session, so a shared profile is a shared login.** Before 0.50.0
+  every folder's capture opened one profile (`~/.uxie-ghl-internal-mcp/pw-profile`), which meant
+  whichever agency was logged in last was the agency the next capture ran in — measured
+  2026-09-03, when a browser driven to one client's sub-account landed on ANOTHER client's agency
+  launchpad. The binding was right; the login it was handed was machine-wide. One profile per
+  token file ends that, and there is deliberately **no fallback to the old shared profile**:
+  reusing it would seed every client's slot with the session that caused the bug. A fresh profile
+  shows the login page — correct, not a fault, and once per client. The old profile is left on
+  disk, untouched and unused.
 - **Registration:** project-scoped via `claude mcp add --scope local`, keyed to this folder.
+
+**This applies to any browser you drive yourself, not just the capture.** The Playwright and
+Chrome-DevTools MCP servers each default to ONE profile for the whole machine, so a plugin-level
+registration of either carries one GHL session across every client folder. Register them
+per project with their own directory (`--user-data-dir` for `@playwright/mcp`, `--userDataDir`
+for `chrome-devtools-mcp`; both also take `--isolated` for a throwaway) whenever a folder is
+bound to a client, and check `auth_status` rather than the browser for which account you are on.
 
 ---
 
@@ -172,9 +191,10 @@ to this repo, a report, or a commit message.
    Copy BOTH. A stable home holding only the full launcher is how the audit profile ends up
    unreachable — the failure this step exists to prevent.
 
-2. **Capture the token to the project-local file** (leak-safe). Open the Playwright browser
-   (SEPARATE Chrome profile — the user's normal GHL login does NOT carry over) to the **AI
-   Agents** surface so one capture yields both credentials:
+2. **Capture the token to the project-local file** (leak-safe). Open the Playwright browser in a
+   profile belonging to THIS folder — never the machine's default, and never the profile another
+   client was last logged into (see **Per-project layout**; the user's normal GHL login does not
+   carry over either) — to the **AI Agents** surface so one capture yields both credentials:
    `https://app.gohighlevel.com/v2/location/<LOCATION_ID>/ai-agents/getting-started`
    (**either referer works** — `app.gohighlevel.com` or the workflow iframe; settled live
    2026-08-29, and the capture script accepts both). Tag `document.title` so the
@@ -199,9 +219,11 @@ to this repo, a report, or a commit message.
 
    **When you need only a credential, prefer `mcp-internal/scripts/capture-token.mjs`** — it owns
    the whole capture out of band, so no JWT ever passes through the model's context at all, it
-   honours `GHL_INTERNAL_TOK_FILE` so it writes project-locally, and it emits this exact two-line
-   format (`formatTokenFile`, pinned by `test/token-file-format.test.mjs` and
-   `test/capture-referer.test.mjs`). That is the right path for a re-authorize, or for `bind` on a
+   honours `GHL_INTERNAL_TOK_FILE` so it writes project-locally, it opens a browser profile
+   belonging to that token file rather than the machine's shared one (0.50.0), and it emits the
+   exact four-line format above (`formatTokenFile`, pinned by `test/token-file-format.test.mjs`,
+   `test/capture-referer.test.mjs` and `test/capture-profile.test.mjs`). It is therefore the
+   safest capture path as well as the least leaky. That is the right path for a re-authorize, or for `bind` on a
    folder whose `agency.json` already exists. `connect` uses the browser flow above because
    **step 3 rides the same session** to read the agency `companyId`, which the script neither
    captures nor leaves a browser open for; the header → file → parse discipline is what holds the
@@ -386,6 +408,30 @@ For each remaining row where `<folder>/.ghl/agency.json` exists:
 
 For every folder you skipped, name it and say why: exempt, expired credential, no `agency.json`,
 discovery failed. A silent skip reads as a pass.
+
+### Tier 3 — the surfaces this audit does NOT cover (say so; do not imply otherwise)
+
+Both tiers above read the INTERNAL rail only. A folder can be perfectly bound here and still reach
+another client, so name these three explicitly in any report:
+
+- **The public MCP server** (`@uxieee/ghl-mcp`, usually `ghl` in a project's `.mcp.json`). Its
+  scope is `GHL_ALLOWED_LOCATIONS`, and **an empty or absent list means every account in
+  `GHL_ACCOUNTS_FILE`**, not none. Read each client folder's `.mcp.json` and report an unscoped
+  `ghl` beside a bound internal server as a finding — measured 2026-09-03, one such folder offered
+  all 18 accounts across six agencies.
+- **Browser MCP servers.** Plugin-level `playwright` / `chrome-devtools` registrations share ONE
+  Chrome profile machine-wide, so their GHL session is not governed by any binding. Report a
+  client folder that has no per-project browser registration of its own.
+- **Sub-folders.** A registration is keyed to an exact path; a sub-folder inherits its parent's
+  `.mcp.json` but has its own `~/.claude.json` entry. Check the folders people actually open, not
+  only the ones that appear in `listRegistrations`.
+
+`listRegistrations` also enumerates by NAME PREFIX (`uxie-ghl-internal-mcp*`), so a registration of
+this server under any other name — `<client>-internal` is the shape people reach for — is
+invisible to tier 1.
+Scan each folder's `mcpServers` for the launcher path as well as the name, or such servers go
+unaudited: six were found this way on 2026-09-03, every one of them refusing every call with
+`LEGACY_TOKEN_FILE_ENV` while still presenting a full tool set.
 
 ---
 
@@ -574,6 +620,14 @@ project file — then retry the tool. The server re-reads the file every call, s
 re-registration is needed; the launcher copy, the registration and the binding only run on first
 setup for a folder. Do not stop to ask; just re-capture (the user still logs in). ONE re-capture
 per failure: if the retry fails the same way, stop and report it.
+
+**Verify the login you captured before you trust it.** A capture writes whatever account the
+browser was signed into, and a browser is not governed by this folder's binding. Decode the new
+file's `authClassId` and check it against the login this folder had before (`audit`'s offline tier
+prints it). On a mismatch, keep the wrong capture beside the file under a name that says so,
+restore the previous token file, and tell the user — never leave a folder authenticated as another
+client. Since 0.50.0 the per-token-file profile makes this rare, but a person can still log a
+profile into the wrong agency.
 
 `LOCATION_UNBOUND` and `LOCATION_FORBIDDEN` are **not** credential problems and re-capturing does
 nothing for either — they are what `bind` is for. `LEGACY_TOKEN_FILE_ENV` and
