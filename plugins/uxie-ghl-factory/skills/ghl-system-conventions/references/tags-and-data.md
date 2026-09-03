@@ -6,7 +6,7 @@ decision rule itself is in SKILL.md; this is the depth behind it.
 ⚠️ **On platform behaviour, the corpus wins over this page.** The taxonomy and
 decision-making guidance here is judgement, drawn from practitioner sources and from real
 accounts. The mechanical claims are weaker evidence than the corpus — check
-`describe_step_type contact_tag` (or, with the corpus on disk,
+`node scripts/types.mjs contact_tag` (or `describe_step_type` with the plugin, or, with the corpus on disk,
 `corpus/workflows/30-types/triggers/contact_tag.md` and the relevant `40-rules/` pages)
 before relying on anything mechanical below.
 
@@ -119,7 +119,7 @@ tag that doesn't fit is a custom field.
 
 - **Constrained types where the values are genuinely known and stable** — a dropdown beats
   a text field for anything you'll branch or report on. But this is a per-field judgement
-  call, not a blanket rule: run field types past Xander rather than deciding alone.
+  call, not a blanket rule: run field types past the operator rather than deciding alone.
 - **Anything an AI agent writes must be TEXT.** AI field-write actions can't bind picklist
   options. Document the expected values instead.
 - **Anything that has to merge into message copy belongs on the contact.** Opportunity is

@@ -1,25 +1,45 @@
 ---
 name: ghl-system-conventions
-description: Xander's conventions for building GoHighLevel systems — workflow naming and structure, tag/field/custom-value discipline, pipeline and opportunity decisions, copy rules, and the pre-build approval document he signs off before anything gets created. Account-agnostic, for ANY GHL sub-account. Use whenever designing, building, editing, reviewing, or discussing GHL workflows, automations, pipelines, stages, opportunities, tags, custom fields, custom values, calendars, or AI agents — even if the user never says "conventions" or "standards". Load it BEFORE proposing a design or creating any GHL object, so the proposal already looks the way Xander wants it.
+description: House conventions for building GoHighLevel systems — workflow naming and structure, tag/field/custom-value discipline, pipeline and opportunity decisions, copy rules, and the pre-build approval document the operator signs off before anything gets created. Account-agnostic, for ANY GHL sub-account. Use whenever designing, building, editing, reviewing, or discussing GHL workflows, automations, pipelines, stages, opportunities, tags, custom fields, custom values, calendars, or AI agents — even if the user never says "conventions" or "standards". Load it BEFORE proposing a design or creating any GHL object, so the proposal already looks the way the operator wants it.
 ---
 
 # GHL System Conventions
 
-How Xander builds in GoHighLevel, especially **workflows**. This is account-agnostic:
+How the operator builds in GoHighLevel, especially **workflows**. This is account-agnostic:
 no agency, client, or persona names live here. Anything client-specific (persona name,
 business name, prices, links, cadences, copy) is per-build data, not a convention.
 
-This skill decides what a design **looks like**. Execution runs through the plugin's
-specialists — `ghl-workflow-specialist` (which delegates the build to `create-ghl-workflow`)
-and `ghl-pipeline-specialist` — and their shared `${CLAUDE_PLUGIN_ROOT}/docs/specialist-contract.md`
-loop (recon → brief → intake → blueprint → approval → execute → verify). Load this skill
-before the blueprint so the proposal already looks the way Xander wants it.
+This skill decides what a design **looks like** — the shape, the names, where data lives,
+the gates a design passes through. It does not build.
+
+## What this needs
+
+It works in two settings. Know which one you are in, because it changes where truth comes from.
+
+- **Standalone** (installed with `npx skills add uxieee/ghl-system-conventions`). Everything
+  here applies. GHL's own vocabulary — every trigger and step type, its fields, allowed values,
+  validator and proof status — ships inside this skill: `references/ghl-types-index.md` to see
+  what exists, `node scripts/types.mjs <type>` for the full card. Reading the account is up to
+  whatever GHL access you have (the public `ghl` MCP, or the UI). Building is by hand in the
+  builder, from the approved pre-build document.
+- **With the `uxie-ghl-factory` plugin installed.** Same skill, more reach: `describe_step_type`
+  serves the same type cards as a tool, `search_endpoints` adds the internal API, the internal
+  MCP reads the whole account at once (`list_account_entities`,
+  `get_account_workflow_overview`), and execution runs through the plugin's specialists —
+  `ghl-workflow-specialist` (which delegates the build to `create-ghl-workflow`) and
+  `ghl-pipeline-specialist` — on their shared `docs/specialist-contract.md` loop
+  (recon → brief → intake → blueprint → approval → execute → verify). Load this skill before the
+  blueprint so the proposal already looks right.
+
+In either setting: **when you cannot verify a mechanic, say so.** Never fill the gap with
+web knowledge — the GHL article layer is largely AI-written restatement that gets basic
+mechanics wrong.
 
 ## Before you answer anything: recon
 
 **Never respond to a build question cold.** Go and look first, then talk. A reply that
-arrives instantly is a reply written from assumptions, and Xander can tell — the fastest
-way to lose his confidence is to ask him something the account would have told you.
+arrives instantly is a reply written from assumptions, and the operator can tell — the
+fastest way to lose their confidence is to ask them something the account would have told you.
 
 Recon is **silent and read-only**. Don't narrate each call or ask permission to look; just
 go, then come back with what you found. Nothing gets created or modified during recon.
@@ -28,11 +48,12 @@ Where to look, in order:
 
 1. **The account**, if there is one. Get the location, then read its actual state:
    existing workflows and their status, pipelines and stage lists, tags, custom fields,
-   custom values, calendars, AI agents, forms and funnels. The internal MCP
-   (`uxie-ghl-internal-mcp`) covers the builder surfaces — `list_account_entities` and
-   `get_account_workflow_overview` are the fastest way to see an account whole; the public
-   MCP (`ghl-multi`) covers contacts, opportunities and the rest. Prefer a typed tool over
-   a raw request, since the typed ones carry the verification.
+   custom values, calendars, AI agents, forms and funnels. With the plugin, the internal MCP
+   covers the builder surfaces — `list_account_entities` and `get_account_workflow_overview`
+   are the fastest way to see an account whole — and the public `ghl` MCP covers contacts,
+   opportunities and the rest. Standalone, the public MCP or the UI is what you have; read
+   what you can and say what you could not. Prefer a typed tool over a raw request, since
+   the typed ones carry the verification.
 2. **The client folder on disk** — briefs, prior audits, design docs, meeting notes,
    earlier handoffs. Half the questions you were about to ask are usually already answered
    in a file from three weeks ago.
@@ -43,9 +64,9 @@ genuinely could not answer. If the account doesn't exist yet, say so plainly; a 
 build is the one case where questions are all you have, and even then the folder is worth
 checking.
 
-## The meta-rule: guide him to a plan, don't hand him one
+## The meta-rule: guide the operator to a plan, don't hand them one
 
-Your job is to walk Xander to a design **he has agreed to, one decision at a time**. It is
+Your job is to walk the operator to a design **they have agreed to, one decision at a time**. It is
 not to produce a finished system in your first reply. Most structural choices here are
 genuinely situational — how many pipelines, what the stages are, how the ladders run — and
 a complete build proposal that arrives before the business is understood looks impressive
@@ -77,34 +98,34 @@ What you typically need before the first structural decision:
   and whether booking lives in GHL or somewhere else.
 - **Volume and capacity** — leads per month, and how many they can actually handle.
 
-Ask for what's missing in a batch he can answer in one pass, grouped by topic, and say why
-each one changes the build — a structured list he can work through, or forward to the
+Ask for what's missing in a batch they can answer in one pass, grouped by topic, and say why
+each one changes the build — a structured list they can work through, or forward to the
 client, is the right shape here. What makes it land is that every question in it survived
 recon: you looked, and these are the ones the account genuinely could not answer.
 
 ### 2. Move one layer at a time, and stop at each
 
-Each layer's answer changes the next one, so running ahead wastes both your work and his
+Each layer's answer changes the next one, so running ahead wastes both your work and their
 attention. The order, with a confirmation gate between every step:
 
-1. **Business and offer** — confirmed above, in his words, before anything structural.
+1. **Business and offer** — confirmed above, in their words, before anything structural.
 2. **The pipeline** — how many, and the stage list. Agree this before workflows exist,
    because stages determine what the workflows have to move.
 3. **The workflow list** — names and one-line jobs only. No steps, no copy. This is where
-   he decides what the system *contains*.
-4. **Each workflow in detail, one at a time** — trigger, steps, waits, exits. He checks
+   they decide what the system *contains*.
+4. **Each workflow in detail, one at a time** — trigger, steps, waits, exits. They check
    each before you move to the next.
 5. **Copy** — once the structure is settled.
 
-Present a layer, give your reasoning and recommendation, then stop and let him respond.
-A recommendation is welcome; a finished document he has to unpick is not.
+Present a layer, give your reasoning and recommendation, then stop and let them respond.
+A recommendation is welcome; a finished document they have to unpick is not.
 
 ### 3. Gaps
 
 - If two different answers would produce **two different builds**, that's a design
-  question — ask, and don't pick for him.
+  question — ask, and don't pick for them.
 - If it's just a missing value (a price, an address, a link), collect it — ask, or gather
-  every missing item into one markdown file he can fill in one pass. Never guess, and
+  every missing item into one markdown file they can fill in one pass. Never guess, and
   never let a placeholder end up in a live timer.
 
 ## Hard rules
@@ -150,7 +171,7 @@ These hold regardless of the build.
 - Numbers run in **journey order**, not creation order.
 - Numbering is **contiguous**. If a workflow dies, renumber the ones after it. No gaps.
 - **No sub-numbers.** `07b`, `16.1` — renumber instead.
-- **Refer to workflows by name, not number** when talking to Xander. Numbers move when
+- **Refer to workflows by name, not number** when talking to the operator. Numbers move when
   things get renumbered; names don't.
 - Retired workflows get an **`X ` prefix** and are unpublished, so dead things look dead.
 - **Test objects say TEST in the name.** Nobody should have to wonder.
@@ -275,14 +296,16 @@ recollection, and it very much beats anything on the open web, where the GHL art
 is largely AI-written restatement that gets basic mechanics wrong. **Check it before
 asserting how GHL behaves.**
 
-It reaches you two ways:
+It reaches you three ways:
 
-- **Through the internal MCP, always.** The corpus ships distilled into the plugin's
-  tools: `search_step_types` / `describe_step_type` give the real field set, allowed
-  values and validator behaviour for every step and trigger type (one card per type, the
-  full union of every discriminator); `search_endpoints` / `describe_endpoint` cover every
+- **Inside this skill, always.** The type layer ships here: `catalog/type-cards.json` is
+  one card per step and trigger type — the real field set, allowed values, validator
+  behaviour and proof status, the full union of every discriminator — regenerated from the
+  corpus at every release. `references/ghl-types-index.md` lists them; `node
+  scripts/types.mjs <type>` prints a card. Read the card before asserting what a step takes.
+- **Through the plugin's MCP, when installed.** `search_step_types` / `describe_step_type`
+  serve the same cards as a tool; `search_endpoints` / `describe_endpoint` add every
   internal endpoint with its proof status; `search_merge_tags` the merge-tag vocabulary.
-  Prefer these — they are the same cards, regenerated from the corpus at every release.
 - **As files, when the corpus is on the machine.** The full corpus (nine surfaces —
   workflows, ai-agents, funnels, memberships-courses, events, platform, marketplace-apps,
   ask-ai, plus shared rails; around 390 pages for workflows alone) lives in a `knowledge/`
@@ -306,36 +329,36 @@ Two things make the corpus usable rather than overwhelming:
 before you start, each pointing at the corpus page that proves it. The corpus wins on any
 conflict — including with this skill.
 
-## Working with Xander
+## Working with the operator
 
 - **Recon before you speak.** Silent, read-only, every time there's an account to read.
-- **He's in the planning loop, layer by layer.** Confirm the business, then the pipeline,
-  then the workflow list, then each workflow — stopping for his answer at each. He decides
+- **They're in the planning loop, layer by layer.** Confirm the business, then the pipeline,
+  then the workflow list, then each workflow — stopping for their answer at each. They decide
   at every gate; you bring the reasoning and a recommendation.
-- **Nothing gets built until he says the design is good.** That gate comes before the
+- **Nothing gets built until they say the design is good.** That gate comes before the
   first object is created.
-- **Build one at a time.** Create workflows one by one so he can check each. It's a
+- **Build one at a time.** Create workflows one by one so they can check each. It's a
   back-and-forth, not a batch drop — the same rhythm as the design conversation.
-- **Default to drafts.** He usually publishes in the UI himself, but he'll say when he
-  wants something published — publishing on request is fine, publishing on your own
+- **Default to drafts.** The operator usually publishes in the UI themselves, but will say
+  when they want something published — publishing on request is fine, publishing on your own
   initiative isn't.
 - **Verify against the live account.** A green script or a tidy doc is not evidence the
   account agrees. Read it back.
 - **E2E test the whole system before launch** — a real, clearly-marked TEST lead through
   every entry point, walked all the way through — and keep a written record of results.
 - **Every change set ships with a before/after and a report of what was actually done.**
-- **Explain clearly.** Technical detail is fine; unexplained jargon isn't. He needs to
+- **Explain clearly.** Technical detail is fine; unexplained jargon isn't. They need to
   understand what a thing does and why, not just what it's called.
-- **Never delete anything of his.** Mark it (`X ` prefix, TEST label) and leave it for
-  him to remove. Deleting *steps inside a workflow* as part of a deliberate edit is a
+- **Never delete anything of theirs.** Mark it (`X ` prefix, TEST label) and leave it for
+  them to remove. Deleting *steps inside a workflow* as part of a deliberate edit is a
   different thing and is fine.
 - Keep client folders organised — dated build folders, backups before mutations, no loose
   files in the root.
 
 ## The pre-build document
 
-Before anything is built, Xander reviews a **single self-contained HTML file**. This is
-the approval artifact, not a report: he approves the diagrams, and building becomes
+Before anything is built, the operator reviews a **single self-contained HTML file**. This is
+the approval artifact, not a report: they approve the diagrams, and building becomes
 transcription rather than fresh decision-making. That means every diagram has to be in
 GHL's own vocabulary — real trigger names, real action types, real filters, real waits.
 

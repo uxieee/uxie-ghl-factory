@@ -143,7 +143,7 @@ the execution and the catalogue does the lookup, so what a skill carries is what
 | Skill | |
 |---|---|
 | `ghl-orientation` | the object model, the terminology, and which rail can do what. Every other skill assumes it |
-| `ghl-system-conventions` | how a system should *look*: recon-first, layer-by-layer design gates, naming, where data lives (stage vs field vs tag), pipeline tests, hard rules, and the pre-build HTML approval document. Loaded before any blueprint |
+| `ghl-system-conventions` | how a system should *look*: recon-first, layer-by-layer design gates, naming, where data lives (stage vs field vs tag), pipeline tests, hard rules, and the pre-build HTML approval document. Loaded before any blueprint. Also installable on its own: `npx skills add uxieee/ghl-system-conventions` |
 | `ghl-workflow-specialist` | senior automation architect: patterns, anti-patterns, multi-workflow architecture. Decides *what* to build, delegates *how* |
 | `ghl-pipeline-specialist` | stages as states, opportunity hygiene, pipeline↔automation interplay. Public API only |
 | `ghl-reverse-engineering` | the method for mapping a new internal surface exhaustively — and for checking the catalogue before opening a browser |
@@ -250,6 +250,7 @@ them at the next *release* (`claude plugin update` compares version strings).
 
 ```bash
 npm run sync                 # regenerate every generated artefact in place (a knowledge/ commit runs this for you)
+npm run publish-skill -- --version 0.54.0   # re-publish the standalone ghl-system-conventions mirror (release does this for you)
 npm run freshness            # would regenerating change any shipped artefact? names what differs
 npm run release -- 0.52.0    # preflight → drift → sync → gate → bump both manifests → full suite → tag/push/release/install
 npm run release -- 0.52.0 --dry-run

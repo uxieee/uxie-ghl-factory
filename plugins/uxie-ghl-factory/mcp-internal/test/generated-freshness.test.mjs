@@ -37,11 +37,12 @@ function scratchPluginRoot() {
   return { root, mcp };
 }
 
-test('the real tree is fresh (catalogue + manifests — the checks that need no sibling repo)', () => {
-  const { code, out } = run('--only', 'catalogue,manifests');
+test('the real tree is fresh (catalogue + manifests + skill-types — the checks that need no sibling repo)', () => {
+  const { code, out } = run('--only', 'catalogue,manifests,skill-types');
   assert.equal(code, 0, out);
   assert.match(out, /freshness: catalogue\s+ok/);
   assert.match(out, /freshness: manifests\s+ok/);
+  assert.match(out, /freshness: skill-types\s+ok/);
 });
 
 test('the checks that need knowledge/ either pass or say they skipped — never fail for its absence', () => {

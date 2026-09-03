@@ -1,9 +1,9 @@
 # Build-time traps, and how to look things up
 
-**The corpus is authoritative, not this page.** It reaches you through the internal
-MCP's `describe_step_type` / `describe_endpoint` cards always, and as files when the
-`knowledge/` repo sits beside the plugin's source repo on this machine (see SKILL.md,
-"The knowledge corpus"). Paths below are relative to that repo.
+**The corpus is authoritative, not this page.** Its type layer ships inside this skill
+(`node scripts/types.mjs <type>`, or `describe_step_type` with the plugin); the rest reaches
+you as files when the `knowledge/` repo sits beside the plugin's source repo on this
+machine (see SKILL.md, "The knowledge corpus"). Paths below are relative to that repo.
 
 This page is a short list of things worth knowing *before* you start, each pointing at the
 corpus page that proves it. Anything below that conflicts with the corpus: the corpus is

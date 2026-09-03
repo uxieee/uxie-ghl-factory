@@ -7,6 +7,7 @@
     "freshness": "node scripts/check-generated-freshness.mjs",
     "sync": "node scripts/sync-generated.mjs",
     "release": "node scripts/release.mjs",
+    "publish-skill": "node scripts/publish-standalone.mjs",
     "test": "cd plugins/uxie-ghl-factory/mcp-internal && npm test"
   }
 }

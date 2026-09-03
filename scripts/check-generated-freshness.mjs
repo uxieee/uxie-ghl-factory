@@ -4,6 +4,7 @@
 // The plugin does not read knowledge/ at runtime; it carries COPIES, compiled by hand:
 //
 //   type-cards   knowledge/corpus/workflows/30-types  →  skills/create-ghl-workflow/catalog/type-cards.json
+//   skill-types  that type-cards.json  →  skills/ghl-system-conventions/{catalog/type-cards.json, references/ghl-types-index.md}
 //   source       knowledge/catalog/internal-endpoints.source.json  →  mcp-internal/catalog/ (delivered by the miner)
 //   catalogue    source + endpoint-overlay.json + capability-manifest  →  mcp-internal/catalog/internal-endpoints.json
 //   manifests    core/tools.mjs + core/audit-capabilities.mjs  →  capability-manifest.json, audit-capability-manifest.json
@@ -49,7 +50,7 @@ const MCP = join(PLUGIN, 'mcp-internal');
 const ONLY = list('--only');
 const SKIP = list('--skip');
 
-const CHECKS = ['type-cards', 'source', 'catalogue', 'manifests', 'dist'];
+const CHECKS = ['type-cards', 'skill-types', 'source', 'catalogue', 'manifests', 'dist'];
 for (const name of [...ONLY, ...SKIP]) {
   if (!CHECKS.includes(name)) { console.error(`freshness: unknown check "${name}" — one of ${CHECKS.join(', ')}`); process.exit(2); }
 }
@@ -120,6 +121,34 @@ if (wanted('type-cards')) {
       d.stale ? stale('type-cards', d.lines, fix) : ok('type-cards', `${readJson(shippedPath).count} cards`);
     } catch (e) { failed('type-cards', e, fix); }
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// 1b. skill-types — the conventions skill's standalone copy of the type catalogue + its index
+// ---------------------------------------------------------------------------------------------
+if (wanted('skill-types')) {
+  const gen = join(REPO, 'scripts/build-skill-types.mjs');
+  const skill = join(PLUGIN, 'skills/ghl-system-conventions');
+  const fix = 'node scripts/build-skill-types.mjs';
+  const out = join(tmp, 'skill-types');
+  try {
+    execFileSync('node', [gen, '--plugin-root', PLUGIN, '--out-dir', out], { encoding: 'utf8', stdio: 'pipe' });
+    const lines = [];
+    const shippedCards = join(skill, 'catalog/type-cards.json');
+    const shippedIndex = join(skill, 'references/ghl-types-index.md');
+    if (!existsSync(shippedCards)) lines.push('catalog/type-cards.json is MISSING from the skill');
+    else if (readFileSync(shippedCards, 'utf8') !== readFileSync(join(out, 'type-cards.json'), 'utf8')) {
+      const d = diffById(readJson(shippedCards).cards, readJson(join(out, 'type-cards.json')).cards, (c) => c.type, 'cards');
+      lines.push('catalog/type-cards.json differs from create-ghl-workflow\'s:', ...(d.lines.length ? d.lines : ['same cards, different bytes']));
+    }
+    if (!existsSync(shippedIndex)) lines.push('references/ghl-types-index.md is MISSING from the skill');
+    else if (readFileSync(shippedIndex, 'utf8') !== readFileSync(join(out, 'ghl-types-index.md'), 'utf8')) {
+      const a = readFileSync(shippedIndex, 'utf8').split('\n'), b = readFileSync(join(out, 'ghl-types-index.md'), 'utf8').split('\n');
+      const first = a.findIndex((l, i) => l !== b[i]);
+      lines.push(`references/ghl-types-index.md differs from a fresh render (first difference at line ${first + 1}: ${JSON.stringify(a[first] ?? '')} → ${JSON.stringify(b[first] ?? '')})`);
+    }
+    lines.length ? stale('skill-types', lines, fix) : ok('skill-types', `${readJson(shippedCards).count} cards + index`);
+  } catch (e) { failed('skill-types', e, fix); }
 }
 
 // ---------------------------------------------------------------------------------------------
