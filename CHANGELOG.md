@@ -19,6 +19,11 @@ commit bodies carry the detail.
   first reply that is (correctly) all questions still says where the design will land. Found by
   running the skill's evals against the standalone install: a thin brief got questions, as the
   rule demands, but never mentioned the approval document.
+- `ghl-system-conventions`: **custom values and custom fields have a human-readable NAME and a
+  `snake_case` KEY**, and the skill only said "snake_case" — which read as though the name itself
+  were snake_cased. The name is what a person picks from a dropdown (foldered values show as
+  `folder.name`); the key is what automations reference (`{{custom_values.ai_persona_name}}`).
+  Corrected for both. Raised by the operator; confirmed against the corpus.
 
 ## [0.54.0] — 2026-09-04
 
