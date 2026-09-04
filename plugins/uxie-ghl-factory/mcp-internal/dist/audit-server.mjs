@@ -77976,11 +77976,13 @@ function containsSecrets(value, key = "") {
   if (value == null) return false;
   if (typeof value === "string") return hasSecretText(value);
   if (Array.isArray(value)) return value.some((item) => containsSecrets(item, key));
-  if (key === "secrets" && value && typeof value === "object" && !Array.isArray(value)) {
-    return Object.values(value).some((item) => containsSecrets(item));
-  }
   if (typeof value === "object") {
-    return Object.entries(value).some(([childKey, item]) => containsSecrets(childKey) || containsSecrets(item, childKey));
+    return Object.entries(value).some(([childKey, item]) => {
+      if (childKey === "secrets" && item && typeof item === "object" && !Array.isArray(item)) {
+        return Object.values(item).some((v) => containsSecrets(v));
+      }
+      return containsSecrets(childKey) || containsSecrets(item, childKey);
+    });
   }
   return false;
 }
