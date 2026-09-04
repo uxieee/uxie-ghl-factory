@@ -379,6 +379,20 @@ test('awaitTurn returns a resumable handle when the wait ceiling is hit', async 
   assert.equal(out.resumeWith, 'get_studio_generation_status');
 });
 
+// FIX 3 — the row matching messageId is present the whole time but never goes terminal
+// (buildStatus stays "validating"). The pending payload must carry ITS observed buildStatus, not
+// null: this is the hook by which a live-fire pass discovers the real "failed" string, since
+// "failed" has never once been observed live (see rule 1 above). Losing this silently would erase
+// that negative-knowledge trail.
+test('awaitTurn reports the matching-but-non-terminal row\'s buildStatus in the pending payload', async () => {
+  const firestore = { messages: async () => [{ role: 'assistant', id: 'm1', buildStatus: 'validating' }] };
+  const out = await awaitTurn({ firestore, projectId: 'P1', messageId: 'm1', waitMs: 20, pollMs: 5,
+    nowMs: (() => { let t = 0; return () => (t += 10); })(), sleep: async () => {} });
+  assert.equal(out.pending, true);
+  assert.equal(out.buildStatus, 'validating',
+    'the pending payload must report the matching row\'s observed buildStatus, not hardcode null');
+});
+
 // C1 (Critical): `awaitTurn` used to take `rows.filter(role==='assistant').pop()` with NO
 // correlation to the turn just started. On any project with prior history the previous
 // assistant row is already terminal, so the FIRST poll — microseconds after the 202, before
@@ -420,6 +434,7 @@ test('awaitTurn ignores a terminal row that never matches messageId, until the d
     waitMs: 15, pollMs: 5, nowMs: (() => { let t = 0; return () => (t += 10); })(), sleep: async () => {} });
   assert.equal(out.pending, true, 'a terminal row for a different message id must never resolve this turn');
   assert.equal(out.messageId, 'MY-TURN');
+  assert.equal(out.buildStatus, null, 'no row ever matched messageId, so there is no status to report');
 });
 
 import { containsSecrets } from '../core/errors.mjs';
@@ -550,6 +565,7 @@ test('get_studio_preview re-reads the sandbox after provisioning and returns fre
   let ensureCalled = false;
   const gw = {
     call: async (method, path) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
       if (method === 'POST' && path.includes('/sandbox')) { ensureCalled = true; return { status: 200, ok: true, json: { queued: true } }; }
       if (method === 'GET' && path.includes('/sandbox')) {
         getSandboxCalls += 1;
@@ -572,6 +588,7 @@ test('get_studio_preview re-reads the sandbox after provisioning and returns fre
 test('get_studio_preview reports honestly when the re-read is still not ready', async () => {
   const gw = {
     call: async (method, path) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
       if (method === 'POST' && path.includes('/sandbox')) return { status: 200, ok: true, json: { queued: true } };
       if (method === 'GET' && path.includes('/sandbox')) return { status: 200, ok: true, json: { ready: false, url: null } };
       return { status: 404, ok: false, json: {} };
@@ -587,6 +604,7 @@ test('get_studio_preview does not re-read when already ready', async () => {
   let getSandboxCalls = 0;
   const gw = {
     call: async (method, path) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
       if (method === 'GET' && path.includes('/sandbox')) { getSandboxCalls += 1; return { status: 200, ok: true, json: { ready: true, url: 'https://x.vibepreview.com' } }; }
       return { status: 404, ok: false, json: {} };
     },
@@ -739,6 +757,36 @@ test('generate_studio_site returns the chat-started message id when the turn tim
     'the pending path must fall back to the chat-started message id, never null');
 });
 
+// FIX 4 — a chat 202 with no message_id used to fall through into awaitTurn, poll to the full
+// ~120s ceiling for nothing (nothing could ever match a null messageId), and return
+// `{ pending: true, messageId: null, note: 'nothing was lost' }` — a lie, because
+// get_studio_generation_status REQUIRES messageId: z.string() and cannot resume a null handle.
+// The fix refuses immediately instead of entering the wait at all.
+test('generate_studio_site refuses immediately when the chat receipt carries no message_id, and never polls firestore', async () => {
+  const tool = TOOLS.find((t) => t.name === 'generate_studio_site');
+  const gw = {
+    call: async (method, path) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+        return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+      }
+      if (path.includes('/usage/policy')) return { status: 200, ok: true, json: { allowed: true } };
+      if (path.includes('/ai-wrapper/usage')) return { status: 200, ok: true, json: { snapshots: [] } };
+      // 202 accepted, but no message_id in the receipt.
+      if (method === 'POST' && path.includes('/chat')) return { status: 202, ok: true, json: {} };
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const fb = { call: async () => { throw new Error('firestore must never be polled when there is no message_id to wait for'); } };
+  const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+  const result = await tool.handler(
+    { locationId: 'LOC', projectId: 'P1', prompt: 'build me a site' }, deps);
+  assert.equal(result.ok, false, 'must refuse rather than return an unresumable pending handle');
+  assert.equal(result.code, CODES.VALIDATION_FAILED);
+  assert.match(result.detail, /no message_id/, 'must say the receipt carried no message_id');
+  assert.doesNotMatch(JSON.stringify(result), /nothing was lost/,
+    'must never claim nothing was lost when the resume handle itself is missing');
+});
+
 // ----------------------------------------------------------------------------------------------------
 // Task 8 — ship tools (confirmation-gated publish and unpublish)
 // ----------------------------------------------------------------------------------------------------
@@ -765,7 +813,7 @@ test('unpublish read-back is the only evidence it happened', async () => {
         return { status: 200, ok: true, json: { status: 'unpublished' } };
       }
       if (method === 'GET' && path.includes('/projects')) {
-        return { status: 200, ok: true, json: { published_at: null, published_version_id: null } };
+        return { status: 200, ok: true, json: { alt_id: 'LOC', published_at: null, published_version_id: null } };
       }
       throw new Error(`unexpected call: ${method} ${path}`);
     },
@@ -784,7 +832,7 @@ test('unpublish read-back is the only evidence it happened', async () => {
         return { status: 200, ok: true, json: { status: 'still_published' } };
       }
       if (method === 'GET' && path.includes('/projects')) {
-        return { status: 200, ok: true, json: { published_at: '2026-09-04T00:00:00Z', published_version_id: 'V1' } };
+        return { status: 200, ok: true, json: { alt_id: 'LOC', published_at: '2026-09-04T00:00:00Z', published_version_id: 'V1' } };
       }
       throw new Error(`unexpected call: ${method} ${path}`);
     },
@@ -807,7 +855,7 @@ test('publish reports the live URL and verified state from read-back', async () 
         return { status: 200, ok: true, json: { status: 'published', live_url: 'https://test-site.vibepreview.com' } };
       }
       if (method === 'GET' && path.includes('/projects')) {
-        return { status: 200, ok: true, json: { published_at: '2026-09-04T00:00:00Z', published_version_id: 'V123' } };
+        return { status: 200, ok: true, json: { alt_id: 'LOC', published_at: '2026-09-04T00:00:00Z', published_version_id: 'V123' } };
       }
       throw new Error(`unexpected call: ${method} ${path}`);
     },
@@ -877,11 +925,11 @@ test('every project-scoped AI Studio tool refuses when the returned project belo
 });
 
 // The parameterised test above proves the REFUSAL path. This proves the check does not fire as a
-// false positive when the record legitimately belongs to the bound location, or carries no
-// alt_id at all (an endpoint that omits it) — get_studio_site already covered this; confirmed
-// here for one representative write tool too, since a false positive on a write is the more
-// expensive failure mode.
-test('the alt_id check does not false-positive when the project matches (or carries no alt_id)', async () => {
+// false positive when the record legitimately belongs to the bound location — get_studio_site
+// already covered this; confirmed here for one representative write tool too, since a false
+// positive on a write is the more expensive failure mode. (An absent alt_id is NOT a false-positive
+// case any more — see the fail-closed tests below: a missing alt_id now refuses, by design.)
+test('the alt_id check does not false-positive when the project genuinely matches', async () => {
   const tool = TOOLS.find((t) => t.name === 'set_studio_secrets');
   let putBody = null;
   const gw = {
@@ -899,6 +947,109 @@ test('the alt_id check does not false-positive when the project matches (or carr
   const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', secrets: { API_KEY: 'x' } }, { state: {}, makeGw: () => gw });
   assert.equal(result.ok, true);
   assert.ok(putBody, 'the write must have reached the upstream call once alt_id matched');
+});
+
+// ----------------------------------------------------------------------------------------------------
+// FIX 1 (blocking) — assertProjectLocation FAILS OPEN in three shapes, all executed against the
+// real handlers before this fix: (a) 200 with a record carrying NO alt_id at all
+// (unpublish_studio_site executed), (b) 500 with an unrecognised body (publish_studio_site
+// executed), (c) 404 with a null body (set_studio_secrets' PUT executed). One parameterised test
+// over every project-scoped tool, covering all three bypass shapes plus the happy path and the
+// genuine-mismatch path — each of the three bypass cases must FAIL (refuse) against the fixed
+// code, and must have PASSED (wrongly executed) against the pre-fix code.
+// ----------------------------------------------------------------------------------------------------
+
+const FAIL_CLOSED_BYPASS_SHAPES = [
+  {
+    label: 'boundary GET returns 200 with a record carrying no alt_id at all',
+    response: { status: 200, ok: true, json: { id: 'P1' } },
+  },
+  {
+    label: 'boundary GET returns 500 with an unrecognised body',
+    response: { status: 500, ok: false, json: { error: 'internal server error' } },
+  },
+  {
+    label: 'boundary GET returns 404 with a null body',
+    response: { status: 404, ok: false, json: null },
+  },
+];
+
+test('every project-scoped AI Studio tool fails CLOSED on all three real bypass shapes (absent alt_id, unrecognised failure status, null body)', async () => {
+  for (const { label, response } of FAIL_CLOSED_BYPASS_SHAPES) {
+    for (const { name, extraArgs } of PROJECT_SCOPED_STUDIO_TOOLS) {
+      const tool = TOOLS.find((t) => t.name === name);
+      assert.ok(tool, `${name} must be registered`);
+      let otherCallsMade = 0;
+      const gw = {
+        call: async (method, path) => {
+          if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) return response;
+          otherCallsMade += 1;
+          throw new Error(`${name} / ${label}: unexpected call before the boundary check refused — ${method} ${path}`);
+        },
+      };
+      const fb = { call: async () => { throw new Error(`${name} / ${label}: firestore must never be reached — the boundary check must refuse first`); } };
+      const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+      const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', ...extraArgs }, deps);
+      assert.equal(result.ok, false, `${name} must refuse on: ${label}`);
+      assert.equal(result.code, CODES.VALIDATION_FAILED, `${name} must use VALIDATION_FAILED on: ${label}`);
+      assert.equal(otherCallsMade, 0, `${name} must refuse BEFORE reaching any read or write beyond the project GET, on: ${label}`);
+    }
+  }
+});
+
+// A boundary GET that outright THROWS (StudioApi.#vibe throws on a recognised studioError hint —
+// e.g. the Bearer-only rail mistake) must ALSO be treated as "not verified", never as a pass.
+test('every project-scoped AI Studio tool fails CLOSED when the boundary GET itself throws', async () => {
+  for (const { name, extraArgs } of PROJECT_SCOPED_STUDIO_TOOLS) {
+    const tool = TOOLS.find((t) => t.name === name);
+    let otherCallsMade = 0;
+    const gw = {
+      call: async (method, path) => {
+        if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+          const e = new Error('boundary GET failed'); e.code = 'STUDIO_REQUEST_FAILED'; throw e;
+        }
+        otherCallsMade += 1;
+        throw new Error(`${name}: unexpected call before the boundary check refused`);
+      },
+    };
+    const fb = { call: async () => { throw new Error(`${name}: firestore must never be reached — the boundary check must refuse first`); } };
+    const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+    const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', ...extraArgs }, deps);
+    assert.equal(result.ok, false, `${name} must refuse when the boundary GET throws`);
+    assert.equal(result.code, CODES.VALIDATION_FAILED, `${name} must use VALIDATION_FAILED when the boundary GET throws`);
+    assert.equal(otherCallsMade, 0, `${name} must refuse BEFORE reaching any read or write beyond the project GET`);
+  }
+});
+
+// The happy path: alt_id present and matching must still pass, for every project-scoped tool —
+// not just the one representative case above — so the fail-closed fix does not overshoot into
+// refusing legitimate calls.
+test('every project-scoped AI Studio tool passes the boundary check when alt_id genuinely matches', async () => {
+  for (const { name } of PROJECT_SCOPED_STUDIO_TOOLS) {
+    const tool = TOOLS.find((t) => t.name === name);
+    const gw = {
+      call: async (method, path) => {
+        if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+          return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+        }
+        // Every other call after the boundary check passes is allowed through with an inert ok
+        // response — this test only proves the check does not refuse a genuine match, not the
+        // full behaviour of each tool past that point (already covered elsewhere).
+        return { status: 200, ok: true, json: {} };
+      },
+    };
+    const fb = { call: async () => [] };
+    const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+    const result = await tool.handler({ locationId: 'LOC', projectId: 'P1',
+      ...(PROJECT_SCOPED_STUDIO_TOOLS.find((t) => t.name === name).extraArgs) }, deps);
+    // A downstream failure past the boundary check is fine here (the generic mock does not give
+    // every build tool a fully realistic response) — only the boundary check itself must never be
+    // what refused. If it had, the detail would carry its own wording.
+    if (result.ok === false) {
+      assert.doesNotMatch(result.detail ?? '', /different sub-account|could not verify which sub-account/,
+        `${name} must not have been refused BY THE BOUNDARY CHECK on a genuinely matching project`);
+    }
+  }
 });
 
 // ----------------------------------------------------------------------------------------------------

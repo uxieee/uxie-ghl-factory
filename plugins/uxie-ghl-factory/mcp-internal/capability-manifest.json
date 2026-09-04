@@ -1047,7 +1047,17 @@
   {
     "tool": "read_studio_site_content",
     "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "read_studio_site_content",
+    "method": "GET",
     "path": "/vibe-ai/projects/{projectId}/files"
+  },
+  {
+    "tool": "get_studio_site_history",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
   },
   {
     "tool": "get_studio_site_history",
@@ -1056,8 +1066,18 @@
   },
   {
     "tool": "get_studio_site_diffs",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "get_studio_site_diffs",
     "method": "POST",
     "path": "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery"
+  },
+  {
+    "tool": "get_studio_preview",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
   },
   {
     "tool": "get_studio_preview",
@@ -1077,6 +1097,11 @@
   {
     "tool": "generate_studio_site",
     "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "generate_studio_site",
+    "method": "GET",
     "path": "/vibe-ai/projects/{projectId}/usage/policy"
   },
   {
@@ -1091,8 +1116,18 @@
   },
   {
     "tool": "get_studio_generation_status",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "get_studio_generation_status",
     "method": "POST",
     "path": "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery"
+  },
+  {
+    "tool": "answer_studio_question",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
   },
   {
     "tool": "answer_studio_question",
@@ -1101,8 +1136,18 @@
   },
   {
     "tool": "cancel_studio_generation",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "cancel_studio_generation",
     "method": "POST",
     "path": "/vibe-ai/projects/{projectId}/chat/cancel"
+  },
+  {
+    "tool": "set_studio_secrets",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
   },
   {
     "tool": "set_studio_secrets",

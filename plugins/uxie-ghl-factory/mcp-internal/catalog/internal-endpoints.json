@@ -17198,8 +17198,17 @@
       "kind": "read",
       "reach": "source-only",
       "coveredBy": [
+        "answer_studio_question",
+        "cancel_studio_generation",
+        "generate_studio_site",
+        "get_studio_generation_status",
+        "get_studio_preview",
         "get_studio_site",
+        "get_studio_site_diffs",
+        "get_studio_site_history",
         "publish_studio_site",
+        "read_studio_site_content",
+        "set_studio_secrets",
         "unpublish_studio_site"
       ],
       "rawCallable": true,

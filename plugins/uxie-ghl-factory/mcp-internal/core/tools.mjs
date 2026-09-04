@@ -1335,11 +1335,38 @@ const studioDeps = (args, deps) => {
 // take down) location B's project just by naming its id. This is the ONE shared check every
 // project-scoped AI Studio tool must run before touching the project — reusing get_studio_site's
 // original wording so the error is identical everywhere it fires.
+//
+// This check FAILS CLOSED, BY DESIGN, on two independent axes — do not "simplify" it back to a
+// truthiness test on `project?.alt_id`. Three bypasses were executed against the real handlers
+// before this was fixed:
+//   1. boundary GET returned 200 with a record carrying NO `alt_id` at all -> unpublish_studio_site executed.
+//   2. boundary GET returned 500 with an unrecognised body ({error:'internal server error'}) -> publish_studio_site executed.
+//   3. boundary GET returned 404 with a null body -> set_studio_secrets' PUT executed.
+// Rule 3 in ai-studio.mjs's header names BOTH "under another location's alt_id" and "under none
+// at all" as observed shapes — an absent/empty/non-string alt_id must refuse, never pass. And a
+// boundary GET that did not itself succeed (non-ok status, a null/non-object body, or a thrown
+// error) means the boundary was never actually verified — "the check failed" is not "the check
+// passed"; if the record cannot be read, the account has not been checked.
 const assertProjectLocation = async (api, projectId, locationId) => {
-  const project = (await api.getProject(projectId)).json;
-  if (project?.alt_id && project.alt_id !== locationId) {
+  let res;
+  try {
+    res = await api.getProject(projectId);
+  } catch (e) {
     return { project: null, error: fail(CODES.VALIDATION_FAILED,
-      `project ${projectId} belongs to a different sub-account (${project.alt_id})`,
+      `could not verify which sub-account owns project ${projectId}: the boundary check itself failed (${e?.message ?? e})`,
+      'This is "could not verify", not "belongs to another sub-account" — the boundary GET threw '
+      + 'rather than answering. Resolve the underlying error and retry; never treat a failed check as a pass.') };
+  }
+  const project = res?.json;
+  if (!res?.ok || project === null || typeof project !== 'object') {
+    return { project: null, error: fail(CODES.VALIDATION_FAILED,
+      `could not verify which sub-account owns project ${projectId}: the boundary GET returned status ${res?.status}`,
+      'This is "could not verify", not "belongs to another sub-account" — a non-ok status or an '
+      + 'unreadable body means the boundary was never checked. Resolve the underlying error and retry.') };
+  }
+  if (!project.alt_id || typeof project.alt_id !== 'string' || project.alt_id !== locationId) {
+    return { project: null, error: fail(CODES.VALIDATION_FAILED,
+      `project ${projectId} belongs to a different sub-account (${project.alt_id ?? 'none recorded'})`,
       'alt_id is not enforced on by-id reads; verify it on the returned record.') };
   }
   return { project, error: null };
@@ -5861,7 +5888,10 @@ export const TOOLS = [
       + 'copy as structured text instead of scraping the published HTML (proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       pathContains: z.string().optional(), maxBytes: z.number().optional() }),
-    capabilities: [{ method: 'GET', path: '/vibe-ai/projects/{projectId}/files' }],
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}/files' },
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -5886,7 +5916,10 @@ export const TOOLS = [
       + 'minted, and the publish journal. Read from Firestore — there is no REST endpoint for this '
       + '(proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), limit: z.number().optional() }),
-    capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+      { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -5913,7 +5946,10 @@ export const TOOLS = [
       'The per-file unified diffs a generation produced — exactly what the AI changed, file by file '
       + '(proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string().optional() }),
-    capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+      { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -5933,6 +5969,7 @@ export const TOOLS = [
       + '(proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
     capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
       { method: 'GET', path: '/vibe-ai/projects/{projectId}/sandbox' },
       { method: 'POST', path: '/vibe-ai/projects/{projectId}/sandbox' },
     ],
@@ -5988,6 +6025,7 @@ export const TOOLS = [
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), prompt: z.string(),
       waitSeconds: z.number().optional() }),
     capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
       { method: 'GET', path: '/vibe-ai/projects/{projectId}/usage/policy' },
       { method: 'POST', path: '/vibe-ai/projects/{projectId}/chat' },
       { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
@@ -6011,6 +6049,17 @@ export const TOOLS = [
         alt_id: args.locationId, alt_type: 'location',
       });
       const messageId = started.json?.message_id ?? null;
+      // Without a message_id there is nothing to resume with: get_studio_generation_status
+      // REQUIRES messageId, so polling to the ceiling here would return a pending handle that
+      // can never be redeemed. Refuse immediately rather than burn ~120s and claim "nothing was
+      // lost" — the handle needed to recover it is exactly what is missing.
+      if (!messageId) {
+        return fail(CODES.VALIDATION_FAILED,
+          'AI Studio accepted the generation (the chat call returned 202) but the receipt carried '
+          + 'no message_id, so this turn\'s progress cannot be tracked or resumed',
+          'There is no messageId to pass get_studio_generation_status — do not poll for one. Check '
+          + 'the project\'s history directly with get_studio_site_history to see whether the turn landed.');
+      }
       const turn = await awaitTurn({
         firestore: { messages: (pid) => history(MESSAGES, pid, 'order', 300) },
         projectId: args.projectId, messageId, waitMs: (args.waitSeconds ?? 120) * 1000,
@@ -6049,7 +6098,10 @@ export const TOOLS = [
       + 'sitting in the project\'s history (proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string(),
       waitSeconds: z.number().optional() }),
-    capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+      { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -6075,7 +6127,10 @@ export const TOOLS = [
       + '(proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       questionMessageId: z.string(), answer: z.string() }),
-    capabilities: [{ method: 'POST', path: '/vibe-ai/projects/{projectId}/chat' }],
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+      { method: 'POST', path: '/vibe-ai/projects/{projectId}/chat' },
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -6101,7 +6156,10 @@ export const TOOLS = [
     description: describe('cancel_studio_generation',
       'Cancel a running AI Studio generation (proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string() }),
-    capabilities: [{ method: 'POST', path: '/vibe-ai/projects/{projectId}/chat/cancel' }],
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+      { method: 'POST', path: '/vibe-ai/projects/{projectId}/chat/cancel' },
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
       const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -6119,6 +6177,7 @@ export const TOOLS = [
       + '(proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), secrets: z.record(z.string()) }),
     capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
       { method: 'PUT', path: '/vibe-ai/projects/{projectId}/secrets' },
       { method: 'GET', path: '/vibe-ai/projects/{projectId}/secrets' },
     ],
