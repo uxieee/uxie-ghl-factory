@@ -1,7 +1,7 @@
 {
-  "generated": "2026-09-03",
+  "generated": "2026-09-04",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 936,
+  "count": 1013,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -904,6 +904,272 @@
       },
       "sources": [
         "services/AIEmployeeService.ts:46"
+      ]
+    },
+    {
+      "id": "ai-usage--get-usage-limits-location",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/location",
+      "path": "/ai-wrapper/usage/limits/location",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-usage",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-usage--patch-usage-limits-location",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/location",
+      "path": "/ai-wrapper/usage/limits/location",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-usage",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-usage--get-usage-limits-location-extra-usage",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/location/extra-usage",
+      "path": "/ai-wrapper/usage/limits/location/extra-usage",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-usage",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-usage--patch-usage-limits-location-extra-usage",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/location/extra-usage",
+      "path": "/ai-wrapper/usage/limits/location/extra-usage",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-usage",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-usage--get-usage-limits-location-requests",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/location/requests",
+      "path": "/ai-wrapper/usage/limits/location/requests",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-usage",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-usage--post-usage-limits-request",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/ai-wrapper/usage/limits/request",
+      "path": "/ai-wrapper/usage/limits/request",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-usage",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-usage--get-usage-v2-fup-status",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/ai-wrapper/usage/v2/fup-status",
+      "path": "/ai-wrapper/usage/v2/fup-status",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-usage",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
       ]
     },
     {
@@ -3476,6 +3742,338 @@
       "sources": [
         "ask-ai/30-types/skills/crm-custom-fields.md:20",
         "ask-ai/30-types/skills/custom-fields--get-custom-field-by-id.md:26"
+      ]
+    },
+    {
+      "id": "domain-connect--get-a-cname-record",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/domain-connect/a-cname-record",
+      "path": "/domain-connect/a-cname-record",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domain-connect",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domain-connect--get-a-record",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/domain-connect/a-record",
+      "path": "/domain-connect/a-record",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domain-connect",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domain-connect--post-check-domain-conflict",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/domain-connect/check-domain-conflict",
+      "path": "/domain-connect/check-domain-conflict",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domain-connect",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domain-connect--get-cname",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/domain-connect/cname",
+      "path": "/domain-connect/cname",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domain-connect",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domain-connect--post-migrate-records",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/domain-connect/migrate-records",
+      "path": "/domain-connect/migrate-records",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domain-connect",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domain-connect--post-verify-domain-connect-template",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/domain-connect/verify-domain-connect-template",
+      "path": "/domain-connect/verify-domain-connect-template",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domain-connect",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domains--post-domain-record",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/domains/domain/{domainId}/record",
+      "path": "/domains/domain/{domainId}/record",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domains",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "domainId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domains--delete-domain-record",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/domains/domain/{domainId}/record/{recordId}",
+      "path": "/domains/domain/{domainId}/record/{recordId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domains",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "domainId"
+        },
+        {
+          "name": "recordId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domains--put-domain-record",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/domains/domain/{domainId}/record/{recordId}",
+      "path": "/domains/domain/{domainId}/record/{recordId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domains",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "domainId"
+        },
+        {
+          "name": "recordId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "domains--get-domain-records",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/domains/domain/{domainId}/records",
+      "path": "/domains/domain/{domainId}/records",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "domains",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "domainId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
       ]
     },
     {
@@ -16221,6 +16819,1609 @@
       ]
     },
     {
+      "id": "ai-studio--get-banners-active",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/banners/active",
+      "path": "/vibe-ai/banners/active",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-folders",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/folders",
+      "path": "/vibe-ai/folders",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-folders",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/folders",
+      "path": "/vibe-ai/folders",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--delete-folders",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/folders/{folderId}",
+      "path": "/vibe-ai/folders/{folderId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "folderId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-folders",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/folders/{folderId}",
+      "path": "/vibe-ai/folders/{folderId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "folderId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects",
+      "path": "/vibe-ai/projects",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": "array of project",
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "documented"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects",
+      "path": "/vibe-ai/projects",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": "{name, description, alt_id, alt_type}",
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "documented",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--delete-projects",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}",
+      "path": "/vibe-ai/projects/{projectId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects--documented",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}",
+      "path": "/vibe-ai/projects/{projectId}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-chat",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/chat",
+      "path": "/vibe-ai/projects/{projectId}/chat",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-chat-cancel",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/chat/cancel",
+      "path": "/vibe-ai/projects/{projectId}/chat/cancel",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": "{message_id, alt_id, alt_type}",
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "documented",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-domain",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/domain",
+      "path": "/vibe-ai/projects/{projectId}/domain",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": "{domain, action: add|remove|set_primary|clear_primary, alt_id, alt_type}",
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "documented",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-edit-code",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/edit-code",
+      "path": "/vibe-ai/projects/{projectId}/edit-code",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": "{changes[], commit_message}",
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "documented",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-feedback",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/feedback",
+      "path": "/vibe-ai/projects/{projectId}/feedback",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-files",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/files",
+      "path": "/vibe-ai/projects/{projectId}/files",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": "whole codebase with content",
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "documented"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-folder",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/folder",
+      "path": "/vibe-ai/projects/{projectId}/folder",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-integration-status",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/integration-status",
+      "path": "/vibe-ai/projects/{projectId}/integration-status",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-integrations-options",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/integrations/{key}/options",
+      "path": "/vibe-ai/projects/{projectId}/integrations/{key}/options",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        },
+        {
+          "name": "key"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-meta-image",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/meta/image",
+      "path": "/vibe-ai/projects/{projectId}/meta/image",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": false,
+      "transport": "multipart",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-name",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/name",
+      "path": "/vibe-ai/projects/{projectId}/name",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-publish",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/publish",
+      "path": "/vibe-ai/projects/{projectId}/publish",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": "{version_id}",
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "documented",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-remix",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/remix",
+      "path": "/vibe-ai/projects/{projectId}/remix",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-remix-status",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/remix-status",
+      "path": "/vibe-ai/projects/{projectId}/remix-status",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-routes",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/routes",
+      "path": "/vibe-ai/projects/{projectId}/routes",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-sandbox",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/sandbox",
+      "path": "/vibe-ai/projects/{projectId}/sandbox",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-sandbox",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/sandbox",
+      "path": "/vibe-ai/projects/{projectId}/sandbox",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": "202 {status: provisioning}",
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "documented"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-sandbox-keep-alive",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/sandbox/keep-alive",
+      "path": "/vibe-ai/projects/{projectId}/sandbox/keep-alive",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": "{alive}",
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "documented"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-secrets",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/secrets",
+      "path": "/vibe-ai/projects/{projectId}/secrets",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--put-projects-secrets",
+      "method": "PUT",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/secrets",
+      "path": "/vibe-ai/projects/{projectId}/secrets",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--delete-projects-secrets",
+      "method": "DELETE",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/secrets/{name}",
+      "path": "/vibe-ai/projects/{projectId}/secrets/{name}",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        },
+        {
+          "name": "name"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-settings",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/settings",
+      "path": "/vibe-ai/projects/{projectId}/settings",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": "{prerender_enabled}",
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "documented"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-settings",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/settings",
+      "path": "/vibe-ai/projects/{projectId}/settings",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-slug",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/slug",
+      "path": "/vibe-ai/projects/{projectId}/slug",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-star",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/star",
+      "path": "/vibe-ai/projects/{projectId}/star",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-unpublish",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/unpublish",
+      "path": "/vibe-ai/projects/{projectId}/unpublish",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-usage-policy",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/usage/policy",
+      "path": "/vibe-ai/projects/{projectId}/usage/policy",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--get-projects-versions-download",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/versions/{versionId}/download",
+      "path": "/vibe-ai/projects/{projectId}/versions/{versionId}/download",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        },
+        {
+          "name": "versionId"
+        }
+      ],
+      "query": [
+        {
+          "name": "alt_id",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        },
+        {
+          "name": "alt_type",
+          "type": "string",
+          "required": true,
+          "source": "documented"
+        }
+      ],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-versions-prewarm",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/versions/{versionId}/prewarm",
+      "path": "/vibe-ai/projects/{projectId}/versions/{versionId}/prewarm",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        },
+        {
+          "name": "versionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--post-projects-versions-restore",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/versions/{versionId}/restore",
+      "path": "/vibe-ai/projects/{projectId}/versions/{versionId}/restore",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        },
+        {
+          "name": "versionId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
+      "id": "ai-studio--patch-projects-versions-bookmark",
+      "method": "PATCH",
+      "url": "https://backend.leadconnectorhq.com/vibe-ai/projects/{projectId}/versions/bookmark",
+      "path": "/vibe-ai/projects/{projectId}/versions/bookmark",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "ai-studio",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "projectId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "documented",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/_data/endpoints.json",
+        "ai-studio/20-api/projects.md"
+      ]
+    },
+    {
       "id": "typed--create_voiceai_agent--voice-ai-agents",
       "method": "PUT",
       "url": "https://backend.leadconnectorhq.com/voice-ai/agents/{agentId}",
@@ -23610,6 +25811,40 @@
       ]
     },
     {
+      "id": "brand-kit--get-brand-boards-list",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-boards",
+      "path": "/workflow/generate-image-ai/{locationId}/brand-boards",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
       "id": "backend--fetch-brand-board-by-id",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-boards/{brandBoardId}",
@@ -23678,6 +25913,40 @@
       ]
     },
     {
+      "id": "brand-kit--get-brand-voices-list",
+      "method": "GET",
+      "url": "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-voices",
+      "path": "/workflow/generate-image-ai/{locationId}/brand-voices",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
       "id": "backend--fetch-brand-voice-by-id",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/brand-voices/{brandVoiceId}",
@@ -23738,6 +26007,40 @@
       },
       "sources": [
         "services/api/brand-boards-service.ts:117"
+      ]
+    },
+    {
+      "id": "brand-kit--post-prompt-enhance",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/workflow/generate-image-ai/{locationId}/prompt/enhance",
+      "path": "/workflow/generate-image-ai/{locationId}/prompt/enhance",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ]
     },
     {
@@ -29268,6 +31571,586 @@
       },
       "sources": [
         "ai-agents/20-api/conversation-ai-boundary.md:82"
+      ]
+    },
+    {
+      "id": "brand-kit--post-boards-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/",
+      "path": "/brand-boards/",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--get-boards",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/brand-boards/{locationId}",
+      "path": "/brand-boards/{locationId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--delete-board",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
+      "path": "/brand-boards/{locationId}/{brandBoardId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "brandBoardId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--get-board",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
+      "path": "/brand-boards/{locationId}/{brandBoardId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "brandBoardId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--post-board-update",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/{locationId}/{brandBoardId}",
+      "path": "/brand-boards/{locationId}/{brandBoardId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "brandBoardId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--post-board-default",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/{locationId}/default",
+      "path": "/brand-boards/{locationId}/default",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--post-boards-clone",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/clone",
+      "path": "/brand-boards/clone",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--get-custom-colors",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/brand-boards/custom-colors/{locationId}",
+      "path": "/brand-boards/custom-colors/{locationId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--get-custom-fonts",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/brand-boards/custom-fonts/{locationId}",
+      "path": "/brand-boards/custom-fonts/{locationId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--post-locations-activity",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/locations/{locationId}/activity",
+      "path": "/brand-boards/locations/{locationId}/activity",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--post-voices-create",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/voices/",
+      "path": "/brand-boards/voices/",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--get-voices",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}",
+      "path": "/brand-boards/voices/{locationId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--delete-voice",
+      "method": "DELETE",
+      "url": "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
+      "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "destructive",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "brandVoiceId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--get-voice",
+      "method": "GET",
+      "url": "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
+      "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "read",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "brandVoiceId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--patch-voice",
+      "method": "PATCH",
+      "url": "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/{brandVoiceId}",
+      "path": "/brand-boards/voices/{locationId}/{brandVoiceId}",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        },
+        {
+          "name": "brandVoiceId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--post-voice-default",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/voices/{locationId}/default",
+      "path": "/brand-boards/voices/{locationId}/default",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [
+        {
+          "name": "locationId"
+        }
+      ],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
+      ]
+    },
+    {
+      "id": "brand-kit--post-voices-clone",
+      "method": "POST",
+      "url": "https://services.leadconnectorhq.com/brand-boards/voices/clone",
+      "path": "/brand-boards/voices/clone",
+      "origin": "https://services.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "source-only",
+      "coveredBy": [],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "service": "brand-kit",
+      "tree": "documented",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "documented",
+        "query": "unresolved",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "ai-studio/70-research/2026-09-04-brand-voice-and-brand-kit.md"
       ]
     },
     {
