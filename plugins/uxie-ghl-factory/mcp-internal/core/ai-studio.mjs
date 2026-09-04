@@ -158,6 +158,27 @@ export async function awaitTurn({ firestore, projectId, waitMs = 120_000, pollMs
            note: 'The build is still running. Resume with the message id; nothing was lost.' };
 }
 
+// AI Studio projects and funnels are DISJOINT collections (proven 2026-09-04: 25 projects with 9
+// live domains produced zero overlap with /funnels/funnel/list). An agent that queries the wrong
+// one gets an empty list, which reads as "the site does not exist". This is the fix.
+const bare = (h) => String(h ?? '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+
+export function classifySite(needle, studioProjects = [], funnels = []) {
+  const n = bare(needle);
+  for (const p of studioProjects) {
+    const domains = [].concat(p.custom_domains ?? [], p.primary_custom_domain ?? []).filter(Boolean).map(bare);
+    if (domains.includes(n)) return { surface: 'ai-studio', id: p.id, name: p.name, matchedOn: 'custom_domain' };
+  }
+  for (const p of studioProjects) {
+    if (bare(p.slug) === n) return { surface: 'ai-studio', id: p.id, name: p.name, matchedOn: 'slug' };
+    if (bare(p.name) === n) return { surface: 'ai-studio', id: p.id, name: p.name, matchedOn: 'name' };
+  }
+  for (const f of funnels) {
+    if (bare(f.name) === n || bare(f.url) === n) return { surface: 'funnel', id: f._id ?? f.id, name: f.name, matchedOn: 'name' };
+  }
+  return { surface: 'not-found', id: null, name: null, matchedOn: null };
+}
+
 export class StudioApi {
   // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
   constructor({ gw, loc }) { this.gw = gw; this.loc = loc; }

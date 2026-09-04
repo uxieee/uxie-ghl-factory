@@ -1,7 +1,7 @@
 {
   "generated": "2026-09-04",
   "note": "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path — not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-  "count": 1013,
+  "count": 1014,
   "endpoints": [
     {
       "id": "workflows--actions-branches",
@@ -6572,7 +6572,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "proven",
-      "coveredBy": [],
+      "coveredBy": [
+        "find_ghl_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -16819,6 +16821,40 @@
       ]
     },
     {
+      "id": "typed--get_studio_site_history--vibe-platform-documents:runQuery",
+      "method": "POST",
+      "url": "https://backend.leadconnectorhq.com/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery",
+      "path": "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery",
+      "origin": "https://backend.leadconnectorhq.com",
+      "rail": "workflow",
+      "kind": "write",
+      "reach": "proven",
+      "coveredBy": [
+        "get_studio_site_diffs",
+        "get_studio_site_history"
+      ],
+      "rawCallable": true,
+      "transport": "json",
+      "responseMode": "json",
+      "extraHeaders": [],
+      "operation": null,
+      "service": "get_studio_site_history",
+      "tree": "typed-tool",
+      "pathParams": [],
+      "query": [],
+      "body": null,
+      "returns": null,
+      "confidence": {
+        "path": "proven",
+        "query": "none-observed",
+        "body": "unresolved",
+        "returns": "unresolved"
+      },
+      "sources": [
+        "capability-manifest.json (get_studio_site_history, get_studio_site_diffs)"
+      ]
+    },
+    {
       "id": "ai-studio--get-banners-active",
       "method": "GET",
       "url": "https://backend.leadconnectorhq.com/vibe-ai/banners/active",
@@ -16871,7 +16907,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "list_studio_sites"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17029,7 +17067,10 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "find_ghl_site",
+        "list_studio_sites"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17152,7 +17193,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_studio_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17375,7 +17418,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "read_studio_site_content"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17732,7 +17777,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_studio_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17780,7 +17827,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_studio_preview"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17828,7 +17877,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "get_studio_preview"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

@@ -639,7 +639,17 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // registered together immediately after `get_trigger_logs`. All six are reads. The 0.50.0
   // release moved TOOLS to 51 without moving this list, so the published build shipped with
   // this test red; caught on the 0.51.0 merge.
-  assert.equal(TOOLS.length, 51, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 51 -> 58: the AI Studio (`vibe`) read+resolve surface — find_ghl_site, list_studio_sites,
+  // get_studio_site, read_studio_site_content, get_studio_site_history, get_studio_site_diffs,
+  // get_studio_preview — registered together, last, after `describe_endpoint`. All seven are
+  // reads (find_ghl_site resolves; the rest read one project's detail, source, Firestore
+  // history/diffs, and sandbox preview). Outside the audit profile: AI Studio is not part of the
+  // frozen audit evidence contract. find_ghl_site is unusual among them — it is the ONE tool here
+  // that also calls /funnels/* on the token-id rail (proven-live per
+  // knowledge/corpus/funnels/20-api/funnels-api.md: /funnels refuses Bearer) alongside the
+  // Bearer-only /vibe-ai call, because AI Studio projects and funnels are disjoint collections an
+  // agent must disambiguate before doing anything else.
+  assert.equal(TOOLS.length, 58, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -656,6 +666,8 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
     'duplicate_workflow', 'move_workflows', 'create_custom_field_folder',
     'pin_webhook_sample', 'fast_forward_contacts', 'raw_request',
     'search_endpoints', 'describe_endpoint',
+    'find_ghl_site', 'list_studio_sites', 'get_studio_site', 'read_studio_site_content',
+    'get_studio_site_history', 'get_studio_site_diffs', 'get_studio_preview',
   ]);
   const normal = stripComments(readFileSync(NORMAL_ENTRY, 'utf8'));
   assert.equal(

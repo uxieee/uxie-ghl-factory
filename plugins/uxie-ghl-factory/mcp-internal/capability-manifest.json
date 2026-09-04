@@ -1013,5 +1013,60 @@
     "tool": "fast_forward_contacts",
     "method": "POST",
     "path": "/workflow/{loc}/{wid}/requeue-stuck-statuses/{stepId}"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "GET",
+    "path": "/vibe-ai/projects"
+  },
+  {
+    "tool": "find_ghl_site",
+    "method": "GET",
+    "path": "/funnels/funnel/list"
+  },
+  {
+    "tool": "list_studio_sites",
+    "method": "GET",
+    "path": "/vibe-ai/projects"
+  },
+  {
+    "tool": "list_studio_sites",
+    "method": "GET",
+    "path": "/vibe-ai/folders"
+  },
+  {
+    "tool": "get_studio_site",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "get_studio_site",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}/routes"
+  },
+  {
+    "tool": "read_studio_site_content",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}/files"
+  },
+  {
+    "tool": "get_studio_site_history",
+    "method": "POST",
+    "path": "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery"
+  },
+  {
+    "tool": "get_studio_site_diffs",
+    "method": "POST",
+    "path": "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery"
+  },
+  {
+    "tool": "get_studio_preview",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}/sandbox"
+  },
+  {
+    "tool": "get_studio_preview",
+    "method": "POST",
+    "path": "/vibe-ai/projects/{projectId}/sandbox"
   }
 ]

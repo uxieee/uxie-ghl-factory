@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-04",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1013,
+      count: 1014,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -6619,7 +6619,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "proven",
-          coveredBy: [],
+          coveredBy: [
+            "find_ghl_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -16866,6 +16868,40 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
+          id: "typed--get_studio_site_history--vibe-platform-documents:runQuery",
+          method: "POST",
+          url: "https://backend.leadconnectorhq.com/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery",
+          path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery",
+          origin: "https://backend.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          reach: "proven",
+          coveredBy: [
+            "get_studio_site_diffs",
+            "get_studio_site_history"
+          ],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "get_studio_site_history",
+          tree: "typed-tool",
+          pathParams: [],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "proven",
+            query: "none-observed",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "capability-manifest.json (get_studio_site_history, get_studio_site_diffs)"
+          ]
+        },
+        {
           id: "ai-studio--get-banners-active",
           method: "GET",
           url: "https://backend.leadconnectorhq.com/vibe-ai/banners/active",
@@ -16918,7 +16954,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "list_studio_sites"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -17076,7 +17114,10 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "find_ghl_site",
+            "list_studio_sites"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -17199,7 +17240,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_studio_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -17422,7 +17465,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "read_studio_site_content"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -17779,7 +17824,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_studio_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -17827,7 +17874,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "read",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_studio_preview"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -17875,7 +17924,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "get_studio_preview"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -145922,14 +145973,14 @@ function editDistance2(a, b) {
   return dp[a.length][b.length];
 }
 function suggestTags(full, candidates, limit = 4) {
-  const q2 = split(full);
-  if (!q2) return [];
-  const words = q2.key.split(/[._]/).filter(Boolean);
+  const q3 = split(full);
+  if (!q3) return [];
+  const words = q3.key.split(/[._]/).filter(Boolean);
   const scored = [];
   for (const c of candidates) {
     const s = split(c);
-    if (!s || s.ns !== q2.ns || c === full) continue;
-    const d = editDistance2(q2.key, s.key);
+    if (!s || s.ns !== q3.ns || c === full) continue;
+    const d = editDistance2(q3.key, s.key);
     const cw = s.key.split(/[._]/).filter(Boolean);
     const shared = cw.filter((w) => words.includes(w)).length;
     const prefix = words.some((w) => cw.some((x) => x.startsWith(w) || w.startsWith(x)));
@@ -145938,9 +145989,9 @@ function suggestTags(full, candidates, limit = 4) {
   return scored.sort((a, b) => a.score - b.score || a.c.localeCompare(b.c)).slice(0, limit).map((x) => x.c);
 }
 function searchMergeTags(catalogTags, query, { namespace, extra = [], limit = 10 } = {}) {
-  const q2 = String(query ?? "").toLowerCase().trim();
-  if (!q2) return [];
-  const words = q2.split(/[\s._-]+/).filter(Boolean);
+  const q3 = String(query ?? "").toLowerCase().trim();
+  if (!q3) return [];
+  const words = q3.split(/[\s._-]+/).filter(Boolean);
   const pool = [
     ...(catalogTags ?? []).map((t) => ({ tag: compact(t.tag), label: typeof t.label === "string" ? t.label : null, group: t.group ?? null, source: "picker" })),
     ...extra
@@ -145956,13 +146007,13 @@ function searchMergeTags(catalogTags, query, { namespace, extra = [], limit = 10
     const keyWords = key.split(/[._-]+/).filter(Boolean);
     const labelWords = label2.split(/\s+/).filter(Boolean);
     let score = null;
-    if (key === q2 || label2 === q2) score = -100;
-    else if (words.every((w) => hay.includes(w))) score = -50 + (key.length - q2.length) / 100;
+    if (key === q3 || label2 === q3) score = -100;
+    else if (words.every((w) => hay.includes(w))) score = -50 + (key.length - q3.length) / 100;
     else {
       const shared = words.filter((w) => keyWords.includes(w) || labelWords.includes(w)).length;
       if (shared) score = -20 * shared;
       else {
-        const d = Math.min(...keyWords.map((kw) => editDistance2(kw, q2)), editDistance2(key, q2));
+        const d = Math.min(...keyWords.map((kw) => editDistance2(kw, q3)), editDistance2(key, q3));
         if (d <= 2) score = d;
       }
     }
@@ -146336,8 +146387,8 @@ function resolveOppUpdateField(u, ref, ctx) {
     checkOppFieldShape(f, { ref, warn: ctx?.warn });
     return f;
   }
-  const bare = ff.startsWith(OPP_CUSTOM_FIELD_PREFIX) ? ff.slice(OPP_CUSTOM_FIELD_PREFIX.length) : ff;
-  const cf = ctx?.customFields?.find((c) => c.id === bare || c.fieldKey === bare);
+  const bare2 = ff.startsWith(OPP_CUSTOM_FIELD_PREFIX) ? ff.slice(OPP_CUSTOM_FIELD_PREFIX.length) : ff;
+  const cf = ctx?.customFields?.find((c) => c.id === bare2 || c.fieldKey === bare2);
   if (cf) {
     return oppField(
       `${OPP_CUSTOM_FIELD_PREFIX}${cf.id}`,
@@ -148568,15 +148619,15 @@ var STANDARD_CONTACT_FIELDS = /* @__PURE__ */ new Set([
 function buildResolvers(raw = {}) {
   const fromRegistry = registryResolvers(raw);
   const pipelines = raw.pipelines ?? [];
-  const byName = (list, keyFns) => (q2) => {
-    const n = norm2(q2);
+  const byName = (list, keyFns) => (q3) => {
+    const n = norm2(q3);
     return (list ?? []).find((x) => keyFns.some((f) => norm2(f(x)) === n));
   };
   const pipeline = byName(pipelines, [(p2) => p2.name]);
   return {
     ...fromRegistry,
     pipeline,
-    pipelineId: (q2) => pipeline(q2)?.id,
+    pipelineId: (q3) => pipeline(q3)?.id,
     // stage lookup: within a named pipeline if given, else across all pipelines
     stageId: (stageName, pipeName) => {
       const scope = pipeName ? [pipeline(pipeName)].filter(Boolean) : pipelines;
@@ -148586,31 +148637,31 @@ function buildResolvers(raw = {}) {
       }
       return void 0;
     },
-    calendarId: (q2) => byName(raw.calendars, [(c) => c.name])(q2)?.id,
-    formId: (q2) => byName(raw.forms, [(f) => f.name])(q2)?.id,
-    surveyId: (q2) => byName(raw.surveys, [(s) => s.name])(q2)?.id,
-    userId: (q2) => byName(raw.users, [(u) => u.email, (u) => u.name, (u) => `${u.firstName ?? ""} ${u.lastName ?? ""}`])(q2)?.id,
-    customFieldId: (q2) => byName(raw.customFields, [(c) => c.name, (c) => c.fieldKey])(q2)?.id,
+    calendarId: (q3) => byName(raw.calendars, [(c) => c.name])(q3)?.id,
+    formId: (q3) => byName(raw.forms, [(f) => f.name])(q3)?.id,
+    surveyId: (q3) => byName(raw.surveys, [(s) => s.name])(q3)?.id,
+    userId: (q3) => byName(raw.users, [(u) => u.email, (u) => u.name, (u) => `${u.firstName ?? ""} ${u.lastName ?? ""}`])(q3)?.id,
+    customFieldId: (q3) => byName(raw.customFields, [(c) => c.name, (c) => c.fieldKey])(q3)?.id,
     // AI agents (voice + conversation AI), matched by name
-    agentId: (q2) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q2)?.id,
+    agentId: (q3) => byName(raw.agents, [(a) => a.name, (a) => a.agentName, (a) => a.title])(q3)?.id,
     // SECOND-ORDER (G1–G3): workflows / custom values / trigger links / offers / course products
-    workflowId: (q2) => byName(raw.workflows, [(w) => w.name])(q2)?.id,
-    customValueId: (q2) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? "").replace(/^\{\{\s*custom_values\./, "").replace(/\s*\}\}$/, "")])(q2)?.id,
-    triggerLinkId: (q2) => byName(raw.triggerLinks, [(l) => l.name])(q2)?.id,
-    offerId: (q2) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q2)?.id,
-    membershipProductId: (q2) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q2)?.id,
+    workflowId: (q3) => byName(raw.workflows, [(w) => w.name])(q3)?.id,
+    customValueId: (q3) => byName(raw.customValues, [(v) => v.name, (v) => v.fieldKey, (v) => String(v.fieldKey ?? "").replace(/^\{\{\s*custom_values\./, "").replace(/\s*\}\}$/, "")])(q3)?.id,
+    triggerLinkId: (q3) => byName(raw.triggerLinks, [(l) => l.name])(q3)?.id,
+    offerId: (q3) => byName(raw.offers, [(o) => o.name, (o) => o.title])(q3)?.id,
+    membershipProductId: (q3) => byName(raw.membershipProducts, [(m) => m.name, (m) => m.title])(q3)?.id,
     // G4/G5/G6/G9
-    smsTemplateId: (q2) => byName(raw.smsTemplates, [(t) => t.name])(q2)?.id,
-    emailTemplateId: (q2) => byName(raw.emailTemplates, [(t) => t.name])(q2)?.id,
-    productId: (q2) => byName(raw.products, [(x) => x.name])(q2)?.id,
-    couponId: (q2) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q2)?.id,
-    phoneNumber: (q2) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q2)?.number,
-    funnelId: (q2) => byName(raw.funnels, [(x) => x.name])(q2)?.id,
-    fbPageId: (q2) => byName(raw.fbPages, [(x) => x.name])(q2)?.id,
-    documentTemplateId: (q2) => byName(raw.documentTemplates, [(x) => x.name])(q2)?.id,
+    smsTemplateId: (q3) => byName(raw.smsTemplates, [(t) => t.name])(q3)?.id,
+    emailTemplateId: (q3) => byName(raw.emailTemplates, [(t) => t.name])(q3)?.id,
+    productId: (q3) => byName(raw.products, [(x) => x.name])(q3)?.id,
+    couponId: (q3) => byName(raw.coupons, [(x) => x.code, (x) => x.name])(q3)?.id,
+    phoneNumber: (q3) => byName(raw.phoneNumbers, [(x) => x.title, (x) => x.number])(q3)?.number,
+    funnelId: (q3) => byName(raw.funnels, [(x) => x.name])(q3)?.id,
+    fbPageId: (q3) => byName(raw.fbPages, [(x) => x.name])(q3)?.id,
+    documentTemplateId: (q3) => byName(raw.documentTemplates, [(x) => x.name])(q3)?.id,
     // G8: object schema key by key ('custom_objects.pet' or 'pet') or label ('Pet'/'Pets')
-    customObjectKey: (q2) => {
-      const hit = byName(raw.objects, [(o) => o.key, (o) => String(o.key ?? "").replace(/^custom_objects\./, ""), (o) => o.singular, (o) => o.plural])(q2);
+    customObjectKey: (q3) => {
+      const hit = byName(raw.objects, [(o) => o.key, (o) => String(o.key ?? "").replace(/^custom_objects\./, ""), (o) => o.singular, (o) => o.plural])(q3);
       return hit?.key;
     }
   };
@@ -148700,11 +148751,11 @@ function resolveIR(ir, r) {
       if (a.workflow_id) delete a.workflow;
     }
     if (type === "update_custom_value" && (a.customValue ?? a.custom_value) && !a.custom_value_id) {
-      const q2 = a.customValue ?? a.custom_value;
-      a.custom_value_id = need(r.customValueId(q2), "update_custom_value.customValue", q2);
+      const q3 = a.customValue ?? a.custom_value;
+      a.custom_value_id = need(r.customValueId(q3), "update_custom_value.customValue", q3);
       delete a.customValue;
       delete a.custom_value;
-      if (a.custom_value_id && !a.name) a.name = q2;
+      if (a.custom_value_id && !a.name) a.name = q3;
     }
     if ((type === "membership_grant_offer" || type === "membership_revoke_offer") && a.offer && !a.offer_id) {
       a.offer_id = need(r.offerId(a.offer), `${type}.offer`, a.offer);
@@ -152533,13 +152584,13 @@ var Assessments = class {
    * @param {Array<{title,questionType,explanation?,options:Array<{statement,isCorrect}>}>} questions
    */
   addQuestions(quizId, questions) {
-    const payload = questions.map((q2, i) => ({
+    const payload = questions.map((q3, i) => ({
       quizId,
-      title: q2.title,
-      questionType: q2.questionType || "single",
-      sequenceNumber: q2.sequenceNumber ?? i + 1,
-      explanation: q2.explanation ?? null,
-      options: (q2.options || []).map((o, j) => ({
+      title: q3.title,
+      questionType: q3.questionType || "single",
+      sequenceNumber: q3.sequenceNumber ?? i + 1,
+      explanation: q3.explanation ?? null,
+      options: (q3.options || []).map((o, j) => ({
         sequence: o.sequence ?? j + 1,
         isCorrect: !!o.isCorrect,
         statement: o.statement
@@ -154674,6 +154725,205 @@ async function executeAgentUpdate({ plan, gw } = {}) {
   return { ok: true, ...report };
 }
 
+// core/ai-studio.mjs
+init_define_ENDPOINT_CATALOG();
+init_define_ENDPOINT_OVERLAY();
+init_define_TOOL_CATALOG();
+var FIRESTORE_PROJECT = "highlevel-backend";
+var FIRESTORE_DB = "vibe-platform";
+var MESSAGES = "vibe-messages";
+var DIFFS = "vibe-message-diffs";
+var FIREBASE_KEY = "AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE";
+function plain(v) {
+  if (v === null || v === void 0) return v;
+  const k = Object.keys(v)[0];
+  switch (k) {
+    case "stringValue":
+    case "booleanValue":
+    case "timestampValue":
+      return v[k];
+    case "integerValue":
+    case "doubleValue":
+      return Number(v[k]);
+    case "nullValue":
+      return null;
+    case "arrayValue":
+      return (v.arrayValue.values ?? []).map(plain);
+    case "mapValue":
+      return Object.fromEntries(
+        Object.entries(v.mapValue.fields ?? {}).map(([a, b]) => [a, plain(b)])
+      );
+    default:
+      return v;
+  }
+}
+async function getIdToken({ gwJwt, locationId, cache, fetchImpl = fetch, nowMs = Date.now }) {
+  const hit = cache.get(locationId);
+  if (hit && hit.expiresAt > nowMs() + 6e4) return hit.idToken;
+  const r = await gwJwt.call("POST", `/oauth/2/login/signin/refresh?version=2&location_id=${locationId}`, {});
+  const custom2 = r?.json?.token;
+  if (!custom2) {
+    const e = new Error(`could not mint a Firebase custom token for this location (status ${r?.status})`);
+    e.code = "FIREBASE_SIGNIN_FAILED";
+    e.remediation = "Check the Bearer credential reaches this location; /vibe-ai is Bearer-only.";
+    throw e;
+  }
+  const res = await fetchImpl(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${FIREBASE_KEY}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: custom2, returnSecureToken: true })
+    }
+  );
+  const body = await res.json();
+  if (!res.ok || !body?.idToken) {
+    const e = new Error(`Firebase token exchange failed: ${body?.error?.message ?? res.status}`);
+    e.code = "FIREBASE_SIGNIN_FAILED";
+    throw e;
+  }
+  const ttlMs = (Number(body.expiresIn) || 3600) * 1e3;
+  cache.set(locationId, { idToken: body.idToken, expiresAt: nowMs() + ttlMs });
+  return body.idToken;
+}
+async function runQuery({ gwFirebase, idToken, collection, projectId, orderBy = null, limit = 300 }) {
+  const structuredQuery = {
+    from: [{ collectionId: collection }],
+    where: { fieldFilter: { field: { fieldPath: "projectId" }, op: "EQUAL", value: { stringValue: projectId } } },
+    limit
+  };
+  if (orderBy) structuredQuery.orderBy = [{ field: { fieldPath: orderBy }, direction: "ASCENDING" }];
+  const path = `/v1/projects/${FIRESTORE_PROJECT}/databases/${FIRESTORE_DB}/documents:runQuery`;
+  const res = await gwFirebase.call(
+    "POST",
+    path,
+    { structuredQuery },
+    { headers: { authorization: `Bearer ${idToken}` } }
+  );
+  const rows = Array.isArray(res.json) ? res.json : [];
+  return rows.filter((x) => x.document).map((x) => Object.fromEntries(Object.entries(x.document.fields ?? {}).map(([k, v]) => [k, plain(v)])));
+}
+var filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
+function studioError(status, body) {
+  const msg = String(body?.error ?? body?.message ?? "");
+  if (status === 401 && /authorization token required/i.test(msg)) {
+    return "/vibe-ai is Bearer-only \u2014 a token-id alone is refused. This is a rail mistake, not an expired credential.";
+  }
+  if (status === 403 && /unsupported alt_type/i.test(msg)) {
+    return 'alt_type accepts only "location". AI Studio has no agency-level scope.';
+  }
+  if (status === 403 && /No Location Found/i.test(msg)) {
+    return "This alt_id is not a location this token can reach \u2014 check the registration binding (GHL_INTERNAL_LOCATIONS).";
+  }
+  if (status === 409) {
+    return "This question was already answered, or the answer conflicts with the stored one. Re-read the question block before retrying.";
+  }
+  if (status === 410) {
+    return "The continuation expired. Start a new turn rather than answering this one.";
+  }
+  return null;
+}
+var q2 = (loc) => `alt_id=${encodeURIComponent(loc)}&alt_type=location`;
+var bare = (h) => String(h ?? "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+function classifySite(needle, studioProjects = [], funnels = []) {
+  const n = bare(needle);
+  for (const p2 of studioProjects) {
+    const domains = [].concat(p2.custom_domains ?? [], p2.primary_custom_domain ?? []).filter(Boolean).map(bare);
+    if (domains.includes(n)) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "custom_domain" };
+  }
+  for (const p2 of studioProjects) {
+    if (bare(p2.slug) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "slug" };
+    if (bare(p2.name) === n) return { surface: "ai-studio", id: p2.id, name: p2.name, matchedOn: "name" };
+  }
+  for (const f of funnels) {
+    if (bare(f.name) === n || bare(f.url) === n) return { surface: "funnel", id: f._id ?? f.id, name: f.name, matchedOn: "name" };
+  }
+  return { surface: "not-found", id: null, name: null, matchedOn: null };
+}
+var StudioApi = class {
+  // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
+  constructor({ gw, loc }) {
+    this.gw = gw;
+    this.loc = loc;
+  }
+  async #vibe(method, path, body) {
+    const res = await this.gw.call(method, `/vibe-ai${path}`, body);
+    if (!res.ok) {
+      const hint = studioError(res.status, res.json);
+      if (hint) {
+        const e = new Error(hint);
+        e.code = "STUDIO_REQUEST_FAILED";
+        e.remediation = hint;
+        throw e;
+      }
+    }
+    return res;
+  }
+  listProjects() {
+    return this.#vibe("GET", `/projects?${q2(this.loc)}`);
+  }
+  getProject(id) {
+    return this.#vibe("GET", `/projects/${id}?${q2(this.loc)}`);
+  }
+  getFiles(id) {
+    return this.#vibe("GET", `/projects/${id}/files?${q2(this.loc)}`);
+  }
+  getRoutes(id) {
+    return this.#vibe("GET", `/projects/${id}/routes?${q2(this.loc)}`);
+  }
+  getSettings(id) {
+    return this.#vibe("GET", `/projects/${id}/settings?${q2(this.loc)}`);
+  }
+  getSecrets(id) {
+    return this.#vibe("GET", `/projects/${id}/secrets?${q2(this.loc)}`);
+  }
+  getSandbox(id) {
+    return this.#vibe("GET", `/projects/${id}/sandbox?${q2(this.loc)}`);
+  }
+  getFolders() {
+    return this.#vibe("GET", `/folders?${q2(this.loc)}`);
+  }
+  usagePolicy(id) {
+    return this.#vibe("GET", `/projects/${id}/usage/policy?${q2(this.loc)}`);
+  }
+  ensureSandbox(id) {
+    return this.#vibe("POST", `/projects/${id}/sandbox`, { alt_id: this.loc, alt_type: "location" });
+  }
+  createProject(b) {
+    return this.#vibe("POST", "/projects", { ...b, alt_id: this.loc, alt_type: "location" });
+  }
+  renameProject(id, name) {
+    return this.#vibe("PATCH", `/projects/${id}/name`, { name, alt_id: this.loc, alt_type: "location" });
+  }
+  setSlug(id, slug) {
+    return this.#vibe("PATCH", `/projects/${id}/slug`, { slug });
+  }
+  // PUT MERGES despite the verb; an unmentioned key survives. Values are write-only — the GET
+  // returns an array of {name, created_at, updated_at} with no value.
+  putSecrets(id, secrets) {
+    return this.#vibe("PUT", `/projects/${id}/secrets`, { secrets, alt_id: this.loc, alt_type: "location" });
+  }
+  chat(id, body) {
+    return this.#vibe("POST", `/projects/${id}/chat`, body);
+  }
+  cancelChat(id, messageId) {
+    return this.#vibe("POST", `/projects/${id}/chat/cancel`, { message_id: messageId, alt_id: this.loc, alt_type: "location" });
+  }
+  // publish/unpublish take NO alt_id/alt_type. unpublish takes no body at all.
+  publish(id, versionId) {
+    return this.#vibe("POST", `/projects/${id}/publish`, { version_id: versionId });
+  }
+  unpublish(id) {
+    return this.#vibe("POST", `/projects/${id}/unpublish`, void 0);
+  }
+  // /ai-wrapper takes locationId (camelCase), NOT alt_id/alt_type, and lives on a different base.
+  async usageSnapshotUsd() {
+    const r = await this.gw.call("GET", `/ai-wrapper/usage/v2/snapshots?locationId=${encodeURIComponent(this.loc)}`);
+    const snap = (r?.json?.snapshots ?? []).find((s) => s.product === "AI_STUDIO");
+    return typeof snap?.used === "number" ? snap.used : null;
+  }
+};
+
 // core/tools.mjs
 var HERE = dirname2(fileURLToPath(import.meta.url));
 var CATALOG = true ? define_TOOL_CATALOG_default : (() => {
@@ -155589,6 +155839,17 @@ async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED } = {}
     return fromThrown(e);
   }
 }
+var STUDIO_IDTOKENS = /* @__PURE__ */ new Map();
+var studioDeps = (args, deps) => {
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const api = new StudioApi({ gw, loc: args.locationId });
+  const fb = deps.makeGw({ loc: args.locationId, state: deps.state, rail: "firebase" });
+  const history = async (collection, projectId, orderBy, limit) => {
+    const idToken = await getIdToken({ gwJwt: gw, locationId: args.locationId, cache: STUDIO_IDTOKENS });
+    return runQuery({ gwFirebase: fb, idToken, collection, projectId, orderBy, limit });
+  };
+  return { gw, api, history };
+};
 var TOOLS2 = [
   {
     name: "set_token_file",
@@ -155911,7 +156172,7 @@ var TOOLS2 = [
         );
       }
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
-      const q2 = new URLSearchParams({
+      const q3 = new URLSearchParams({
         type: "workflow",
         limit: String(args.limit ?? 100),
         offset: String(args.offset ?? 0),
@@ -155920,9 +156181,9 @@ var TOOLS2 = [
         includeCustomObjects: "true",
         includeObjectiveBuilder: "true"
       });
-      if (args.status) q2.set("status", args.status);
-      if (args.search) q2.set("search", args.search);
-      const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/list?${q2}`);
+      if (args.status) q3.set("status", args.status);
+      if (args.search) q3.set("search", args.search);
+      const r = await gw.call("GET", `/workflow/${encodeURIComponent(args.locationId)}/list?${q3}`);
       if (!r.ok) return fromHttp(r.status, r.json);
       const rows = (r.json.rows ?? []).map((w) => ({ id: w._id ?? w.id, name: w.name, status: w.status, version: w.version, updatedAt: w.updatedAt }));
       return ok({ count: r.json.count ?? rows.length, workflows: rows });
@@ -156286,9 +156547,9 @@ var TOOLS2 = [
       if (Number.isFinite(args.toDate)) filters.toDate = String(args.toDate);
       if (typeof args.eventType === "string" && args.eventType.length) filters.eventType = args.eventType;
       const withFilters = (params) => {
-        const q2 = new URLSearchParams(params);
-        for (const [key, value] of Object.entries(filters)) q2.set(key, value);
-        return q2;
+        const q3 = new URLSearchParams(params);
+        for (const [key, value] of Object.entries(filters)) q3.set(key, value);
+        return q3;
       };
       const logsQuery = withFilters(base);
       logsQuery.set("limit", String(limit));
@@ -156310,13 +156571,13 @@ var TOOLS2 = [
       let enrollmentsComplete = true;
       let rateLimited = false;
       for (; ; ) {
-        const q2 = withFilters(base);
-        q2.set("action", action);
-        q2.set("limit", String(rosterLimit));
-        if (cursor?.referenceId) q2.set("referenceId", cursor.referenceId);
-        if (cursor?.referenceCreatedAt) q2.set("referenceCreatedAt", String(cursor.referenceCreatedAt));
-        if (cursor?.referenceSid) q2.set("referenceSid", cursor.referenceSid);
-        const page = await gw.call("GET", `/workflows/status/search/workflow-with-filter?${q2}`);
+        const q3 = withFilters(base);
+        q3.set("action", action);
+        q3.set("limit", String(rosterLimit));
+        if (cursor?.referenceId) q3.set("referenceId", cursor.referenceId);
+        if (cursor?.referenceCreatedAt) q3.set("referenceCreatedAt", String(cursor.referenceCreatedAt));
+        if (cursor?.referenceSid) q3.set("referenceSid", cursor.referenceSid);
+        const page = await gw.call("GET", `/workflows/status/search/workflow-with-filter?${q3}`);
         if (!page.ok) return fromHttp(page.status, page.json);
         const batch = rosterOf(page.json);
         let fresh = 0;
@@ -156654,8 +156915,8 @@ var TOOLS2 = [
       for (const t of templates) {
         if (!t || !stepTypes.has(t.type)) continue;
         const channel = t.type === "email" ? "emails" : "messages";
-        const q2 = new URLSearchParams({ startDate: window.startDate, endDate: window.endDate, source: "workflow", sourceId: args.workflowId, subSourceId: t.id, locationId: args.locationId });
-        const r = await gw.call("GET", `/conversations-reporting/${channel}/aggregate?${q2}`);
+        const q3 = new URLSearchParams({ startDate: window.startDate, endDate: window.endDate, source: "workflow", sourceId: args.workflowId, subSourceId: t.id, locationId: args.locationId });
+        const r = await gw.call("GET", `/conversations-reporting/${channel}/aggregate?${q3}`);
         if (!r.ok) {
           steps.push({ id: t.id, name: t.name ?? null, type: t.type, channel, error: { status: r.status } });
           continue;
@@ -156670,8 +156931,8 @@ var TOOLS2 = [
         if (!tr.ok) return fromHttp(tr.status, tr.json);
         const list = Array.isArray(tr.json) ? tr.json : tr.json?.triggers ?? tr.json?.data ?? [];
         for (const trig of list) {
-          const q2 = new URLSearchParams({ triggerId: trig.id, locationId: args.locationId, fromDate: String(window.fromDate), toDate: String(window.toDate), recordId: "", dateType: "custom" });
-          const r = await gw.call("GET", `/workflows/trigger/logs/count-by-triggerId?${q2}`);
+          const q3 = new URLSearchParams({ triggerId: trig.id, locationId: args.locationId, fromDate: String(window.fromDate), toDate: String(window.toDate), recordId: "", dateType: "custom" });
+          const r = await gw.call("GET", `/workflows/trigger/logs/count-by-triggerId?${q3}`);
           const row = Array.isArray(r.json) ? r.json[0] ?? null : r.json && typeof r.json === "object" ? r.json : null;
           const attempted = Number(row?.total ?? 0), matched = Number(row?.matched ?? 0);
           triggers.push({ id: trig.id, name: trig.name ?? null, type: trig.type, active: trig.active ?? null, attempted, matched, unmatched: Math.max(0, attempted - matched), ...r.ok ? {} : { error: { status: r.status } } });
@@ -157003,8 +157264,8 @@ var TOOLS2 = [
       let page = 1;
       let meta3 = null;
       while (page <= 50) {
-        const q2 = new URLSearchParams({ locationId: args.locationId, page: String(page), limit: "100" });
-        const r = await gw.call("GET", `/agent-logs/logs/${sid}/interactions?${q2}`);
+        const q3 = new URLSearchParams({ locationId: args.locationId, page: String(page), limit: "100" });
+        const r = await gw.call("GET", `/agent-logs/logs/${sid}/interactions?${q3}`);
         if (!r.ok) return fromHttp(r.status, r.json);
         meta3 = r.json?.meta ?? null;
         const rows = recordsFrom2(r.json, "interactions");
@@ -157092,8 +157353,8 @@ var TOOLS2 = [
         if (!args.conversationId) {
           return fail(CODES.VALIDATION_FAILED, "pass messageId (the inbound CRM message id, which is the traceId), or conversationId plus messageIndex or timestamp.");
         }
-        const q2 = new URLSearchParams({ locationId: args.locationId, limit: "100" });
-        const r = await gw.call("GET", `/agent-logs/logs/${encodeURIComponent(args.conversationId)}/interactions?${q2}`);
+        const q3 = new URLSearchParams({ locationId: args.locationId, limit: "100" });
+        const r = await gw.call("GET", `/agent-logs/logs/${encodeURIComponent(args.conversationId)}/interactions?${q3}`);
         if (!r.ok) return fromHttp(r.status, r.json);
         const rows = recordsFrom2(r.json, "interactions");
         if (!rows.length) return fail(CODES.VALIDATION_FAILED, `session ${args.conversationId} has no interactions (or that id is not a session id \u2014 the spans route takes a message id, the summary route takes a session id).`);
@@ -157158,12 +157419,12 @@ var TOOLS2 = [
     capabilities: [{ method: "GET", path: "/ai-employees/interactions/responseDetails" }],
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, rail: "ai", state: deps.state });
-      const q2 = new URLSearchParams({
+      const q3 = new URLSearchParams({
         locationId: args.locationId,
         messageId: args.outboundMessageId,
         source: "conversation"
       });
-      const r = await gw.call("GET", `/ai-employees/interactions/responseDetails?${q2}`);
+      const r = await gw.call("GET", `/ai-employees/interactions/responseDetails?${q3}`);
       if (!r.ok) return fromHttp(r.status, r.json);
       const j = r.json ?? {};
       if (typeof j.message === "string" && /error while fetching/i.test(j.message)) {
@@ -157331,11 +157592,11 @@ var TOOLS2 = [
       const ids = Array.isArray(args.workflowIds) ? args.workflowIds.filter(Boolean) : [];
       for (let i = 0; i < ids.length; i += 20) {
         const chunk = ids.slice(i, i + 20);
-        const q2 = new URLSearchParams({ locationId: args.locationId });
-        for (const id of chunk) q2.append("workflowIds[]", id);
+        const q3 = new URLSearchParams({ locationId: args.locationId });
+        for (const id of chunk) q3.append("workflowIds[]", id);
         const [live, cache] = await Promise.all([
-          gw.call("GET", `/workflows/status/search/enroll-stats?${q2}`),
-          gw.call("GET", `/workflows/status/search/enroll-stats-cache?${q2}`)
+          gw.call("GET", `/workflows/status/search/enroll-stats?${q3}`),
+          gw.call("GET", `/workflows/status/search/enroll-stats-cache?${q3}`)
         ]);
         const byId = /* @__PURE__ */ new Map();
         for (const r of cache.ok && Array.isArray(cache.json) ? cache.json : []) byId.set(r.workflowId, { workflowId: r.workflowId, total: Number(r.total ?? 0), finished: Number(r.finished ?? 0), source: "cache" });
@@ -158771,15 +159032,15 @@ var TOOLS2 = [
     handler: async (args, deps) => guard(async () => {
       const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
       const loc = encodeURIComponent(args.locationId);
-      const q2 = new URLSearchParams({
+      const q3 = new URLSearchParams({
         limit: String(args.limit ?? 100),
         offset: String(args.offset ?? 0),
         sortBy: "name",
         sortOrder: "asc"
       });
-      if (args.parentId === void 0) q2.set("type", "directory");
-      else q2.set("parentId", args.parentId);
-      const r = await gw.call("GET", `/workflow/${loc}/list?${q2}`);
+      if (args.parentId === void 0) q3.set("type", "directory");
+      else q3.set("parentId", args.parentId);
+      const r = await gw.call("GET", `/workflow/${loc}/list?${q3}`);
       if (!r.ok) return fromHttp(r.status, r.json);
       const rows = (r.json?.rows ?? []).map((row) => ({
         id: row.id ?? row._id,
@@ -159590,8 +159851,8 @@ var TOOLS2 = [
         );
       }
       const w = endpointWords(hit);
-      const query = (hit.query ?? []).filter((q2) => q2.name !== "\u2026spread");
-      const qs = query.length ? `?${query.map((q2) => `${q2.name}=<${q2.name}>`).join("&")}` : "";
+      const query = (hit.query ?? []).filter((q3) => q3.name !== "\u2026spread");
+      const qs = query.length ? `?${query.map((q3) => `${q3.name}=<${q3.name}>`).join("&")}` : "";
       return { ok: true, data: {
         id: hit.id,
         method: hit.method,
@@ -159623,6 +159884,231 @@ var TOOLS2 = [
         } }
       } };
     })
+  },
+  {
+    name: "find_ghl_site",
+    description: describe3(
+      "find_ghl_site",
+      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" (proof: live-runtime \u2014 disjointness measured 2026-09-04; the funnels leg runs on the token-id rail, proven-live per knowledge/corpus/funnels/20-api/funnels-api.md 2026-08-25; risk: read).'
+    ),
+    inputSchema: schema({ locationId: external_exports.string(), site: external_exports.string() }),
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects" },
+      { method: "GET", path: "/funnels/funnel/list" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const studio = (await api.listProjects()).json;
+      const funnelsGw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: "token-id" });
+      const funnelRes = await funnelsGw.call(
+        "GET",
+        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&type=funnel&category=all&offset=0&limit=100`
+      );
+      const funnelsChecked = Boolean(funnelRes?.ok);
+      const funnels = funnelsChecked ? funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? [] : [];
+      if (!funnelsChecked) {
+        const studioHit = classifySite(args.site, Array.isArray(studio) ? studio : [], []);
+        const surface = studioHit.surface === "not-found" ? "unknown" : studioHit.surface;
+        return ok({
+          ...studioHit,
+          surface,
+          locationId: args.locationId,
+          funnelsChecked: false,
+          warning: `The funnels/token-id check failed (status ${funnelRes?.status ?? "unknown"}) and was skipped. This result reflects AI Studio only \u2014 it does NOT prove the site is not a funnel.`
+        });
+      }
+      const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
+      return ok({
+        ...hit,
+        locationId: args.locationId,
+        funnelsChecked: true,
+        note: hit.surface === "not-found" ? "Not on this location. AI Studio has no agency-level list \u2014 sweep each bound location before concluding it does not exist." : void 0
+      });
+    }, args)
+  },
+  {
+    name: "list_studio_sites",
+    description: describe3("list_studio_sites", "List AI Studio (vibe) projects and folders for a sub-account (proof: engine source; risk: read)."),
+    inputSchema: schema({ locationId: external_exports.string() }),
+    capabilities: [{ method: "GET", path: "/vibe-ai/projects" }, { method: "GET", path: "/vibe-ai/folders" }],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const projects = (await api.listProjects()).json ?? [];
+      const folders = (await api.getFolders()).json ?? [];
+      return ok({
+        count: projects.length,
+        folders,
+        projects: projects.map((p2) => ({
+          id: p2.id,
+          name: p2.name,
+          slug: p2.slug,
+          folderId: p2.folder_id,
+          domains: p2.custom_domains ?? [],
+          primaryDomain: p2.primary_custom_domain ?? null,
+          published: Boolean(p2.published_at),
+          publishedAt: p2.published_at,
+          publishedVersionId: p2.published_version_id,
+          updatedAt: p2.updated_at
+        })),
+        note: "AI Studio is per-location; there is no agency-level list. Project ids are 19-digit strings \u2014 keep them strings."
+      });
+    }, args)
+  },
+  {
+    name: "get_studio_site",
+    description: describe3("get_studio_site", "One AI Studio project: detail plus its page routes (proof: engine source; risk: read)."),
+    inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string() }),
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
+      { method: "GET", path: "/vibe-ai/projects/{projectId}/routes" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const project = (await api.getProject(args.projectId)).json;
+      const routes = filterRoutes((await api.getRoutes(args.projectId)).json);
+      if (project?.alt_id && project.alt_id !== args.locationId) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          `project ${args.projectId} belongs to a different sub-account (${project.alt_id})`,
+          "alt_id is not enforced on by-id reads; verify it on the returned record."
+        );
+      }
+      return ok({
+        project,
+        routes,
+        routeCount: routes.length,
+        note: "Soft-deleted routes were filtered out; the endpoint returns them. project.thumbnail_url is a public, UNAUTHENTICATED link that renders the site even when unpublished \u2014 do not paste it anywhere you would not paste the draft itself."
+      });
+    }, args)
+  },
+  {
+    name: "read_studio_site_content",
+    description: describe3(
+      "read_studio_site_content",
+      "Read an AI Studio site's source \u2014 every file with its content. This is how you read a site's copy as structured text instead of scraping the published HTML (proof: engine source; risk: read)."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      projectId: external_exports.string(),
+      pathContains: external_exports.string().optional(),
+      maxBytes: external_exports.number().optional()
+    }),
+    capabilities: [{ method: "GET", path: "/vibe-ai/projects/{projectId}/files" }],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      let files = (await api.getFiles(args.projectId)).json ?? [];
+      if (args.pathContains) files = files.filter((f) => String(f.path).includes(args.pathContains));
+      const cap = args.maxBytes ?? 4e5;
+      let used = 0;
+      const out = [];
+      let truncated = false;
+      for (const f of files) {
+        const len = String(f.content ?? "").length;
+        if (used + len > cap) {
+          truncated = true;
+          out.push({ path: f.path, bytes: len, content: null });
+          continue;
+        }
+        used += len;
+        out.push({ path: f.path, bytes: len, content: f.content });
+      }
+      return ok({
+        fileCount: files.length,
+        returnedBytes: used,
+        truncated,
+        files: out,
+        note: truncated ? "Some files were listed without content to stay under maxBytes; narrow with pathContains." : void 0
+      });
+    }, args)
+  },
+  {
+    name: "get_studio_site_history",
+    description: describe3(
+      "get_studio_site_history",
+      "The build history of an AI Studio site: every prompt, every assistant turn, the versions each minted, and the publish journal. Read from Firestore \u2014 there is no REST endpoint for this (proof: engine source; risk: read)."
+    ),
+    inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), limit: external_exports.number().optional() }),
+    capabilities: [{ method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }],
+    handler: async (args, deps) => guard(async () => {
+      const { history } = studioDeps(args, deps);
+      const rows = await history(MESSAGES, args.projectId, "order", args.limit ?? 300);
+      const versions = rows.filter((r) => r.versionId).map((r) => ({
+        versionId: r.versionId,
+        messageId: r.id,
+        buildStatus: r.buildStatus,
+        summary: r.completionSummary,
+        at: r.timestamp
+      }));
+      const publishes = rows.filter((r) => r.role === "system" && r.type === "publish").map((r) => ({ liveUrl: r.liveUrl, publishedVersionId: r.publishedVersionId, at: r.timestamp }));
+      return ok({
+        messageCount: rows.length,
+        turns: rows.map((r) => ({
+          id: r.id,
+          role: r.role,
+          order: r.order,
+          at: r.timestamp,
+          buildStatus: r.buildStatus,
+          versionId: r.versionId,
+          summary: r.completionSummary,
+          hasQuestion: Boolean(r.question)
+        })),
+        versions,
+        publishes,
+        note: "Publishes are journaled; UNPUBLISHES ARE NOT. For current state read published_at on the project."
+      });
+    }, args)
+  },
+  {
+    name: "get_studio_site_diffs",
+    description: describe3(
+      "get_studio_site_diffs",
+      "The per-file unified diffs a generation produced \u2014 exactly what the AI changed, file by file (proof: engine source; risk: read)."
+    ),
+    inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), messageId: external_exports.string().optional() }),
+    capabilities: [{ method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }],
+    handler: async (args, deps) => guard(async () => {
+      const { history } = studioDeps(args, deps);
+      let rows = await history(DIFFS, args.projectId, null, 300);
+      if (args.messageId) rows = rows.filter((r) => r.messageId === args.messageId);
+      return ok({
+        count: rows.length,
+        diffs: rows.map((r) => ({
+          messageId: r.messageId,
+          file: r.file,
+          toolType: r.toolType,
+          action: r.action,
+          description: r.description,
+          diff: r.diff
+        }))
+      });
+    }, args)
+  },
+  {
+    name: "get_studio_preview",
+    description: describe3(
+      "get_studio_preview",
+      "Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a BROWSER to check the work \u2014 a plain HTTP fetch returns a Cloudflare challenge (proof: engine source; risk: read)."
+    ),
+    inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string() }),
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}/sandbox" },
+      { method: "POST", path: "/vibe-ai/projects/{projectId}/sandbox" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      let sb = (await api.getSandbox(args.projectId)).json ?? {};
+      let provisioning = false;
+      if (!sb.ready || !sb.url) {
+        await api.ensureSandbox(args.projectId);
+        provisioning = true;
+      }
+      return ok({
+        ready: Boolean(sb.ready),
+        provisioning,
+        url: sb.url || `https://${args.projectId}.vibepreview.com`,
+        note: "Sandbox host is keyed on the PROJECT ID; a published site is {slug}.vibepreview.com. Sandboxes expire (ready:false with an empty url while has_builds stays true). Verify by opening it in a browser: curl gets a Cloudflare 403 regardless of site state."
+      });
+    }, args)
   }
 ];
 function registerTools(server2, deps, tools = TOOLS2) {

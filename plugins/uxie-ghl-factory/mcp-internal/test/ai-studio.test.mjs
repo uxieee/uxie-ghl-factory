@@ -326,3 +326,59 @@ test('a genuine direct-child secrets map nested elsewhere in the tree stays exem
 test('nested secrets maps are still caught', () => {
   assert.equal(containsSecrets({ secrets: { secrets: { apiKey: 'x' } } }), true);
 });
+
+import { classifySite } from '../core/ai-studio.mjs';
+
+test('the resolver reports which surface owns a host', () => {
+  const studio = [{ id: 'S1', name: 'Lyceum', slug: 'mindful-lyceum',
+                    custom_domains: ['example.com', 'www.example.com'], primary_custom_domain: 'example.com' }];
+  const funnels = [{ _id: 'F1', name: 'Optin', url: '/optin' }];
+  assert.deepEqual(classifySite('example.com', studio, funnels),
+    { surface: 'ai-studio', id: 'S1', name: 'Lyceum', matchedOn: 'custom_domain' });
+  assert.equal(classifySite('www.example.com', studio, funnels).surface, 'ai-studio', 'www is matched');
+  assert.equal(classifySite('mindful-lyceum', studio, funnels).matchedOn, 'slug');
+  assert.equal(classifySite('Optin', studio, funnels).surface, 'funnel');
+  assert.equal(classifySite('nothing-here.com', studio, funnels).surface, 'not-found');
+});
+
+import { TOOLS } from '../core/tools.mjs';
+
+const findGhlSiteTool = () => TOOLS.find((t) => t.name === 'find_ghl_site');
+
+// find_ghl_site queries two disjoint collections on TWO DIFFERENT credential rails
+// (AI Studio on jwt/Bearer, funnels on token-id — /funnels refuses Bearer). If the
+// token-id call fails, a `?? []` fallback would silently read as "the site does not
+// exist" — the exact failure mode this tool exists to prevent. Prove it does not.
+test('a failed funnels/token-id call is reported, never silently read as not-found', async () => {
+  let sawFunnelsCall = false;
+  const gwByRail = { jwt: { call: async () => ({ status: 200, ok: true, json: [] }) } };
+  const deps = {
+    state: {},
+    makeGw: (opts) => {
+      if (opts.rail === 'token-id') {
+        sawFunnelsCall = true;
+        return { call: async () => ({ status: 500, ok: false, json: { error: 'boom' } }) };
+      }
+      return gwByRail.jwt;
+    },
+  };
+  const result = await findGhlSiteTool().handler({ locationId: 'LOC', site: 'anything.com' }, deps);
+  assert.equal(sawFunnelsCall, true, 'the funnels rail must actually be tried');
+  assert.equal(result.ok, true);
+  assert.notEqual(result.data.surface, 'not-found', 'a rail failure must never be reported as "does not exist"');
+  assert.equal(result.data.funnelsChecked, false);
+  assert.match(result.data.warning, /funnels|token-id/i);
+});
+
+test('a successful funnels call reports funnelsChecked:true', async () => {
+  const deps = {
+    state: {},
+    makeGw: (opts) => (opts.rail === 'token-id'
+      ? { call: async () => ({ status: 200, ok: true, json: { funnels: [] } }) }
+      : { call: async () => ({ status: 200, ok: true, json: [] }) }),
+  };
+  const result = await findGhlSiteTool().handler({ locationId: 'LOC', site: 'nothing-here.com' }, deps);
+  assert.equal(result.ok, true);
+  assert.equal(result.data.funnelsChecked, true);
+  assert.equal(result.data.surface, 'not-found');
+});
