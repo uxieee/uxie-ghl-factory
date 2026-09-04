@@ -69,7 +69,18 @@ then answer, because the secret never travels through the conversation.
 If a turn is still running when the tool returns, you get `pending: true` and a message id.
 Resume with `get_studio_generation_status`. Nothing was lost.
 
-## Before you publish — two required steps
+## Before you publish — three required steps
+
+**Confirm the change actually landed.** `buildStatus: "ready"` and a confident `summary` are **not**
+evidence the file changed. Live-fired 2026-09-04: a turn returned `ready`, minted a version, and
+summarised *"Added the broken import at the top of `src/pages/Index.tsx` and referenced
+`ThisDoesNotExist` in the component body"* — and the file contained neither. The rendered page was
+the untouched scaffold. The tell was in the data the tool already returns: `diffs[].action` said
+`Created`, not `Edited`.
+
+So read the source back with `read_studio_site_content` and check the thing you asked for is in it.
+That prompt deliberately asked for broken code, so the builder may have declined and reported
+optimistically — whether this happens for ordinary prompts is **untested**. Do not assume it is rare.
 
 **Look at it.** An MCP server cannot see a page. Call `get_studio_preview` and open the URL in a
 **browser** (chrome-devtools or Playwright). A plain HTTP fetch returns a Cloudflare challenge

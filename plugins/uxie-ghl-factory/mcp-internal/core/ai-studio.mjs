@@ -3,6 +3,13 @@
 // The product is called `vibe` everywhere internally; "AI Studio" is only the sidebar label.
 // The rules encoded here are the ones that silently return a WRONG answer rather than erroring:
 //
+//  0. `buildStatus: "ready"` IS NOT EVIDENCE THE FILE CHANGED. Live-fired 2026-09-04: a turn
+//     returned buildStatus "ready", minted a version, and summarised an edit ("added the broken
+//     import ... and referenced ThisDoesNotExist") that was NOT in the file; the rendered page was
+//     the untouched scaffold and the diff rows said `Created`, not `Edited`. That prompt asked for
+//     broken code deliberately, so the builder may have declined and reported optimistically —
+//     whether it happens for ordinary prompts is UNTESTED. Read the source back before believing a
+//     summary. See STATUS-2026-09-04-ai-studio-live-fire.md.
 //  1. TERMINAL STATE is `buildStatus`, never `thinkingStatus`. Measured 2026-09-04:
 //     thinkingStatus reached "completed" at 3s while buildStatus was still "validating", and
 //     only reached "ready" at 48s. A poller keyed on thinkingStatus reports a half-built site
