@@ -159884,7 +159884,7 @@ var TOOLS2 = [
     name: "find_ghl_site",
     description: describe3(
       "find_ghl_site",
-      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" (proof: live-runtime \u2014 disjointness measured 2026-09-04; the funnels leg runs on the token-id rail, proven-live per knowledge/corpus/funnels/20-api/funnels-api.md 2026-08-25; risk: read).'
+      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" (proof: engine source; risk: read). Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'
     ),
     inputSchema: schema({ locationId: external_exports.string(), site: external_exports.string() }),
     capabilities: [
@@ -159897,7 +159897,7 @@ var TOOLS2 = [
       const funnelsGw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: "token-id" });
       const funnelRes = await funnelsGw.call(
         "GET",
-        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&type=funnel&category=all&offset=0&limit=100`
+        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`
       );
       const funnelsChecked = Boolean(funnelRes?.ok);
       const funnels = funnelsChecked ? funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? [] : [];
@@ -160094,14 +160094,16 @@ var TOOLS2 = [
       let sb = (await api.getSandbox(args.projectId)).json ?? {};
       let provisioning = false;
       if (!sb.ready || !sb.url) {
-        await api.ensureSandbox(args.projectId);
         provisioning = true;
+        await api.ensureSandbox(args.projectId);
+        sb = (await api.getSandbox(args.projectId)).json ?? sb;
       }
+      const stillNotReady = provisioning && (!sb.ready || !sb.url);
       return ok({
         ready: Boolean(sb.ready),
         provisioning,
         url: sb.url || `https://${args.projectId}.vibepreview.com`,
-        note: "Sandbox host is keyed on the PROJECT ID; a published site is {slug}.vibepreview.com. Sandboxes expire (ready:false with an empty url while has_builds stays true). Verify by opening it in a browser: curl gets a Cloudflare 403 regardless of site state."
+        note: (stillNotReady ? "Provisioning was triggered but the re-read still shows not-ready \u2014 sandboxes can take a moment to come up; poll again shortly. " : "") + "Sandbox host is keyed on the PROJECT ID; a published site is {slug}.vibepreview.com. Sandboxes expire (ready:false with an empty url while has_builds stays true). Verify by opening it in a browser: curl gets a Cloudflare 403 regardless of site state."
       });
     }, args)
   }

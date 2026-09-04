@@ -5740,8 +5740,10 @@ export const TOOLS = [
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
       + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
-      + '(proof: live-runtime — disjointness measured 2026-09-04; the funnels leg runs on the token-id '
-      + 'rail, proven-live per knowledge/corpus/funnels/20-api/funnels-api.md 2026-08-25; risk: read).'),
+      + '(proof: engine source; risk: read). Disjointness measured 2026-09-04 '
+      + '(knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id '
+      + 'rail — the same sweep called it live and it succeeded, and '
+      + 'knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'),
     inputSchema: schema({ locationId: z.string(), site: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects' },
@@ -5757,9 +5759,18 @@ export const TOOLS = [
       // knowledge/corpus/funnels/00-overview/index.md say the same; a prior A/B proof in this
       // project's reference notes agrees. AI Studio itself is Bearer-only (/vibe-ai 401s on
       // token-id alone), so this tool carries TWO rails — auth here is per-surface, not global.
+      //
+      // NO `type` or `category` query param — deliberately. knowledge/sniffs/ai-studio-2026-09-04/
+      // sweep-19.mjs is the probe that produced the disjointness finding this whole tool rests on:
+      // it issues one call with `type=website` and one with NO `type` at all, then compares the
+      // UNTYPED result ("funnels(all)") against the typed one ("websites-only") to prove AI Studio
+      // projects never appear in the funnels collection. `type` FILTERS the collection — a classic
+      // GHL website is `type=website`, not `type=funnel` — so filtering here would silently exclude
+      // exactly the record class someone is most likely to ask this resolver about, reintroducing
+      // the false "does not exist" this tool exists to prevent, through a different door.
       const funnelsGw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: 'token-id' });
       const funnelRes = await funnelsGw.call('GET',
-        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&type=funnel&category=all&offset=0&limit=100`);
+        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
       const funnelsChecked = Boolean(funnelRes?.ok);
       const funnels = funnelsChecked ? (funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? []) : [];
 
@@ -5909,10 +5920,21 @@ export const TOOLS = [
       const { api } = studioDeps(args, deps);
       let sb = (await api.getSandbox(args.projectId)).json ?? {};
       let provisioning = false;
-      if (!sb.ready || !sb.url) { await api.ensureSandbox(args.projectId); provisioning = true; }
+      if (!sb.ready || !sb.url) {
+        provisioning = true;
+        await api.ensureSandbox(args.projectId);
+        // ensureSandbox's own response is a provisioning ack, not the sandbox record — re-read
+        // so a caller never sees the PRE-provision ready/url after a provisioning call ran.
+        sb = (await api.getSandbox(args.projectId)).json ?? sb;
+      }
+      const stillNotReady = provisioning && (!sb.ready || !sb.url);
       return ok({ ready: Boolean(sb.ready), provisioning,
         url: sb.url || `https://${args.projectId}.vibepreview.com`,
-        note: 'Sandbox host is keyed on the PROJECT ID; a published site is {slug}.vibepreview.com. '
+        note: (stillNotReady
+              ? 'Provisioning was triggered but the re-read still shows not-ready — sandboxes can '
+                + 'take a moment to come up; poll again shortly. '
+              : '')
+            + 'Sandbox host is keyed on the PROJECT ID; a published site is {slug}.vibepreview.com. '
             + 'Sandboxes expire (ready:false with an empty url while has_builds stays true). '
             + 'Verify by opening it in a browser: curl gets a Cloudflare 403 regardless of site state.' });
     }, args),
