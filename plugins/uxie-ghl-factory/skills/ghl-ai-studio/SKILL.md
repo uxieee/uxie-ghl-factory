@@ -12,7 +12,7 @@ sandbox, and publishes to its own edge. Corpus: `knowledge/corpus/ai-studio/`.
 sidebar says "AI Studio". Searching a bundle for the user-facing name finds nothing.
 
 **The tools are not yet live-fired.** All fifteen carry `proof: documented` in
-`tool-descriptions.json` — the *endpoints* were mapped live on 2026-09-04 with 118 captures in
+`tool-descriptions.json` — the *endpoints* were mapped live on 2026-09-04 with 117 captures in
 `knowledge/sniffs/ai-studio-2026-09-04/`, but the *tools* built on top of them have never been
 executed against a real GoHighLevel account. That distinction is invisible once you're holding a
 tool call — the description reads the same as any proven tool. This skill is where the caveat
