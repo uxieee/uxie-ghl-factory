@@ -46205,10 +46205,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       find_ghl_site: {
-        description: "Find ghl site \u2014 proof: documented; risk: read",
+        description: "Find ghl site \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
           "funnels-service--get-funnels"
@@ -46227,10 +46227,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       list_studio_sites: {
-        description: "List studio sites \u2014 proof: documented; risk: read",
+        description: "List studio sites \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects",
           "ai-studio--get-folders"
@@ -46249,10 +46249,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site: {
-        description: "Get studio site \u2014 proof: documented; risk: read",
+        description: "Get studio site \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects--documented",
           "ai-studio--get-projects-routes"
@@ -46271,10 +46271,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       read_studio_site_content: {
-        description: "Read studio site content \u2014 proof: documented; risk: read",
+        description: "Read studio site content \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-files"
         ],
@@ -46289,10 +46289,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site_history: {
-        description: "Get studio site history \u2014 proof: documented; risk: read",
+        description: "Get studio site history \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
@@ -46307,10 +46307,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_site_diffs: {
-        description: "Get studio site diffs \u2014 proof: documented; risk: read",
+        description: "Get studio site diffs \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
@@ -46325,10 +46325,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_preview: {
-        description: "Get studio preview \u2014 proof: documented; risk: read",
+        description: "Get studio preview \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-sandbox",
           "ai-studio--post-projects-sandbox"
@@ -46347,10 +46347,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       get_studio_generation_status: {
-        description: "Get studio generation status \u2014 proof: documented; risk: read",
+        description: "Get studio generation status \u2014 proof: live-runtime (2026-09-04); risk: read",
         risk: "read",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "typed--get_studio_site_history--vibe-platform-documents:runQuery"
         ],
@@ -46365,10 +46365,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       create_studio_site: {
-        description: "Create studio site \u2014 proof: documented; risk: write",
+        description: "Create studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects"
         ],
@@ -46383,10 +46383,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       generate_studio_site: {
-        description: "Generate studio site \u2014 proof: documented; risk: write",
+        description: "Generate studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--get-projects-usage-policy",
           "ai-studio--post-projects-chat",
@@ -46409,10 +46409,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       answer_studio_question: {
-        description: "Answer studio question \u2014 proof: documented; risk: write",
+        description: "Answer studio question \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-chat"
         ],
@@ -46427,10 +46427,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       cancel_studio_generation: {
-        description: "Cancel studio generation \u2014 proof: documented; risk: write",
+        description: "Cancel studio generation \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-chat-cancel"
         ],
@@ -46445,10 +46445,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       set_studio_secrets: {
-        description: "Set studio secrets \u2014 proof: documented; risk: write",
+        description: "Set studio secrets \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--put-projects-secrets",
           "ai-studio--get-projects-secrets"
@@ -46467,10 +46467,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       publish_studio_site: {
-        description: "Publish studio site \u2014 proof: documented; risk: write",
+        description: "Publish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-publish",
           "ai-studio--get-projects--documented"
@@ -46489,10 +46489,10 @@ var init_define_TOOL_CATALOG = __esm({
         ]
       },
       unpublish_studio_site: {
-        description: "Unpublish studio site \u2014 proof: documented; risk: write",
+        description: "Unpublish studio site \u2014 proof: live-runtime (2026-09-04); risk: write",
         risk: "write",
-        proof: "documented",
-        proofFloor: "documented",
+        proof: "live-runtime (2026-09-04)",
+        proofFloor: "live-runtime (2026-09-04)",
         proofRows: [
           "ai-studio--post-projects-unpublish",
           "ai-studio--get-projects--documented"
@@ -160360,7 +160360,7 @@ var TOOLS2 = [
     name: "find_ghl_site",
     description: describe3(
       "find_ghl_site",
-      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" (proof: documented; risk: read). Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'
+      'Resolve a domain, slug or name to the GHL surface that owns it \u2014 AI Studio project or funnel. Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint collections, so querying the wrong one returns an empty list that reads as "does not exist" \u2014 proof: live-runtime (2026-09-04); risk: read. Disjointness measured 2026-09-04 (knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id rail \u2014 the same sweep called it live and it succeeded, and knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'
     ),
     inputSchema: schema({ locationId: external_exports.string(), site: external_exports.string() }),
     capabilities: [
@@ -160411,7 +160411,7 @@ var TOOLS2 = [
   },
   {
     name: "list_studio_sites",
-    description: describe3("list_studio_sites", "List AI Studio (vibe) projects and folders for a sub-account (proof: documented; risk: read)."),
+    description: describe3("list_studio_sites", "List AI Studio (vibe) projects and folders for a sub-account \u2014 proof: live-runtime (2026-09-04); risk: read."),
     inputSchema: schema({ locationId: external_exports.string() }),
     capabilities: [{ method: "GET", path: "/vibe-ai/projects" }, { method: "GET", path: "/vibe-ai/folders" }],
     handler: async (args, deps) => guard(async () => {
@@ -160439,7 +160439,7 @@ var TOOLS2 = [
   },
   {
     name: "get_studio_site",
-    description: describe3("get_studio_site", "One AI Studio project: detail plus its page routes (proof: documented; risk: read)."),
+    description: describe3("get_studio_site", "One AI Studio project: detail plus its page routes \u2014 proof: live-runtime (2026-09-04); risk: read."),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string() }),
     capabilities: [
       { method: "GET", path: "/vibe-ai/projects/{projectId}" },
@@ -160462,7 +160462,7 @@ var TOOLS2 = [
     name: "read_studio_site_content",
     description: describe3(
       "read_studio_site_content",
-      "Read an AI Studio site's source \u2014 every file with its content. This is how you read a site's copy as structured text instead of scraping the published HTML (proof: documented; risk: read)."
+      "Read an AI Studio site's source \u2014 every file with its content. This is how you read a site's copy as structured text instead of scraping the published HTML \u2014 proof: live-runtime (2026-09-04); risk: read."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -160507,7 +160507,7 @@ var TOOLS2 = [
     name: "get_studio_site_history",
     description: describe3(
       "get_studio_site_history",
-      "The build history of an AI Studio site: every prompt, every assistant turn, the versions each minted, and the publish journal. Read from Firestore \u2014 there is no REST endpoint for this (proof: documented; risk: read)."
+      "The build history of an AI Studio site: every prompt, every assistant turn, the versions each minted, and the publish journal. Read from Firestore \u2014 there is no REST endpoint for this \u2014 proof: live-runtime (2026-09-04); risk: read."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), limit: external_exports.number().optional() }),
     capabilities: [
@@ -160549,7 +160549,7 @@ var TOOLS2 = [
     name: "get_studio_site_diffs",
     description: describe3(
       "get_studio_site_diffs",
-      "The per-file unified diffs a generation produced \u2014 exactly what the AI changed, file by file (proof: documented; risk: read)."
+      "The per-file unified diffs a generation produced \u2014 exactly what the AI changed, file by file \u2014 proof: live-runtime (2026-09-04); risk: read."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), messageId: external_exports.string().optional() }),
     capabilities: [
@@ -160579,7 +160579,7 @@ var TOOLS2 = [
     name: "get_studio_preview",
     description: describe3(
       "get_studio_preview",
-      "Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a BROWSER to check the work \u2014 a plain HTTP fetch returns a Cloudflare challenge (proof: documented; risk: read)."
+      "Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a BROWSER to check the work \u2014 a plain HTTP fetch returns a Cloudflare challenge \u2014 proof: live-runtime (2026-09-04); risk: read."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string() }),
     capabilities: [
@@ -160611,7 +160611,7 @@ var TOOLS2 = [
     name: "create_studio_site",
     description: describe3(
       "create_studio_site",
-      "Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the slug from the rewrite \u2014 this tool reports both so you can see it happen (proof: documented; risk: write)."
+      "Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the slug from the rewrite \u2014 this tool reports both so you can see it happen \u2014 proof: live-runtime (2026-09-04); risk: write."
     ),
     inputSchema: schema({ locationId: external_exports.string(), name: external_exports.string(), description: external_exports.string().optional() }),
     capabilities: [{ method: "POST", path: "/vibe-ai/projects" }],
@@ -160635,7 +160635,7 @@ var TOOLS2 = [
     name: "generate_studio_site",
     description: describe3(
       "generate_studio_site",
-      "Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports what the turn cost. This SPENDS money on the sub-account, metered in USD (proof: documented; risk: write)."
+      "Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports what the turn cost. This SPENDS money on the sub-account, metered in USD \u2014 proof: live-runtime (2026-09-04); risk: write."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -160718,7 +160718,7 @@ var TOOLS2 = [
     name: "get_studio_generation_status",
     description: describe3(
       "get_studio_generation_status",
-      "Resume a generation that had not finished when generate_studio_site (or a prior call to this tool) returned pending. Pass the SAME messageId \u2014 the chat receipt's message_id \u2014 so this only ever resolves the turn you started, never a stale terminal row already sitting in the project's history (proof: documented; risk: read)."
+      "Resume a generation that had not finished when generate_studio_site (or a prior call to this tool) returned pending. Pass the SAME messageId \u2014 the chat receipt's message_id \u2014 so this only ever resolves the turn you started, never a stale terminal row already sitting in the project's history \u2014 proof: live-runtime (2026-09-04); risk: read."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -160755,7 +160755,7 @@ var TOOLS2 = [
     name: "answer_studio_question",
     description: describe3(
       "answer_studio_question",
-      'Answer a question the AI Studio builder asked mid-build. Pass the answer; the tool reads the stored question and picks the right continuation shape itself. For an INTEGRATION question (question.kind is integration_input), `answer` is not free text \u2014 pass the id of the integration item the question offered (from question.integrationPrompt.items[].id), or the literal string "dismiss" to decline the integration; the item id itself IS the answer (proof: documented; risk: write).'
+      'Answer a question the AI Studio builder asked mid-build. Pass the answer; the tool reads the stored question and picks the right continuation shape itself. For an INTEGRATION question (question.kind is integration_input), `answer` is not free text \u2014 pass the id of the integration item the question offered (from question.integrationPrompt.items[].id), or the literal string "dismiss" to decline the integration; the item id itself IS the answer \u2014 proof: live-runtime (2026-09-04); risk: write.'
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -160800,7 +160800,7 @@ var TOOLS2 = [
     name: "cancel_studio_generation",
     description: describe3(
       "cancel_studio_generation",
-      "Cancel a running AI Studio generation (proof: documented; risk: write)."
+      "Cancel a running AI Studio generation \u2014 proof: live-runtime (2026-09-04); risk: write."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), messageId: external_exports.string() }),
     capabilities: [
@@ -160822,7 +160822,7 @@ var TOOLS2 = [
     name: "set_studio_secrets",
     description: describe3(
       "set_studio_secrets",
-      "Set project secrets for an AI Studio site. The write MERGES into the existing map, and values are write-only \u2014 reads return names and timestamps only, never values (proof: documented; risk: write)."
+      "Set project secrets for an AI Studio site. The write MERGES into the existing map, and values are write-only \u2014 reads return names and timestamps only, never values \u2014 proof: live-runtime (2026-09-04); risk: write."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), secrets: external_exports.record(external_exports.string()) }),
     capabilities: [
@@ -160849,7 +160849,7 @@ var TOOLS2 = [
     name: "publish_studio_site",
     description: describe3(
       "publish_studio_site",
-      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. Requires confirm:true (proof: documented; risk: write)."
+      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. Requires confirm:true \u2014 proof: live-runtime (2026-09-04); risk: write."
     ),
     inputSchema: schema({
       locationId: external_exports.string(),
@@ -160888,7 +160888,7 @@ var TOOLS2 = [
     name: "unpublish_studio_site",
     description: describe3(
       "unpublish_studio_site",
-      "Take an AI Studio site off the public internet. Requires confirm:true (proof: documented; risk: write)."
+      "Take an AI Studio site off the public internet. Requires confirm:true \u2014 proof: live-runtime (2026-09-04); risk: write."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), confirm: external_exports.boolean().optional() }),
     capabilities: [
