@@ -12,6 +12,12 @@ const APP = 'https://app.gohighlevel.com';
 // JWT) may be attached to. Asserted per request so an `ai`-rail call to any other base
 // cannot leak it (review SC3).
 const AI_HOST = 'https://services.leadconnectorhq.com';
+// Firestore is where AI Studio keeps its conversation, versions and per-file diffs
+// (knowledge/corpus/ai-studio/10-anatomy/the-chat-and-version-model.md). The idToken minted
+// for it is a THIRD credential with a different audience, so it gets the same treatment as
+// the agency-admin token-id on the `ai` rail: asserted per request against exactly one host,
+// so a mis-routed call throws instead of leaking it.
+export const FIRESTORE_HOST = 'https://firestore.googleapis.com';
 // Google Cloud Storage signed-upload targets: path-style (storage.googleapis.com) OR
 // virtual-hosted style (<bucket>.storage.googleapis.com). Both are valid destinations for
 // a GHL-issued signed URL, and neither ever receives GHL auth (review SC4/MF1).
@@ -126,6 +132,18 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       requireAiCredentials(creds);
       h.authorization = `Bearer ${creds.jwt}`;
       h['token-id'] = creds.tokenId;
+    } else if (rail === 'firebase') {
+      let origin;
+      try { origin = new URL(base).origin; } catch { origin = null; }
+      if (origin !== FIRESTORE_HOST) {
+        const e = new Error(`firebase rail may only target ${FIRESTORE_HOST}, not ${origin ?? base}`);
+        e.code = 'FIREBASE_RAIL_HOST_INVALID';
+        e.remediation = 'The firebase rail carries a Firestore idToken; route it to Firestore only.';
+        throw e;
+      }
+      // The idToken is injected by ai-studio.mjs via options.headers.authorization, because it is
+      // minted per location and cached there, not read from the token file like the other rails.
+      h.authorization = overrides.authorization;
     } else if (rail === 'token-id') {
       if (!creds.tokenId) { const e = new Error('no token-id in capture file'); e.code = 'TOKEN_MISSING'; e.remediation = RECAPTURE; throw e; }
       h['token-id'] = creds.tokenId;
@@ -146,7 +164,7 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
     // made its most natural call — no explicit base — throw AI_RAIL_HOST_INVALID by construction
     // (list_marketplace_apps did exactly that, in both profiles, from 0.23.0 to 0.37.1). An
     // explicit wrong base is still refused by the SC3 guard in headers().
-    const base = options.base ?? (rail === 'ai' ? AI_HOST : BASE);
+    const base = options.base ?? (rail === 'ai' ? AI_HOST : rail === 'firebase' ? FIRESTORE_HOST : BASE);
     const signedUpload = options.signedUpload === true;
     // Validate the RESOLVED destination, not `base` alone: the fetch target is base+path,
     // so a non-`/` or traversing path could otherwise escape a base-only origin check
