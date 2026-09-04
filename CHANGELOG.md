@@ -54,6 +54,16 @@ exemption in the credential guard. Tool count 51 → 66.
   narrow and deliberate: it suppresses the key-NAME rule for the direct children of a `secrets`
   object, nothing else.
 
+### Fixed
+
+- **`/internal-connect` runs on Windows** (PR #4, [@zedricedwardc](https://github.com/zedricedwardc)).
+  Six embedded snippets loaded the plugin's own modules with a raw `C:/…` path, which Node's ESM
+  loader refuses (`ERR_UNSUPPORTED_ESM_URL_SCHEME`), so every mode died on its first statement;
+  and an un-normalised `process.cwd()` made a *registered* folder read as unregistered, routing to
+  `claude mcp add` — which rewrites the entry and drops `GHL_INTERNAL_LOCATIONS`. Both fixed with
+  `pathToFileURL` and separator normalisation; the doc-contract test now guards against any raw-path
+  import returning. The same defect in `create-ghl-workflow/scripts/build.mjs` is fixed alongside.
+
 ### Known limitations
 
 - **Not yet live-fired.** All fifteen tools carry `proof: documented`. The endpoints behind them
