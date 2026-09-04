@@ -46194,6 +46194,312 @@ var init_define_TOOL_CATALOG = __esm({
         rows: [
           "ai-agents--agent-logs-metrics"
         ]
+      },
+      find_ghl_site: {
+        description: "Find ghl site \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ],
+        riskRows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ],
+        rows: [
+          "ai-studio--get-projects",
+          "funnels-service--get-funnels"
+        ]
+      },
+      list_studio_sites: {
+        description: "List studio sites \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
+        ],
+        riskRows: [
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
+        ],
+        rows: [
+          "ai-studio--get-projects",
+          "ai-studio--get-folders"
+        ]
+      },
+      get_studio_site: {
+        description: "Get studio site \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ],
+        riskRows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ],
+        rows: [
+          "ai-studio--get-projects--documented",
+          "ai-studio--get-projects-routes"
+        ]
+      },
+      read_studio_site_content: {
+        description: "Read studio site content \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--get-projects-files"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects-files"
+        ],
+        riskRows: [
+          "ai-studio--get-projects-files"
+        ],
+        rows: [
+          "ai-studio--get-projects-files"
+        ]
+      },
+      get_studio_site_history: {
+        description: "Get studio site history \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        proofFloorRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        riskRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        rows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ]
+      },
+      get_studio_site_diffs: {
+        description: "Get studio site diffs \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        proofFloorRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        riskRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        rows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ]
+      },
+      get_studio_preview: {
+        description: "Get studio preview \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--get-projects-sandbox",
+          "ai-studio--post-projects-sandbox"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects-sandbox",
+          "ai-studio--post-projects-sandbox"
+        ],
+        riskRows: [
+          "ai-studio--get-projects-sandbox",
+          "ai-studio--post-projects-sandbox"
+        ],
+        rows: [
+          "ai-studio--get-projects-sandbox",
+          "ai-studio--post-projects-sandbox"
+        ]
+      },
+      get_studio_generation_status: {
+        description: "Get studio generation status \u2014 proof: documented; risk: read",
+        risk: "read",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        proofFloorRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        riskRows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        rows: [
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ]
+      },
+      create_studio_site: {
+        description: "Create studio site \u2014 proof: documented; risk: write",
+        risk: "write",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--post-projects"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects"
+        ],
+        riskRows: [
+          "ai-studio--post-projects"
+        ],
+        rows: [
+          "ai-studio--post-projects"
+        ]
+      },
+      generate_studio_site: {
+        description: "Generate studio site \u2014 proof: documented; risk: write",
+        risk: "write",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        proofFloorRows: [
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        riskRows: [
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ],
+        rows: [
+          "ai-studio--get-projects-usage-policy",
+          "ai-studio--post-projects-chat",
+          "typed--get_studio_site_history--vibe-platform-documents:runQuery"
+        ]
+      },
+      answer_studio_question: {
+        description: "Answer studio question \u2014 proof: documented; risk: write",
+        risk: "write",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--post-projects-chat"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects-chat"
+        ],
+        riskRows: [
+          "ai-studio--post-projects-chat"
+        ],
+        rows: [
+          "ai-studio--post-projects-chat"
+        ]
+      },
+      cancel_studio_generation: {
+        description: "Cancel studio generation \u2014 proof: documented; risk: write",
+        risk: "write",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--post-projects-chat-cancel"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects-chat-cancel"
+        ],
+        riskRows: [
+          "ai-studio--post-projects-chat-cancel"
+        ],
+        rows: [
+          "ai-studio--post-projects-chat-cancel"
+        ]
+      },
+      set_studio_secrets: {
+        description: "Set studio secrets \u2014 proof: documented; risk: write",
+        risk: "write",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ],
+        proofFloorRows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ],
+        riskRows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ],
+        rows: [
+          "ai-studio--put-projects-secrets",
+          "ai-studio--get-projects-secrets"
+        ]
+      },
+      publish_studio_site: {
+        description: "Publish studio site \u2014 proof: documented; risk: write",
+        risk: "write",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ],
+        riskRows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ],
+        rows: [
+          "ai-studio--post-projects-publish",
+          "ai-studio--get-projects--documented"
+        ]
+      },
+      unpublish_studio_site: {
+        description: "Unpublish studio site \u2014 proof: documented; risk: write",
+        risk: "write",
+        proof: "documented",
+        proofFloor: "documented",
+        proofRows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ],
+        proofFloorRows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ],
+        riskRows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ],
+        rows: [
+          "ai-studio--post-projects-unpublish",
+          "ai-studio--get-projects--documented"
+        ]
       }
     };
   }
