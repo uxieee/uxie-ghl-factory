@@ -502,18 +502,21 @@ const findGhlSiteTool = () => TOOLS.find((t) => t.name === 'find_ghl_site');
 // (AI Studio on jwt/Bearer, funnels on token-id — /funnels refuses Bearer). If the
 // token-id call fails, a `?? []` fallback would silently read as "the site does not
 // exist" — the exact failure mode this tool exists to prevent. Prove it does not.
-test('a failed funnels/token-id call is reported, never silently read as not-found', async () => {
+// Scenario updated 2026-09-04 after the live differential: the funnels sweep now tries token-id
+// and falls back to jwt, so ONE rail failing is no longer a failed sweep — it is a recovered one
+// (covered by "falls back to the other rail" below). A FAILED sweep means both rails failed, which
+// is what this stub now constructs. Every assertion below is unchanged; only the scenario moved.
+test('a failed funnels call is reported, never silently read as not-found', async () => {
   let sawFunnelsCall = false;
-  const gwByRail = { jwt: { call: async () => ({ status: 200, ok: true, json: [] }) } };
   const deps = {
     state: {},
-    makeGw: (opts) => {
-      if (opts.rail === 'token-id') {
-        sawFunnelsCall = true;
-        return { call: async () => ({ status: 500, ok: false, json: { error: 'boom' } }) };
-      }
-      return gwByRail.jwt;
-    },
+    makeGw: (opts) => ({
+      call: async (m, p) => {
+        if (p.startsWith('/vibe-ai')) return { status: 200, ok: true, json: [] };
+        if (opts.rail === 'token-id') sawFunnelsCall = true;
+        return { status: 500, ok: false, json: { error: 'boom' } };
+      },
+    }),
   };
   const result = await findGhlSiteTool().handler({ locationId: 'LOC', site: 'anything.com' }, deps);
   assert.equal(sawFunnelsCall, true, 'the funnels rail must actually be tried');
@@ -1097,4 +1100,38 @@ test('the AI Studio tools\' describe() FALLBACK strings (not just the catalogue-
     assert.doesNotMatch(match[0], /proof: engine source/,
       `${name}'s describe() fallback string must not still read "proof: engine source"`);
   }
+});
+
+// The funnels rail is DISPUTED. The corpus (proven-live 2026-08-25) says /funnels/* rejects Bearer
+// and requires token-id; a live differential on 2026-09-04 found the identical GET returning 200 and
+// the same 12 funnels on BOTH rails. Rather than bet on either, find_ghl_site tries one and falls
+// back to the other. These tests pin that: whichever rail answers, the sweep completes and says which.
+test('find_ghl_site falls back to the other rail when the first one fails', async () => {
+  const tool = TOOLS.find((t) => t.name === 'find_ghl_site');
+  const tried = [];
+  const deps = { state: {}, makeGw: ({ rail }) => ({ call: async (m, p) => {
+    if (p.startsWith('/vibe-ai')) return { status: 200, ok: true, json: [{ id: 'S1', name: 'Site', slug: 'site' }] };
+    tried.push(rail);
+    if (rail === 'token-id') return { status: 401, ok: false, json: { error: 'no' } };
+    return { status: 200, ok: true, json: { funnels: [{ _id: 'F1', name: 'Optin', url: '/optin' }] } };
+  } }) };
+  const res = await tool.handler({ locationId: 'L1', site: 'Optin' }, deps);
+  assert.equal(res.ok, true);
+  assert.equal(res.data.funnelsChecked, true, 'the fallback rail answered, so the sweep DID run');
+  assert.equal(res.data.funnelsRail, 'jwt', 'and the result says which rail answered');
+  assert.equal(res.data.surface, 'funnel', 'the funnel is resolved via the fallback rail');
+  assert.deepEqual(tried, ['token-id', 'jwt'], 'primary first, then the fallback');
+});
+
+test('find_ghl_site reports an unchecked sweep when BOTH rails fail', async () => {
+  const tool = TOOLS.find((t) => t.name === 'find_ghl_site');
+  const deps = { state: {}, makeGw: () => ({ call: async (m, p) => (
+    p.startsWith('/vibe-ai')
+      ? { status: 200, ok: true, json: [] }
+      : { status: 401, ok: false, json: { error: 'no' } }) }) };
+  const res = await tool.handler({ locationId: 'L1', site: 'anything' }, deps);
+  assert.equal(res.data.funnelsChecked, false);
+  assert.equal(res.data.funnelsRail, null);
+  assert.equal(res.data.surface, 'unknown', 'a failed sweep must never read as not-found');
+  assert.match(res.data.warning, /BOTH rails/i);
 });

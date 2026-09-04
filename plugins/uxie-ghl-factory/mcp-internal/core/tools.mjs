@@ -5798,12 +5798,16 @@ export const TOOLS = [
       const { api } = studioDeps(args, deps);
       const studio = (await api.listProjects()).json;
 
-      // /funnels/* refuses the jwt (Bearer) rail and requires token-id — proven-live,
-      // knowledge/corpus/funnels/20-api/funnels-api.md ("authenticated with token-id — not
-      // Authorization: Bearer. The workflow-builder rail's token is rejected here.") and
-      // knowledge/corpus/funnels/00-overview/index.md say the same; a prior A/B proof in this
-      // project's reference notes agrees. AI Studio itself is Bearer-only (/vibe-ai 401s on
-      // token-id alone), so this tool carries TWO rails — auth here is per-surface, not global.
+      // THE FUNNELS RAIL IS DISPUTED, so this tries both rather than betting on either.
+      // knowledge/corpus/funnels/20-api/funnels-api.md (proven-live 2026-08-25) and
+      // .../00-overview/index.md both state "/funnels/* is authenticated with token-id — not
+      // Authorization: Bearer. The workflow-builder rail's token is rejected here."
+      // A live differential on 2026-09-04 (one agency-admin token, one sub-account) DISAGREED:
+      // the identical GET returned 200 and the same 12 funnels on BOTH rails. One of the two is
+      // account- or token-class-specific and we cannot tell which from here, so the tool stops
+      // guessing: it attempts the primary rail, falls back to the other, and reports which
+      // answered in `funnelsRail`. AI Studio itself is Bearer-only (/vibe-ai 401s on token-id
+      // alone) — auth on this product is per-surface, not global.
       //
       // NO `type` or `category` query param — deliberately. knowledge/sniffs/ai-studio-2026-09-04/
       // sweep-19.mjs is the probe that produced the disjointness finding this whole tool rests on:
@@ -5813,9 +5817,18 @@ export const TOOLS = [
       // GHL website is `type=website`, not `type=funnel` — so filtering here would silently exclude
       // exactly the record class someone is most likely to ask this resolver about, reintroducing
       // the false "does not exist" this tool exists to prevent, through a different door.
-      const funnelsGw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: 'token-id' });
-      const funnelRes = await funnelsGw.call('GET',
-        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`);
+      const funnelsPath = `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`;
+      let funnelRes = null;
+      let funnelsRail = null;
+      for (const rail of ['token-id', 'jwt']) {
+        try {
+          const res = await deps.makeGw({ loc: args.locationId, state: deps.state, rail }).call('GET', funnelsPath);
+          if (res?.ok) { funnelRes = res; funnelsRail = rail; break; }
+          funnelRes ??= res;                       // keep the first failure to report its status
+        } catch {
+          // A missing credential for one rail is not fatal — that is what the other is for.
+        }
+      }
       const funnelsChecked = Boolean(funnelRes?.ok);
       const funnels = funnelsChecked ? (funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? []) : [];
 
@@ -5828,13 +5841,13 @@ export const TOOLS = [
         // MISS must never surface as 'not-found': the funnels half never ran, so "not on either
         // surface" was never actually established. Report 'unknown' instead.
         const surface = studioHit.surface === 'not-found' ? 'unknown' : studioHit.surface;
-        return ok({ ...studioHit, surface, locationId: args.locationId, funnelsChecked: false,
-          warning: `The funnels/token-id check failed (status ${funnelRes?.status ?? 'unknown'}) and was skipped. `
+        return ok({ ...studioHit, surface, locationId: args.locationId, funnelsChecked: false, funnelsRail: null,
+          warning: `The funnels sweep failed on BOTH rails (last status ${funnelRes?.status ?? 'unknown'}). `
             + 'This result reflects AI Studio only — it does NOT prove the site is not a funnel.' });
       }
 
       const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
-      return ok({ ...hit, locationId: args.locationId, funnelsChecked: true,
+      return ok({ ...hit, locationId: args.locationId, funnelsChecked: true, funnelsRail,
         note: hit.surface === 'not-found'
           ? 'Not on this location. AI Studio has no agency-level list — sweep each bound location before concluding it does not exist.'
           : undefined });
