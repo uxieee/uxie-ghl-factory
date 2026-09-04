@@ -123,6 +123,41 @@ export function studioError(status, body) {
 
 const q = (loc) => `alt_id=${encodeURIComponent(loc)}&alt_type=location`;
 
+// Session ids never cross the tool boundary: `session_id` normalises to `sessionid`, which is on
+// the SECRET_KEYS denylist in core/errors.mjs, so guard() would refuse the argument outright.
+// The server mints and remembers them instead.
+export function sessionFor(state, projectId) {
+  state.studioSessions ??= new Map();
+  if (!state.studioSessions.has(projectId)) state.studioSessions.set(projectId, crypto.randomUUID());
+  return state.studioSessions.get(projectId);
+}
+
+// Across 118 live captures, `buildStatus` observed only "ready". The spec documents the walk as
+// `- → validating → ready`. `"failed"` was never observed — it is inferred from the existence of a
+// `buildError` field alongside `buildStatus`. If the real failure value is some other string, a
+// failed build will not satisfy isTerminal(), so awaitTurn() runs to its ceiling and returns
+// `pending: true` with the observed `buildStatus` in the payload — misleading, but never claims
+// success. Settle this by forcing a build failure on the live-fire pass.
+const TERMINAL_BUILD = new Set(['ready', 'failed']);
+
+// buildStatus, NEVER thinkingStatus. See rule 1 in the module header.
+export const isTerminal = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
+
+export async function awaitTurn({ firestore, projectId, waitMs = 120_000, pollMs = 6_000,
+                                 nowMs = Date.now, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
+  const deadline = nowMs() + waitMs;
+  let last = null;
+  while (nowMs() < deadline) {
+    const rows = await firestore.messages(projectId);
+    last = rows.filter((r) => r.role === 'assistant').pop() ?? null;
+    if (isTerminal(last)) return { pending: false, assistant: last };
+    await sleep(pollMs);
+  }
+  return { pending: true, messageId: last?.id ?? null, buildStatus: last?.buildStatus ?? null,
+           resumeWith: 'get_studio_generation_status',
+           note: 'The build is still running. Resume with the message id; nothing was lost.' };
+}
+
 export class StudioApi {
   // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
   constructor({ gw, loc }) { this.gw = gw; this.loc = loc; }
