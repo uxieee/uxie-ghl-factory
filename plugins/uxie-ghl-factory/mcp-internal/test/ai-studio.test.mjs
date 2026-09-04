@@ -83,3 +83,176 @@ test('firebase rail attaches idToken authorization header on valid host', async 
   await gw.call('POST', '/v1/x', {}, { headers: { authorization: 'Bearer TESTID' } });
   assert.equal(capturedHeaders.authorization, 'Bearer TESTID');
 });
+
+import { StudioApi, filterRoutes, nameWarning } from '../core/ai-studio.mjs';
+
+test('routes drop soft-deleted rows', () => {
+  const rows = [{ path: '/', deleted: false }, { path: '/old', deleted: true }];
+  assert.deepEqual(filterRoutes(rows).map((r) => r.path), ['/']);
+});
+
+test('create warns when the server rewrote the name', () => {
+  assert.equal(nameWarning('TEST-CAP-01', 'TEST-CAP-01'), null);
+  const w = nameWarning('TEST-CAP-AISTUDIO-01', 'Cap AIStudio');
+  assert.match(w, /rewrote/i);
+  assert.match(w, /Cap AIStudio/);
+});
+
+import { studioError } from '../core/ai-studio.mjs';
+
+test('wire errors become remediations, not raw passthrough', () => {
+  assert.match(studioError(401, { error: 'authorization token required' }), /Bearer/);
+  assert.match(studioError(403, { error: 'unsupported alt_type' }), /only .?location/i);
+  assert.match(studioError(403, { error: 'No Location Found' }), /binding|reach/i);
+  assert.match(studioError(409, { error: 'continuation answer conflicts with the existing answer' }), /already answered/i);
+  assert.match(studioError(410, {}), /expired/i);
+  assert.equal(studioError(200, {}), null, 'a success maps to nothing');
+  assert.equal(studioError(500, { error: 'boom' }), null, 'an unrecognised error is passed through untouched');
+});
+
+test('StudioApi.getProject builds the right request', async () => {
+  let capturedCall = null;
+  const gw = {
+    call: async (method, path, body) => {
+      capturedCall = { method, path, body };
+      return { status: 200, ok: true, json: { id: 'proj1' } };
+    },
+  };
+  const api = new StudioApi({ gw, loc: 'test-location' });
+  await api.getProject('proj1');
+  assert.equal(capturedCall.method, 'GET');
+  assert.equal(capturedCall.path, '/vibe-ai/projects/proj1?alt_id=test-location&alt_type=location');
+  assert.equal(capturedCall.body, undefined);
+});
+
+test('StudioApi.putSecrets sends secrets and alt_id/alt_type in body', async () => {
+  let capturedCall = null;
+  const gw = {
+    call: async (method, path, body) => {
+      capturedCall = { method, path, body };
+      return { status: 200, ok: true, json: {} };
+    },
+  };
+  const api = new StudioApi({ gw, loc: 'loc123' });
+  await api.putSecrets('proj1', { key1: 'val1' });
+  assert.equal(capturedCall.method, 'PUT');
+  assert.equal(capturedCall.path, '/vibe-ai/projects/proj1/secrets');
+  assert.deepEqual(capturedCall.body, { secrets: { key1: 'val1' }, alt_id: 'loc123', alt_type: 'location' });
+});
+
+test('StudioApi.unpublish sends no body', async () => {
+  let capturedCall = null;
+  const gw = {
+    call: async (method, path, body) => {
+      capturedCall = { method, path, body };
+      return { status: 200, ok: true, json: {} };
+    },
+  };
+  const api = new StudioApi({ gw, loc: 'loc123' });
+  await api.unpublish('proj1');
+  assert.equal(capturedCall.method, 'POST');
+  assert.equal(capturedCall.path, '/vibe-ai/projects/proj1/unpublish');
+  assert.equal(capturedCall.body, undefined);
+});
+
+test('StudioApi.publish sends only version_id', async () => {
+  let capturedCall = null;
+  const gw = {
+    call: async (method, path, body) => {
+      capturedCall = { method, path, body };
+      return { status: 200, ok: true, json: {} };
+    },
+  };
+  const api = new StudioApi({ gw, loc: 'loc123' });
+  await api.publish('proj1', 'v123');
+  assert.equal(capturedCall.method, 'POST');
+  assert.equal(capturedCall.path, '/vibe-ai/projects/proj1/publish');
+  assert.deepEqual(capturedCall.body, { version_id: 'v123' });
+});
+
+test('StudioApi.usageSnapshotUsd uses /ai-wrapper base with camelCase locationId', async () => {
+  let capturedCall = null;
+  const gw = {
+    call: async (method, path) => {
+      capturedCall = { method, path };
+      return {
+        status: 200,
+        ok: true,
+        json: { snapshots: [{ product: 'AI_STUDIO', used: 42.5 }] },
+      };
+    },
+  };
+  const api = new StudioApi({ gw, loc: 'test-loc-id' });
+  const usd = await api.usageSnapshotUsd();
+  assert.equal(usd, 42.5);
+  assert.equal(capturedCall.method, 'GET');
+  assert.equal(capturedCall.path, '/ai-wrapper/usage/v2/snapshots?locationId=test-loc-id');
+});
+
+test('StudioApi.usageSnapshotUsd URL-encodes locationId', async () => {
+  let capturedCall = null;
+  const gw = {
+    call: async (method, path) => {
+      capturedCall = { method, path };
+      return { status: 200, ok: true, json: { snapshots: [] } };
+    },
+  };
+  const api = new StudioApi({ gw, loc: 'loc with spaces' });
+  await api.usageSnapshotUsd();
+  assert.match(capturedCall.path, /locationId=loc%20with%20spaces/);
+});
+
+test('StudioApi.usageSnapshotUsd returns null when no AI_STUDIO snapshot', async () => {
+  const gw = {
+    call: async () => ({
+      status: 200,
+      ok: true,
+      json: { snapshots: [{ product: 'OTHER' }] },
+    }),
+  };
+  const api = new StudioApi({ gw, loc: 'loc123' });
+  const usd = await api.usageSnapshotUsd();
+  assert.equal(usd, null);
+});
+
+test('StudioApi.usageSnapshotUsd returns null when snapshots missing', async () => {
+  const gw = {
+    call: async () => ({
+      status: 200,
+      ok: true,
+      json: {},
+    }),
+  };
+  const api = new StudioApi({ gw, loc: 'loc123' });
+  const usd = await api.usageSnapshotUsd();
+  assert.equal(usd, null);
+});
+
+test('StudioApi throws on recognized error status with mapped message', async () => {
+  const gw = {
+    call: async () => ({
+      status: 401,
+      ok: false,
+      json: { error: 'authorization token required' },
+    }),
+  };
+  const api = new StudioApi({ gw, loc: 'loc123' });
+  await assert.rejects(
+    () => api.getProject('proj1'),
+    (e) => e.code === 'STUDIO_REQUEST_FAILED' && /Bearer/.test(e.message),
+  );
+});
+
+test('StudioApi returns response on unrecognized error status', async () => {
+  const gw = {
+    call: async () => ({
+      status: 500,
+      ok: false,
+      json: { error: 'unknown error' },
+    }),
+  };
+  const api = new StudioApi({ gw, loc: 'loc123' });
+  const res = await api.getProject('proj1');
+  assert.equal(res.status, 500);
+  assert.equal(res.ok, false);
+});
