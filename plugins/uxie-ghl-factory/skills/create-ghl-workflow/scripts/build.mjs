@@ -40,7 +40,9 @@ const tokFile = process.env.GHL_INTERNAL_TOK_FILE || DEFAULT_TOKEN_FILE;
 if (process.argv.includes('--print-token-file')) { console.log(tokFile); process.exit(0); }
 
 const ENG = resolve(HERE, '../engine');
-const { orchestrate } = await import(ENG + '/orchestrate.mjs');
+// pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Flagged by PR #4; hit on a client build 2026-08-26.
+const { orchestrate } = await import(pathToFileURL(ENG + '/orchestrate.mjs').href);
 
 const [irPath, LOC] = process.argv.slice(2);
 const publish = process.argv.includes('--publish');
