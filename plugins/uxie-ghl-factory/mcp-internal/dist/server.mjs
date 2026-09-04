@@ -17245,7 +17245,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "source-only",
           coveredBy: [
-            "get_studio_site"
+            "get_studio_site",
+            "publish_studio_site",
+            "unpublish_studio_site"
           ],
           rawCallable: true,
           transport: "json",
@@ -17715,7 +17717,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "publish_studio_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -18296,7 +18300,9 @@ var init_define_ENDPOINT_CATALOG = __esm({
           rail: "workflow",
           kind: "write",
           reach: "source-only",
-          coveredBy: [],
+          coveredBy: [
+            "unpublish_studio_site"
+          ],
           rawCallable: true,
           transport: "json",
           responseMode: "json",
@@ -160382,6 +160388,74 @@ var TOOLS2 = [
         names,
         missing,
         note: missing.length ? "Some keys did not appear on read-back." : "All keys present. Values are never returned."
+      });
+    }, args)
+  },
+  {
+    name: "publish_studio_site",
+    description: describe3(
+      "publish_studio_site",
+      "Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: this puts the site on the public internet. Requires confirm:true (proof: engine source; risk: write)."
+    ),
+    inputSchema: schema({
+      locationId: external_exports.string(),
+      projectId: external_exports.string(),
+      versionId: external_exports.string(),
+      confirm: external_exports.boolean().optional()
+    }),
+    capabilities: [
+      { method: "POST", path: "/vibe-ai/projects/{projectId}/publish" },
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (args.confirm !== true) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "publish_studio_site is outward-facing and needs confirm:true",
+          "Publishing puts this site on the public internet. Check the preview in a browser and get the operator's word, then retry with confirm:true."
+        );
+      }
+      const { api } = studioDeps(args, deps);
+      const res = await api.publish(args.projectId, args.versionId);
+      const back = (await api.getProject(args.projectId)).json ?? {};
+      return ok({
+        status: res.json?.status,
+        liveUrl: res.json?.live_url,
+        publishedAt: back.published_at,
+        publishedVersionId: back.published_version_id,
+        appliedVerified: Boolean(back.published_at),
+        note: "liveUrl is keyed on the SLUG. Read-back is from the project, not the journal."
+      });
+    }, args)
+  },
+  {
+    name: "unpublish_studio_site",
+    description: describe3(
+      "unpublish_studio_site",
+      "Take an AI Studio site off the public internet. Requires confirm:true (proof: engine source; risk: write)."
+    ),
+    inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), confirm: external_exports.boolean().optional() }),
+    capabilities: [
+      { method: "POST", path: "/vibe-ai/projects/{projectId}/unpublish" },
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" }
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (args.confirm !== true) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "unpublish_studio_site takes a live site down and needs confirm:true",
+          "Get the operator's word, then retry with confirm:true."
+        );
+      }
+      const { api } = studioDeps(args, deps);
+      const res = await api.unpublish(args.projectId);
+      const back = (await api.getProject(args.projectId)).json ?? {};
+      return ok({
+        status: res.json?.status,
+        publishedAt: back.published_at,
+        publishedVersionId: back.published_version_id,
+        appliedVerified: back.published_at === null,
+        note: "Unpublish journals NOTHING in Firestore \u2014 this read-back is the only evidence it happened."
       });
     }, args)
   }

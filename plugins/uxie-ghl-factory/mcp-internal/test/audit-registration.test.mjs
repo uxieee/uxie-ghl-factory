@@ -656,7 +656,8 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // AI Studio is not part of the frozen audit evidence contract. answer_studio_question never
   // takes a session id as an argument — the server mints and owns it via sessionFor(); the
   // variant it sends is decided by the STORED question block, not by the caller.
-  assert.equal(TOOLS.length, 64, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 64 -> 66: publish_studio_site and unpublish_studio_site are the confirmation-gated ship half of AI Studio
+  assert.equal(TOOLS.length, 66, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -677,6 +678,7 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
     'get_studio_site_history', 'get_studio_site_diffs', 'get_studio_preview',
     'create_studio_site', 'generate_studio_site', 'get_studio_generation_status',
     'answer_studio_question', 'cancel_studio_generation', 'set_studio_secrets',
+    'publish_studio_site', 'unpublish_studio_site',
   ]);
   const normal = stripComments(readFileSync(NORMAL_ENTRY, 'utf8'));
   assert.equal(

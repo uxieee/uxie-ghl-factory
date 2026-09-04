@@ -590,3 +590,87 @@ test('generate_studio_site returns the chat-started message id when the turn tim
   assert.equal(result.data.messageId, 'M-STARTED',
     'the pending path must fall back to the chat-started message id, never null');
 });
+
+// ----------------------------------------------------------------------------------------------------
+// Task 8 — ship tools (confirmation-gated publish and unpublish)
+// ----------------------------------------------------------------------------------------------------
+
+test('publish and unpublish refuse without confirm', async () => {
+  const deps = { state: {}, makeGw: () => { throw new Error('no account call may happen'); } };
+  for (const name of ['publish_studio_site', 'unpublish_studio_site']) {
+    const tool = TOOLS.find((t) => t.name === name);
+    assert.ok(tool, `${name} is registered`);
+    const res = await tool.handler({ locationId: 'L', projectId: 'P', versionId: 'V' }, deps);
+    const text = JSON.stringify(res);
+    assert.match(text, /confirm/i, `${name} must refuse and say why`);
+  }
+});
+
+test('unpublish read-back is the only evidence it happened', async () => {
+  const unpublishTool = TOOLS.find((t) => t.name === 'unpublish_studio_site');
+  assert.ok(unpublishTool, 'unpublish_studio_site is registered');
+
+  // Case 1: unpublish succeeds and read-back shows published_at null — tool claims success
+  const gw1 = {
+    call: async (method, path) => {
+      if (method === 'POST' && path.includes('/unpublish')) {
+        return { status: 200, ok: true, json: { status: 'unpublished' } };
+      }
+      if (method === 'GET' && path.includes('/projects')) {
+        return { status: 200, ok: true, json: { published_at: null, published_version_id: null } };
+      }
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const result1 = await unpublishTool.handler(
+    { locationId: 'LOC', projectId: 'P1', confirm: true },
+    { state: {}, makeGw: () => gw1 }
+  );
+  assert.equal(result1.ok, true, 'tool must report success when read-back shows published_at null');
+  assert.equal(result1.data.appliedVerified, true, 'appliedVerified must be true when published_at is null');
+
+  // Case 2: unpublish write succeeds but read-back still shows a non-null published_at — tool does NOT claim success
+  const gw2 = {
+    call: async (method, path) => {
+      if (method === 'POST' && path.includes('/unpublish')) {
+        return { status: 200, ok: true, json: { status: 'still_published' } };
+      }
+      if (method === 'GET' && path.includes('/projects')) {
+        return { status: 200, ok: true, json: { published_at: '2026-09-04T00:00:00Z', published_version_id: 'V1' } };
+      }
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const result2 = await unpublishTool.handler(
+    { locationId: 'LOC', projectId: 'P1', confirm: true },
+    { state: {}, makeGw: () => gw2 }
+  );
+  assert.equal(result2.ok, true, 'tool returns ok structure');
+  assert.equal(result2.data.appliedVerified, false, 'appliedVerified must be false when published_at is still non-null — read-back overrides the write response');
+});
+
+test('publish reports the live URL and verified state from read-back', async () => {
+  const publishTool = TOOLS.find((t) => t.name === 'publish_studio_site');
+  assert.ok(publishTool, 'publish_studio_site is registered');
+
+  const gw = {
+    call: async (method, path, body) => {
+      if (method === 'POST' && path.includes('/publish')) {
+        return { status: 200, ok: true, json: { status: 'published', live_url: 'https://test-site.vibepreview.com' } };
+      }
+      if (method === 'GET' && path.includes('/projects')) {
+        return { status: 200, ok: true, json: { published_at: '2026-09-04T00:00:00Z', published_version_id: 'V123' } };
+      }
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const result = await publishTool.handler(
+    { locationId: 'LOC', projectId: 'P1', versionId: 'V123', confirm: true },
+    { state: {}, makeGw: () => gw }
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.data.liveUrl, 'https://test-site.vibepreview.com', 'live URL from publish response');
+  assert.equal(result.data.publishedAt, '2026-09-04T00:00:00Z', 'published_at from read-back, not publish response');
+  assert.equal(result.data.publishedVersionId, 'V123', 'published_version_id from read-back');
+  assert.equal(result.data.appliedVerified, true, 'appliedVerified must be true when read-back shows a published_at');
+});
