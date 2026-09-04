@@ -313,3 +313,16 @@ test('the exemption is narrow — it does not spread', () => {
   assert.equal(containsSecrets({ secrets: { A: 'Bearer eyJhbGciOiJIUzI1NiJ9.e30.x' } }), true,
     'a real credential VALUE inside the map is still caught');
 });
+
+test('the exemption is not reachable through an array', () => {
+  assert.equal(containsSecrets({ secrets: [{ apiKey: 'x' }] }), true, 'exemption must not apply to array elements');
+  assert.equal(containsSecrets({ secrets: [[{ apiKey: 'x' }]] }), true, 'nor to nested array elements');
+});
+
+test('a genuine direct-child secrets map nested elsewhere in the tree stays exempt', () => {
+  assert.equal(containsSecrets({ list: [{ secrets: { apiKey: 'x' } }] }), false);
+});
+
+test('nested secrets maps are still caught', () => {
+  assert.equal(containsSecrets({ secrets: { secrets: { apiKey: 'x' } } }), true);
+});
