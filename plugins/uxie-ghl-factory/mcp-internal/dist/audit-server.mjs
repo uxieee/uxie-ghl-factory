@@ -79433,6 +79433,7 @@ var BASE = "https://backend.leadconnectorhq.com";
 var IFRAME = "https://client-app-automation-workflows.leadconnectorhq.com";
 var APP = "https://app.gohighlevel.com";
 var AI_HOST = "https://services.leadconnectorhq.com";
+var FIRESTORE_HOST = "https://firestore.googleapis.com";
 var GCS_HOST_RE = /^([a-z0-9][a-z0-9._-]*\.)?storage\.googleapis\.com$/i;
 var THROTTLE_MS = 300;
 var JITTER_MS = 150;
@@ -79489,6 +79490,20 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
       requireAiCredentials(creds);
       h.authorization = `Bearer ${creds.jwt}`;
       h["token-id"] = creds.tokenId;
+    } else if (rail === "firebase") {
+      let origin;
+      try {
+        origin = new URL(base).origin;
+      } catch {
+        origin = null;
+      }
+      if (origin !== FIRESTORE_HOST) {
+        const e = new Error(`firebase rail may only target ${FIRESTORE_HOST}, not ${origin ?? base}`);
+        e.code = "FIREBASE_RAIL_HOST_INVALID";
+        e.remediation = "The firebase rail carries a Firestore idToken; route it to Firestore only.";
+        throw e;
+      }
+      h.authorization = overrides.authorization;
     } else if (rail === "token-id") {
       if (!creds.tokenId) {
         const e = new Error("no token-id in capture file");
@@ -79510,7 +79525,7 @@ function makeGateway({ tokenFile, loc, rail = "jwt", fetchImpl = fetch, sleepImp
   };
   const request = async (method, path, body, baseOrOptions) => {
     const options = typeof baseOrOptions === "string" ? { base: baseOrOptions } : baseOrOptions ?? {};
-    const base = options.base ?? (rail === "ai" ? AI_HOST : BASE);
+    const base = options.base ?? (rail === "ai" ? AI_HOST : rail === "firebase" ? FIRESTORE_HOST : BASE);
     const signedUpload = options.signedUpload === true;
     let signedTarget = null;
     if (signedUpload) {
