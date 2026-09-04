@@ -6094,6 +6094,57 @@ export const TOOLS = [
         note: missing.length ? 'Some keys did not appear on read-back.' : 'All keys present. Values are never returned.' });
     }, args),
   },
+  {
+    name: 'publish_studio_site',
+    description: describe('publish_studio_site',
+      'Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: '
+      + 'this puts the site on the public internet. Requires confirm:true (proof: engine source; risk: write).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(),
+      versionId: z.string(), confirm: z.boolean().optional() }),
+    capabilities: [
+      { method: 'POST', path: '/vibe-ai/projects/{projectId}/publish' },
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (args.confirm !== true) {
+        return fail(CODES.VALIDATION_FAILED,
+          'publish_studio_site is outward-facing and needs confirm:true',
+          'Publishing puts this site on the public internet. Check the preview in a browser and get '
+          + 'the operator\'s word, then retry with confirm:true.');
+      }
+      const { api } = studioDeps(args, deps);
+      const res = await api.publish(args.projectId, args.versionId);
+      const back = (await api.getProject(args.projectId)).json ?? {};
+      return ok({ status: res.json?.status, liveUrl: res.json?.live_url,
+        publishedAt: back.published_at, publishedVersionId: back.published_version_id,
+        appliedVerified: Boolean(back.published_at),
+        note: 'liveUrl is keyed on the SLUG. Read-back is from the project, not the journal.' });
+    }, args),
+  },
+  {
+    name: 'unpublish_studio_site',
+    description: describe('unpublish_studio_site',
+      'Take an AI Studio site off the public internet. Requires confirm:true (proof: engine source; risk: write).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), confirm: z.boolean().optional() }),
+    capabilities: [
+      { method: 'POST', path: '/vibe-ai/projects/{projectId}/unpublish' },
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (args.confirm !== true) {
+        return fail(CODES.VALIDATION_FAILED,
+          'unpublish_studio_site takes a live site down and needs confirm:true',
+          'Get the operator\'s word, then retry with confirm:true.');
+      }
+      const { api } = studioDeps(args, deps);
+      const res = await api.unpublish(args.projectId);
+      const back = (await api.getProject(args.projectId)).json ?? {};
+      return ok({ status: res.json?.status,
+        publishedAt: back.published_at, publishedVersionId: back.published_version_id,
+        appliedVerified: back.published_at === null,
+        note: 'Unpublish journals NOTHING in Firestore — this read-back is the only evidence it happened.' });
+    }, args),
+  },
 
 ];
 

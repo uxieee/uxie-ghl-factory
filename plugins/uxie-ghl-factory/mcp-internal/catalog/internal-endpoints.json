@@ -17198,7 +17198,9 @@
       "kind": "read",
       "reach": "source-only",
       "coveredBy": [
-        "get_studio_site"
+        "get_studio_site",
+        "publish_studio_site",
+        "unpublish_studio_site"
       ],
       "rawCallable": true,
       "transport": "json",
@@ -17668,7 +17670,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "publish_studio_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -18249,7 +18253,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "unpublish_studio_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

@@ -1113,5 +1113,25 @@
     "tool": "set_studio_secrets",
     "method": "GET",
     "path": "/vibe-ai/projects/{projectId}/secrets"
+  },
+  {
+    "tool": "publish_studio_site",
+    "method": "POST",
+    "path": "/vibe-ai/projects/{projectId}/publish"
+  },
+  {
+    "tool": "publish_studio_site",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
+  },
+  {
+    "tool": "unpublish_studio_site",
+    "method": "POST",
+    "path": "/vibe-ai/projects/{projectId}/unpublish"
+  },
+  {
+    "tool": "unpublish_studio_site",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}"
   }
 ]
