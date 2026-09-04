@@ -179,6 +179,26 @@ export function classifySite(needle, studioProjects = [], funnels = []) {
   return { surface: 'not-found', id: null, name: null, matchedOn: null };
 }
 
+// The caller supplies an ANSWER; the variant is decided here from the stored question block.
+// Shapes proven 2026-09-04: kind:"integration_input" carries integrationPrompt.items[]; a plain
+// ask has no `kind` and a questions[] array of typed sub-questions.
+export function answerBodyFor({ question, answer, sessionId, questionMessageId, loc }) {
+  const base = { session_id: sessionId, thread_id: 'main', is_answer: true,
+                 question_message_id: questionMessageId, alt_id: loc, alt_type: 'location' };
+  if (question?.kind === 'integration_input') {
+    const body = { ...base, answer_type: 'integration_input',
+                   integration_action: answer === 'dismiss' ? 'dismiss' : 'connect' };
+    if (body.integration_action === 'connect') body.integration_item_id = answer;
+    return body;
+  }
+  // secret_input carries NO value — the secret goes in via set_studio_secrets first, and this
+  // just tells the turn to resume and read it.
+  if (question?.kind === 'secret_input') {
+    return { ...base, answer_type: 'secret_input' };
+  }
+  return { ...base, message: answer };
+}
+
 export class StudioApi {
   // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
   constructor({ gw, loc }) { this.gw = gw; this.loc = loc; }

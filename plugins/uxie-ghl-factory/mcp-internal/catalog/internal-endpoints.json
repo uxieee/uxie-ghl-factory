@@ -16830,6 +16830,8 @@
       "kind": "write",
       "reach": "proven",
       "coveredBy": [
+        "generate_studio_site",
+        "get_studio_generation_status",
         "get_studio_site_diffs",
         "get_studio_site_history"
       ],
@@ -16851,7 +16853,7 @@
         "returns": "unresolved"
       },
       "sources": [
-        "capability-manifest.json (get_studio_site_history, get_studio_site_diffs)"
+        "capability-manifest.json (get_studio_site_history, get_studio_site_diffs, generate_studio_site, get_studio_generation_status)"
       ]
     },
     {
@@ -17114,7 +17116,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "create_studio_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17243,7 +17247,10 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "answer_studio_question",
+        "generate_studio_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17278,7 +17285,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "cancel_studio_generation"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17949,7 +17958,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "set_studio_secrets"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -17997,7 +18008,9 @@
       "rail": "workflow",
       "kind": "write",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "set_studio_secrets"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",
@@ -18271,7 +18284,9 @@
       "rail": "workflow",
       "kind": "read",
       "reach": "source-only",
-      "coveredBy": [],
+      "coveredBy": [
+        "generate_studio_site"
+      ],
       "rawCallable": true,
       "transport": "json",
       "responseMode": "json",

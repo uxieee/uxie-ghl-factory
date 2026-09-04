@@ -649,7 +649,14 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
   // knowledge/corpus/funnels/20-api/funnels-api.md: /funnels refuses Bearer) alongside the
   // Bearer-only /vibe-ai call, because AI Studio projects and funnels are disjoint collections an
   // agent must disambiguate before doing anything else.
-  assert.equal(TOOLS.length, 58, 'the audit profile is ADDITIVE; the full server keeps every tool');
+  // 58 -> 64: the AI Studio (`vibe`) BUILD surface — create_studio_site, generate_studio_site,
+  // get_studio_generation_status, answer_studio_question, cancel_studio_generation,
+  // set_studio_secrets — registered together, last, after `get_studio_preview`. All six are
+  // writes except get_studio_generation_status (a read-only poll). Outside the audit profile:
+  // AI Studio is not part of the frozen audit evidence contract. answer_studio_question never
+  // takes a session id as an argument — the server mints and owns it via sessionFor(); the
+  // variant it sends is decided by the STORED question block, not by the caller.
+  assert.equal(TOOLS.length, 64, 'the audit profile is ADDITIVE; the full server keeps every tool');
   assert.deepEqual(TOOLS.map((tool) => tool.name), [
     'set_token_file', 'auth_status', 'create_convai_agent', 'update_convai_agent', 'create_voiceai_agent',
     'create_studio_agent', 'get_contact_ai_status', 'set_contact_ai_status',
@@ -668,6 +675,8 @@ test('the full 51-tool registry and the normal stdio entry point are unchanged',
     'search_endpoints', 'describe_endpoint',
     'find_ghl_site', 'list_studio_sites', 'get_studio_site', 'read_studio_site_content',
     'get_studio_site_history', 'get_studio_site_diffs', 'get_studio_preview',
+    'create_studio_site', 'generate_studio_site', 'get_studio_generation_status',
+    'answer_studio_question', 'cancel_studio_generation', 'set_studio_secrets',
   ]);
   const normal = stripComments(readFileSync(NORMAL_ENTRY, 'utf8'));
   assert.equal(
