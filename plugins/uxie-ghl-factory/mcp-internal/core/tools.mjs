@@ -70,6 +70,8 @@ import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../engines/ai/voic
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
 import { executeAgentPlan, executeAgentUpdate } from '../../engines/ai/driver.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
+import { StudioApi, getIdToken, runQuery, filterRoutes, classifySite, nameWarning,
+         sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS } from './ai-studio.mjs';
 
 // In the bundle the catalog is inlined via esbuild --define (__HAS_CATALOG__/__TOOL_CATALOG__,
 // see scripts/esbuild-config.mjs), so descriptions work on a user's machine with no external
@@ -1308,6 +1310,22 @@ export async function guard(fn, args, { credentialCode = CODES.VALIDATION_FAILED
     return fromThrown(e);
   }
 }
+
+const STUDIO_IDTOKENS = new Map();   // locationId -> { idToken, expiresAt }
+
+// Wiring shared by the AI Studio read/resolve tools so each one does not repeat it. `gw` carries
+// the Bearer (jwt) rail /vibe-ai lives on; `fb` carries the firebase rail for Firestore history
+// reads; `history` mints/caches the Firestore idToken and runs one query.
+const studioDeps = (args, deps) => {
+  const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+  const api = new StudioApi({ gw, loc: args.locationId });
+  const fb = deps.makeGw({ loc: args.locationId, state: deps.state, rail: 'firebase' });
+  const history = async (collection, projectId, orderBy, limit) => {
+    const idToken = await getIdToken({ gwJwt: gw, locationId: args.locationId, cache: STUDIO_IDTOKENS });
+    return runQuery({ gwFirebase: fb, idToken, collection, projectId, orderBy, limit });
+  };
+  return { gw, api, history };
+};
 
 export const TOOLS = [
   {
@@ -5714,6 +5732,190 @@ export const TOOLS = [
             } }),
       } };
     }),
+  },
+
+  {
+    name: 'find_ghl_site',
+    description: describe('find_ghl_site',
+      'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
+      + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
+      + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
+      + '(proof: live-runtime — disjointness measured 2026-09-04; the funnels leg runs on the token-id '
+      + 'rail, proven-live per knowledge/corpus/funnels/20-api/funnels-api.md 2026-08-25; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), site: z.string() }),
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects' },
+      { method: 'GET', path: '/funnels/funnel/list' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const studio = (await api.listProjects()).json;
+
+      // /funnels/* refuses the jwt (Bearer) rail and requires token-id — proven-live,
+      // knowledge/corpus/funnels/20-api/funnels-api.md ("authenticated with token-id — not
+      // Authorization: Bearer. The workflow-builder rail's token is rejected here.") and
+      // knowledge/corpus/funnels/00-overview/index.md say the same; a prior A/B proof in this
+      // project's reference notes agrees. AI Studio itself is Bearer-only (/vibe-ai 401s on
+      // token-id alone), so this tool carries TWO rails — auth here is per-surface, not global.
+      const funnelsGw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: 'token-id' });
+      const funnelRes = await funnelsGw.call('GET',
+        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&type=funnel&category=all&offset=0&limit=100`);
+      const funnelsChecked = Boolean(funnelRes?.ok);
+      const funnels = funnelsChecked ? (funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? []) : [];
+
+      // A failed funnels call must NEVER be read as "the site does not exist" — an empty list
+      // from the wrong rail (or a dead one) is indistinguishable from a genuinely empty
+      // collection unless the caller is told the check did not actually run.
+      if (!funnelsChecked) {
+        const studioHit = classifySite(args.site, Array.isArray(studio) ? studio : [], []);
+        // A studio HIT still stands — it was resolved with no dependency on funnels. A studio
+        // MISS must never surface as 'not-found': the funnels half never ran, so "not on either
+        // surface" was never actually established. Report 'unknown' instead.
+        const surface = studioHit.surface === 'not-found' ? 'unknown' : studioHit.surface;
+        return ok({ ...studioHit, surface, locationId: args.locationId, funnelsChecked: false,
+          warning: `The funnels/token-id check failed (status ${funnelRes?.status ?? 'unknown'}) and was skipped. `
+            + 'This result reflects AI Studio only — it does NOT prove the site is not a funnel.' });
+      }
+
+      const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
+      return ok({ ...hit, locationId: args.locationId, funnelsChecked: true,
+        note: hit.surface === 'not-found'
+          ? 'Not on this location. AI Studio has no agency-level list — sweep each bound location before concluding it does not exist.'
+          : undefined });
+    }, args),
+  },
+  {
+    name: 'list_studio_sites',
+    description: describe('list_studio_sites', 'List AI Studio (vibe) projects and folders for a sub-account (proof: engine source; risk: read).'),
+    inputSchema: schema({ locationId: z.string() }),
+    capabilities: [{ method: 'GET', path: '/vibe-ai/projects' }, { method: 'GET', path: '/vibe-ai/folders' }],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const projects = (await api.listProjects()).json ?? [];
+      const folders = (await api.getFolders()).json ?? [];
+      return ok({
+        count: projects.length,
+        folders,
+        projects: projects.map((p) => ({
+          id: p.id, name: p.name, slug: p.slug, folderId: p.folder_id,
+          domains: p.custom_domains ?? [], primaryDomain: p.primary_custom_domain ?? null,
+          published: Boolean(p.published_at), publishedAt: p.published_at,
+          publishedVersionId: p.published_version_id, updatedAt: p.updated_at,
+        })),
+        note: 'AI Studio is per-location; there is no agency-level list. Project ids are 19-digit strings — keep them strings.',
+      });
+    }, args),
+  },
+  {
+    name: 'get_studio_site',
+    description: describe('get_studio_site', 'One AI Studio project: detail plus its page routes (proof: engine source; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}/routes' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const project = (await api.getProject(args.projectId)).json;
+      const routes = filterRoutes((await api.getRoutes(args.projectId)).json);
+      if (project?.alt_id && project.alt_id !== args.locationId) {
+        return fail(CODES.VALIDATION_FAILED,
+          `project ${args.projectId} belongs to a different sub-account (${project.alt_id})`,
+          'alt_id is not enforced on by-id reads; verify it on the returned record.');
+      }
+      return ok({ project, routes, routeCount: routes.length,
+        note: 'Soft-deleted routes were filtered out; the endpoint returns them. '
+            + 'project.thumbnail_url is a public, UNAUTHENTICATED link that renders the site even '
+            + 'when unpublished — do not paste it anywhere you would not paste the draft itself.' });
+    }, args),
+  },
+  {
+    name: 'read_studio_site_content',
+    description: describe('read_studio_site_content',
+      'Read an AI Studio site\'s source — every file with its content. This is how you read a site\'s '
+      + 'copy as structured text instead of scraping the published HTML (proof: engine source; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(),
+      pathContains: z.string().optional(), maxBytes: z.number().optional() }),
+    capabilities: [{ method: 'GET', path: '/vibe-ai/projects/{projectId}/files' }],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      let files = (await api.getFiles(args.projectId)).json ?? [];
+      if (args.pathContains) files = files.filter((f) => String(f.path).includes(args.pathContains));
+      const cap = args.maxBytes ?? 400_000;
+      let used = 0; const out = []; let truncated = false;
+      for (const f of files) {
+        const len = String(f.content ?? '').length;
+        if (used + len > cap) { truncated = true; out.push({ path: f.path, bytes: len, content: null }); continue; }
+        used += len; out.push({ path: f.path, bytes: len, content: f.content });
+      }
+      return ok({ fileCount: files.length, returnedBytes: used, truncated, files: out,
+        note: truncated ? 'Some files were listed without content to stay under maxBytes; narrow with pathContains.' : undefined });
+    }, args),
+  },
+  {
+    name: 'get_studio_site_history',
+    description: describe('get_studio_site_history',
+      'The build history of an AI Studio site: every prompt, every assistant turn, the versions each '
+      + 'minted, and the publish journal. Read from Firestore — there is no REST endpoint for this '
+      + '(proof: engine source; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), limit: z.number().optional() }),
+    capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
+    handler: async (args, deps) => guard(async () => {
+      const { history } = studioDeps(args, deps);
+      const rows = await history(MESSAGES, args.projectId, 'order', args.limit ?? 300);
+      const versions = rows.filter((r) => r.versionId)
+        .map((r) => ({ versionId: r.versionId, messageId: r.id, buildStatus: r.buildStatus,
+                       summary: r.completionSummary, at: r.timestamp }));
+      const publishes = rows.filter((r) => r.role === 'system' && r.type === 'publish')
+        .map((r) => ({ liveUrl: r.liveUrl, publishedVersionId: r.publishedVersionId, at: r.timestamp }));
+      return ok({
+        messageCount: rows.length,
+        turns: rows.map((r) => ({ id: r.id, role: r.role, order: r.order, at: r.timestamp,
+          buildStatus: r.buildStatus, versionId: r.versionId,
+          summary: r.completionSummary, hasQuestion: Boolean(r.question) })),
+        versions, publishes,
+        note: 'Publishes are journaled; UNPUBLISHES ARE NOT. For current state read published_at on the project.',
+      });
+    }, args),
+  },
+  {
+    name: 'get_studio_site_diffs',
+    description: describe('get_studio_site_diffs',
+      'The per-file unified diffs a generation produced — exactly what the AI changed, file by file '
+      + '(proof: engine source; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string().optional() }),
+    capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
+    handler: async (args, deps) => guard(async () => {
+      const { history } = studioDeps(args, deps);
+      let rows = await history(DIFFS, args.projectId, null, 300);
+      if (args.messageId) rows = rows.filter((r) => r.messageId === args.messageId);
+      return ok({ count: rows.length,
+        diffs: rows.map((r) => ({ messageId: r.messageId, file: r.file, toolType: r.toolType,
+                                  action: r.action, description: r.description, diff: r.diff })) });
+    }, args),
+  },
+  {
+    name: 'get_studio_preview',
+    description: describe('get_studio_preview',
+      'Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a '
+      + 'BROWSER to check the work — a plain HTTP fetch returns a Cloudflare challenge '
+      + '(proof: engine source; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}/sandbox' },
+      { method: 'POST', path: '/vibe-ai/projects/{projectId}/sandbox' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      let sb = (await api.getSandbox(args.projectId)).json ?? {};
+      let provisioning = false;
+      if (!sb.ready || !sb.url) { await api.ensureSandbox(args.projectId); provisioning = true; }
+      return ok({ ready: Boolean(sb.ready), provisioning,
+        url: sb.url || `https://${args.projectId}.vibepreview.com`,
+        note: 'Sandbox host is keyed on the PROJECT ID; a published site is {slug}.vibepreview.com. '
+            + 'Sandboxes expire (ready:false with an empty url while has_builds stays true). '
+            + 'Verify by opening it in a browser: curl gets a Cloudflare 403 regardless of site state.' });
+    }, args),
   },
 
 ];
