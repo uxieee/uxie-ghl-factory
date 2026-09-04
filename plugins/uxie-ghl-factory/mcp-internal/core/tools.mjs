@@ -70,7 +70,7 @@ import { compileVoiceAiAgent, compileVoiceAiUpdate } from '../../engines/ai/voic
 import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/ai/studio-compiler.mjs';
 import { executeAgentPlan, executeAgentUpdate } from '../../engines/ai/driver.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
-import { StudioApi, getIdToken, runQuery, filterRoutes, classifySite, nameWarning,
+import { StudioApi, queryProjectHistory, filterRoutes, classifySite, nameWarning,
          sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
 
 // In the bundle the catalog is inlined via esbuild --define (__HAS_CATALOG__/__TOOL_CATALOG__,
@@ -1315,16 +1315,34 @@ const STUDIO_IDTOKENS = new Map();   // locationId -> { idToken, expiresAt }
 
 // Wiring shared by the AI Studio read/resolve tools so each one does not repeat it. `gw` carries
 // the Bearer (jwt) rail /vibe-ai lives on; `fb` carries the firebase rail for Firestore history
-// reads; `history` mints/caches the Firestore idToken and runs one query.
+// reads; `history` mints/caches the Firestore idToken, runs one query, and retries ONCE on a
+// rejected idToken (C2 — a 401/403 used to read as an empty collection).
 const studioDeps = (args, deps) => {
   const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
   const api = new StudioApi({ gw, loc: args.locationId });
   const fb = deps.makeGw({ loc: args.locationId, state: deps.state, rail: 'firebase' });
-  const history = async (collection, projectId, orderBy, limit) => {
-    const idToken = await getIdToken({ gwJwt: gw, locationId: args.locationId, cache: STUDIO_IDTOKENS });
-    return runQuery({ gwFirebase: fb, idToken, collection, projectId, orderBy, limit });
-  };
+  const history = (collection, projectId, orderBy, limit) => queryProjectHistory({
+    gwJwt: gw, gwFirebase: fb, locationId: args.locationId, cache: STUDIO_IDTOKENS,
+    collection, projectId, orderBy, limit,
+  });
   return { gw, api, history };
+};
+
+// C3 — `alt_id` is NOT enforced on by-id reads (ai-studio.mjs header, rule 3): /projects/{id} and
+// /files return the full record under another location's alt_id, and under none at all.
+// `locationId` is allowlist-guarded by checkLocationBinding, but `projectId` is a free string, so
+// a registration bound to location A could read (or, worse, WRITE — spend money on, publish,
+// take down) location B's project just by naming its id. This is the ONE shared check every
+// project-scoped AI Studio tool must run before touching the project — reusing get_studio_site's
+// original wording so the error is identical everywhere it fires.
+const assertProjectLocation = async (api, projectId, locationId) => {
+  const project = (await api.getProject(projectId)).json;
+  if (project?.alt_id && project.alt_id !== locationId) {
+    return { project: null, error: fail(CODES.VALIDATION_FAILED,
+      `project ${projectId} belongs to a different sub-account (${project.alt_id})`,
+      'alt_id is not enforced on by-id reads; verify it on the returned record.') };
+  }
+  return { project, error: null };
 };
 
 export const TOOLS = [
@@ -3338,7 +3356,7 @@ export const TOOLS = [
   },
   {
     name: 'list_courses',
-    description: describe('list_courses', 'List course summaries (proof: engine source).'),
+    description: describe('list_courses', 'List course summaries (proof: documented).'),
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/membership/locations/{loc}/products?doNotIncludeOffers=true&sendCustomizations=true' },
@@ -3368,7 +3386,7 @@ export const TOOLS = [
   },
   {
     name: 'build_course',
-    description: `${describe('build_course', 'Build and verify a GHL Memberships course (proof: engine source).')} The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
+    description: `${describe('build_course', 'Build and verify a GHL Memberships course (proof: documented).')} The proof label describes underlying engine routes; this MCP tool has not completed its human-gated live proof. Confirmation-gated: preview performs no account call. Only free offers are supported; paid offers return 500 without a payment provider. An embed is not a content_type: use lesson.embed, which creates a video post then persists embedJson via PUT. Local video/audio/material upload is exposed because this MCP is a local Node/stdio server; every media path must be absolute and the runtime needs filesystem access (ffprobe is optional).`,
     inputSchema: schema({
       locationId: z.string(),
       spec: z.object({}).passthrough(),
@@ -5357,7 +5375,7 @@ export const TOOLS = [
   },
   {
     name: 'fast_forward_contacts',
-    description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step (proof: engine source).'),
+    description: describe('fast_forward_contacts', 'Preview or confirm moving parked workflow enrollments past one step (proof: documented).'),
     inputSchema: schema({
       locationId: z.string(),
       workflowId: z.string(),
@@ -5740,7 +5758,7 @@ export const TOOLS = [
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
       + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
-      + '(proof: engine source; risk: read). Disjointness measured 2026-09-04 '
+      + '(proof: documented; risk: read). Disjointness measured 2026-09-04 '
       + '(knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id '
       + 'rail — the same sweep called it live and it succeeded, and '
       + 'knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'),
@@ -5797,7 +5815,7 @@ export const TOOLS = [
   },
   {
     name: 'list_studio_sites',
-    description: describe('list_studio_sites', 'List AI Studio (vibe) projects and folders for a sub-account (proof: engine source; risk: read).'),
+    description: describe('list_studio_sites', 'List AI Studio (vibe) projects and folders for a sub-account (proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [{ method: 'GET', path: '/vibe-ai/projects' }, { method: 'GET', path: '/vibe-ai/folders' }],
     handler: async (args, deps) => guard(async () => {
@@ -5819,7 +5837,7 @@ export const TOOLS = [
   },
   {
     name: 'get_studio_site',
-    description: describe('get_studio_site', 'One AI Studio project: detail plus its page routes (proof: engine source; risk: read).'),
+    description: describe('get_studio_site', 'One AI Studio project: detail plus its page routes (proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -5827,13 +5845,9 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
-      const project = (await api.getProject(args.projectId)).json;
+      const { project, error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const routes = filterRoutes((await api.getRoutes(args.projectId)).json);
-      if (project?.alt_id && project.alt_id !== args.locationId) {
-        return fail(CODES.VALIDATION_FAILED,
-          `project ${args.projectId} belongs to a different sub-account (${project.alt_id})`,
-          'alt_id is not enforced on by-id reads; verify it on the returned record.');
-      }
       return ok({ project, routes, routeCount: routes.length,
         note: 'Soft-deleted routes were filtered out; the endpoint returns them. '
             + 'project.thumbnail_url is a public, UNAUTHENTICATED link that renders the site even '
@@ -5844,12 +5858,14 @@ export const TOOLS = [
     name: 'read_studio_site_content',
     description: describe('read_studio_site_content',
       'Read an AI Studio site\'s source — every file with its content. This is how you read a site\'s '
-      + 'copy as structured text instead of scraping the published HTML (proof: engine source; risk: read).'),
+      + 'copy as structured text instead of scraping the published HTML (proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       pathContains: z.string().optional(), maxBytes: z.number().optional() }),
     capabilities: [{ method: 'GET', path: '/vibe-ai/projects/{projectId}/files' }],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       let files = (await api.getFiles(args.projectId)).json ?? [];
       if (args.pathContains) files = files.filter((f) => String(f.path).includes(args.pathContains));
       const cap = args.maxBytes ?? 400_000;
@@ -5868,11 +5884,13 @@ export const TOOLS = [
     description: describe('get_studio_site_history',
       'The build history of an AI Studio site: every prompt, every assistant turn, the versions each '
       + 'minted, and the publish journal. Read from Firestore — there is no REST endpoint for this '
-      + '(proof: engine source; risk: read).'),
+      + '(proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), limit: z.number().optional() }),
     capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
     handler: async (args, deps) => guard(async () => {
-      const { history } = studioDeps(args, deps);
+      const { api, history } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const rows = await history(MESSAGES, args.projectId, 'order', args.limit ?? 300);
       const versions = rows.filter((r) => r.versionId)
         .map((r) => ({ versionId: r.versionId, messageId: r.id, buildStatus: r.buildStatus,
@@ -5893,11 +5911,13 @@ export const TOOLS = [
     name: 'get_studio_site_diffs',
     description: describe('get_studio_site_diffs',
       'The per-file unified diffs a generation produced — exactly what the AI changed, file by file '
-      + '(proof: engine source; risk: read).'),
+      + '(proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string().optional() }),
     capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
     handler: async (args, deps) => guard(async () => {
-      const { history } = studioDeps(args, deps);
+      const { api, history } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       let rows = await history(DIFFS, args.projectId, null, 300);
       if (args.messageId) rows = rows.filter((r) => r.messageId === args.messageId);
       return ok({ count: rows.length,
@@ -5910,7 +5930,7 @@ export const TOOLS = [
     description: describe('get_studio_preview',
       'Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a '
       + 'BROWSER to check the work — a plain HTTP fetch returns a Cloudflare challenge '
-      + '(proof: engine source; risk: read).'),
+      + '(proof: documented; risk: read).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}/sandbox' },
@@ -5918,6 +5938,8 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       let sb = (await api.getSandbox(args.projectId)).json ?? {};
       let provisioning = false;
       if (!sb.ready || !sb.url) {
@@ -5944,7 +5966,7 @@ export const TOOLS = [
     description: describe('create_studio_site',
       'Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the '
       + 'slug from the rewrite — this tool reports both so you can see it happen '
-      + '(proof: engine source; risk: write).'),
+      + '(proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), name: z.string(), description: z.string().optional() }),
     capabilities: [{ method: 'POST', path: '/vibe-ai/projects' }],
     handler: async (args, deps) => guard(async () => {
@@ -5962,7 +5984,7 @@ export const TOOLS = [
     description: describe('generate_studio_site',
       'Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports '
       + 'what the turn cost. This SPENDS money on the sub-account, metered in USD '
-      + '(proof: engine source; risk: write).'),
+      + '(proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), prompt: z.string(),
       waitSeconds: z.number().optional() }),
     capabilities: [
@@ -5972,6 +5994,10 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
+      // C3: verify BEFORE spending money on the account. generate_studio_site is the write with
+      // the sharpest cost of a wrong-account bug — the account boundary is worth the extra GET.
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const policy = (await api.usagePolicy(args.projectId)).json ?? {};
       if (policy.allowed === false) {
         return fail(CODES.VALIDATION_FAILED,
@@ -5987,7 +6013,7 @@ export const TOOLS = [
       const messageId = started.json?.message_id ?? null;
       const turn = await awaitTurn({
         firestore: { messages: (pid) => history(MESSAGES, pid, 'order', 300) },
-        projectId: args.projectId, waitMs: (args.waitSeconds ?? 120) * 1000,
+        projectId: args.projectId, messageId, waitMs: (args.waitSeconds ?? 120) * 1000,
       });
       const after = await api.usageSnapshotUsd();
       const spendUsd = (typeof before === 'number' && typeof after === 'number')
@@ -6017,15 +6043,20 @@ export const TOOLS = [
   {
     name: 'get_studio_generation_status',
     description: describe('get_studio_generation_status',
-      'Resume a generation that had not finished when generate_studio_site returned '
-      + '(proof: engine source; risk: read).'),
-    inputSchema: schema({ locationId: z.string(), projectId: z.string(), waitSeconds: z.number().optional() }),
+      'Resume a generation that had not finished when generate_studio_site (or a prior call to '
+      + 'this tool) returned pending. Pass the SAME messageId — the chat receipt\'s message_id — '
+      + 'so this only ever resolves the turn you started, never a stale terminal row already '
+      + 'sitting in the project\'s history (proof: documented; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string(),
+      waitSeconds: z.number().optional() }),
     capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
     handler: async (args, deps) => guard(async () => {
-      const { history } = studioDeps(args, deps);
+      const { api, history } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const turn = await awaitTurn({
         firestore: { messages: (pid) => history(MESSAGES, pid, 'order', 300) },
-        projectId: args.projectId, waitMs: (args.waitSeconds ?? 120) * 1000,
+        projectId: args.projectId, messageId: args.messageId, waitMs: (args.waitSeconds ?? 120) * 1000,
       });
       if (turn.pending) return ok(turn);
       const a = turn.assistant ?? {};
@@ -6037,13 +6068,18 @@ export const TOOLS = [
     name: 'answer_studio_question',
     description: describe('answer_studio_question',
       'Answer a question the AI Studio builder asked mid-build. Pass the answer; the tool reads the '
-      + 'stored question and picks the right continuation shape itself '
-      + '(proof: engine source; risk: write).'),
+      + 'stored question and picks the right continuation shape itself. For an INTEGRATION question '
+      + '(question.kind is integration_input), `answer` is not free text — pass the id of the '
+      + 'integration item the question offered (from question.integrationPrompt.items[].id), or the '
+      + 'literal string "dismiss" to decline the integration; the item id itself IS the answer '
+      + '(proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       questionMessageId: z.string(), answer: z.string() }),
     capabilities: [{ method: 'POST', path: '/vibe-ai/projects/{projectId}/chat' }],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const rows = await history(MESSAGES, args.projectId, 'order', 300);
       const asked = rows.find((r) => r.id === args.questionMessageId);
       if (!asked?.question) {
@@ -6063,11 +6099,13 @@ export const TOOLS = [
   {
     name: 'cancel_studio_generation',
     description: describe('cancel_studio_generation',
-      'Cancel a running AI Studio generation (proof: engine source; risk: write).'),
+      'Cancel a running AI Studio generation (proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string() }),
     capabilities: [{ method: 'POST', path: '/vibe-ai/projects/{projectId}/chat/cancel' }],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const res = await api.cancelChat(args.projectId, args.messageId);
       return ok({ status: res.json?.status ?? res.status,
         note: 'A cancelled turn is stored with cancelledByUser:true and mints NO version.' });
@@ -6078,7 +6116,7 @@ export const TOOLS = [
     description: describe('set_studio_secrets',
       'Set project secrets for an AI Studio site. The write MERGES into the existing map, and values '
       + 'are write-only — reads return names and timestamps only, never values '
-      + '(proof: engine source; risk: write).'),
+      + '(proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), secrets: z.record(z.string()) }),
     capabilities: [
       { method: 'PUT', path: '/vibe-ai/projects/{projectId}/secrets' },
@@ -6086,6 +6124,8 @@ export const TOOLS = [
     ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       await api.putSecrets(args.projectId, args.secrets);
       const back = (await api.getSecrets(args.projectId)).json ?? {};
       const names = (back.secrets ?? []).map((s) => s.name);
@@ -6098,7 +6138,7 @@ export const TOOLS = [
     name: 'publish_studio_site',
     description: describe('publish_studio_site',
       'Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: '
-      + 'this puts the site on the public internet. Requires confirm:true (proof: engine source; risk: write).'),
+      + 'this puts the site on the public internet. Requires confirm:true (proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       versionId: z.string(), confirm: z.boolean().optional() }),
     capabilities: [
@@ -6113,6 +6153,8 @@ export const TOOLS = [
           + 'the operator\'s word, then retry with confirm:true.');
       }
       const { api } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const res = await api.publish(args.projectId, args.versionId);
       const back = (await api.getProject(args.projectId)).json ?? {};
       return ok({ status: res.json?.status, liveUrl: res.json?.live_url,
@@ -6124,7 +6166,7 @@ export const TOOLS = [
   {
     name: 'unpublish_studio_site',
     description: describe('unpublish_studio_site',
-      'Take an AI Studio site off the public internet. Requires confirm:true (proof: engine source; risk: write).'),
+      'Take an AI Studio site off the public internet. Requires confirm:true (proof: documented; risk: write).'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), confirm: z.boolean().optional() }),
     capabilities: [
       { method: 'POST', path: '/vibe-ai/projects/{projectId}/unpublish' },
@@ -6137,6 +6179,8 @@ export const TOOLS = [
           'Get the operator\'s word, then retry with confirm:true.');
       }
       const { api } = studioDeps(args, deps);
+      const { error } = await assertProjectLocation(api, args.projectId, args.locationId);
+      if (error) return error;
       const res = await api.unpublish(args.projectId);
       const back = (await api.getProject(args.projectId)).json ?? {};
       return ok({ status: res.json?.status,

@@ -19,6 +19,8 @@
 //  6. Chat history has no REST endpoint (GET /chat is 405). It is in Firestore.
 //  7. `PATCH /star` is a TOGGLE — a `starred` key is ignored. No setter is exposed.
 
+import { CODES } from './errors.mjs';
+
 export const FIRESTORE_PROJECT = 'highlevel-backend';
 export const FIRESTORE_DB = 'vibe-platform';
 export const MESSAGES = 'vibe-messages';
@@ -76,6 +78,13 @@ export async function getIdToken({ gwJwt, locationId, cache, fetchImpl = fetch, 
 
 // Firestore returns one array element per matched document, PLUS bookkeeping elements that carry
 // only `readTime`. Filtering on `.document` is not defensive coding; the bare rows are always there.
+//
+// The 401/403 body Firestore sends back is an OBJECT, not an array — `Array.isArray(res.json)`
+// used to be the only check, so a dead credential silently became `rows = []`, and
+// get_studio_site_history reported `messageCount: 0` for a site with a full history. `res.ok`
+// is now checked FIRST: any non-ok status throws (never a silent empty read), and 401/403 throw
+// a distinctly-coded error (`FIRESTORE_AUTH_REJECTED`) so a caller (queryProjectHistory below)
+// can tell "credential rejected, worth a retry" apart from "something else is wrong upstream".
 export async function runQuery({ gwFirebase, idToken, collection, projectId, orderBy = null, limit = 300 }) {
   const structuredQuery = {
     from: [{ collectionId: collection }],
@@ -86,9 +95,51 @@ export async function runQuery({ gwFirebase, idToken, collection, projectId, ord
   const path = `/v1/projects/${FIRESTORE_PROJECT}/databases/${FIRESTORE_DB}/documents:runQuery`;
   const res = await gwFirebase.call('POST', path, { structuredQuery },
     { headers: { authorization: `Bearer ${idToken}` } });
+  if (!res.ok) {
+    const authRejected = res.status === 401 || res.status === 403;
+    const e = new Error(`Firestore runQuery failed (status ${res.status})`);
+    e.code = authRejected ? 'FIRESTORE_AUTH_REJECTED' : 'FIRESTORE_QUERY_FAILED';
+    e.status = res.status;
+    e.remediation = authRejected
+      ? 'The Firestore idToken was rejected. Mint a fresh one and retry.'
+      : 'Firestore returned a non-ok status. Do not treat this as an empty collection — inspect it.';
+    throw e;
+  }
   const rows = Array.isArray(res.json) ? res.json : [];
   return rows.filter((x) => x.document).map((x) =>
     Object.fromEntries(Object.entries(x.document.fields ?? {}).map(([k, v]) => [k, plain(v)])));
+}
+
+// Owns the retry policy so runQuery itself stays a single, simple attempt. Chosen over threading
+// the idToken cache/gwJwt INTO runQuery: runQuery's job is "run one Firestore query and decode
+// it" — folding token-mint-and-retry into it would mean every test of the query-shaping logic
+// also has to stand up a fake gwJwt and cache. A thin wrapper keeps that concern separate and
+// reusable across every AI Studio history read (get_studio_site_history, get_studio_site_diffs,
+// generate_studio_site, get_studio_generation_status, answer_studio_question).
+//
+// On a 401/403 the cached idToken for this location is dropped and ONE fresh token is minted and
+// retried. A second rejection means the credential itself is dead, not just the cached token —
+// surfaced as CODES.AUTH_REJECTED rather than retried again.
+export async function queryProjectHistory({ gwJwt, gwFirebase, locationId, cache,
+                                            collection, projectId, orderBy = null, limit = 300,
+                                            fetchImpl = fetch, nowMs = Date.now }) {
+  const idToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
+  try {
+    return await runQuery({ gwFirebase, idToken, collection, projectId, orderBy, limit });
+  } catch (e) {
+    if (e?.code !== 'FIRESTORE_AUTH_REJECTED') throw e;
+    cache.delete(locationId);
+    const freshToken = await getIdToken({ gwJwt, locationId, cache, fetchImpl, nowMs });
+    try {
+      return await runQuery({ gwFirebase, idToken: freshToken, collection, projectId, orderBy, limit });
+    } catch (e2) {
+      if (e2?.code !== 'FIRESTORE_AUTH_REJECTED') throw e2;
+      const dead = new Error('Firestore rejected a freshly-minted idToken — the credential itself is dead, not just cached.');
+      dead.code = CODES.AUTH_REJECTED;
+      dead.remediation = 'Re-capture the credential: invoke the uxie-ghl-factory:internal-connect skill, then retry.';
+      throw dead;
+    }
+  }
 }
 
 export const filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
@@ -143,17 +194,24 @@ const TERMINAL_BUILD = new Set(['ready', 'failed']);
 // buildStatus, NEVER thinkingStatus. See rule 1 in the module header.
 export const isTerminal = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.buildStatus)));
 
-export async function awaitTurn({ firestore, projectId, waitMs = 120_000, pollMs = 6_000,
+// `messageId` is REQUIRED and is the chat receipt's `message_id` (live-proven 2026-09-04:
+// live-101-chat-generation-response.json's `message_id` IS live-102's assistant-row `id`). On
+// any project with prior history, `rows.filter(role==='assistant').pop()` used to return the
+// PREVIOUS turn's already-terminal row on the very first poll — before Firestore had written
+// the new one — and report its versionId/summary/diffs as THIS generation's result. Only the
+// row whose `id === messageId` may resolve this call; every other row, terminal or not, is a
+// different turn and must be ignored. No match yet is the normal not-yet-written state: keep
+// polling until the deadline, then return the pending shape.
+export async function awaitTurn({ firestore, projectId, messageId, waitMs = 120_000, pollMs = 6_000,
                                  nowMs = Date.now, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
   const deadline = nowMs() + waitMs;
-  let last = null;
   while (nowMs() < deadline) {
     const rows = await firestore.messages(projectId);
-    last = rows.filter((r) => r.role === 'assistant').pop() ?? null;
-    if (isTerminal(last)) return { pending: false, assistant: last };
+    const row = rows.find((r) => r.role === 'assistant' && r.id === messageId) ?? null;
+    if (isTerminal(row)) return { pending: false, assistant: row };
     await sleep(pollMs);
   }
-  return { pending: true, messageId: last?.id ?? null, buildStatus: last?.buildStatus ?? null,
+  return { pending: true, messageId: messageId ?? null, buildStatus: null,
            resumeWith: 'get_studio_generation_status',
            note: 'The build is still running. Resume with the message id; nothing was lost.' };
 }
