@@ -11,6 +11,59 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.56.0] — 2026-09-04
+
+A new surface: **GoHighLevel AI Studio**, internally called `vibe` (routes, API prefix and config
+keys all say `vibe`; only the sidebar says "AI Studio" — searching a bundle for the user-facing
+name finds nothing). Fifteen typed tools, a fourth gateway rail, a new skill, and one narrow
+exemption in the credential guard. Tool count 51 → 66.
+
+### Added
+
+- **Fifteen AI Studio tools**: `find_ghl_site`, `list_studio_sites`, `get_studio_site`,
+  `read_studio_site_content`, `get_studio_site_history`, `get_studio_site_diffs`,
+  `get_studio_preview`, `create_studio_site`, `generate_studio_site`,
+  `get_studio_generation_status`, `answer_studio_question`, `cancel_studio_generation`,
+  `set_studio_secrets`, `publish_studio_site`, `unpublish_studio_site`. `find_ghl_site` resolves a
+  domain, slug or name to the surface that actually owns it — AI Studio projects and funnels are
+  disjoint collections, so asking the wrong one returns an empty list that reads as "does not
+  exist" rather than "wrong surface".
+- **A fourth gateway rail: `firebase`**, reaching Firestore directly. AI Studio keeps its
+  conversation, its versions and its per-file diffs there, and none of it has a REST endpoint.
+  Every request carries a per-request host assertion against `firestore.googleapis.com`, the same
+  treatment the existing `ai` rail already gives the agency-admin `token-id`.
+- **`ghl-ai-studio`** — a new skill, plus orientation routing (`ghl-orientation` now sends any AI
+  Studio / `vibe` / "AI website builder" task here). It carries what the tools alone cannot:
+  resolve the surface before acting (see `find_ghl_site` above), look at the rendered page in a
+  browser before publishing — a plain HTTP fetch returns a Cloudflare challenge, and a prior sweep
+  found a page whose builder-reported success hid a live weather widget silently failing on the
+  actual DOM — and a required factual pass, because AI Studio fabricates social proof by default
+  and nothing generated publishes without one.
+- **Spend is reported, never capped.** `generate_studio_site` preflights the usage policy and
+  refuses only when the server itself says no; every generation returns `spendUsd` and a
+  cumulative `sessionSpendUsd`. Deliberate: the account this was measured against carries
+  `unlimited: true` and `blockOnLimit: false`, and nothing here adds a ceiling GHL doesn't already
+  enforce.
+
+### Changed
+
+- **`core/errors.mjs`**: the credential guard now permits conventional secret NAMES (`API_KEY`,
+  `SESSION_TOKEN`, etc.) as keys inside a `secrets` map, and only there — the guard was otherwise
+  refusing the most ordinary input a secrets map can hold. Values are still scanned in full, and a
+  credential passed as a top-level argument is untouched. This is a change to a security control,
+  narrow and deliberate: it suppresses the key-NAME rule for the direct children of a `secrets`
+  object, nothing else.
+
+### Known limitations
+
+- **Not yet live-fired.** All fifteen tools carry `proof: documented`. The endpoints behind them
+  were mapped live on 2026-09-04 (117 captures), but the tools themselves have not been executed
+  against a real GoHighLevel account. Live proof is a separate, operator-gated pass that will land
+  as a dated `STATUS-…-ai-studio-live-fire.md` receipt.
+- **Deliberately absent**: custom-domain attach/remove, every `DELETE`, version restore/prewarm,
+  feedback, and brand boards/voices (a different surface entirely). Left out on purpose, not
+  discovered missing by trying them.
+
 ## [0.55.0] — 2026-09-04
 
 Three corrections to `ghl-system-conventions`, all found by actually using it: two by running its
