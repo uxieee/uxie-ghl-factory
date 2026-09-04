@@ -1056,7 +1056,7 @@ test('every project-scoped AI Studio tool passes the boundary check when alt_id 
 });
 
 // ----------------------------------------------------------------------------------------------------
-// I2 — the fifteen AI Studio tools' fallback strings must agree with the catalogue: `documented`,
+// I2 — the fifteen AI Studio tools' fallback strings must agree with the catalogue: `live-runtime (2026-09-04)`,
 // never the earlier `engine source`. Guards against the fallback drifting back out of sync with
 // the catalogue label it is supposed to mirror when the catalogue entry is absent or too short.
 // ----------------------------------------------------------------------------------------------------
@@ -1068,13 +1068,13 @@ const AI_STUDIO_TOOL_NAMES = [
   'cancel_studio_generation', 'set_studio_secrets', 'publish_studio_site', 'unpublish_studio_site',
 ];
 
-test('all fifteen AI Studio tools ship "proof: documented" and none claims live proof', () => {
+test('all fifteen AI Studio tools ship "proof: live-runtime (2026-09-04)" — the label the live-fire receipt earned', () => {
   assert.equal(AI_STUDIO_TOOL_NAMES.length, 15);
   for (const name of AI_STUDIO_TOOL_NAMES) {
     const tool = TOOLS.find((t) => t.name === name);
     assert.ok(tool, `${name} must be registered`);
-    assert.match(tool.description, /proof: documented/,
-      `${name}'s description must carry "proof: documented" — labels must not drift upward until a live-fire pass earns it`);
+    assert.match(tool.description, /proof: live-runtime \(2026-09-04\)/,
+      `${name}'s description must carry "proof: live-runtime (2026-09-04)" — earned by STATUS-2026-09-04-ai-studio-live-fire.md; a NEWER date needs a newer receipt, an OLDER label is a regression`);
     assert.doesNotMatch(tool.description, /proof: (?:external-receipt-required|engine source)\b/,
       `${name} must not claim a stronger proof status than the catalogue actually earned`);
   }
@@ -1088,7 +1088,7 @@ test('all fifteen AI Studio tools ship "proof: documented" and none claims live 
 // present). This test reads the actual SOURCE TEXT of the `describe(name, fallback)` call sites
 // for these 15 tools, so it fails if the fallback string itself regresses even though the catalog
 // currently masks it.
-test('the AI Studio tools\' describe() FALLBACK strings (not just the catalogue-shipped text) say documented', () => {
+test('the AI Studio tools\' describe() FALLBACK strings (not just the catalogue-shipped text) say live-runtime (2026-09-04)', () => {
   const source = readFileSync(resolve(HERE_DIR, '../core/tools.mjs'), 'utf8');
   for (const name of AI_STUDIO_TOOL_NAMES) {
     // Find the describe('<name>', ...) call site and check ITS fallback string, not the

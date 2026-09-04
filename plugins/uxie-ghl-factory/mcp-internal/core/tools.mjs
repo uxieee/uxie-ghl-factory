@@ -5785,7 +5785,7 @@ export const TOOLS = [
       'Resolve a domain, slug or name to the GHL surface that owns it — AI Studio project or funnel. '
       + 'Call this FIRST for any "work on <site>" request: AI Studio projects and funnels are disjoint '
       + 'collections, so querying the wrong one returns an empty list that reads as "does not exist" '
-      + '(proof: documented; risk: read). Disjointness measured 2026-09-04 '
+      + '— proof: live-runtime (2026-09-04); risk: read. Disjointness measured 2026-09-04 '
       + '(knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs); the funnels leg runs on the token-id '
       + 'rail — the same sweep called it live and it succeeded, and '
       + 'knowledge/corpus/funnels/20-api/funnels-api.md documents the rail as proven-live 2026-08-25.'),
@@ -5855,7 +5855,7 @@ export const TOOLS = [
   },
   {
     name: 'list_studio_sites',
-    description: describe('list_studio_sites', 'List AI Studio (vibe) projects and folders for a sub-account (proof: documented; risk: read).'),
+    description: describe('list_studio_sites', 'List AI Studio (vibe) projects and folders for a sub-account — proof: live-runtime (2026-09-04); risk: read.'),
     inputSchema: schema({ locationId: z.string() }),
     capabilities: [{ method: 'GET', path: '/vibe-ai/projects' }, { method: 'GET', path: '/vibe-ai/folders' }],
     handler: async (args, deps) => guard(async () => {
@@ -5877,7 +5877,7 @@ export const TOOLS = [
   },
   {
     name: 'get_studio_site',
-    description: describe('get_studio_site', 'One AI Studio project: detail plus its page routes (proof: documented; risk: read).'),
+    description: describe('get_studio_site', 'One AI Studio project: detail plus its page routes — proof: live-runtime (2026-09-04); risk: read.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -5898,7 +5898,7 @@ export const TOOLS = [
     name: 'read_studio_site_content',
     description: describe('read_studio_site_content',
       'Read an AI Studio site\'s source — every file with its content. This is how you read a site\'s '
-      + 'copy as structured text instead of scraping the published HTML (proof: documented; risk: read).'),
+      + 'copy as structured text instead of scraping the published HTML — proof: live-runtime (2026-09-04); risk: read.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       pathContains: z.string().optional(), maxBytes: z.number().optional() }),
     capabilities: [
@@ -5927,7 +5927,7 @@ export const TOOLS = [
     description: describe('get_studio_site_history',
       'The build history of an AI Studio site: every prompt, every assistant turn, the versions each '
       + 'minted, and the publish journal. Read from Firestore — there is no REST endpoint for this '
-      + '(proof: documented; risk: read).'),
+      + '— proof: live-runtime (2026-09-04); risk: read.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), limit: z.number().optional() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -5957,7 +5957,7 @@ export const TOOLS = [
     name: 'get_studio_site_diffs',
     description: describe('get_studio_site_diffs',
       'The per-file unified diffs a generation produced — exactly what the AI changed, file by file '
-      + '(proof: documented; risk: read).'),
+      + '— proof: live-runtime (2026-09-04); risk: read.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string().optional() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -5979,7 +5979,7 @@ export const TOOLS = [
     description: describe('get_studio_preview',
       'Get the sandbox preview URL for an AI Studio site, provisioning it if needed. Open it in a '
       + 'BROWSER to check the work — a plain HTTP fetch returns a Cloudflare challenge '
-      + '(proof: documented; risk: read).'),
+      + '— proof: live-runtime (2026-09-04); risk: read.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -6016,7 +6016,7 @@ export const TOOLS = [
     description: describe('create_studio_site',
       'Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the '
       + 'slug from the rewrite — this tool reports both so you can see it happen '
-      + '(proof: documented; risk: write).'),
+      + '— proof: live-runtime (2026-09-04); risk: write.'),
     inputSchema: schema({ locationId: z.string(), name: z.string(), description: z.string().optional() }),
     capabilities: [{ method: 'POST', path: '/vibe-ai/projects' }],
     handler: async (args, deps) => guard(async () => {
@@ -6034,7 +6034,7 @@ export const TOOLS = [
     description: describe('generate_studio_site',
       'Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports '
       + 'what the turn cost. This SPENDS money on the sub-account, metered in USD '
-      + '(proof: documented; risk: write).'),
+      + '— proof: live-runtime (2026-09-04); risk: write.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), prompt: z.string(),
       waitSeconds: z.number().optional() }),
     capabilities: [
@@ -6108,7 +6108,7 @@ export const TOOLS = [
       'Resume a generation that had not finished when generate_studio_site (or a prior call to '
       + 'this tool) returned pending. Pass the SAME messageId — the chat receipt\'s message_id — '
       + 'so this only ever resolves the turn you started, never a stale terminal row already '
-      + 'sitting in the project\'s history (proof: documented; risk: read).'),
+      + 'sitting in the project\'s history — proof: live-runtime (2026-09-04); risk: read.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string(),
       waitSeconds: z.number().optional() }),
     capabilities: [
@@ -6137,7 +6137,7 @@ export const TOOLS = [
       + '(question.kind is integration_input), `answer` is not free text — pass the id of the '
       + 'integration item the question offered (from question.integrationPrompt.items[].id), or the '
       + 'literal string "dismiss" to decline the integration; the item id itself IS the answer '
-      + '(proof: documented; risk: write).'),
+      + '— proof: live-runtime (2026-09-04); risk: write.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       questionMessageId: z.string(), answer: z.string() }),
     capabilities: [
@@ -6167,7 +6167,7 @@ export const TOOLS = [
   {
     name: 'cancel_studio_generation',
     description: describe('cancel_studio_generation',
-      'Cancel a running AI Studio generation (proof: documented; risk: write).'),
+      'Cancel a running AI Studio generation — proof: live-runtime (2026-09-04); risk: write.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string() }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -6187,7 +6187,7 @@ export const TOOLS = [
     description: describe('set_studio_secrets',
       'Set project secrets for an AI Studio site. The write MERGES into the existing map, and values '
       + 'are write-only — reads return names and timestamps only, never values '
-      + '(proof: documented; risk: write).'),
+      + '— proof: live-runtime (2026-09-04); risk: write.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), secrets: z.record(z.string()) }),
     capabilities: [
       { method: 'GET', path: '/vibe-ai/projects/{projectId}' },
@@ -6210,7 +6210,7 @@ export const TOOLS = [
     name: 'publish_studio_site',
     description: describe('publish_studio_site',
       'Publish an AI Studio site to {slug}.vibepreview.com or its custom domain. OUTWARD-FACING: '
-      + 'this puts the site on the public internet. Requires confirm:true (proof: documented; risk: write).'),
+      + 'this puts the site on the public internet. Requires confirm:true — proof: live-runtime (2026-09-04); risk: write.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(),
       versionId: z.string(), confirm: z.boolean().optional() }),
     capabilities: [
@@ -6238,7 +6238,7 @@ export const TOOLS = [
   {
     name: 'unpublish_studio_site',
     description: describe('unpublish_studio_site',
-      'Take an AI Studio site off the public internet. Requires confirm:true (proof: documented; risk: write).'),
+      'Take an AI Studio site off the public internet. Requires confirm:true — proof: live-runtime (2026-09-04); risk: write.'),
     inputSchema: schema({ locationId: z.string(), projectId: z.string(), confirm: z.boolean().optional() }),
     capabilities: [
       { method: 'POST', path: '/vibe-ai/projects/{projectId}/unpublish' },

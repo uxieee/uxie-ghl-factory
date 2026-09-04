@@ -983,10 +983,10 @@
   ]
  },
  "find_ghl_site": {
-  "description": "Find ghl site — proof: documented; risk: read",
+  "description": "Find ghl site — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--get-projects",
    "funnels-service--get-funnels"
@@ -1005,10 +1005,10 @@
   ]
  },
  "list_studio_sites": {
-  "description": "List studio sites — proof: documented; risk: read",
+  "description": "List studio sites — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--get-projects",
    "ai-studio--get-folders"
@@ -1027,10 +1027,10 @@
   ]
  },
  "get_studio_site": {
-  "description": "Get studio site — proof: documented; risk: read",
+  "description": "Get studio site — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--get-projects--documented",
    "ai-studio--get-projects-routes"
@@ -1049,10 +1049,10 @@
   ]
  },
  "read_studio_site_content": {
-  "description": "Read studio site content — proof: documented; risk: read",
+  "description": "Read studio site content — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--get-projects-files"
   ],
@@ -1067,10 +1067,10 @@
   ]
  },
  "get_studio_site_history": {
-  "description": "Get studio site history — proof: documented; risk: read",
+  "description": "Get studio site history — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "typed--get_studio_site_history--vibe-platform-documents:runQuery"
   ],
@@ -1085,10 +1085,10 @@
   ]
  },
  "get_studio_site_diffs": {
-  "description": "Get studio site diffs — proof: documented; risk: read",
+  "description": "Get studio site diffs — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "typed--get_studio_site_history--vibe-platform-documents:runQuery"
   ],
@@ -1103,10 +1103,10 @@
   ]
  },
  "get_studio_preview": {
-  "description": "Get studio preview — proof: documented; risk: read",
+  "description": "Get studio preview — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--get-projects-sandbox",
    "ai-studio--post-projects-sandbox"
@@ -1125,10 +1125,10 @@
   ]
  },
  "get_studio_generation_status": {
-  "description": "Get studio generation status — proof: documented; risk: read",
+  "description": "Get studio generation status — proof: live-runtime (2026-09-04); risk: read",
   "risk": "read",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "typed--get_studio_site_history--vibe-platform-documents:runQuery"
   ],
@@ -1143,10 +1143,10 @@
   ]
  },
  "create_studio_site": {
-  "description": "Create studio site — proof: documented; risk: write",
+  "description": "Create studio site — proof: live-runtime (2026-09-04); risk: write",
   "risk": "write",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--post-projects"
   ],
@@ -1161,10 +1161,10 @@
   ]
  },
  "generate_studio_site": {
-  "description": "Generate studio site — proof: documented; risk: write",
+  "description": "Generate studio site — proof: live-runtime (2026-09-04); risk: write",
   "risk": "write",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--get-projects-usage-policy",
    "ai-studio--post-projects-chat",
@@ -1187,10 +1187,10 @@
   ]
  },
  "answer_studio_question": {
-  "description": "Answer studio question — proof: documented; risk: write",
+  "description": "Answer studio question — proof: live-runtime (2026-09-04); risk: write",
   "risk": "write",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--post-projects-chat"
   ],
@@ -1205,10 +1205,10 @@
   ]
  },
  "cancel_studio_generation": {
-  "description": "Cancel studio generation — proof: documented; risk: write",
+  "description": "Cancel studio generation — proof: live-runtime (2026-09-04); risk: write",
   "risk": "write",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--post-projects-chat-cancel"
   ],
@@ -1223,10 +1223,10 @@
   ]
  },
  "set_studio_secrets": {
-  "description": "Set studio secrets — proof: documented; risk: write",
+  "description": "Set studio secrets — proof: live-runtime (2026-09-04); risk: write",
   "risk": "write",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--put-projects-secrets",
    "ai-studio--get-projects-secrets"
@@ -1245,10 +1245,10 @@
   ]
  },
  "publish_studio_site": {
-  "description": "Publish studio site — proof: documented; risk: write",
+  "description": "Publish studio site — proof: live-runtime (2026-09-04); risk: write",
   "risk": "write",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--post-projects-publish",
    "ai-studio--get-projects--documented"
@@ -1267,10 +1267,10 @@
   ]
  },
  "unpublish_studio_site": {
-  "description": "Unpublish studio site — proof: documented; risk: write",
+  "description": "Unpublish studio site — proof: live-runtime (2026-09-04); risk: write",
   "risk": "write",
-  "proof": "documented",
-  "proofFloor": "documented",
+  "proof": "live-runtime (2026-09-04)",
+  "proofFloor": "live-runtime (2026-09-04)",
   "proofRows": [
    "ai-studio--post-projects-unpublish",
    "ai-studio--get-projects--documented"

@@ -11,14 +11,13 @@ sandbox, and publishes to its own edge. Corpus: `knowledge/corpus/ai-studio/`.
 **It is called `vibe` internally.** Routes, API prefix and config keys all say `vibe`; only the
 sidebar says "AI Studio". Searching a bundle for the user-facing name finds nothing.
 
-**The tools are not yet live-fired.** All fifteen carry `proof: documented` in
-`tool-descriptions.json` — the *endpoints* were mapped live on 2026-09-04 with 117 captures in
-`knowledge/sniffs/ai-studio-2026-09-04/`, but the *tools* built on top of them have never been
-executed against a real GoHighLevel account. That distinction is invisible once you're holding a
-tool call — the description reads the same as any proven tool. This skill is where the caveat
-lives instead. Expect the first real run to surprise you: a param name that doesn't quite match,
-a status field that isn't where the docs say it is. Prefer the sandbox sub-account over a
-client's for that first run.
+**All fifteen tools are live-fired.** They carry `proof: live-runtime (2026-09-04)`, earned by
+`STATUS-2026-09-04-ai-studio-live-fire.md` at the plugin repo root: every tool executed through its
+registered handler against a real account, the Firestore rail end-to-end, the account boundary
+failing closed, publish→unpublish confirmed 404 in a browser. Read the receipt's **Not proven**
+section before leaning on the two `answer_studio_question` variants that never arose, or on a
+`failed` build status — still never observed. A first run on a *new* account can still surprise
+you (plan gating, an expired sandbox); prefer a throwaway project over a client's.
 
 ## Start here, every time
 

@@ -11,6 +11,25 @@ and `.codex-plugin/plugin.json` (Codex). Both carry the same version, enforced b
 This file starts at 0.25.0. Earlier releases are recorded in the git history, where the
 commit bodies carry the detail.
 
+## [0.56.1] — 2026-09-04
+
+The fifteen AI Studio tools now carry **`proof: live-runtime (2026-09-04)`**, up from `documented`.
+
+### Changed
+
+- **Proof labels earned by the live-fire pass.** 0.56.0 shipped the AI Studio tools as
+  `proof: documented` because none had been executed against a real account. Every one of them has
+  now been, through its registered handler with the real gateway — receipt
+  `STATUS-2026-09-04-ai-studio-live-fire.md` at the repo root. The catalogue, the `describe()`
+  fallbacks and the guard tests move together; the guard now pins the *dated* label, so a newer date
+  needs a newer receipt and an older label is a regression.
+- `ghl-ai-studio` skill: the "not yet live-fired" paragraph is replaced with what the receipt proves
+  and, more usefully, what it does **not** — the two `answer_studio_question` variants that never
+  arose, and a `failed` build status that has still never been observed.
+
+Nothing else moves. The 0.56.0 "Known limitations" entry below stays as the record of what was true
+when 0.56.0 was cut.
+
 ## [0.56.0] — 2026-09-04
 
 A new surface: **GoHighLevel AI Studio**, internally called `vibe` (routes, API prefix and config
