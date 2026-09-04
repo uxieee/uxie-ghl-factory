@@ -90,3 +90,79 @@ export async function runQuery({ gwFirebase, idToken, collection, projectId, ord
   return rows.filter((x) => x.document).map((x) =>
     Object.fromEntries(Object.entries(x.document.fields ?? {}).map(([k, v]) => [k, plain(v)])));
 }
+
+export const filterRoutes = (rows) => (rows ?? []).filter((r) => r?.deleted !== true);
+
+export const nameWarning = (requested, stored) => (requested === stored ? null
+  : `GHL rewrote the project name on create: you sent ${JSON.stringify(requested)}, it stored `
+  + `${JSON.stringify(stored)}, and the slug derives from the STORED name. To get an exact name, `
+  + `follow this create with a rename (which stores the literal but does not update the slug).`);
+
+// Spec §8. Each of these is a wire response an agent will otherwise misread: the 401 looks like a
+// dead credential when it means the wrong RAIL, and the 403s look like a permission problem when
+// they mean a malformed scope. Returning null for anything unrecognised keeps the real message.
+export function studioError(status, body) {
+  const msg = String(body?.error ?? body?.message ?? '');
+  if (status === 401 && /authorization token required/i.test(msg)) {
+    return '/vibe-ai is Bearer-only — a token-id alone is refused. This is a rail mistake, not an expired credential.';
+  }
+  if (status === 403 && /unsupported alt_type/i.test(msg)) {
+    return 'alt_type accepts only "location". AI Studio has no agency-level scope.';
+  }
+  if (status === 403 && /No Location Found/i.test(msg)) {
+    return 'This alt_id is not a location this token can reach — check the registration binding (GHL_INTERNAL_LOCATIONS).';
+  }
+  if (status === 409) {
+    return 'This question was already answered, or the answer conflicts with the stored one. Re-read the question block before retrying.';
+  }
+  if (status === 410) {
+    return 'The continuation expired. Start a new turn rather than answering this one.';
+  }
+  return null;
+}
+
+const q = (loc) => `alt_id=${encodeURIComponent(loc)}&alt_type=location`;
+
+export class StudioApi {
+  // `gw` is a jwt-rail gateway already bound to one location. `loc` is that location.
+  constructor({ gw, loc }) { this.gw = gw; this.loc = loc; }
+
+  async #vibe(method, path, body) {
+    const res = await this.gw.call(method, `/vibe-ai${path}`, body);
+    if (!res.ok) {
+      const hint = studioError(res.status, res.json);
+      if (hint) { const e = new Error(hint); e.code = 'STUDIO_REQUEST_FAILED'; e.remediation = hint; throw e; }
+    }
+    return res;
+  }
+
+  listProjects()      { return this.#vibe('GET', `/projects?${q(this.loc)}`); }
+  getProject(id)      { return this.#vibe('GET', `/projects/${id}?${q(this.loc)}`); }
+  getFiles(id)        { return this.#vibe('GET', `/projects/${id}/files?${q(this.loc)}`); }
+  getRoutes(id)       { return this.#vibe('GET', `/projects/${id}/routes?${q(this.loc)}`); }
+  getSettings(id)     { return this.#vibe('GET', `/projects/${id}/settings?${q(this.loc)}`); }
+  getSecrets(id)      { return this.#vibe('GET', `/projects/${id}/secrets?${q(this.loc)}`); }
+  getSandbox(id)      { return this.#vibe('GET', `/projects/${id}/sandbox?${q(this.loc)}`); }
+  getFolders()        { return this.#vibe('GET', `/folders?${q(this.loc)}`); }
+  usagePolicy(id)     { return this.#vibe('GET', `/projects/${id}/usage/policy?${q(this.loc)}`); }
+
+  ensureSandbox(id)   { return this.#vibe('POST', `/projects/${id}/sandbox`, { alt_id: this.loc, alt_type: 'location' }); }
+  createProject(b)    { return this.#vibe('POST', '/projects', { ...b, alt_id: this.loc, alt_type: 'location' }); }
+  renameProject(id, name) { return this.#vibe('PATCH', `/projects/${id}/name`, { name, alt_id: this.loc, alt_type: 'location' }); }
+  setSlug(id, slug)   { return this.#vibe('PATCH', `/projects/${id}/slug`, { slug }); }
+  // PUT MERGES despite the verb; an unmentioned key survives. Values are write-only — the GET
+  // returns an array of {name, created_at, updated_at} with no value.
+  putSecrets(id, secrets) { return this.#vibe('PUT', `/projects/${id}/secrets`, { secrets, alt_id: this.loc, alt_type: 'location' }); }
+  chat(id, body)      { return this.#vibe('POST', `/projects/${id}/chat`, body); }
+  cancelChat(id, messageId) { return this.#vibe('POST', `/projects/${id}/chat/cancel`, { message_id: messageId, alt_id: this.loc, alt_type: 'location' }); }
+  // publish/unpublish take NO alt_id/alt_type. unpublish takes no body at all.
+  publish(id, versionId) { return this.#vibe('POST', `/projects/${id}/publish`, { version_id: versionId }); }
+  unpublish(id)       { return this.#vibe('POST', `/projects/${id}/unpublish`, undefined); }
+
+  // /ai-wrapper takes locationId (camelCase), NOT alt_id/alt_type, and lives on a different base.
+  async usageSnapshotUsd() {
+    const r = await this.gw.call('GET', `/ai-wrapper/usage/v2/snapshots?locationId=${encodeURIComponent(this.loc)}`);
+    const snap = (r?.json?.snapshots ?? []).find((s) => s.product === 'AI_STUDIO');
+    return typeof snap?.used === 'number' ? snap.used : null;
+  }
+}
