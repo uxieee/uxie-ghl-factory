@@ -382,3 +382,79 @@ test('a successful funnels call reports funnelsChecked:true', async () => {
   assert.equal(result.data.funnelsChecked, true);
   assert.equal(result.data.surface, 'not-found');
 });
+
+// FIX 1: `type=funnel` silently excludes every `type=website` record — the exact class of
+// object someone is most likely to ask this resolver about — reintroducing the false
+// "does not exist" through a different door. knowledge/sniffs/ai-studio-2026-09-04/sweep-19.mjs
+// is the probe the disjointness finding rests on, and it calls this endpoint with NO `type`.
+test('the funnels call is untyped — no type or category filter narrows the collection', async () => {
+  let funnelsPath = null;
+  const deps = {
+    state: {},
+    makeGw: (opts) => (opts.rail === 'token-id'
+      ? { call: async (method, path) => { funnelsPath = path; return { status: 200, ok: true, json: { funnels: [] } }; } }
+      : { call: async () => ({ status: 200, ok: true, json: [] }) }),
+  };
+  await findGhlSiteTool().handler({ locationId: 'LOC', site: 'a-website.com' }, deps);
+  assert.ok(funnelsPath, 'the funnels rail must be called');
+  assert.doesNotMatch(funnelsPath, /[?&]type=/, 'no type filter — it would exclude type=website records');
+  assert.doesNotMatch(funnelsPath, /[?&]category=/, 'no category filter either');
+  assert.match(funnelsPath, /[?&]locationId=LOC/);
+});
+
+const getStudioPreviewTool = () => TOOLS.find((t) => t.name === 'get_studio_preview');
+
+// FIX 3: after ensureSandbox provisions, the tool must return the FRESH sandbox state, not the
+// pre-provision snapshot it already had in hand. Not-ready on the first read, ready on the
+// second (post-provision) read.
+test('get_studio_preview re-reads the sandbox after provisioning and returns fresh values', async () => {
+  let getSandboxCalls = 0;
+  let ensureCalled = false;
+  const gw = {
+    call: async (method, path) => {
+      if (method === 'POST' && path.includes('/sandbox')) { ensureCalled = true; return { status: 200, ok: true, json: { queued: true } }; }
+      if (method === 'GET' && path.includes('/sandbox')) {
+        getSandboxCalls += 1;
+        return getSandboxCalls === 1
+          ? { status: 200, ok: true, json: { ready: false, url: null } }
+          : { status: 200, ok: true, json: { ready: true, url: 'https://fresh.vibepreview.com' } };
+      }
+      return { status: 404, ok: false, json: {} };
+    },
+  };
+  const result = await getStudioPreviewTool().handler({ locationId: 'LOC', projectId: 'P1' }, { state: {}, makeGw: () => gw });
+  assert.equal(ensureCalled, true, 'ensureSandbox must be called when not ready');
+  assert.equal(getSandboxCalls, 2, 'the sandbox must be re-read after provisioning');
+  assert.equal(result.ok, true);
+  assert.equal(result.data.ready, true, 'the returned ready must be the POST-provision value');
+  assert.equal(result.data.url, 'https://fresh.vibepreview.com', 'the returned url must be the POST-provision value');
+  assert.equal(result.data.provisioning, true);
+});
+
+test('get_studio_preview reports honestly when the re-read is still not ready', async () => {
+  const gw = {
+    call: async (method, path) => {
+      if (method === 'POST' && path.includes('/sandbox')) return { status: 200, ok: true, json: { queued: true } };
+      if (method === 'GET' && path.includes('/sandbox')) return { status: 200, ok: true, json: { ready: false, url: null } };
+      return { status: 404, ok: false, json: {} };
+    },
+  };
+  const result = await getStudioPreviewTool().handler({ locationId: 'LOC', projectId: 'P1' }, { state: {}, makeGw: () => gw });
+  assert.equal(result.data.ready, false);
+  assert.equal(result.data.provisioning, true);
+  assert.match(result.data.note, /still shows not-ready|poll again/i);
+});
+
+test('get_studio_preview does not re-read when already ready', async () => {
+  let getSandboxCalls = 0;
+  const gw = {
+    call: async (method, path) => {
+      if (method === 'GET' && path.includes('/sandbox')) { getSandboxCalls += 1; return { status: 200, ok: true, json: { ready: true, url: 'https://x.vibepreview.com' } }; }
+      return { status: 404, ok: false, json: {} };
+    },
+  };
+  const result = await getStudioPreviewTool().handler({ locationId: 'LOC', projectId: 'P1' }, { state: {}, makeGw: () => gw });
+  assert.equal(getSandboxCalls, 1, 'no re-read needed when already ready');
+  assert.equal(result.data.provisioning, false);
+  assert.equal(result.data.ready, true);
+});
