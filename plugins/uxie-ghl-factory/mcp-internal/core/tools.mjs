@@ -71,7 +71,7 @@ import { compileSuperAgentCreate, compileSuperAgentUpdate } from '../../engines/
 import { executeAgentPlan, executeAgentUpdate } from '../../engines/ai/driver.mjs';
 import { compileConvaiUpdateFromRecord } from '../../engines/ai/convai-compiler.mjs';
 import { StudioApi, getIdToken, runQuery, filterRoutes, classifySite, nameWarning,
-         sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS } from './ai-studio.mjs';
+         sessionFor, awaitTurn, isTerminal, MESSAGES, DIFFS, answerBodyFor } from './ai-studio.mjs';
 
 // In the bundle the catalog is inlined via esbuild --define (__HAS_CATALOG__/__TOOL_CATALOG__,
 // see scripts/esbuild-config.mjs), so descriptions work on a user's machine with no external
@@ -5937,6 +5937,161 @@ export const TOOLS = [
             + 'Sandbox host is keyed on the PROJECT ID; a published site is {slug}.vibepreview.com. '
             + 'Sandboxes expire (ready:false with an empty url while has_builds stays true). '
             + 'Verify by opening it in a browser: curl gets a Cloudflare 403 regardless of site state.' });
+    }, args),
+  },
+  {
+    name: 'create_studio_site',
+    description: describe('create_studio_site',
+      'Create an AI Studio project. WARNING: the server REWRITES the name you send and derives the '
+      + 'slug from the rewrite — this tool reports both so you can see it happen '
+      + '(proof: engine source; risk: write).'),
+    inputSchema: schema({ locationId: z.string(), name: z.string(), description: z.string().optional() }),
+    capabilities: [{ method: 'POST', path: '/vibe-ai/projects' }],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const res = await api.createProject({ name: args.name, description: args.description ?? '' });
+      const project = res.json?.project ?? {};
+      const warning = nameWarning(args.name, project.name);
+      return ok({ projectId: project.id, requestedName: args.name, storedName: project.name,
+        slug: project.slug, techStack: project.tech_stack, warning,
+        note: 'A new project is NOT empty — it ships a vite_react_shadcn_ts scaffold (77 files, 1 route).' });
+    }, args),
+  },
+  {
+    name: 'generate_studio_site',
+    description: describe('generate_studio_site',
+      'Send a prompt to the AI Studio builder and wait for the build. Preflights usage and reports '
+      + 'what the turn cost. This SPENDS money on the sub-account, metered in USD '
+      + '(proof: engine source; risk: write).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), prompt: z.string(),
+      waitSeconds: z.number().optional() }),
+    capabilities: [
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}/usage/policy' },
+      { method: 'POST', path: '/vibe-ai/projects/{projectId}/chat' },
+      { method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api, history } = studioDeps(args, deps);
+      const policy = (await api.usagePolicy(args.projectId)).json ?? {};
+      if (policy.allowed === false) {
+        return fail(CODES.VALIDATION_FAILED,
+          `AI Studio refused this generation: ${policy.reasonCode ?? 'not allowed'}`,
+          'Usage policy says no. Do not retry; resolve the plan or usage limit first.');
+      }
+      const before = await api.usageSnapshotUsd();
+      const sessionId = sessionFor(deps.state, args.projectId);
+      const started = await api.chat(args.projectId, {
+        message: args.prompt, session_id: sessionId, thread_id: 'main',
+        alt_id: args.locationId, alt_type: 'location',
+      });
+      const messageId = started.json?.message_id ?? null;
+      const turn = await awaitTurn({
+        firestore: { messages: (pid) => history(MESSAGES, pid, 'order', 300) },
+        projectId: args.projectId, waitMs: (args.waitSeconds ?? 120) * 1000,
+      });
+      const after = await api.usageSnapshotUsd();
+      const spendUsd = (typeof before === 'number' && typeof after === 'number')
+        ? Number((after - before).toFixed(6)) : null;
+      deps.state.studioSpendUsd = Number(((deps.state.studioSpendUsd ?? 0) + (spendUsd ?? 0)).toFixed(6));
+      if (turn.pending) {
+        return ok({ ...turn, messageId: turn.messageId ?? messageId, spendUsd,
+          sessionSpendUsd: deps.state.studioSpendUsd });
+      }
+      const a = turn.assistant ?? {};
+      const diffs = await history(DIFFS, args.projectId, null, 300);
+      return ok({
+        messageId: a.id ?? messageId, versionId: a.versionId ?? null, buildStatus: a.buildStatus,
+        summary: a.completionSummary ?? null, toolsUsed: a.completionToolsCount ?? null,
+        thinkingSeconds: a.thinkingDurationSec ?? null, totalSeconds: a.totalDurationSec ?? null,
+        question: a.question ?? null,
+        diffs: diffs.filter((d) => d.messageId === a.id)
+                    .map((d) => ({ file: d.file, toolType: d.toolType, action: d.action, diff: d.diff })),
+        spendUsd, sessionSpendUsd: deps.state.studioSpendUsd,
+        previewUrl: `https://${args.projectId}.vibepreview.com`,
+        note: a.question
+          ? 'The build paused on a question — answer it with answer_studio_question.'
+          : 'Open previewUrl in a BROWSER before publishing. Source can read clean while the page fails at runtime.',
+      });
+    }, args),
+  },
+  {
+    name: 'get_studio_generation_status',
+    description: describe('get_studio_generation_status',
+      'Resume a generation that had not finished when generate_studio_site returned '
+      + '(proof: engine source; risk: read).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), waitSeconds: z.number().optional() }),
+    capabilities: [{ method: 'POST', path: '/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery' }],
+    handler: async (args, deps) => guard(async () => {
+      const { history } = studioDeps(args, deps);
+      const turn = await awaitTurn({
+        firestore: { messages: (pid) => history(MESSAGES, pid, 'order', 300) },
+        projectId: args.projectId, waitMs: (args.waitSeconds ?? 120) * 1000,
+      });
+      if (turn.pending) return ok(turn);
+      const a = turn.assistant ?? {};
+      return ok({ messageId: a.id, versionId: a.versionId ?? null, buildStatus: a.buildStatus,
+        summary: a.completionSummary ?? null, question: a.question ?? null });
+    }, args),
+  },
+  {
+    name: 'answer_studio_question',
+    description: describe('answer_studio_question',
+      'Answer a question the AI Studio builder asked mid-build. Pass the answer; the tool reads the '
+      + 'stored question and picks the right continuation shape itself '
+      + '(proof: engine source; risk: write).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(),
+      questionMessageId: z.string(), answer: z.string() }),
+    capabilities: [{ method: 'POST', path: '/vibe-ai/projects/{projectId}/chat' }],
+    handler: async (args, deps) => guard(async () => {
+      const { api, history } = studioDeps(args, deps);
+      const rows = await history(MESSAGES, args.projectId, 'order', 300);
+      const asked = rows.find((r) => r.id === args.questionMessageId);
+      if (!asked?.question) {
+        return fail(CODES.VALIDATION_FAILED,
+          `message ${args.questionMessageId} carries no question block`,
+          'Read get_studio_site_history and answer a message whose hasQuestion is true.');
+      }
+      const body = answerBodyFor({ question: asked.question, answer: args.answer,
+        sessionId: sessionFor(deps.state, args.projectId),
+        questionMessageId: args.questionMessageId, loc: args.locationId });
+      const res = await api.chat(args.projectId, body);
+      return ok({ status: res.status, messageId: res.json?.message_id ?? null,
+        answerType: body.answer_type ?? 'plain',
+        note: 'A plain answer resumes on the SAME message id. A 409 means this question was already answered.' });
+    }, args),
+  },
+  {
+    name: 'cancel_studio_generation',
+    description: describe('cancel_studio_generation',
+      'Cancel a running AI Studio generation (proof: engine source; risk: write).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), messageId: z.string() }),
+    capabilities: [{ method: 'POST', path: '/vibe-ai/projects/{projectId}/chat/cancel' }],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      const res = await api.cancelChat(args.projectId, args.messageId);
+      return ok({ status: res.json?.status ?? res.status,
+        note: 'A cancelled turn is stored with cancelledByUser:true and mints NO version.' });
+    }, args),
+  },
+  {
+    name: 'set_studio_secrets',
+    description: describe('set_studio_secrets',
+      'Set project secrets for an AI Studio site. The write MERGES into the existing map, and values '
+      + 'are write-only — reads return names and timestamps only, never values '
+      + '(proof: engine source; risk: write).'),
+    inputSchema: schema({ locationId: z.string(), projectId: z.string(), secrets: z.record(z.string()) }),
+    capabilities: [
+      { method: 'PUT', path: '/vibe-ai/projects/{projectId}/secrets' },
+      { method: 'GET', path: '/vibe-ai/projects/{projectId}/secrets' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const { api } = studioDeps(args, deps);
+      await api.putSecrets(args.projectId, args.secrets);
+      const back = (await api.getSecrets(args.projectId)).json ?? {};
+      const names = (back.secrets ?? []).map((s) => s.name);
+      const missing = Object.keys(args.secrets).filter((k) => !names.includes(k));
+      return ok({ names, missing,
+        note: missing.length ? 'Some keys did not appear on read-back.' : 'All keys present. Values are never returned.' });
     }, args),
   },
 

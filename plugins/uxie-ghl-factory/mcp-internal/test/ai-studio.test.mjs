@@ -458,3 +458,30 @@ test('get_studio_preview does not re-read when already ready', async () => {
   assert.equal(result.data.provisioning, false);
   assert.equal(result.data.ready, true);
 });
+
+// -----------------------------------------------------------------------------------------------
+// Task 7 — build tools
+// -----------------------------------------------------------------------------------------------
+
+import { answerBodyFor } from '../core/ai-studio.mjs';
+
+test('answer dispatch is chosen by the stored question, not by the caller', () => {
+  const base = { sessionId: 'S', questionMessageId: 'Q', loc: 'L' };
+  const integration = answerBodyFor({ ...base,
+    question: { kind: 'integration_input', integrationPrompt: { items: [{ id: 'CAL1' }] } },
+    answer: 'CAL1' });
+  assert.equal(integration.answer_type, 'integration_input');
+  assert.equal(integration.integration_action, 'connect');
+  assert.equal(integration.integration_item_id, 'CAL1');
+
+  const dismissed = answerBodyFor({ ...base,
+    question: { kind: 'integration_input', integrationPrompt: { items: [{ id: 'CAL1' }] } },
+    answer: 'dismiss' });
+  assert.equal(dismissed.integration_action, 'dismiss');
+  assert.equal('integration_item_id' in dismissed, false, 'dismiss carries no item id');
+
+  const plainAnswer = answerBodyFor({ ...base, question: { questions: [{ type: 'text' }] }, answer: 'hello' });
+  assert.equal(plainAnswer.answer_type, undefined, 'a plain answer sends no answer_type');
+  assert.equal(plainAnswer.message, 'hello');
+  assert.equal(plainAnswer.is_answer, true);
+});

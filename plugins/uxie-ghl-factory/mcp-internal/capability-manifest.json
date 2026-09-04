@@ -1068,5 +1068,50 @@
     "tool": "get_studio_preview",
     "method": "POST",
     "path": "/vibe-ai/projects/{projectId}/sandbox"
+  },
+  {
+    "tool": "create_studio_site",
+    "method": "POST",
+    "path": "/vibe-ai/projects"
+  },
+  {
+    "tool": "generate_studio_site",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}/usage/policy"
+  },
+  {
+    "tool": "generate_studio_site",
+    "method": "POST",
+    "path": "/vibe-ai/projects/{projectId}/chat"
+  },
+  {
+    "tool": "generate_studio_site",
+    "method": "POST",
+    "path": "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery"
+  },
+  {
+    "tool": "get_studio_generation_status",
+    "method": "POST",
+    "path": "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery"
+  },
+  {
+    "tool": "answer_studio_question",
+    "method": "POST",
+    "path": "/vibe-ai/projects/{projectId}/chat"
+  },
+  {
+    "tool": "cancel_studio_generation",
+    "method": "POST",
+    "path": "/vibe-ai/projects/{projectId}/chat/cancel"
+  },
+  {
+    "tool": "set_studio_secrets",
+    "method": "PUT",
+    "path": "/vibe-ai/projects/{projectId}/secrets"
+  },
+  {
+    "tool": "set_studio_secrets",
+    "method": "GET",
+    "path": "/vibe-ai/projects/{projectId}/secrets"
   }
 ]
