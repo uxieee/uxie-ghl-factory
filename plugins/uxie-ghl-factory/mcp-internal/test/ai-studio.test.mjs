@@ -300,3 +300,16 @@ test('awaitTurn returns a resumable handle when the wait ceiling is hit', async 
   assert.equal(out.messageId, 'm1');
   assert.equal(out.resumeWith, 'get_studio_generation_status');
 });
+
+import { containsSecrets } from '../core/errors.mjs';
+
+test('a secrets map may use conventional secret NAMES', () => {
+  assert.equal(containsSecrets({ secrets: { API_KEY: 'x', SESSION_TOKEN: 'y' } }), false);
+});
+
+test('the exemption is narrow — it does not spread', () => {
+  assert.equal(containsSecrets({ apiKey: 'x' }), true, 'a bare credential arg is still refused');
+  assert.equal(containsSecrets({ notSecrets: { API_KEY: 'x' } }), true, 'only a `secrets` map is exempt');
+  assert.equal(containsSecrets({ secrets: { A: 'Bearer eyJhbGciOiJIUzI1NiJ9.e30.x' } }), true,
+    'a real credential VALUE inside the map is still caught');
+});
