@@ -17245,8 +17245,17 @@ var init_define_ENDPOINT_CATALOG = __esm({
           kind: "read",
           reach: "source-only",
           coveredBy: [
+            "answer_studio_question",
+            "cancel_studio_generation",
+            "generate_studio_site",
+            "get_studio_generation_status",
+            "get_studio_preview",
             "get_studio_site",
+            "get_studio_site_diffs",
+            "get_studio_site_history",
             "publish_studio_site",
+            "read_studio_site_content",
+            "set_studio_secrets",
             "unpublish_studio_site"
           ],
           rawCallable: true,
@@ -155213,16 +155222,18 @@ async function awaitTurn({
   sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 }) {
   const deadline = nowMs() + waitMs;
+  let lastRow = null;
   while (nowMs() < deadline) {
     const rows = await firestore.messages(projectId);
     const row = rows.find((r) => r.role === "assistant" && r.id === messageId) ?? null;
+    if (row) lastRow = row;
     if (isTerminal2(row)) return { pending: false, assistant: row };
     await sleep(pollMs);
   }
   return {
     pending: true,
     messageId: messageId ?? null,
-    buildStatus: null,
+    buildStatus: lastRow?.buildStatus ?? null,
     resumeWith: "get_studio_generation_status",
     note: "The build is still running. Resume with the message id; nothing was lost."
   };
@@ -156283,11 +156294,28 @@ var studioDeps = (args, deps) => {
   return { gw, api, history };
 };
 var assertProjectLocation = async (api, projectId, locationId) => {
-  const project = (await api.getProject(projectId)).json;
-  if (project?.alt_id && project.alt_id !== locationId) {
+  let res;
+  try {
+    res = await api.getProject(projectId);
+  } catch (e) {
     return { project: null, error: fail(
       CODES.VALIDATION_FAILED,
-      `project ${projectId} belongs to a different sub-account (${project.alt_id})`,
+      `could not verify which sub-account owns project ${projectId}: the boundary check itself failed (${e?.message ?? e})`,
+      'This is "could not verify", not "belongs to another sub-account" \u2014 the boundary GET threw rather than answering. Resolve the underlying error and retry; never treat a failed check as a pass.'
+    ) };
+  }
+  const project = res?.json;
+  if (!res?.ok || project === null || typeof project !== "object") {
+    return { project: null, error: fail(
+      CODES.VALIDATION_FAILED,
+      `could not verify which sub-account owns project ${projectId}: the boundary GET returned status ${res?.status}`,
+      'This is "could not verify", not "belongs to another sub-account" \u2014 a non-ok status or an unreadable body means the boundary was never checked. Resolve the underlying error and retry.'
+    ) };
+  }
+  if (!project.alt_id || typeof project.alt_id !== "string" || project.alt_id !== locationId) {
+    return { project: null, error: fail(
+      CODES.VALIDATION_FAILED,
+      `project ${projectId} belongs to a different sub-account (${project.alt_id ?? "none recorded"})`,
       "alt_id is not enforced on by-id reads; verify it on the returned record."
     ) };
   }
@@ -160430,7 +160458,10 @@ var TOOLS2 = [
       pathContains: external_exports.string().optional(),
       maxBytes: external_exports.number().optional()
     }),
-    capabilities: [{ method: "GET", path: "/vibe-ai/projects/{projectId}/files" }],
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
+      { method: "GET", path: "/vibe-ai/projects/{projectId}/files" }
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -160467,7 +160498,10 @@ var TOOLS2 = [
       "The build history of an AI Studio site: every prompt, every assistant turn, the versions each minted, and the publish journal. Read from Firestore \u2014 there is no REST endpoint for this (proof: documented; risk: read)."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), limit: external_exports.number().optional() }),
-    capabilities: [{ method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }],
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
+      { method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -160506,7 +160540,10 @@ var TOOLS2 = [
       "The per-file unified diffs a generation produced \u2014 exactly what the AI changed, file by file (proof: documented; risk: read)."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), messageId: external_exports.string().optional() }),
-    capabilities: [{ method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }],
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
+      { method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -160534,6 +160571,7 @@ var TOOLS2 = [
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string() }),
     capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
       { method: "GET", path: "/vibe-ai/projects/{projectId}/sandbox" },
       { method: "POST", path: "/vibe-ai/projects/{projectId}/sandbox" }
     ],
@@ -160594,6 +160632,7 @@ var TOOLS2 = [
       waitSeconds: external_exports.number().optional()
     }),
     capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
       { method: "GET", path: "/vibe-ai/projects/{projectId}/usage/policy" },
       { method: "POST", path: "/vibe-ai/projects/{projectId}/chat" },
       { method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }
@@ -160620,6 +160659,13 @@ var TOOLS2 = [
         alt_type: "location"
       });
       const messageId = started.json?.message_id ?? null;
+      if (!messageId) {
+        return fail(
+          CODES.VALIDATION_FAILED,
+          "AI Studio accepted the generation (the chat call returned 202) but the receipt carried no message_id, so this turn's progress cannot be tracked or resumed",
+          "There is no messageId to pass get_studio_generation_status \u2014 do not poll for one. Check the project's history directly with get_studio_site_history to see whether the turn landed."
+        );
+      }
       const turn = await awaitTurn({
         firestore: { messages: (pid) => history(MESSAGES, pid, "order", 300) },
         projectId: args.projectId,
@@ -160668,7 +160714,10 @@ var TOOLS2 = [
       messageId: external_exports.string(),
       waitSeconds: external_exports.number().optional()
     }),
-    capabilities: [{ method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }],
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
+      { method: "POST", path: "/v1/projects/highlevel-backend/databases/vibe-platform/documents:runQuery" }
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -160702,7 +160751,10 @@ var TOOLS2 = [
       questionMessageId: external_exports.string(),
       answer: external_exports.string()
     }),
-    capabilities: [{ method: "POST", path: "/vibe-ai/projects/{projectId}/chat" }],
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
+      { method: "POST", path: "/vibe-ai/projects/{projectId}/chat" }
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api, history } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -160739,7 +160791,10 @@ var TOOLS2 = [
       "Cancel a running AI Studio generation (proof: documented; risk: write)."
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), messageId: external_exports.string() }),
-    capabilities: [{ method: "POST", path: "/vibe-ai/projects/{projectId}/chat/cancel" }],
+    capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
+      { method: "POST", path: "/vibe-ai/projects/{projectId}/chat/cancel" }
+    ],
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
       const { error: error51 } = await assertProjectLocation(api, args.projectId, args.locationId);
@@ -160759,6 +160814,7 @@ var TOOLS2 = [
     ),
     inputSchema: schema({ locationId: external_exports.string(), projectId: external_exports.string(), secrets: external_exports.record(external_exports.string()) }),
     capabilities: [
+      { method: "GET", path: "/vibe-ai/projects/{projectId}" },
       { method: "PUT", path: "/vibe-ai/projects/{projectId}/secrets" },
       { method: "GET", path: "/vibe-ai/projects/{projectId}/secrets" }
     ],

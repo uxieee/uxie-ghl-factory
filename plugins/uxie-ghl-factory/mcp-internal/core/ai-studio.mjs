@@ -205,13 +205,19 @@ export const isTerminal = (row) => Boolean(row && TERMINAL_BUILD.has(String(row.
 export async function awaitTurn({ firestore, projectId, messageId, waitMs = 120_000, pollMs = 6_000,
                                  nowMs = Date.now, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
   const deadline = nowMs() + waitMs;
+  let lastRow = null;
   while (nowMs() < deadline) {
     const rows = await firestore.messages(projectId);
     const row = rows.find((r) => r.role === 'assistant' && r.id === messageId) ?? null;
+    if (row) lastRow = row;
     if (isTerminal(row)) return { pending: false, assistant: row };
     await sleep(pollMs);
   }
-  return { pending: true, messageId: messageId ?? null, buildStatus: null,
+  // The matching row may exist but not yet be terminal (e.g. buildStatus: "validating") — report
+  // ITS observed buildStatus, the hook by which a live-fire pass discovers the real "failed"
+  // string (see rule 1 above: "failed" was never observed live). null only when no row for this
+  // messageId ever showed up during the wait.
+  return { pending: true, messageId: messageId ?? null, buildStatus: lastRow?.buildStatus ?? null,
            resumeWith: 'get_studio_generation_status',
            note: 'The build is still running. Resume with the message id; nothing was lost.' };
 }
