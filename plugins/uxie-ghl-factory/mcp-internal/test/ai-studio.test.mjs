@@ -272,3 +272,31 @@ test('StudioApi returns response on unrecognized error status', async () => {
   assert.equal(res.status, 500);
   assert.equal(res.ok, false);
 });
+
+import { sessionFor, isTerminal, awaitTurn } from '../core/ai-studio.mjs';
+
+test('session ids are owned by the server and stable per project', () => {
+  const state = {};
+  const a = sessionFor(state, 'P1');
+  assert.equal(sessionFor(state, 'P1'), a, 'same project reuses its session');
+  assert.notEqual(sessionFor(state, 'P2'), a, 'a different project gets its own');
+  assert.match(a, /^[0-9a-f-]{36}$/);
+});
+
+// The bug this prevents: thinkingStatus reaches "completed" long before the build finishes.
+test('thinkingStatus completed is NOT terminal while the build is validating', () => {
+  assert.equal(isTerminal({ thinkingStatus: 'completed', buildStatus: 'validating' }), false);
+  assert.equal(isTerminal({ thinkingStatus: 'completed', buildStatus: 'ready' }), true);
+  assert.equal(isTerminal({ thinkingStatus: 'completed', buildStatus: 'failed' }), true);
+  assert.equal(isTerminal({ thinkingStatus: 'completed' }), false, 'no buildStatus is not terminal');
+  assert.equal(isTerminal(undefined), false);
+});
+
+test('awaitTurn returns a resumable handle when the wait ceiling is hit', async () => {
+  const firestore = { messages: async () => [{ role: 'assistant', id: 'm1', buildStatus: 'validating' }] };
+  const out = await awaitTurn({ firestore, projectId: 'P1', waitMs: 20, pollMs: 5,
+    nowMs: (() => { let t = 0; return () => (t += 10); })(), sleep: async () => {} });
+  assert.equal(out.pending, true);
+  assert.equal(out.messageId, 'm1');
+  assert.equal(out.resumeWith, 'get_studio_generation_status');
+});
