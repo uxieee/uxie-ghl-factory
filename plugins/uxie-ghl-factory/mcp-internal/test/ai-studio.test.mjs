@@ -485,3 +485,108 @@ test('answer dispatch is chosen by the stored question, not by the caller', () =
   assert.equal(plainAnswer.message, 'hello');
   assert.equal(plainAnswer.is_answer, true);
 });
+
+// -----------------------------------------------------------------------------------------------
+// Task 7 review fix — handler-level coverage. The brief specified one test (answerBodyFor above);
+// the review ruled that a floor, not a ceiling, for six tools with real spend, real credential
+// wiring, and a runtime-only trap the harness cannot catch by construction.
+// -----------------------------------------------------------------------------------------------
+
+// Review fix #1 (Important): the usage-policy refusal is the ONLY spend control in the whole
+// design — spend is deliberately reported, never capped (see the LANDMINE-2 comment in
+// core/tools.mjs). If this branch silently broke, nothing else would stop a runaway generation.
+// The mock THROWS on /chat and /ai-wrapper/usage so a regression that keeps going past the
+// refusal fails LOUDLY here rather than passing by accident.
+test('generate_studio_site refuses when the usage policy says no, and never reaches chat', async () => {
+  const generateTool = TOOLS.find((t) => t.name === 'generate_studio_site');
+  let chatCalled = false;
+  const gw = {
+    call: async (method, path) => {
+      if (path.includes('/usage/policy')) {
+        return { status: 200, ok: true, json: { allowed: false, reasonCode: 'PLAN_LIMIT_REACHED' } };
+      }
+      if (path.includes('/chat')) { chatCalled = true; throw new Error('chat must never be called after a refused policy'); }
+      if (path.includes('/ai-wrapper/usage')) throw new Error('usage snapshot must never be read after a refused policy');
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const fb = { call: async () => { throw new Error('firestore must never be read after a refused policy'); } };
+  const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+  const result = await generateTool.handler({ locationId: 'LOC', projectId: 'P1', prompt: 'build me a site' }, deps);
+  assert.equal(result.ok, false);
+  assert.match(result.detail, /PLAN_LIMIT_REACHED/, 'the reasonCode must reach the caller');
+  assert.equal(chatCalled, false, 'the chat call must never be reached once the policy refuses');
+});
+
+// Review fix #2 (Important): set_studio_secrets only works because Task 5 added a narrow
+// exemption letting conventional secret NAMES through the credential guard inside a `secrets`
+// map (core/errors.mjs). That exemption is unit-tested in isolation already; this proves it is
+// actually WIRED to this tool, end to end through guard() — a regression here would be the
+// exemption being narrowed later with nobody noticing this tool depends on it.
+test('set_studio_secrets passes the credential guard via the secrets-map exemption and reaches the handler', async () => {
+  const tool = TOOLS.find((t) => t.name === 'set_studio_secrets');
+  let putBody = null;
+  const gw = {
+    call: async (method, path, body) => {
+      if (method === 'PUT' && path.includes('/secrets')) { putBody = body; return { status: 200, ok: true, json: {} }; }
+      if (method === 'GET' && path.includes('/secrets')) {
+        return { status: 200, ok: true, json: { secrets: [{ name: 'API_KEY', created_at: '2026-09-04T00:00:00Z' }] } };
+      }
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const deps = { state: {}, makeGw: () => gw };
+  const result = await tool.handler(
+    { locationId: 'LOC', projectId: 'P1', secrets: { API_KEY: 'sk-live-secret-value' } }, deps);
+  assert.equal(result.ok, true, 'a conventional secret NAME must not be refused by the credential guard (Task 5 exemption)');
+  assert.ok(putBody, 'the write must have reached the upstream call');
+  assert.deepEqual(result.data.names, ['API_KEY']);
+  assert.deepEqual(result.data.missing, []);
+  assert.ok(!JSON.stringify(result.data).includes('sk-live-secret-value'),
+    'the read-back must never surface the secret VALUE, only its name');
+});
+
+// Review fix #3 (Important): `session_id`/`sessionId` normalise to `sessionid`, on the credential
+// denylist in core/errors.mjs — a tool declaring either would be refused by guard() at RUNTIME,
+// a failure invisible to every handler-level test in this file because they call handlers
+// directly and never route through guard()'s containsSecrets check on a REAL argument key. This
+// walks every declared argument key of the six Task 7 build tools and proves none would be
+// refused, so a future PR that adds a `sessionId` parameter to one of them fails here instead of
+// failing silently the first time an agent calls the tool for real.
+test('none of the six build tools declares an argument key the credential guard would refuse', () => {
+  const BUILD_TOOLS = ['create_studio_site', 'generate_studio_site', 'get_studio_generation_status',
+    'answer_studio_question', 'cancel_studio_generation', 'set_studio_secrets'];
+  for (const name of BUILD_TOOLS) {
+    const tool = TOOLS.find((t) => t.name === name);
+    assert.ok(tool, `${name} must be registered`);
+    for (const key of Object.keys(tool.inputSchema.shape)) {
+      assert.equal(containsSecrets({ [key]: 'x' }), false,
+        `${name}'s "${key}" argument would be refused by the credential guard at runtime`);
+    }
+  }
+});
+
+// Review fix #4 (Minor): the untested fallback on the pending path is `turn.messageId ?? messageId`
+// — when awaitTurn times out having never seen an assistant row (turn.messageId is null), the
+// tool must still hand back the id chat() minted when the turn STARTED, never null. waitSeconds:0
+// makes awaitTurn's deadline already-elapsed on its first check, so it returns pending with no
+// firestore read at all — the fb mock throws if that assumption ever breaks.
+test('generate_studio_site returns the chat-started message id when the turn times out with no assistant row', async () => {
+  const tool = TOOLS.find((t) => t.name === 'generate_studio_site');
+  const gw = {
+    call: async (method, path) => {
+      if (path.includes('/usage/policy')) return { status: 200, ok: true, json: { allowed: true } };
+      if (path.includes('/ai-wrapper/usage')) return { status: 200, ok: true, json: { snapshots: [] } };
+      if (method === 'POST' && path.includes('/chat')) return { status: 200, ok: true, json: { message_id: 'M-STARTED' } };
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const fb = { call: async () => { throw new Error('firestore must never be read when waitSeconds:0 elapses before the first poll'); } };
+  const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+  const result = await tool.handler(
+    { locationId: 'LOC', projectId: 'P1', prompt: 'build me a site', waitSeconds: 0 }, deps);
+  assert.equal(result.ok, true);
+  assert.equal(result.data.pending, true);
+  assert.equal(result.data.messageId, 'M-STARTED',
+    'the pending path must fall back to the chat-started message id, never null');
+});
