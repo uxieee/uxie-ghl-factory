@@ -58,6 +58,9 @@ const ALLOW = [
   // firebase exchange is called with the CAPTURED key. Deliberately not a real key: the rule
   // below caught it on its first run, which is the behaviour it exists to have.
   'AIzaTESTKEY0000000000000000000000000000',
+  // GHL's own PUBLIC Firebase web client key, shipped in the AI Studio bundle. Not a secret;
+  // it identifies the Firebase project and cannot authorise anything on its own.
+  'AIzaSyB_w3vXmsI7WeQtrIOkjR6xTRVN5uOieiE',
 ];
 
 const RULES = [
