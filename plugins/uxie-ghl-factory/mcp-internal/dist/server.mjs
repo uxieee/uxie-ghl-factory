@@ -160370,11 +160370,21 @@ var TOOLS2 = [
     handler: async (args, deps) => guard(async () => {
       const { api } = studioDeps(args, deps);
       const studio = (await api.listProjects()).json;
-      const funnelsGw = deps.makeGw({ loc: args.locationId, state: deps.state, rail: "token-id" });
-      const funnelRes = await funnelsGw.call(
-        "GET",
-        `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`
-      );
+      const funnelsPath = `/funnels/funnel/list?locationId=${encodeURIComponent(args.locationId)}&limit=100`;
+      let funnelRes = null;
+      let funnelsRail = null;
+      for (const rail of ["token-id", "jwt"]) {
+        try {
+          const res = await deps.makeGw({ loc: args.locationId, state: deps.state, rail }).call("GET", funnelsPath);
+          if (res?.ok) {
+            funnelRes = res;
+            funnelsRail = rail;
+            break;
+          }
+          funnelRes ??= res;
+        } catch {
+        }
+      }
       const funnelsChecked = Boolean(funnelRes?.ok);
       const funnels = funnelsChecked ? funnelRes?.json?.funnels ?? funnelRes?.json?.data ?? [] : [];
       if (!funnelsChecked) {
@@ -160385,7 +160395,8 @@ var TOOLS2 = [
           surface,
           locationId: args.locationId,
           funnelsChecked: false,
-          warning: `The funnels/token-id check failed (status ${funnelRes?.status ?? "unknown"}) and was skipped. This result reflects AI Studio only \u2014 it does NOT prove the site is not a funnel.`
+          funnelsRail: null,
+          warning: `The funnels sweep failed on BOTH rails (last status ${funnelRes?.status ?? "unknown"}). This result reflects AI Studio only \u2014 it does NOT prove the site is not a funnel.`
         });
       }
       const hit = classifySite(args.site, Array.isArray(studio) ? studio : [], funnels);
@@ -160393,6 +160404,7 @@ var TOOLS2 = [
         ...hit,
         locationId: args.locationId,
         funnelsChecked: true,
+        funnelsRail,
         note: hit.surface === "not-found" ? "Not on this location. AI Studio has no agency-level list \u2014 sweep each bound location before concluding it does not exist." : void 0
       });
     }, args)
