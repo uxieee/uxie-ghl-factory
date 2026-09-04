@@ -200,6 +200,17 @@ export function containsSecrets(value, key = '') {
   if (value == null) return false;
   if (typeof value === 'string') return hasSecretText(value);
   if (Array.isArray(value)) return value.some((item) => containsSecrets(item, key));
+  // AI Studio project secrets are a user-supplied NAME→VALUE map, and the names are conventional
+  // env-var names the operator does not control: API_KEY, SESSION_TOKEN, DATABASE_PASSWORD. The
+  // key-name rule would refuse the whole call for the most ordinary input there is.
+  //
+  // The exemption is deliberately narrow, in the same spirit as SIGNED_STORAGE_URL above: it
+  // suppresses the KEY-NAME rule for the direct children of a `secrets` map and nothing else.
+  // Values are still scanned in full, so a real JWT or `Bearer …` smuggled in as a value is
+  // still caught, and a credential passed as a top-level argument is untouched by this.
+  if (key === 'secrets' && value && typeof value === 'object' && !Array.isArray(value)) {
+    return Object.values(value).some((item) => containsSecrets(item));
+  }
   if (typeof value === 'object') {
     return Object.entries(value).some(([childKey, item]) => (
       containsSecrets(childKey) || containsSecrets(item, childKey)
