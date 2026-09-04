@@ -14,7 +14,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ENG = resolve(HERE, '../engine');
-const { orchestrate } = await import(ENG + '/orchestrate.mjs');
+// pathToFileURL: a bare `C:/...` specifier is rejected by Node's ESM loader on Windows
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME). No-op on POSIX. Flagged by PR #4; hit on a client build 2026-08-26.
+const { orchestrate } = await import(pathToFileURL(ENG + '/orchestrate.mjs').href);
 
 const [irPath, LOC] = process.argv.slice(2);
 const publish = process.argv.includes('--publish');
