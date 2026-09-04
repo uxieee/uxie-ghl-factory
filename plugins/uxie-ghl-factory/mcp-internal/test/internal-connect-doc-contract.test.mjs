@@ -15,14 +15,27 @@ const COMMAND = readFileSync(join(PLUGIN_ROOT, 'commands', 'internal-connect.md'
 
 test('every scripts/ module the command imports exists on disk', () => {
   // The command's blocks read: const R = process.env.CLAUDE_PLUGIN_ROOT + '/mcp-internal/scripts';
-  // then await import(R + '/<name>.mjs'). A rename under scripts/ breaks the command silently —
-  // nothing else imports these modules.
-  const imported = [...COMMAND.matchAll(/import\(R \+ '\/([A-Za-z0-9._-]+\.mjs)'\)/g)].map((m) => m[1]);
+  // then `const load = (f) => import(pathToFileURL(R + '/' + f).href)` and `await load('<name>.mjs')`.
+  // A rename under scripts/ breaks the command silently — nothing else imports these modules.
+  const imported = [...COMMAND.matchAll(/await load\('([A-Za-z0-9._-]+\.mjs)'\)/g)].map((m) => m[1]);
   assert.ok(imported.length >= 3, `expected the command to import scripts modules, found ${imported.length}`);
   const missing = [...new Set(imported)].filter(
     (f) => !existsSync(join(PLUGIN_ROOT, 'mcp-internal', 'scripts', f)),
   );
   assert.deepEqual(missing, [], `command imports missing scripts: ${missing.join(', ')}`);
+});
+
+// PR #4 (zedricedwardc, 2026-08-31): a bare `C:/...` specifier is rejected by Node's ESM loader
+// on Windows (ERR_UNSUPPORTED_ESM_URL_SCHEME), so every dynamic import of a filesystem path in
+// the command must go through pathToFileURL — the pattern launch.mjs and capture-token.mjs
+// already use. This is the guard that PR asked for: it fails the moment a raw-path import is
+// reintroduced, and it would have caught the six sites the PR fixed.
+test('the command never imports a filesystem path without pathToFileURL', () => {
+  const raw = [...COMMAND.matchAll(/await import\(\s*R\s*\+/g)];
+  assert.deepEqual(raw.map((m) => m.index), [],
+    `raw-path import() found in the command at offsets ${raw.map((m) => m.index).join(', ')} — use load()`);
+  const helpers = [...COMMAND.matchAll(/const load = \(f\) => import\(pathToFileURL\(R \+ '\/' \+ f\)\.href\)/g)];
+  assert.ok(helpers.length >= 3, `expected the load() helper in each node block, found ${helpers.length}`);
 });
 
 test('the command\'s hand-copied discovery headers match core/gateway.mjs verbatim', () => {
