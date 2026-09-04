@@ -125,6 +125,22 @@ test('StudioApi.getProject builds the right request', async () => {
   assert.equal(capturedCall.body, undefined);
 });
 
+test('StudioApi.getProject URL-encodes alt_id when location has special characters', async () => {
+  let capturedCall = null;
+  const gw = {
+    call: async (method, path, body) => {
+      capturedCall = { method, path, body };
+      return { status: 200, ok: true, json: { id: 'proj1' } };
+    },
+  };
+  const api = new StudioApi({ gw, loc: 'loc with&special' });
+  await api.getProject('proj1');
+  assert.equal(capturedCall.method, 'GET');
+  // The space must become %20 and & must become %26, proving encodeURIComponent is called
+  assert.match(capturedCall.path, /alt_id=loc%20with%26special/);
+  assert.equal(capturedCall.body, undefined);
+});
+
 test('StudioApi.putSecrets sends secrets and alt_id/alt_type in body', async () => {
   let capturedCall = null;
   const gw = {
