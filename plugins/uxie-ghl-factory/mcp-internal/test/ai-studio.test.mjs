@@ -1,10 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { join, dirname } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { makeGateway, FIRESTORE_HOST } from '../core/gateway.mjs';
 
-const TOK = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'tok.txt');
+const HERE_DIR = dirname(fileURLToPath(import.meta.url));
+const TOK = join(HERE_DIR, 'fixtures', 'tok.txt');
 
 test('firebase rail refuses a non-Firestore target', async () => {
   const gw = makeGateway({ tokenFile: TOK, loc: 'LOCATION_ID', rail: 'firebase' });
@@ -16,6 +18,23 @@ test('firebase rail refuses a non-Firestore target', async () => {
 
 test('firebase rail accepts the Firestore host', () => {
   assert.equal(FIRESTORE_HOST, 'https://firestore.googleapis.com');
+});
+
+// M1 (Minor): `h.authorization = overrides.authorization` used to run with no guard — a
+// firebase-rail call whose `options.headers` was `null` (not merely omitted; the default
+// parameter only fires on `undefined`) threw an opaque TypeError instead of a coded, remediable
+// error. Guarded and coded instead of silently 500-ing.
+test('a firebase-rail call with no idToken header fails with a coded error, not an opaque TypeError', async () => {
+  const gw = makeGateway({ tokenFile: TOK, loc: 'LOCATION_ID', rail: 'firebase', throttleMs: 0, jitterMs: 0 });
+  await assert.rejects(
+    () => gw.call('POST', '/v1/x', {}, { headers: null }),
+    (e) => e.code === 'TOKEN_MISSING' && /idToken/i.test(e.message),
+  );
+  await assert.rejects(
+    () => gw.call('POST', '/v1/x', {}),
+    (e) => e.code === 'TOKEN_MISSING',
+    'omitting options entirely must fail the same coded way',
+  );
 });
 
 import { plain } from '../core/ai-studio.mjs';
@@ -71,6 +90,65 @@ test('runQuery filters on projectId, orders, and decodes rows', async () => {
   assert.deepEqual(q.where.fieldFilter, { field: { fieldPath: 'projectId' }, op: 'EQUAL', value: { stringValue: 'P1' } });
   assert.deepEqual(q.orderBy, [{ field: { fieldPath: 'order' }, direction: 'ASCENDING' }]);
   assert.equal(q.limit, 5);
+});
+
+// C2 (Critical): `Array.isArray(res.json) ? res.json : []` used to be the ONLY check. Firestore's
+// 401/403 body is an OBJECT, not an array, so a dead credential silently became `rows: []` and a
+// site with a full history read as having none. res.ok must be checked FIRST — a non-ok response
+// must never be read as an empty collection.
+test('runQuery throws (never returns []) on a 401 from Firestore', async () => {
+  const gwFirebase = { call: async () => ({ status: 401, ok: false, json: { error: { message: 'invalid idToken' } } }) };
+  await assert.rejects(
+    () => runQuery({ gwFirebase, idToken: 'DEAD', collection: 'vibe-messages', projectId: 'P1' }),
+    (e) => e.code === 'FIRESTORE_AUTH_REJECTED',
+  );
+});
+
+test('runQuery throws on a non-auth non-ok status too — never silently empty', async () => {
+  const gwFirebase = { call: async () => ({ status: 500, ok: false, json: { error: 'boom' } }) };
+  await assert.rejects(
+    () => runQuery({ gwFirebase, idToken: 'ID', collection: 'vibe-messages', projectId: 'P1' }),
+    (e) => e.code === 'FIRESTORE_QUERY_FAILED',
+  );
+});
+
+import { queryProjectHistory } from '../core/ai-studio.mjs';
+
+test('queryProjectHistory drops the cached idToken and retries ONCE on a 401, then succeeds', async () => {
+  const cache = new Map();
+  cache.set('LOC', { idToken: 'STALE', expiresAt: Date.now() + 3_600_000 });
+  let mintCalls = 0;
+  const gwJwt = { call: async () => (mintCalls += 1, { status: 200, ok: true, json: { token: `CUSTOM-${mintCalls}` } }) };
+  const fetchImpl = async (url, opts) => {
+    const body = JSON.parse(opts.body);
+    return { ok: true, json: async () => ({ idToken: `FRESH-${body.token}`, expiresIn: '3600' }) };
+  };
+  let calls = 0;
+  const gwFirebase = {
+    call: async (m, p, body, opts) => {
+      calls += 1;
+      if (opts.headers.authorization === 'Bearer STALE') {
+        return { status: 401, ok: false, json: { error: { message: 'invalid idToken' } } };
+      }
+      return { status: 200, ok: true, json: [{ document: { fields: { id: { stringValue: 'm1' } } } }] };
+    },
+  };
+  const rows = await queryProjectHistory({ gwJwt, gwFirebase, locationId: 'LOC', cache,
+    collection: 'vibe-messages', projectId: 'P1', fetchImpl });
+  assert.deepEqual(rows, [{ id: 'm1' }]);
+  assert.equal(calls, 2, 'must retry exactly once after the 401');
+  assert.notEqual(cache.get('LOC').idToken, 'STALE', 'the stale cached token must have been replaced');
+});
+
+test('queryProjectHistory surfaces CODES.AUTH_REJECTED when even a FRESH token is rejected', async () => {
+  const gwJwt = { call: async () => ({ status: 200, ok: true, json: { token: 'CUSTOM' } }) };
+  const fetchImpl = async () => ({ ok: true, json: async () => ({ idToken: 'STILL-DEAD', expiresIn: '3600' }) });
+  const gwFirebase = { call: async () => ({ status: 401, ok: false, json: { error: { message: 'invalid idToken' } } }) };
+  await assert.rejects(
+    () => queryProjectHistory({ gwJwt, gwFirebase, locationId: 'LOC', cache: new Map(),
+      collection: 'vibe-messages', projectId: 'P1', fetchImpl }),
+    (e) => e.code === 'AUTH_REJECTED',
+  );
 });
 
 test('firebase rail attaches idToken authorization header on valid host', async () => {
@@ -294,11 +372,54 @@ test('thinkingStatus completed is NOT terminal while the build is validating', (
 
 test('awaitTurn returns a resumable handle when the wait ceiling is hit', async () => {
   const firestore = { messages: async () => [{ role: 'assistant', id: 'm1', buildStatus: 'validating' }] };
-  const out = await awaitTurn({ firestore, projectId: 'P1', waitMs: 20, pollMs: 5,
+  const out = await awaitTurn({ firestore, projectId: 'P1', messageId: 'm1', waitMs: 20, pollMs: 5,
     nowMs: (() => { let t = 0; return () => (t += 10); })(), sleep: async () => {} });
   assert.equal(out.pending, true);
   assert.equal(out.messageId, 'm1');
   assert.equal(out.resumeWith, 'get_studio_generation_status');
+});
+
+// C1 (Critical): `awaitTurn` used to take `rows.filter(role==='assistant').pop()` with NO
+// correlation to the turn just started. On any project with prior history the previous
+// assistant row is already terminal, so the FIRST poll — microseconds after the 202, before
+// Firestore has written the new row — returned the PREVIOUS turn's versionId/summary/diffs as
+// THIS generation's result. This proves the fix: a prior terminal row for a DIFFERENT message id
+// must never resolve the call; it must keep polling and only resolve once the row whose
+// `id === messageId` itself goes terminal.
+test('awaitTurn does not resolve on a stale terminal row from a PREVIOUS turn — only on messageId', async () => {
+  // Poll 1: only the stale, already-terminal previous turn exists. Poll 2: the NEW turn's row
+  // (the one awaitTurn was actually asked to wait for) shows up, also terminal.
+  let call = 0;
+  const firestore = {
+    messages: async () => {
+      call += 1;
+      if (call === 1) {
+        return [{ role: 'assistant', id: 'PREV-TURN', buildStatus: 'ready', versionId: 'V-OLD' }];
+      }
+      return [
+        { role: 'assistant', id: 'PREV-TURN', buildStatus: 'ready', versionId: 'V-OLD' },
+        { role: 'assistant', id: 'THIS-TURN', buildStatus: 'ready', versionId: 'V-NEW' },
+      ];
+    },
+  };
+  const out = await awaitTurn({ firestore, projectId: 'P1', messageId: 'THIS-TURN',
+    waitMs: 1000, pollMs: 1, nowMs: Date.now, sleep: async () => {} });
+  assert.equal(call, 2, 'must poll again rather than resolving on the first (stale) read');
+  assert.equal(out.pending, false);
+  assert.equal(out.assistant.id, 'THIS-TURN');
+  assert.equal(out.assistant.versionId, 'V-NEW', 'must never report the PREVIOUS turn\'s versionId');
+});
+
+// Confirm this test would have FAILED against the old (pre-fix) behaviour: pop() of the
+// role==='assistant' rows on poll 1 returns PREV-TURN (already terminal), which is exactly the
+// wrong-turn bug C1 describes. Documented here rather than re-run against old code, since the
+// old implementation no longer exists in this file to import side-by-side.
+test('awaitTurn ignores a terminal row that never matches messageId, until the deadline', async () => {
+  const firestore = { messages: async () => [{ role: 'assistant', id: 'SOMEONE-ELSES-TURN', buildStatus: 'ready' }] };
+  const out = await awaitTurn({ firestore, projectId: 'P1', messageId: 'MY-TURN',
+    waitMs: 15, pollMs: 5, nowMs: (() => { let t = 0; return () => (t += 10); })(), sleep: async () => {} });
+  assert.equal(out.pending, true, 'a terminal row for a different message id must never resolve this turn');
+  assert.equal(out.messageId, 'MY-TURN');
 });
 
 import { containsSecrets } from '../core/errors.mjs';
@@ -319,8 +440,25 @@ test('the exemption is not reachable through an array', () => {
   assert.equal(containsSecrets({ secrets: [[{ apiKey: 'x' }]] }), true, 'nor to nested array elements');
 });
 
-test('a genuine direct-child secrets map nested elsewhere in the tree stays exempt', () => {
-  assert.equal(containsSecrets({ list: [{ secrets: { apiKey: 'x' } }] }), false);
+// I1 (Important): the exemption used to fire wherever a child key was literally `secrets`, AT
+// ANY DEPTH, on any tool — so a raw_request body carrying `{ secrets: { cookie: '…' } } }` passed
+// a guard that refuses the structurally identical `{ config: { cookie: '…' } } }`. The exemption
+// exists ONLY for set_studio_secrets's own top-level `secrets` ARGUMENT (depth 0 of the tool's
+// argument object), so a `secrets` key found anywhere deeper — including one level down, as here
+// — must now be caught like any other object. This test used to assert `false`; that was the bug.
+test('a `secrets` key nested inside another argument is NOT exempt — only the top-level argument is', () => {
+  assert.equal(containsSecrets({ list: [{ secrets: { apiKey: 'x' } }] }), true,
+    'a `secrets` map one level below the top-level args object must be scanned normally');
+});
+
+// The exact raw_request-shaped case the finding calls out: before the fix this returned `false`
+// (passed the guard) while the structurally identical `config` version correctly returned `true`
+// — an inconsistency that let a `secrets`-named key anywhere in a body smuggle a credential past
+// the guard it exists to enforce.
+test('the exemption does not widen a raw_request body just because a key is named `secrets`', () => {
+  assert.equal(containsSecrets({ body: { secrets: { cookie: 'abcdefghijklmnop' } } }), true);
+  assert.equal(containsSecrets({ body: { config: { cookie: 'abcdefghijklmnop' } } }), true,
+    'unchanged control case — both must refuse identically');
 });
 
 test('nested secrets maps are still caught', () => {
@@ -502,6 +640,10 @@ test('generate_studio_site refuses when the usage policy says no, and never reac
   let chatCalled = false;
   const gw = {
     call: async (method, path) => {
+      // C3: assertProjectLocation's alt_id check runs BEFORE the usage-policy read.
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+        return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+      }
       if (path.includes('/usage/policy')) {
         return { status: 200, ok: true, json: { allowed: false, reasonCode: 'PLAN_LIMIT_REACHED' } };
       }
@@ -528,6 +670,9 @@ test('set_studio_secrets passes the credential guard via the secrets-map exempti
   let putBody = null;
   const gw = {
     call: async (method, path, body) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+        return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+      }
       if (method === 'PUT' && path.includes('/secrets')) { putBody = body; return { status: 200, ok: true, json: {} }; }
       if (method === 'GET' && path.includes('/secrets')) {
         return { status: 200, ok: true, json: { secrets: [{ name: 'API_KEY', created_at: '2026-09-04T00:00:00Z' }] } };
@@ -575,6 +720,9 @@ test('generate_studio_site returns the chat-started message id when the turn tim
   const tool = TOOLS.find((t) => t.name === 'generate_studio_site');
   const gw = {
     call: async (method, path) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+        return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+      }
       if (path.includes('/usage/policy')) return { status: 200, ok: true, json: { allowed: true } };
       if (path.includes('/ai-wrapper/usage')) return { status: 200, ok: true, json: { snapshots: [] } };
       if (method === 'POST' && path.includes('/chat')) return { status: 200, ok: true, json: { message_id: 'M-STARTED' } };
@@ -673,4 +821,129 @@ test('publish reports the live URL and verified state from read-back', async () 
   assert.equal(result.data.publishedAt, '2026-09-04T00:00:00Z', 'published_at from read-back, not publish response');
   assert.equal(result.data.publishedVersionId, 'V123', 'published_version_id from read-back');
   assert.equal(result.data.appliedVerified, true, 'appliedVerified must be true when read-back shows a published_at');
+});
+
+// ----------------------------------------------------------------------------------------------------
+// C3 (Important) — `alt_id` is not enforced on by-id reads (ai-studio.mjs header, rule 3), so a
+// registration bound to location A could read (or write, or SPEND MONEY on) location B's project
+// just by naming its id — `locationId` is allowlist-guarded, `projectId` is a free string. Every
+// project-scoped AI Studio tool must verify the RETURNED record's alt_id against the bound
+// location before doing anything else. One parameterised test over the whole tool list, per the
+// review's own preference over twelve near-identical copies.
+// ----------------------------------------------------------------------------------------------------
+
+import { CODES } from '../core/errors.mjs';
+
+const PROJECT_SCOPED_STUDIO_TOOLS = [
+  { name: 'get_studio_site', extraArgs: {} },
+  { name: 'read_studio_site_content', extraArgs: {} },
+  { name: 'get_studio_site_history', extraArgs: {} },
+  { name: 'get_studio_site_diffs', extraArgs: {} },
+  { name: 'get_studio_preview', extraArgs: {} },
+  { name: 'generate_studio_site', extraArgs: { prompt: 'build me a site' } },
+  { name: 'get_studio_generation_status', extraArgs: { messageId: 'M1' } },
+  { name: 'answer_studio_question', extraArgs: { questionMessageId: 'M1', answer: 'hi' } },
+  { name: 'cancel_studio_generation', extraArgs: { messageId: 'M1' } },
+  { name: 'set_studio_secrets', extraArgs: { secrets: { API_KEY: 'x' } } },
+  { name: 'publish_studio_site', extraArgs: { versionId: 'V1', confirm: true } },
+  { name: 'unpublish_studio_site', extraArgs: { confirm: true } },
+];
+
+test('every project-scoped AI Studio tool refuses when the returned project belongs to a different location', async () => {
+  assert.equal(PROJECT_SCOPED_STUDIO_TOOLS.length, 12, 'covering all twelve project-scoped tools, not a subset');
+  for (const { name, extraArgs } of PROJECT_SCOPED_STUDIO_TOOLS) {
+    const tool = TOOLS.find((t) => t.name === name);
+    assert.ok(tool, `${name} must be registered`);
+    let otherCallsMade = 0;
+    const gw = {
+      call: async (method, path) => {
+        // The ONLY call any of these tools may make before refusing: the project GET the check
+        // itself performs. Anything else means the mismatch check did not run FIRST.
+        if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+          return { status: 200, ok: true, json: { id: 'P1', alt_id: 'FOREIGN-LOCATION' } };
+        }
+        otherCallsMade += 1;
+        throw new Error(`${name}: unexpected call before the alt_id check refused — ${method} ${path}`);
+      },
+    };
+    const fb = { call: async () => { throw new Error(`${name}: firestore must never be reached — the alt_id check must refuse first`); } };
+    const deps = { state: {}, makeGw: (opts) => (opts.rail === 'firebase' ? fb : gw) };
+    const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', ...extraArgs }, deps);
+    assert.equal(result.ok, false, `${name} must refuse a project bound to a different location`);
+    assert.equal(result.code, CODES.VALIDATION_FAILED, `${name} must use the same code as get_studio_site's original check`);
+    assert.match(result.detail, /different sub-account/, `${name} must use get_studio_site's wording`);
+    assert.equal(otherCallsMade, 0, `${name} must refuse BEFORE reaching any read or write beyond the project GET`);
+  }
+});
+
+// The parameterised test above proves the REFUSAL path. This proves the check does not fire as a
+// false positive when the record legitimately belongs to the bound location, or carries no
+// alt_id at all (an endpoint that omits it) — get_studio_site already covered this; confirmed
+// here for one representative write tool too, since a false positive on a write is the more
+// expensive failure mode.
+test('the alt_id check does not false-positive when the project matches (or carries no alt_id)', async () => {
+  const tool = TOOLS.find((t) => t.name === 'set_studio_secrets');
+  let putBody = null;
+  const gw = {
+    call: async (method, path, body) => {
+      if (method === 'GET' && /\/projects\/P1(\?|$)/.test(path)) {
+        return { status: 200, ok: true, json: { id: 'P1', alt_id: 'LOC' } };
+      }
+      if (method === 'PUT' && path.includes('/secrets')) { putBody = body; return { status: 200, ok: true, json: {} }; }
+      if (method === 'GET' && path.includes('/secrets')) {
+        return { status: 200, ok: true, json: { secrets: [{ name: 'API_KEY' }] } };
+      }
+      throw new Error(`unexpected call: ${method} ${path}`);
+    },
+  };
+  const result = await tool.handler({ locationId: 'LOC', projectId: 'P1', secrets: { API_KEY: 'x' } }, { state: {}, makeGw: () => gw });
+  assert.equal(result.ok, true);
+  assert.ok(putBody, 'the write must have reached the upstream call once alt_id matched');
+});
+
+// ----------------------------------------------------------------------------------------------------
+// I2 — the fifteen AI Studio tools' fallback strings must agree with the catalogue: `documented`,
+// never the earlier `engine source`. Guards against the fallback drifting back out of sync with
+// the catalogue label it is supposed to mirror when the catalogue entry is absent or too short.
+// ----------------------------------------------------------------------------------------------------
+
+const AI_STUDIO_TOOL_NAMES = [
+  'find_ghl_site', 'list_studio_sites', 'get_studio_site', 'read_studio_site_content',
+  'get_studio_site_history', 'get_studio_site_diffs', 'get_studio_preview', 'create_studio_site',
+  'generate_studio_site', 'get_studio_generation_status', 'answer_studio_question',
+  'cancel_studio_generation', 'set_studio_secrets', 'publish_studio_site', 'unpublish_studio_site',
+];
+
+test('all fifteen AI Studio tools ship "proof: documented" and none claims live proof', () => {
+  assert.equal(AI_STUDIO_TOOL_NAMES.length, 15);
+  for (const name of AI_STUDIO_TOOL_NAMES) {
+    const tool = TOOLS.find((t) => t.name === name);
+    assert.ok(tool, `${name} must be registered`);
+    assert.match(tool.description, /proof: documented/,
+      `${name}'s description must carry "proof: documented" — labels must not drift upward until a live-fire pass earns it`);
+    assert.doesNotMatch(tool.description, /proof: (?:external-receipt-required|engine source)\b/,
+      `${name} must not claim a stronger proof status than the catalogue actually earned`);
+  }
+});
+
+// The test above checks the SHIPPED description, which is dominated by tool-descriptions.json
+// (the catalogue) whenever a catalogue entry exists and is at least as long as the hand-written
+// fallback — which is true for all 15 tools today, so that test alone would NOT catch a
+// regression of the fallback string itself (describe()'s comment: "either way, a missing catalog
+// degrades gracefully to each tool's hardcoded fallback string" — the catalogue is not always
+// present). This test reads the actual SOURCE TEXT of the `describe(name, fallback)` call sites
+// for these 15 tools, so it fails if the fallback string itself regresses even though the catalog
+// currently masks it.
+test('the AI Studio tools\' describe() FALLBACK strings (not just the catalogue-shipped text) say documented', () => {
+  const source = readFileSync(resolve(HERE_DIR, '../core/tools.mjs'), 'utf8');
+  for (const name of AI_STUDIO_TOOL_NAMES) {
+    // Find the describe('<name>', ...) call site and check ITS fallback string, not the
+    // shipped/catalogue-resolved description — the source regex intentionally does not care
+    // whether the catalogue is currently masking it.
+    const call = new RegExp(`describe\\('${name}'[\\s\\S]{0,1600}?\\)\\)?,`);
+    const match = call.exec(source);
+    assert.ok(match, `must find the describe() call site for ${name}`);
+    assert.doesNotMatch(match[0], /proof: engine source/,
+      `${name}'s describe() fallback string must not still read "proof: engine source"`);
+  }
 });

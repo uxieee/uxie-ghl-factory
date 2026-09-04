@@ -143,6 +143,17 @@ export function makeGateway({ tokenFile, loc, rail = 'jwt', fetchImpl = fetch, s
       }
       // The idToken is injected by ai-studio.mjs via options.headers.authorization, because it is
       // minted per location and cached there, not read from the token file like the other rails.
+      // `overrides` defaults to `{}` in headers()'s own signature, but that default only fires on
+      // `undefined` — a caller passing `options.headers: null` (or omitting headers entirely on a
+      // path that forwards `null`) reached `overrides.authorization` directly and threw an opaque
+      // TypeError instead of a coded, remediable error. Guarded and coded instead.
+      if (!overrides?.authorization) {
+        const e = new Error('firebase rail call is missing an idToken (options.headers.authorization)');
+        e.code = CODES.TOKEN_MISSING;
+        e.remediation = 'Every firebase-rail call must supply a Firestore idToken via '
+          + 'options.headers.authorization — see ai-studio.mjs#getIdToken / queryProjectHistory.';
+        throw e;
+      }
       h.authorization = overrides.authorization;
     } else if (rail === 'token-id') {
       if (!creds.tokenId) { const e = new Error('no token-id in capture file'); e.code = 'TOKEN_MISSING'; e.remediation = RECAPTURE; throw e; }

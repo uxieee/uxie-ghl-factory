@@ -195,26 +195,33 @@ const scrub = (s) => {
   );
 };
 
-export function containsSecrets(value, key = '') {
+export function containsSecrets(value, key = '', depth = 0) {
   if (isSecretKey(key)) return true;
   if (value == null) return false;
   if (typeof value === 'string') return hasSecretText(value);
-  if (Array.isArray(value)) return value.some((item) => containsSecrets(item, key));
+  if (Array.isArray(value)) return value.some((item) => containsSecrets(item, key, depth + 1));
   if (typeof value === 'object') {
     // AI Studio project secrets are a user-supplied NAME→VALUE map, and the names are conventional
     // env-var names the operator does not control: API_KEY, SESSION_TOKEN, DATABASE_PASSWORD. The
     // key-name rule would refuse the whole call for the most ordinary input there is.
     //
     // The exemption is deliberately narrow, in the same spirit as SIGNED_STORAGE_URL above: it
-    // suppresses the KEY-NAME rule for the direct children of a `secrets` map and nothing else.
-    // Values are still scanned in full, so a real JWT or `Bearer …` smuggled in as a value is
-    // still caught, and a credential passed as a top-level argument is untouched by this. The
-    // check is keyed on the child key, so it cannot be reached through an array.
+    // suppresses the KEY-NAME rule for the direct children of a `secrets` map and nothing else —
+    // and ONLY when that `secrets` key sits at DEPTH 0, i.e. is itself a top-level argument on the
+    // tool call (`value` here IS the args object guard() passed in). That is the only place
+    // set_studio_secrets's `secrets` argument can ever appear. A `secrets` key found ANYWHERE
+    // deeper — nested inside another argument, such as a raw_request `body` — is a coincidence of
+    // naming, not that argument, and must not silently disable the key-name guard for whatever
+    // sits under it: `{ body: { secrets: { cookie: '…' } } }` must still be refused exactly like
+    // `{ body: { config: { cookie: '…' } } }` is. Values are still scanned in full at every depth,
+    // so a real JWT or `Bearer …` smuggled in as a value is still caught, and a credential passed
+    // as a top-level argument is untouched by this. The check is keyed on the child key, so it
+    // cannot be reached through an array either.
     return Object.entries(value).some(([childKey, item]) => {
-      if (childKey === 'secrets' && item && typeof item === 'object' && !Array.isArray(item)) {
-        return Object.values(item).some((v) => containsSecrets(v));
+      if (depth === 0 && childKey === 'secrets' && item && typeof item === 'object' && !Array.isArray(item)) {
+        return Object.values(item).some((v) => containsSecrets(v, '', depth + 1));
       }
-      return containsSecrets(childKey) || containsSecrets(item, childKey);
+      return containsSecrets(childKey) || containsSecrets(item, childKey, depth + 1);
     });
   }
   return false;
