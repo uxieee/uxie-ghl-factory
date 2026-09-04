@@ -63,6 +63,16 @@ cannot reach, and for the workflow builder.
 | funnels & pages | `ghl-funnels-pages` |
 | knowledge bases | `ghl-knowledge-base` |
 | Voice AI | `ghl-voice-ai` |
+| **AI Studio** (the AI website builder, internally `vibe`) | `ghl-ai-studio` |
+
+**AI Studio sites are NOT funnels or websites.** They are a separate collection with no overlap —
+measured 2026-09-04: a location with 25 AI Studio projects and 9 live custom domains returned 12
+funnels from `/funnels/funnel/list` and **zero** of the AI Studio slugs or domains. Querying the
+wrong surface returns an empty list, which reads as "the site does not exist".
+
+So when a request names a site — a domain, a slug, a name — and you do not already know which
+surface owns it, call **`find_ghl_site` first**. AI Studio is also absent from the public rail
+entirely: 0 hits for `vibe` or `ai studio` across all 1,207 documented v2/v3 operations.
 
 ## Whole-account health checks
 
