@@ -52,6 +52,16 @@ commit bodies carry the detail.
   the skill's canonical build entry died with a `ReferenceError` before it read anything. Found by
   using it.
 
+### Changed — the forms rows carry their own proof
+
+- The forms surface's proof ledger reached the catalogue as nothing but paths. A
+  `_data/endpoints.json` sidecar now declares all 25 routes with a proof tier (21 executed, 4
+  observed — share, image, export and delete were never run on any account), so 20 rows gained
+  proof, bodies, returns and their traps. Three folder rows move host because the folders page now
+  states the base it always used; the loss guard named all three first. Eight forms endpoints still
+  ship twice, once per host, because other pages state no base — that is one canonical-spelling
+  decision away and it is recorded, not silently fixed. 1070 → 1072 rows.
+
 ### Changed — reach stops being a guess on 76 rows
 
 - **Live probe verdicts now reach the catalogue.** `reach` came from a hand-maintained overlay and

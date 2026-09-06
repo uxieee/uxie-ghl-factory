@@ -48,7 +48,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
     define_ENDPOINT_CATALOG_default = {
       generated: "2026-09-06",
       note: "Compiled from internal-endpoints.source.json (mined by knowledge/) plus this repo's endpoint-overlay.json. `path` is the FULL wire path raw_request takes; `origin` is scheme and host only. A row proves the GHL builder calls that path \u2014 not that your token reaches it, and not that calling it is safe. rawCallable:false means raw_request cannot make this call at all (multipart, SSE, blob, or an endpoint-specific header).",
-      count: 1070,
+      count: 1072,
       endpoints: [
         {
           id: "workflows--actions-branches",
@@ -6374,50 +6374,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
         },
         {
           id: "forms--forms-folder",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/forms/folder",
-          path: "/forms/folder",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "proven",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [],
-          query: [
-            {
-              name: "locationId",
-              type: "string",
-              required: false,
-              source: "documented"
-            },
-            {
-              name: "productType",
-              type: "string",
-              required: false,
-              source: "documented"
-            }
-          ],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "documented",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/folders.md:17"
-          ]
-        },
-        {
-          id: "forms--forms-folder-post",
           method: "POST",
           url: "https://backend.leadconnectorhq.com/forms/folder/",
           path: "/forms/folder/",
@@ -6444,78 +6400,7 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/folders.md:19",
             "forms/60-recipes/create-a-form-by-api.md:23"
-          ]
-        },
-        {
-          id: "forms--forms-folder-get",
-          method: "GET",
-          url: "https://backend.leadconnectorhq.com/forms/folder/{folderId}",
-          path: "/forms/folder/{folderId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "read",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "folderId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/folders.md:18"
-          ]
-        },
-        {
-          id: "forms--forms-folder-post-post",
-          method: "POST",
-          url: "https://backend.leadconnectorhq.com/forms/folder/{folderId}",
-          path: "/forms/folder/{folderId}",
-          origin: "https://backend.leadconnectorhq.com",
-          rail: "workflow",
-          kind: "write",
-          reach: "source-only",
-          coveredBy: [],
-          rawCallable: true,
-          transport: "json",
-          responseMode: "json",
-          extraHeaders: [],
-          operation: null,
-          service: "forms",
-          tree: "documented",
-          pathParams: [
-            {
-              name: "folderId"
-            }
-          ],
-          query: [],
-          body: null,
-          returns: null,
-          confidence: {
-            path: "documented",
-            query: "none-observed",
-            body: "unresolved",
-            returns: "unresolved"
-          },
-          sources: [
-            "forms/20-api/folders.md:20"
           ]
         },
         {
@@ -6596,7 +6481,6 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/folders.md:21",
             "forms/40-rules/validators-and-quirks.md:71"
           ]
         },
@@ -35279,13 +35163,14 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--forms-get",
+          id: "forms--get-forms",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/",
           path: "/forms/",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
+          proof: "executed",
           reach: "proven",
           coveredBy: [
             "build_workflow",
@@ -35340,27 +35225,30 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           body: null,
-          returns: null,
+          returns: "{forms, total, traceId}",
           confidence: {
             path: "documented",
             query: "documented",
             body: "unresolved",
-            returns: "unresolved"
+            returns: "documented"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:33",
             "forms/20-api/forms.md:54"
           ]
         },
         {
-          id: "forms--forms-post-post",
+          id: "forms--post-forms",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/",
           path: "/forms/",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "create_form"
           ],
@@ -35373,28 +35261,31 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [],
           query: [],
-          body: null,
+          body: "{locationId, name, productType, source, parentId}",
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
-            body: "unresolved",
+            query: "documented",
+            body: "documented",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:38",
             "forms/20-api/forms.md:82",
             "forms/20-api/forms.md:129"
           ]
         },
         {
-          id: "forms--forms-delete",
+          id: "forms--delete-forms",
           method: "DELETE",
           url: "https://services.leadconnectorhq.com/forms/{id}",
           path: "/forms/{id}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "destructive",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -35414,23 +35305,26 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:46"
           ]
         },
         {
-          id: "forms--forms-get-get",
+          id: "forms--get-forms-get",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/{id}",
           path: "/forms/{id}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "create_form",
             "get_form",
@@ -35450,27 +35344,30 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [],
           body: null,
-          returns: null,
+          returns: "{form: {\u2026row, formData}, traceId}",
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
-            returns: "unresolved"
+            returns: "documented"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:35",
             "forms/20-api/forms.md:69"
           ]
         },
         {
-          id: "forms--forms-post-post-post",
+          id: "forms--post-forms-post",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/{id}",
           path: "/forms/{id}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "create_form",
             "update_form_data"
@@ -35488,28 +35385,31 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [],
-          body: null,
+          body: "{name, formData}",
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
-            body: "unresolved",
+            query: "documented",
+            body: "documented",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:39",
             "forms/20-api/forms.md:100",
             "forms/20-api/forms.md:129"
           ]
         },
         {
-          id: "forms--forms-count",
+          id: "forms--get-forms-count",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/count",
           path: "/forms/count",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
+          proof: "executed",
           reach: "proven",
           coveredBy: [
             "list_forms"
@@ -35539,18 +35439,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:34"
           ]
         },
         {
-          id: "forms--forms-data-get",
+          id: "forms--get-forms-data",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/data/{id}",
           path: "/forms/data/{id}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "get_form"
           ],
@@ -35568,26 +35471,29 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ],
           query: [],
           body: null,
-          returns: null,
+          returns: "{form, country, locationId, name, companyId, \u2026}",
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
-            returns: "unresolved"
+            returns: "documented"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:36",
             "forms/20-api/forms.md:75"
           ]
         },
         {
-          id: "forms--forms-default-colors",
+          id: "forms--get-forms-default-colors",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/default-colors",
           path: "/forms/default-colors",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
+          proof: "executed",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -35615,18 +35521,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:51"
           ]
         },
         {
-          id: "forms--forms-duplicate",
+          id: "forms--post-forms-duplicate",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/duplicate/{id}",
           path: "/forms/duplicate/{id}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35641,28 +35550,188 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [],
-          body: null,
+          body: "{name}",
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
-            body: "unresolved",
+            query: "documented",
+            body: "documented",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:40",
             "forms/20-api/forms.md:131"
           ]
         },
         {
-          id: "forms--forms-forms-list-get",
+          id: "forms--get-forms-folder",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/folder",
+          path: "/forms/folder",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          proof: "executed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [
+            {
+              name: "locationId",
+              type: "string",
+              required: false,
+              source: "documented"
+            },
+            {
+              name: "productType",
+              type: "string",
+              required: false,
+              source: "documented"
+            }
+          ],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/folders.md",
+            "forms/20-api/folders.md:22"
+          ]
+        },
+        {
+          id: "forms--post-forms-folder",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/folder/",
+          path: "/forms/folder/",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          proof: "executed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [],
+          query: [],
+          body: "{locationId, name, productType}",
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "documented",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/folders.md",
+            "forms/20-api/folders.md:24"
+          ]
+        },
+        {
+          id: "forms--get-forms-folder-get",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/forms/folder/{folderId}",
+          path: "/forms/folder/{folderId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          proof: "executed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: null,
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "unresolved",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/folders.md",
+            "forms/20-api/folders.md:23"
+          ]
+        },
+        {
+          id: "forms--post-forms-folder-post",
+          method: "POST",
+          url: "https://services.leadconnectorhq.com/forms/folder/{folderId}",
+          path: "/forms/folder/{folderId}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "write",
+          proof: "executed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "folderId"
+            }
+          ],
+          query: [],
+          body: "{name}",
+          returns: null,
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "documented",
+            returns: "unresolved"
+          },
+          sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/folders.md",
+            "forms/20-api/folders.md:25"
+          ]
+        },
+        {
+          id: "forms--get-forms-forms-list",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/forms-list",
           path: "/forms/forms-list",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
           note: 'Live-proven 2026-09-06: formIds MUST be one comma-joined string (formIds=a,b) \u2014 repeated or bracketed params 422 "formIds must be a string"; locationId is rejected ("property locationId should not exist"). Returns list rows without formData. The row id says get-form-by-id but the by-id read is GET /forms/{id} (unknown id \u2192 400 "Form does not exist", not 404).',
+          proof: "executed",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -35696,22 +35765,25 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:37",
             "forms/20-api/forms.md:151"
           ]
         },
         {
-          id: "forms--forms-image",
+          id: "forms--post-forms-image",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/image",
           path: "/forms/image",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
-          rawCallable: true,
-          transport: "json",
+          rawCallable: false,
+          transport: "multipart",
           responseMode: "json",
           extraHeaders: [],
           operation: null,
@@ -35735,18 +35807,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:44"
           ]
         },
         {
-          id: "forms--forms-move-to-folder-post",
+          id: "forms--post-forms-move-to-folder",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/move-to-folder",
           path: "/forms/move-to-folder",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35757,28 +35832,32 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [],
           query: [],
-          body: null,
+          body: "{formId, folderId}",
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
-            body: "unresolved",
+            query: "documented",
+            body: "documented",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
+            "forms/20-api/folders.md:26",
             "forms/20-api/forms.md:41",
             "forms/20-api/forms.md:145"
           ]
         },
         {
-          id: "forms--forms-restore-version",
+          id: "forms--post-forms-restore-version",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/restore-version",
           path: "/forms/restore-version",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35789,27 +35868,30 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [],
           query: [],
-          body: null,
+          body: "{formId, versionId}",
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
-            body: "unresolved",
+            query: "documented",
+            body: "documented",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:42",
             "forms/20-api/forms.md:138"
           ]
         },
         {
-          id: "forms--forms-schedule-form-export",
+          id: "forms--post-forms-schedule-form-export",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/schedule-form-export",
           path: "/forms/schedule-form-export",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -35825,22 +35907,25 @@ var init_define_ENDPOINT_CATALOG = __esm({
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:45"
           ]
         },
         {
-          id: "forms--forms-share",
+          id: "forms--post-forms-share",
           method: "POST",
           url: "https://services.leadconnectorhq.com/forms/share/{id}",
           path: "/forms/share/{id}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
+          proof: "observed",
           reach: "source-only",
           coveredBy: [],
           rawCallable: true,
@@ -35856,27 +35941,30 @@ var init_define_ENDPOINT_CATALOG = __esm({
             }
           ],
           query: [],
-          body: null,
+          body: "{locationId}",
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
-            body: "unresolved",
+            query: "documented",
+            body: "documented",
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:43"
           ]
         },
         {
-          id: "forms--forms-submissions-get",
+          id: "forms--get-forms-submissions",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/submissions",
           path: "/forms/submissions",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [
             "list_form_submissions"
           ],
@@ -35923,19 +36011,22 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:47",
             "forms/20-api/forms.md:159"
           ]
         },
         {
-          id: "forms--forms-submissions-count-get",
+          id: "forms--get-forms-submissions-count",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/submissions-count",
           path: "/forms/submissions-count",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -35974,18 +36065,21 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:48"
           ]
         },
         {
-          id: "forms--forms-theme-style",
+          id: "forms--get-forms-theme-style",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/theme-style/{themeId}",
           path: "/forms/theme-style/{themeId}",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -36016,17 +36110,20 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:50"
           ]
         },
         {
-          id: "forms--forms-themes-get",
+          id: "forms--get-forms-themes",
           method: "GET",
           url: "https://services.leadconnectorhq.com/forms/themes",
           path: "/forms/themes",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "read",
+          proof: "executed",
           reach: "proven",
           coveredBy: [],
           rawCallable: true,
@@ -36054,6 +36151,8 @@ var init_define_ENDPOINT_CATALOG = __esm({
             returns: "unresolved"
           },
           sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/forms.md",
             "forms/20-api/forms.md:49"
           ]
         },
@@ -44837,14 +44936,15 @@ var init_define_ENDPOINT_CATALOG = __esm({
           ]
         },
         {
-          id: "forms--surveys",
+          id: "forms--post-surveys",
           method: "POST",
           url: "https://services.leadconnectorhq.com/surveys/",
           path: "/surveys/",
           origin: "https://services.leadconnectorhq.com",
-          rail: "ai",
+          rail: "workflow",
           kind: "write",
-          reach: "source-only",
+          proof: "executed",
+          reach: "proven",
           coveredBy: [],
           rawCallable: true,
           transport: "json",
@@ -44855,16 +44955,56 @@ var init_define_ENDPOINT_CATALOG = __esm({
           tree: "documented",
           pathParams: [],
           query: [],
+          body: "{locationId, name, source}",
+          returns: "{survey}",
+          confidence: {
+            path: "documented",
+            query: "documented",
+            body: "documented",
+            returns: "documented"
+          },
+          sources: [
+            "forms/_data/endpoints.json",
+            "forms/20-api/surveys-and-quizzes.md",
+            "forms/20-api/forms.md:94"
+          ]
+        },
+        {
+          id: "forms--get-surveys",
+          method: "GET",
+          url: "https://services.leadconnectorhq.com/surveys/{id}",
+          path: "/surveys/{id}",
+          origin: "https://services.leadconnectorhq.com",
+          rail: "workflow",
+          kind: "read",
+          note: "Live-proven 2026-09-06: {survey:{\u2026, formData:{form, slides[]}}}. Survey save is POST /surveys/{id} {name, formData} (source-derived from the builder SPA; not executed).",
+          proof: "observed",
+          reach: "proven",
+          coveredBy: [],
+          rawCallable: true,
+          transport: "json",
+          responseMode: "json",
+          extraHeaders: [],
+          operation: null,
+          service: "forms",
+          tree: "documented",
+          pathParams: [
+            {
+              name: "id"
+            }
+          ],
+          query: [],
           body: null,
           returns: null,
           confidence: {
             path: "documented",
-            query: "none-observed",
+            query: "documented",
             body: "unresolved",
             returns: "unresolved"
           },
           sources: [
-            "forms/20-api/forms.md:94"
+            "forms/_data/endpoints.json",
+            "workflows/70-research/ENDPOINTS.md"
           ]
         },
         {
