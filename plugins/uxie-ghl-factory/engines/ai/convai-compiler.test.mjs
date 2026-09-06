@@ -488,8 +488,17 @@ test('compileFlowBuilderBot: flowWorkflow honors an injected create-ghl-workflow
 // them saves fine and then cannot be saved from the builder at all.
 test('tones: emitted on create, validated against the 7-value enum, max 3; empty tones on a FLOW bot is refused', () => {
   const base = { name: 'Bot', mode: 'suggestive', channels: ['SMS'], personality: 'p', goal: 'g', instructions: 'i' };
-  const ok = compileConvaiAgent({ ...base, tones: ['friendly', 'empathetic'] }, { locationId: 'LOC' });
-  assert.deepEqual(ok.create.body.tones, ['friendly', 'empathetic']);
+  // LIVE, 2026-09-07: the server refuses `tones` on a non-FLOW bot outright — 422 "tones is only
+  // allowed when bot type is FLOW_BUILDER_BOT" — and refuses the WHOLE create with it, so every
+  // prompt-bot creation through this tool failed. The create path now runs the same bot-type
+  // cleanup the update path always ran, and NAMES what it dropped. Validation still runs first,
+  // so a bad tone is still BAD_TONES rather than silently discarded.
+  const warns = [];
+  const ok = compileConvaiAgent({ ...base, tones: ['friendly', 'empathetic'] }, { locationId: 'LOC', warn: (m) => warns.push(m) });
+  assert.equal('tones' in ok.create.body, false, 'a prompt bot must not carry tones on the wire');
+  assert.ok(warns.some((w) => /^BOT_TYPE_KEY: 'tones'/.test(w)), JSON.stringify(warns));
+  const flow = compileConvaiAgent({ ...base, botType: 'FLOW_BUILDER_BOT', tones: ['friendly', 'empathetic'] }, { locationId: 'LOC' });
+  assert.deepEqual(flow.create.body.tones, ['friendly', 'empathetic'], 'a FLOW bot still carries them');
   assert.throws(() => compileConvaiAgent({ ...base, tones: ['zen'] }, { locationId: 'LOC' }), (e) => e.code === 'BAD_TONES');
   assert.throws(() => compileConvaiAgent({ ...base, tones: ['friendly', 'empathetic', 'confident', 'engaging'] }, { locationId: 'LOC' }), (e) => e.code === 'BAD_TONES');
   assert.throws(() => compileConvaiAgent({ ...base, botType: 'FLOW_BUILDER_BOT' }, { locationId: 'LOC' }),
@@ -615,4 +624,41 @@ test('compileConvaiUpdateFromRecord strips workingHours and steps (null or not) 
   assert.equal(out.collateralKeys.includes('workingHours'), false, 'a key never sent cannot be collateral');
   const withHours = compileConvaiUpdateFromRecord({ ...current, workingHours: { mon: [] } }, { knowledgeBaseIds: ['KB2'] }, { agentId: 'A1', locationId: 'LOC' });
   assert.equal('workingHours' in withHours.body, false);
+});
+
+// Live-proven on the designated test sub-account 2026-09-07 (0.57.0 live-fire): an agent that has
+// no summary/emailSettings configured READS them as `{}`, and echoing either back makes the PUT
+// 422 on their INNER fields ("summary.enabled must be a boolean value", …). The identical PUT
+// succeeds with both dropped, and the read-back leaves them `{}` with every collateral field
+// intact. Same class as workingHours, one level in.
+test('compileConvaiUpdateFromRecord drops an EMPTY summary/emailSettings, keeps a configured one', () => {
+  // cancelEnabled/rescheduleEnabled are FLOW-only and are stripped for a prompt bot by
+  // applyBotTypeCleanup — assert on a key that survives for this bot type.
+  const base = { id: 'A1', name: 'Zoe', botType: 'PROMPT_BASED_BOT', locationId: 'LOC', autoPilotMaxMessages: 75 };
+  const empty = compileConvaiUpdateFromRecord({ ...base, summary: {}, emailSettings: {} }, { personality: 'p' }, { agentId: 'A1', locationId: 'LOC' });
+  assert.equal('summary' in empty.body, false);
+  assert.equal('emailSettings' in empty.body, false);
+  assert.equal(empty.collateralKeys.includes('summary'), false, 'a key never sent cannot be collateral');
+  assert.equal(empty.body.autoPilotMaxMessages, 75, 'the whole-record contract still holds for every other key');
+
+  const configured = { enabled: true, minimumMessages: 5, inactivity: '1h' };
+  const kept = compileConvaiUpdateFromRecord({ ...base, summary: configured, emailSettings: { from: 'x@y.z' } }, { personality: 'p' }, { agentId: 'A1', locationId: 'LOC' });
+  assert.deepEqual(kept.body.summary, configured);
+  assert.deepEqual(kept.body.emailSettings, { from: 'x@y.z' });
+
+  const nulled = compileConvaiUpdateFromRecord({ ...base, summary: null }, { personality: 'p' }, { agentId: 'A1', locationId: 'LOC' });
+  assert.equal('summary' in nulled.body, false, 'null is the same unset state');
+});
+
+// Live-proven 2026-09-07: `actions` is a WRITE-ONLY convention — the PUT sends null as the UI
+// does, the record reads back the real list, and holding the read-back to that null reported
+// AGENT_VERIFY_MISMATCH on an update that had demonstrably written its field.
+test('compileConvaiUpdateFromRecord marks `actions` write-only so the read-back is never held to the null it sends', () => {
+  const out = compileConvaiUpdateFromRecord(
+    { id: 'A1', name: 'Zoe', botType: 'PROMPT_BASED_BOT', locationId: 'LOC', actions: [{ id: 'act1' }] },
+    { personality: 'p' }, { agentId: 'A1', locationId: 'LOC' },
+  );
+  assert.equal(out.body.actions, null, 'the UI sends null; that does not change');
+  assert.deepEqual(out.writeOnlyKeys, ['actions']);
+  assert.equal(out.collateralKeys.includes('actions'), false, 'not collateral either — nothing about it is verifiable here');
 });
