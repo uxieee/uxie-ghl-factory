@@ -96,7 +96,10 @@ export function readCredentials({ tokenFile, allowExpired = false, legacyTokenFi
   if (!allowExpired && secondsRemaining(jwt) <= 0) throw new AuthError(CODES.TOKEN_EXPIRED, 'JWT exp is in the past', RECAPTURE);
   const tokenId = (raw.match(/token-id:\s*([A-Za-z0-9._-]+)/i) || [])[1] ?? null;
   const claims = safeClaims(jwt);
-  return { jwt, tokenId, uid: claims.uid, exp: claims.exp, secondsRemaining: claims.secondsRemaining };
+  // companyId rides along with uid. safeClaims has always parsed it and this line dropped it, so
+  // the agency id was unavailable to every tool — which is why the agency-scoped snapshot surface
+  // had none. Agency-scoped routes take ?companyId=, and guessing it is not an option.
+  return { jwt, tokenId, uid: claims.uid, companyId: claims.companyId, exp: claims.exp, secondsRemaining: claims.secondsRemaining };
 }
 
 export function authStatus(state) {

@@ -1398,6 +1398,116 @@
       "forms-submissions"
     ]
   },
+  "list_snapshots": {
+    "description": "List the agency's snapshots — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+    "risk": "read",
+    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "proofFloorRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "riskRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "rows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ]
+  },
+  "get_snapshot_manifest": {
+    "description": "Read everything a sub-account could put in a snapshot — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+    "risk": "read",
+    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "proofFloorRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "riskRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "rows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ]
+  },
+  "check_snapshot_conflicts": {
+    "description": "See what loading a snapshot would collide with — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: read",
+    "risk": "read",
+    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "proofFloorRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "riskRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "rows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ]
+  },
+  "create_snapshot": {
+    "description": "Capture a sub-account into an agency snapshot — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: write",
+    "risk": "write",
+    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "proofFloorRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "riskRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "rows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ]
+  },
+  "refresh_snapshot": {
+    "description": "Re-capture a snapshot without losing its curation — proof: source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07); risk: write",
+    "risk": "write",
+    "proof": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofFloor": "source-derived (corpus platform/20-api/snapshots-authoring.md, 2026-09-07)",
+    "proofRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "proofFloorRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "riskRows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ],
+    "rows": [
+      "platform--snapshots-prefetch",
+      "platform--snapshots-create-appengine"
+    ]
+  },
   "create_smart_list": {
     "description": "Create a smart list whose filter the contacts screen will actually apply — proof: live-runtime (2026-09-07); risk: write",
     "risk": "write",

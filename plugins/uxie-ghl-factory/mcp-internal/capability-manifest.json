@@ -1240,6 +1240,71 @@
     "path": "/forms/submissions"
   },
   {
+    "tool": "list_snapshots",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "list_snapshots",
+    "method": "GET",
+    "path": "/snapshots/v2/{companyId}"
+  },
+  {
+    "tool": "get_snapshot_manifest",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "get_snapshot_manifest",
+    "method": "GET",
+    "path": "/snapshots/v2/preFetchAssets/{locationId}"
+  },
+  {
+    "tool": "get_snapshot_manifest",
+    "method": "GET",
+    "path": "/snapshots/assets/asset-names"
+  },
+  {
+    "tool": "check_snapshot_conflicts",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "check_snapshot_conflicts",
+    "method": "POST",
+    "path": "/snapshots/{snapshotId}/conflicts"
+  },
+  {
+    "tool": "create_snapshot",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "create_snapshot",
+    "method": "GET",
+    "path": "/snapshots/v2/preFetchAssets/{locationId}"
+  },
+  {
+    "tool": "create_snapshot",
+    "method": "POST",
+    "path": "/snapshots-appengine/v2/snapshots"
+  },
+  {
+    "tool": "create_snapshot",
+    "method": "GET",
+    "path": "/snapshots-appengine/snapshot/{snapshotId}/get_assets"
+  },
+  {
+    "tool": "refresh_snapshot",
+    "method": "GET",
+    "path": "/locations/{locationId}"
+  },
+  {
+    "tool": "refresh_snapshot",
+    "method": "POST",
+    "path": "/snapshots-appengine/v2/snapshots/{snapshotId}/refresh"
+  },
+  {
     "tool": "create_smart_list",
     "method": "POST",
     "path": "/contacts/smartlist/"

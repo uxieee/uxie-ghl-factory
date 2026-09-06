@@ -55,6 +55,8 @@ test('the AI-rail tool set is discovered, not assumed', () => {
 const KNOWN_HOST_DISAGREEMENTS = new Map([
   ['/membership/', 'BOTH hosts are live — proven byte-identical by differential 2026-09-07, with a service-specific 404 against a generic-404 control. The tools dial backend, where the full course lifecycle was proven end to end; the catalogue rows naming services are also correct'],
   ['/certificates/', 'same family and same live proof as /membership/'],
+  ['/snapshots/', 'BOTH hosts are live — differential 2026-09-07 with a control: the real list route returns 200 and a byte-identical body from each, a snapshot id that does not exist returns the service\'s own 400 {"msg":"Can\'t find account data"} from each, and a route that does not exist returns the generic 403 "Forbidden resource" from each. The five typed snapshot tools dial backend, which the corpus names as operative and where they were live-fired; the catalogue rows naming services are equally correct'],
+  ['/snapshots-appengine/', 'same family, same differential as /snapshots/ above'],
   ['/hooks/inbound-webhook-request/', 'the inbound-webhook reference rail was live-proven on backend 2026-08-22 (server-assigned trigger id, bare-string PUT reply)'],
   ['/voice-ai/agents', 'a best-effort leg of the entity sweep; it answered on the default (backend) rail in a live build 2026-08-29'],
   ['/ai-employees/employees/search', 'as above — the same live sweep resolved agents on the default rail'],

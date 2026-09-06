@@ -56,6 +56,7 @@ import {
   isGroup,
   leaves as filterLeaves,
 } from './smart-lists.mjs';
+import { CONFLICT_KEYS, checkSelection, diffStored, manifestIndex, resolveCompanyId } from './snapshots.mjs';
 import {
   digestSpans as digestAgentSpans,
   branchNameMap as agentLogBranchNames,
@@ -7000,6 +7001,275 @@ export const TOOLS = [
   // stored shape is compared against the one a human built in the UI. The corpus page's own create
   // example still shows the one-level shape, which is the best argument that prose does not
   // prevent this.
+  // ── Snapshots ───────────────────────────────────────────────────────────────────────────────
+  // AGENCY-scoped, unlike everything else here: a mistake is not confined to one sub-account.
+  // Every tool resolves companyId from the location rather than guessing it — it is NOT in the JWT.
+  {
+    name: 'list_snapshots',
+    description: `${describe('list_snapshots', 'List the agency\'s snapshots — risk: read')}. `
+      + 'Agency-scoped: the companyId is resolved from the sub-account you name, because it is not '
+      + 'carried in the credential. Reports each snapshot\'s processing state, since a snapshot reads '
+      + '`processing` for a while after it is made and reading its contents too early answers '
+      + '400 "Can\'t find account data".',
+    inputSchema: schema({
+      locationId: z.string(),
+      limit: z.number().int().min(1).max(100).default(20),
+      skip: z.number().int().min(0).default(0),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'GET', path: '/snapshots/v2/{companyId}' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) {
+        return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account',
+          'Snapshots are agency-scoped and every route needs ?companyId=. It is not in the credential, so it is read from '
+          + 'GET /locations/{locationId}; that read did not return one. Check the location id.');
+      }
+      const q = new URLSearchParams({ companyId, skip: String(args.skip ?? 0), limit: String(args.limit ?? 20), type: 'own' });
+      const r = await gw.call('GET', `/snapshots/v2/${encodeURIComponent(companyId)}?${q}`);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      const rows = r.json?.snapshots ?? r.json?.data ?? (Array.isArray(r.json) ? r.json : []);
+      return ok({
+        companyId,
+        count: Array.isArray(rows) ? rows.length : 0,
+        snapshots: (Array.isArray(rows) ? rows : []).map((s) => ({
+          id: s.id ?? s._id ?? null,
+          name: s.name ?? null,
+          status: s.status ?? null,
+          locationId: s.location_id ?? s.locationId ?? null,
+          updatedAt: s.updatedAt ?? s.dateUpdated ?? null,
+        })),
+        note: 'A snapshot in `processing` is not readable yet — its contents answer 400 "Can\'t find account data" until dehydration finishes.',
+      });
+    }, args),
+  },
+  {
+    name: 'get_snapshot_manifest',
+    description: `${describe('get_snapshot_manifest', 'Read everything a sub-account could put in a snapshot — risk: read')}. `
+      + 'One call returns every category: preFetchAssets with NO assetType returns the lot, which is '
+      + 'the shape to build a selection from. Workflow folders live inside `workflow`, field folders '
+      + 'inside `custom_fields`. Read this BEFORE create_snapshot — an id that is not in here is '
+      + 'accepted by the create with a 200 and silently produces an empty snapshot.',
+    inputSchema: schema({ locationId: z.string() }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'GET', path: '/snapshots/v2/preFetchAssets/{locationId}' },
+      { method: 'GET', path: '/snapshots/assets/asset-names' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account', 'See list_snapshots.');
+      const pre = await gw.call('GET', `/snapshots/v2/preFetchAssets/${encodeURIComponent(args.locationId)}?companyId=${encodeURIComponent(companyId)}`);
+      if (!pre.ok) return fromHttp(pre.status, pre.json);
+      const names = await gw.call('GET', `/snapshots/assets/asset-names?locationId=${encodeURIComponent(args.locationId)}&companyId=${encodeURIComponent(companyId)}`);
+      const index = manifestIndex(pre.json);
+      const categories = Object.entries(index)
+        .map(([category, ids]) => ({ category, count: ids.size }))
+        .filter((c) => c.count > 0)
+        .sort((a, b) => b.count - a.count);
+      return ok({
+        companyId,
+        categories,
+        totalAssets: categories.reduce((n, c) => n + c.count, 0),
+        assetNames: names.ok ? (names.json?.assets ?? names.json?.data ?? names.json ?? null) : null,
+        ...(names.ok ? {} : { assetNamesNote: `the category-name read answered ${names.status}; the manifest above is still usable` }),
+        note: 'These are the ids create_snapshot validates against. Anything outside this set is accepted by the create and captured as nothing.',
+      });
+    }, args),
+  },
+  {
+    name: 'check_snapshot_conflicts',
+    description: `${describe('check_snapshot_conflicts', 'See what loading a snapshot would collide with — risk: read')}. `
+      + 'Non-destructive, and the safe way to preview a load. It refuses the key names the UI itself '
+      + 'shows: `locationIds` and `selectedAssets` answer 400 ["Required","Required"]. The real names '
+      + 'are `selectedLocationIds` and `selectedSnapshotAssets`, and this tool sends those.',
+    inputSchema: schema({
+      locationId: z.string(),
+      snapshotId: z.string(),
+      targetLocationIds: z.array(z.string()).min(1),
+      assets: z.record(z.any()).optional(),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'POST', path: '/snapshots/{snapshotId}/conflicts' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account', 'See list_snapshots.');
+      const body = {
+        [CONFLICT_KEYS.locations]: args.targetLocationIds,
+        [CONFLICT_KEYS.assets]: args.assets ?? {},
+      };
+      const r = await gw.call('POST', `/snapshots/${encodeURIComponent(args.snapshotId)}/conflicts?companyId=${encodeURIComponent(companyId)}`, body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      return ok({
+        companyId,
+        snapshotId: args.snapshotId,
+        sentKeys: Object.keys(body),
+        conflicts: r.json?.conflicts ?? r.json?.data ?? r.json ?? null,
+        note: 'This call changes nothing. It is the only way to see what a load would overwrite before running one.',
+      });
+    }, args),
+  },
+  {
+    name: 'create_snapshot',
+    description: `${describe('create_snapshot', 'Capture a sub-account into an agency snapshot — risk: write')}. `
+      + 'Preview by default; confirm:true writes. AGENCY-SCOPED — this creates an object on the agency, '
+      + 'not inside one sub-account. Uses the appengine create, NOT /snapshots/create: the legacy one '
+      + 'returns 201, hangs in `processing`, captures any category you OMIT whole, and ignores '
+      + 'exemptClone. Every id you name is checked against the account\'s own manifest first, because '
+      + 'a bad id, a bad category or a mismatched location answers 200 and produces an EMPTY snapshot '
+      + 'with nothing reported. After the write it polls until dehydration finishes and DIFFS the '
+      + 'stored contents against what you asked for — that diff is the only thing that catches it.',
+    inputSchema: schema({
+      locationId: z.string(),
+      name: z.string(),
+      selectedAssets: z.record(z.array(z.string())),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'GET', path: '/snapshots/v2/preFetchAssets/{locationId}' },
+      { method: 'POST', path: '/snapshots-appengine/v2/snapshots' },
+      { method: 'GET', path: '/snapshots-appengine/snapshot/{snapshotId}/get_assets' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (typeof args.name !== 'string' || args.name.trim() === '') {
+        return fail(CODES.VALIDATION_FAILED, 'name must be a non-empty string', 'Snapshot names are unvalidated by the server, so a blank one is accepted and unusable.');
+      }
+      const categories = Object.keys(args.selectedAssets ?? {});
+      if (!categories.length) {
+        return fail(CODES.VALIDATION_FAILED, 'selectedAssets is empty',
+          'A snapshot with no selection is not "everything" on the appengine path — it is nothing. Name the categories and ids you want; '
+          + 'get_snapshot_manifest lists what this account has.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account', 'See list_snapshots.');
+
+      // THE PREFLIGHT that trap 3 requires. Nothing else catches a bad id.
+      const pre = await gw.call('GET', `/snapshots/v2/preFetchAssets/${encodeURIComponent(args.locationId)}?companyId=${encodeURIComponent(companyId)}`);
+      const index = pre.ok ? manifestIndex(pre.json) : {};
+      const known = new Set(Object.keys(index));
+      const check = checkSelection(args.selectedAssets, index, known);
+      if (pre.ok && (check.unknownIds.length || check.unknownCategories.length)) {
+        return withFailureData(
+          fail(CODES.VALIDATION_FAILED,
+            `${check.unknownIds.length} id(s) and ${check.unknownCategories.length} category name(s) are not in this account's manifest`,
+            'The create would answer 200 and capture them as NOTHING — an empty snapshot with no error. Read get_snapshot_manifest '
+            + 'and use ids from it. Nothing was written.'),
+          { unknownIds: check.unknownIds, unknownCategories: check.unknownCategories, knownCategories: [...known] },
+        );
+      }
+
+      const body = {
+        name: args.name,
+        location_id: args.locationId,
+        company_id: companyId,
+        selectedAssets: args.selectedAssets,
+        exemptClone: [],
+      };
+      const preview = {
+        endpoint: 'POST /snapshots-appengine/v2/snapshots (NOT /snapshots/create)',
+        creates: body,
+        requestedAssets: check.requested,
+        manifestChecked: pre.ok,
+        ...(pre.ok ? {} : { manifestNote: `the account manifest could not be read (${pre.status}), so the ids were NOT validated — a bad one would produce an empty snapshot silently` }),
+        scope: 'AGENCY-LEVEL. This object belongs to the agency, not to the sub-account it captures.',
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Snapshot create preview is ready; no write was sent.', 'Repeat with confirm:true to create it.'),
+          { preview },
+        );
+      }
+      const created = await gw.call('POST', `/snapshots-appengine/v2/snapshots?companyId=${encodeURIComponent(companyId)}`, body);
+      if (!created.ok) return fromHttp(created.status, created.json);
+      const snapshotId = created.json?.snapshot?.id ?? created.json?.id ?? created.json?._id ?? null;
+      if (!snapshotId) {
+        return withFailureData(
+          fail(CODES.ENGINE_ABORT, 'the create returned 2xx but no snapshot id.',
+            'Run list_snapshots before retrying — a retry would create a second snapshot on the agency.'),
+          { preview, response: created.json ?? null },
+        );
+      }
+      // Dehydration is asynchronous; reading contents too early answers 400 "Can't find account data".
+      const back = await gw.readBackUntil(async () => {
+        const g = await gw.call('GET', `/snapshots-appengine/snapshot/${encodeURIComponent(snapshotId)}/get_assets?type=own&companyId=${encodeURIComponent(companyId)}`);
+        return g.ok ? g.json : null;
+      }, { pollMs: 4000, maxPolls: 6 });
+      const storedIndex = back.hit ? manifestIndex(back.hit) : {};
+      const missing = back.hit ? diffStored(args.selectedAssets, storedIndex) : null;
+      return ok({
+        snapshotId,
+        companyId,
+        name: args.name,
+        readBack: Boolean(back.hit),
+        readBackAttempts: back.attempts,
+        ...(missing ? { requestedButNotStored: missing } : {}),
+        ...(missing && missing.length
+          ? { alarm: `${missing.length} requested asset(s) are NOT in the stored snapshot. The create reported success anyway — this is the silent-empty case, and the diff is the only thing that shows it.` }
+          : {}),
+        ...(back.hit ? {} : { note: `contents were still not readable after ${back.attempts} polls. That is normal while it dehydrates — read it again with list_snapshots, then verify the contents yourself.` }),
+        verification: 'A 200 from this endpoint does not mean the assets were captured. The diff above is the check that matters.',
+      });
+    }, args),
+  },
+  {
+    name: 'refresh_snapshot',
+    description: `${describe('refresh_snapshot', 'Re-capture a snapshot without losing its curation — risk: write')}. `
+      + 'Preview by default; confirm:true writes. 🔴 A refresh with an EMPTY `extras` re-captures the '
+      + 'WHOLE account and silently replaces a carefully curated snapshot with everything. This tool '
+      + 'will not send one: you must pass the selection to keep, and the preview shows exactly what '
+      + 'will be re-sent.',
+    inputSchema: schema({
+      locationId: z.string(),
+      snapshotId: z.string(),
+      selectedAssets: z.record(z.array(z.string())),
+      exemptClone: z.array(z.string()).default([]),
+      confirm: z.boolean().default(false),
+    }),
+    capabilities: [
+      { method: 'GET', path: '/locations/{locationId}' },
+      { method: 'POST', path: '/snapshots-appengine/v2/snapshots/{snapshotId}/refresh' },
+    ],
+    handler: async (args, deps) => guard(async () => {
+      if (!Object.keys(args.selectedAssets ?? {}).length) {
+        return fail(CODES.VALIDATION_FAILED, 'selectedAssets is empty, and an empty refresh is destructive',
+          'A refresh whose `extras` carries no selection re-captures the WHOLE account and overwrites the curation this '
+          + 'snapshot was made for. Re-send the selection you want kept — read the current contents first if you do not know it.');
+      }
+      const gw = deps.makeGw({ loc: args.locationId, state: deps.state });
+      const companyId = await resolveCompanyId(gw, args.locationId);
+      if (!companyId) return fail(CODES.VALIDATION_FAILED, 'could not resolve the agency id for this sub-account', 'See list_snapshots.');
+      const body = { extras: { selectedAssets: args.selectedAssets, exemptClone: args.exemptClone ?? [] } };
+      const preview = {
+        resends: body,
+        categories: Object.keys(args.selectedAssets),
+        warning: 'A refresh REPLACES the snapshot\'s contents. Anything not in the selection above will not be in it afterwards.',
+        scope: 'AGENCY-LEVEL.',
+      };
+      if (args.confirm !== true) {
+        return withFailureData(
+          fail(CODES.CONFIRM_REQUIRED, 'Snapshot refresh preview is ready; no write was sent.', 'Repeat with confirm:true to refresh it.'),
+          { preview },
+        );
+      }
+      const r = await gw.call('POST', `/snapshots-appengine/v2/snapshots/${encodeURIComponent(args.snapshotId)}/refresh?companyId=${encodeURIComponent(companyId)}`, body);
+      if (!r.ok) return fromHttp(r.status, r.json);
+      return ok({
+        snapshotId: args.snapshotId,
+        companyId,
+        resentCategories: Object.keys(args.selectedAssets),
+        note: 'Dehydration is asynchronous. The snapshot will read `processing` for a while; verify its contents once it settles rather than assuming.',
+      });
+    }, args),
+  },
   {
     name: 'create_smart_list',
     description: `${describe('create_smart_list', 'Create a smart list whose filter the contacts screen will actually apply — risk: write')}. `
