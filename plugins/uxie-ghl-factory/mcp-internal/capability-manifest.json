@@ -1238,5 +1238,15 @@
     "tool": "list_form_submissions",
     "method": "GET",
     "path": "/forms/submissions"
+  },
+  {
+    "tool": "check_smart_lists",
+    "method": "GET",
+    "path": "/contacts/smartlist/search"
+  },
+  {
+    "tool": "check_smart_lists",
+    "method": "GET",
+    "path": "/contacts/smartlist/{id}"
   }
 ]
