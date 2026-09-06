@@ -1240,6 +1240,26 @@
     "path": "/forms/submissions"
   },
   {
+    "tool": "create_smart_list",
+    "method": "POST",
+    "path": "/contacts/smartlist/"
+  },
+  {
+    "tool": "create_smart_list",
+    "method": "GET",
+    "path": "/contacts/smartlist/{id}"
+  },
+  {
+    "tool": "create_smart_list",
+    "method": "POST",
+    "path": "/contacts/search/2"
+  },
+  {
+    "tool": "create_smart_list",
+    "method": "GET",
+    "path": "/locations/{locationId}/customFields"
+  },
+  {
     "tool": "check_smart_lists",
     "method": "GET",
     "path": "/contacts/smartlist/search"
